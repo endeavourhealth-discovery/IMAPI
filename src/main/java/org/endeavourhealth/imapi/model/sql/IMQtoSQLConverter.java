@@ -76,6 +76,9 @@ public class IMQtoSQLConverter {
           SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
           if (definition.getInstanceOf() != null)
             addDatasetInstanceOf(qry, definition.getInstanceOf());
+          if (dataset.getQuery() != null) {
+            dataset.addAnd(dataset.getQuery().getFirst());
+          }
           if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           if (dataset.getReturn() != null)
@@ -145,9 +148,11 @@ public class IMQtoSQLConverter {
           addNestedProperty(qry, property, parentProperty, gParentTypeOf);
         } else if (property.getAs() != null) {
           if (property.getAs().equals("Y-N")) {
-            if (parentProperty == null)
-              throw new SQLConversionException("Parent Property is null: " + property.getIri());
-            addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
+            if (parentProperty == null) {
+              addRootYNCase(qry);
+            } else {
+              addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
+            }
           } else {
             if (isNested)
               qry.getSelects().addAll(qry.getGetForeignKeys());
@@ -168,6 +173,18 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + functionIri);
     return tableMap.getFunctions().get(functionIri);
   }
+
+  private void addRootYNCase(SQLQuery qry) throws SQLConversionException {
+    if (qry.getWiths().isEmpty()) {
+      throw new SQLConversionException("SQL Conversion Error: No subquery found for root-level Y-N case");
+    }
+    String lastWith = qry.getWiths().getLast();
+    String subQueryAlias = lastWith.substring(0, lastWith.indexOf(" AS "));
+    String yes_no_select = "CASE WHEN EXISTS ( SELECT 1 FROM " + subQueryAlias + " ) " +
+      "THEN 'Y' ELSE 'N' END AS `" + qry.getAlias() + "_exists`";
+    qry.getSelects().add(yes_no_select);
+  }
+
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException {
     Table table = tableMap.getTable(property.getIri());

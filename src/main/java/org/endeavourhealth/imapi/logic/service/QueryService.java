@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
@@ -497,4 +498,7 @@ public class QueryService {
     }
   }
 
+  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) {
+    return new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
+  }
 }

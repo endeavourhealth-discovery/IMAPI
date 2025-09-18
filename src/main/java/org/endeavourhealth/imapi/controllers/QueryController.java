@@ -123,6 +123,22 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode);
     }
   }
+  @GetMapping(value = "/public/expandCohort", produces = "application/json")
+  @Operation(
+    summary = "Expands a cohort reference from a source query",
+    description = "Retrieves the details of a query based on the given source and cohort IRI."
+  )
+  public Query expandCohort(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "cohortIri") String cohortIri,
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("expandCohort");
+      return queryService.expandCohort(queryIri,cohortIri, displayMode);
+    }
+  }
 
   @GetMapping(value = "/public/queryFromIri", produces = "application/json")
   @Operation(

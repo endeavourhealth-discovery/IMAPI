@@ -273,19 +273,23 @@ public class EqdResources {
   }
 
   private void setAndGetReturnAs(Match match) {
-    if (match.getReturn() == null) {
+    if (match.getKeepAs() == null) {
       matchCounter++;
       String as = "Match_" + matchCounter;
       if (match.getOr() != null) {
         int orIndex = 0;
         for (Match subQuery : match.getOr()) {
           orIndex++;
+          if (subQuery.getKeepAs() == null) {
+            subQuery.setKeepAs(as+"_"+orIndex);
+          }
           if (subQuery.getReturn() == null) {
-            subQuery.setReturn((new Return()).setAs(as + orIndex).property((p) -> p.setNodeRef(getNodeRef(subQuery)).setIri(Namespace.IM + "effectiveDate")));
+            subQuery.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(subQuery)).setIri(Namespace.IM + "effectiveDate")));
           }
         }
       }
-      match.setReturn((new Return()).setAs(as).property((p) -> p.setNodeRef(getNodeRef(match)).setIri(Namespace.IM + "effectiveDate")));
+      match.setKeepAs(as);
+      match.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(match)).setIri(Namespace.IM + "effectiveDate")));
     }
   }
 
@@ -368,7 +372,7 @@ public class EqdResources {
       relationProperty.setOperator(Operator.eq);
     }
 
-    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getReturn().getAs()).setIri(parentProperty));
+    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getKeepAs()).setIri(parentProperty));
     ClauseUtils.assignFunction(relationProperty);
     if (match.getDescription()!=null){
       match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
@@ -463,17 +467,12 @@ public class EqdResources {
 
   private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
     Return ret;
-    if (parentMatch.getReturn() != null) {
-      ret = parentMatch.getReturn();
-    } else {
+    if (parentMatch.getKeepAs() == null) {
       matchCounter++;
       String as = "Match_" + matchCounter;
-      ret = new Return();
-      ret.setAs(as);
-      parentMatch.setReturn(ret);
+      parentMatch.setKeepAs(as);
     }
-    String nodeRef = ret.getAs();
-    childMatch.setNodeRef(nodeRef);
+    childMatch.setNodeRef(parentMatch.getKeepAs());
   }
 
 
@@ -596,10 +595,9 @@ public class EqdResources {
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
       matchCounter++;
       String asLabel = "Match_" + matchCounter;
-      restricted.setReturn(new Return());
-      restricted.getReturn().setAs(asLabel);
+      restricted.setKeepAs(asLabel);
       String nodeRef = getNodeRef(restricted);
-      restricted.getReturn().orderBy((o) -> o
+      restricted.orderBy((o) -> o
         .addProperty(new OrderDirection()
           .setNodeRef(nodeRef)
           .setIri(orderBy)

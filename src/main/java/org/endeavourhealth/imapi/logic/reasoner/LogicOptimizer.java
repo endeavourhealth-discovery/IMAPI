@@ -263,7 +263,8 @@ public class LogicOptimizer {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;
-    if (match.getWhere() == null && match.getAnd().size() > 1) {
+    if (match.getWhere() == null && match.getIsCohort()==null){
+      if (match.getAnd().size() > 1){
       List<Match> originalAnds = match.getAnd();
       List<Match> optimalAnds = new ArrayList<>();
       getCommonAnds(originalAnds, commonMatches, optimalAnds);
@@ -279,6 +280,22 @@ public class LogicOptimizer {
         }
       }
       match.setAnd(optimalAnds);
+    }
+    else if (match.getAnd().size() == 1) {
+      Match and= match.getAnd().getFirst();
+      if (and.getWhere()==null&&and.getReturn()==null){
+        if (and.getOr()!=null){
+          match.setOr(and.getOr());
+          match.setAnd(null);
+          match.setReturn(and.getReturn());
+          match.setNot(and.getNot());
+        } else if (and.getAnd()!=null){
+            match.setAnd(and.getAnd());
+            match.setOr(null);
+            match.setReturn(and.getReturn());
+          }
+        }
+     }
     }
   }
 

@@ -363,7 +363,7 @@ public class QueryRepository {
       asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
   }
 
-  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) {
+  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
     Query query;
     Query cohort;
     String sql= """
@@ -373,14 +373,16 @@ public class QueryRepository {
        Values ?cohortIri {%s}
        ?queryIri im:definition ?query .
        ?cohortIri im:definition ?cohort .
+       }
       """.formatted("<"+queryIri+">", "<"+cohortIri+">");
+
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
         BindingSet bs = rs.next();
-        query= mapper.convertValue(bs.getValue("query"), Query.class);
-        cohort= mapper.convertValue(bs.getValue("cohort"), Query.class);
+        query= mapper.readValue(bs.getValue("query").stringValue(), Query.class);
+        cohort= mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
         if (cohort.getIsCohort()!=null)
           if (query.getIsCohort()!=null)
             if (query.getIsCohort().equals(cohort.getIsCohort()))

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -11,7 +10,6 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -65,8 +63,8 @@ public class IMQtoSQLConverter {
 
     try {
       StringBuilder sql = new StringBuilder();
-      if (definition.getDataSet() != null) {
-        for (Query dataset : definition.getDataSet()) {
+      if (definition.getColumnGroup() != null) {
+        for (Match dataset : definition.getColumnGroup()) {
           SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
           if (definition.getInstanceOf() != null)
             addDatasetInstanceOf(qry, definition.getInstanceOf());
@@ -94,7 +92,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void addDatasetSubQuery(SQLQuery qry, Query dataset, String typeOf) throws SQLConversionException {
+  private void addDatasetSubQuery(SQLQuery qry, Match dataset, String typeOf) throws SQLConversionException {
     String variable = getVariableFromMatch(dataset);
     SQLQuery subQuery = qry.subQuery(typeOf, variable, tableMap);
     addBooleanMatchesToSQL(subQuery, dataset);
@@ -114,7 +112,7 @@ public class IMQtoSQLConverter {
     qry.getJoins().add(createJoin(qry, cohortQry, joiner));
   }
 
-  private void addBooleanMatchesToSQL(SQLQuery qry, Query definition) throws SQLConversionException {
+  private void addBooleanMatchesToSQL(SQLQuery qry, Match definition) throws SQLConversionException {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
@@ -230,8 +228,8 @@ public class IMQtoSQLConverter {
 
     convertMatch(match, qry, bool);
 
-    if (match.getReturn() != null && match.getReturn().getOrderBy() != null) {
-      wrapMatchPartition(qry, match.getReturn().getOrderBy());
+    if (match.getOrderBy() != null) {
+      wrapMatchPartition(qry, match.getOrderBy());
     }
 
     return qry;

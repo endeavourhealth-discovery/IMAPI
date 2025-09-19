@@ -498,7 +498,9 @@ public class QueryService {
     }
   }
 
-  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) {
-    return new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
+  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    Query query= new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
+    query= new QueryDescriptor().describeQuery(query,displayMode);
+    return query;
   }
 }

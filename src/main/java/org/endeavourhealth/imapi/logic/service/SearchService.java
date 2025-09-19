@@ -30,7 +30,7 @@ public class SearchService {
     highestUsageRequest.getQuery().setReturn(new Return().property(p -> p.setIri(IM.USAGE_TOTAL)));
     OrderDirection od = new OrderDirection().setDirection(Order.descending);
     od.setValueVariable(USAGE_TOTAL);
-    highestUsageRequest.getQuery().setReturn(new Return().setOrderBy(new OrderLimit().addProperty(od)));
+    highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
     highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
     return highestUsageRequest;
   }

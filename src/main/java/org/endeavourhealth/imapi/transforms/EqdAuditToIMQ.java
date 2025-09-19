@@ -18,8 +18,8 @@ public class EqdAuditToIMQ {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
       if (EqdToIMQ.versionMap.containsKey(popId)) popId = EqdToIMQ.versionMap.get(popId);
-      Query popQuery= new Query();
-      query.addDataSet(popQuery);
+      Match popQuery= new Match();
+      query.addColumnGroup(popQuery);
       String finalPopId = popId;
       popQuery
           .setVariable(POPULATION)

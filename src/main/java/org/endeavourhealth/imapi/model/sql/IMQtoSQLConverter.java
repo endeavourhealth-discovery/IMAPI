@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,10 +35,12 @@ public class IMQtoSQLConverter {
   private final TableMap tableMap;
   private final QueryRequest queryRequest;
   private final EntityRepository entityRepository = new EntityRepository();
+  private final ObjectMapper mapper = new ObjectMapper();
+
   @Getter
   private String sql;
 
-  public IMQtoSQLConverter(QueryRequest queryRequest) throws SQLConversionException {
+  public IMQtoSQLConverter(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     this.queryRequest = queryRequest;
     if (null == queryRequest.getLanguage()) queryRequest.setLanguage(DatabaseOption.MYSQL);
 
@@ -56,7 +59,7 @@ public class IMQtoSQLConverter {
     return queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL);
   }
 
-  public void IMQtoSQL() throws SQLConversionException {
+  public void IMQtoSQL() throws SQLConversionException, JsonProcessingException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
@@ -97,13 +100,13 @@ public class IMQtoSQLConverter {
         sql = new StringBuilder(qry.toSql(2));
       }
       this.sql = sql.toString();
-    } catch (SQLConversionException e) {
+    } catch (SQLConversionException | JsonProcessingException e) {
       log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
     }
   }
 
-  private void addDatasetSubQuery(SQLQuery qry, Query dataset, String typeOf) throws SQLConversionException {
+  private void addDatasetSubQuery(SQLQuery qry, Query dataset, String typeOf) throws SQLConversionException, JsonProcessingException {
     String variable = getVariableFromMatch(dataset);
     SQLQuery subQuery = qry.subQuery(typeOf, variable, tableMap);
     addBooleanMatchesToSQL(subQuery, dataset);
@@ -114,7 +117,7 @@ public class IMQtoSQLConverter {
     qry.getJoins().add(createJoin(qry, subQuery, joiner));
   }
 
-  private void addDatasetInstanceOf(SQLQuery qry, List<Node> instanceOf) throws SQLConversionException {
+  private void addDatasetInstanceOf(SQLQuery qry, List<Node> instanceOf) throws SQLConversionException, JsonProcessingException {
     SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(instanceOf), Bool.and);
     qry.getWiths().addAll(cohortQry.getWiths());
     cohortQry.setWiths(new ArrayList<>());
@@ -123,7 +126,7 @@ public class IMQtoSQLConverter {
     qry.getJoins().add(createJoin(qry, cohortQry, joiner));
   }
 
-  private void addBooleanMatchesToSQL(SQLQuery qry, Query definition) throws SQLConversionException {
+  private void addBooleanMatchesToSQL(SQLQuery qry, Query definition) throws SQLConversionException, JsonProcessingException {
     if (definition.getAnd() != null) {
       for (Match match : definition.getAnd()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.and);
@@ -141,7 +144,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias, boolean isNested) throws SQLConversionException {
+  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias, boolean isNested) throws SQLConversionException, JsonProcessingException {
     if (aReturn.getProperty() != null) {
       for (ReturnProperty property : aReturn.getProperty()) {
         if (property.getReturn() != null) {
@@ -162,16 +165,16 @@ public class IMQtoSQLConverter {
         }
       }
     } else if (aReturn.getFunction() != null) {
-      String fn = getFunction(aReturn.getFunction().getIri());
+      String fn = getFunction(aReturn.getFunction());
       fn = fn.replaceAll("\\{propertyName}", parentProperty.getName());
       qry.getSelects().add(fn);
     }
   }
 
-  private String getFunction(String functionIri) throws SQLConversionException {
-    if (!tableMap.getFunctions().containsKey(functionIri))
-      throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + functionIri);
-    return tableMap.getFunctions().get(functionIri);
+  private String getFunction(FunctionClause function) throws SQLConversionException, JsonProcessingException {
+    if (!tableMap.getFunctions().containsKey(function.getIri()))
+      throw new SQLConversionException("SQL Conversion Error: Function not recognised: " + mapper.writeValueAsString(function));
+    return tableMap.getFunctions().get(function.getIri());
   }
 
   private void addRootYNCase(SQLQuery qry) throws SQLConversionException {
@@ -186,7 +189,7 @@ public class IMQtoSQLConverter {
   }
 
 
-  private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException {
+  private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException, JsonProcessingException {
     Table table = tableMap.getTable(property.getIri());
     String typeOf = table.getDataModel();
     if (typeOf == null)
@@ -234,7 +237,7 @@ public class IMQtoSQLConverter {
     return "(" + iriLine + ")";
   }
 
-  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
+  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     SQLQuery subQry = convertMatchToQuery(qry, match, bool);
     qry.getWiths().addAll(subQry.getWiths());
     subQry.setWiths(new ArrayList<>());
@@ -248,7 +251,7 @@ public class IMQtoSQLConverter {
       addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
   }
 
-  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException {
+  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     SQLQuery qry = createMatchQuery(match, parent);
 
     convertMatch(match, qry, bool);
@@ -279,7 +282,7 @@ public class IMQtoSQLConverter {
     } else return null;
   }
 
-  private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException {
+  private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException, JsonProcessingException {
     if (match.getInstanceOf() != null) {
       convertInstanceOf(qry, match.getInstanceOf(), bool);
     } else if (null != match.getIsCohort()) {
@@ -335,7 +338,7 @@ public class IMQtoSQLConverter {
     if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
   }
 
-  private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException {
+  private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     if (match.getAnd() != null) {
       List<Match> subMatches = match.getAnd();
       for (Match subMatch : subMatches) {
@@ -363,7 +366,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertSubQuery(SQLQuery qry, Match match, Bool bool, String joiner) throws SQLConversionException {
+  private void convertSubQuery(SQLQuery qry, Match match, Bool bool, String joiner) throws SQLConversionException, JsonProcessingException {
     SQLQuery subQuery = convertMatchToQuery(qry, match, bool);
     qry.getWiths().addAll(subQuery.getWiths());
     subQuery.setWiths(new ArrayList<>());
@@ -385,14 +388,14 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchProperties(SQLQuery qry, Match match) throws SQLConversionException {
+  private void convertMatchProperties(SQLQuery qry, Match match) throws SQLConversionException, JsonProcessingException {
     if (match.getWhere() == null) {
       throw new SQLConversionException("INVALID MatchProperty\n" + match);
     }
     convertMatchProperty(qry, match.getWhere());
   }
 
-  private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException {
+  private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIs() != null) {
       convertMatchPropertyIs(qry, property, property.getIs(), false);
     } else if (property.getNotIs() != null) {
@@ -525,13 +528,15 @@ public class IMQtoSQLConverter {
     return fieldName + " BETWEEN " + from + " AND " + to;
   }
 
-  private String convertMatchPropertyDateValue(String fieldName, Assignable range) throws SQLConversionException {
+  private String convertMatchPropertyDateValue(String fieldName, Assignable range) throws SQLConversionException, JsonProcessingException {
+    if (range.getUnits() == null)
+      throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRange\n" + mapper.writeValueAsString(range));
     return "DATE_SUB($searchDate" + ", INTERVAL " + range.getValue() + " " + getUnitName(range.getUnits()) + ") ";
   }
 
-  private void convertMatchPropertyRelative(SQLQuery qry, Where property) throws SQLConversionException {
+  private void convertMatchPropertyRelative(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIri() == null || property.getRelativeTo() == null) {
-      throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRelative\n" + property);
+      throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRelative\n" + mapper.writeValueAsString(property));
     }
 
     if (property.getRelativeTo().getParameter() != null)
@@ -540,7 +545,7 @@ public class IMQtoSQLConverter {
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
       qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap)));
     } else {
-      throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE COMPARISON\n" + property);
+      throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE COMPARISON\n" + mapper.writeValueAsString(property));
     }
   }
 
@@ -573,7 +578,7 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void convertMatchPropertyValue(SQLQuery qry, Where property) throws SQLConversionException {
+  private void convertMatchPropertyValue(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIri() == null || property.getValue() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
@@ -582,7 +587,7 @@ public class IMQtoSQLConverter {
     if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
       Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
       if (null != property.getFunction()) {
-        String mysqlFunction = getFunction(property.getFunction().getIri());
+        String mysqlFunction = getFunction(property.getFunction());
         where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
       } else {
         where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap), range);
@@ -596,7 +601,7 @@ public class IMQtoSQLConverter {
     qry.getWheres().add(where);
   }
 
-  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws SQLConversionException {
+  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws SQLConversionException, JsonProcessingException {
     SQLQuery subQuery = qry.subQuery(qry.getModel(), qry.getAlias(), tableMap);
     if (bool == Bool.and) {
       for (Where p : property.getAnd()) {

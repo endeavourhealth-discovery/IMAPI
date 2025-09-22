@@ -457,14 +457,11 @@ public class IMQtoSQLConverter {
             JOIN concept_set_member `{csm_alias}` ON `{csm_alias}`.im1id = `{concept_alias}`.id
       """;
     String conditions = "({conditions})";
-    if (inverse) conditions += conditions + "where {concept_alias}.dbid is NULL";
-
     joins = joins.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
-    conditions = conditions.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
 
     if (!list.isEmpty()) {
       String filedName = qry.getFieldName(property.getIri(), null, tableMap);
-      List<String> stringConditions = getIriConditions(csm_alias, list);
+      List<String> stringConditions = getIriConditions(csm_alias, list, inverse);
       String conditionsSQL = StringUtils.join(stringConditions, " OR ");
       joins = joins.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
       conditions = conditions.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
@@ -473,12 +470,13 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private List<String> getIriConditions(String csmAlias, List<Node> list) {
+  private List<String> getIriConditions(String csmAlias, List<Node> list, boolean inverse) {
+    String operator = inverse ? "!=" : "=";
     return list.stream()
       .map(node -> {
         try {
           String csm_table = "`" + csmAlias + "`";
-          String condition = csm_table + "." + getJoiningProperty(node) + " = '" + node.getIri() + "'";
+          String condition = csm_table + "." + getJoiningProperty(node) + " " + operator + " '" + node.getIri() + "'";
           if (node.isDescendantsOf() || node.isMemberOf())
             condition = "(" + condition + " AND " + csm_table + ".self = 0)";
           else if (node.isDescendantsOrSelfOf()) {

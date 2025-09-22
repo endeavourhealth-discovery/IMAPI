@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
@@ -113,8 +112,7 @@ public class QueryService {
     } else {
       query = queryRequest.getQuery();
     }
-
-    query = describeQuery(query, DisplayMode.LOGICAL);
+    new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     if (query == null) return null;
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
     return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString

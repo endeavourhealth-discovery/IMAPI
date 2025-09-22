@@ -77,9 +77,6 @@ public class IMQtoSQLConverter {
           SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
           if (definition.getInstanceOf() != null)
             addDatasetInstanceOf(qry, definition.getInstanceOf());
-          if (dataset.getQuery() != null) {
-            dataset.addAnd(dataset.getQuery().getFirst());
-          }
           if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
             addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
           if (dataset.getReturn() != null)
@@ -164,7 +161,7 @@ public class IMQtoSQLConverter {
       }
     } else if (aReturn.getFunction() != null) {
       String fn = getFunction(aReturn.getFunction());
-      fn = fn.replaceAll("\\{propertyName}", parentProperty.getName());
+      fn = fn.replaceAll("\\{propertyName}", getNameFromIri(parentProperty.getIri()));
       qry.getSelects().add(fn);
     }
   }
@@ -275,8 +272,8 @@ public class IMQtoSQLConverter {
   private String getVariableFromMatch(Match match) {
     if (match.getVariable() != null) {
       return match.getVariable();
-    } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
-      return match.getReturn().getAs();
+    } else if (match.getKeepAs() != null) {
+      return match.getKeepAs();
     } else return null;
   }
 
@@ -451,8 +448,9 @@ public class IMQtoSQLConverter {
     if (list == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIs\n" + property);
     }
-    String concept_alias = "c_" + property.getName();
-    String csm_alias = "csm_" + property.getName();
+    String propertyName = getNameFromIri(property.getIri());
+    String concept_alias = "c_" + propertyName;
+    String csm_alias = "csm_" + propertyName;
 
     String joins = """
             JOIN concept `{concept_alias}` ON `{concept_alias}`.dbid = {join_condition}
@@ -703,6 +701,15 @@ public class IMQtoSQLConverter {
       }
     }
     return resolvedSql;
+  }
+
+  public String getNameFromIri(String iri) {
+    if (iri == null) throw new IllegalArgumentException("iri is null");
+    String[] splits = iri.split("#");
+    if (splits.length == 2) {
+      return splits[1];
+    }
+    return splits[0];
   }
 
 }

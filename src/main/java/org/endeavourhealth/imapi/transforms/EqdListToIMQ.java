@@ -31,38 +31,34 @@ public class EqdListToIMQ {
       id= Namespace.IM+"Q_RegisteredGMS";
     }
     else throw new EQDException("parent population at definition level");
-
     query.setIsCohort(iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
-      Query subQuery = new Query();
+      Match subQuery = new Match();
       subQuery.setIri(resources.getNamespace() + eqColGroup.getId());
-      TTEntity columnGroup = new TTEntity()
-        .setIri(subQuery.getIri())
-        .setName(eqColGroup.getDisplayName() + " in " + eqReport.getName())
-        .addType(IM.FIELD_GROUP.asIri());
-      query.addDataSet(subQuery);
-      convertListGroup(eqColGroup, subQuery, query.getName());
-      columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
-      document.addEntity(columnGroup);
+      query.addColumnGroup(convertListGroup(eqColGroup));
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName) throws IOException, QueryException, EQDException {
+  private Match convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
-    subQuery.setName(eqColGroup.getDisplayName());
-    resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
+    Match subQuery;
+
     if (eqColGroup.getCriteria() == null) {
-      convertPatientColumns(eqColGroup, eqTable, subQuery);
+      subQuery= convertPatientColumns(eqColGroup, eqTable);
+      subQuery.setName(eqColGroup.getDisplayName());
+      return subQuery;
     } else {
-      convertEventColumns(eqColGroup, eqTable, subQuery);
+      subQuery= convertEventColumns(eqColGroup, eqTable);
+      subQuery.setName(eqColGroup.getDisplayName());
+      return subQuery;
     }
-    resources.setColumnGroup(null);
   }
 
-  private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws EQDException {
+  private Match convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws EQDException {
+    Match subQuery = new Match();
     EQDOCListColumns eqCols = eqColGroup.getColumnar();
     Return select = new Return();
     subQuery.setReturn(select);
@@ -72,26 +68,16 @@ public class EqdListToIMQ {
       String propertyPath = resources.getIMPath(eqULR);
       convertColumn(select, propertyPath, eqCol.getDisplayName());
     }
+    return subQuery;
   }
 
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
+  private Match convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
     resources.setRule(1);
     resources.setSubRule(1);
-    Match match = resources.convertCriteria(eqColGroup.getCriteria());
-    Query matchQuery = new Query();
-    subQuery.addQuery(matchQuery);
-    matchQuery.setIsCohort(match.getIsCohort());
-    matchQuery.setWhere(match.getWhere());
-    matchQuery.setPath(match.getPath());
-    matchQuery.setThen(match.getThen());
-    matchQuery.setAnd(match.getAnd());
-    matchQuery.setOr(match.getOr());
-    matchQuery.setNot(match.getNot());
-    matchQuery.setTypeOf(match.getTypeOf());
-    matchQuery.setReturn(match.getReturn());
+    Match subQuery = resources.convertCriteria(eqColGroup.getCriteria());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
-    String nodeRef = resources.getNodeRef(match);
+    String nodeRef = resources.getNodeRef(subQuery);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
     for (int i = 2; i < paths.length - 1; i = i + 2) {
@@ -137,6 +123,7 @@ public class EqdListToIMQ {
           convertColumn(aReturn, subPath, eqCol.getDisplayName());
       }
     }
+    return subQuery;
   }
 
   private void convertColumn(Return aReturn, String subPath, String as) {

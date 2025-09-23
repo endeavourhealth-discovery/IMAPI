@@ -21,7 +21,6 @@ public class Return {
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
-  private OrderLimit orderBy;
   private String asDescription;
 
   public String getAsDescription() {
@@ -31,20 +30,7 @@ public class Return {
     this.asDescription = asDescription;
     return this;
   }
-  public OrderLimit getOrderBy() {
-    return orderBy;
-  }
 
-  public Return setOrderBy(OrderLimit orderBy) {
-    this.orderBy = orderBy;
-    return this;
-  }
-
-  public Return orderBy(Consumer<OrderLimit> builder) {
-    this.orderBy = new OrderLimit();
-    builder.accept(this.orderBy);
-    return this;
-  }
 
 
   public Return setPropertyRef(String propertyRef) {

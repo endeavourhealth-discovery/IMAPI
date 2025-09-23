@@ -20,9 +20,9 @@ public class IriCollector {
   }
 
   private static void collectQueryIris(Query query, Set<String> iris){
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
-        collectQueryIris(subQuery, iris);
+    if (query.getColumnGroup() != null) {
+      for (Match subQuery : query.getColumnGroup()) {
+        collectMatchIris(subQuery, iris);
       }
     }
     collectMatchIris(query, iris);
@@ -96,9 +96,9 @@ public class IriCollector {
     }
     if (match.getReturn() != null) {
        collectReturnIris(match.getReturn(), iriSet);
-       if (match.getReturn().getOrderBy()!=null){
-         collectOrderByIris(match.getReturn().getOrderBy(),iriSet);
-       }
+    }
+    if (match.getOrderBy()!=null){
+      collectOrderByIris(match.getOrderBy(),iriSet);
     }
   }
 

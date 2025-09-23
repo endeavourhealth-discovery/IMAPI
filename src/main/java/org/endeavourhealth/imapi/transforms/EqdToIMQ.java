@@ -258,8 +258,8 @@ public class EqdToIMQ {
       }
     }
 
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
+    if (query.getColumnGroup() != null) {
+      for (Match subQuery : query.getColumnGroup()) {
         this.checkGms(subQuery);
       }
     }
@@ -337,7 +337,7 @@ public class EqdToIMQ {
       return null;
     } else {
       queryEntity.addType(iri(IM.QUERY));
-      if (qry.getDataSet() != null && !eqReport.getName().toLowerCase().contains("report")) {
+      if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");
         eqReport.setName(eqReport.getName() + " -report");
       }

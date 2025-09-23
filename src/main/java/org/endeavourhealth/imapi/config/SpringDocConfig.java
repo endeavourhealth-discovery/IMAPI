@@ -18,12 +18,12 @@ public class SpringDocConfig {
   @Bean
   public OpenAPI defineOpenApi() {
     Server serverDev = new Server();
-    serverDev.setUrl("https://dev.endhealth.co.uk/IMAPI");
+    serverDev.setUrl("https://dev.endhealth.co.uk/imapi");
     serverDev.setDescription("Development");
 
     Server serverLive = new Server();
-    serverLive.setUrl("https://dev.endhealth.co.uk/IMAPI");
-    serverLive.setDescription("Development");
+    serverLive.setUrl("https://im.endhealth.co.uk/imapi");
+    serverLive.setDescription("Live");
 
     Contact contact = new Contact();
     contact.setName("Support");

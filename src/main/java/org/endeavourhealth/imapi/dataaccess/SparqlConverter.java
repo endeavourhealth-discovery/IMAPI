@@ -740,7 +740,7 @@ public class SparqlConverter {
         }
       }
     }
-    if (null != clause.getReturn().getOrderBy() && !countOnly && null != clause.getReturn().getOrderBy().getProperty()) {
+    if (null != clause.getOrderBy() && !countOnly && null != clause.getOrderBy().getProperty()) {
       generateOrderBy(selectQl, clause);
     }
 
@@ -753,7 +753,7 @@ public class SparqlConverter {
 
   private void generateOrderBy(StringBuilder selectQl, Query clause) throws QueryException {
     selectQl.append("Order by ");
-    for (OrderDirection order : clause.getReturn().getOrderBy().getProperty()) {
+    for (OrderDirection order : clause.getOrderBy().getProperty()) {
       if (null != order.getDirection() && order.getDirection().equals(Order.descending))
         selectQl.append("DESC(");
       else
@@ -763,8 +763,8 @@ public class SparqlConverter {
       else throw new QueryException("Order by missing identifier: iri / valueVariable");
       selectQl.append(")");
     }
-    if (null == queryRequest.getPage() && clause.getReturn().getOrderBy().getLimit() > 0) {
-      selectQl.append("LIMIT ").append(clause.getReturn().getOrderBy().getLimit()).append("\n");
+    if (null == queryRequest.getPage() && clause.getOrderBy().getLimit() > 0) {
+      selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
     } else {
       selectQl.append("\n");
     }

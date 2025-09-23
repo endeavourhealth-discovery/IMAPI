@@ -34,7 +34,7 @@ public class SetMemberExport {
     if (basePath.getParent() != null)
       baseFilename = basePath.getParent() + File.separator + baseFilename;
 
-    try (FileWriter fwConcept = new FileWriter(baseFilename + "_members.csv")) {
+    try (FileWriter fwConcept = new FileWriter(baseFilename + "_tct_members.csv")) {
       if (iris == null || iris.isEmpty()) {
         SetMemberExport.executeConcept(fwConcept, null);
       } else {

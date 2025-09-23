@@ -42,7 +42,7 @@ public class SetMemberExport {
           SetMemberExport.executeConcept(fwConcept, iri);
       }
     } catch (IOException e) {
-      log.error("Failed to export set members to file", e);
+      log.error("Failed to export tct members to file", e);
     }
 
     try (FileWriter fwConceptSet = new FileWriter(baseFilename + "_set_members.csv")) {

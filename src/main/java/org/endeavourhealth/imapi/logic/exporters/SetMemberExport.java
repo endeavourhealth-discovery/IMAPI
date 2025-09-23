@@ -34,19 +34,30 @@ public class SetMemberExport {
     if (basePath.getParent() != null)
       baseFilename = basePath.getParent() + File.separator + baseFilename;
 
-    try (FileWriter fw = new FileWriter(baseFilename + "_members.csv")) {
+    try (FileWriter fwConcept = new FileWriter(baseFilename + "_members.csv")) {
       if (iris == null || iris.isEmpty()) {
-        SetMemberExport.execute(fw, null);
+        SetMemberExport.executeConcept(fwConcept, null);
       } else {
         for (String iri : iris)
-          SetMemberExport.execute(fw, iri);
+          SetMemberExport.executeConcept(fwConcept, iri);
+      }
+    } catch (IOException e) {
+      log.error("Failed to export set members to file", e);
+    }
+
+    try (FileWriter fwConceptSet = new FileWriter(baseFilename + "_set_members.csv")) {
+      if (iris == null || iris.isEmpty()) {
+        SetMemberExport.executeConceptSet(fwConceptSet, null);
+      } else {
+        for (String iri : iris)
+          SetMemberExport.executeConceptSet(fwConceptSet, iri);
       }
     } catch (IOException e) {
       log.error("Failed to export set members to file", e);
     }
   }
 
-  private static void execute(FileWriter fw, String iri) throws IOException {
+  private static void executeConcept(FileWriter fw, String iri) throws IOException {
     try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(fw, conn, """
         select ?set ?member ?im1Id
@@ -56,6 +67,11 @@ public class SetMemberExport {
             ?member im:im1Id ?im1Id .
         }
         """, iri);
+    }
+  }
+
+  private static void executeConceptSet(FileWriter fw, String iri) throws IOException {
+    try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(fw, conn, """
         select ?set ?member ?im1Id
         where {

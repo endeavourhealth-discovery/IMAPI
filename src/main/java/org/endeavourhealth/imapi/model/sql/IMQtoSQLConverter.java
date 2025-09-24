@@ -61,30 +61,29 @@ public class IMQtoSQLConverter {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
     if (definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) {
-      if (null == definition.getPath() || null == definition.getPath().getFirst() || null == definition.getPath().getFirst().getIri())
-        throw new SQLConversionException("SQL Conversion Error: Query must have a main (model) type");
       definition.setTypeOf(definition.getPath().getFirst().getIri());
     }
-
-//    if (null == definition.getAnd() && null == definition.getOr() && null == definition.getNot() && definition.getIsCohort() == null) {
-//      throw new SQLConversionException("SQL Conversion Error: Query must have at least one of: and/or/not/isCohort");
-//    }
 
     try {
       StringBuilder sql = new StringBuilder();
       if (definition.getColumnGroup() != null) {
         for (Match dataset : definition.getColumnGroup()) {
-          SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
-          if (definition.getInstanceOf() != null)
-            addDatasetInstanceOf(qry, definition.getInstanceOf());
-          if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
-            addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
-          if (dataset.getReturn() != null)
-            addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null, false);
-          if (null != definition.getIsCohort()) {
-            convertIsCohort(qry, definition.getIsCohort(), Bool.and);
+          if (null != definition.getTypeOf().getIri()) {
+            SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
+            if (definition.getInstanceOf() != null)
+              addDatasetInstanceOf(qry, definition.getInstanceOf());
+            if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
+              addDatasetSubQuery(qry, dataset, definition.getTypeOf().getIri());
+            if (dataset.getReturn() != null)
+              addSelectFromReturnRecursively(qry, dataset.getReturn(), null, definition.getTypeOf().getIri(), null, false);
+            if (null != definition.getIsCohort()) {
+              convertIsCohort(qry, definition.getIsCohort(), Bool.and);
+            }
+            sql.append(qry.toSql(2)).append(";\n\n");
+          } else if (null != dataset.getReturn().getFunction() && null != dataset.getIsCohort()) {
+//            TODO
           }
-          sql.append(qry.toSql(2)).append(";\n\n");
+
         }
       } else {
         SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap);
@@ -182,7 +181,6 @@ public class IMQtoSQLConverter {
       "THEN 'Y' ELSE 'N' END AS `" + qry.getAlias() + "_exists`";
     qry.getSelects().add(yes_no_select);
   }
-
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException, JsonProcessingException {
     Table table = tableMap.getTable(property.getIri());

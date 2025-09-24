@@ -177,9 +177,7 @@ public class QueryService {
     Map<String, Integer> queryIrisToHashCodes = getQueryIrisToHashCodes(subQueries, queryRequest.getArgument());
     if (!subQueries.isEmpty())
       for (String subQueryIri : subQueries) {
-        Query subquery = describeQuery(subQueryIri, DisplayMode.LOGICAL);
-        QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
-        subqueryRequest.setArgument(queryRequest.getArgument());
+        QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(queryRequest.getArgument()));
         int hashCode = subqueryRequest.hashCode();
         log.debug("Subquery found: {} with hash: {}", subQueryIri, hashCode);
         if (!queryResultsMap.containsKey(hashCode) && !MYSQLConnectionManager.tableExists(hashCode)) {
@@ -194,12 +192,10 @@ public class QueryService {
     return queryIrisToHashCodes;
   }
 
-  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException {
+  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException, SQLConversionException {
     Map<String, Integer> queryIrisToHashCodes = new HashMap<>();
     for (String subQueryIri : subQueries) {
-      Query subquery = describeQuery(subQueryIri, DisplayMode.LOGICAL);
-      QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
-      subqueryRequest.setArgument(argument);
+      QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(argument));
       int hashCode = subqueryRequest.hashCode();
       queryIrisToHashCodes.put(subQueryIri, hashCode);
     }
@@ -497,8 +493,8 @@ public class QueryService {
   }
 
   public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    Query query= new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
-    query= new QueryDescriptor().describeQuery(query,displayMode);
+    Query query = new QueryRepository().expandCohort(queryIri, cohortIri, displayMode);
+    query = new QueryDescriptor().describeQuery(query, displayMode);
     return query;
   }
 }

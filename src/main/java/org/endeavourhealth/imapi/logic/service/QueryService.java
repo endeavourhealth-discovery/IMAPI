@@ -181,9 +181,9 @@ public class QueryService {
         .POST(HttpRequest.BodyPublishers.ofString(requestBody))
         .build();
 
-      client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+      HttpResponse<String> runResponse = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
-      return userId;
+      return UUID.fromString(runResponse.body());
     }
   }
 

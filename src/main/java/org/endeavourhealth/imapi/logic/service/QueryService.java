@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
@@ -26,9 +25,16 @@ import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -135,16 +141,49 @@ public class QueryService {
   }
 
   public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
-    QueryRequest queryRequestForSql = null;
-    try {
-      if (queryRequest.getLanguage() == null) queryRequest.setLanguage(DatabaseOption.MYSQL);
-      queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-      new IMQtoSQLConverter(queryRequestForSql);
-      if (null == connectionManager) connectionManager = new ConnectionManager();
-      return connectionManager.publishToQueue(userId, userName, queryRequestForSql);
-    } catch (SQLConversionException e) {
-      handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
-      throw new QueryException("Unable to convert query to SQL", e);
+    String url = System.getenv("RUNNER_URL");
+    String clientId = System.getenv("CLIENT_ID");
+    String clientSecret = System.getenv("CLIENT_SECRET");
+
+    try (HttpClient client = HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build()) {
+
+      Map<String, String> params = new HashMap<>();
+      params.put("client_id", clientId);
+      params.put("client_secret", clientSecret);
+
+      String formData = params.entrySet()
+        .stream()
+        .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+        .collect(Collectors.joining("&"));
+
+      URI tokenURI = URI.create(url + "/api/oauth/token");
+
+      HttpRequest tokenHttpRequest = HttpRequest.newBuilder()
+        .uri(tokenURI)
+        .setHeader("Content-Type", "application/x-www-form-urlencoded")
+        .POST(HttpRequest.BodyPublishers.ofString(formData))
+        .build();
+
+      HttpResponse<String> token = client.send(tokenHttpRequest, HttpResponse.BodyHandlers.ofString());
+
+      String requestBody = objectMapper
+        .writerWithDefaultPrettyPrinter()
+        .writeValueAsString(queryRequest);
+
+      URI queryRunURI = URI.create(url + "/api/query/run");
+
+      HttpRequest httpRequest = HttpRequest.newBuilder()
+        .uri(queryRunURI)
+        .setHeader("Content-Type", "application/json")
+        .setHeader("Cookie", "authentication_token=" + token)
+        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+        .build();
+
+      client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+      return userId;
     }
   }
 
@@ -499,8 +538,8 @@ public class QueryService {
   }
 
   public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    Query query= new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
-    query= new QueryDescriptor().describeQuery(query,displayMode);
+    Query query = new QueryRepository().expandCohort(queryIri, cohortIri, displayMode);
+    query = new QueryDescriptor().describeQuery(query, displayMode);
     return query;
   }
 }

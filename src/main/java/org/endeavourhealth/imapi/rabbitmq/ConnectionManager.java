@@ -88,7 +88,7 @@ public class ConnectionManager {
         DBEntry entry;
         try {
           entry = postgresService.getById(uuid);
-  //        Skip if cancelled. RabbitMQ has no remove functionality while queued
+          //        Skip if cancelled. RabbitMQ has no remove functionality while queued
           if (null != entry && entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
             channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
             return;
@@ -99,7 +99,7 @@ public class ConnectionManager {
         if (null == entry) {
           throw new RuntimeException("Could not find entry with id " + id);
         }
-      entry.setStartedAt(LocalDateTime.now());
+        entry.setStartedAt(LocalDateTime.now());
         entry.setStatus(QueryExecutorStatus.RUNNING);
         try {
           postgresService.update(entry);
@@ -115,7 +115,7 @@ public class ConnectionManager {
           }
           queryService.executeQuery(queryRequest);
           entry.setStatus(QueryExecutorStatus.COMPLETED);
-        entry.setFinishedAt(LocalDateTime.now());
+          entry.setFinishedAt(LocalDateTime.now());
           postgresService.update(entry);
         } catch (Exception e) {
           entry.setStatus(QueryExecutorStatus.ERRORED);
@@ -133,33 +133,5 @@ public class ConnectionManager {
     } catch (TimeoutException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  public UUID publishToQueue(UUID userId, String userName, QueryRequest message) throws Exception {
-    if (!createdChannel) {
-      createConsumerChannel(postgresService);
-      createdChannel = true;
-    }
-    Channel channel = getPublisherChannel(userId);
-    UUID id = UUID.randomUUID();
-    LOG.info("Publishing to queue: {}", id);
-    AMQP.BasicProperties.Builder propertiesBuilder = new AMQP.BasicProperties().builder();
-    AMQP.BasicProperties properties = propertiesBuilder
-      .messageId(id.toString())
-      .build();
-    String jsonMessage = om.writeValueAsString(message);
-    DBEntry entry = new DBEntry()
-      .setId(id)
-      .setQueryRequest(message)
-      .setQueryIri(message.getQuery().getIri())
-      .setQueryName(message.getQuery().getName())
-      .setStatus(QueryExecutorStatus.QUEUED)
-      .setUserId(userId)
-      .setUserName(userName)
-      .setQueuedAt(LocalDateTime.now());
-    postgresService.create(entry);
-    channel.basicPublish(EXCHANGE_NAME, "query.execute." + userId, properties, jsonMessage.getBytes());
-    channel.waitForConfirmsOrDie(5_000);
-    return id;
   }
 }

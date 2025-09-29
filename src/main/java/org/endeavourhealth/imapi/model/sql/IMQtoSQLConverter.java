@@ -304,7 +304,7 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: ORDER MUST HAVE A FIELD SPECIFIED\n" + order);
     SQLQuery inner = qry.clone(qry.getAlias() + "_inner", tableMap);
     String innerSql = qry.getAlias() + "_inner AS (" + inner.toSql(2) + ")";
-    SQLQuery partition = qry.subQuery(qry.getAlias() + "_inner", qry.getAlias() + "_part", tableMap, null);
+    SQLQuery partition = qry.subQuery(qry.getModel(), qry.getAlias() + "_part", tableMap, null);
     String partField = isPostgreSQL() ? "((json ->> 'patient')::UUID)" : "patient_id";
     ArrayList<String> o = new ArrayList<>();
     for (OrderDirection property : order.getProperty()) {
@@ -315,7 +315,7 @@ public class IMQtoSQLConverter {
     partition.getSelects().add("*");
     partition.getSelects().add("ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + StringUtils.join(o, ", ") + ") AS rn");
 
-    qry.initialize(qry.getAlias() + "_part", qry.getAlias(), tableMap, null);
+    qry.initialize(qry.getModel(), qry.getAlias() + "_part", tableMap, null);
     qry.getWiths().add(innerSql);
     qry.getWiths().add(partition.getAlias() + " AS (" + partition.toSql(2) + "\n)");
     qry.getWheres().add(getRowNumberTest(order));

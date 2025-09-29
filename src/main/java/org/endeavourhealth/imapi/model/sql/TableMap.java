@@ -39,7 +39,8 @@ public class TableMap {
     if (returnTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
-    returnTable.setDataModel(iri);
+    if (null == returnTable.getDataModel())
+      returnTable.setDataModel(iri);
     return returnTable;
   }
 

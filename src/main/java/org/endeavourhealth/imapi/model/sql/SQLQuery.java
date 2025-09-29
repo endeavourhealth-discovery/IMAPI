@@ -56,7 +56,7 @@ public class SQLQuery {
       this.alias = variable != null ? variable : getAlias(map.getTable());
     }
 
-    tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), null));
+    tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
 
   public String toSql(Integer indent) {

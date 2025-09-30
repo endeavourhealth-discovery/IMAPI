@@ -248,6 +248,21 @@ public class QueryController {
       return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
+  @GetMapping("/public/imlFromIri")
+  @Operation(
+    summary = "Generate IML from a query iri",
+    description = "Generates IMQ from the given IMQ query IRI."
+  )
+  public String getIMLFromIMQIri(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) throws  QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
+      log.debug("getIMLFromIMQIri");
+      return queryService.getIMLFromIMQIri(queryIri);
+    }
+  }
+
 
   @PostMapping("/addToQueue")
   @Operation(

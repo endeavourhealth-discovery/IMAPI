@@ -23,6 +23,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
+import org.endeavourhealth.imapi.transforms.IMQToIML;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -502,5 +503,9 @@ public class QueryService {
     Query query= new QueryRepository().expandCohort(queryIri,cohortIri,displayMode);
     query= new QueryDescriptor().describeQuery(query,displayMode);
     return query;
+  }
+
+  public String getIMLFromIMQIri(String queryIri) throws QueryException {
+    return new IMQToIML().getIML(queryIri);
   }
 }

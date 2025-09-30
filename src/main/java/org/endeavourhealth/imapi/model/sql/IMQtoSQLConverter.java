@@ -249,8 +249,8 @@ public class IMQtoSQLConverter {
   private String getVariableFromMatch(Match match) {
     if (match.getVariable() != null) {
       return match.getVariable();
-    } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
-      return match.getReturn().getAs();
+    } else if (match.getKeepAs() != null) {
+      return match.getKeepAs();
     } else return null;
   }
 

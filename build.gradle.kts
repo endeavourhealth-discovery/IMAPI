@@ -27,11 +27,22 @@ java.targetCompatibility = JavaVersion.VERSION_21
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
 if (ENV == "prod") {
-  tasks.build { finalizedBy("sonar") }
+  tasks.build { finalizedBy("safeSonar") }
   tasks.build { finalizedBy("publish") }
 } else {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
+  }
+}
+
+tasks.register("safeSonar") {
+  //Action block
+  doLast {
+    try {
+      sonar
+    } catch (e: Error) {
+      throw StopActionException(e.toString())
+    }
   }
 }
 
@@ -52,7 +63,6 @@ publishing {
   }
 }
 
-
 sonar {
   properties {
     property("sonar.token", System.getenv("SONAR_LOGIN"))
@@ -68,7 +78,6 @@ sonar {
       "sonar.coverage.exclusions",
       "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/filer/**, **/vocabulary/**, **/transforms/eqd/**"
     )
-
   }
 }
 

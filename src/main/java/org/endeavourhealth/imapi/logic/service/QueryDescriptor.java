@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
@@ -23,14 +24,18 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
-  private final EntityRepository entityRepository = new EntityRepository();
-  private final EntityRepository repo = new EntityRepository();
+  @Getter
+  private EntityRepository repo = new EntityRepository();
   private final Map<String, String> nodeRefToLabel = new HashMap<>();
+  @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
 
+
+
+
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
@@ -97,7 +102,7 @@ public class QueryDescriptor {
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -109,7 +114,7 @@ public class QueryDescriptor {
     StringBuilder term = new StringBuilder(source);
     TTEntity entity = iriContext.get(source);
     if (entity != null) {
-      term = new StringBuilder(entity.getName());
+        term = new StringBuilder(entity.getName());
     }
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
@@ -129,7 +134,7 @@ public class QueryDescriptor {
     return term.toString();
   }
 
-  private String getTermInContext(Element node, Context... context) {
+  public String getTermInContext(Element node, Context... context) {
     if (node.getParameter() != null) {
       return node.getParameter();
     }

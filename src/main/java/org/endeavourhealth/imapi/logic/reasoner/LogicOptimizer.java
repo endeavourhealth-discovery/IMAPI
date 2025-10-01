@@ -11,6 +11,7 @@ import java.util.*;
 public class LogicOptimizer {
   Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
+  private String lastTypeOf;
 
 
 

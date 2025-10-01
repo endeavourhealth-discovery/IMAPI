@@ -37,8 +37,6 @@ public class EqdResources {
   @Getter
   private Namespace namespace;
   @Setter
-  private Properties criteriaMaps;
-  @Setter
   private String activeReport;
   @Getter
   @Setter
@@ -551,7 +549,7 @@ public class EqdResources {
 
     if (target.isEmpty()) {
       return "";
-    } else if (target.startsWith("{")) {
+    } else if (target.startsWith("$")) {
       return target;
     } else {
       String[] paths = (target).split(" ");

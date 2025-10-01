@@ -26,14 +26,12 @@ public class EqdListToIMQ {
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     String id;
-    if (eqReport.getParent().getSearchIdentifier() != null){
+    if (eqReport.getParent().getSearchIdentifier() != null) {
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
-    }
-    else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
-      id= Namespace.IM+"Q_RegisteredGMS";
-    }
-    else throw new EQDException("parent population at definition level");
+    } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
+      id = Namespace.IM + "Q_RegisteredGMS";
+    } else throw new EQDException("parent population at definition level");
     query.setIsCohort(iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -50,11 +48,11 @@ public class EqdListToIMQ {
     Match subQuery;
 
     if (eqColGroup.getCriteria() == null) {
-      subQuery= convertPatientColumns(eqColGroup, eqTable);
+      subQuery = convertPatientColumns(eqColGroup, eqTable);
       subQuery.setName(eqColGroup.getDisplayName());
       return subQuery;
     } else {
-      subQuery= convertEventColumns(eqColGroup, eqTable);
+      subQuery = convertEventColumns(eqColGroup, eqTable);
       subQuery.setName(eqColGroup.getDisplayName());
       return subQuery;
     }
@@ -95,7 +93,7 @@ public class EqdListToIMQ {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
           aReturn.function(f -> f
-            .setName(IM.COUNT.toString()));
+            .setIri(IM.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
           aReturn
             .property(p -> p

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -39,6 +40,8 @@ public class IMQtoMySQLSteps {
       this.mysql = new IMQtoSQLConverter(queryRequest).getSql();
     } catch (SQLConversionException e) {
       this.mysql = e.getMessage();
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
     }
   }
 

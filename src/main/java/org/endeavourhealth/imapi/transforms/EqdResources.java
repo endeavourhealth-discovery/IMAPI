@@ -685,6 +685,7 @@ public class EqdResources {
           pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
         } else throw new EQDException("variable " + value + "with " + relative + " not supported");
       } else throw new EQDException("no variable found for single value");
+      ClauseUtils.assignFunction(pv);
   }
 
 

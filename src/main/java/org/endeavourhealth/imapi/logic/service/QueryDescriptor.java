@@ -416,8 +416,12 @@ public class QueryDescriptor {
         break;
       case eq:
         if (date) if (!isRange) {
-          qualifier = " on ";
-          if (relativeTo) relativity = " the ";
+          if (assignable.getQualifier()==null) {
+            qualifier = " on ";
+            if (relativeTo) relativity = " the ";
+          } else {
+            qualifier = " is ";
+          }
         }
         break;
     }
@@ -426,7 +430,14 @@ public class QueryDescriptor {
     }
     if (value != null) {
       if (!date || !value.equals("0")) {
-        assignable.setValueLabel(value.replace("-", ""));
+        if (assignable.getQualifier()!=null){
+          if (value.startsWith("-"))
+            assignable.setValueLabel(value.replace("-", "")+ " before ");
+          else assignable.setValueLabel(value+ (value.equals("0") ?"": "after "));
+        }
+        else {
+          assignable.setValueLabel(value.replace("-", ""));
+        }
         if (unit != null) {
           assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.PLURAL));
         }
@@ -538,8 +549,12 @@ public class QueryDescriptor {
   private void describeRelativeTo(Where where) {
     RelativeTo relativeTo = where.getRelativeTo();
     if (relativeTo != null) {
+      String qualifier="";
+      if (relativeTo.getQualifier()!=null){
+        qualifier=relativeTo.getQualifier().getName()+" of ";
+      }
       String relation = getRelation(where.getRelativeTo());
-      if (relation != null) relativeTo.setDescription(relation);
+      if (relation != null) relativeTo.setDescription(qualifier+relation);
     }
   }
 

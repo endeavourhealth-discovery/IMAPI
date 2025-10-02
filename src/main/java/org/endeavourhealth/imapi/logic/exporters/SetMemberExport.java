@@ -45,30 +45,23 @@ public class SetMemberExport {
     if (basePath.getParent() != null)
       baseFilename = basePath.getParent() + File.separator + baseFilename;
 
-    try {
-      if (iris == null || iris.isEmpty()) {
-        SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", null);
-      } else {
-        for (String iri : iris)
-          SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", iri);
-      }
-    } catch (IOException e) {
-      log.error("Failed to export tct members to file", e);
+    if (iris == null || iris.isEmpty()) {
+      SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", null);
+    } else {
+      for (String iri : iris)
+        SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", iri);
     }
 
-    try {
-      if (iris == null || iris.isEmpty()) {
-        SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", null);
-      } else {
-        for (String iri : iris)
-          SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", iri);
-      }
-    } catch (IOException e) {
-      log.error("Failed to export set members to file", e);
+    if (iris == null || iris.isEmpty()) {
+      SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", null);
+    } else {
+      for (String iri : iris)
+        SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", iri);
     }
+
   }
 
-  private static void executeConcept(String fileName, String iri) throws IOException {
+  private static void executeConcept(String fileName, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(fileName, conn, """
         select ?set ?member ?im1Id
@@ -81,7 +74,7 @@ public class SetMemberExport {
     }
   }
 
-  private static void executeConceptSet(String fileName, String iri) throws IOException {
+  private static void executeConceptSet(String fileName, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(fileName, conn, """
         select ?set ?member ?im1Id
@@ -94,7 +87,7 @@ public class SetMemberExport {
     }
   }
 
-  private static void runExport(String fileName, IMDB conn, String spql, String iri) throws IOException {
+  private static void runExport(String fileName, IMDB conn, String spql, String iri) {
     TupleQuery qry = conn.prepareTupleSparql(spql);
 
     if (null != iri && !iri.isEmpty())

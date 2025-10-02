@@ -161,7 +161,6 @@ public class EqdListToIMQ {
     try {
       List<Path> valuePaths = mapper.readValue(subPath, new TypeReference<List<Path>>() {
       });
-      
       for (Path valuePath : valuePaths) {
         Argument arg = new Argument();
         function.addArgument(arg);

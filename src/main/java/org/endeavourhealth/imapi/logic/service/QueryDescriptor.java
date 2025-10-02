@@ -284,7 +284,7 @@ public class QueryDescriptor {
       } else qualifier = qualifier + "is a";
       String label = getTermInContext(set);
       set.setName(label);
-      set.setQualifier(qualifier);
+      set.setDescription(qualifier);
     }
   }
 
@@ -422,7 +422,7 @@ public class QueryDescriptor {
         break;
     }
     if (qualifier != null) {
-      assignable.setQualifier(qualifier);
+      assignable.setDescription(qualifier);
     }
     if (value != null) {
       if (!date || !value.equals("0")) {
@@ -462,7 +462,7 @@ public class QueryDescriptor {
       qualifier = qualifier + " (inc.)";
     }
     if (past) qualifier = qualifier + " before";
-    where.setQualifier(qualifier);
+    where.setDescription(qualifier);
   }
 
   private void describeTo(Where where, Value to) {
@@ -517,7 +517,7 @@ public class QueryDescriptor {
       }
     }
 
-    where.setQualifier(where.getQualifier() + " and " + qualifier);
+    where.setDescription(where.getDescription() + " and " + qualifier);
   }
 
 
@@ -539,7 +539,7 @@ public class QueryDescriptor {
     RelativeTo relativeTo = where.getRelativeTo();
     if (relativeTo != null) {
       String relation = getRelation(where.getRelativeTo());
-      if (relation != null) relativeTo.setQualifier(relation);
+      if (relation != null) relativeTo.setDescription(relation);
     }
   }
 
@@ -571,7 +571,7 @@ public class QueryDescriptor {
         TTEntity nodeEntity = (iriContext.get(set.getIri()));
         set.setCode(nodeEntity.getCode());
         String modifier = set.isExclude() ? " but not: " : " ";
-        set.setQualifier(modifier);
+        set.setDescription(modifier);
       }
       String value = getTermInContext(set);
       set.setName(value);
@@ -588,7 +588,7 @@ public class QueryDescriptor {
         if (i > 0) valueLabel.append(", or ");
       }
       Node set = where.getIs().get(i);
-      valueLabel.append(set.getQualifier() != null ? set.getQualifier() + " " : "").append(getShortName(set.getName()));
+      valueLabel.append(set.getDescription() != null ? set.getDescription() + " " : "").append(getShortName(set.getName()));
     }
     where.setValueLabel(valueLabel.toString());
     if (where.getShortLabel() != null)

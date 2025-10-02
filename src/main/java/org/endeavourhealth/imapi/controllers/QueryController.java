@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -253,7 +254,7 @@ public class QueryController {
     summary = "Generate IML from a query iri",
     description = "Generates IMQ from the given IMQ query IRI."
   )
-  public String getIMLFromIMQIri(
+  public IMLLanguage getIMLFromIMQIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String queryIri
   ) throws  QueryException {

@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -498,8 +499,9 @@ public class QueryService {
     query = new QueryDescriptor().describeQuery(query, displayMode);
     return query;
   }
-
-  public String getIMLFromIMQIri(String queryIri) throws QueryException {
+  public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
     return new IMQToIML().getIML(queryIri);
   }
+
+
 }

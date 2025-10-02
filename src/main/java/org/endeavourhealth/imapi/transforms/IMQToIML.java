@@ -1,27 +1,25 @@
 package org.endeavourhealth.imapi.transforms;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class IMQToIML extends QueryDescriptor{
   private StringBuilder dsl;
   private Map<String,Set<String>> iriVariables= new HashMap<>();
   private String lastTypeOf;
   private Map<String,String> prefixes= new HashMap<>();
+  private final IMLLanguage language= new IMLLanguage();
 
-  public String getIML(String entityIri) throws QueryException {
+  public IMLLanguage getIML(String entityIri) throws QueryException {
+    language.getKeywords().addAll(Set.of("Define","as","From","is","and","or","not","in","exclude","if","then","prefix","info"));
     try {
       TTEntity entity = getRepo().getEntityPredicates(entityIri, Set.of(IM.ALTERNATIVE_CODE.toString(),
         IM.DEFINITION.toString(),
@@ -36,7 +34,8 @@ public class IMQToIML extends QueryDescriptor{
       convertQuery(query);
       addDefinitions();
       addPrefixes();
-      return dsl.toString();
+      language.setText(dsl.toString());
+      return language;
     } catch (Exception ex) {
       throw new QueryException(ex.getMessage(),ex);
     }
@@ -45,7 +44,9 @@ public class IMQToIML extends QueryDescriptor{
   private void addPrefixes() {
     if (!prefixes.isEmpty()) {
       for (Map.Entry<String, String> entry : prefixes.entrySet()) {
-        dsl.append("Prefix ").append(entry.getKey()).append(": ").append("&lt;").append(entry.getValue()).append("&gt;").append("\n");
+        dsl.append("Prefix ").append(entry.getKey()).append(": ").append("<")
+          .append(entry.getValue()).append(">").append("\n");
+        language.getPrefixes().put(entry.getKey(), entry.getValue());
       }
     }
   }
@@ -53,6 +54,7 @@ public class IMQToIML extends QueryDescriptor{
   private void addDefinitions() {
     dsl.append("\n");
     for (Map.Entry<String,Set<String>> entry : iriVariables.entrySet()) {
+      language.setIriVariables(iriVariables);
       dsl.append("Define ").append(entry.getKey()).append("= ");
       Set<String> values = new HashSet<>();
       for (String value : entry.getValue()) {
@@ -168,8 +170,10 @@ public class IMQToIML extends QueryDescriptor{
       String variableName = getTermInContext(node, context);
       String shortName = variableName.replace(" ", "_");
       if (node.getIri() != null) {
+        TTEntity entity= getIriContext().get(node.getIri());
         iriVariables.computeIfAbsent(shortName, c -> new HashSet<>()).add(node.getIri());
         variableNames.add(shortName);
+        language.getInfo().put(shortName,entity.getDescription()!=null ?entity.getDescription(): entity.getName());
       }
     }
     return String.join(",",variableNames);

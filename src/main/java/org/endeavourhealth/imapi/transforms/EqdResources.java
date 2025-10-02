@@ -520,6 +520,8 @@ public class EqdResources {
       if (pv.getIri().toLowerCase().contains("age")||pv.getRelativeTo()!=null) {
         ClauseUtils.assignFunction(pv);
       }
+    } else if (cv.getSingleValue() != null) {
+      setSingleValue(cv.getSingleValue(),pv);
     }
   }
 
@@ -658,6 +660,31 @@ public class EqdResources {
       }
     }
     return relationship.toString();
+  }
+
+  private void setSingleValue(EQDOCSingleValue sv, Where pv) throws IOException, EQDException {
+      EQDOCValue variable= sv.getVariable();
+      if (variable!=null) {
+        String value = variable.getValue();
+        VocValueUnit qualifier = variable.getUnit();
+        VocRelation relative = variable.getRelation();
+        if (relative != null && relative.equals(VocRelation.RELATIVE)) {
+          if (value.equalsIgnoreCase("last")) {
+            pv.setOperator(Operator.eq);
+            pv.setValue("-1");
+          } else if (value.equalsIgnoreCase("this")) {
+            pv.setOperator(Operator.eq);
+          }
+          switch (qualifier) {
+            case MONTH -> pv.setQualifier(iri(Namespace.IM + "month").setName("month"));
+            case DAY -> pv.setQualifier(iri(Namespace.IM + "day").setName("day"));
+            case YEAR -> pv.setQualifier(iri(Namespace.IM + "year").setName("year"));
+            case FISCALYEAR -> pv.setQualifier(iri(Namespace.IM + "fiscalYear").setName("fiscalYear"));
+            case WEEK -> pv.setQualifier(iri(Namespace.IM + "weekNumber").setName("week number"));
+          }
+          pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
+        } else throw new EQDException("variable " + value + "with " + relative + " not supported");
+      } else throw new EQDException("no variable found for single value");
   }
 
 

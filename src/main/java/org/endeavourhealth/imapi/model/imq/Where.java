@@ -26,9 +26,11 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private List<Node> notIs;
   private List<Where> not;
+  @Getter
   private Operator operator;
   private String value;
   private String valueLabel;
+  @Getter
   private boolean anyRoleGroup;
   private boolean isNull;
   @Getter
@@ -47,6 +49,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private String shortLabel;
   private FunctionClause function;
+  private TTIriRef qualifier;
 
   public Where setShortLabel(String shortLabel) {
     this.shortLabel = shortLabel;
@@ -160,10 +163,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  public Where setQualifier(String qualifier) {
-    super.setQualifier(qualifier);
-    return this;
-  }
 
   @Override
   public String getValueLabel() {
@@ -232,10 +231,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public boolean isAnyRoleGroup() {
-    return anyRoleGroup;
-  }
-
   public Where setAnyRoleGroup(boolean anyRoleGroup) {
     this.anyRoleGroup = anyRoleGroup;
     return this;
@@ -247,6 +242,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
+  @Override
   public Where setDescription(String description) {
     this.description = description;
     return this;
@@ -284,10 +280,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public Operator getOperator() {
-    return this.operator;
-  }
-
   public Where setOperator(Operator operator) {
     this.operator = operator;
     return this;
@@ -314,6 +306,17 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   public Where setValue(String value) {
     this.value = value;
     return this;
+  }
+
+  @Override
+  public Assignable setQualifier(TTIriRef qualifier) {
+    this.qualifier= qualifier;
+    return this;
+  }
+
+  @Override
+  public TTIriRef getQualifier() {
+    return this.qualifier;
   }
 
 

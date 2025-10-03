@@ -123,6 +123,7 @@ public class QueryController {
       return queryService.describeQuery(iri, displayMode);
     }
   }
+
   @GetMapping(value = "/public/expandCohort", produces = "application/json")
   @Operation(
     summary = "Expands a cohort reference from a source query",
@@ -136,7 +137,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("expandCohort");
-      return queryService.expandCohort(queryIri,cohortIri, displayMode);
+      return queryService.expandCohort(queryIri, cohortIri, displayMode);
     }
   }
 
@@ -248,6 +249,7 @@ public class QueryController {
       return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
+
   @GetMapping("/public/imlFromIri")
   @Operation(
     summary = "Generate IML from a query iri",
@@ -256,10 +258,20 @@ public class QueryController {
   public String getIMLFromIMQIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String queryIri
-  ) throws  QueryException {
+  ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getIMLFromIMQIri");
       return queryService.getIMLFromIMQIri(queryIri);
+    }
+  }
+
+  @PostMapping("/public/getQueryRequestForSqlConversion")
+  public QueryRequest getQueryRequestForSqlConversion(
+    @RequestBody QueryRequest queryRequest
+  ) throws QueryException, SQLConversionException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryRequest.POST")) {
+      log.debug("getQueryRequestForSqlConversion");
+      return queryService.getQueryRequestForSqlConversion(queryRequest);
     }
   }
 

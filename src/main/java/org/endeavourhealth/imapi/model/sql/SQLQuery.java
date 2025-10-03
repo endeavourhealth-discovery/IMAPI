@@ -118,27 +118,29 @@ public class SQLQuery {
     return sql;
   }
 
-  public String getFieldName(String field, String table, TableMap tableMap) throws SQLConversionException {
+  public String getFieldName(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
-    Field fieldObject = getField(field, table, tableMap);
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
     String fieldName = fieldObject.getField();
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
     else if (fieldObject.isFunction()) return fieldName;
     else return alias + "." + fieldName;
   }
 
-  public String getFieldType(String field, String table, TableMap tableMap) throws SQLConversionException {
-    return getField(field, table, tableMap).getType();
+  public String getFieldType(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
+    return fieldObject.getType();
   }
 
-  private Field getField(String field, String table, TableMap tableMap) throws SQLConversionException {
+  private Field getField(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     Table map = table != null ? tableMap.getTable(table) : this.map;
-    log.info("{}", tableMap);
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
-
     if (map.getFields().get(field) != null) return map.getFields().get(field);
-
     log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
+
+    if (!defaultToString) return null;
 
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);

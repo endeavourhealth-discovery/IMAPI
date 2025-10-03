@@ -521,7 +521,7 @@ public class EqdResources {
         ClauseUtils.assignFunction(pv);
       }
     } else if (cv.getSingleValue() != null) {
-      setSingleValue(cv.getSingleValue(),pv);
+      setSingleValue(cv,pv);
     }
   }
 
@@ -662,8 +662,10 @@ public class EqdResources {
     return relationship.toString();
   }
 
-  private void setSingleValue(EQDOCSingleValue sv, Where pv) throws IOException, EQDException {
-      EQDOCValue variable= sv.getVariable();
+  private void setSingleValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
+    EQDOCSingleValue sv=  cv.getSingleValue();
+    EQDOCValue variable= sv.getVariable();
+      pv.setOperator(Operator.eq);
       if (variable!=null) {
         String value = variable.getValue();
         VocValueUnit qualifier = variable.getUnit();
@@ -683,8 +685,17 @@ public class EqdResources {
             case WEEK -> pv.setQualifier(iri(Namespace.IM + "weekNumber").setName("week number"));
           }
           pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
-        } else throw new EQDException("variable " + value + "with " + relative + " not supported");
-      } else throw new EQDException("no variable found for single value");
+        } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
+          pv.setValue(value);
+        } else {
+          String key = this.sourceContext + "/EMISINTERNAL/" + value;
+          Object mapValue = this.dataMap.get(key);
+          if (mapValue != null) {
+            pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
+          } else throw new EQDException("variable " + value + "with " + relative + " not supported");
+        }
+      }
+      else throw new EQDException("no variable found for single value");
       ClauseUtils.assignFunction(pv);
   }
 

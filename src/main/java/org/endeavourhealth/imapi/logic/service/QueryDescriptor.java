@@ -415,14 +415,17 @@ public class QueryDescriptor {
         qualifier = "starts with ";
         break;
       case eq:
-        if (date) if (!isRange) {
-          if (assignable.getQualifier()==null) {
-            qualifier = " on ";
-            if (relativeTo) relativity = " the ";
-          } else {
-            qualifier = " is ";
+        if (date) {
+          if (!isRange) {
+            if (assignable.getQualifier()==null) {
+              qualifier = " on ";
+              if (relativeTo) relativity = " the ";
+            } else {
+              qualifier = " is ";
+            }
           }
         }
+        else  qualifier=" =";
         break;
     }
     if (qualifier != null) {
@@ -588,8 +591,10 @@ public class QueryDescriptor {
         String modifier = set.isExclude() ? " but not: " : " ";
         set.setDescription(modifier);
       }
-      String value = getTermInContext(set);
-      set.setName(value);
+      if (set.getName() == null) {
+        String value = getTermInContext(set);
+        set.setName(value);
+      }
       if (iriContext.get(set.getIri()) != null) {
         set.setCode(iriContext.get(set.getIri()).getCode());
       }

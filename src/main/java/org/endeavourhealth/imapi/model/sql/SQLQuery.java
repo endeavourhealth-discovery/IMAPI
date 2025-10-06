@@ -26,6 +26,7 @@ public class SQLQuery {
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
   private String from = "";
+  private String primaryKey = "";
 
   public SQLQuery create(String model, String variable, TableMap tableMap, String from) throws SQLConversionException {
     aliasIndex = 0;
@@ -52,11 +53,12 @@ public class SQLQuery {
     this.model = model;
     if (null != model) {
       this.map = this.getMap(model, tableMap);
+      this.primaryKey = this.map.getPrimaryKey();
       this.model = this.map.getDataModel();
       this.alias = variable != null ? variable : getAlias(map.getTable());
     }
 
-    tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), this.model));
+    tableMap.putTable(this.alias, new Table(this.alias, this.primaryKey, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
 
   public String toSql(Integer indent) {

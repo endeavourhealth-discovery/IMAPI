@@ -251,17 +251,17 @@ public class IMQtoSQLConverter {
     Table table = tableMap.getTable(valuePath);
     String tableAlias = getNameFromIri(valuePath) + "_" + qry.getAlias();
     String property = table.getFields().get(path).getField();
-    String propertyName = property.replace("{alias}", "");
+    String propertyName = property.replace("{alias}.", "");
     property = property.replace("{alias}", tableAlias);
     String with = """
       %s AS (
-          SELECT %s AS %s
+          SELECT %s, %s AS %s
           FROM %s AS %s
         )
-      """.formatted(tableAlias, property, propertyName, table.getTable(), tableAlias);
+      """.formatted(tableAlias, table.getPrimaryKey(), property, propertyName, table.getTable(), tableAlias);
     qry.getWiths().add(with);
     Relationship rel = qry.getRelationshipTo(typeOf);
-    String from = rel.getFromField().contains("{alias}") ? rel.getFromField().replace("{alias}", tableAlias) : tableAlias + "." + rel.getFromField();
+    String from = rel.getFromField().contains("{alias}") ? rel.getFromField().replace("{alias}", qry.getAlias()) : qry.getAlias() + "." + rel.getFromField();
     String to = rel.getToField().contains("{alias}") ? rel.getToField().replace("{alias}", tableAlias) : tableAlias + "." + rel.getToField();
     String join = ("JOIN " + tableAlias + " ON " + from + " = " + to);
     qry.getJoins().add(join);

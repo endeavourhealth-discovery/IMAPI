@@ -729,8 +729,9 @@ public class EntityRepository {
     List<String> schemes = namespaces.stream().map(Namespace::toString).toList();
 
     String sql = """
-      SELECT ?concept ?label ?type
+      SELECT ?concept ?label ?legacyLabel ?type
       WHERE {
+        values ?code {%s}
         values ?codeProperty {im:code im:codeId im:alternativeCode}
         %s
         {
@@ -756,16 +757,17 @@ public class EntityRepository {
         }
         UNION {
           ?legacy ?codeProperty ?code.
+          ?legacy im:hasTermCode ?tc.
+          ?tc rdfs:label ?legacyLabel.
           ?legacy im:matchedTo ?concept.
           ?concept rdfs:label ?label.
           ?concept im:scheme ?schemes .
         }
         ?concept rdf:type ?type.
       }
-      """.formatted(SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\""+ code+"\"",SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("code", Values.literal(code));
       return getConceptRefsFromResult(qry);
     }
   }
@@ -951,6 +953,8 @@ public class EntityRepository {
           Entity concept = new Entity().setIri(iri);
           concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
+          if (bs.getValue("legacyLabel")!=null)
+            concept.setName(bs.getValue("legacyLabel").stringValue());
           results.add(concept);
         }
 

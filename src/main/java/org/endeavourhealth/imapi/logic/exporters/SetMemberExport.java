@@ -23,7 +23,7 @@ import java.util.*;
 @Slf4j
 public class SetMemberExport {
 
-  private static final String MODE = System.getenv("HOSTING_MODE");
+  private static final String MODE = System.getenv("MODE");
   private static final String ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
   private static final String SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
   private static final String BUCKET_REGION = System.getenv("TCT_BUCKET_REGION");
@@ -58,7 +58,6 @@ public class SetMemberExport {
       for (String iri : iris)
         SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", iri);
     }
-
   }
 
   private static void executeConcept(String fileName, String iri) {

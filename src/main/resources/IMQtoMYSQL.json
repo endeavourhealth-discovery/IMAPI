@@ -72,6 +72,9 @@
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"},
         "http://endhealth.info/im#pseudonymisedId": {"field": "{alias}.id", "type": "string"},
         "http://endhealth.info/im#id": {"field": "{alias}.person_id", "type": "string"},
+        "http://endhealth.info/im#forenames": {"field": "{alias}.first_names", "type": "string"},
+        "http://endhealth.info/im#familyName": {"field": "{alias}.last_name", "type": "string"},
+        "http://endhealth.info/im#dateOfDeath": {"field": "{alias}.date_of_death", "type": "date"},
         "http://endhealth.info/im#statedGender": {"field": "{alias}.gender_concept_id", "type": "iri"},
         "http://endhealth.info/im#nhsNumber": {"field": "{alias}.nhs_number", "type": "string"},
         "http://endhealth.info/im#ethnicity": {"field": "{alias}.ethnic_code_concept_id", "type": "iri"}

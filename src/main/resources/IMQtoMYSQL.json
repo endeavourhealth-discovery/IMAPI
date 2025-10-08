@@ -99,7 +99,8 @@
         "http://endhealth.info/im#value": {"field": "{alias}.result_value", "type": "number"},
         "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "number"},
         "http://endhealth.info/im#problemEpisode": {"field": "{alias}.episodicity_concept_id", "type": "iri"},
-        "http://endhealth.info/im#text": {"field": "{alias}.result_text", "type": "string"}
+        "http://endhealth.info/im#text": {"field": "{alias}.result_text", "type": "string"},
+        "http://endhealth.info/im#units": {"field": "{alias}.result_value_units", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}

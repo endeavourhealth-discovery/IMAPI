@@ -507,12 +507,26 @@ public class IMQtoSQLConverter {
       convertMatchPropertyBool(qry, property, Bool.or);
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
-    } else {
+    } else if (property.getFunction() != null) {
+      qry.getWheres().add(getWhereFromFunction(qry, property));
+    } else
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED PROPERTY PATTERN\n" + mapper.writeValueAsString(property));
-    }
+
     if (null != property.getFunction()) {
       resolveFunctionArgs(qry, property.getFunction());
     }
+  }
+
+  private String getWhereFromFunction(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
+    String where = "";
+    Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
+    if (IM.NUMERIC_DIFFERENCE.asIri().getIri().equals(property.getFunction().getIri()))
+      where = getWhereFromNumericDifference(property, qry.getFieldName(property.getIri(), null, tableMap, true));
+    else {
+      String mysqlFunction = getFunction(property.getFunction());
+      where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+    }
+    return where;
   }
 
   private void resolveFunctionArgs(SQLQuery qry, FunctionClause function) throws SQLConversionException {
@@ -682,16 +696,10 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
     String where = "";
-
     if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap, true))) {
       Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
       if (null != property.getFunction()) {
-        if ("http://endhealth.info/im#NumericDifference".equals(property.getFunction().getIri()))
-          where = getWhereFromNumericDifference(property, qry.getFieldName(property.getIri(), null, tableMap, true));
-        else {
-          String mysqlFunction = getFunction(property.getFunction());
-          where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
-        }
+        where = getWhereFromFunction(qry, property);
       } else if (null != range.getUnits()) {
         where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap, true), range);
       } else {
@@ -708,11 +716,21 @@ public class IMQtoSQLConverter {
 
   private String getWhereFromNumericDifference(Where property, String propertyName) throws SQLConversionException {
     String unit = getUnitName(property.getQualifier());
-    int value = Integer.parseInt(property.getValue());
+    String valueStr = property.getValue();
+    int value = 0;
+    if (valueStr != null && !valueStr.isBlank()) {
+      try {
+        value = Integer.parseInt(valueStr.trim());
+      } catch (NumberFormatException e) {
+        throw new SQLConversionException("Invalid numeric value for date offset: " + valueStr);
+      }
+    }
     String sign = (value < 0) ? "-" : "+";
-    String interval = "INTERVAL " + Math.abs(value) + " " + unit;
-
-    String offsetExpr = String.format("%s %s %s", property.getRelativeTo().getParameter(), sign, interval);
+    String interval = "INTERVAL " + Math.abs(value) + " " + (unit.equals("FISCAL_YEAR") ? "YEAR" : unit);
+    String relativeTo = property.getRelativeTo().getParameter();
+    String offsetExpr = (value == 0)
+      ? relativeTo
+      : String.format("%s %s %s", relativeTo, sign, interval);
 
     StringBuilder sql = new StringBuilder();
     switch (unit) {
@@ -728,13 +746,30 @@ public class IMQtoSQLConverter {
         "DATE(%s) = DATE(%s)",
         propertyName, offsetExpr
       ));
+      case "FISCAL_YEAR" -> {
+        int fiscalStartMonth = 4; // April = start of fiscal year (configurable)
+        String fiscalExpr = String.format(
+          "CASE WHEN MONTH(%s) >= %d THEN YEAR(%s) ELSE YEAR(%s) - 1 END",
+          propertyName, fiscalStartMonth, propertyName, propertyName
+        );
+        String fiscalOffsetExpr = String.format(
+          "CASE WHEN MONTH(%s) >= %d THEN YEAR(%s) ELSE YEAR(%s) - 1 END%s%s",
+          relativeTo, fiscalStartMonth, relativeTo, relativeTo,
+          (value == 0 ? "" : (value < 0 ? "-" : "+")),
+          (value == 0 ? "" : Math.abs(value))
+        );
+        sql.append(String.format("%s = %s", fiscalExpr, fiscalOffsetExpr));
+      }
+
       default -> throw new IllegalArgumentException("Unsupported time unit: " + unit);
     }
 
     return sql.toString();
   }
 
-  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws SQLConversionException, JsonProcessingException {
+
+  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws
+    SQLConversionException, JsonProcessingException {
     SQLQuery subQuery = qry.subQuery(qry.getModel(), qry.getAlias(), tableMap, null);
     if (bool == Bool.and) {
       for (Where p : property.getAnd()) {
@@ -772,6 +807,7 @@ public class IMQtoSQLConverter {
       case IM.HOURS -> "HOUR";
       case IM.MINUTES -> "MINUTE";
       case IM.SECONDS -> "SECOND";
+      case IM.FISCAL_YEAR -> "FISCAL_YEAR";
       default -> "";
     };
   }

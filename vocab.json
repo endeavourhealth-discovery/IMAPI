@@ -1118,6 +1118,14 @@
         "value": "Namespace.IM + \"parameter\""
       },
       {
+        "name": "NUMERIC_DIFFERENCE",
+        "value": "Namespace.IM + \"NumericDifference\""
+      },
+      {
+        "name": "FISCAL_YEAR",
+        "value": "Namespace.IM + \"fiscalYear\""
+      },
+      {
         "name": "YEARS",
         "value": "Namespace.IM + \"Years\""
       },
@@ -2176,7 +2184,6 @@
         "name": "ALLOWABLE_PROPERTIES",
         "value": "Namespace.IM_QUERY + \"AllowableProperties\""
       },
-
       {
         "name": "ALLOWABLE_PROPERTY_ANCESTORS",
         "value": "Namespace.IM_QUERY + \"AllowablePropertyAncestors\""

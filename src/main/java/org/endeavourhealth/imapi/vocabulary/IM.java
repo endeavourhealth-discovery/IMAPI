@@ -276,6 +276,8 @@ public enum IM implements VocabEnum {
     TIME(Namespace.IM + "Time"),
     INTERVAL_UNIT(Namespace.IM + "intervalUnit"),
     PARAMETER(Namespace.IM + "parameter"),
+    NUMERIC_DIFFERENCE(Namespace.IM + "NumericDifference"),
+    FISCAL_YEAR(Namespace.IM + "fiscalYear"),
     YEARS(Namespace.IM + "Years"),
     MONTH(Namespace.IM + "month"),
     MONTHS(Namespace.IM + "Months"),

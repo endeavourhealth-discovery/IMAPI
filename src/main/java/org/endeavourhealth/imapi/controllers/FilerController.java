@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -63,7 +64,7 @@ public class FilerController {
   @PostMapping("file/document")
   @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Files a document and returns the task ID.")
-  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
+  public ResponseEntity<Map<String, String>> fileDocument(@RequestBody TTDocument document, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
       String agentName = reqObjService.getRequestAgentName(request);
@@ -76,7 +77,7 @@ public class FilerController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
-        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId, fileDocumentRequest.getInsertGraph());
+        filerService.fileDocument(document, agentName, taskId, Graph.IM);
         response.put("taskId", taskId);
       } catch (Exception e) {
         Integer taskProgress = filerService.getTaskProgress(taskId);

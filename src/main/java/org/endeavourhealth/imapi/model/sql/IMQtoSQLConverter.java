@@ -661,12 +661,10 @@ public class IMQtoSQLConverter {
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws
     SQLConversionException, JsonProcessingException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap, true);
-    TTIriRef units;
+    TTIriRef units = new TTIriRef();
     if (null != property.getUnits()) units = property.getUnits();
     else if (null != property.getRelativeTo().getQualifier()) {
       units = property.getRelativeTo().getQualifier();
-    } else {
-      throw new SQLConversionException("SQL Conversion Error: Units not present for " + mapper.writeValueAsString(property));
     }
     if ("date".equals(fieldType)) {
       if (property.getValue() != null) {
@@ -774,7 +772,7 @@ public class IMQtoSQLConverter {
       case IM.HOURS -> "HOUR";
       case IM.MINUTES -> "MINUTE";
       case IM.SECONDS -> "SECOND";
-      default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
+      default -> "";
     };
   }
 

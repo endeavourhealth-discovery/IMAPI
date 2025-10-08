@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -646,7 +647,7 @@ public class IMQtoSQLConverter {
     if (null == property.getFunction() || null == property.getRelativeTo() || (null == property.getRelativeTo().getParameter() && null == property.getRelativeTo().getNodeRef()))
       return false;
     return property.getFunction().getArgument().stream()
-      .anyMatch(arg -> "relativeTo".equals(arg.getParameter()) && (argIsRelativeToParam(arg, property) || argIsRelativeToNodeRef(arg, property)));
+      .anyMatch(arg -> (argIsRelativeToParam(arg, property) || argIsRelativeToNodeRef(arg, property)));
   }
 
   private boolean argIsRelativeToParam(Argument arg, Where property) {
@@ -658,14 +659,21 @@ public class IMQtoSQLConverter {
   }
 
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws
-    SQLConversionException {
+    SQLConversionException, JsonProcessingException {
     String fieldType = qry.getFieldType(property.getIri(), null, tableMap, true);
+    TTIriRef units;
+    if (null != property.getUnits()) units = property.getUnits();
+    else if (null != property.getRelativeTo().getQualifier()) {
+      units = property.getRelativeTo().getQualifier();
+    } else {
+      throw new SQLConversionException("SQL Conversion Error: Units not present for " + mapper.writeValueAsString(property));
+    }
     if ("date".equals(fieldType)) {
       if (property.getValue() != null) {
-        return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
+        return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(units) + ")";
       } else return field;
     } else if ("number".equals(fieldType)) {
-      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
+      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(units) + ")";
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property.getIri());
     }
@@ -680,8 +688,12 @@ public class IMQtoSQLConverter {
     if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap, true))) {
       Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
       if (null != property.getFunction()) {
-        String mysqlFunction = getFunction(property.getFunction());
-        where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+        if ("http://endhealth.info/im#NumericDifference".equals(property.getFunction().getIri()))
+          where = getWhereFromNumericDifference(property, qry.getFieldName(property.getIri(), null, tableMap, true));
+        else {
+          String mysqlFunction = getFunction(property.getFunction());
+          where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+        }
       } else if (null != range.getUnits()) {
         where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap, true), range);
       } else {
@@ -694,6 +706,34 @@ public class IMQtoSQLConverter {
       where += " -- TCT\n";
     }
     qry.getWheres().add(where);
+  }
+
+  private String getWhereFromNumericDifference(Where property, String propertyName) throws SQLConversionException {
+    String unit = getUnitName(property.getQualifier());
+    int value = Integer.parseInt(property.getValue());
+    String sign = (value < 0) ? "-" : "+";
+    String interval = "INTERVAL " + Math.abs(value) + " " + unit;
+
+    String offsetExpr = String.format("%s %s %s", property.getRelativeTo().getParameter(), sign, interval);
+
+    StringBuilder sql = new StringBuilder();
+    switch (unit) {
+      case "YEAR" -> sql.append(String.format(
+        "YEAR(%s) = YEAR(%s)",
+        propertyName, offsetExpr
+      ));
+      case "MONTH" -> sql.append(String.format(
+        "YEAR(%s) = YEAR(%s)\n  AND MONTH(%s) = MONTH(%s)",
+        propertyName, offsetExpr, propertyName, offsetExpr
+      ));
+      case "DAY" -> sql.append(String.format(
+        "DATE(%s) = DATE(%s)",
+        propertyName, offsetExpr
+      ));
+      default -> throw new IllegalArgumentException("Unsupported time unit: " + unit);
+    }
+
+    return sql.toString();
   }
 
   private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws SQLConversionException, JsonProcessingException {
@@ -729,7 +769,7 @@ public class IMQtoSQLConverter {
   private String getUnitName(TTIriRef iriRef) throws SQLConversionException {
     return switch (IM.from(iriRef.getIri())) {
       case IM.YEARS -> "YEAR";
-      case IM.MONTHS -> "MONTH";
+      case IM.MONTHS, IM.MONTH -> "MONTH";
       case IM.DAYS -> "DAY";
       case IM.HOURS -> "HOUR";
       case IM.MINUTES -> "MINUTE";

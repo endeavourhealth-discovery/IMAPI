@@ -655,7 +655,7 @@ public class QueryDescriptor {
     if (where.getUuid() == null) {
       where.setUuid(UUID.randomUUID().toString());
     }
-    for (List<Where> wheres : Arrays.asList(where.getOr(), where.getAnd(), where.getNot())) {
+    for (List<Where> wheres : Arrays.asList(where.getOr(), where.getAnd())) {
       if (wheres != null) {
         for (Where subWhere : wheres) {
           generateUUIDs(subWhere);

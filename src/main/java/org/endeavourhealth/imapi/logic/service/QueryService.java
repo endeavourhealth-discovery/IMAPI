@@ -345,9 +345,6 @@ public class QueryService {
     if (null != where.getOr()) {
       where.getOr().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
     }
-    if (null != where.getNot()) {
-      where.getNot().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
-    }
     if (null != where.getIs()) {
       where.getIs().forEach(is -> {
         if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
@@ -402,7 +399,7 @@ public class QueryService {
       if (where.getNodeRef() != null) {
         nodeRefs.add(where.getNodeRef());
       }
-      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
         if (whereList != null) {
           for (Where subWhere : whereList)
             getNodeRefs(subWhere, nodeRefs);
@@ -415,7 +412,7 @@ public class QueryService {
     if (where.getNodeRef() != null) {
       nodeRefs.add(where.getNodeRef());
     }
-    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
       if (whereList != null) {
         for (Where subWhere : whereList)
           getNodeRefs(subWhere, nodeRefs);

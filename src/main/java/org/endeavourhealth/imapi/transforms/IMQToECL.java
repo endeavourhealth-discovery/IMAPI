@@ -79,9 +79,9 @@ public class IMQToECL {
   }
 
   private boolean isBlankWhere(Where where) {
-    if (where.getIri() == null && where.getOr() == null && where.getAnd() == null && where.getNot() == null)
+    if (where.getIri() == null && where.getOr() == null && where.getAnd() == null)
       return true;
-    if (where.getAnd() != null || where.getNot() != null || where.getOr() != null) return false;
+    if (where.getAnd() != null || where.getOr() != null) return false;
     if (where.getIs() == null) return true;
     return where.getIs().getFirst().getIri() == null;
   }

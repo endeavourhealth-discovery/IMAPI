@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable, BoolGroup<Where> {
+public class Where extends Element implements Assignable {
   @Getter
   private String description;
   private Range range;
@@ -25,11 +25,13 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Node> is;
   @Getter
   private List<Node> notIs;
-  private List<Where> not;
+
   @Getter
   private Operator operator;
   private String value;
   private String valueLabel;
+  @Getter
+  private boolean notValue;
   @Getter
   private boolean anyRoleGroup;
   private boolean isNull;
@@ -50,6 +52,12 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private String shortLabel;
   private FunctionClause function;
   private TTIriRef qualifier;
+
+  public Where setNotValue(boolean notValue) {
+    this.notValue = notValue;
+    return this;
+  }
+
 
   public Where setShortLabel(String shortLabel) {
     this.shortLabel = shortLabel;
@@ -104,11 +112,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  @Override
-  public List<Where> getNot() {
-    return this.not;
-  }
-
   public Where setOr(List<Where> or) {
     this.or = or;
     return this;
@@ -148,10 +151,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  public Where setNot(List<Where> not) {
-    this.not = not;
-    return this;
-  }
 
 
 

@@ -521,7 +521,7 @@ public class EqdResources {
         ClauseUtils.assignFunction(pv);
       }
     } else if (cv.getSingleValue() != null) {
-      setSingleValue(cv,pv);
+      setSingleValue(cv,pv,in);
     }
   }
 
@@ -662,10 +662,9 @@ public class EqdResources {
     return relationship.toString();
   }
 
-  private void setSingleValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
+  private void setSingleValue(EQDOCColumnValue cv, Where pv,boolean in) throws IOException, EQDException {
     EQDOCSingleValue sv=  cv.getSingleValue();
     EQDOCValue variable= sv.getVariable();
-      pv.setOperator(Operator.eq);
       if (variable!=null) {
         String value = variable.getValue();
         VocValueUnit qualifier = variable.getUnit();
@@ -674,8 +673,10 @@ public class EqdResources {
           if (value.equalsIgnoreCase("last")) {
             pv.setOperator(Operator.eq);
             pv.setValue("-1");
+            if (!in) pv.setNotValue(true);
           } else if (value.equalsIgnoreCase("this")) {
             pv.setOperator(Operator.eq);
+            if (!in) pv.setNotValue(true);
           }
           switch (qualifier) {
             case MONTH -> pv.setQualifier(iri(Namespace.IM + "month").setName("month"));
@@ -687,11 +688,15 @@ public class EqdResources {
           pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
         } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
           pv.setValue(value);
+          pv.setOperator(Operator.eq);
+          if (!in) pv.setNotValue(true);
         } else {
           String key = this.sourceContext + "/EMISINTERNAL/" + value;
           Object mapValue = this.dataMap.get(key);
           if (mapValue != null) {
-            pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
+            if (in)
+              pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
+            if (!in) pv.addNotIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
           } else throw new EQDException("variable " + value + "with " + relative + " not supported");
         }
       }

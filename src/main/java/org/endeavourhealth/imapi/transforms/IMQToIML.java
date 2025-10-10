@@ -19,7 +19,7 @@ public class IMQToIML extends QueryDescriptor{
   private final IMLLanguage language= new IMLLanguage();
 
   public IMLLanguage getIML(String entityIri) throws QueryException {
-    language.getKeywords().addAll(Set.of("Define","as","From","is","and","or","not","in","exclude","if","then","prefix","info"));
+    language.getKeywords().addAll(Set.of("define","as","from","is","and","or","not","in","exclude","if","then","prefix","info"));
     try {
       TTEntity entity = getRepo().getEntityPredicates(entityIri, Set.of(IM.ALTERNATIVE_CODE.toString(),
         IM.DEFINITION.toString(),
@@ -124,10 +124,15 @@ public class IMQToIML extends QueryDescriptor{
     if (where.getIri()!=null) {
       dsl.append(getVariableFromIri(where.getIri(),Context.SINGLE)).append(" ");
       if (where.getOperator() != null) {
+        if (where.isNotValue())
+          dsl.append("not ");
         convertValueWhere(where);
       }
       else if (where.getIs()!=null){
         dsl.append("is ").append(getVariableFromIri(where.getIs(),Context.SINGLE));
+      }
+      else if (where.getRange()!=null){
+        convertRangeWhere(where);
       }
     }
     else {
@@ -147,10 +152,24 @@ public class IMQToIML extends QueryDescriptor{
       if (index>0)
         dsl.append(operator==Bool.or ? "Or " : "And ");
       convertWhere(wheres.get(index),level);
+      dsl.append(")\n");
     }
   }
 
-  private void convertValueWhere(Where where) {
+  private void convertRangeWhere(Where where) {
+    if (where.isNotValue())
+      dsl.append("not ");
+    if (where.getRange().getFrom()!=null) {
+      dsl.append("between ");
+      convertValueWhere(where.getRange().getFrom());
+    }
+    if (where.getRange().getTo()!=null) {
+      dsl.append("and ");
+      convertValueWhere(where.getRange().getTo());
+    }
+  }
+
+  private void convertValueWhere(Assignable where) {
     if (where.getOperator()!=null){
       dsl.append(where.getOperator().getValue()).append(" ");
     }
@@ -160,7 +179,7 @@ public class IMQToIML extends QueryDescriptor{
     if (where.getUnits()!=null){
       dsl.append(getVariableFromIri(where.getUnits().getIri(),Context.PLURAL)).append(" ");
     }
-    dsl.append(")\n");
+
   }
 
 

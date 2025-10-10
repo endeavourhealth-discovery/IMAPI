@@ -431,8 +431,9 @@ public class IMQtoSQLConverter {
   }
 
   private String getTableNameFromIri(String iri) {
-    return "`q_" + iri + "`";
+    return "`q_" + getNameFromIri(iri) + "`";
   }
+
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     if (match.getAnd() != null) {
@@ -575,11 +576,11 @@ public class IMQtoSQLConverter {
     joins = joins.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
 
     if (!list.isEmpty()) {
-      String filedName = qry.getFieldName(property.getIri(), null, tableMap, true);
+      String fieldName = qry.getFieldName(property.getIri(), null, tableMap, true);
       List<String> stringConditions = getIriConditions(csm_alias, list, inverse);
       String conditionsSQL = StringUtils.join(stringConditions, " OR ");
-      joins = joins.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
-      conditions = conditions.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
+      joins = joins.replace("{join_condition}", fieldName).replace("{conditions}", conditionsSQL);
+      conditions = conditions.replace("{join_condition}", fieldName).replace("{conditions}", conditionsSQL);
       qry.getWheres().add(conditions);
       qry.getJoins().add(joins);
     }
@@ -871,7 +872,7 @@ public class IMQtoSQLConverter {
 
     if (queryIrisToHashCodes != null && !queryIrisToHashCodes.isEmpty()) {
       for (String iri : queryIrisToHashCodes.keySet()) {
-        resolvedSql = resolvedSql.replace("q_" + iri, String.valueOf(queryIrisToHashCodes.get(iri)));
+        resolvedSql = resolvedSql.replace("q_" + getNameFromIri(iri), String.valueOf(queryIrisToHashCodes.get(iri)));
       }
     }
     return resolvedSql;

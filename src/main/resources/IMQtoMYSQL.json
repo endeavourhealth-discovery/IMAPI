@@ -3,6 +3,9 @@
     "http://endhealth.info/im#patient": {
       "dataModel": "http://endhealth.info/im#Patient"
     },
+    "http://endhealth.info/im#appointment": {
+      "dataModel": "http://endhealth.info/im#Encounter"
+    },
     "http://endhealth.info/im#mobileTelephoneNumber": {
       "dataModel": "http://endhealth.info/im#MobileTelephoneNumber"
     },
@@ -72,6 +75,9 @@
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"},
         "http://endhealth.info/im#pseudonymisedId": {"field": "{alias}.id", "type": "string"},
         "http://endhealth.info/im#id": {"field": "{alias}.person_id", "type": "string"},
+        "http://endhealth.info/im#forenames": {"field": "{alias}.first_names", "type": "string"},
+        "http://endhealth.info/im#familyName": {"field": "{alias}.last_name", "type": "string"},
+        "http://endhealth.info/im#dateOfDeath": {"field": "{alias}.date_of_death", "type": "date"},
         "http://endhealth.info/im#statedGender": {"field": "{alias}.gender_concept_id", "type": "iri"},
         "http://endhealth.info/im#nhsNumber": {"field": "{alias}.nhs_number", "type": "string"},
         "http://endhealth.info/im#ethnicity": {"field": "{alias}.ethnic_code_concept_id", "type": "iri"}
@@ -99,7 +105,20 @@
         "http://endhealth.info/im#value": {"field": "{alias}.result_value", "type": "number"},
         "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "number"},
         "http://endhealth.info/im#problemEpisode": {"field": "{alias}.episodicity_concept_id", "type": "iri"},
-        "http://endhealth.info/im#text": {"field": "{alias}.result_text", "type": "string"}
+        "http://endhealth.info/im#text": {"field": "{alias}.result_text", "type": "string"},
+        "http://endhealth.info/im#units": {"field": "{alias}.result_value_units", "type": "string"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}
+      }
+    },
+    "http://endhealth.info/im#Encounter": {
+      "table": "encounter",
+      "fields": {
+        "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},
+        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#effectiveTime": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#appointmentType": {"field": "{alias}.type", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"}

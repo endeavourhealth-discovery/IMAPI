@@ -33,7 +33,6 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 public class IMQtoSQLConverter {
   private final TableMap tableMap;
   private final QueryRequest queryRequest;
-  private final EntityRepository entityRepository = new EntityRepository();
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Getter
@@ -165,9 +164,11 @@ public class IMQtoSQLConverter {
               addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
             }
           } else {
-            if (isNested)
-              qry.getSelects().addAll(qry.getGetForeignKeys());
-            else if (null != property.getFunction()) {
+            if (isNested) {
+              for (String fkey : qry.getGetForeignKeys())
+                if (!qry.getSelects().contains(fkey))
+                  qry.getSelects().add(fkey);
+            } else if (null != property.getFunction()) {
               String select = getSelectFromFunction(qry, property.getFunction()) + " AS `" + property.getAs() + "`";
               qry.getSelects().add(select);
             } else {

@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.aws.AWSCognitoClient;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -16,8 +14,6 @@ import java.util.stream.Collectors;
 
 
 public class SmartLifeAuthService {
-
-  final AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
 
   public HttpResponse<String> getCredentials(String clientId, String clientSecret) throws IOException, InterruptedException {
     try (HttpClient client = HttpClient.newBuilder()
@@ -36,7 +32,7 @@ public class SmartLifeAuthService {
         .collect(Collectors.joining("&"));
 
       URI uri = URI.create(String.format("https://%s.auth.%s.amazoncognito.com/oauth2/token",
-        System.getenv("COGNITO_USER_POOL").replace("_","").toLowerCase(),
+        System.getenv("COGNITO_USER_POOL").replace("_", "").toLowerCase(),
         System.getenv("COGNITO_REGION").toLowerCase()
       ));
 
@@ -46,12 +42,12 @@ public class SmartLifeAuthService {
         .setHeader("Authorization", "Basic " + clientHash)
         .POST(HttpRequest.BodyPublishers.ofString(formData))
         .build();
-      
+
       return client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
     }
   }
 
   public void revokeToken(Map<String, String> request) {
-    awsCognitoClient.revokeToken(request.get("token"), request.get("client_id"), request.get("client_secret"));
+    // TODO
   }
 }

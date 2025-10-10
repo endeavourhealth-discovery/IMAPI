@@ -23,15 +23,13 @@ public class Where extends Element implements Assignable {
   private Node typeOf;
   @Getter
   private List<Node> is;
-  @Getter
-  private List<Node> notIs;
 
   @Getter
   private Operator operator;
   private String value;
   private String valueLabel;
   @Getter
-  private boolean notValue;
+  private boolean not;
   @Getter
   private boolean anyRoleGroup;
   private boolean isNull;
@@ -53,8 +51,8 @@ public class Where extends Element implements Assignable {
   private FunctionClause function;
   private TTIriRef qualifier;
 
-  public Where setNotValue(boolean notValue) {
-    this.notValue = notValue;
+  public Where setNot(boolean not) {
+    this.not = not;
     return this;
   }
 
@@ -77,18 +75,6 @@ public class Where extends Element implements Assignable {
     super.setIri(iri);
   }
 
-  public Where setNotIs(List<Node> notIs) {
-    this.notIs = notIs;
-    return this;
-  }
-
-  public Where addNotIs(Node notIs) {
-    if (this.notIs == null) {
-      this.notIs = new ArrayList<>();
-    }
-    this.notIs.add(notIs);
-    return this;
-  }
 
   public Where setAnd(List<Where> and) {
     this.and = and;

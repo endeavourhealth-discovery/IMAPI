@@ -345,15 +345,15 @@ public class QueryService {
     if (null != where.getOr()) {
       where.getOr().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
     }
-    if (null != where.getIs()) {
+    if (null != where.getIs()&&!where.isNot()) {
       where.getIs().forEach(is -> {
         if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
           addMissingArgument(missingArguments, is.getParameter(), is.getIri());
         }
       });
     }
-    if (null != where.getNotIs()) {
-      where.getNotIs().forEach(notIs -> {
+    if (null != where.getIs()&&where.isNot()) {
+      where.getIs().forEach(notIs -> {
         if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
           addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
         }

@@ -494,9 +494,10 @@ public class IMQtoSQLConverter {
 
   private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIs() != null) {
-      convertMatchPropertyIs(qry, property, property.getIs(), false);
-    } else if (property.getNotIs() != null) {
-      convertMatchPropertyIs(qry, property, property.getNotIs(), true);
+      if (!property.isNot())
+        convertMatchPropertyIs(qry, property, property.getIs(), false);
+      else
+        throw new SQLConversionException("SQL Conversion Error: Where Property IS NOT NOT SUPPORTED\n" + mapper.writeValueAsString(property));
     } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
     } else if (property.getRelativeTo() != null && !isRelativeToFunctionParam(property)) {

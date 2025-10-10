@@ -477,7 +477,7 @@ public class SparqlConverter {
    * @param where   the processWhere clause
    */
   private void processWhere(StringBuilder whereQl, String subject, Where where, String pathVariable, boolean isInRoleGroup) throws QueryException {
-    if (where.getNotIs() != null) {
+    if (where.getIs() != null&&where.isNot()) {
       throw new QueryException("isNotIs not supported in a where clause");
     }
     if (pathVariable != null) {

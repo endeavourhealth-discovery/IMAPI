@@ -124,7 +124,7 @@ public class IMQToIML extends QueryDescriptor{
     if (where.getIri()!=null) {
       dsl.append(getVariableFromIri(where.getIri(),Context.SINGLE)).append(" ");
       if (where.getOperator() != null) {
-        if (where.isNotValue())
+        if (where.isNot())
           dsl.append("not ");
         convertValueWhere(where);
       }
@@ -157,7 +157,7 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private void convertRangeWhere(Where where) {
-    if (where.isNotValue())
+    if (where.isNot())
       dsl.append("not ");
     if (where.getRange().getFrom()!=null) {
       dsl.append("between ");

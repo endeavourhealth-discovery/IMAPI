@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.utility.EnvHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -34,7 +33,7 @@ public class SecurityConfig {
         .authenticationEntryPoint(authenticationEntryPoint())
       )
       .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .oauth2ResourceServer(Customizer.withDefaults());
+      .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwkSetUri(System.getenv("CASDOOR_JWT_URI"))));
     return http.build();
   }
 

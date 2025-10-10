@@ -136,6 +136,8 @@ dependencies {
   implementation(libs.dropwizard)
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
+  implementation(libs.casbin)
+  implementation(libs.casbin.jdbc.adapter)
   implementation(libs.casdoor.spring.boot.starter)
   implementation(libs.fact.plus.plus)
   implementation(libs.hikari)

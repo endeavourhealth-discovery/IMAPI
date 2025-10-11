@@ -5,13 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

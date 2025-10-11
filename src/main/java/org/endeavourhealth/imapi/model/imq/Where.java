@@ -23,7 +23,6 @@ public class Where extends Element implements Assignable {
   private Node typeOf;
   @Getter
   private List<Node> is;
-
   @Getter
   private Operator operator;
   private String value;

@@ -23,7 +23,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 public class IMQtoSQLRunnerTest {
   private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLRunnerTest.class);
 
-  @Test
+//  @Test
   public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();

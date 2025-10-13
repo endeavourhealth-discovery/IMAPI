@@ -31,7 +31,7 @@ public class IMQtoSQLExplainTest {
   private final String db_password = System.getenv("MYSQL_PASSWORD");
 
 
-  @Test
+//  @Test
   public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();

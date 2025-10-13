@@ -14,19 +14,14 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
-public class IMQtoSQLConverterTest {
-  private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
+public class IMQtoSQLRunnerTest {
+  private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLRunnerTest.class);
 
   @Test
   public void IMQtoSQL() {

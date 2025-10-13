@@ -1,12 +1,8 @@
 package org.endeavourhealth.imapi.controllers;
 
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.casbin.casdoor.entity.User;
-import org.casbin.casdoor.exception.AuthException;
-import org.casbin.casdoor.service.AuthService;
-import org.casbin.casdoor.service.UserService;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,34 +15,20 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 @Slf4j
 public class CasdoorController {
-  @Resource
-  private AuthService casdoorAuthService;
-
-  @Resource
-  private UserService casdoorUserService;
+  private CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping("user")
-  public void getUser(HttpSession session) {
-    User user = casdoorAuthService.parseJwtToken((String) session.getAttribute("token"));
-    session.setAttribute("casdoorUser", user);
+  public void setUserCookie(HttpSession session) {
+    casdoorService.setUserCookie(session);
   }
 
   @GetMapping("public/login")
   public void callback(String code, String state, HttpSession session) {
-    String token = "";
-    User casdoorUser = null;
-    try {
-      token = casdoorAuthService.getOAuthToken(code, state);
-      casdoorUser = casdoorAuthService.parseJwtToken(token);
-    } catch (AuthException e) {
-      e.printStackTrace();
-    }
-    session.setAttribute("casdoorToken", token);
-    session.setAttribute("casdoorUser", casdoorUser);
+    casdoorService.loginUser(code, state, session);
   }
 
   @GetMapping("logout")
   public void logout(HttpSession session) {
-    session.setAttribute("casdoorUser", null);
+    casdoorService.logout(session);
   }
 }

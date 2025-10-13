@@ -1,11 +1,17 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.casbin.casdoor.entity.User;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
+import org.endeavourhealth.imapi.casbin.DataSource;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
@@ -29,6 +35,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -36,7 +43,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -60,13 +66,10 @@ public class EntityController {
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
   private final GraphDtoService graphDtoService = new GraphDtoService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
   private final ProvService provService = new ProvService();
-  private final FilerService filerService;
-
-  public EntityController(FilerService filerService) {
-    this.filerService = filerService;
-  }
+  private final FilerService filerService = new FilerService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/public/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
@@ -127,7 +130,7 @@ public class EntityController {
   public List<TTBundle> getEntityFromTerm(HttpServletRequest request, @RequestParam(name = "term") String term, @RequestParam(name = "schemes") Set<String> schemes) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
       log.debug("getEntitiesFromTerm " + term + " " + schemes + "");
-      return entityService.getEntityFromTerm(term,schemes);
+      return entityService.getEntityFromTerm(term, schemes);
     }
   }
 
@@ -254,13 +257,13 @@ public class EntityController {
   }
 
   @PostMapping(value = "/create")
-  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException {
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpSession session) throws JsonProcessingException, UserAuthorisationException, TTFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName, editRequest.getGraph());
+      User user = casdoorService.getUser(session);
+      casbinEnforcer.enforce(user.name, DataSource.IM, UserRole.CREATOR);
+      return filerService.createEntity(editRequest, user.name, editRequest.getGraph());
     }
   }
 
@@ -275,13 +278,13 @@ public class EntityController {
   }
 
   @PostMapping(value = "/update")
-  @PreAuthorize("hasAuthority('EDITOR')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException {
+  public TTEntity updateEntity(HttpSession session, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntity(editRequest.getEntity(), agentName, editRequest.getGraph());
+      casbinEnforcer.enforce(session, DataSource.IM, UserRole.EDITOR);
+      User user = casdoorService.getUser(session);
+      return filerService.updateEntity(editRequest.getEntity(), user.name, editRequest.getGraph());
     }
   }
 

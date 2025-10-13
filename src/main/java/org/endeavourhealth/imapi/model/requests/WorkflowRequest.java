@@ -3,9 +3,9 @@ package org.endeavourhealth.imapi.model.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 
 @Getter
 @Schema(
@@ -14,13 +14,13 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 )
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class WorkflowRequest {
+  private final CasdoorService casdoorService = new CasdoorService();
   private Integer page = 1;
   private Integer size = 25;
   private String userId;
 
-  public WorkflowRequest(HttpServletRequest request) throws JsonProcessingException {
-    RequestObjectService requestObjectService = new RequestObjectService();
-    this.userId = requestObjectService.getRequestAgentId(request);
+  public WorkflowRequest(HttpSession session) throws JsonProcessingException {
+    this.userId = casdoorService.getUser(session).id;
   }
 
   public WorkflowRequest(Integer page, Integer size, String userId) {

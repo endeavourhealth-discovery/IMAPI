@@ -4,12 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.casbin.casdoor.entity.User;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
+import org.endeavourhealth.imapi.casbin.DataSource;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
@@ -21,13 +26,13 @@ import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -53,17 +58,18 @@ public class SetController {
   private final EntityService entityService = new EntityService();
   private final SetService setService = new SetService();
   private final SetExporter setExporter = new SetExporter();
-  private final RequestObjectService reqObjService = new RequestObjectService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  @PreAuthorize("hasAuthority('PUBLISHER')")
   public void publish(
-    HttpServletRequest request,
+    HttpSession session,
     @RequestParam(name = "iri") String iri
-  ) throws IOException, QueryException {
+  ) throws IOException, QueryException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
+      casbinEnforcer.enforce(session, DataSource.IM, UserRole.PUBLISHER);
       setService.publishSetToIM1(iri);
     }
   }
@@ -175,12 +181,12 @@ public class SetController {
 
   @PostMapping(value = "/updateSubsetsFromSuper")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
-  @PreAuthorize("hasAuthority('EDITOR') or hasAuthority('CREATOR')")
-  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException {
+  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpSession session) throws IOException, TTFilerException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      String agentName = reqObjService.getRequestAgentName(request);
-      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), editRequest.getGraph());
+      casbinEnforcer.enforceOr(session, DataSource.IM, List.of(UserRole.EDITOR, UserRole.CREATOR));
+      User user = casdoorService.getUser(session);
+      setService.updateSubsetsFromSuper(user.name, editRequest.getEntity(), editRequest.getGraph());
     }
   }
 }

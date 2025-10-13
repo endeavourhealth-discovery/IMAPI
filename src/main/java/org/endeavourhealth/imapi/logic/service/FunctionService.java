@@ -2,7 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.casbin.casdoor.entity.User;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
@@ -25,10 +26,9 @@ public class FunctionService {
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
   private final EntityService entityService = new EntityService();
   private final UserService userService = new UserService();
+  private final CasdoorService casdoorService = new CasdoorService();
 
-  private final RequestObjectService requestObjectService = new RequestObjectService();
-
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException {
+  public JsonNode callFunction(HttpSession session, String iri, List<Argument> arguments) throws JsonProcessingException {
     return switch (IM_FUNCTION.from(iri)) {
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
@@ -36,7 +36,7 @@ public class FunctionService {
       case IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
       case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
       case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
-      case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+      case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(session);
       default -> throw new IllegalArgumentException("No such function: " + iri);
     };
   }
@@ -126,10 +126,10 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException {
+  private JsonNode getUserEditableSchemes(HttpSession session) throws JsonProcessingException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
-    String userId = requestObjectService.getRequestAgentId(request);
-    List<String> organisations = userService.getUserOrganisations(userId);
+    User user = casdoorService.getUser(session);
+    List<String> organisations = userService.getUserOrganisations(user.id);
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);

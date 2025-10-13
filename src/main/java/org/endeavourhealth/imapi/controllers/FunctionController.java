@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.FunctionService;
 import org.endeavourhealth.imapi.model.requests.FunctionRequest;
@@ -25,10 +25,10 @@ public class FunctionController {
     summary = "function",
     description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"
   )
-  public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
+  public JsonNode callFunction(HttpSession session, @RequestBody FunctionRequest function) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
       log.debug("callFunction");
-      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
+      return new FunctionService().callFunction(session, function.getFunctionIri(), function.getArguments());
     }
   }
 }

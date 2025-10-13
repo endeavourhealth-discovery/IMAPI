@@ -3,8 +3,10 @@ package org.endeavourhealth.imapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.casbin.casdoor.entity.User;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
@@ -29,7 +31,7 @@ import java.util.UUID;
 public class SmartLifeQueryController {
 
   private final SmartLifeQueryService smartLifeQueryService = new SmartLifeQueryService();
-  private final RequestObjectService reqObjService = new RequestObjectService();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @PostMapping(value = "query/run")
   @Operation(
@@ -39,13 +41,13 @@ public class SmartLifeQueryController {
   )
   public UUID runSmartLifeQuery(
     @RequestBody SmartLifeQueryRunDTO query,
-    HttpServletRequest request
+    HttpSession session
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
-      UUID userId = reqObjService.getRequestAgentIdAsUUID(request);
-      String username = reqObjService.getRequestAgentName(request);
-      return smartLifeQueryService.runQuery(userId, username, query);
+      User user = casdoorService.getUser(session);
+      UUID userId = UUID.fromString(user.id);
+      return smartLifeQueryService.runQuery(userId, user.name, query);
     }
   }
 

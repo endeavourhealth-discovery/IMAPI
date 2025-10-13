@@ -2,7 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import org.casbin.casdoor.entity.User;
 import org.casbin.casdoor.service.UserService;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
@@ -25,7 +26,7 @@ import java.util.Objects;
 @Component
 public class WorkflowService {
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final CasdoorService casdoorService = new CasdoorService();
   private final UserRepository userRepository = new UserRepository();
   @Resource
   private UserService casdoorUserService;
@@ -39,33 +40,32 @@ public class WorkflowService {
     return workflowRepository.getBugReport(id);
   }
 
-  public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String username = requestObjectService.getRequestAgentName(request);
-    String userId = requestObjectService.getRequestAgentId(request);
-    if (!username.equals(bugReport.getCreatedBy()))
+  public void updateBugReport(BugReport bugReport, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    if (!user.name.equals(bugReport.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update bug report");
     BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
     if (!originalBugReport.getProduct().equals(bugReport.getProduct()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_PRODUCT, originalBugReport.getProduct(), bugReport.getProduct(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_PRODUCT, originalBugReport.getProduct(), bugReport.getProduct(), user.id);
     if (!originalBugReport.getModule().equals(bugReport.getModule()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_MODULE, originalBugReport.getModule().toString(), bugReport.getModule().toString(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.RELATED_MODULE, originalBugReport.getModule().toString(), bugReport.getModule().toString(), user.id);
     if (!originalBugReport.getOs().equals(bugReport.getOs()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM, originalBugReport.getOs().toString(), bugReport.getOs().toString(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM, originalBugReport.getOs().toString(), bugReport.getOs().toString(), user.id);
     if (!Objects.equals(originalBugReport.getOsOther(), bugReport.getOsOther()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM_OTHER, originalBugReport.getOsOther(), bugReport.getOsOther(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.OPERATING_SYSTEM_OTHER, originalBugReport.getOsOther(), bugReport.getOsOther(), user.id);
     if (!originalBugReport.getBrowser().equals(bugReport.getBrowser()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER, originalBugReport.getBrowser().toString(), bugReport.getBrowser().toString(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER, originalBugReport.getBrowser().toString(), bugReport.getBrowser().toString(), user.id);
     if (!Objects.equals(originalBugReport.getBrowserOther(), bugReport.getBrowserOther()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER_OTHER, originalBugReport.getBrowserOther(), bugReport.getBrowserOther(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.BROWSER_OTHER, originalBugReport.getBrowserOther(), bugReport.getBrowserOther(), user.id);
     if (!originalBugReport.getDescription().equals(bugReport.getDescription()))
-      workflowRepository.update(bugReport.getId().getIri(), RDFS.COMMENT, originalBugReport.getDescription(), bugReport.getDescription(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), RDFS.COMMENT, originalBugReport.getDescription(), bugReport.getDescription(), user.id);
     if (!originalBugReport.getReproduceSteps().equals(bugReport.getReproduceSteps()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.REPRODUCE_STEPS, originalBugReport.getReproduceSteps(), bugReport.getReproduceSteps(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.REPRODUCE_STEPS, originalBugReport.getReproduceSteps(), bugReport.getReproduceSteps(), user.id);
     if (!originalBugReport.getExpectedResult().equals(bugReport.getExpectedResult()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.EXPECTED_RESULT, originalBugReport.getExpectedResult(), bugReport.getExpectedResult(), userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.EXPECTED_RESULT, originalBugReport.getExpectedResult(), bugReport.getExpectedResult(), user.id);
     if (!originalBugReport.getActualResult().equals(bugReport.getActualResult()))
-      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.ACTUAL_RESULT, originalBugReport.getActualResult(), bugReport.getActualResult(), userId);
-    updateTask(bugReport, userId);
+      workflowRepository.update(bugReport.getId().getIri(), WORKFLOW.ACTUAL_RESULT, originalBugReport.getActualResult(), bugReport.getActualResult(), user.id);
+    updateTask(bugReport, user.id);
   }
 
   public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
@@ -101,28 +101,27 @@ public class WorkflowService {
     return workflowRepository.getRoleRequest(id);
   }
 
-  public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String username = requestObjectService.getRequestAgentName(request);
-    String userId = requestObjectService.getRequestAgentId(request);
-    if (!username.equals(roleRequest.getCreatedBy()))
+  public void updateRoleRequest(RoleRequest roleRequest, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    if (!user.name.equals(roleRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update role request");
     RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
     if (!originalRoleRequest.getRole().equals(roleRequest.getRole()))
-      workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.REQUESTED_ROLE, originalRoleRequest.getRole().toString(), roleRequest.getRole().toString(), userId);
-    updateTask(roleRequest, userId);
+      workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.REQUESTED_ROLE, originalRoleRequest.getRole().toString(), roleRequest.getRole().toString(), user.id);
+    updateTask(roleRequest, user.id);
   }
 
-  public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String userId = requestObjectService.getRequestAgentId(request);
+  public void approveRoleRequest(HttpSession session, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
-    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
-    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), user.id);
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.id);
   }
 
-  public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String userId = requestObjectService.getRequestAgentId(request);
-    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), userId);
+  public void rejectRoleRequest(HttpSession session, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.id);
   }
 
   public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
@@ -134,31 +133,30 @@ public class WorkflowService {
     return workflowRepository.getGraphRequest(id);
   }
 
-  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String username = requestObjectService.getRequestAgentName(request);
-    String userId = requestObjectService.getRequestAgentId(request);
-    if (!username.equals(graphRequest.getCreatedBy()))
+  public void updateGraphRequest(GraphRequest graphRequest, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    if (!user.name.equals(graphRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update graph request");
     GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
     if (!originalGraphRequest.getGraph().equals(graphRequest.getGraph()))
-      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), userId);
-    updateTask(graphRequest, userId);
+      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), user.id);
+    updateTask(graphRequest, user.id);
   }
 
-  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String userId = requestObjectService.getRequestAgentId(request);
-    List<Graph> graphs = userRepository.getUserGraphs(userId);
+  public void approveGraphRequest(HttpSession session, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    List<Graph> graphs = userRepository.getUserGraphs(user.id);
     if (!graphs.contains(graphRequest.getGraph())) {
       graphs.add(graphRequest.getGraph());
-      userRepository.updateUserGraphs(userId, graphs);
+      userRepository.updateUserGraphs(user.id, graphs);
     }
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), userId);
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), user.id);
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.id);
   }
 
-  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String userId = requestObjectService.getRequestAgentId(request);
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), userId);
+  public void rejectGraphRequest(HttpSession request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
+    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), user.id);
   }
 
   public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
@@ -170,27 +168,26 @@ public class WorkflowService {
     return workflowRepository.getEntityApproval(id);
   }
 
-  public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String username = requestObjectService.getRequestAgentName(request);
-    String userId = requestObjectService.getRequestAgentId(request);
-    if (!username.equals(entityApproval.getCreatedBy()))
+  public void updateEntityApproval(EntityApproval entityApproval, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
+    if (!user.name.equals(entityApproval.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update entity approval");
     EntityApproval originalEntityApproval = getEntityApproval(entityApproval.getId().getIri());
     if (!originalEntityApproval.getApprovalType().equals(entityApproval.getApprovalType()))
-      workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.APPROVAL_TYPE, originalEntityApproval.getApprovalType().toString(), entityApproval.getApprovalType().toString(), userId);
-    updateTask(entityApproval, userId);
+      workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.APPROVAL_TYPE, originalEntityApproval.getApprovalType().toString(), entityApproval.getApprovalType().toString(), user.id);
+    updateTask(entityApproval, user.id);
   }
 
-  public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    String userId = requestObjectService.getRequestAgentId(request);
+  public void approveEntityApproval(HttpSession session, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(session);
     //TODO entity draft replace active
-    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), userId);
-    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), userId);
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), user.id);
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.id);
   }
 
-  public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
-    String userId = requestObjectService.getRequestAgentId(request);
-    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), userId);
+  public void rejectEntityApproval(HttpSession session, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
+    User user = casdoorService.getUser(session);
+    workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), user.id);
   }
 
   public void updateTask(Task task, String userId) throws TaskFilerException, UserNotFoundException {

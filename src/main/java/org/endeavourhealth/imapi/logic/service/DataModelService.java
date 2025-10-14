@@ -6,11 +6,7 @@ import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -21,25 +17,37 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class DataModelService {
-  private EntityRepository entityRepository = new EntityRepository();
-  private DataModelRepository dataModelRepository = new DataModelRepository();
-  private EntityService entityService = new EntityService();
+  private final EntityRepository entityRepository;
+  private final DataModelRepository dataModelRepository;
+  private final EntityService entityService;
 
-  public List<TTIriRef> getDataModelsFromProperty(String propIri, Graph graph) {
-    return dataModelRepository.findDataModelsFromProperty(propIri, graph);
+  public DataModelService() {
+    entityRepository = new EntityRepository();
+    dataModelRepository = new DataModelRepository();
+    entityService = new EntityService(entityRepository);
   }
 
-  public String checkPropertyType(String iri, Graph graph) {
-    return dataModelRepository.checkPropertyType(iri, graph);
+  public DataModelService(DataModelRepository dataModelRepository, EntityRepository entityRepository) {
+    this.dataModelRepository = dataModelRepository;
+    this.entityRepository = entityRepository;
+    entityService = new EntityService(entityRepository);
   }
 
-  public List<TTIriRef> getProperties(Graph graph) {
-    return dataModelRepository.getProperties(graph);
+  public List<TTIriRef> getDataModelsFromProperty(String propIri) {
+    return dataModelRepository.findDataModelsFromProperty(propIri);
+  }
+
+  public String checkPropertyType(String iri) {
+    return dataModelRepository.checkPropertyType(iri);
+  }
+
+  public List<TTIriRef> getProperties() {
+    return dataModelRepository.getProperties();
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, Graph graph) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, graph);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
   }
 
 
@@ -110,20 +118,20 @@ public class DataModelService {
     return pv;
   }
 
-  public UIProperty getUIPropertyForQB(String dmIri, String propIri, Graph graph) {
-    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri, graph);
+  public UIProperty getUIPropertyForQB(String dmIri, String propIri) {
+    UIProperty uiProp = dataModelRepository.findUIPropertyForQB(dmIri, propIri);
     if (null != uiProp.getIntervalUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getIntervalUnitIri());
       List<TTIriRef> intervalUnitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getIntervalUnitIri())).toList();
       uiProp.setIntervalUnitOptions(intervalUnitOptions);
     }
     if (null != uiProp.getUnitIri()) {
-      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri(), graph);
+      List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
-      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri(), graph));
+      uiProp.setOperatorOptions(entityService.getOperatorOptions(uiProp.getOperatorIri()));
     return uiProp;
   }
 
@@ -132,33 +140,55 @@ public class DataModelService {
     predicates.add(SHACL.PROPERTY.toString());
     TTEntity entity = entityRepository.getBundle(iri, predicates).getEntity();
     List<PropertyDisplay> propertyList = new ArrayList<>();
+    String entityIri = entity.getIri();
     TTArray ttProperties = entity.get(iri(SHACL.PROPERTY));
     if (null == ttProperties) return propertyList;
 
     for (TTValue ttProperty : ttProperties.getElements()) {
-      int minCount = 0;
-      if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
-        minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+      String cardinality = getCardinality(ttProperty);
+      String reverseCardinality = "0 : * ";
+      if (ttProperty.asNode().has(iri(SHACL.NODE))) {
+        reverseCardinality = getReverseCardinality(ttProperty, predicates, reverseCardinality, entityIri);
       }
-      int maxCount = 0;
-      if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
-        maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
-      }
-      String cardinality = minCount + " : " + (maxCount == 0 ? "*" : maxCount);
       if (ttProperty.asNode().has(iri(SHACL.OR))) {
-        handleOr(ttProperty, cardinality, propertyList);
+        handleOr(ttProperty, cardinality, reverseCardinality, propertyList);
       } else {
-        handleNotOr(ttProperty, cardinality, propertyList);
+        handleNotOr(ttProperty, cardinality, reverseCardinality, propertyList);
       }
     }
-
     return propertyList;
   }
 
-  private void handleOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+  private static String getCardinality(TTValue ttProperty) {
+    int minCount = 0;
+    if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+      minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+    }
+    int maxCount = 0;
+    if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+      maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+    }
+    return minCount + " : " + (maxCount == 0 ? "*" : maxCount);
+  }
+
+  private String getReverseCardinality(TTValue ttProperty, Set<String> predicates, String newCardinality, String entityIri) {
+    TTEntity newEntity = entityRepository.getBundle(ttProperty.asNode().get(iri(SHACL.NODE)).asIriRef().getIri(), predicates).getEntity();
+    if (newEntity.get(iri(SHACL.PROPERTY)) != null) {
+      TTArray newProps = newEntity.get(iri(SHACL.PROPERTY));
+      for (TTValue newttProperty : newProps.getElements()) {
+        if (newttProperty.asNode().get(iri(SHACL.NODE)) != null && Objects.equals(newttProperty.asNode().get(iri(SHACL.NODE)).get(0).asIriRef().getIri(), entityIri))
+          newCardinality = getCardinality(newttProperty);
+
+      }
+    }
+    return newCardinality;
+  }
+
+  private void handleOr(TTValue ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
     PropertyDisplay propertyDisplay = new PropertyDisplay();
     propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
     propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setReverseCardinality(reverseCardinality);
     propertyDisplay.setOr(true);
     for (TTValue orProperty : ttProperty.asNode().get(iri(SHACL.OR)).getElements()) {
       TTArray type;
@@ -180,7 +210,7 @@ public class DataModelService {
     }
   }
 
-  private void handleNotOr(TTValue ttProperty, String cardinality, List<PropertyDisplay> propertyList) {
+  private void handleNotOr(TTValue ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
     TTArray type;
     if (ttProperty.asNode().has(iri(SHACL.CLASS))) type = ttProperty.asNode().get(iri(SHACL.CLASS));
     else if (ttProperty.asNode().has(iri(SHACL.NODE))) type = ttProperty.asNode().get(iri(SHACL.NODE));
@@ -204,18 +234,14 @@ public class DataModelService {
     propertyDisplay.addProperty(iri(ttProperty.asNode().get(iri(SHACL.PATH)).get(0).asIriRef().getIri(), name));
     propertyDisplay.addType(type.get(0).asIriRef());
     propertyDisplay.setCardinality(cardinality);
+    propertyDisplay.setReverseCardinality(reverseCardinality);
     propertyDisplay.setOr(false);
+    propertyDisplay.setNode(ttProperty.asNode().get(iri(SHACL.NODE)) != null);
     if (null != group) propertyDisplay.setGroup(group.asIriRef());
     propertyList.add(propertyDisplay);
   }
 
-  public PropertyShape getDefiningProperty(String iri) {
-    DataModelRepository dataModelRepository= new DataModelRepository();
-    return dataModelRepository.getDefiningProperty(iri);
-  }
-
-
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
-    return dataModelRepository.getDataModelPropertiesWithValueType(iris,valueType);
+    return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
   }
 }

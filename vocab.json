@@ -554,6 +554,10 @@
         "value": "Namespace.IM + \"sourceField\""
       },
       {
+        "name": "TIME_DIFFERENCE",
+        "value": "Namespace.IM + \"TimeDifference\""
+      },
+      {
         "name": "SOURCE_CODE_SCHEME",
         "value": "Namespace.IM + \"sourceCodeScheme\""
       },
@@ -602,8 +606,32 @@
         "value": "Namespace.IM + \"1661000252106\""
       },
       {
-        "name": "USED_IN",
-        "value": "Namespace.IM + \"usedIn\""
+        "name": "USES",
+        "value": "Namespace.IM + \"uses\""
+      },
+      {
+        "name": "COUNT",
+        "value": "Namespace.IM + \"Count\""
+      },
+      {
+        "name": "SUM",
+        "value": "Namespace.IM + \"Sum\""
+      },
+      {
+        "name": "AVERAGE",
+        "value": "Namespace.IM + \"Average\""
+      },
+      {
+        "name": "MIN",
+        "value": "Namespace.IM + \"Min\""
+      },
+      {
+        "name": "MAX",
+        "value": "Namespace.IM + \"Max\""
+      },
+      {
+        "name": "CONCATENATE",
+        "value": "Namespace.IM + \"Concatenate\""
       },
       {
         "name": "IN_RESULT_SET",
@@ -612,10 +640,6 @@
       {
         "name": "HAS_PROFILE",
         "value": "Namespace.IM + \"inResultSet\""
-      },
-      {
-        "name": "GMS_PATIENT",
-        "value": "Namespace.IM + \"2751000252106\""
       },
       {
         "name": "PROVENANCE_ACTIVITY",
@@ -632,6 +656,10 @@
       {
         "name": "PROVENANCE_AGENT",
         "value": "Namespace.IM + \"provenanceAgent\""
+      },
+      {
+        "name": "INDICATOR",
+        "value": "Namespace.IM + \"Indicator\""
       },
       {
         "name": "START_TIME",
@@ -806,8 +834,24 @@
         "value": "Namespace.IM + \"QuerySet\""
       },
       {
+        "name": "DEPENDENT_ON",
+        "value": "Namespace.IM + \"dependentOn\""
+      },
+      {
+        "name": "CARE_ACTIVITY",
+        "value": "Namespace.IM + \"CareActivity\""
+      },
+      {
+        "name": "CARE_TARGET",
+        "value": "Namespace.IM + \"CareTarget\""
+      },
+      {
         "name": "QUERY_TEMPLATE",
         "value": "Namespace.IM + \"QueryTemplate\""
+      },
+      {
+        "name": "HAS_QUERY",
+        "value": "Namespace.IM + \"hasQuery\""
       },
       {
         "name": "RECORD_TYPE",
@@ -1074,8 +1118,20 @@
         "value": "Namespace.IM + \"parameter\""
       },
       {
+        "name": "NUMERIC_DIFFERENCE",
+        "value": "Namespace.IM + \"NumericDifference\""
+      },
+      {
+        "name": "FISCAL_YEAR",
+        "value": "Namespace.IM + \"fiscalYear\""
+      },
+      {
         "name": "YEARS",
         "value": "Namespace.IM + \"Years\""
+      },
+      {
+        "name": "MONTH",
+        "value": "Namespace.IM + \"month\""
       },
       {
         "name": "MONTHS",
@@ -1731,6 +1787,10 @@
       {
         "name": "ORGANISATIONS",
         "value": "USER.DOMAIN + \"ORGANISATIONS\""
+      },
+      {
+        "name": "GRAPHS",
+        "value": "USER.DOMAIN + \"GRAPHS\""
       }
     ]
   },
@@ -1819,6 +1879,10 @@
       {
         "name": "REQUESTED_ROLE",
         "value": "Namespace.WORKFLOW + \"requestedRole\""
+      },
+      {
+        "name": "REQUESTED_GRAPH",
+        "value": "Namespace.WORKFLOW + \"requestedGraph\""
       },
       {
         "name": "APPROVAL_TYPE",

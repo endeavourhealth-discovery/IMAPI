@@ -6,66 +6,50 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-
 import java.io.IOException;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
 public class EqdPopToIMQ {
 
-  private EqdResources resources;
 
-
-  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources, Graph graph) throws IOException, QueryException, EQDException {
+  public Query convertPopulation(EQDOCReport eqReport, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
-    if (eqReport.getName().equals("All currently registered patients"))
-      EqdToIMQ.gmsPatients.add(activeReport);
-    this.resources = resources;
-    this.resources.setQueryType(QueryType.POP);
+    resources.setQueryType(QueryType.POP);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      query.addRule(new Match()
-        .setIfTrue(RuleAction.NEXT)
-        .setIfFalse(RuleAction.REJECT)
-        .setBaseRule(true)
-        .addInstanceOf(
-          new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date")
-            .setMemberOf(true)));
+      query
+        .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date"));
+      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + activeReport));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
       String id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
-      if (EqdToIMQ.gmsPatients.contains(id)||EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
-        query.addRule(new Match()
-          .setIfTrue(RuleAction.NEXT)
-          .setIfFalse(RuleAction.REJECT)
-          .setBaseRule(true)
-          .addInstanceOf(
-            new Node().setIri(Namespace.IM + "Q_RegisteredGMS")
-              .setName("Registered with GP for GMS services on the reference date")
-              .setMemberOf(true)));
+      if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
+        query
+          .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
+            .setName("Registered with GP for GMS services on the reference date"));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       } else {
-        query.addRule(new Match()
-          .setIfTrue(RuleAction.NEXT)
-          .setIfFalse(RuleAction.REJECT)
-          .setBaseRule(true)
-          .addInstanceOf(new Node().setIri(resources.getNamespace() + id)
-            .setName(resources.reportNames.get(id))
-            .setMemberOf(true)));
+        query
+          .setIsCohort(iri(resources.getNamespace() + id)
+            .setName(resources.reportNames.get(id)));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
       }
     }
     resources.setRule(0);
     resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      Match rule = resources.convertGroup(eqGroup, graph);
+      Match rule = resources.convertGroup(eqGroup);
       query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();

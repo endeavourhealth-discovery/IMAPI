@@ -22,7 +22,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -54,8 +53,7 @@ public class QueryRepository {
     ObjectNode result = mapper.createObjectNode();
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
     Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
-      checkReferenceDate(queryRequest);
+    try (IMDB conn = IMDB.getConnection()) {
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
       ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
@@ -70,8 +68,7 @@ public class QueryRepository {
 
 
   public Boolean askQueryIM(QueryRequest queryRequest) throws QueryException {
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
-      checkReferenceDate(queryRequest);
+    try (IMDB conn = IMDB.getConnection()) {
       new QueryValidator().validateQuery(queryRequest.getQuery());
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getAskSparql(null);
@@ -86,20 +83,17 @@ public class QueryRepository {
    * @throws QueryException          if query syntax is invalid
    * @throws JsonProcessingException if the json is invalid
    */
-  public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    try (IMDB conn = IMDB.getConnection(queryRequest.getGraph())) {
+  public void updateIM(QueryRequest queryRequest, Graph insertGraph) throws JsonProcessingException, QueryException {
+    try (IMDB conn = IMDB.getConnection()) {
       if (queryRequest.getUpdate() == null)
         throw new QueryException("Missing update in query request");
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
       queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
-
-      checkReferenceDate(queryRequest);
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
-
     }
   }
 
@@ -364,18 +358,39 @@ public class QueryRepository {
     return null;
   }
 
-
-  private void checkReferenceDate(QueryRequest queryRequest) {
-    if (queryRequest.getReferenceDate() == null) {
-      String now = LocalDate.now().toString();
-      queryRequest.setReferenceDate(now);
-    }
-
-  }
-
   private TTEntity getEntity(String iri) {
     return new EntityRepository().getBundle(iri,
       asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
+  }
 
+  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
+    Query query;
+    Query cohort;
+    String sql= """
+      select ?query ?cohort
+      where {
+       Values ?queryIri {%s}
+       Values ?cohortIri {%s}
+       ?queryIri im:definition ?query .
+       ?cohortIri im:definition ?cohort .
+       }
+      """.formatted("<"+queryIri+">", "<"+cohortIri+">");
+
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+        BindingSet bs = rs.next();
+        query= mapper.readValue(bs.getValue("query").stringValue(), Query.class);
+        cohort= mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
+        if (cohort.getIsCohort()!=null)
+          if (query.getIsCohort()!=null)
+            if (query.getIsCohort().equals(cohort.getIsCohort()))
+              cohort.setIsCohort(null);
+        return cohort;
+        }
+      }
+    }
+    return null;
   }
 }

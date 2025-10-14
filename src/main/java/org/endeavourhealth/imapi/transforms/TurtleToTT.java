@@ -16,13 +16,11 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
-  private TTDocument document;
-  private TTManager manager;
   private final TurtliteParser parser;
   private final TurtliteLexer lexer;
-  private String turtle;
-  private Map<String, TTNode> blankNodes = new HashMap<>();
-  private Map<String, TTEntity> iriMap = new HashMap<>();
+  private final Map<String, TTNode> blankNodes = new HashMap<>();
+  private final Map<String, TTEntity> iriMap = new HashMap<>();
+  private TTDocument document;
 
 
   /**
@@ -39,18 +37,17 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
    * Creates and returns a TTDocument from a turtle document string
    *
    * @param turtle the string of turtle.
-   * @param graph  the iri of the graph for the document
    * @return the TTDocument
    */
-  public TTDocument getDocument(String turtle, TTIriRef graph) throws DataFormatException {
-    this.turtle = turtle;
+  public TTDocument getDocument(String turtle) throws DataFormatException {
     lexer.setInputStream(CharStreams.fromString(turtle));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     parser.setTokenStream(tokens);
     TurtliteParser.TurtleDocContext tdoc = parser.turtleDoc();
-    manager = new TTManager();
-    document = new TTDocument();
-    manager.setDocument(document);
+    try (TTManager manager = new TTManager()) {
+      document = new TTDocument();
+      manager.setDocument(document);
+    }
     document.setContext(new TTContext());
     convertDoc(tdoc);
 

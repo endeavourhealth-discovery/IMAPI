@@ -25,7 +25,7 @@ public class TTToObjectNode {
   private static void processNode(TTNode node, ObjectNode objectNode) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
-        ObjectNode nodeValue = null;
+        ObjectNode nodeValue;
         if (entry.getValue().isNode()) {
           ObjectNode subNode = om.createObjectNode();
           processNode(entry.getValue().asNode(), subNode);

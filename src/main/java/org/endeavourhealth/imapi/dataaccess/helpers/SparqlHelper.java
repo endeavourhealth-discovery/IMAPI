@@ -2,9 +2,12 @@ package org.endeavourhealth.imapi.dataaccess.helpers;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.iri;
 

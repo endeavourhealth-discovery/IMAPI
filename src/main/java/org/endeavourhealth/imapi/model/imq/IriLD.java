@@ -1,14 +1,14 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -16,7 +16,6 @@ import java.util.Objects;
 public class IriLD {
   private String iri;
   private String name;
-  private String qualifier;
   private String description;
   @Getter
   @Setter
@@ -33,14 +32,7 @@ public class IriLD {
     return this;
   }
 
-  public String getQualifier() {
-    return qualifier;
-  }
 
-  public IriLD setQualifier(String qualifier) {
-    this.qualifier = qualifier;
-    return this;
-  }
 
   public String getIri() {
     return iri;
@@ -63,8 +55,7 @@ public class IriLD {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof IriLD)) return false;
-    IriLD ttIriRef = (IriLD) o;
+    if (!(o instanceof IriLD ttIriRef)) return false;
     if (ttIriRef.iri == null || iri == null)
       return false;
     return iri.equals(ttIriRef.iri);

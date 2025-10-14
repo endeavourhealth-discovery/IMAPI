@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "org.endeavourhealth.imapi"
-version = "2.0-SNAPSHOT"
+version = "2.1-SNAPSHOT"
 description = "Information Model API"
 
 
@@ -27,11 +27,22 @@ java.targetCompatibility = JavaVersion.VERSION_21
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
 if (ENV == "prod") {
-  tasks.build { finalizedBy("sonar") }
+  tasks.build { finalizedBy("safeSonar") }
   tasks.build { finalizedBy("publish") }
 } else {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
+  }
+}
+
+tasks.register("safeSonar") {
+  //Action block
+  doLast {
+    try {
+      sonar
+    } catch (e: Error) {
+      throw StopActionException(e.toString())
+    }
   }
 }
 
@@ -52,7 +63,6 @@ publishing {
   }
 }
 
-
 sonar {
   properties {
     property("sonar.token", System.getenv("SONAR_LOGIN"))
@@ -68,7 +78,6 @@ sonar {
       "sonar.coverage.exclusions",
       "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/filer/**, **/vocabulary/**, **/transforms/eqd/**"
     )
-
   }
 }
 
@@ -106,6 +115,7 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.tripletree.TTDocument",
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
+    "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*"
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
@@ -137,6 +147,7 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
+  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
@@ -144,9 +155,10 @@ dependencies {
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
+  implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.postgres)
+  implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -156,6 +168,7 @@ dependencies {
   implementation(libs.rdf4j.repo.sail)
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
+  implementation(libs.spring.amqp)
   implementation(libs.spring.context)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
@@ -165,7 +178,6 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
-  implementation(libs.mysqlConncector)
 
   runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
@@ -181,6 +193,8 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
+  compileOnly(libs.mysqlConncector)
+  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 

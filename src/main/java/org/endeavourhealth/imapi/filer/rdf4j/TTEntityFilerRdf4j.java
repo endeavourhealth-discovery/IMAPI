@@ -35,7 +35,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Update deleteTriples;
   private final BaseDB conn;
   private final Graph graph;
-  String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
+  private final String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
 
   public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, Graph graph) {
     this.conn = conn;
@@ -284,6 +284,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           ?o3 ?p4 ?o4.
         }
         WHERE {
+        Values ?concept {%s}
           {
             ?concept ?p1 ?o1.
             filter(?p1 in(%s))
@@ -301,9 +302,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             }
           }
         }
-      """.formatted(predList);
+      """.formatted("<"+entity.getIri()+">",predList);
     Update deletePredicates = conn.prepareDeleteSparql(spq);
-    deletePredicates.setBinding("concept", iri(entity.getIri()));
     try {
       deletePredicates.execute();
     } catch (RepositoryException e) {

@@ -1,0 +1,1878 @@
+{
+	"info": {
+		"_postman_id": "8215c70d-b072-4093-8610-0788b8798938",
+		"name": "IMQueryRunner",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13846499"
+	},
+	"item": [
+		{
+			"name": "Cohorts",
+			"item": [
+				{
+					"name": "Patients registered for GMS services on the reference date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Q_RegisteredGMS\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patients registered for GMS services on the reference date Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 6479 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(6479);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Q_RegisteredGMS\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio AF00 Atrial Fibrillation Register_v49_Release_1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#931e901b-8a0f-41b9-8064-beb3c4e2c2e4\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio AF00 Atrial Fibrillation Register_v49_Release_1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Expect results to be an array of 1 item\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#931e901b-8a0f-41b9-8064-beb3c4e2c2e4\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio CH00 CHD register version 49 release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#74198a12-677c-4614-b806-fda7bd754928\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio CH00 CHD register version 49 release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 32 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(32);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#74198a12-677c-4614-b806-fda7bd754928\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio HF00 -Heart Failure Register version 49 release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#bb5b362f-fdd4-46f5-9f8d-ead00b14ac18\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio HF00 -Heart Failure Register version 49 release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 0 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#bb5b362f-fdd4-46f5-9f8d-ead00b14ac18\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio HT00 - Hypertension Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#44103a56-4adf-493d-b73f-bf9df0ad36ba\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio HT00 - Hypertension Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 0 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#44103a56-4adf-493d-b73f-bf9df0ad36ba\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio PD00 - Peripheral Vasular Disease Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#e736c24b-77bf-4f01-8a4f-b7b996cac424\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio PD00 - Peripheral Vasular Disease Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 32 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#e736c24b-77bf-4f01-8a4f-b7b996cac424\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio ST00 - Stroke or TIA Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#7c420252-4e06-4b12-81d6-a7ec6d125c10\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cardio ST00 - Stroke or TIA Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 0 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#7c420252-4e06-4b12-81d6-a7ec6d125c10\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met DM00 - Diabetes Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#eba32279-45ec-4abb-90b6-10af84b5875e\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met DM00 - Diabetes Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 11 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(11);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#eba32279-45ec-4abb-90b6-10af84b5875e\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met OB00 - Obesity Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#d74bcda7-d2f0-4060-97ef-2086eb1cc5b9\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met OB00 - Obesity Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 0 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(0);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#d74bcda7-d2f0-4060-97ef-2086eb1cc5b9\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Renal CK00 - CKD Register version 49 release1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#2dc54f28-3055-4db3-b31a-e79e5981fbd0\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Renal CK00 - CKD Register version 49 release1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#2dc54f28-3055-4db3-b31a-e79e5981fbd0\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met ND00- Non Diabetic HyperGlycaemia Register Version 49 Release 1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#59812b33-b915-4293-8bb0-66167eb90190\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Met ND00- Non Diabetic HyperGlycaemia Register Version 49 Release 1 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#59812b33-b915-4293-8bb0-66167eb90190\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Q_TestQuery\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Patients 65-70, or diabetes or prediabetes that need invitations for blood pressure measuring Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://endhealth.info/im#Q_TestQuery\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1. Cardio-Renal-Metabolic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#441fa4d1-3160-4b9d-88e6-02f914c1fe83\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1. Cardio-Renal-Metabolic Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#441fa4d1-3160-4b9d-88e6-02f914c1fe83\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DM017 - Patients on Diabetes QOF Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#c8c7a8af-4c2e-401c-a62d-20f28e0ee308\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DM017 - Patients on Diabetes QOF Register Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#c8c7a8af-4c2e-401c-a62d-20f28e0ee308\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DL103baa-Frail-Blood Pressure reading excluding home done in last 15m 150/90",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Response content type is text/plain\", function () {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.equal('text/plain;charset=UTF-8');",
+									"});",
+									"",
+									"var responseText = pm.response.text();",
+									"",
+									"pm.test(\"Response body is not empty\", function () {",
+									"    pm.expect(responseText).to.not.be.empty;",
+									"});",
+									"",
+									"pm.test(\"Response body is valid SQL\", function () {",
+									"    var sqlPattern = /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\\s/i; // Basic SQL pattern",
+									"    pm.expect(sqlPattern.test(responseText)).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#ee6fa973-8db9-443c-920b-18fed0b69935\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/sql",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"sql"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DL103baa-Frail-Blood Pressure reading excluding home done in last 15m 150/90 Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.expect(pm.response.code).to.equal(200);",
+									"});",
+									"",
+									"pm.test(\"Expect results to be an array of 1 items\", function () {",
+									"    const responseArray = pm.response.json();",
+									"    pm.expect(responseArray).to.be.an('array').that.has.lengthOf(1);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"iri\": \"http://smartlifehealth.info/smh#ee6fa973-8db9-443c-920b-18fed0b69935\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{IM-JAVA-API}}/query/public/testRunQuery",
+							"host": [
+								"{{IM-JAVA-API}}"
+							],
+							"path": [
+								"query",
+								"public",
+								"testRunQuery"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

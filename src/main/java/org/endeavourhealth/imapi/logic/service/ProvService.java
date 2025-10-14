@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +21,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @Component
 public class ProvService {
 
-  ProvRepository provRepository = new ProvRepository();
+  final ProvRepository provRepository = new ProvRepository();
 
   public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
     String root;

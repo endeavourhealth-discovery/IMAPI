@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.dataaccess;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.aws.AWSCognitoClient;
 import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
@@ -12,10 +11,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.*;
 import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
@@ -115,11 +111,11 @@ public class WorkflowRepository {
           TaskHistory taskHistory = new TaskHistory();
           BindingSet bs = rs.next();
           taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
           else if (null != bs.getValue("originalObjectData"))
             taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
             taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
           else if (null != bs.getValue("newObjectData"))
             taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
@@ -328,6 +324,43 @@ public class WorkflowRepository {
     return null;
   }
 
+  public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
+    if (null == graphRequest.getId() || graphRequest.getId().getIri().isEmpty())
+      graphRequest.setId(TTIriRef.iri(generateId()));
+    taskFilerRdf4j.fileGraphRequest(graphRequest);
+  }
+
+  public GraphRequest getGraphRequest(String id) throws UserNotFoundException {
+    String sparql = """
+      SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?graphData
+      WHERE {
+        ?s ?type ?typeData ;
+        ?createdBy ?createdByData ;
+        ?assignedTo ?assignedToData ;
+        ?state ?stateData ;
+        ?dateCreated ?dateCreatedData ;
+        ?hostUrl ?hostUrlData ;
+        ?graph ?graphData .
+      }
+      """;
+
+    try (WorkflowDB conn = WorkflowDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sparql);
+      setRoleRequestBindings(qry);
+      qry.setBinding("s", iri(id));
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          GraphRequest graphRequest = new GraphRequest();
+          BindingSet bs = rs.next();
+          mapGraphRequestFromBindingSet(graphRequest, bs);
+          return graphRequest;
+        }
+      }
+    }
+    return null;
+  }
+
   public EntityApproval getEntityApproval(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?s ?typeData ?createdByData ?assignedToData ?dateCreatedData ?stateData ?hostUrlData ?roleData
@@ -467,6 +500,11 @@ public class WorkflowRepository {
   private void mapRoleRequestFromBindingSet(RoleRequest roleRequest, BindingSet bs) throws UserNotFoundException {
     mapTaskFromBindingSet(roleRequest, bs);
     if (null != bs.getValue("roleData")) roleRequest.setRole(UserRole.valueOf(bs.getValue("roleData").stringValue()));
+  }
+
+  private void mapGraphRequestFromBindingSet(GraphRequest graphRequest, BindingSet bs) throws UserNotFoundException {
+    mapTaskFromBindingSet(graphRequest, bs);
+    if (null != bs.getValue("graphData")) graphRequest.setGraph(Graph.valueOf(bs.getValue("graphData").stringValue()));
   }
 
   private void mapEntityApprovalFromBindingSet(EntityApproval entityApproval, BindingSet bs) throws UserNotFoundException {

@@ -10,14 +10,16 @@
         ]
       }
     ],
-    "instanceOf": [
-      {
-        "iri": "http://endhealth.info/im#Q_RegisteredGMS",
-        "memberOf": true
+    "and": {
+      "instanceOf": [
+        {
+          "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+          "memberOf": true
+        }
+      ],
+      "typeOf": {
+        "iri": "http://endhealth.info/im#Patient"
       }
-    ],
-    "typeOf": {
-      "iri": "http://endhealth.info/im#Patient"
     }
   }
 }

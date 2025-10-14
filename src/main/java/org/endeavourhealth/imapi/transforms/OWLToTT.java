@@ -16,9 +16,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
  * Converts Functional syntax to Endeavour/ Discovery syntax using an ANTLR parser
  */
 public class OWLToTT extends OWLFSBaseVisitor {
+  private final OWLFSLexer lexer;
+  private final OWLFSParser parser;
   private TTEntity entity;
-  private OWLFSLexer lexer;
-  private OWLFSParser parser;
   private TTContext context;
 
   public OWLToTT() {

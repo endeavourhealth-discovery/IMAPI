@@ -28,7 +28,7 @@ public class FunctionController {
   public JsonNode callFunction(HttpServletRequest request, @RequestBody FunctionRequest function) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Function.CallFunction.POST")) {
       log.debug("callFunction");
-      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments(), function.getGraph());
+      return new FunctionService().callFunction(request, function.getFunctionIri(), function.getArguments());
     }
   }
 }

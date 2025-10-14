@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
@@ -11,8 +14,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @JsonPropertyOrder({"iri", "status", "label", "comment", "targetShape", "type", "isContainedIn", "subClassOf", "group", "scheme"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

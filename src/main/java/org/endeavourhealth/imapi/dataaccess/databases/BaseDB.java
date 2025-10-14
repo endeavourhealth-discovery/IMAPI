@@ -2,8 +2,10 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.query.*;
-import org.eclipse.rdf4j.query.impl.DatasetImpl;
+import org.eclipse.rdf4j.query.BooleanQuery;
+import org.eclipse.rdf4j.query.GraphQuery;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.impl.SimpleDataset;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
@@ -16,8 +18,6 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 import java.io.File;
 import java.util.StringJoiner;
-
-import static org.eclipse.rdf4j.model.util.Values.iri;
 
 @Slf4j
 public abstract class BaseDB implements AutoCloseable {
@@ -46,10 +46,10 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public TupleQuery prepareTupleSparql(String sparql) {
-    if (sparql.toUpperCase().contains("INSERT"))
+    if (sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
 
-    if (sparql.toUpperCase().contains("DELETE"))
+    if (sparql.toUpperCase().startsWith("DELETE"))
       throw new DALException("This appears to be an DELETE statement, use `prepareDeleteSparql` instead");
 
     try {
@@ -65,14 +65,16 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareDeleteSparql(String sparql) {
-    if (!sparql.toUpperCase().contains("DELETE"))
+    sparql= sparql.trim();
+    if (!sparql.toUpperCase().startsWith("DELETE"))
       throw new DALException("This doesnt appear to be an DELETE statement");
 
     return prepareSparql(sparql);
   }
 
   public Update prepareInsertSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().contains("INSERT"))
+    sparql= sparql.trim();
+    if (!sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This doesnt appear to be an INSERT statement");
 
     if (graph == null)
@@ -85,7 +87,8 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareUpdateSparql(String sparql, Graph graph) {
-    if (!sparql.toUpperCase().contains("DELETE") || !sparql.toUpperCase().contains("INSERT"))
+    sparql= sparql.trim();
+    if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");
 
     if (graph == null)
@@ -125,7 +128,8 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public BooleanQuery prepareBooleanSparql(String sparql) {
-    if (!sparql.toUpperCase().contains("ASK"))
+    sparql= sparql.trim();
+    if (!sparql.toUpperCase().startsWith("ASK"))
       throw new DALException("This doesnt appear to be an ASK statement");
 
     try {
@@ -142,7 +146,10 @@ public abstract class BaseDB implements AutoCloseable {
 
   @Override
   public void close() {
-    conn.close();
+    if (conn != null) {
+      conn.close();
+      conn = null;
+    }
   }
 
   protected static synchronized Repository getRepository(String repoId) {

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.admin;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class User {
   private String email;
   private String password;
   private String avatar;
-  private List<String> roles;
+  private List<UserRole> roles;
   private List<String> mfaStatus;
 
   public User setPassword(String password) {

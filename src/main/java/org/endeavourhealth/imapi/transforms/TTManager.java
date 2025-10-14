@@ -6,7 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -105,8 +108,8 @@ public class TTManager implements AutoCloseable {
       entity.set(axiom, new TTArray());
     TTValue oldExpression;
     TTArray expressions = entity.get(axiom);
-    if (expressions.size() > 0) {
-      oldExpression = expressions.getElements().get(0);
+    if (!expressions.isEmpty()) {
+      oldExpression = expressions.getElements().getFirst();
       if (oldExpression.isIriRef() || oldExpression.isNode()) {
         TTNode intersection = new TTNode();
         intersection.set(andOr, new TTArray());
@@ -151,6 +154,21 @@ public class TTManager implements AutoCloseable {
     }
     return false;
   }
+  public static boolean termCodeUsed(TTEntity entity, String term,String code) {
+    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
+      for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
+        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term)){
+          if (code!=null){
+            if (val.asNode().get(iri(IM.CODE)) != null && val.asNode().get(iri(IM.CODE)).asLiteral().getValue().equals(code)) {
+              return true;
+            }
+          }
+          else return true;
+        }
+      }
+    }
+    return false;
+  }
 
   public static TTEntity addTermCode(TTEntity entity,
                                      String term, String code) {
@@ -159,15 +177,17 @@ public class TTManager implements AutoCloseable {
 
   public static TTEntity addTermCode(TTEntity entity,
                                      String term, String code, TTIriRef status) {
-    TTNode termCode = new TTNode();
-    if (status != null)
-      termCode.set(iri(IM.HAS_STATUS), status);
-    if (term != null) {
-      termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
+    if (!termCodeUsed(entity, term,code)) {
+      TTNode termCode = new TTNode();
+      if (status != null)
+        termCode.set(iri(IM.HAS_STATUS), status);
+      if (term != null) {
+        termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
+      }
+      if (code != null)
+        termCode.set(iri(IM.CODE), TTLiteral.literal(code));
+      entity.addObject(iri(IM.HAS_TERM_CODE), termCode);
     }
-    if (code != null)
-      termCode.set(iri(IM.CODE), TTLiteral.literal(code));
-    entity.addObject(iri(IM.HAS_TERM_CODE), termCode);
     return entity;
   }
 
@@ -362,7 +382,7 @@ public class TTManager implements AutoCloseable {
    *
    * @param manager    OWL ontology manager with at least one ontology
    * @param outputFile output fle name
-   * @throws IOException in the event of an IO file creation failure
+   * @throws FileNotFoundException in the event of an IO file creation failure
    */
 
   public void saveOWLOntology(OWLOntologyManager manager, File outputFile) throws FileNotFoundException, OWLOntologyStorageException {
@@ -379,8 +399,8 @@ public class TTManager implements AutoCloseable {
    * Indexes the entities held in the manager's TTDocument document so they can be quicly retrieced via their IRI.
    */
   public void createIndex() {
-    entityMap = new HashMap();
-    nameMap = new HashMap();
+    entityMap = new HashMap<>();
+    nameMap = new HashMap<>();
 
     //Loops through the 3 main entity types and add them to the IRI map
     //Note that an IRI may be both a class and a property so both are added
@@ -395,8 +415,8 @@ public class TTManager implements AutoCloseable {
   /**
    * Expands a prefixed iri string to a full iri
    *
-   * @param iri
-   * @return
+   * @param iri Iri to expand
+   * @return Expanded iri, or the original iri if no expansion is required
    */
   public String expand(String iri) {
     if (context == null)
@@ -479,7 +499,7 @@ public class TTManager implements AutoCloseable {
    *
    * @param entity the TTEntity holding the entity
    * @return the json serialization of the document
-   * @throws JsonProcessingException
+   * @throws JsonProcessingException in on serialization failure
    */
   public String getJson(TTEntity entity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -508,29 +528,20 @@ public class TTManager implements AutoCloseable {
   }
 
   private boolean replaceNode(TTNode node, TTIriRef from, TTIriRef to) {
-    boolean replaced = false;
     if (node.get(from) != null) {
       node.set(to, node.get(from));
       node.getPredicateMap().remove(from);
       return true;
     }
     if (node.getPredicateMap() != null) {
-      HashMap<TTIriRef, TTValue> newPredicates = new HashMap<>();
       for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
         replaceNodeValueChange(from, to, entry);
-      }
-      if (!newPredicates.isEmpty()) {
-        for (Map.Entry<TTIriRef, TTValue> entry : newPredicates.entrySet()) {
-          node.getPredicateMap().remove(entry.getKey());
-          node.set(entry.getKey(), entry.getValue());
-        }
       }
     }
     return false;
   }
 
   private void replaceNodeValueChange(TTIriRef from, TTIriRef to, Map.Entry<TTIriRef, TTArray> entry) {
-    boolean replaced;
     TTArray value = entry.getValue();
 
     List<TTValue> toRemove = new ArrayList<>();
@@ -540,7 +551,7 @@ public class TTManager implements AutoCloseable {
           toRemove.add(arrayValue);
         }
       } else if (arrayValue.isNode()) {
-        replaced = replaceNode(arrayValue.asNode(), from, to);
+        replaceNode(arrayValue.asNode(), from, to);
       }
     }
     if (!toRemove.isEmpty()) {

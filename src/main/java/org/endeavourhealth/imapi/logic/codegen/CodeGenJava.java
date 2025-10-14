@@ -6,14 +6,11 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.XSD;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -30,13 +27,13 @@ public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
   private final HashMap<String, DataModel> models = new HashMap<>();
 
-  public void generate(ZipOutputStream os, Graph graph) throws IOException {
-    getModelList(graph);
-    getDataModelRecursively(graph);
+  public void generate(ZipOutputStream os) throws IOException {
+    getModelList();
+    getDataModelRecursively();
     generateJavaCode(os);
   }
 
-  private void getModelList(Graph graph) {
+  private void getModelList() {
     log.debug("getting model list");
 
     String sql = """
@@ -47,31 +44,31 @@ public class CodeGenJava {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
           BindingSet bindSet = result.next();
           String iri = bindSet.getValue("iri").stringValue();
-          log.trace("iri [{}]", iri);
+          log.trace("getModelList: iri [{}]", iri);
           iris.add(iri);
         }
       }
     }
   }
 
-  private void getDataModelRecursively(Graph graph) {
+  private void getDataModelRecursively() {
     log.debug("getting models");
 
     while (!iris.isEmpty()) {
       String iri = iris.remove();
-      DataModel model = getDataModel(iri, graph);
+      DataModel model = getDataModel(iri);
       addMissingModelToQueue(model);
       models.put(iri, model);
     }
   }
 
-  private DataModel getDataModel(String iri, Graph graph) {
+  private DataModel getDataModel(String iri) {
     log.debug("get data model [{}]", iri);
 
     DataModel model = new DataModel().setIri(iri);
@@ -97,7 +94,7 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (IMDB conn = IMDB.getConnection(graph)) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {
@@ -130,7 +127,7 @@ public class CodeGenJava {
               : null);
 
           model.addProperty(property);
-          log.trace("iri [{}]", iri);
+          log.trace("getDataModel: iri [{}]", iri);
         }
       }
     }
@@ -334,7 +331,7 @@ public class CodeGenJava {
   }
 
   private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
-    String dataTypeName = null;
+    String dataTypeName;
     if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {

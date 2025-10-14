@@ -1,4 +1,4 @@
 package org.endeavourhealth.imapi.errorhandling;
 
-interface ApiSubError {
+public interface ApiSubError {
 }

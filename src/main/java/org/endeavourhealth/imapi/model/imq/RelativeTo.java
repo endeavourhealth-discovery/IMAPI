@@ -1,10 +1,33 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class RelativeTo extends Node {
+public class RelativeTo extends IriLD {
   private String valueVariable;
   private String propertyRef;
+  private String targetLabel;
+  @Getter
+  private String nodeRef;
+  @Getter
+  private String parameter;
+  private TTIriRef qualifier;
+
+public TTIriRef getQualifier() {
+  return qualifier;
+}
+public RelativeTo setQualifier(TTIriRef qualifier) {
+  this.qualifier = qualifier;
+  return this;
+}
+
+  public String getTargetLabel() {
+    return targetLabel;
+  }
+  public RelativeTo setTargetLabel(String targetLabel) {
+    this.targetLabel = targetLabel;
+    return this;
+  }
 
   public String getPropertyRef() {
     return propertyRef;
@@ -21,7 +44,7 @@ public class RelativeTo extends Node {
   }
 
   public RelativeTo setNodeRef(String nodeRef) {
-    super.setNodeRef(nodeRef);
+    this.nodeRef=nodeRef;
     return this;
   }
 
@@ -35,20 +58,11 @@ public class RelativeTo extends Node {
   }
 
 
-  public RelativeTo setInverse(boolean inverse) {
-    super.setInverse(inverse);
-    return this;
-  }
-
   public RelativeTo setParameter(String parameter) {
-    super.setParameter(parameter);
+    this.parameter= parameter;
     return this;
   }
 
 
-  public RelativeTo setVariable(String variable) {
-    super.setVariable(variable);
-    return this;
-  }
 
 }

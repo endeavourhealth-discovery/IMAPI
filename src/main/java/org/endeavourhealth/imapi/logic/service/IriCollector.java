@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,9 +20,9 @@ public class IriCollector {
   }
 
   private static void collectQueryIris(Query query, Set<String> iris){
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
-        collectQueryIris(subQuery, iris);
+    if (query.getColumnGroup() != null) {
+      for (Match subQuery : query.getColumnGroup()) {
+        collectMatchIris(subQuery, iris);
       }
     }
     collectMatchIris(query, iris);
@@ -54,6 +55,9 @@ public class IriCollector {
     }
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
+    }
+    if (match.getIsCohort() != null) {
+      iriSet.add(match.getIsCohort().getIri());
     }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
@@ -93,12 +97,26 @@ public class IriCollector {
     if (match.getReturn() != null) {
        collectReturnIris(match.getReturn(), iriSet);
     }
+    if (match.getOrderBy()!=null){
+      collectOrderByIris(match.getOrderBy(),iriSet);
+    }
+  }
+
+  private static void collectOrderByIris(OrderLimit orderBy, Set<String> iriSet) {
+    if (orderBy.getProperty()!=null){
+      for (OrderDirection property : orderBy.getProperty()) {
+        iriSet.add(property.getIri());
+      }
+    }
   }
 
 
   private static void collectWhereIris(Where where, Set<String> iriSet) {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
+    }
+    if (where.getQualifier() != null) {
+      iriSet.add(where.getQualifier().getIri());
     }
     if (where.getAnd() != null) {
       for (Where subWhere : where.getAnd()) {
@@ -114,7 +132,10 @@ public class IriCollector {
       for (Node node : where.getIs())
         iriSet.add(node.getIri());
     }
-    collectAssignableIris((Assignable) where, iriSet);
+    collectAssignableIris(where, iriSet);
+    if (where.getUnits()!=null){
+      iriSet.add(where.getUnits().getIri());
+    }
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);
@@ -126,11 +147,24 @@ public class IriCollector {
     if (where.getValue() != null) {
       collectAssignableIris(where, iriSet);
     }
+    if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
+      iriSet.add(where.getRelativeTo().getQualifier().getIri());
+    }
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getUnit() != null) {
-      iriSet.add(assignable.getUnit().getIri());
+    if (assignable.getUnits()!=null) iriSet.add(assignable.getUnits().getIri());
+    if (assignable.getFunction()!=null){
+        FunctionClause functionClause = assignable.getFunction();
+        iriSet.add(functionClause.getIri());
+        if (functionClause.getArgument()!=null){
+        for (Argument argument : functionClause.getArgument()) {
+          if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
+          if (argument.getValueIriList() != null) {
+            for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+          }
+        }
+      }
     }
   }
 }

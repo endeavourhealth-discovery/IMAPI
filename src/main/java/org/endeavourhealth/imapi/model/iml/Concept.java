@@ -1,12 +1,9 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter

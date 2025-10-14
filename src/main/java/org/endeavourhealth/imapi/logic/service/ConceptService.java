@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
@@ -27,25 +26,35 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class ConceptService {
 
-  private EntityRepository entityRepository = new EntityRepository();
-  private ConceptRepository conceptRepository = new ConceptRepository();
+  private final EntityRepository entityRepository;
+  private final ConceptRepository conceptRepository;
 
-  public List<SimpleMap> getMatchedFrom(String iri, Graph graph) {
-    if (iri == null || iri.isEmpty()) return new ArrayList<>();
-    String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
-    List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
-    schemes.remove(scheme);
-    return conceptRepository.getMatchedFrom(iri, schemes, graph);
+  public ConceptService() {
+    entityRepository = new EntityRepository();
+    conceptRepository = new ConceptRepository();
   }
 
-  public List<SimpleMap> getMatchedTo(String iri, Graph graph) {
+  ConceptService(EntityRepository entityRepository, ConceptRepository conceptRepository) {
+    this.entityRepository = entityRepository;
+    this.conceptRepository = conceptRepository;
+  }
+
+  public List<SimpleMap> getMatchedFrom(String iri) {
     if (iri == null || iri.isEmpty()) return new ArrayList<>();
     String scheme = iri.substring(0, iri.indexOf("#") + 1);
-    List<Namespace> namespaces = entityRepository.findNamespaces(graph);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
     List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
     schemes.remove(scheme);
-    return conceptRepository.getMatchedTo(iri, schemes, graph);
+    return conceptRepository.getMatchedFrom(iri, schemes);
+  }
+
+  public List<SimpleMap> getMatchedTo(String iri) {
+    if (iri == null || iri.isEmpty()) return new ArrayList<>();
+    String scheme = iri.substring(0, iri.indexOf("#") + 1);
+    List<Namespace> namespaces = entityRepository.findNamespaces();
+    List<String> schemes = namespaces.stream().map(Namespace::getIri).collect(Collectors.toList());
+    schemes.remove(scheme);
+    return conceptRepository.getMatchedTo(iri, schemes);
   }
 
   public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
@@ -64,21 +73,27 @@ public class ConceptService {
       .toList();
   }
 
-  public Set<String> getPropertiesForDomains(Set<String> iris, Graph graph) {
+  public Set<String> getPropertiesForDomains(Set<String> iris) {
     if (null == iris || iris.isEmpty()) return null;
-    return conceptRepository.getPropertiesForDomains(iris, graph);
+    return conceptRepository.getPropertiesForDomains(iris);
 
   }
 
 
-  public Set<String> getRangesForProperty(String iri, Graph graph) {
+  public Set<String> getRangesForProperty(String iri) {
     if (null == iri || iri.isEmpty()) return null;
-    return conceptRepository.getRangesForProperty(iri, graph);
+    return conceptRepository.getRangesForProperty(iri);
   }
 
-  public List<ConceptContextMap> getConceptContextMaps(String iri, Graph graph) {
-    return conceptRepository.getConceptContextMaps(iri, graph);
+  public List<ConceptContextMap> getConceptContextMaps(String iri) {
+    return conceptRepository.getConceptContextMaps(iri);
   }
+
+  public String getShortestTerm(String iri){
+    return conceptRepository.getShortestTerm(iri);
+  }
+
+
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {
     if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {

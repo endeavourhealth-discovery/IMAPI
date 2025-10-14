@@ -5,11 +5,10 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,33 +25,40 @@ public class SQLQuery {
   private String whereBool = "AND";
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
+  private String from = "";
+  private String primaryKey = "";
 
-  public SQLQuery create(String model, String variable, TableMap tableMap) throws SQLConversionException {
+  public SQLQuery create(String model, String variable, TableMap tableMap, String from) throws SQLConversionException {
     aliasIndex = 0;
     SQLQuery result = new SQLQuery();
-    result.initialize(model, variable, tableMap);
+    result.initialize(model, variable, tableMap, from);
     return result;
   }
 
-  public SQLQuery subQuery(String model, String variable, TableMap tableMap) throws SQLConversionException {
+  public SQLQuery subQuery(String model, String variable, TableMap tableMap, String from) throws SQLConversionException {
     SQLQuery result = new SQLQuery();
-    result.initialize(model, variable, tableMap);
+    result.initialize(model, variable, tableMap, from);
     return result;
   }
 
-  public void initialize(String model, String variable, TableMap tableMap) throws SQLConversionException {
+  public void initialize(String model, String variable, TableMap tableMap, String from) throws SQLConversionException {
     this.withs = new ArrayList<>();
     this.selects = new ArrayList<>();
     this.joins = new ArrayList<>();
     this.whereBool = "AND";
     this.wheres = new ArrayList<>();
     this.dependencies = new ArrayList<>();
+    this.from = from;
 
     this.model = model;
-    this.map = this.getMap(model, tableMap);
-    this.alias = variable != null ? variable : getAlias(map.getTable());
+    if (null != model) {
+      this.map = this.getMap(model, tableMap);
+      this.primaryKey = this.map.getPrimaryKey();
+      this.model = this.map.getDataModel();
+      this.alias = variable != null ? variable : getAlias(map.getTable());
+    }
 
-    tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), null));
+    tableMap.putTable(this.alias, new Table(this.alias, this.primaryKey, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
 
   public String toSql(Integer indent) {
@@ -85,8 +91,11 @@ public class SQLQuery {
   }
 
   private String generateFroms() {
-    String sql = "\nFROM " + map.getTable() + " AS " + alias;
-
+    String sql = "";
+    if (null != map.getTable())
+      sql = "\nFROM " + map.getTable() + " AS " + alias;
+    else if (null != from)
+      sql += "\nFROM " + from + " ";
     if (joins != null && !joins.isEmpty()) sql += "\n" + StringUtils.join(joins, "\n");
     return sql;
   }
@@ -111,31 +120,33 @@ public class SQLQuery {
     return sql;
   }
 
-  public String getFieldName(String field, String table, TableMap tableMap) throws SQLConversionException {
+  public String getFieldName(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
-    String fieldName = getField(field, table, tableMap).getField();
-
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
+    String fieldName = fieldObject.getField();
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
+    else if (fieldObject.isFunction()) return fieldName;
     else return alias + "." + fieldName;
   }
 
-  public String getFieldType(String field, String table, TableMap tableMap) throws SQLConversionException {
-    return getField(field, table, tableMap).getType();
+  public String getFieldType(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
+    return fieldObject.getType();
   }
 
-  private Field getField(String field, String table, TableMap tableMap) throws SQLConversionException {
+  private Field getField(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     Table map = table != null ? tableMap.getTable(table) : this.map;
-    log.info("{}", tableMap);
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
-
     if (map.getFields().get(field) != null) return map.getFields().get(field);
-
     log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
+
+    if (!defaultToString) return null;
 
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);
     Field returnField = new Field();
-    // POSTGRES returnField.setField("(({alias}.json ->> '" + fieldName + "')::VARCHAR)");
     returnField.setField("{alias}." + fieldName);
     returnField.setType("string");
     return returnField;
@@ -143,14 +154,13 @@ public class SQLQuery {
 
   public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
-
     throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
   }
 
   public SQLQuery clone(String alias, TableMap tableMap) throws SQLConversionException {
     String from = this.alias + ".";
     String to = alias + ".";
-    SQLQuery clone = this.subQuery(this.model, alias, tableMap);
+    SQLQuery clone = this.subQuery(this.model, alias, tableMap, null);
     clone.withs.addAll(withs);
     clone.selects.addAll(selects.stream().map(j -> j.replaceAll(from, to)).toList());
     clone.joins.addAll(joins.stream().map(j -> j.replaceAll(from, to)).toList());
@@ -176,6 +186,16 @@ public class SQLQuery {
 
   public String getAlias(String tableName) {
     return tableName + SQLQuery.aliasIndex++;
+  }
+
+  public List<String> getGetForeignKeys() {
+    ArrayList<String> foreignKeys = new ArrayList<>();
+    if (null != this.map && null != this.map.getRelationships()) {
+      this.map.getRelationships().values().forEach(relationship -> {
+        foreignKeys.add(relationship.getFromField());
+      });
+    }
+    return foreignKeys;
   }
 }
 

@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 /**
@@ -72,7 +73,7 @@ public class SearchService {
    * @return a list of SearchResultSummary
    * @throws QueryException if query format is invalid
    */
-  public SearchResponse queryIMSearch(QueryRequest queryRequest) throws JsonProcessingException, OpenSearchException, QueryException {
+  public SearchResponse queryIMSearch(QueryRequest queryRequest) throws OpenSearchException, QueryException {
     ObjectMapper om = new ObjectMapper();
 
     QueryRepository repo = new QueryRepository();
@@ -83,7 +84,7 @@ public class SearchService {
       if (results != null) return results;
     }
     JsonNode queryResults = repo.queryIM(queryRequest, false);
-    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults, queryRequest.getGraph());
+    return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);
   }
 
   public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {
@@ -97,7 +98,7 @@ public class SearchService {
    * @param request holding the search term (multi or single word) + type/status/scheme filters
    * @return A set of Summaries of entity documents from the store
    */
-  public SearchResponse getEntitiesByTerm(QueryRequest request) throws OpenSearchException, QueryException {
+  public SearchResponse getEntitiesByTerm(QueryRequest request) throws OpenSearchException {
     return new OSQuery().openSearchQuery(request);
   }
 
@@ -117,8 +118,8 @@ public class SearchService {
    * @param queryRequest Query inside a request with parameters
    * @throws QueryException if query format is invalid
    */
-  public void updateIM(QueryRequest queryRequest) throws JsonProcessingException, QueryException {
-    new QueryRepository().updateIM(queryRequest);
+  public void updateIM(QueryRequest queryRequest, Graph insertGraph) throws JsonProcessingException, QueryException {
+    new QueryRepository().updateIM(queryRequest, insertGraph);
   }
 
 }

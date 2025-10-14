@@ -6,7 +6,9 @@ import org.endeavourhealth.imapi.json.TTArrayDeserializer;
 import org.endeavourhealth.imapi.json.TTArraySerializer;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Stream;
 
 @JsonSerialize(using = TTArraySerializer.class)
@@ -105,7 +107,7 @@ public class TTArray implements Serializable {
   public boolean equals(Object object) {
     if (getElements().size() == 1) {
       if (!(object instanceof TTArray)) {
-        if (getElements().get(0).equals(object))
+        if (getElements().getFirst().equals(object))
           return true;
       }
     }

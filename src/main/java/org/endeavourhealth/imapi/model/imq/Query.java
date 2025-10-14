@@ -7,49 +7,53 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.ECLSyntaxError;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "activeOnly", "typeOf","instanceOf","and","or","not","path","where","return", "groupBy", "orderBy","dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
   @Getter
   private boolean activeOnly;
-  private List<Query> dataSet;
-  private List<GroupBy> groupBy;
+  private List<Match> columnGroup;
+  @Getter
+  private List<Query> query;
+
   private String iri;
   private String name;
   private boolean imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
-  @Getter
-  private Query subquery;
+
   @Getter
   private String bindAs;
+
+  public Query setQuery(List<Query> query) {
+    this.query = query;
+    return this;
+  }
+  public Query addQuery(Query query) {
+    if (this.query == null)
+      this.query = new ArrayList<>();
+    this.query.add(query);
+    return this;
+  }
+
+  public Query setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
     return this;
   }
 
-  public Query setSubquery(Query subquery) {
-    this.subquery = subquery;
-    return this;
-  }
-
-  public Query subquery (Consumer < Query > builder) {
-      Query subquery = new Query();
-      this.subquery = subquery;
-      builder.accept(subquery);
-      return this;
-    }
 
 
   public Query setRule(List<Match> rule) {
@@ -130,12 +134,6 @@ public class Query extends Match {
     return this;
   }
 
-  public Query dataset(Consumer<Query> builder) {
-    Query query = new Query();
-    addDataSet(query);
-    builder.accept(query);
-    return this;
-  }
 
 
   public Query setPath(List<Path> path) {
@@ -274,61 +272,49 @@ public class Query extends Match {
   }
 
 
+
+
+  public Query setGroupBy(List<GroupBy> groupBy) {
+   super.setGroupBy(groupBy);
+    return this;
+  }
+
+  public Query addGroupBy(GroupBy group) {
+    super.addGroupBy(group);
+    return this;
+  }
+
+  public Query groupBy(Consumer<GroupBy> builder) {
+    super.groupBy(builder);
+    return this;
+  }
+
   public Query setOrderBy(OrderLimit orderBy) {
     super.setOrderBy(orderBy);
     return this;
   }
 
-  public Query orderBy(Consumer<OrderLimit> builder) {
-    super.orderBy(builder);
-    return this;
-  }
-
-
-  public List<GroupBy> getGroupBy() {
-    return groupBy;
-  }
-
-  public Query setGroupBy(List<GroupBy> groupBy) {
-    this.groupBy = groupBy;
-    return this;
-  }
-
-  public Query addGroupBy(GroupBy group) {
-    if (this.groupBy == null)
-      this.groupBy = new ArrayList<>();
-    this.groupBy.add(group);
-    return this;
-  }
-
-  public Query groupBy(Consumer<GroupBy> builder) {
-    GroupBy group = new GroupBy();
-    addGroupBy(group);
-    builder.accept(group);
-    return this;
-  }
-
-  public List<Query> getDataSet() {
-    return dataSet;
+  public List<Match> getColumnGroup() {
+    return columnGroup;
   }
 
   @JsonSetter
-  public Query setDataSet(List<Query> dataSet) {
-    this.dataSet = dataSet;
+  public Query setColumnGroup(List<Match> columnGroup) {
+    this.columnGroup = columnGroup;
     return this;
   }
 
-  public Query addDataSet(Query query) {
-    if (this.dataSet == null)
-      this.dataSet = new ArrayList<>();
-    this.dataSet.add(query);
+  public Query addColumnGroup(Match match) {
+    if (this.columnGroup == null)
+      this.columnGroup = new ArrayList<>();
+    this.columnGroup.add(match);
     return this;
   }
 
-  public Query dataSet(Consumer<Query> builder) {
-    Query query = new Query();
-    addDataSet(query);
-    builder.accept(query);
+  public Query columnGroup(Consumer<Match> builder) {
+    Match match= new Match();
+    addColumnGroup(match);
+    builder.accept(match);
     return this;
   }
 

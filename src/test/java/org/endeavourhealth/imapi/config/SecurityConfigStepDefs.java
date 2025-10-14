@@ -1,8 +1,9 @@
 package org.endeavourhealth.imapi.config;
 
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
@@ -18,20 +19,27 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class SecurityConfigStepDefs {
-  @InjectMocks
-  SecurityConfig securityConfig = new SecurityConfig();
+  AutoCloseable mocks;
 
-  @Mock
-  AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
+  final SecurityConfig securityConfig = new SecurityConfig();
+  final List<String> permittedEndpoints = new ArrayList<>();
 
-  @Mock
-  AuthorizeHttpRequestsConfigurer.AuthorizedUrl authorisedUrl;
+  @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
+  @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorisedUrl;
 
-  List<String> permittedEndpoints = new ArrayList<>();
+  @Before
+  public void initMocks() {
+    mocks = MockitoAnnotations.openMocks(this);
+  }
+
+  @After
+  public void closeMocks() throws Exception {
+    mocks.close();
+  }
 
   @When("the server starts up")
   public void theIsPublicAPIIsCalled() {
-    MockitoAnnotations.initMocks(this);
+
     when(reqMatcher.anyRequest()).thenReturn(authorisedUrl);
     when(reqMatcher.requestMatchers(any(HttpMethod.class), any(String.class)))
       .thenAnswer(invocation -> {

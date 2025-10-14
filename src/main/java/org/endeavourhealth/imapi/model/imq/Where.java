@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
@@ -12,7 +15,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "instanceOf", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable, BoolGroup<Where> {
+public class Where extends Element implements Assignable {
   @Getter
   private String description;
   private Range range;
@@ -21,20 +24,20 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   @Getter
   private List<Node> is;
   @Getter
-  private List<Node> notIs;
-  private List<Where> not;
   private Operator operator;
   private String value;
   private String valueLabel;
+  @Getter
+  private boolean not;
+  @Getter
   private boolean anyRoleGroup;
   private boolean isNull;
   @Getter
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  private FunctionClause function;
-  private TTIriRef unit;
-  private String valueParameter;
+  @Getter
+  private TTIriRef units;
   private String valueVariable;
   @Getter
   private boolean inverse;
@@ -42,7 +45,21 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   private List<Where> or;
   @Getter
   private List<Where> and;
+  @Getter
+  private String shortLabel;
+  private FunctionClause function;
+  private TTIriRef qualifier;
 
+  public Where setNot(boolean not) {
+    this.not = not;
+    return this;
+  }
+
+
+  public Where setShortLabel(String shortLabel) {
+    this.shortLabel = shortLabel;
+    return this;
+  }
 
 
   public Where setRoleGroup(boolean roleGroup) {
@@ -57,18 +74,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     super.setIri(iri);
   }
 
-  public Where setNotIs(List<Node> notIs) {
-    this.notIs = notIs;
-    return this;
-  }
-
-  public Where addNotIs(Node notIs) {
-    if (this.notIs == null) {
-      this.notIs = new ArrayList<>();
-    }
-    this.notIs.add(notIs);
-    return this;
-  }
 
   public Where setAnd(List<Where> and) {
     this.and = and;
@@ -91,11 +96,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-
-  @Override
-  public List<Where> getNot() {
-    return this.not;
-  }
 
   public Where setOr(List<Where> or) {
     this.or = or;
@@ -136,29 +136,9 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  public Where setNot(List<Where> not) {
-    this.not = not;
-    return this;
-  }
-
-  public String getValueParameter() {
-    return valueParameter;
-  }
-
-  public Where setValueParameter(String valueParameter) {
-    this.valueParameter = valueParameter;
-    return this;
-  }
 
 
-  public FunctionClause getFunction() {
-    return function;
-  }
 
-  public Where setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
 
 
 
@@ -167,10 +147,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
   }
 
 
-  public Where setQualifier(String qualifier) {
-    super.setQualifier(qualifier);
-    return this;
-  }
 
   @Override
   public String getValueLabel() {
@@ -239,10 +215,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public boolean isAnyRoleGroup() {
-    return anyRoleGroup;
-  }
-
   public Where setAnyRoleGroup(boolean anyRoleGroup) {
     this.anyRoleGroup = anyRoleGroup;
     return this;
@@ -254,6 +226,7 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
+  @Override
   public Where setDescription(String description) {
     this.description = description;
     return this;
@@ -291,10 +264,6 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  public Operator getOperator() {
-    return this.operator;
-  }
-
   public Where setOperator(Operator operator) {
     this.operator = operator;
     return this;
@@ -323,6 +292,17 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
+  @Override
+  public Assignable setQualifier(TTIriRef qualifier) {
+    this.qualifier= qualifier;
+    return this;
+  }
+
+  @Override
+  public TTIriRef getQualifier() {
+    return this.qualifier;
+  }
+
 
   public Range getRange() {
     return range;
@@ -339,14 +319,27 @@ public class Where extends Element implements Assignable, BoolGroup<Where> {
     return this;
   }
 
-  @Override
-  public Where setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
+
+  public Where setUnits(TTIriRef units) {
+    this.units = units;
     return this;
   }
 
-  public TTIriRef getUnit() {
-    return this.unit;
+  @Override
+  public FunctionClause getFunction() {
+    return this.function;
   }
+
+  @Override
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Where function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
+    return this;
+  }
+
 
 }

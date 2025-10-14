@@ -4,33 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FunctionClause extends Value {
-  private Function name;
+public class FunctionClause extends IriLD {
   private List<Argument> argument;
-  private Range range;
-
-  public Range getRange() {
-    return range;
-  }
-
-  public FunctionClause setRange(Range range) {
-    this.range = range;
-    return this;
-  }
 
 
-  public FunctionClause range(Consumer<Range> builder) {
-    this.range = new Range();
-    builder.accept(this.range);
-    return this;
-  }
 
-  public Function getName() {
-    return name;
-  }
 
-  public FunctionClause setName(Function name) {
-    this.name = name;
+  public FunctionClause setName(String name) {
+    super.setName(name);
     return this;
   }
 
@@ -58,18 +39,6 @@ public class FunctionClause extends Value {
     return this;
   }
 
-
-  public Value setOperator(Operator operator) {
-    super.setOperator(operator);
-    return this;
-  }
-
-
-  @Override
-  public Value setValue(String value) {
-    super.setValue(value);
-    return this;
-  }
 
 
 }

@@ -13,6 +13,7 @@ import java.util.HashMap;
 public class TableMap {
   private HashMap<String, Table> properties;
   private HashMap<String, Table> dataModels;
+  private HashMap<String, String> functions;
 
   public TableMap() {
   }
@@ -32,13 +33,15 @@ public class TableMap {
       returnTable.setCondition(propTable.getCondition() != null ? propTable.getCondition() : dmTable.getCondition());
       returnTable.setFields(dmTable.getFields());
       returnTable.setRelationships(dmTable.getRelationships());
+      returnTable.setPrimaryKey(dmTable.getPrimaryKey());
       return returnTable;
     }
     Table returnTable = dataModels.get(iri);
     if (returnTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
-    returnTable.setDataModel(iri);
+    if (null == returnTable.getDataModel())
+      returnTable.setDataModel(iri);
     return returnTable;
   }
 

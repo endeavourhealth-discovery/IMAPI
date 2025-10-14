@@ -10,7 +10,9 @@ import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -18,28 +20,6 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 @Slf4j
 @Configuration
 public class ConfigManager {
-
-  private String DELETE_INSERT_SPARQL = """
-    DELETE {
-        ?s ?p ?oAny
-    }
-    INSERT {
-        ?s ?p ?o
-    }
-    WHERE {
-        ?s ?p ?oAny
-    }
-    """;
-  private String INSERT_SPARQL = """
-    DELETE {
-        ?s ?p ?oAny
-    }
-    INSERT {
-        ?s ?p ?o
-    }
-    WHERE {}
-    """;
-
   public <T> T getConfig(CONFIG iri, TypeReference<T> resultType) throws JsonProcessingException {
     log.debug("getConfig<TypeReference>");
 
@@ -63,7 +43,7 @@ public class ConfigManager {
     try (ConfigDB conn = ConfigDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", config.asDbIri());
-      qry.setBinding("label",CONFIG.LABEL.asDbIri());
+      qry.setBinding("label", CONFIG.LABEL.asDbIri());
       qry.setBinding("config", CONFIG.HAS_CONFIG.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -89,9 +69,21 @@ public class ConfigManager {
       throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper();
          ConfigDB conn = ConfigDB.getConnection()) {
-      String query = DELETE_INSERT_SPARQL;
-      if (null == getConfig(subject)) query = INSERT_SPARQL;
-      Update qry = conn.prepareInsertSparql(query, Graph.CONFIG);
+
+      String query = """
+        DELETE {
+            ?s ?p ?oAny
+        }
+        INSERT {
+            ?s ?p ?o
+        }
+        """;
+
+      query += (null == getConfig(subject))
+        ? "WHERE {}"
+        : "WHERE { ?s ?p ?oAny }";
+
+      Update qry = conn.prepareUpdateSparql(query, Graph.CONFIG);
       qry.setBinding("s", subject.asDbIri());
       qry.setBinding("p", predicate.asDbIri());
       qry.setBinding("o", literal(object));

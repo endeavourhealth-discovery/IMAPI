@@ -1,26 +1,53 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-public class Value implements Assignable {
-  private Operator operator;
-  private String value;
-  private String qualifier;
-  private String valueLabel;
-  private String valueParameter;
-  private TTIriRef unit;
+import java.util.function.Consumer;
 
-  public String getValueParameter() {
-    return valueParameter;
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class Value implements Assignable {
+  @Getter
+  private Operator operator;
+  @Getter
+  private String value;
+  @Getter
+  private TTIriRef qualifier;
+  private String valueLabel;
+  @Getter
+  private String valueParameter;
+  private FunctionClause function;
+  private String description;
+  @Getter
+  private TTIriRef units;
+
+  public Value setUnits(TTIriRef units) {
+    this.units = units;
+    return this;
   }
+
+
+  @Override
+  public FunctionClause getFunction() {
+    return this.function;
+  }
+
+  @Override
+  public Value setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+  public Value function(Consumer<FunctionClause> builder) {
+    this.function = new FunctionClause();
+    builder.accept(this.function);
+    return this;
+  }
+
 
   public Value setValueParameter(String valueParameter) {
     this.valueParameter = valueParameter;
     return this;
-  }
-
-  public Operator getOperator() {
-    return operator;
   }
 
   public Value setOperator(Operator operator) {
@@ -29,20 +56,12 @@ public class Value implements Assignable {
   }
 
 
-  public String getValue() {
-    return value;
-  }
-
   @Override
   public Value setValue(String value) {
     this.value = value;
     return this;
   }
 
-
-  public String getQualifier() {
-    return this.qualifier;
-  }
 
   @Override
   public String getValueLabel() {
@@ -56,21 +75,27 @@ public class Value implements Assignable {
     return this;
   }
 
-  public Value setQualifier(String qualifier) {
+  @Override
+  public Value setDescription(String description) {
+    this.description= description;
+    return this;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+
+  public Value setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
-  @Override
-  public TTIriRef getUnit() {
-    return this.unit;
-  }
 
-  @Override
-  public Assignable setUnit(TTIriRef intervalUnit) {
-    this.unit = intervalUnit;
-    return this;
-  }
+
+
+
 
 
 }

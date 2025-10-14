@@ -5,16 +5,24 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SQLConversionException extends Throwable {
-  private String message;
+public class SQLConversionException extends Exception {
   private String sql;
 
   public SQLConversionException(String message) {
-    this.message = message;
+    super(message);
+  }
+
+  public SQLConversionException(String message, Throwable cause) {
+    super(message,  cause);
   }
 
   public SQLConversionException(String message, String sql) {
-    this.message = message;
+    super(message);
+    this.sql = sql;
+  }
+
+  public SQLConversionException(String message, String sql, Throwable cause) {
+    super(message, cause);
     this.sql = sql;
   }
 }

@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
-import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.Comparator;

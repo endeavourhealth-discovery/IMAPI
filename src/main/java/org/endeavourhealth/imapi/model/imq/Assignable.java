@@ -3,28 +3,28 @@ package org.endeavourhealth.imapi.model.imq;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public interface Assignable {
-  public Operator getOperator();
+  Operator getOperator();
 
-  public Assignable setOperator(Operator operator);
+  Assignable setOperator(Operator operator);
 
-  public String getValue();
+  String getValue();
 
-  public Assignable setValue(String value);
+  Assignable setValue(String value);
 
-  Assignable setQualifier(String qualifier);
+  Assignable setQualifier(TTIriRef qualifier);
 
-  String getQualifier();
+  TTIriRef getQualifier();
 
   String getValueLabel();
 
   Assignable setValueLabel(String label);
+  Assignable setDescription(String description);
+  String getDescription();
+  FunctionClause getFunction();
+  Assignable setFunction(FunctionClause function);
+  TTIriRef getUnits();
+  Assignable setUnits(TTIriRef unit);
 
-  TTIriRef getUnit();
 
-  Assignable setUnit(TTIriRef unit);
-
-  Assignable setValueParameter(String parameter);
-
-  String getValueParameter();
 
 }

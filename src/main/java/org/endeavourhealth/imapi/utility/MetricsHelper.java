@@ -83,7 +83,7 @@ public class MetricsHelper {
 
   private static String getHostName() throws IOException {
     Runtime r = Runtime.getRuntime();
-    Process p = r.exec("hostname");
+    Process p = r.exec(new String[] { "hostname" });
     try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
       return br.readLine();
     }
@@ -95,11 +95,12 @@ public class MetricsHelper {
 
       int frequency = con.getFrequency();
 
-      ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
+      try (ConsoleReporter reporter = ConsoleReporter.forRegistry(registry)
         .convertRatesTo(TimeUnit.SECONDS)
         .convertDurationsTo(TimeUnit.MILLISECONDS)
-        .build();
-      reporter.start(frequency, TimeUnit.SECONDS);
+        .build()) {
+        reporter.start(frequency, TimeUnit.SECONDS);
+      }
       log.info("Console metrics reporter started");
     }
   }
@@ -216,17 +217,4 @@ public class MetricsHelper {
       }
     }
   }
-
-  /*    *//**
-   * simple gauge that just reports a value of 1 whenever polled, to report the application is running
-   *//*
-    class HeartbeatGaugeImpl implements Gauge<Integer> {
-
-        public HeartbeatGaugeImpl() {}
-
-        @Override
-        public Integer getValue() {
-            return 1;
-        }
-    }*/
 }

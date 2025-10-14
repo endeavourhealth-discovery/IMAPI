@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","and","or","not","where","return","then"})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","path","and","or","not","where","return","then"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
+public class Match extends IriLD implements HasPaths {
   private Element graph;
   @Getter
   private Where where;
@@ -70,19 +70,55 @@ public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   private boolean invalid;
   @Getter
   private TTIriRef isCohort;
-  @Getter Query retainAs;
+  private List<GroupBy> groupBy;
+  @Getter
+  private String keepAs;
+  private OrderLimit orderBy;
 
+  public OrderLimit getOrderBy() {
+    return orderBy;
+  }
 
-  public Match setRetainAs(Query retainAs) {
-    this.retainAs = retainAs;
+  public Match setOrderBy(OrderLimit orderBy) {
+    this.orderBy = orderBy;
     return this;
   }
-  public Query retainAs(Consumer<Query> builder) {
-    Query query = new Query();
-    setRetainAs(query);
-    builder.accept(query);
-    return query;
+
+  public Match orderBy(Consumer<OrderLimit> builder) {
+    this.orderBy = new OrderLimit();
+    builder.accept(this.orderBy);
+    return this;
   }
+
+  public Match setKeepAs(String keepAs) {
+    this.keepAs = keepAs;
+    return this;
+  }
+
+
+  public List<GroupBy> getGroupBy() {
+    return groupBy;
+  }
+
+  public Match setGroupBy(List<GroupBy> groupBy) {
+    this.groupBy = groupBy;
+    return this;
+  }
+
+  public Match addGroupBy(GroupBy group) {
+    if (this.groupBy == null)
+      this.groupBy = new ArrayList<>();
+    this.groupBy.add(group);
+    return this;
+  }
+
+  public Match groupBy(Consumer<GroupBy> builder) {
+    GroupBy group = new GroupBy();
+    addGroupBy(group);
+    builder.accept(group);
+    return this;
+  }
+
 
   public Match setIsCohort(TTIriRef isCohort) {
     this.isCohort = isCohort;

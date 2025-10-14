@@ -65,6 +65,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareDeleteSparql(String sparql) {
+    sparql= sparql.trim();
     if (!sparql.toUpperCase().startsWith("DELETE"))
       throw new DALException("This doesnt appear to be an DELETE statement");
 
@@ -72,6 +73,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareInsertSparql(String sparql, Graph graph) {
+    sparql= sparql.trim();
     if (!sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This doesnt appear to be an INSERT statement");
 
@@ -85,6 +87,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public Update prepareUpdateSparql(String sparql, Graph graph) {
+    sparql= sparql.trim();
     if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");
 
@@ -125,6 +128,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public BooleanQuery prepareBooleanSparql(String sparql) {
+    sparql= sparql.trim();
     if (!sparql.toUpperCase().startsWith("ASK"))
       throw new DALException("This doesnt appear to be an ASK statement");
 

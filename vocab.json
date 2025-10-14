@@ -554,6 +554,10 @@
         "value": "Namespace.IM + \"sourceField\""
       },
       {
+        "name": "TIME_DIFFERENCE",
+        "value": "Namespace.IM + \"TimeDifference\""
+      },
+      {
         "name": "SOURCE_CODE_SCHEME",
         "value": "Namespace.IM + \"sourceCodeScheme\""
       },
@@ -834,6 +838,14 @@
         "value": "Namespace.IM + \"dependentOn\""
       },
       {
+        "name": "CARE_ACTIVITY",
+        "value": "Namespace.IM + \"CareActivity\""
+      },
+      {
+        "name": "CARE_TARGET",
+        "value": "Namespace.IM + \"CareTarget\""
+      },
+      {
         "name": "QUERY_TEMPLATE",
         "value": "Namespace.IM + \"QueryTemplate\""
       },
@@ -1106,8 +1118,20 @@
         "value": "Namespace.IM + \"parameter\""
       },
       {
+        "name": "NUMERIC_DIFFERENCE",
+        "value": "Namespace.IM + \"NumericDifference\""
+      },
+      {
+        "name": "FISCAL_YEAR",
+        "value": "Namespace.IM + \"fiscalYear\""
+      },
+      {
         "name": "YEARS",
         "value": "Namespace.IM + \"Years\""
+      },
+      {
+        "name": "MONTH",
+        "value": "Namespace.IM + \"month\""
       },
       {
         "name": "MONTHS",
@@ -2160,7 +2184,6 @@
         "name": "ALLOWABLE_PROPERTIES",
         "value": "Namespace.IM_QUERY + \"AllowableProperties\""
       },
-
       {
         "name": "ALLOWABLE_PROPERTY_ANCESTORS",
         "value": "Namespace.IM_QUERY + \"AllowablePropertyAncestors\""

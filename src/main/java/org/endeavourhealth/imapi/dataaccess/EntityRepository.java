@@ -729,8 +729,9 @@ public class EntityRepository {
     List<String> schemes = namespaces.stream().map(Namespace::toString).toList();
 
     String sql = """
-      SELECT ?concept ?label ?type
+      SELECT ?concept ?label ?legacyLabel ?type
       WHERE {
+        values ?code {%s}
         values ?codeProperty {im:code im:codeId im:alternativeCode}
         %s
         {
@@ -756,16 +757,17 @@ public class EntityRepository {
         }
         UNION {
           ?legacy ?codeProperty ?code.
+          ?legacy im:hasTermCode ?tc.
+          ?tc rdfs:label ?legacyLabel.
           ?legacy im:matchedTo ?concept.
           ?concept rdfs:label ?label.
           ?concept im:scheme ?schemes .
         }
         ?concept rdf:type ?type.
       }
-      """.formatted(SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\""+ code+"\"",SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("code", Values.literal(code));
       return getConceptRefsFromResult(qry);
     }
   }
@@ -951,6 +953,8 @@ public class EntityRepository {
           Entity concept = new Entity().setIri(iri);
           concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
+          if (bs.getValue("legacyLabel")!=null)
+            concept.setName(bs.getValue("legacyLabel").stringValue());
           results.add(concept);
         }
 
@@ -2027,5 +2031,41 @@ public class EntityRepository {
       }
     }
     return null;
+  }
+
+  public List<TTBundle> getEntityFromTerm(String term, Set<String> schemes) {
+    String sql = """
+      select ?concept ?label
+      where {
+        Values ?term {%s}
+        %s
+        {
+          ?concept rdfs:label ?term;
+                   im:scheme ?scheme.
+          filter(isIri(?concept))
+        }
+        union {
+          ?tc rdfs:label ?term.
+          ?concept im:hasTermCode ?tc;
+                   im:scheme ?scheme.
+        }
+      }
+      """.formatted("\""+term+"\"",SparqlHelper.valueList("scheme", schemes));
+    List<TTBundle> result = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          TTBundle bundle = new TTBundle();
+          result.add(bundle);
+          TTEntity entity = new TTEntity();
+          bundle.setEntity(entity);
+          entity.setName(term);
+          entity.setIri(bs.getValue("concept").stringValue());
+        }
+      }
+    }
+    return result;
   }
 }

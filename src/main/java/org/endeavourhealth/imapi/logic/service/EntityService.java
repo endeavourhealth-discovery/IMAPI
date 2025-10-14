@@ -537,6 +537,10 @@ public class EntityService {
   public List<String> getChildIris(String iri) {
     return entityRepository.getChildIris(iri);
   }
+
+  public List<TTBundle> getEntityFromTerm(String term, Set<String> schemes) {
+    return entityRepository.getEntityFromTerm(term,schemes);
+  }
 }
 
 

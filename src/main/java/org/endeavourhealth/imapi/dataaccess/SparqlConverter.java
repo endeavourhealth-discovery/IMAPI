@@ -477,6 +477,9 @@ public class SparqlConverter {
    * @param where   the processWhere clause
    */
   private void processWhere(StringBuilder whereQl, String subject, Where where, String pathVariable, boolean isInRoleGroup) throws QueryException {
+    if (where.getIs() != null&&where.isNot()) {
+      throw new QueryException("isNotIs not supported in a where clause");
+    }
     if (pathVariable != null) {
       subject = pathVariable;
     }
@@ -505,9 +508,7 @@ public class SparqlConverter {
       }
       processWhereProperty(whereQl, subject, where);
       if (where.getIs() != null) {
-        processWhereIs(whereQl, where, false);
-      } else if (where.getNotIs() != null) {
-        processWhereIs(whereQl, where, true);
+        processWhereIs(whereQl, where);
       } else if (where.getValue() != null) {
         whereValue(whereQl, where);
       } else if (where.getValueVariable() != null) {
@@ -570,24 +571,11 @@ public class SparqlConverter {
       }
       whereQl.append("}\n");
     }
-    if (where.getNot() != null) {
-      whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
-      whereQl.append("{\n");
-      int i = -1;
-      for (Where not : where.getNot()) {
-        i++;
-        if (i == 0) whereQl.append("{\n");
-        else whereQl.append(" UNION {\n");
-        processWhere(whereQl, subject, not, pathVariable, isInRoleGroup);
-        whereQl.append("}\n");
-      }
-      whereQl.append("}}\n");
-    }
   }
 
-  private void processWhereIs(StringBuilder whereQl, Where where, boolean isNot) throws QueryException {
-    String not = isNot ? " not " : "";
-    List<Node> in = isNot ? where.getNotIs() : where.getIs();
+  private void processWhereIs(StringBuilder whereQl, Where where) throws QueryException {
+
+    List<Node> in = where.getIs();
     boolean subTypes = false;
     boolean superTypes = false;
     for (Element item : in) {
@@ -740,7 +728,7 @@ public class SparqlConverter {
         }
       }
     }
-    if (null != clause.getReturn().getOrderBy() && !countOnly && null != clause.getReturn().getOrderBy().getProperty()) {
+    if (null != clause.getOrderBy() && !countOnly && null != clause.getOrderBy().getProperty()) {
       generateOrderBy(selectQl, clause);
     }
 
@@ -753,7 +741,7 @@ public class SparqlConverter {
 
   private void generateOrderBy(StringBuilder selectQl, Query clause) throws QueryException {
     selectQl.append("Order by ");
-    for (OrderDirection order : clause.getReturn().getOrderBy().getProperty()) {
+    for (OrderDirection order : clause.getOrderBy().getProperty()) {
       if (null != order.getDirection() && order.getDirection().equals(Order.descending))
         selectQl.append("DESC(");
       else
@@ -763,8 +751,8 @@ public class SparqlConverter {
       else throw new QueryException("Order by missing identifier: iri / valueVariable");
       selectQl.append(")");
     }
-    if (null == queryRequest.getPage() && clause.getReturn().getOrderBy().getLimit() > 0) {
-      selectQl.append("LIMIT ").append(clause.getReturn().getOrderBy().getLimit()).append("\n");
+    if (null == queryRequest.getPage() && clause.getOrderBy().getLimit() > 0) {
+      selectQl.append("LIMIT ").append(clause.getOrderBy().getLimit()).append("\n");
     } else {
       selectQl.append("\n");
     }

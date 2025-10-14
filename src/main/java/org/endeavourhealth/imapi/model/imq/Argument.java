@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
@@ -25,11 +26,18 @@ public class Argument {
   private Path valuePath;
   private String valueNodeRef;
   private TTIriRef dataType;
-  private List<Path> valuePathList;
   @Getter
   private Object valueObject;
   @Getter
   private String valueVariable;
+  @Getter
+  private TTIriRef qualifier;
+
+
+  public Argument setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
 
   public Argument setValueVariable(String valueVariable) {
     this.valueVariable = valueVariable;
@@ -41,19 +49,6 @@ public class Argument {
     return this;
   }
 
-  public List<Path> getValuePathList() {
-    return valuePathList;
-  }
-  public Argument setValuePathList(List<Path> valuePathList) {
-    this.valuePathList = valuePathList;
-    return this;
-  }
-  public Argument addValuePath(Path valuePath) {
-    if (this.valuePathList == null)
-      this.valuePathList = List.of();
-    this.valuePathList.add(valuePath);
-    return this;
-  }
 
 
   public String getValueNodeRef() {
@@ -150,7 +145,27 @@ public class Argument {
 
   @Override
   public int hashCode() {
-    return Objects.hash(parameter, valueData, valueParameter, valueIri != null ? valueIri.getIri() : null, valueIriList, valueDataList, valuePath, dataType);
+
+    return Objects.hash(getHashString());
+  }
+
+  @JsonIgnore
+  public String getHashString() {
+    StringBuilder hs = new StringBuilder();
+    if (null != parameter) hs.append(parameter);
+    if (null != valueData) hs.append(valueData);
+    if (null != valueParameter) hs.append(valueParameter);
+    if (null != valueIri) hs.append(valueIri.getIri());
+    if (null != valueDataList) {
+      List<String> sorted = valueDataList.stream().sorted().toList();
+      for (String s : sorted) hs.append(s);
+    }
+    if (null != valuePath) hs.append(valuePath.getIri());
+    if (null != valueNodeRef) hs.append(valueNodeRef);
+    if (null != dataType) hs.append(dataType.getIri());
+    if (null != valueObject) hs.append(valueObject);
+    if (null != valueVariable) hs.append(valueVariable);
+    return hs.toString();
   }
 
 }

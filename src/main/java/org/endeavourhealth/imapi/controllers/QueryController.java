@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -121,6 +122,22 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
       return queryService.describeQuery(iri, displayMode);
+    }
+  }
+  @GetMapping(value = "/public/expandCohort", produces = "application/json")
+  @Operation(
+    summary = "Expands a cohort reference from a source query",
+    description = "Retrieves the details of a query based on the given source and cohort IRI."
+  )
+  public Query expandCohort(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "cohortIri") String cohortIri,
+    @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("expandCohort");
+      return queryService.expandCohort(queryIri,cohortIri, displayMode);
     }
   }
 
@@ -232,6 +249,21 @@ public class QueryController {
       return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
+  @GetMapping("/public/imlFromIri")
+  @Operation(
+    summary = "Generate IML from a query iri",
+    description = "Generates IMQ from the given IMQ query IRI."
+  )
+  public IMLLanguage getIMLFromIMQIri(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) throws  QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
+      log.debug("getIMLFromIMQIri");
+      return queryService.getIMLFromIMQIri(queryIri);
+    }
+  }
+
 
   @PostMapping("/addToQueue")
   @Operation(
@@ -351,12 +383,12 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/testRunQuery")
+  @PostMapping("/public/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
-  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
+  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
       log.debug("testRunQuery");
-      return queryService.testRunQuery(query.getQuery());
+      return queryService.testRunQuery(queryRequest);
     }
   }
 

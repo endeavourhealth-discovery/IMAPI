@@ -72,15 +72,11 @@ public class EqdToIMQ {
     return this;
   }
 
-  public static void addGmsPatient(String patientId) {
-    gmsPatients.add(patientId);
-  }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Namespace namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
-    this.resources.setCriteriaMaps(criteriaMaps);
     this.resources.setBaseCounter(0);
     if (singleEntity==null){
       this.addReportNames(eqd);
@@ -149,20 +145,7 @@ public class EqdToIMQ {
     }
   }
 
-  private void addLibraryEntities() throws JsonProcessingException {
-    for (Map.Entry<String, Match> entries : criteriaLibrary.entrySet()) {
-      String iri = entries.getKey();
-      if (criteriaLibraryCount.get(iri) > 1) {
-        Match match = entries.getValue();
-        TTEntity matchClause = new TTEntity()
-          .setIri(iri)
-          .addType(iri(IM.MATCH_CLAUSE))
-          .setName(match.getDescription());
-        matchClause.set(IM.DEFINITION, TTLiteral.literal(match));
-        document.addEntity(matchClause);
-      }
-    }
-  }
+
 
   private void deduplicate() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
@@ -188,6 +171,7 @@ public class EqdToIMQ {
         TTEntity entity = new TTEntity()
           .setIri(libraryIri)
           .addType(iri(IM.QUERY))
+          .setScheme(iri(namespace))
           .setName(match.getDescription())
           .set(iri(IM.DEFINITION), TTLiteral.literal(match));
         document.addEntity(entity);
@@ -227,6 +211,9 @@ public class EqdToIMQ {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() != null) {
         this.resources.reportNames.put(eqReport.getId(), eqReport.getName());
+      }
+      if (eqReport.getName()!=null &&eqReport.getName().equals("All currently registered patients")) {
+        gmsPatients.add(eqReport.getId());
       }
     }
 
@@ -270,8 +257,8 @@ public class EqdToIMQ {
       }
     }
 
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
+    if (query.getColumnGroup() != null) {
+      for (Match subQuery : query.getColumnGroup()) {
         this.checkGms(subQuery);
       }
     }
@@ -349,7 +336,7 @@ public class EqdToIMQ {
       return null;
     } else {
       queryEntity.addType(iri(IM.QUERY));
-      if (qry.getDataSet() != null && !eqReport.getName().toLowerCase().contains("report")) {
+      if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");
         eqReport.setName(eqReport.getName() + " -report");
       }

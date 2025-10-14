@@ -121,6 +121,16 @@ public class EntityController {
     }
   }
 
+
+  @GetMapping(value = "/public/entityFromTerm", produces = "application/json")
+  @Operation(summary = "Get entity bundle from term and scheme", description = "Fetches a set of partial entity bundle by term and scheme")
+  public List<TTBundle> getEntityFromTerm(HttpServletRequest request, @RequestParam(name = "term") String term, @RequestParam(name = "schemes") Set<String> schemes) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
+      log.debug("getEntitiesFromTerm " + term + " " + schemes + "");
+      return entityService.getEntityFromTerm(term,schemes);
+    }
+  }
+
   @GetMapping(value = "/public/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
   public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) Graph graph) {

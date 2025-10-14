@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
@@ -22,6 +23,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
+import org.endeavourhealth.imapi.transforms.IMQToIML;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -105,15 +107,17 @@ public class QueryService {
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
       TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION)).getEntity();
+      if (!queryEntity.has(iri(IM.DEFINITION)))
+        throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
       query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       query.setIri(queryEntity.getIri());
     } else {
       query = queryRequest.getQuery();
     }
-
-    query = describeQuery(query, DisplayMode.LOGICAL);
+    new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     if (query == null) return null;
-    return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()).setQueryStringDefinition(objectMapper.writeValueAsString(query));
+    if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
+    return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
 
   public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
@@ -175,9 +179,7 @@ public class QueryService {
     Map<String, Integer> queryIrisToHashCodes = getQueryIrisToHashCodes(subQueries, queryRequest.getArgument());
     if (!subQueries.isEmpty())
       for (String subQueryIri : subQueries) {
-        Query subquery = describeQuery(subQueryIri, DisplayMode.LOGICAL);
-        QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
-        subqueryRequest.setArgument(queryRequest.getArgument());
+        QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(queryRequest.getArgument()));
         int hashCode = subqueryRequest.hashCode();
         log.debug("Subquery found: {} with hash: {}", subQueryIri, hashCode);
         if (!queryResultsMap.containsKey(hashCode) && !MYSQLConnectionManager.tableExists(hashCode)) {
@@ -192,12 +194,10 @@ public class QueryService {
     return queryIrisToHashCodes;
   }
 
-  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException {
+  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException, SQLConversionException {
     Map<String, Integer> queryIrisToHashCodes = new HashMap<>();
     for (String subQueryIri : subQueries) {
-      Query subquery = describeQuery(subQueryIri, DisplayMode.LOGICAL);
-      QueryRequest subqueryRequest = new QueryRequest().setQuery(subquery);
-      subqueryRequest.setArgument(argument);
+      QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(argument));
       int hashCode = subqueryRequest.hashCode();
       queryIrisToHashCodes.put(subQueryIri, hashCode);
     }
@@ -262,14 +262,9 @@ public class QueryService {
     return null;
   }
 
-  public Set<String> testRunQuery(Query query) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
-    QueryRequest queryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(query));
-    Page page = new Page();
-    page.setPageNumber(1);
-    page.setPageSize(10);
-    queryRequest.setPage(page);
-    queryRequest.setQuery(query);
-    return executeQuery(queryRequest);
+  public Set<String> testRunQuery(QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
+//    should connect to test data database (current one)
+    return executeQuery(getQueryRequestForSqlConversion(queryRequest));
   }
 
   public Query flattenQuery(Query query) {
@@ -350,18 +345,15 @@ public class QueryService {
     if (null != where.getOr()) {
       where.getOr().forEach(or -> recursivelyCheckWhereArguments(or, missingArguments, arguments));
     }
-    if (null != where.getNot()) {
-      where.getNot().forEach(not -> recursivelyCheckWhereArguments(not, missingArguments, arguments));
-    }
-    if (null != where.getIs()) {
+    if (null != where.getIs()&&!where.isNot()) {
       where.getIs().forEach(is -> {
         if (null != is.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(is.getParameter()))) {
           addMissingArgument(missingArguments, is.getParameter(), is.getIri());
         }
       });
     }
-    if (null != where.getNotIs()) {
-      where.getNotIs().forEach(notIs -> {
+    if (null != where.getIs()&&where.isNot()) {
+      where.getIs().forEach(notIs -> {
         if (null != notIs.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(notIs.getParameter()))) {
           addMissingArgument(missingArguments, notIs.getParameter(), notIs.getIri());
         }
@@ -407,7 +399,7 @@ public class QueryService {
       if (where.getNodeRef() != null) {
         nodeRefs.add(where.getNodeRef());
       }
-      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
         if (whereList != null) {
           for (Where subWhere : whereList)
             getNodeRefs(subWhere, nodeRefs);
@@ -420,7 +412,7 @@ public class QueryService {
     if (where.getNodeRef() != null) {
       nodeRefs.add(where.getNodeRef());
     }
-    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr(), where.getNot())) {
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
       if (whereList != null) {
         for (Where subWhere : whereList)
           getNodeRefs(subWhere, nodeRefs);
@@ -448,6 +440,10 @@ public class QueryService {
   }
 
   private void populateSubqueryIrisConclusively(Query query, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
+    if (query.getIsCohort() != null) {
+      subQueryIris.add(query.getIsCohort().getIri());
+    }
+
     if (query.getAnd() != null) {
       for (Match and : query.getAnd()) {
         processMatch(and, subQueryIris);
@@ -494,5 +490,15 @@ public class QueryService {
       }
     }
   }
+
+  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    Query query = new QueryRepository().expandCohort(queryIri, cohortIri, displayMode);
+    query = new QueryDescriptor().describeQuery(query, displayMode);
+    return query;
+  }
+  public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
+    return new IMQToIML().getIML(queryIri);
+  }
+
 
 }

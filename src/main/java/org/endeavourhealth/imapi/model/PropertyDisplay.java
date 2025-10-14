@@ -15,6 +15,8 @@ public class PropertyDisplay {
   private String cardinality;
   private boolean isOr;
   private boolean isType;
+  private boolean isNode;
+  private String reverseCardinality;
 
   public PropertyDisplay() {
     property = new ArrayList<>();
@@ -69,6 +71,16 @@ public class PropertyDisplay {
 
   public PropertyDisplay setType(boolean type) {
     isType = type;
+    return this;
+  }
+
+  public PropertyDisplay setNode(boolean node) {
+    isNode = node;
+    return this;
+  }
+
+  public PropertyDisplay setReverseCardinality(String cardinality) {
+    reverseCardinality = cardinality;
     return this;
   }
 }

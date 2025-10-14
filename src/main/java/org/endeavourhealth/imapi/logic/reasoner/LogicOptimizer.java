@@ -11,6 +11,7 @@ import java.util.*;
 public class LogicOptimizer {
   Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
+  private String lastTypeOf;
 
 
 
@@ -164,13 +165,13 @@ public class LogicOptimizer {
   }
 
 
-  private static <T extends BoolGroup<T>> void cleanBoolGroup(T group, T parent, Bool parentOp, Integer parentIndex) {
+  private static  void cleanBoolGroup(Match group, Match parent, Bool parentOp, Integer parentIndex) {
     clean(group, parent, parentOp, parentIndex, Bool.and);
     clean(group, parent, parentOp, parentIndex, Bool.or);
   }
 
-  private static <T extends BoolGroup<T>> void clean(T group, T parent, Bool parentOp, Integer parentIndex, Bool op) {
-    List<T> list = (op == Bool.and) ? group.getAnd() : group.getOr();
+  private static void clean(Match group, Match parent, Bool parentOp, Integer parentIndex, Bool op) {
+    List<Match> list = (op == Bool.and) ? group.getAnd() : group.getOr();
     if (list == null) return;
     for (int i = 0; i < list.size(); i++) {
       cleanBoolGroup(list.get(i), group, op, i);
@@ -179,7 +180,7 @@ public class LogicOptimizer {
       if (op == Bool.and) group.setAnd(null);
       else group.setOr(null);
     } else if (list.size() == 1 && parent != null) {
-      T only = list.getFirst();
+      Match only = list.getFirst();
       if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
       else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
     }
@@ -188,14 +189,8 @@ public class LogicOptimizer {
 
   private static void cleanBooleans(Match match) {
     cleanBoolGroup(match, null, null, null);
-    if (match.getWhere() != null) {
-      cleanBooleans(match.getWhere());
-    }
   }
 
-  private static void cleanBooleans(Where where) {
-    cleanBoolGroup(where, null, null, null);
-  }
 
   public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
     if (displayMode == DisplayMode.LOGICAL) {
@@ -263,7 +258,8 @@ public class LogicOptimizer {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;
-    if (match.getWhere() == null && match.getAnd().size() > 1) {
+    if (match.getWhere() == null && match.getIsCohort()==null){
+      if (match.getAnd().size() > 1){
       List<Match> originalAnds = match.getAnd();
       List<Match> optimalAnds = new ArrayList<>();
       getCommonAnds(originalAnds, commonMatches, optimalAnds);
@@ -279,6 +275,22 @@ public class LogicOptimizer {
         }
       }
       match.setAnd(optimalAnds);
+    }
+    else if (match.getAnd().size() == 1) {
+      Match and= match.getAnd().getFirst();
+      if (and.getWhere()==null&&and.getReturn()==null){
+        if (and.getOr()!=null){
+          match.setOr(and.getOr());
+          match.setAnd(null);
+          match.setReturn(and.getReturn());
+          match.setNot(and.getNot());
+        } else if (and.getAnd()!=null){
+            match.setAnd(and.getAnd());
+            match.setOr(null);
+            match.setReturn(and.getReturn());
+          }
+        }
+     }
     }
   }
 
@@ -382,7 +394,7 @@ public class LogicOptimizer {
     if (where.getAnd() != null) {
       List<Where> flatWheres = new ArrayList<>();
       for (Where child : where.getAnd()) {
-        if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
+        if (child.getAnd() != null && child.getOr() == null) {
           flatWheres.addAll(child.getAnd());
         } else flatWheres.add(child);
         flattenWhere(child);
@@ -392,7 +404,7 @@ public class LogicOptimizer {
     if (where.getOr() != null) {
       List<Where> flatWheres = new ArrayList<>();
       for (Where child : where.getOr()) {
-        if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
+        if (child.getOr() != null && child.getAnd() == null) {
           flatWheres.addAll(child.getOr());
         } else flatWheres.add(child);
         flattenWhere(child);

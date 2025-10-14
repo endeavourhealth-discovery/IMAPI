@@ -20,9 +20,9 @@ public class IriCollector {
   }
 
   private static void collectQueryIris(Query query, Set<String> iris){
-    if (query.getDataSet() != null) {
-      for (Query subQuery : query.getDataSet()) {
-        collectQueryIris(subQuery, iris);
+    if (query.getColumnGroup() != null) {
+      for (Match subQuery : query.getColumnGroup()) {
+        collectMatchIris(subQuery, iris);
       }
     }
     collectMatchIris(query, iris);
@@ -96,9 +96,9 @@ public class IriCollector {
     }
     if (match.getReturn() != null) {
        collectReturnIris(match.getReturn(), iriSet);
-       if (match.getReturn().getOrderBy()!=null){
-         collectOrderByIris(match.getReturn().getOrderBy(),iriSet);
-       }
+    }
+    if (match.getOrderBy()!=null){
+      collectOrderByIris(match.getOrderBy(),iriSet);
     }
   }
 
@@ -114,6 +114,9 @@ public class IriCollector {
   private static void collectWhereIris(Where where, Set<String> iriSet) {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
+    }
+    if (where.getQualifier() != null) {
+      iriSet.add(where.getQualifier().getIri());
     }
     if (where.getAnd() != null) {
       for (Where subWhere : where.getAnd()) {
@@ -143,6 +146,9 @@ public class IriCollector {
     }
     if (where.getValue() != null) {
       collectAssignableIris(where, iriSet);
+    }
+    if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
+      iriSet.add(where.getRelativeTo().getQualifier().getIri());
     }
   }
 

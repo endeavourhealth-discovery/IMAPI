@@ -1,17 +1,20 @@
 package org.endeavourhealth.imapi.transforms;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -23,46 +26,40 @@ public class EqdListToIMQ {
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     String id;
-    if (eqReport.getParent().getSearchIdentifier() != null){
+    if (eqReport.getParent().getSearchIdentifier() != null) {
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
-    }
-    else if (eqReport.getParent().getParentType()==VocPopulationParentType.ACTIVE){
-      id= Namespace.IM+"Q_RegisteredGMS";
-    }
-    else throw new EQDException("parent population at definition level");
-
+    } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
+      id = Namespace.IM + "Q_RegisteredGMS";
+    } else throw new EQDException("parent population at definition level");
     query.setIsCohort(iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
-      Query subQuery = new Query();
+      Match subQuery = new Match();
       subQuery.setIri(resources.getNamespace() + eqColGroup.getId());
-      TTEntity columnGroup = new TTEntity()
-        .setIri(subQuery.getIri())
-        .setName(eqColGroup.getDisplayName() + " in " + eqReport.getName())
-        .addType(IM.FIELD_GROUP.asIri());
-      query.addDataSet(subQuery);
-      convertListGroup(eqColGroup, subQuery, query.getName());
-      columnGroup.set(IM.DEFINITION.asIri(), TTLiteral.literal(subQuery));
-      document.addEntity(columnGroup);
+      query.addColumnGroup(convertListGroup(eqColGroup));
     }
   }
 
 
-  private void convertListGroup(EQDOCListColumnGroup eqColGroup, Query subQuery, String reportName) throws IOException, QueryException, EQDException {
+  private Match convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
-    subQuery.setName(eqColGroup.getDisplayName());
-    resources.setColumnGroup(iri(subQuery.getIri()).setName(subQuery.getName() + " in " + reportName));
+    Match subQuery;
+
     if (eqColGroup.getCriteria() == null) {
-      convertPatientColumns(eqColGroup, eqTable, subQuery);
+      subQuery = convertPatientColumns(eqColGroup, eqTable);
+      subQuery.setName(eqColGroup.getDisplayName());
+      return subQuery;
     } else {
-      convertEventColumns(eqColGroup, eqTable, subQuery);
+      subQuery = convertEventColumns(eqColGroup, eqTable);
+      subQuery.setName(eqColGroup.getDisplayName());
+      return subQuery;
     }
-    resources.setColumnGroup(null);
   }
 
-  private void convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws EQDException {
+  private Match convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws EQDException {
+    Match subQuery = new Match();
     EQDOCListColumns eqCols = eqColGroup.getColumnar();
     Return select = new Return();
     subQuery.setReturn(select);
@@ -72,26 +69,16 @@ public class EqdListToIMQ {
       String propertyPath = resources.getIMPath(eqULR);
       convertColumn(select, propertyPath, eqCol.getDisplayName());
     }
+    return subQuery;
   }
 
-  private void convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable, Query subQuery) throws IOException, QueryException, EQDException {
+  private Match convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
     resources.setRule(1);
     resources.setSubRule(1);
-    Match match = resources.convertCriteria(eqColGroup.getCriteria());
-    Query matchQuery = new Query();
-    subQuery.addQuery(matchQuery);
-    matchQuery.setIsCohort(match.getIsCohort());
-    matchQuery.setWhere(match.getWhere());
-    matchQuery.setPath(match.getPath());
-    matchQuery.setThen(match.getThen());
-    matchQuery.setAnd(match.getAnd());
-    matchQuery.setOr(match.getOr());
-    matchQuery.setNot(match.getNot());
-    matchQuery.setTypeOf(match.getTypeOf());
-    matchQuery.setReturn(match.getReturn());
+    Match subQuery = resources.convertCriteria(eqColGroup.getCriteria());
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
-    String nodeRef = resources.getNodeRef(match);
+    String nodeRef = resources.getNodeRef(subQuery);
     String tablePath = resources.getIMPath(eqTable);
     String[] paths = tablePath.split(" ");
     for (int i = 2; i < paths.length - 1; i = i + 2) {
@@ -106,7 +93,7 @@ public class EqdListToIMQ {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
           aReturn.function(f -> f
-            .setName(IM.COUNT.toString()));
+            .setIri(IM.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
           aReturn
             .property(p -> p
@@ -137,23 +124,52 @@ public class EqdListToIMQ {
           convertColumn(aReturn, subPath, eqCol.getDisplayName());
       }
     }
+    return subQuery;
   }
 
-  private void convertColumn(Return aReturn, String subPath, String as) {
-    String[] elements = subPath.split(" ");
-    for (int i = 0; i < elements.length - 1; i = i + 2) {
-      ReturnProperty path = new ReturnProperty();
-      path.setIri(elements[i]);
-      aReturn.addProperty(path);
-      aReturn = new Return();
-      path.setReturn(aReturn);
+  private void convertColumn(Return aReturn, String subPath, String as) throws EQDException {
+    if (subPath.contains("$concat")) {
+      convertReturnConcatenate(aReturn, subPath, as);
+      return;
     }
+    String[] elements = subPath.split(" ");
+      for (int i = 0; i < elements.length - 1; i = i + 2) {
+        ReturnProperty path = new ReturnProperty();
+        path.setIri(elements[i]);
+        aReturn.addProperty(path);
+        aReturn = new Return();
+        path.setReturn(aReturn);
+      }
+      ReturnProperty property = new ReturnProperty();
+      aReturn.addProperty(property);
+      property
+        .setIri(elements[elements.length - 1]);
+      if (as != null)
+        property.setAs(as);
+  }
+
+  private void convertReturnConcatenate(Return aReturn, String subPath, String as) throws EQDException {
+    FunctionClause function = new FunctionClause();
     ReturnProperty property = new ReturnProperty();
     aReturn.addProperty(property);
-    property
-      .setIri(elements[elements.length - 1]);
-    if (as != null)
+    property.setFunction(function);
+    if (as!=null)
       property.setAs(as);
+    function.setIri(IM.CONCATENATE.toString());
+    subPath = subPath.substring(subPath.indexOf("$concat(") + 8, subPath.length() - 1);
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      List<Path> valuePaths = mapper.readValue(subPath, new TypeReference<List<Path>>() {
+      });
+      for (Path valuePath : valuePaths) {
+        Argument arg = new Argument();
+        function.addArgument(arg);
+        arg.setParameter("text");
+        arg.setValuePath(valuePath);
+      }
+    } catch (JsonProcessingException e) {
+      throw new EQDException(e.getMessage(), e);
+    }
   }
 
 }

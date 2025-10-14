@@ -71,7 +71,7 @@ public class ECLQueryValidator {
       }
     }
     if (!invalid) {
-      for (List<Node> nodes : Arrays.asList(where.getIs(), where.getNotIs())) {
+      for (List<Node> nodes : Arrays.asList(where.getIs())) {
         if (nodes != null) {
           for (Node node : nodes) {
             if (node.getIri() != null) {

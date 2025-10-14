@@ -2,18 +2,29 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Path extends Element implements HasPaths{
+public class Path extends Element implements HasPaths {
   @Getter
   private boolean inverse;
   @Getter
   private boolean optional;
   private List<Path> path;
   private Node typeOf;
+  private TTIriRef qualifier;
+
+  public TTIriRef getQualifier() {
+    return qualifier;
+  }
+
+  public Path setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
 
   public Path setVariable(String variable) {
     super.setVariable(variable);

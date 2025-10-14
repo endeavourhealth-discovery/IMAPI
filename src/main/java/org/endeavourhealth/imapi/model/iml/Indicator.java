@@ -15,9 +15,9 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Indicator extends TTIriRef {
   @Getter
-  private List<Indicator> must;
+  private List<Indicator> and;
   @Getter
-  private List<Indicator> alternative;
+  private List<Indicator> or;
   @Getter
   private TTIriRef query;
   @Getter
@@ -33,20 +33,20 @@ public class Indicator extends TTIriRef {
 
 
 
-  public Indicator setAlternative(List<Indicator> alternative) {
-    this.alternative = alternative;
+  public Indicator setOr(List<Indicator> alternative) {
+    this.or = alternative;
     return this;
   }
-  public Indicator addAlternative (Indicator indicator){
-      if (this.alternative == null) {
-        this.alternative = new ArrayList<>();
+  public Indicator addOr (Indicator indicator){
+      if (this.or == null) {
+        this.or = new ArrayList<>();
       }
-      this.alternative.add(indicator);
+      this.or.add(indicator);
       return this;
   }
-  public Indicator alternative (Consumer< Indicator > builder) {
+  public Indicator or (Consumer< Indicator > builder) {
       Indicator indicator = new Indicator();
-      addAlternative(indicator);
+      addOr(indicator);
       builder.accept(indicator);
       return this;
   }
@@ -58,20 +58,20 @@ public class Indicator extends TTIriRef {
     return this;
   }
 
-  public Indicator setMust(List<Indicator> must) {
-    this.must = must;
+  public Indicator setAnd(List<Indicator> and) {
+    this.and = and;
     return this;
   }
-  public Indicator addMust (Indicator indicator){
-      if (this.must == null) {
-        this.must = new ArrayList<>();
+  public Indicator addAnd (Indicator indicator){
+      if (this.and == null) {
+        this.and = new ArrayList<>();
       }
-      this.must.add(indicator);
+      this.and.add(indicator);
       return this;
   }
-  public Indicator must (Consumer< Indicator > builder) {
+  public Indicator and (Consumer< Indicator > builder) {
       Indicator indicator = new Indicator();
-      addMust(indicator);
+      addAnd(indicator);
       builder.accept(indicator);
       return this;
     }

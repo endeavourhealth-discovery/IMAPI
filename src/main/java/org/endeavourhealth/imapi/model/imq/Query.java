@@ -12,17 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf", "instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
   @Getter
   private boolean activeOnly;
-  private List<Query> dataSet;
+  private List<Match> columnGroup;
   @Getter
   private List<Query> query;
-  private List<GroupBy> groupBy;
+
   private String iri;
   private String name;
   private boolean imQuery;
@@ -134,12 +134,6 @@ public class Query extends Match {
     return this;
   }
 
-  public Query dataset(Consumer<Query> builder) {
-    Query query = new Query();
-    addDataSet(query);
-    builder.accept(query);
-    return this;
-  }
 
 
   public Query setPath(List<Path> path) {
@@ -278,50 +272,49 @@ public class Query extends Match {
   }
 
 
-  public List<GroupBy> getGroupBy() {
-    return groupBy;
-  }
+
 
   public Query setGroupBy(List<GroupBy> groupBy) {
-    this.groupBy = groupBy;
+   super.setGroupBy(groupBy);
     return this;
   }
 
   public Query addGroupBy(GroupBy group) {
-    if (this.groupBy == null)
-      this.groupBy = new ArrayList<>();
-    this.groupBy.add(group);
+    super.addGroupBy(group);
     return this;
   }
 
   public Query groupBy(Consumer<GroupBy> builder) {
-    GroupBy group = new GroupBy();
-    addGroupBy(group);
-    builder.accept(group);
+    super.groupBy(builder);
     return this;
   }
 
-  public List<Query> getDataSet() {
-    return dataSet;
+  public Query setOrderBy(OrderLimit orderBy) {
+    super.setOrderBy(orderBy);
+    return this;
+  }
+
+  public List<Match> getColumnGroup() {
+    return columnGroup;
   }
 
   @JsonSetter
-  public Query setDataSet(List<Query> dataSet) {
-    this.dataSet = dataSet;
+  public Query setColumnGroup(List<Match> columnGroup) {
+    this.columnGroup = columnGroup;
     return this;
   }
 
-  public Query addDataSet(Query query) {
-    if (this.dataSet == null)
-      this.dataSet = new ArrayList<>();
-    this.dataSet.add(query);
+  public Query addColumnGroup(Match match) {
+    if (this.columnGroup == null)
+      this.columnGroup = new ArrayList<>();
+    this.columnGroup.add(match);
     return this;
   }
 
-  public Query dataSet(Consumer<Query> builder) {
-    Query query = new Query();
-    addDataSet(query);
-    builder.accept(query);
+  public Query columnGroup(Consumer<Match> builder) {
+    Match match= new Match();
+    addColumnGroup(match);
+    builder.accept(match);
     return this;
   }
 

@@ -79,9 +79,9 @@ public class IMQToECL {
   }
 
   private boolean isBlankWhere(Where where) {
-    if (where.getIri() == null && where.getOr() == null && where.getAnd() == null && where.getNot() == null)
+    if (where.getIri() == null && where.getOr() == null && where.getAnd() == null)
       return true;
-    if (where.getAnd() != null || where.getNot() != null || where.getOr() != null) return false;
+    if (where.getAnd() != null || where.getOr() != null) return false;
     if (where.getIs() == null) return true;
     return where.getIs().getFirst().getIri() == null;
   }
@@ -281,12 +281,12 @@ public class IMQToECL {
     try {
       if (where.isRoleGroup()) ecl.append("{");
       if (where.getAnd() == null && where.getOr() == null) {
-        if (null == where.getIs() && null == where.getNotIs())
+        if (null == where.getIs())
           throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
         addProperty(where, ecl, includeNames);
         ecl.append(where.getIs() != null ? " = " : " != ");
         boolean first = true;
-        for (List<Node> nodes : Arrays.asList(where.getIs(), where.getNotIs())) {
+        for (List<Node> nodes : Arrays.asList(where.getIs())) {
           if (nodes != null) {
             if (nodes.size() > 1)
               ecl.append(" (");

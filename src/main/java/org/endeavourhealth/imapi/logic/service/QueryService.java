@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
+import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -20,6 +21,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
 import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -501,4 +504,28 @@ public class QueryService {
   }
 
 
+  public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
+    TTEntity entity = entityRepository.getEntityPredicates(iri, asHashSet(RDFS.LABEL, RDFS.COMMENT,
+      IM.IS_SUBINDICATOR_OF,IM.DENOMINATOR,IM.ENUMERATOR,IM.HAS_DATASET)).getEntity();
+    Indicator indicator= new Indicator();
+    indicator.setIri(entity.getIri());
+    indicator.setName(entity.getName());
+    indicator.setDescription(entity.getDescription());
+    if (entity.get(IM.DENOMINATOR) != null) {
+      indicator.setDenominator(entity.get(IM.DENOMINATOR).asIriRef());
+    }
+    if (entity.get(IM.ENUMERATOR) != null) {
+      indicator.setEnumerator(entity.get(IM.ENUMERATOR).asIriRef());
+    }
+    if (entity.get(IM.HAS_DATASET) != null) {
+        Query dataset = entity.get(IM.HAS_DATASET).asLiteral().objectValue(Query.class);
+        new QueryDescriptor().describeQuery(dataset,DisplayMode.ORIGINAL);
+        indicator.setDataset(dataset);
+    }
+    if (entity.get(IM.IS_SUBINDICATOR_OF) != null) {
+      indicator.setIsSubIndicatorOf(entity.get(IM.IS_SUBINDICATOR_OF).getElements()
+        .stream().map(TTValue::asIriRef).collect(Collectors.toList()));
+    }
+    return indicator;
+  }
 }

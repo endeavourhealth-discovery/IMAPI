@@ -16,7 +16,7 @@ public class Indicator extends TTIriRef {
   @Getter
   private List<TTIriRef> isSubIndicatorOf;
   @Getter
-  private TTIriRef enumerator;
+  private TTIriRef numerator;
   @Getter
   private Query dataset;
   @Getter
@@ -37,8 +37,8 @@ public class Indicator extends TTIriRef {
     return this;
   }
 
-  public Indicator setEnumerator(TTIriRef enumerator) {
-    this.enumerator = enumerator;
+  public Indicator setnumerator(TTIriRef numerator) {
+    this.numerator = numerator;
     return this;
   }
 

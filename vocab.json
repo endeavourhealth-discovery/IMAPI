@@ -850,8 +850,8 @@
         "value": "Namespace.IM + \"QueryTemplate\""
       },
       {
-        "name": "ENUMERATOR",
-        "value": "Namespace.IM + \"enumerator\""
+        "name": "NUMERATOR",
+        "value": "Namespace.IM + \"numerator\""
       },
       {
         "name": "DENOMINATOR",

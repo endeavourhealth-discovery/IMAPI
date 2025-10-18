@@ -209,7 +209,7 @@ public enum IM implements VocabEnum {
     CARE_ACTIVITY(Namespace.IM + "CareActivity"),
     CARE_TARGET(Namespace.IM + "CareTarget"),
     QUERY_TEMPLATE(Namespace.IM + "QueryTemplate"),
-    ENUMERATOR(Namespace.IM + "enumerator"),
+    NUMERATOR(Namespace.IM + "numerator"),
     DENOMINATOR(Namespace.IM + "denominator"),
     HAS_DATASET(Namespace.IM + "dataset"),
     RECORD_TYPE(Namespace.IM + "RecordType"),

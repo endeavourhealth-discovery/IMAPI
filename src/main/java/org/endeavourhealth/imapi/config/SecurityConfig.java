@@ -47,6 +47,7 @@ public class SecurityConfig {
   }
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    req.requestMatchers(HttpMethod.OPTIONS).permitAll();
     if (EnvHelper.isPublicMode()) {
       req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
@@ -73,7 +74,7 @@ public class SecurityConfig {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
-    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
     return firewall;
   }
 

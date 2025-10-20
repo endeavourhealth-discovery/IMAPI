@@ -17,6 +17,7 @@ public class IndicatorGenerator {
       .setIri(iri)
       .setName(name)
       .setDescription(description)
+      .setScheme(namespace.asIri())
       .addType(iri(IM.INDICATOR));
     if (denominator!=null)
       indicator.set(iri(IM.DENOMINATOR).toString(),iri(denominator));

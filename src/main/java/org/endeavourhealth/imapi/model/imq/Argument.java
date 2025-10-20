@@ -30,6 +30,14 @@ public class Argument {
   private Object valueObject;
   @Getter
   private String valueVariable;
+  @Getter
+  private TTIriRef qualifier;
+
+
+  public Argument setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
 
   public Argument setValueVariable(String valueVariable) {
     this.valueVariable = valueVariable;

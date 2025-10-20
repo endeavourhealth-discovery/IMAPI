@@ -115,6 +115,9 @@ public class IriCollector {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
     }
+    if (where.getQualifier() != null) {
+      iriSet.add(where.getQualifier().getIri());
+    }
     if (where.getAnd() != null) {
       for (Where subWhere : where.getAnd()) {
         collectWhereIris(subWhere, iriSet);
@@ -143,6 +146,9 @@ public class IriCollector {
     }
     if (where.getValue() != null) {
       collectAssignableIris(where, iriSet);
+    }
+    if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
+      iriSet.add(where.getRelativeTo().getQualifier().getIri());
     }
   }
 

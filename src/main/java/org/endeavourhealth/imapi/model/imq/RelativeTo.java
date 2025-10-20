@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class RelativeTo extends IriLD {
   private String valueVariable;
@@ -10,8 +11,15 @@ public class RelativeTo extends IriLD {
   private String nodeRef;
   @Getter
   private String parameter;
+  private TTIriRef qualifier;
 
-
+public TTIriRef getQualifier() {
+  return qualifier;
+}
+public RelativeTo setQualifier(TTIriRef qualifier) {
+  this.qualifier = qualifier;
+  return this;
+}
 
   public String getTargetLabel() {
     return targetLabel;

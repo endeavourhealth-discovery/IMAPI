@@ -13,6 +13,8 @@ import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
+import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -121,6 +123,21 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
       return queryService.describeQuery(iri, displayMode);
+    }
+  }
+
+  @GetMapping(value = "/public/indicatorDisplay", produces = "application/json")
+  @Operation(
+    summary = "Describe a query",
+    description = "Retrieves the details of a query based on the given query IRI."
+  )
+  public Indicator describeIndicator(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String iri
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("describeQuery");
+      return queryService.describeIndicator(iri);
     }
   }
   @GetMapping(value = "/public/expandCohort", produces = "application/json")
@@ -253,7 +270,7 @@ public class QueryController {
     summary = "Generate IML from a query iri",
     description = "Generates IMQ from the given IMQ query IRI."
   )
-  public String getIMLFromIMQIri(
+  public IMLLanguage getIMLFromIMQIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String queryIri
   ) throws  QueryException {

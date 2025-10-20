@@ -26,6 +26,7 @@ public class SQLQuery {
   private ArrayList<String> wheres = new ArrayList<>();
   private ArrayList<String> dependencies = new ArrayList<>();
   private String from = "";
+  private String primaryKey = "";
 
   public SQLQuery create(String model, String variable, TableMap tableMap, String from) throws SQLConversionException {
     aliasIndex = 0;
@@ -52,11 +53,12 @@ public class SQLQuery {
     this.model = model;
     if (null != model) {
       this.map = this.getMap(model, tableMap);
+      this.primaryKey = this.map.getPrimaryKey();
       this.model = this.map.getDataModel();
       this.alias = variable != null ? variable : getAlias(map.getTable());
     }
 
-    tableMap.putTable(this.alias, new Table(this.alias, null, this.map.getFields(), this.map.getRelationships(), this.model));
+    tableMap.putTable(this.alias, new Table(this.alias, this.primaryKey, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
 
   public String toSql(Integer indent) {
@@ -118,27 +120,29 @@ public class SQLQuery {
     return sql;
   }
 
-  public String getFieldName(String field, String table, TableMap tableMap) throws SQLConversionException {
+  public String getFieldName(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     String alias = table != null ? table : this.alias;
-    Field fieldObject = getField(field, table, tableMap);
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
     String fieldName = fieldObject.getField();
     if (fieldName.contains("{alias}")) return fieldName.replaceAll("\\{alias}", alias);
     else if (fieldObject.isFunction()) return fieldName;
     else return alias + "." + fieldName;
   }
 
-  public String getFieldType(String field, String table, TableMap tableMap) throws SQLConversionException {
-    return getField(field, table, tableMap).getType();
+  public String getFieldType(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
+    Field fieldObject = getField(field, table, tableMap, defaultToString);
+    if (fieldObject == null) throw new SQLConversionException("Could not find field:" + field + " in table " + table);
+    return fieldObject.getType();
   }
 
-  private Field getField(String field, String table, TableMap tableMap) throws SQLConversionException {
+  private Field getField(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
     Table map = table != null ? tableMap.getTable(table) : this.map;
-    log.info("{}", tableMap);
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
-
     if (map.getFields().get(field) != null) return map.getFields().get(field);
-
     log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
+
+    if (!defaultToString) return null;
 
     // Default to string field in JSON blob
     String fieldName = field.substring(field.indexOf("#") + 1);

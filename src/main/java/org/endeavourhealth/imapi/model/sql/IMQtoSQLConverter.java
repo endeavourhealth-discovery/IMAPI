@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -32,7 +31,6 @@ import static org.endeavourhealth.imapi.mysql.MYSQLConnectionManager.getConnecti
 public class IMQtoSQLConverter {
   private final TableMap tableMap;
   private final QueryRequest queryRequest;
-  private final EntityRepository entityRepository = new EntityRepository();
   private final ObjectMapper mapper = new ObjectMapper();
 
   @Getter
@@ -164,10 +162,17 @@ public class IMQtoSQLConverter {
               addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
             }
           } else {
-            if (isNested)
-              qry.getSelects().addAll(qry.getGetForeignKeys());
-            String select = qry.getFieldName(property.getIri(), null, tableMap) + " AS `" + property.getAs() + "`";
-            qry.getSelects().add(select);
+            if (isNested) {
+              for (String fkey : qry.getGetForeignKeys())
+                if (!qry.getSelects().contains(fkey))
+                  qry.getSelects().add(fkey);
+            } else if (null != property.getFunction()) {
+              String select = getSelectFromFunction(qry, property.getFunction()) + " AS `" + property.getAs() + "`";
+              qry.getSelects().add(select);
+            } else {
+              String select = qry.getFieldName(property.getIri(), null, tableMap, false) + " AS `" + property.getAs() + "`";
+              qry.getSelects().add(select);
+            }
           }
         }
       }
@@ -177,6 +182,53 @@ public class IMQtoSQLConverter {
       qry.getSelects().add(fn);
     }
   }
+
+  private String getSelectFromFunction(SQLQuery qry, FunctionClause function) throws SQLConversionException, JsonProcessingException {
+    if (function.getArgument() == null) {
+      throw new SQLConversionException("SQL Conversion Error: Function without arguments:", mapper.writeValueAsString(function));
+    }
+    if (IM.CONCATENATE.asIri().getIri().equals(function.getIri())) {
+      return getConcatSelect(qry, function);
+    }
+    throw new SQLConversionException("SQL Conversion Error: Function not implemented:", function.getIri());
+  }
+
+  private String getConcatSelect(SQLQuery qry, FunctionClause function) throws SQLConversionException, JsonProcessingException {
+    StringBuilder sb = new StringBuilder();
+    for (Argument arg : function.getArgument()) {
+      String value = null;
+
+      if ("text".equals(arg.getParameter())) {
+        if (null != arg.getValuePath()) {
+          String valuePath = arg.getValuePath().getIri();
+          if (null != arg.getValuePath().getPath() && !arg.getValuePath().getPath().isEmpty()) {
+            String path = arg.getValuePath().getPath().getFirst().getIri();
+            String typeOf = arg.getValuePath().getTypeOf().getIri();
+            try {
+              value = getDirectPropertyFromArgument(qry, valuePath, path);
+            } catch (SQLConversionException e) {
+              value = getNestedPropertyFromArgument(qry, valuePath, typeOf, path);
+            }
+          } else
+            value = getDirectPropertyFromArgument(qry, valuePath, null);
+        }
+      } else {
+        throw new SQLConversionException("SQL Conversion Error: Function argument type not implemented:", mapper.writeValueAsString(arg));
+      }
+
+      if (value != null && !value.isBlank()) {
+        if (!sb.isEmpty()) sb.append(", ");
+        sb.append(value);
+      }
+    }
+    return "CONCAT(" + sb + ")";
+  }
+
+  private String getDirectPropertyFromArgument(SQLQuery qry, String valuePath, String path) throws SQLConversionException {
+    String property = null == path ? valuePath : valuePath + "_" + path;
+    return qry.getFieldName(property, null, tableMap, false);
+  }
+
 
   private String getFunction(FunctionClause function) throws SQLConversionException, JsonProcessingException {
     if (!tableMap.getFunctions().containsKey(function.getIri()))
@@ -193,6 +245,27 @@ public class IMQtoSQLConverter {
     String yes_no_select = "CASE WHEN EXISTS ( SELECT 1 FROM " + subQueryAlias + " ) " +
       "THEN 'Y' ELSE 'N' END AS `" + qry.getAlias() + "_exists`";
     qry.getSelects().add(yes_no_select);
+  }
+
+  private String getNestedPropertyFromArgument(SQLQuery qry, String valuePath, String typeOf, String path) throws SQLConversionException, JsonProcessingException {
+    Table table = tableMap.getTable(valuePath);
+    String tableAlias = getNameFromIri(valuePath) + "_" + qry.getAlias();
+    String property = table.getFields().get(path).getField();
+    String propertyName = property.replace("{alias}.", "");
+    property = property.replace("{alias}", tableAlias);
+    String with = """
+      %s AS (
+          SELECT %s, %s AS %s
+          FROM %s AS %s
+        )
+      """.formatted(tableAlias, table.getPrimaryKey(), property, propertyName, table.getTable(), tableAlias);
+    qry.getWiths().add(with);
+    Relationship rel = qry.getRelationshipTo(typeOf);
+    String from = rel.getFromField().contains("{alias}") ? rel.getFromField().replace("{alias}", qry.getAlias()) : qry.getAlias() + "." + rel.getFromField();
+    String to = rel.getToField().contains("{alias}") ? rel.getToField().replace("{alias}", tableAlias) : tableAlias + "." + rel.getToField();
+    String join = ("JOIN " + tableAlias + " ON " + from + " = " + to);
+    qry.getJoins().add(join);
+    return property;
   }
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException, JsonProcessingException {
@@ -309,7 +382,7 @@ public class IMQtoSQLConverter {
     ArrayList<String> o = new ArrayList<>();
     for (OrderDirection property : order.getProperty()) {
       String dir = property.getDirection().toString().toUpperCase().startsWith("DESC") ? "DESC" : "ASC";
-      o.add(partition.getFieldName(property.getIri(), null, tableMap) + " " + dir);
+      o.add(partition.getFieldName(property.getIri(), null, tableMap, true) + " " + dir);
     }
 
     partition.getSelects().add("*");
@@ -348,15 +421,17 @@ public class IMQtoSQLConverter {
     String fromField = qry.getAlias() + ".id";
     if (null != typeOf && !typeOf.getIri().equals(qry.getMap().getDataModel())) {
       Relationship rel = qry.getMap().getRelationships().get(typeOf.getIri());
-      if (rel == null) throw new SQLConversionException("SQL Conversion Error: Could not find relationship from [" + qry.getMap().getDataModel() + "] to [" + typeOf.getIri() + "]");
+      if (rel == null)
+        throw new SQLConversionException("SQL Conversion Error: Could not find relationship from [" + qry.getMap().getDataModel() + "] to [" + typeOf.getIri() + "]");
       fromField = rel.getFromField().replace("{alias}", qry.getAlias());
     }
     return fromField;
   }
 
   private String getTableNameFromIri(String iri) {
-    return "`q_" + iri + "`";
+    return "`q_" + getNameFromIri(iri) + "`";
   }
+
 
   private void convertMatchBoolSubMatch(SQLQuery qry, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     if (match.getAnd() != null) {
@@ -417,9 +492,7 @@ public class IMQtoSQLConverter {
 
   private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIs() != null) {
-      convertMatchPropertyIs(qry, property, property.getIs(), false);
-    } else if (property.getNotIs() != null) {
-      convertMatchPropertyIs(qry, property, property.getNotIs(), true);
+      convertMatchPropertyIs(qry, property, property.getIs());
     } else if (property.getRange() != null) {
       convertMatchPropertyRange(qry, property);
     } else if (property.getRelativeTo() != null && !isRelativeToFunctionParam(property)) {
@@ -432,12 +505,26 @@ public class IMQtoSQLConverter {
       convertMatchPropertyBool(qry, property, Bool.or);
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
-    } else {
+    } else if (property.getFunction() != null) {
+      qry.getWheres().add(property.isNot() ? " NOT (" + getWhereFromFunction(qry, property) + ")" : getWhereFromFunction(qry, property));
+    } else
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED PROPERTY PATTERN\n" + mapper.writeValueAsString(property));
-    }
+
     if (null != property.getFunction()) {
       resolveFunctionArgs(qry, property.getFunction());
     }
+  }
+
+  private String getWhereFromFunction(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
+    String where = "";
+    Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
+    if (IM.NUMERIC_DIFFERENCE.asIri().getIri().equals(property.getFunction().getIri()))
+      where = getWhereFromNumericDifference(property, qry.getFieldName(property.getIri(), null, tableMap, true));
+    else {
+      String mysqlFunction = getFunction(property.getFunction());
+      where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+    }
+    return where;
   }
 
   private void resolveFunctionArgs(SQLQuery qry, FunctionClause function) throws SQLConversionException {
@@ -457,7 +544,7 @@ public class IMQtoSQLConverter {
 
   private String getArgumentValueForFunction(SQLQuery qry, Argument argument) throws SQLConversionException {
     if (null != argument.getValuePath()) {
-      return qry.getFieldName(argument.getValuePath().getIri(), null, tableMap);
+      return qry.getFieldName(argument.getValuePath().getIri(), null, tableMap, true);
     } else if (null != argument.getValueParameter()) {
       return argument.getValueParameter();
     } else if (null != argument.getValueIri()) {
@@ -469,7 +556,7 @@ public class IMQtoSQLConverter {
     throw new SQLConversionException("Argument type not implemented");
   }
 
-  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list, boolean inverse) throws SQLConversionException {
+  private void convertMatchPropertyIs(SQLQuery qry, Where property, List<Node> list) throws SQLConversionException {
     if (list == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyIs\n" + property);
     }
@@ -485,18 +572,18 @@ public class IMQtoSQLConverter {
     joins = joins.replaceAll("\\{concept_alias}", concept_alias).replaceAll("\\{csm_alias}", csm_alias);
 
     if (!list.isEmpty()) {
-      String filedName = qry.getFieldName(property.getIri(), null, tableMap);
-      List<String> stringConditions = getIriConditions(csm_alias, list, inverse);
+      String fieldName = qry.getFieldName(property.getIri(), null, tableMap, true);
+      List<String> stringConditions = getIriConditions(csm_alias, list);
       String conditionsSQL = StringUtils.join(stringConditions, " OR ");
-      joins = joins.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
-      conditions = conditions.replace("{join_condition}", filedName).replace("{conditions}", conditionsSQL);
-      qry.getWheres().add(conditions);
+      joins = joins.replace("{join_condition}", fieldName).replace("{conditions}", conditionsSQL);
+      conditions = conditions.replace("{join_condition}", fieldName).replace("{conditions}", conditionsSQL);
+      qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
       qry.getJoins().add(joins);
     }
   }
 
-  private List<String> getIriConditions(String csmAlias, List<Node> list, boolean inverse) {
-    String operator = inverse ? "!=" : "=";
+  private List<String> getIriConditions(String csmAlias, List<Node> list) {
+    String operator = "=";
     return list.stream()
       .map(node -> {
         try {
@@ -532,20 +619,18 @@ public class IMQtoSQLConverter {
     if (property.getRange() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRange\n" + property);
     }
-    String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
-    qry.getWheres().add(convertMatchPropertyRangeNode(qry.getFieldName(property.getIri(), null, tableMap), fieldType, property.getRange()));
-  }
-
-  private String convertMatchPropertyRangeNode(String fieldName, String fieldType, Range range) throws SQLConversionException {
-
-    String from = null != range.getFrom().getValue() ? range.getFrom().getValue() : range.getFrom().getValueParameter();
-    String to = null != range.getTo().getValue() ? range.getTo().getValue() : range.getTo().getValueParameter();
+    String fieldType = qry.getFieldType(property.getIri(), null, tableMap, true);
+    String fieldName = qry.getFieldName(property.getIri(), null, tableMap, true);
+    String from = null != property.getRange().getFrom().getValue() ? property.getRange().getFrom().getValue() : property.getRange().getFrom().getValueParameter();
+    String to = null != property.getRange().getTo().getValue() ? property.getRange().getTo().getValue() : property.getRange().getTo().getValueParameter();
     if ("date".equals(fieldType)) {
       from = "'" + from + "'";
       to = "'" + to + "'";
     }
-    return fieldName + " BETWEEN " + from + " AND " + to;
+    String where = fieldName + " BETWEEN " + from + " AND " + to;
+    qry.getWheres().add(property.isNot() ? " NOT (" + where + ")" : where);
   }
+
 
   private String convertMatchPropertyDateValue(String fieldName, Assignable range) throws SQLConversionException, JsonProcessingException {
     if (range.getUnits() == null)
@@ -558,11 +643,13 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyRelative\n" + mapper.writeValueAsString(property));
     }
 
-    if (property.getRelativeTo().getParameter() != null)
-      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter()));
-    else if (property.getRelativeTo().getNodeRef() != null) {
+    if (property.getRelativeTo().getParameter() != null) {
+      String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter());
+      qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
+    } else if (property.getRelativeTo().getNodeRef() != null) {
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
-      qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap)));
+      String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap, true));
+      qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE COMPARISON\n" + mapper.writeValueAsString(property));
     }
@@ -572,7 +659,7 @@ public class IMQtoSQLConverter {
     if (null == property.getFunction() || null == property.getRelativeTo() || (null == property.getRelativeTo().getParameter() && null == property.getRelativeTo().getNodeRef()))
       return false;
     return property.getFunction().getArgument().stream()
-      .anyMatch(arg -> "relativeTo".equals(arg.getParameter()) && (argIsRelativeToParam(arg, property) || argIsRelativeToNodeRef(arg, property)));
+      .anyMatch(arg -> (argIsRelativeToParam(arg, property) || argIsRelativeToNodeRef(arg, property)));
   }
 
   private boolean argIsRelativeToParam(Argument arg, Where property) {
@@ -585,13 +672,18 @@ public class IMQtoSQLConverter {
 
   private String convertMatchPropertyRelativeTo(SQLQuery qry, Where property, String field) throws
     SQLConversionException {
-    String fieldType = qry.getFieldType(property.getIri(), null, tableMap);
+    String fieldType = qry.getFieldType(property.getIri(), null, tableMap, true);
+    TTIriRef units = new TTIriRef();
+    if (null != property.getUnits()) units = property.getUnits();
+    else if (null != property.getRelativeTo().getQualifier()) {
+      units = property.getRelativeTo().getQualifier();
+    }
     if ("date".equals(fieldType)) {
       if (property.getValue() != null) {
-        return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
+        return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(units) + ")";
       } else return field;
     } else if ("number".equals(fieldType)) {
-      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(property.getUnits()) + ")";
+      return "(" + field + " + INTERVAL " + property.getValue() + " " + getUnitName(units) + ")";
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE TYPE (" + fieldType + ")\n" + property.getIri());
     }
@@ -602,25 +694,80 @@ public class IMQtoSQLConverter {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyValue\n" + property);
     }
     String where = "";
-
-    if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap))) {
+    if ("date".equals(qry.getFieldType(property.getIri(), null, tableMap, true))) {
       Assignable range = new Value().setValue(property.getValue()).setOperator(property.getOperator()).setUnits(property.getUnits());
       if (null != property.getFunction()) {
-        String mysqlFunction = getFunction(property.getFunction());
-        where = mysqlFunction + " " + range.getOperator().getValue() + " " + range.getValue() + ")";
+        where = getWhereFromFunction(qry, property);
+      } else if (null != range.getUnits()) {
+        where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap, true), range);
       } else {
-        where = convertMatchPropertyDateValue(qry.getFieldName(property.getIri(), null, tableMap), range);
+        where = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + property.getValue();
       }
     } else {
-      where = qry.getFieldName(property.getIri(), null, tableMap) + " " + property.getOperator().getValue() + " " + property.getValue();
+      where = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + property.getValue();
     }
     if (property.isAncestorsOf() || property.isDescendantsOf() || property.isDescendantsOrSelfOf()) {
       where += " -- TCT\n";
     }
-    qry.getWheres().add(where);
+    qry.getWheres().add(property.isNot() ? " NOT (" + where + ")" : where);
   }
 
-  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws SQLConversionException, JsonProcessingException {
+  private String getWhereFromNumericDifference(Where property, String propertyName) throws SQLConversionException {
+    String unit = getUnitName(property.getQualifier());
+    String valueStr = property.getValue();
+    int value = 0;
+    if (valueStr != null && !valueStr.isBlank()) {
+      try {
+        value = Integer.parseInt(valueStr.trim());
+      } catch (NumberFormatException e) {
+        throw new SQLConversionException("Invalid numeric value for date offset: " + valueStr);
+      }
+    }
+    String sign = (value < 0) ? "-" : "+";
+    String interval = "INTERVAL " + Math.abs(value) + " " + (unit.equals("FISCAL_YEAR") ? "YEAR" : unit);
+    String relativeTo = property.getRelativeTo().getParameter();
+    String offsetExpr = (value == 0)
+      ? relativeTo
+      : String.format("%s %s %s", relativeTo, sign, interval);
+
+    StringBuilder sql = new StringBuilder();
+    switch (unit) {
+      case "YEAR" -> sql.append(String.format(
+        "YEAR(%s) = YEAR(%s)",
+        propertyName, offsetExpr
+      ));
+      case "MONTH" -> sql.append(String.format(
+        "YEAR(%s) = YEAR(%s)\n  AND MONTH(%s) = MONTH(%s)",
+        propertyName, offsetExpr, propertyName, offsetExpr
+      ));
+      case "DAY" -> sql.append(String.format(
+        "DATE(%s) = DATE(%s)",
+        propertyName, offsetExpr
+      ));
+      case "FISCAL_YEAR" -> {
+        int fiscalStartMonth = 4; // April = start of fiscal year (configurable)
+        String fiscalExpr = String.format(
+          "CASE WHEN MONTH(%s) >= %d THEN YEAR(%s) ELSE YEAR(%s) - 1 END",
+          propertyName, fiscalStartMonth, propertyName, propertyName
+        );
+        String fiscalOffsetExpr = String.format(
+          "CASE WHEN MONTH(%s) >= %d THEN YEAR(%s) ELSE YEAR(%s) - 1 END%s%s",
+          relativeTo, fiscalStartMonth, relativeTo, relativeTo,
+          (value == 0 ? "" : (value < 0 ? "-" : "+")),
+          (value == 0 ? "" : Math.abs(value))
+        );
+        sql.append(String.format("%s = %s", fiscalExpr, fiscalOffsetExpr));
+      }
+
+      default -> throw new IllegalArgumentException("Unsupported time unit: " + unit);
+    }
+
+    return sql.toString();
+  }
+
+
+  private void convertMatchPropertyBool(SQLQuery qry, Where property, Bool bool) throws
+    SQLConversionException, JsonProcessingException {
     SQLQuery subQuery = qry.subQuery(qry.getModel(), qry.getAlias(), tableMap, null);
     if (bool == Bool.and) {
       for (Where p : property.getAnd()) {
@@ -646,19 +793,20 @@ public class IMQtoSQLConverter {
     if (property.getIri() == null) {
       throw new SQLConversionException("SQL Conversion Error: INVALID MatchPropertyNull\n" + property);
     }
-
-    qry.getWheres().add(qry.getFieldName(property.getIri(), null, tableMap) + " IS NULL");
+    String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " IS NULL";
+    qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
   }
 
   private String getUnitName(TTIriRef iriRef) throws SQLConversionException {
     return switch (IM.from(iriRef.getIri())) {
       case IM.YEARS -> "YEAR";
-      case IM.MONTHS -> "MONTH";
+      case IM.MONTHS, IM.MONTH -> "MONTH";
       case IM.DAYS -> "DAY";
       case IM.HOURS -> "HOUR";
       case IM.MINUTES -> "MINUTE";
       case IM.SECONDS -> "SECOND";
-      default -> throw new SQLConversionException("SQL Conversion Error: No unit name found for\n" + iriRef.getIri());
+      case IM.FISCAL_YEAR -> "FISCAL_YEAR";
+      default -> "";
     };
   }
 
@@ -720,7 +868,7 @@ public class IMQtoSQLConverter {
 
     if (queryIrisToHashCodes != null && !queryIrisToHashCodes.isEmpty()) {
       for (String iri : queryIrisToHashCodes.keySet()) {
-        resolvedSql = resolvedSql.replace("q_" + iri, String.valueOf(queryIrisToHashCodes.get(iri)));
+        resolvedSql = resolvedSql.replace("q_" + getNameFromIri(iri), String.valueOf(queryIrisToHashCodes.get(iri)));
       }
     }
     return resolvedSql;

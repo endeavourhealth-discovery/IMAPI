@@ -8,12 +8,17 @@ import java.util.function.Consumer;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Value implements Assignable {
+  @Getter
   private Operator operator;
+  @Getter
   private String value;
-  private String qualifier;
+  @Getter
+  private TTIriRef qualifier;
   private String valueLabel;
+  @Getter
   private String valueParameter;
   private FunctionClause function;
+  private String description;
   @Getter
   private TTIriRef units;
 
@@ -40,17 +45,9 @@ public class Value implements Assignable {
   }
 
 
-  public String getValueParameter() {
-    return valueParameter;
-  }
-
   public Value setValueParameter(String valueParameter) {
     this.valueParameter = valueParameter;
     return this;
-  }
-
-  public Operator getOperator() {
-    return operator;
   }
 
   public Value setOperator(Operator operator) {
@@ -59,20 +56,12 @@ public class Value implements Assignable {
   }
 
 
-  public String getValue() {
-    return value;
-  }
-
   @Override
   public Value setValue(String value) {
     this.value = value;
     return this;
   }
 
-
-  public String getQualifier() {
-    return this.qualifier;
-  }
 
   @Override
   public String getValueLabel() {
@@ -86,8 +75,19 @@ public class Value implements Assignable {
     return this;
   }
 
+  @Override
+  public Value setDescription(String description) {
+    this.description= description;
+    return this;
+  }
 
-  public Value setQualifier(String qualifier) {
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+
+  public Value setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }

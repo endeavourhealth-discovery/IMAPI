@@ -33,6 +33,7 @@ public class TableMap {
       returnTable.setCondition(propTable.getCondition() != null ? propTable.getCondition() : dmTable.getCondition());
       returnTable.setFields(dmTable.getFields());
       returnTable.setRelationships(dmTable.getRelationships());
+      returnTable.setPrimaryKey(dmTable.getPrimaryKey());
       return returnTable;
     }
     Table returnTable = dataModels.get(iri);

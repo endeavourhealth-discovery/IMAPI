@@ -31,7 +31,7 @@ public class IMQtoSQLExplainTest {
   private final String db_password = System.getenv("MYSQL_PASSWORD");
 
 
-  // @Test
+//  @Test
   public void IMQtoSQL() {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
@@ -57,25 +57,21 @@ public class IMQtoSQLExplainTest {
         }
 
         String definition = bundle.getEntity().get(IM.DEFINITION.asIri()).asLiteral().getValue();
-        LOG.info("Definition found");
         try {
           // convert it
           Query query = om.readValue(definition, Query.class);
           IMQtoSQLConverter imq2sql = new IMQtoSQLConverter(new QueryRequest().setQuery(query));
           String sql = imq2sql.getSql().replace("$searchDate", "NOW()");
-          sql = imq2sql.getSql().replace("$achievementDate", "NOW()");
+          sql = sql.replace("$achievementDate", "NOW()");
 
           // run on postgres
           try (PreparedStatement preparedStatement = connection.prepareStatement("EXPLAIN " + sql)) {
             preparedStatement.execute();
             passed++;
-            LOG.info("Passed!");
           } catch (SQLException e) {
-            LOG.error("Failed!", e);
-            LOG.debug(sql);
+            LOG.error("Failed: {}", query.getIri(), e);
             errors.add(e.getMessage());
           }
-
         } catch (JsonProcessingException e) {
           LOG.error("Error parsing query", e);
         } catch (SQLConversionException e) {

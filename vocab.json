@@ -254,10 +254,6 @@
         "value": "Namespace.IM + \"Q_DefaultCohorts\""
       },
       {
-        "name": "DATASET_QUERY",
-        "value": "Namespace.IM + \"DatasetQuery\""
-      },
-      {
         "name": "DATA_UPDATE",
         "value": "Namespace.IM + \"DataUpdate\""
       },
@@ -830,6 +826,10 @@
         "value": "Namespace.IM + \"Entity\""
       },
       {
+        "name": "IS_SUBINDICATOR_OF",
+        "value": "Namespace.IM + \"isSubIndicatorOf\""
+      },
+      {
         "name": "QUERY_SET",
         "value": "Namespace.IM + \"QuerySet\""
       },
@@ -850,8 +850,16 @@
         "value": "Namespace.IM + \"QueryTemplate\""
       },
       {
-        "name": "HAS_QUERY",
-        "value": "Namespace.IM + \"hasQuery\""
+        "name": "NUMERATOR",
+        "value": "Namespace.IM + \"numerator\""
+      },
+      {
+        "name": "DENOMINATOR",
+        "value": "Namespace.IM + \"denominator\""
+      },
+      {
+        "name": "HAS_DATASET",
+        "value": "Namespace.IM + \"dataset\""
       },
       {
         "name": "RECORD_TYPE",
@@ -1118,8 +1126,20 @@
         "value": "Namespace.IM + \"parameter\""
       },
       {
+        "name": "NUMERIC_DIFFERENCE",
+        "value": "Namespace.IM + \"NumericDifference\""
+      },
+      {
+        "name": "FISCAL_YEAR",
+        "value": "Namespace.IM + \"fiscalYear\""
+      },
+      {
         "name": "YEARS",
         "value": "Namespace.IM + \"Years\""
+      },
+      {
+        "name": "MONTH",
+        "value": "Namespace.IM + \"month\""
       },
       {
         "name": "MONTHS",
@@ -2119,6 +2139,10 @@
       {
         "name": "PROPERTY_SHAPE",
         "value": "Namespace.IM_EDITOR + \"PropertyShape\""
+      },
+      {
+        "name": "INDICATOR_SHAPE",
+        "value": "Namespace.IM_EDITOR + \"IndicatorShape\""
       }
     ]
   },
@@ -2172,7 +2196,6 @@
         "name": "ALLOWABLE_PROPERTIES",
         "value": "Namespace.IM_QUERY + \"AllowableProperties\""
       },
-
       {
         "name": "ALLOWABLE_PROPERTY_ANCESTORS",
         "value": "Namespace.IM_QUERY + \"AllowablePropertyAncestors\""

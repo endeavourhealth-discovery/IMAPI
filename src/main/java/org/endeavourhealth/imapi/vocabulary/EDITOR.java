@@ -22,6 +22,7 @@ public enum EDITOR implements VocabEnum {
     DATA_MODEL_SHAPE(Namespace.IM_EDITOR + "DataModelShape"),
     COHORT_QUERY_SHAPE(Namespace.IM_EDITOR + "CohortQueryShape"),
     PROPERTY_SHAPE(Namespace.IM_EDITOR + "PropertyShape"),
+    INDICATOR_SHAPE(Namespace.IM_EDITOR + "IndicatorShape"),
     ;
 
     private final String value;

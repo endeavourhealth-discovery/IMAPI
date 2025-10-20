@@ -765,7 +765,7 @@ public class EntityRepository {
         }
         ?concept rdf:type ?type.
       }
-      """.formatted("\""+ code+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + code + "\"", SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return getConceptRefsFromResult(qry);
@@ -953,7 +953,7 @@ public class EntityRepository {
           Entity concept = new Entity().setIri(iri);
           concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
-          if (bs.getValue("legacyLabel")!=null)
+          if (bs.getValue("legacyLabel") != null)
             concept.setName(bs.getValue("legacyLabel").stringValue());
           results.add(concept);
         }
@@ -2050,7 +2050,7 @@ public class EntityRepository {
                    im:scheme ?scheme.
         }
       }
-      """.formatted("\""+term+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + term + "\"", SparqlHelper.valueList("scheme", schemes));
     List<TTBundle> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -2067,5 +2067,81 @@ public class EntityRepository {
       }
     }
     return result;
+  }
+
+
+  public SortedSet<String> getOrderedSubqueries(String iri) {
+    SortedSet<String> results = new TreeSet<>();
+    String sql = """
+          SELECT DISTINCT ?o ?label ?depth
+          WHERE {
+             {
+                 ?s im:dependentOn ?o .
+                 BIND(1 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn ?o .
+                 BIND(2 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(3 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(4 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(5 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(6 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(7 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(8 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(9 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(10 AS ?depth)
+             }
+             OPTIONAL {
+                 ?o rdfs:label ?label
+             }
+          }
+          ORDER BY DESC(?depth) ?label
+      """;
+
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String subqIri = bs.getValue("o").stringValue();
+          results.add(subqIri);
+        }
+      }
+    }
+    return results;
   }
 }

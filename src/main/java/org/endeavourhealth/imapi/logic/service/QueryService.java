@@ -46,7 +46,6 @@ public class QueryService {
   private final DataModelRepository dataModelRepository = new DataModelRepository();
   private final PostgresService postgresService = new PostgresService();
   private final Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
-  private final ObjectMapper objectMapper = new ObjectMapper();
   private ConnectionManager connectionManager;
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
@@ -179,6 +178,7 @@ public class QueryService {
 
   private Map<String, Integer> runSubQueries(QueryRequest queryRequest) throws QueryException, JsonProcessingException, SQLConversionException, SQLException {
     List<String> subQueries = getSubqueryIris(queryRequest.getQuery());
+    SortedSet<String> subs = entityRepository.getOrderedSubqueries(queryRequest.getQuery().getIri());
     Map<String, Integer> queryIrisToHashCodes = getQueryIrisToHashCodes(subQueries, queryRequest.getArgument());
     if (!subQueries.isEmpty())
       for (String subQueryIri : subQueries) {

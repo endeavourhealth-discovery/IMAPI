@@ -55,7 +55,7 @@ public class SetMemberExport {
         SetMemberExport.executeConceptSet(conceptSetBuilder, iri);
       }
 
-      if (MODE.equals("production")) {
+      if (!MODE.equals("production")) {
         try (FileWriter fw = new FileWriter(baseFilename + "_tct_members.csv")) {
           fw.write(conceptBuilder.toString());
         } catch (IOException e) {
@@ -67,7 +67,6 @@ public class SetMemberExport {
           log.error("Failed to export file: {}", baseFilename + "_set_members.csv", e);
         }
       } else {
-        System.out.println("test");
         exportToBucket(conceptBuilder.toString(), baseFilename + "_tct_members.csv");
         exportToBucket(conceptSetBuilder.toString(), baseFilename + "_set_members.csv");
       }

@@ -26,8 +26,8 @@ public class SetMemberExport {
   private static final String MODE = System.getenv("MODE");
   private static final String ACCESS_KEY_ID = System.getenv("AWS_ACCESS_KEY_ID");
   private static final String SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
-  private static final String BUCKET_REGION = System.getenv("TCT_BUCKET_REGION");
-  private static final String BUCKET_NAME = System.getenv("TCT_BUCKET_NAME");
+  private static final String BUCKET_REGION = System.getenv("BUCKET_REGION");
+  private static final String BUCKET_NAME = System.getenv("BUCKET_NAME");
 
   public static void execute(Path basePath) {
     SetMemberExport.execute(basePath, Collections.emptyList());
@@ -42,27 +42,42 @@ public class SetMemberExport {
     Format formatter = new SimpleDateFormat("yyyyMMddHHmmss");
     String date = formatter.format(new java.util.Date());
     String baseFilename = date + "_" + basePath.getFileName();
+
+    StringBuilder conceptBuilder = new StringBuilder();
+    StringBuilder conceptSetBuilder = new StringBuilder();
+
     if (basePath.getParent() != null)
       baseFilename = basePath.getParent() + File.separator + baseFilename;
 
-    if (iris == null || iris.isEmpty()) {
-      SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", null);
-    } else {
-      for (String iri : iris)
-        SetMemberExport.executeConcept(baseFilename + "_tct_members.csv", iri);
+    if (iris != null && !iris.isEmpty()) {
+      for (String iri : iris) {
+        SetMemberExport.executeConcept(conceptBuilder, iri);
+        SetMemberExport.executeConceptSet(conceptSetBuilder, iri);
+      }
+
+      if (MODE.equals("production")) {
+        try (FileWriter fw = new FileWriter(baseFilename + "_tct_members.csv")) {
+          fw.write(conceptBuilder.toString());
+        } catch (IOException e) {
+          log.error("Failed to export file: {}", baseFilename + "_tct_members.csv", e);
+        }
+        try (FileWriter fwc = new FileWriter(baseFilename + "_set_members.csv")) {
+          fwc.write(conceptSetBuilder.toString());
+        } catch (IOException e) {
+          log.error("Failed to export file: {}", baseFilename + "_set_members.csv", e);
+        }
+      } else {
+        System.out.println("test");
+        exportToBucket(conceptBuilder.toString(), baseFilename + "_tct_members.csv");
+        exportToBucket(conceptSetBuilder.toString(), baseFilename + "_set_members.csv");
+      }
     }
 
-    if (iris == null || iris.isEmpty()) {
-      SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", null);
-    } else {
-      for (String iri : iris)
-        SetMemberExport.executeConceptSet(baseFilename + "_set_members.csv", iri);
-    }
   }
 
-  private static void executeConcept(String fileName, String iri) {
+  private static void executeConcept(StringBuilder builder, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
-      SetMemberExport.runExport(fileName, conn, """
+      SetMemberExport.runExport(builder, conn, """
         select ?set ?member ?im1Id
         where {
             ?set rdf:type im:Concept ;
@@ -73,9 +88,9 @@ public class SetMemberExport {
     }
   }
 
-  private static void executeConceptSet(String fileName, String iri) {
+  private static void executeConceptSet(StringBuilder builder, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
-      SetMemberExport.runExport(fileName, conn, """
+      SetMemberExport.runExport(builder, conn, """
         select ?set ?member ?im1Id
         where {
             ?set rdf:type im:ConceptSet ;
@@ -86,7 +101,7 @@ public class SetMemberExport {
     }
   }
 
-  private static void runExport(String fileName, IMDB conn, String spql, String iri) {
+  private static void runExport(StringBuilder builder, IMDB conn, String spql, String iri) {
     TupleQuery qry = conn.prepareTupleSparql(spql);
 
     if (null != iri && !iri.isEmpty())
@@ -99,13 +114,12 @@ public class SetMemberExport {
         else
           log.info("Exporting [{}]", iri);
 
-        export(fileName, rs);
+        export(builder, rs);
       }
     }
   }
 
-  private static void export(String fileName, TupleQueryResult rs) {
-    StringBuilder builder = new StringBuilder();
+  private static void export(StringBuilder builder, TupleQueryResult rs) {
     int members = 0;
 
     while (rs.hasNext()) {
@@ -114,23 +128,12 @@ public class SetMemberExport {
       String member = bs.getValue("member").stringValue();
       String im1Id = bs.getValue("im1Id") == null ? "" : bs.getValue("im1Id").stringValue();
 
-      if (!MODE.equals("production")) {
-        try (FileWriter fw = new FileWriter(fileName)) {
-          fw.write(set + "\t" + member + "\t" + im1Id + "\n");
-        } catch (IOException e) {
-          log.error("Failed to export file: {}", fileName, e);
-        }
-      } else {
-        builder.append(set).append("\t").append(member).append("\t").append(im1Id).append("\n");
-      }
+      builder.append(set).append("\t").append(member).append("\t").append(im1Id).append("\n");
+
       if (++members % 100_000 == 0)
         log.info("Exported {} members...", members);
     }
-
-    if (MODE.equals("production"))
-      exportToBucket(builder.toString(), fileName);
-
-    log.info("Finished exporting {} members", members);
+    log.info("Exported {} total members", members);
   }
 
   private static void exportToBucket(String data, String fileName) {

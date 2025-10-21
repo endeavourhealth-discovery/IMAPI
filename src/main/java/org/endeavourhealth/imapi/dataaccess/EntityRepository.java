@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -1874,10 +1875,10 @@ public class EntityRepository {
         optional {?child im:contextOrder ?co.
                   ?co im:context ?iri.
                   ?co sh:order ?contextOrder}
-      
+            
       }
       order by ?contextOrder ?order
-      
+            
       """.formatted(toIri(iri));
     List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
@@ -2070,8 +2071,8 @@ public class EntityRepository {
   }
 
 
-  public SortedSet<String> getOrderedSubqueries(String iri) {
-    SortedSet<String> results = new TreeSet<>();
+  public List<SubQueryDependency> getOrderedSubqueries(String iri) {
+    List<SubQueryDependency> results = new ArrayList<>();
     String sql = """
           SELECT DISTINCT ?o ?label ?depth
           WHERE {
@@ -2138,10 +2139,13 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String subqIri = bs.getValue("o").stringValue();
-          results.add(subqIri);
+          String label = bs.getValue("label").stringValue();
+          String depth = bs.getValue("depth").stringValue();
+          results.add(new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
         }
       }
     }
+    results.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
     return results;
   }
 }

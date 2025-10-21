@@ -22,6 +22,7 @@ import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -32,6 +33,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -429,6 +431,18 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
       return queryService.getArgumentType(referenceIri);
+    }
+  }
+
+  @GetMapping("/public/subQueries")
+  @Operation(summary = "Get all subQueries ordered of a query using the query iri")
+  public Collection<SubQueryDependency> getSubQueries(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSubQueries");
+      return queryService.getOrderedSubqueries(queryIri);
     }
   }
 }

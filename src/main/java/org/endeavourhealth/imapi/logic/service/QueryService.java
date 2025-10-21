@@ -532,4 +532,8 @@ public class QueryService {
     }
     return indicator;
   }
+
+  public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri) {
+    return entityRepository.getOrderedSubqueries(queryIri);
+  }
 }

@@ -2072,7 +2072,7 @@ public class EntityRepository {
 
 
   public List<SubQueryDependency> getOrderedSubqueries(String iri) {
-    List<SubQueryDependency> results = new ArrayList<>();
+    Map<String, SubQueryDependency> results = new HashMap<>();
     String sql = """
           SELECT DISTINCT ?o ?label ?depth
           WHERE {
@@ -2141,11 +2141,13 @@ public class EntityRepository {
           String subqIri = bs.getValue("o").stringValue();
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
-          results.add(new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+          if (!results.containsKey(subqIri))
+            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
         }
       }
     }
-    results.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
-    return results;
+    List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
+    valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+    return valuelist;
   }
 }

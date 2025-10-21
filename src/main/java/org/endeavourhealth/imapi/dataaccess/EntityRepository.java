@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -765,7 +766,7 @@ public class EntityRepository {
         }
         ?concept rdf:type ?type.
       }
-      """.formatted("\""+ code+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + code + "\"", SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return getConceptRefsFromResult(qry);
@@ -953,7 +954,7 @@ public class EntityRepository {
           Entity concept = new Entity().setIri(iri);
           concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
-          if (bs.getValue("legacyLabel")!=null)
+          if (bs.getValue("legacyLabel") != null)
             concept.setName(bs.getValue("legacyLabel").stringValue());
           results.add(concept);
         }
@@ -1874,10 +1875,10 @@ public class EntityRepository {
         optional {?child im:contextOrder ?co.
                   ?co im:context ?iri.
                   ?co sh:order ?contextOrder}
-      
+            
       }
       order by ?contextOrder ?order
-      
+            
       """.formatted(toIri(iri));
     List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
@@ -2050,7 +2051,7 @@ public class EntityRepository {
                    im:scheme ?scheme.
         }
       }
-      """.formatted("\""+term+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + term + "\"", SparqlHelper.valueList("scheme", schemes));
     List<TTBundle> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -2067,5 +2068,86 @@ public class EntityRepository {
       }
     }
     return result;
+  }
+
+
+  public List<SubQueryDependency> getOrderedSubqueries(String iri) {
+    Map<String, SubQueryDependency> results = new HashMap<>();
+    String sql = """
+          SELECT DISTINCT ?o ?label ?depth
+          WHERE {
+             {
+                 ?s im:dependentOn ?o .
+                 BIND(1 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn ?o .
+                 BIND(2 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(3 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(4 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(5 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(6 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(7 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(8 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(9 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(10 AS ?depth)
+             }
+             OPTIONAL {
+                 ?o rdfs:label ?label
+             }
+          }
+          ORDER BY DESC(?depth) ?label
+      """;
+
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String subqIri = bs.getValue("o").stringValue();
+          String label = bs.getValue("label").stringValue();
+          String depth = bs.getValue("depth").stringValue();
+          if (!results.containsKey(subqIri))
+            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+        }
+      }
+    }
+    List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
+    valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+    return valuelist;
   }
 }

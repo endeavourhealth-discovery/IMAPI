@@ -47,6 +47,9 @@ public class SecurityConfigStepDefs {
           return authorisedUrl;
         }
       );
+    when(reqMatcher.requestMatchers(any(HttpMethod.class)))
+      .thenAnswer(invocation -> authorisedUrl
+      );
     when(authorisedUrl.permitAll()).thenReturn(reqMatcher);
 
     securityConfig.setRequestPermissions(reqMatcher);

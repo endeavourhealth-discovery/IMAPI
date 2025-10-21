@@ -510,16 +510,16 @@ public class QueryService {
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
     TTEntity entity = entityRepository.getEntityPredicates(iri, asHashSet(RDFS.LABEL, RDFS.COMMENT,
-      IM.IS_SUBINDICATOR_OF, IM.DENOMINATOR, IM.ENUMERATOR, IM.HAS_DATASET)).getEntity();
-    Indicator indicator = new Indicator();
+      IM.IS_SUBINDICATOR_OF,IM.DENOMINATOR,IM.NUMERATOR,IM.HAS_DATASET)).getEntity();
+    Indicator indicator= new Indicator();
     indicator.setIri(entity.getIri());
     indicator.setName(entity.getName());
     indicator.setDescription(entity.getDescription());
     if (entity.get(IM.DENOMINATOR) != null) {
       indicator.setDenominator(entity.get(IM.DENOMINATOR).asIriRef());
     }
-    if (entity.get(IM.ENUMERATOR) != null) {
-      indicator.setEnumerator(entity.get(IM.ENUMERATOR).asIriRef());
+    if (entity.get(IM.NUMERATOR) != null) {
+      indicator.setnumerator(entity.get(IM.NUMERATOR).asIriRef());
     }
     if (entity.get(IM.HAS_DATASET) != null) {
       Query dataset = entity.get(IM.HAS_DATASET).asLiteral().objectValue(Query.class);

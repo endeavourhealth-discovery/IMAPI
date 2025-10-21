@@ -61,8 +61,8 @@ public class SetMemberExport {
         } catch (IOException e) {
           log.error("Failed to export file: {}", baseFilename + "_tct_members.csv", e);
         }
-        try (FileWriter fwc = new FileWriter(baseFilename + "_set_members.csv")) {
-          fwc.write(conceptSetBuilder.toString());
+        try (FileWriter fwSet = new FileWriter(baseFilename + "_set_members.csv")) {
+          fwSet.write(conceptSetBuilder.toString());
         } catch (IOException e) {
           log.error("Failed to export file: {}", baseFilename + "_set_members.csv", e);
         }

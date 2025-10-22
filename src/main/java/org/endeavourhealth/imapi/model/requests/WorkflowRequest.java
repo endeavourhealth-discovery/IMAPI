@@ -20,7 +20,7 @@ public class WorkflowRequest {
   private String userId;
 
   public WorkflowRequest(HttpSession session) throws JsonProcessingException {
-    this.userId = casdoorService.getUser(session).id;
+    this.userId = casdoorService.getUser(session).getId();
   }
 
   public WorkflowRequest(Integer page, Integer size, String userId) {

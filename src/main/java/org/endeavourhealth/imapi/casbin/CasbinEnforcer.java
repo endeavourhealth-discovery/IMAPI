@@ -1,14 +1,15 @@
 package org.endeavourhealth.imapi.casbin;
 
 import com.mysql.cj.jdbc.MysqlDataSource;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.casbin.adapter.JDBCAdapter;
-import org.casbin.casdoor.entity.User;
 import org.casbin.jcasbin.main.Enforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class CasbinEnforcer {
     this.enforcer = new Enforcer("casbin_model.conf", this.adapter);
   }
 
-  public void enforce(String user, DataSource dataRequest, UserRole accessRequest) throws UserAuthorisationException {
+  public void enforce(User user, String dataRequest, AccessRequest accessRequest) throws UserAuthorisationException {
     if (null == this.enforcer) {
       setupEnforcer();
     }
@@ -52,19 +53,26 @@ public class CasbinEnforcer {
     }
   }
 
-  public void enforce(HttpSession session, DataSource dataRequest, UserRole accessRequest) throws UserAuthorisationException {
-    User user = casdoorService.getUser(session);
-    enforce(user.name, dataRequest, accessRequest);
+  public void enforce(HttpServletRequest request, AccessRequest accessRequest) throws UserAuthorisationException {
+    User user = casdoorService.getUser(request.getSession());
+    String path = request.getRequestURI();
+    enforce(user, path, accessRequest);
   }
 
-  public void enforceOr(HttpSession session, DataSource dataRequest, List<UserRole> accessRequests) throws UserAuthorisationException {
-    User user = casdoorService.getUser(session);
+  public void enforceOr(HttpServletRequest request, List<AccessRequest> accessRequests) throws UserAuthorisationException {
+    User user = casdoorService.getUser(request.getSession());
+    String path = request.getRequestURI();
     List<Boolean> results = new ArrayList<>();
-    for (UserRole accessRequest : accessRequests) {
-      results.add(enforcer.enforce(user.name, dataRequest, accessRequest));
+    for (AccessRequest accessRequest : accessRequests) {
+      results.add(enforcer.enforce(user, path, accessRequest));
     }
     if (results.stream().noneMatch(r -> r)) {
-      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, dataRequest, accessRequests));
+      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, path, accessRequests));
     }
+  }
+
+  public void addPolicy(String userId, String dataSource, AccessRequest accessRequest) throws UserNotFoundException {
+    User user = casdoorService.adminGetUser(userId);
+    enforcer.addPolicy(user.toString(), dataSource, accessRequest.toString());
   }
 }

@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.casbin.casdoor.entity.User;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
+import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -46,8 +46,8 @@ public class SmartLifeQueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
       User user = casdoorService.getUser(session);
-      UUID userId = UUID.fromString(user.id);
-      return smartLifeQueryService.runQuery(userId, user.name, query);
+      UUID userId = UUID.fromString(user.getId());
+      return smartLifeQueryService.runQuery(userId, user.getUsername(), query);
     }
   }
 

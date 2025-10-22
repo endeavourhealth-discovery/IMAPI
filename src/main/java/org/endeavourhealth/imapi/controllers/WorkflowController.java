@@ -3,20 +3,20 @@ package org.endeavourhealth.imapi.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.casbin.casdoor.entity.User;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
-import org.endeavourhealth.imapi.casbin.DataSource;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
+import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.web.bind.annotation.*;
@@ -40,17 +40,17 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST")) {
       log.debug("createBugReport");
       User user = casdoorService.getUser(session);
-      if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(user.id);
+      if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(user.getId());
       workflowService.createBugReport(bugReport);
     }
   }
 
   @Operation(summary = "Get Bug Report", description = "Fetch a bug report using its unique ID.")
   @GetMapping(value = "/getBugReport", produces = "application/json")
-  public BugReport getBugReport(@RequestParam(name = "id") String id, HttpSession session) throws UserNotFoundException, UserAuthorisationException {
+  public BugReport getBugReport(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.bugReport.GET")) {
       log.debug("getBugReport");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
+      casbinEnforcer.enforce(request, AccessRequest.READ);
       return workflowService.getBugReport(id);
     }
   }
@@ -90,11 +90,11 @@ public class WorkflowController {
 
   @Operation(summary = "Get Unassigned Tasks", description = "Retrieve tasks that are not assigned to any user.")
   @GetMapping(value = "/getUnassignedTasks", produces = "application/json")
-  public WorkflowResponse getUnassignedTasks(HttpSession session, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public WorkflowResponse getUnassignedTasks(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.unassignedTasks.GET")) {
       log.debug("getUnassignedTasks");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      WorkflowRequest wfRequest = new WorkflowRequest(session);
+      casbinEnforcer.enforce(request, AccessRequest.READ);
+      WorkflowRequest wfRequest = new WorkflowRequest(request.getSession());
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
       return workflowService.getUnassignedTasks(wfRequest);
@@ -123,17 +123,17 @@ public class WorkflowController {
   public void createRoleRequest(HttpSession session, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST")) {
       User user = casdoorService.getUser(session);
-      if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(user.id);
+      if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(user.getId());
       workflowService.createRoleRequest(roleRequest);
     }
   }
 
   @Operation(summary = "Get Role Request", description = "Retrieve a role request using its unique ID.")
   @GetMapping(value = "/roleRequest", produces = "application/json")
-  public RoleRequest getRoleRequest(@RequestParam(name = "id") String id, HttpSession session) throws UserNotFoundException, UserAuthorisationException {
+  public RoleRequest getRoleRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.roleRequest.GET")) {
       log.debug("getRoleRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
+      casbinEnforcer.enforce(request, AccessRequest.READ);
       return workflowService.getRoleRequest(id);
     }
   }
@@ -149,21 +149,21 @@ public class WorkflowController {
 
   @Operation(summary = "Approve role request")
   @PostMapping(value = "/approveRoleRequest")
-  public void approveRoleRequest(HttpSession session, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void approveRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveRoleRequest.POST")) {
       log.debug("approveRoleRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.approveRoleRequest(session, roleRequest);
+      casbinEnforcer.enforce(request, AccessRequest.READ);
+      workflowService.approveRoleRequest(request.getSession(), roleRequest);
     }
   }
 
   @Operation(summary = "Reject role request")
   @PostMapping(value = "/rejectRoleRequest")
-  public void rejectRoleRequest(HttpSession session, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void rejectRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST")) {
       log.debug("rejectRoleRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.rejectRoleRequest(session, roleRequest);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      workflowService.rejectRoleRequest(request.getSession(), roleRequest);
     }
   }
 
@@ -172,17 +172,17 @@ public class WorkflowController {
   public void createGraphRequest(HttpSession session, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createGraphRequest.POST")) {
       User user = casdoorService.getUser(session);
-      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(user.id);
+      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(user.getId());
       workflowService.createGraphRequest(graphRequest);
     }
   }
 
   @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
   @GetMapping(value = "/graphRequest", produces = "application/json")
-  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id, HttpSession session) throws UserNotFoundException, UserAuthorisationException {
+  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
       log.debug("getGraphRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
+      casbinEnforcer.enforce(request, AccessRequest.READ);
       return workflowService.getGraphRequest(id);
     }
   }
@@ -198,21 +198,21 @@ public class WorkflowController {
 
   @Operation(summary = "Approve graph request")
   @PostMapping(value = "/approveGraphRequest")
-  public void approveGraphRequest(HttpSession session, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void approveGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveGraphRequest.POST")) {
       log.debug("approveGraphRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.approveGraphRequest(session, graphRequest);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      workflowService.approveGraphRequest(request.getSession(), graphRequest);
     }
   }
 
   @Operation(summary = "Reject graph request")
   @PostMapping(value = "/rejectGraphRequest")
-  public void rejectGraphRequest(HttpSession session, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void rejectGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectGraphRequest.POST")) {
       log.debug("rejectGraphRequest");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.rejectGraphRequest(session, graphRequest);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      workflowService.rejectGraphRequest(request.getSession(), graphRequest);
     }
   }
 
@@ -222,7 +222,7 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST")) {
       log.debug("createEntityApproval");
       User user = casdoorService.getUser(session);
-      if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(user.id);
+      if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(user.getId());
       workflowService.createEntityApproval(entityApproval);
     }
   }
@@ -247,21 +247,21 @@ public class WorkflowController {
 
   @Operation(summary = "Approve entity approval")
   @PostMapping(value = "/approveEntityApproval")
-  public void approveEntityApproval(HttpSession session, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void approveEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveEntityApproval.POST")) {
       log.debug("approveEntityApproval");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.approveEntityApproval(session, entityApproval);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      workflowService.approveEntityApproval(request.getSession(), entityApproval);
     }
   }
 
   @Operation(summary = "Reject entity approval")
   @PostMapping(value = "/rejectEntityApproval")
-  public void rejectEntityApproval(HttpSession session, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+  public void rejectEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectEntityApproval.POST")) {
       log.debug("rejectEntityApproval");
-      casbinEnforcer.enforce(session, DataSource.WORKFLOW, UserRole.ADMIN);
-      workflowService.rejectEntityApproval(session, entityApproval);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      workflowService.rejectEntityApproval(request.getSession(), entityApproval);
     }
   }
 
@@ -271,7 +271,7 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateTask.POST")) {
       log.debug("updateTask");
       User user = casdoorService.getUser(session);
-      workflowService.updateTask(task, user.id);
+      workflowService.updateTask(task, user.getId());
     }
   }
 }

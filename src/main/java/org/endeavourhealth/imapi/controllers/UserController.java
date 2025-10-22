@@ -2,18 +2,18 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.casbin.casdoor.entity.User;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
-import org.endeavourhealth.imapi.casbin.DataSource;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.UserService;
+import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.UserDataDto;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -40,7 +40,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserData");
       User user = casdoorService.getUser(session);
-      return userService.getUserData(user.id);
+      return userService.getUserData(user.getId());
     }
   }
 
@@ -50,7 +50,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserPreset");
       User user = casdoorService.getUser(session);
-      return userService.getUserPreset(user.id);
+      return userService.getUserPreset(user.getId());
     }
   }
 
@@ -61,7 +61,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserPreset");
       User user = casdoorService.getUser(session);
-      userService.updateUserPreset(user.id, preset);
+      userService.updateUserPreset(user.getId(), preset);
     }
   }
 
@@ -71,7 +71,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserPrimaryColor");
       User user = casdoorService.getUser(session);
-      return userService.getUserPrimaryColor(user.id);
+      return userService.getUserPrimaryColor(user.getId());
     }
   }
 
@@ -82,7 +82,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserPrimaryColor");
       User user = casdoorService.getUser(request);
-      userService.updateUserPrimaryColor(user.id, color);
+      userService.updateUserPrimaryColor(user.getId(), color);
     }
   }
 
@@ -91,7 +91,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserSurfaceColor");
       User user = casdoorService.getUser(session);
-      return userService.getUserSurfaceColor(user.id);
+      return userService.getUserSurfaceColor(user.getId());
     }
   }
 
@@ -101,7 +101,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserSurfaceColor");
       User user = casdoorService.getUser(session);
-      userService.updateUserSurfaceColor(user.id, color);
+      userService.updateUserSurfaceColor(user.getId(), color);
     }
   }
 
@@ -110,7 +110,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserDarkMode");
       User user = casdoorService.getUser(session);
-      return userService.getUserDarkMode(user.id);
+      return userService.getUserDarkMode(user.getId());
     }
   }
 
@@ -120,7 +120,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserDarkMode");
       User user = casdoorService.getUser(session);
-      userService.updateUserDarkMode(user.id, darkMode.getBool());
+      userService.updateUserDarkMode(user.getId(), darkMode.getBool());
     }
   }
 
@@ -129,7 +129,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.GET")) {
       log.debug("getUserScale");
       User user = casdoorService.getUser(session);
-      return userService.getUserScale(user.id);
+      return userService.getUserScale(user.getId());
     }
   }
 
@@ -139,7 +139,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.POST")) {
       log.debug("updateUserScale");
       User user = casdoorService.getUser(session);
-      userService.updateUserScale(user.id, scale);
+      userService.updateUserScale(user.getId(), scale);
     }
   }
 
@@ -148,7 +148,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.MRU.GET")) {
       log.debug("getUserMRU");
       User user = casdoorService.getUser(session);
-      return userService.getUserMRU(user.id);
+      return userService.getUserMRU(user.getId());
     }
   }
 
@@ -158,7 +158,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.MRU.POST")) {
       log.debug("updateUserMRU");
       User user = casdoorService.getUser(session);
-      userService.updateUserMRU(user.id, mru);
+      userService.updateUserMRU(user.getId(), mru);
     }
   }
 
@@ -167,7 +167,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Favourites.GET")) {
       log.debug("getUserFavourites");
       User user = casdoorService.getUser(session);
-      return userService.getUserFavourites(user.id);
+      return userService.getUserFavourites(user.getId());
     }
   }
 
@@ -177,7 +177,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Favourites.POST")) {
       log.debug("updateUserFavourites");
       User user = casdoorService.getUser(session);
-      userService.updateUserFavourites(user.id, favourites);
+      userService.updateUserFavourites(user.getId(), favourites);
     }
   }
 
@@ -186,17 +186,17 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.GET")) {
       log.debug(("getOrganisations"));
       User user = casdoorService.getUser(session);
-      return userService.getUserOrganisations(user.id);
+      return userService.getUserOrganisations(user.getId());
     }
   }
 
   @Operation(summary = "Update user organisations", description = "Updates the list of organisations for a user. Requires admin authority.")
   @PostMapping(value = "/organisations", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations, HttpSession session) throws Exception {
+  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.POST")) {
       log.debug("updateUserOrganisations");
-      casbinEnforcer.enforce(session, DataSource.IM, UserRole.ADMIN);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       if (!userService.userIdExists(userId))
         throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
       userService.updateUserOrganisations(userId, organisations);
@@ -208,17 +208,17 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.GET")) {
       log.debug(("getGraphs"));
       User user = casdoorService.getUser(session);
-      return userService.getUserGraphs(user.id);
+      return userService.getUserGraphs(user.getId());
     }
   }
 
   @Operation(summary = "Update user graphs", description = "Updates the list of graphs for a user. Requires admin authority.")
   @PostMapping(value = "/graphs", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs, HttpSession session) throws Exception {
+  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.POST")) {
       log.debug("updateUserGraphs");
-      casbinEnforcer.enforce(session, DataSource.USER, UserRole.ADMIN);
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       if (!userService.userIdExists(userId))
         throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
       userService.updateUserGraphs(userId, graphs);
@@ -230,7 +230,7 @@ public class UserController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.EditAccess.GET")) {
       log.debug(("getEditAccess"));
       User user = casdoorService.getUser(session);
-      return userService.getEditAccess(user.id, iri);
+      return userService.getEditAccess(user.getId(), iri);
     }
   }
 

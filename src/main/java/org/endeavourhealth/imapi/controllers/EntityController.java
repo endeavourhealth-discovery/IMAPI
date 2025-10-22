@@ -8,9 +8,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.casbin.casdoor.entity.User;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
-import org.endeavourhealth.imapi.casbin.DataSource;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
@@ -20,6 +18,8 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
+import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
@@ -35,7 +35,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -258,12 +257,13 @@ public class EntityController {
 
   @PostMapping(value = "/create")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpSession session) throws JsonProcessingException, UserAuthorisationException, TTFilerException {
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpSession session, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       User user = casdoorService.getUser(session);
-      casbinEnforcer.enforce(user.name, DataSource.IM, UserRole.CREATOR);
-      return filerService.createEntity(editRequest, user.name, editRequest.getGraph());
+      String path = request.getRequestURI();
+      casbinEnforcer.enforce(user, path, AccessRequest.WRITE);
+      return filerService.createEntity(editRequest, user.getUsername(), editRequest.getGraph());
     }
   }
 
@@ -279,12 +279,12 @@ public class EntityController {
 
   @PostMapping(value = "/update")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpSession session, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException {
+  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      casbinEnforcer.enforce(session, DataSource.IM, UserRole.EDITOR);
-      User user = casdoorService.getUser(session);
-      return filerService.updateEntity(editRequest.getEntity(), user.name, editRequest.getGraph());
+      casbinEnforcer.enforce(request, AccessRequest.WRITE);
+      User user = casdoorService.getUser(request.getSession());
+      return filerService.updateEntity(editRequest.getEntity(), user.getUsername(), editRequest.getGraph());
     }
   }
 

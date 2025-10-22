@@ -107,7 +107,9 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
-    "org.endeavourhealth.imapi.model.editor.*"
+    "org.endeavourhealth.imapi.model.editor.*",
+    "org.endeavourhealth.imapi.model.casbin.*",
+    "org.endeavourhealth.imapi.model.admin.User"
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module

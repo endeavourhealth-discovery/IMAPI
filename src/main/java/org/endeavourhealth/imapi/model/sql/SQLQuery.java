@@ -137,7 +137,7 @@ public class SQLQuery {
   }
 
   private Field getField(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
-    Table map = table != null ? tableMap.getTable(table) : this.map;
+    Table map = table != null ? tableMap.getTableFromDataModel(table) : this.map;
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
     if (map.getFields().get(field) != null) return map.getFields().get(field);
     log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
@@ -171,10 +171,10 @@ public class SQLQuery {
   }
 
   private Table getMap(String model, TableMap tableMap) throws SQLConversionException {
-    Table map = tableMap.getTable(model);
+    Table map = tableMap.getTableFromDataModel(model);
 
     if (map == null) {
-      map = tableMap.getTable(Namespace.IM + model);
+      map = tableMap.getTableFromDataModel(Namespace.IM + model);
     }
 
     if (map != null) {

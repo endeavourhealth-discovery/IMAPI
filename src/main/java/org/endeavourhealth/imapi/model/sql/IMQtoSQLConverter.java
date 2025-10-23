@@ -11,8 +11,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,8 +40,7 @@ public class IMQtoSQLConverter {
 
     try {
       String resourcePath = isPostgreSQL() ? "IMQtoSQL.json" : "IMQtoMYSQL.json";
-      String text = Files.readString(Paths.get(Objects.requireNonNull(getClass().getClassLoader().getResource(resourcePath)).toURI()));
-      tableMap = new ObjectMapper().readValue(text, TableMap.class);
+      tableMap = new MappingParser().parse(resourcePath);
     } catch (Exception e) {
       log.error("Could not parse datamodel map!");
       throw new RuntimeException(e);
@@ -248,7 +245,7 @@ public class IMQtoSQLConverter {
   }
 
   private String getNestedPropertyFromArgument(SQLQuery qry, String valuePath, String typeOf, String path) throws SQLConversionException, JsonProcessingException {
-    Table table = tableMap.getTable(valuePath);
+    Table table = tableMap.getTableFromDataModel(valuePath);
     String tableAlias = getNameFromIri(valuePath) + "_" + qry.getAlias();
     String property = table.getFields().get(path).getField();
     String propertyName = property.replace("{alias}.", "");
@@ -269,23 +266,46 @@ public class IMQtoSQLConverter {
   }
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException, JsonProcessingException {
-    Table table = tableMap.getTable(property.getIri());
-    String typeOf = table.getDataModel();
-    if (typeOf == null)
-      throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
-    SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap, null);
-    addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias(), true);
-    if (subQuery.getWiths() == null)
-      subQuery.setWiths(new ArrayList<>());
-    qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-    qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
-    String joiner = "JOIN ";
-    qry.getJoins().add(createJoin(qry, subQuery, joiner));
+    if (!tableMap.getPropertiesMap().containsKey(List.of(property.getIri())) && !tableMap.getDataModels().containsKey(property.getIri())) {
+      List<String> propertyPath = new ArrayList<>();
+      populatePropertyPath(property, propertyPath);
+      String propIri = String.join("_", propertyPath.subList(0, propertyPath.size() - 1));
+      Table table = tableMap.getTableFromProperty(List.of(propIri));
+      String typeOf = table.getDataModel();
+      if (typeOf == null)
+        throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
+      SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap, null);
+      if (subQuery.getWiths() == null)
+        subQuery.setWiths(new ArrayList<>());
+      qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
+      qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
+      String joiner = "JOIN ";
+      qry.getJoins().add(createJoin(qry, subQuery, joiner));
+    } else {
+      Table table = tableMap.getTableFromProperty(List.of(property.getIri()));
+      String typeOf = table.getDataModel();
+      if (typeOf == null)
+        throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
+      SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap, null);
+      addSelectFromReturnRecursively(subQuery, property.getReturn(), property, parentProperty != null ? parentProperty.getIri() : gParentTypeOf, subQuery.getAlias(), true);
+      if (subQuery.getWiths() == null)
+        subQuery.setWiths(new ArrayList<>());
+      qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
+      qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
+      String joiner = "JOIN ";
+      qry.getJoins().add(createJoin(qry, subQuery, joiner));
+    }
+  }
+
+  private void populatePropertyPath(ReturnProperty property, List<String> propertyPath) {
+    propertyPath.add(property.getIri());
+    if (null != property.getReturn() && null != property.getReturn().getProperty() && !property.getReturn().getProperty().isEmpty())
+      populatePropertyPath(property.getReturn().getProperty().getFirst(), propertyPath);
   }
 
   private void addYNCase(SQLQuery qry, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias) throws SQLConversionException {
-    Table parentTable = tableMap.getTable(parentProperty.getIri());
-    Table gParentTable = tableMap.getTable(gParentTypeOf);
+    Table parentTable = tableMap.getTableFromProperty(List.of(parentProperty.getIri()));
+    Table gParentTable = tableMap.getTableFromProperty(List.of(gParentTypeOf));
     Relationship rel = parentTable.getRelationships().get(gParentTable.getDataModel());
     if (rel == null)
       throw new SQLConversionException("Relationship between " + parentTable.getTable() + " and " + gParentTable.getTable() + "not found!");
@@ -349,7 +369,7 @@ public class IMQtoSQLConverter {
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
       return qry.subQuery(match.getNodeRef(), variable, tableMap, null);
     } else if (match.getPath() != null) {
-      return qry.subQuery(match.getPath().getFirst().getIri(), variable, tableMap, null);
+      return qry.subQuery(match.getPath().getFirst().getTypeOf().getIri(), variable, tableMap, null);
     } else return qry.subQuery(qry.getModel(), variable, tableMap, null);
   }
 

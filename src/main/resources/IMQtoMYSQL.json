@@ -1,63 +1,123 @@
 {
-  "properties": {
-    "http://endhealth.info/im#patient": {
+  "properties": [
+    {
+      "path": [
+        "http://endhealth.info/im#patient"
+      ],
       "dataModel": "http://endhealth.info/im#Patient"
     },
-    "http://endhealth.info/im#appointment": {
+    {
+      "path": [
+        "http://endhealth.info/im#appointment"
+      ],
       "dataModel": "http://endhealth.info/im#Encounter"
     },
-    "http://endhealth.info/im#mobileTelephoneNumber": {
+    {
+      "path": [
+        "http://endhealth.info/im#mobileTelephoneNumber"
+      ],
       "dataModel": "http://endhealth.info/im#MobileTelephoneNumber"
     },
-    "http://endhealth.info/im#provider": {
+    {
+      "path": [
+        "http://endhealth.info/im#provider"
+      ],
       "dataModel": "http://endhealth.info/im#Organisation"
     },
-    "http://endhealth.info/im#gpRegistrationAtEvent": {
+    {
+      "path": [
+        "http://endhealth.info/im#gpRegistrationAtEvent"
+      ],
       "dataModel": "http://endhealth.info/im#GPRegistration"
     },
-    "http://endhealth.info/im#statedGender": {
+    {
+      "path": [
+        "http://endhealth.info/im#statedGender"
+      ],
       "dataModel": "http://endhealth.info/im#statedGenderConcept"
     },
-    "http://endhealth.info/im#ethnicity": {
+    {
+      "path": [
+        "http://endhealth.info/im#ethnicity"
+      ],
       "dataModel": "http://endhealth.info/im#ethnicityConcept"
     },
-    "http://endhealth.info/im#concept": {
+    {
+      "path": [
+        "http://endhealth.info/im#concept"
+      ],
       "dataModel": "http://endhealth.info/im#Concept"
     },
-    "http://endhealth.info/im#observation": {
+    {
+      "path": [
+        "http://endhealth.info/im#provenance",
+        "http://endhealth.info/im#recordOwner"
+      ],
+      "dataModel": "http://endhealth.info/im#Organisation"
+    },
+    {
+      "path": [
+        "http://endhealth.info/im#observation"
+      ],
       "dataModel": "http://endhealth.info/im#Observation"
     },
-    "http://endhealth.info/im#clinicalEntry": {
+    {
+      "path": [
+        "http://endhealth.info/im#clinicalEntry"
+      ],
       "dataModel": "http://endhealth.info/im#Observation"
     },
-    "http://endhealth.info/im#gPRegistration": {
+    {
+      "path": [
+        "http://endhealth.info/im#gPRegistration"
+      ],
       "dataModel": "http://endhealth.info/im#GPRegistration"
     },
-    "http://endhealth.info/im#prescription": {
+    {
+      "path": [
+        "http://endhealth.info/im#prescription"
+      ],
       "dataModel": "http://endhealth.info/im#MedicationRequest"
     },
-    "http://endhealth.info/im#medicationRequest": {
+    {
+      "path": [
+        "http://endhealth.info/im#medicationRequest"
+      ],
       "dataModel": "http://endhealth.info/im#MedicationRequest"
     },
-    "http://endhealth.info/im#episodeOfCare": {
+    {
+      "path": [
+        "http://endhealth.info/im#episodeOfCare"
+      ],
       "dataModel": "http://endhealth.info/im#EpisodeOfCare"
     },
-    "http://endhealth.info/im#gmsRegistrationAtEvent": {
+    {
+      "path": [
+        "http://endhealth.info/im#gmsRegistrationAtEvent"
+      ],
       "dataModel": "http://endhealth.info/im#EpisodeOfCare"
     },
-    "http://endhealth.info/im#usualGP": {
+    {
+      "path": [
+        "http://endhealth.info/im#usualGP"
+      ],
       "dataModel": "http://endhealth.info/im#PersonInRole"
     },
-    "http://endhealth.info/im#homeAddress": {
+    {
+      "path": [
+        "http://endhealth.info/im#homeAddress"
+      ],
       "dataModel": "http://endhealth.info/im#Address"
     }
-  },
+  ],
   "dataModels": {
     "http://endhealth.info/im#MobileTelephoneNumber": {
       "table": "patient_contact",
       "condition": "type_concept_id = 1335362",
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "{alias}.id"}
+        "http://endhealth.info/im#Patient": {
+          "fromField": "patient_id", "toField": "{alias}.id"
+        }
       }
     },
     "http://endhealth.info/im#Address": {
@@ -72,15 +132,23 @@
         "http://endhealth.info/im#age": {
           "field": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})", "type": "number", "function": true
         },
-        "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#dateOfBirth": {
+          "field": "{alias}.date_of_birth", "type": "date"
+        },
         "http://endhealth.info/im#pseudonymisedId": {"field": "{alias}.id", "type": "string"},
         "http://endhealth.info/im#id": {"field": "{alias}.person_id", "type": "string"},
-        "http://endhealth.info/im#forenames": {"field": "{alias}.first_names", "type": "string"},
+        "http://endhealth.info/im#forenames": {
+          "field": "{alias}.first_names", "type": "string"
+        },
         "http://endhealth.info/im#familyName": {"field": "{alias}.last_name", "type": "string"},
-        "http://endhealth.info/im#dateOfDeath": {"field": "{alias}.date_of_death", "type": "date"},
+        "http://endhealth.info/im#dateOfDeath": {
+          "field": "{alias}.date_of_death", "type": "date"
+        },
         "http://endhealth.info/im#statedGender": {"field": "{alias}.gender_concept_id", "type": "iri"},
         "http://endhealth.info/im#nhsNumber": {"field": "{alias}.nhs_number", "type": "string"},
-        "http://endhealth.info/im#ethnicity": {"field": "{alias}.ethnic_code_concept_id", "type": "iri"}
+        "http://endhealth.info/im#ethnicity": {
+          "field": "{alias}.ethnic_code_concept_id", "type": "iri"
+        }
       },
       "relationships": {
         "http://endhealth.info/im#Observation": {"fromField": "id", "toField": "{alias}.patient_id"}
@@ -89,12 +157,16 @@
     "http://endhealth.info/im#PersonInRole": {
       "table": "person",
       "fields": {
-        "http://endhealth.info/im#age": {"field": "{alias}.date_of_birth", "type": "date"},
+        "http://endhealth.info/im#age": {
+          "field": "{alias}.date_of_birth", "type": "date"
+        },
         "http://endhealth.info/im#dateOfBirth": {"field": "{alias}.date_of_birth", "type": "date"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "id", "toField": "{alias}.person_id"},
-        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "id", "toField": "{alias}.person_id"}
+        "http://endhealth.info/im#EpisodeOfCare": {
+          "fromField": "id", "toField": "{alias}.person_id"
+        }
       }
     },
     "http://endhealth.info/im#Observation": {
@@ -103,9 +175,13 @@
         "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#value": {"field": "{alias}.result_value", "type": "number"},
-        "http://endhealth.info/im#ageAtEvent": {"field": "{alias}.age_at_event", "type": "number"},
+        "http://endhealth.info/im#ageAtEvent": {
+          "field": "{alias}.age_at_event", "type": "number"
+        },
         "http://endhealth.info/im#problemEpisode": {"field": "{alias}.episodicity_concept_id", "type": "iri"},
-        "http://endhealth.info/im#text": {"field": "{alias}.result_text", "type": "string"},
+        "http://endhealth.info/im#text": {
+          "field": "{alias}.result_text", "type": "string"
+        },
         "http://endhealth.info/im#units": {"field": "{alias}.result_value_units", "type": "string"}
       },
       "relationships": {
@@ -117,7 +193,9 @@
       "fields": {
         "http://endhealth.info/im#concept": {"field": "{alias}.core_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
-        "http://endhealth.info/im#effectiveTime": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#effectiveTime": {
+          "field": "{alias}.clinical_effective_date", "type": "date"
+        },
         "http://endhealth.info/im#appointmentType": {"field": "{alias}.type", "type": "string"}
       },
       "relationships": {
@@ -128,13 +206,17 @@
       "table": "registration_status_history",
       "fields": {
         "http://endhealth.info/im#concept": {"field": "{alias}.concept", "type": "iri"},
-        "http://endhealth.info/im#gpPatientType": {"field": "{alias}.patientType", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {
+          "field": "{alias}.patientType", "type": "iri"
+        },
         "http://endhealth.info/im#gpRegisteredStatus": {"field": "{alias}.status", "type": "iri"},
         "http://endhealth.info/im#gpGMSRegistrationDate": {
           "field": "{alias}.clinical_effective_date",
           "type": "date"
         },
-        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.clinical_effective_date", "type": "date"},
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "{alias}.clinical_effective_date", "type": "date"
+        },
         "http://endhealth.info/im#endDate": {"field": "{alias}.endDate", "type": "date"}
       },
       "relationships": {
@@ -145,11 +227,19 @@
       "table": "organization",
       "fields": {
         "http://endhealth.info/im#odsCode": {"field": "{alias}.ods_code", "type": "string"},
-        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "{alias}.name", "type": "string"}
+        "http://www.w3.org/2000/01/rdf-schema#label": {
+          "field": "{alias}.name", "type": "string"
+        }
       },
       "relationships": {
-        "http://endhealth.info/im#GPRegistration": {"fromField": "{alias}.id", "toField": "organization_id"},
-        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "{alias}.id", "toField": "organization_id"}
+        "http://endhealth.info/im#GPRegistration": {
+          "fromField": "{alias}.id", "toField": "organization_id"
+        },
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "{alias}.id", "toField": "organization_id"},
+        "http://endhealth.info/im#Observation": {
+          "fromField": "{alias}.id", "toField": "organization_id"
+        },
+        "http://endhealth.info/im#Patient": {"fromField": "{alias}.id", "toField": "organization_id"}
       }
     },
     "http://endhealth.info/im#MedicationRequest": {
@@ -168,7 +258,9 @@
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "{alias}.patient_id", "toField": "id"},
-        "http://endhealth.info/im#Concept": {"fromField": "{alias}.core_concept_id", "toField": "dbid"}
+        "http://endhealth.info/im#Concept": {
+          "fromField": "{alias}.core_concept_id", "toField": "dbid"
+        }
       }
     },
     "http://endhealth.info/im#EpisodeOfCare": {
@@ -183,7 +275,9 @@
           "field": "{alias}.gpPatientType",
           "type": "iri"
         },
-        "http://endhealth.info/im#effectiveDate": {"field": "{alias}.date_registered", "type": "date"},
+        "http://endhealth.info/im#effectiveDate": {
+          "field": "{alias}.date_registered", "type": "date"
+        },
         "http://endhealth.info/im#endDate": {"field": "{alias}.date_registered_end", "type": "date"}
       },
       "relationships": {
@@ -198,7 +292,9 @@
       },
       "relationships": {
         "http://endhealth.info/im#Observation": {"fromField": "dbid", "toField": "{alias}.core_concept_id"},
-        "http://endhealth.info/im#MedicationRequest": {"fromField": "dbid", "toField": "{alias}.core_concept_id"},
+        "http://endhealth.info/im#MedicationRequest": {
+          "fromField": "dbid", "toField": "{alias}.core_concept_id"
+        },
         "http://endhealth.info/im#Prescription": {"fromField": "dbid", "toField": "{alias}.core_concept_id"}
       }
     },
@@ -209,7 +305,9 @@
         "http://www.w3.org/2000/01/rdf-schema#label": {"field": "{alias}.name", "type": "string"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "dbid", "toField": "{alias}.ethnic_code_concept_id"}
+        "http://endhealth.info/im#Patient": {
+          "fromField": "dbid", "toField": "{alias}.ethnic_code_concept_id"
+        }
       }
     },
     "http://endhealth.info/im#statedGenderConcept": {

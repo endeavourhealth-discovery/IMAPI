@@ -7,11 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
 @Setter
 public class Table {
+  private List<String> dataModels;
   private String table;
   private String primaryKey;
   private String condition;

@@ -49,14 +49,10 @@ public class SQLQuery {
     this.wheres = new ArrayList<>();
     this.dependencies = new ArrayList<>();
     this.from = from;
-
-    this.model = model;
-    if (null != model) {
-      this.map = this.getMap(model, tableMap);
-      this.primaryKey = this.map.getPrimaryKey();
-      this.model = this.map.getDataModel();
-      this.alias = variable != null ? variable : getAlias(map.getTable());
-    }
+    this.map = this.getMap(model, tableMap);
+    this.primaryKey = this.map.getPrimaryKey();
+    this.model = this.map.getDataModel();
+    this.alias = variable != null ? variable : getAlias(map.getTable());
 
     tableMap.putTable(this.alias, new Table(this.alias, this.primaryKey, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
@@ -154,7 +150,7 @@ public class SQLQuery {
 
   public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
-    throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
+    throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "-" + map.getTable() + "] to [" + targetModel + "]");
   }
 
   public SQLQuery clone(String alias, TableMap tableMap) throws SQLConversionException {

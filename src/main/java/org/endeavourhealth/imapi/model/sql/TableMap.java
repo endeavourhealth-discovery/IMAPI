@@ -14,7 +14,7 @@ import java.util.Map;
 @Setter
 public class TableMap {
   private List<MappingProperty> properties;
-  private Map<String, Table> dataModels;
+  private Map<String, Table> tables;
   private Map<String, String> functions;
   private transient Map<List<String>, String> propertiesMap;
 
@@ -38,12 +38,12 @@ public class TableMap {
 
   public Table getTableFromDataModel(String iri) throws SQLConversionException {
     if (null == iri) throw new SQLConversionException("iri is null");
-    Table dmTable = dataModels.get(iri);
+    Table dmTable = tables.get(iri);
     if (dmTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
     Table returnTable = new Table();
-    returnTable.setDataModel(iri);
+    returnTable.setDataModel(dmTable.getDataModel());
     returnTable.setTable(dmTable.getTable());
     returnTable.setCondition(dmTable.getCondition());
     returnTable.setFields(dmTable.getFields());
@@ -60,6 +60,6 @@ public class TableMap {
   }
 
   public void putTable(String iri, Table table) {
-    dataModels.put(iri, table);
+    tables.put(iri, table);
   }
 }

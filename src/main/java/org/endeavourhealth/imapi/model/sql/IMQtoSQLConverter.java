@@ -65,7 +65,7 @@ public class IMQtoSQLConverter {
         for (Match dataset : definition.getColumnGroup()) {
           if (null != definition.getTypeOf() && null != definition.getTypeOf().getIri()) {
             String typeOf = (null != dataset.getPath() && null != dataset.getPath().getFirst())
-              ? dataset.getPath().getFirst().getIri()
+              ? dataset.getPath().getFirst().getTypeOf().getIri()
               : definition.getTypeOf().getIri();
             SQLQuery qry = new SQLQuery().create(typeOf, null, tableMap, null);
             if (definition.getInstanceOf() != null)
@@ -266,19 +266,22 @@ public class IMQtoSQLConverter {
   }
 
   private void addNestedProperty(SQLQuery qry, ReturnProperty property, ReturnProperty parentProperty, String gParentTypeOf) throws SQLConversionException, JsonProcessingException {
-    if (!tableMap.getPropertiesMap().containsKey(List.of(property.getIri())) && !tableMap.getDataModels().containsKey(property.getIri())) {
-      List<String> propertyPath = new ArrayList<>();
+    if (!tableMap.getPropertiesMap().containsKey(List.of(property.getIri())) && !tableMap.getTables().containsKey(property.getIri())) {
+      List<ReturnProperty> propertyPath = new ArrayList<>();
       populatePropertyPath(property, propertyPath);
-      String propIri = String.join("_", propertyPath.subList(0, propertyPath.size() - 1));
-      Table table = tableMap.getTableFromProperty(List.of(propIri));
+      List<String> propertyIriPath = propertyPath.subList(0, propertyPath.size() - 1).stream().map(ReturnProperty::getIri).toList();
+      Table table = tableMap.getTableFromProperty(propertyIriPath);
       String typeOf = table.getDataModel();
       if (typeOf == null)
         throw new SQLConversionException("Property not mapped to datamodel: " + property.getIri());
       SQLQuery subQuery = qry.subQuery(typeOf, null, tableMap, null);
+      String select = subQuery.getFieldName(propertyPath.getLast().getIri(), null, tableMap, false) + " AS `" + propertyPath.getLast().getAs() + "`";
+      subQuery.getSelects().add(select);
+      subQuery.getSelects().add(table.getPrimaryKey());
       if (subQuery.getWiths() == null)
         subQuery.setWiths(new ArrayList<>());
       qry.getWiths().add(subQuery.getAlias() + " AS (" + subQuery.toSql(2) + "\n)");
-      qry.getSelects().addAll(getSelectsForParentQuery(subQuery.getSelects()));
+      qry.getSelects().addAll(getSelectsForParentQuery(List.of(subQuery.getSelects().getFirst())));
       String joiner = "JOIN ";
       qry.getJoins().add(createJoin(qry, subQuery, joiner));
     } else {
@@ -297,8 +300,8 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void populatePropertyPath(ReturnProperty property, List<String> propertyPath) {
-    propertyPath.add(property.getIri());
+  private void populatePropertyPath(ReturnProperty property, List<ReturnProperty> propertyPath) {
+    propertyPath.add(property);
     if (null != property.getReturn() && null != property.getReturn().getProperty() && !property.getReturn().getProperty().isEmpty())
       populatePropertyPath(property.getReturn().getProperty().getFirst(), propertyPath);
   }
@@ -408,7 +411,7 @@ public class IMQtoSQLConverter {
     partition.getSelects().add("*");
     partition.getSelects().add("ROW_NUMBER() OVER (PARTITION BY " + partField + " ORDER BY " + StringUtils.join(o, ", ") + ") AS rn");
 
-    qry.initialize(qry.getAlias() + "_part", qry.getAlias(), tableMap, null);
+    qry.initialize(qry.getModel(), qry.getAlias(), tableMap, qry.getAlias() + "_part");
     qry.getWiths().add(innerSql);
     qry.getWiths().add(partition.getAlias() + " AS (" + partition.toSql(2) + "\n)");
     qry.getWheres().add(getRowNumberTest(order));

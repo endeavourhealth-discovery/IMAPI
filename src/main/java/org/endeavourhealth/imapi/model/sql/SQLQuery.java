@@ -49,10 +49,12 @@ public class SQLQuery {
     this.wheres = new ArrayList<>();
     this.dependencies = new ArrayList<>();
     this.from = from;
-    this.map = this.getMap(model, tableMap);
-    this.primaryKey = this.map.getPrimaryKey();
-    this.model = this.map.getDataModel();
-    this.alias = variable != null ? variable : getAlias(map.getTable());
+    if (model != null) {
+      this.map = this.getMap(model, tableMap);
+      this.primaryKey = this.map.getPrimaryKey();
+      this.model = this.map.getDataModel();
+      this.alias = variable != null ? variable : getAlias(map.getTable());
+    }
 
     tableMap.putTable(this.alias, new Table(this.alias, this.primaryKey, null, this.map.getFields(), this.map.getRelationships(), this.model));
   }
@@ -89,9 +91,10 @@ public class SQLQuery {
   private String generateFroms() {
     String sql = "";
     if (null != from)
-      sql += "\nFROM " + from + ((alias != null) ? (" AS " + alias) : " ");
+      sql += "\nFROM " + from;
     else if (null != map.getTable())
-      sql = "\nFROM " + map.getTable() + " AS " + alias;
+      sql = "\nFROM " + map.getTable();
+    if (alias != null && !alias.isEmpty()) sql += " AS " + alias;
     if (joins != null && !joins.isEmpty()) sql += "\n" + StringUtils.join(joins, "\n");
     return sql;
   }

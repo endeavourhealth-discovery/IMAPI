@@ -43,7 +43,7 @@ public class TableMap {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
     Table returnTable = new Table();
-    returnTable.setDataModel(dmTable.getDataModel());
+    returnTable.setDataModel(iri);
     returnTable.setTable(dmTable.getTable());
     returnTable.setCondition(dmTable.getCondition());
     returnTable.setFields(dmTable.getFields());

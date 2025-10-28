@@ -88,10 +88,10 @@ public class SQLQuery {
 
   private String generateFroms() {
     String sql = "";
-    if (null != map.getTable())
+    if (null != from)
+      sql += "\nFROM " + from + ((alias != null) ? (" AS " + alias) : " ");
+    else if (null != map.getTable())
       sql = "\nFROM " + map.getTable() + " AS " + alias;
-    else if (null != from)
-      sql += "\nFROM " + from + " ";
     if (joins != null && !joins.isEmpty()) sql += "\n" + StringUtils.join(joins, "\n");
     return sql;
   }

@@ -339,20 +339,33 @@ public class IMQtoSQLConverter {
     return "(" + iriLine + ")";
   }
 
-  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
+  private void addIMQueryToSQLQueryRecursively(SQLQuery qry, Match match, Bool bool)
+    throws SQLConversionException, JsonProcessingException {
     SQLQuery subQry = convertMatchToQuery(qry, match, bool);
     qry.getWiths().addAll(subQry.getWiths());
     subQry.setWiths(new ArrayList<>());
-    qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
-
+    if (match.getKeepAs() != null) {
+      String alias = match.getKeepAs();
+      qry.getWiths().add(alias + " AS (" + subQry.toSql(2) + "\n)");
+    } else {
+      qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
+    }
     String joiner = (bool == Bool.not) ? "LEFT JOIN " : "JOIN ";
     if (bool == Bool.not) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
-
     qry.getJoins().add(createJoin(qry, subQry, joiner));
-    if (null != match.getThen()) {
-      addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+    if (match.getThen() != null) {
+      Match thenMatch = match.getThen();
+      if (thenMatch.getKeepAs() != null) {
+        SQLQuery thenQry = convertMatchToQuery(qry, thenMatch, Bool.and);
+        qry.getWiths().addAll(thenQry.getWiths());
+        thenQry.setWiths(new ArrayList<>());
+        qry.getWiths().add(thenMatch.getKeepAs() + " AS (" + thenQry.toSql(2) + "\n)");
+      } else {
+        addIMQueryToSQLQueryRecursively(qry, thenMatch, Bool.and);
+      }
     }
   }
+
 
   private SQLQuery convertMatchToQuery(SQLQuery parentSQL, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
     SQLQuery qry = createMatchQuery(match, parentSQL);
@@ -668,18 +681,24 @@ public class IMQtoSQLConverter {
     }
 
     if (property.getRelativeTo().getParameter() != null) {
-      String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter());
+      String conditions = qry.getFieldName(property.getIri(), null, tableMap, true)
+        + " " + property.getOperator().getValue()
+        + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter());
       qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
     } else if (property.getRelativeTo().getNodeRef() != null) {
-      String joinAlias = property.getRelativeTo().getNodeRef();
-      String iri = property.getRelativeTo().getIri();
-      String rhsColumn = qry.getFieldName(iri, getDataModelFromKeepAs(property.getNodeRef()), tableMap, true);
-      if (rhsColumn == null) {
-        rhsColumn = iri.substring(iri.lastIndexOf('#') + 1);
-      }
-      String rhsField = joinAlias + "." + rhsColumn;
-      String lhsField = qry.getFieldName(property.getIri(), getDataModelFromKeepAs(property.getNodeRef()), tableMap, true);
+      String nodeRef = property.getRelativeTo().getNodeRef();
+      String rhsIri = property.getRelativeTo().getIri();
+      String rhsFull = qry.getFieldName(rhsIri, getDataModelFromKeepAs(nodeRef), tableMap, true);
+      String rhsColumn = rhsFull.contains(".")
+        ? rhsFull.substring(rhsFull.lastIndexOf('.') + 1)
+        : rhsFull;
+      String lhsField = qry.getFieldName(property.getIri(), null, tableMap, true);
+      String rhsField = nodeRef + "." + rhsColumn;
       String operator = property.getOperator().getValue();
+      String joinClause = "JOIN " + nodeRef + " ON " + nodeRef + ".patient_id = " + qry.getAlias() + ".patient_id";
+      if (!qry.getJoins().contains(joinClause)) {
+        qry.getJoins().add(joinClause);
+      }
       String condition = lhsField + " " + operator + " " + rhsField;
       qry.getWheres().add(property.isNot() ? " NOT (" + condition + ")" : condition);
     } else {

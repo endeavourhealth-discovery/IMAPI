@@ -5,6 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,8 +14,6 @@ import java.util.Map;
 
 /**
  * Transformer entry point for converting QOF boolean-query JSON into IMQ objects.
- *
- * Phase 1: adds ingestion+validation pipeline; mapping will be added in Phase 2.
  */
 @Component
 public class QofImqTransformer {
@@ -21,11 +21,15 @@ public class QofImqTransformer {
 
   private final QofImqFileService fileService;
   private final QofImqValidator validator;
+  private final QofAstParser parser;
+  private final QofAstToImqMapper mapper;
 
-  public QofImqTransformer(QofImqFileService fileService, QofImqValidator validator) {
+  public QofImqTransformer(QofImqFileService fileService, QofImqValidator validator, QofAstParser parser, QofAstToImqMapper mapper) {
     this.fileService = fileService;
     this.validator = validator;
-    LOG.debug("QofImqTransformer initialized (Phase 1 ingestion+validation ready)");
+    this.parser = parser;
+    this.mapper = mapper;
+    LOG.debug("QofImqTransformer initialized (ingestion+validation+mapping ready)");
   }
 
   /**
@@ -48,11 +52,29 @@ public class QofImqTransformer {
   }
 
   /**
-   * Future method: transform a JSON payload (string or model) into an IMQ {@link Query}.
-   * Mapping will be implemented in Phase 2.
+   * Transform a single JSON string payload to an IMQ Query.
    */
-  public Query transformPlaceholder() {
-    LOG.warn("transformPlaceholder called — mapping not implemented yet");
-    return null;
+  public Query transform(String json) {
+    var ast = parser.parse(json);
+    return mapper.toImq(ast);
+  }
+
+  /**
+   * Transform a file at the given path. The file is validated first; if validation errors exist,
+   * a QofMappingException is thrown. Otherwise, it is read and transformed.
+   */
+  public Query transform(Path file) {
+    List<ValidationError> errs = validator.validateFile(file);
+    if (errs != null && !errs.isEmpty()) {
+      throw new QofMappingException("Validation failed for file " + file + ": " + errs.size() + " error(s)");
+    }
+    try (BufferedReader br = fileService.openUtf8Reader(file)) {
+      StringBuilder sb = new StringBuilder();
+      String line;
+      while ((line = br.readLine()) != null) sb.append(line).append('\n');
+      return transform(sb.toString());
+    } catch (IOException e) {
+      throw new QofMappingException("IO error reading file " + file + ": " + e.getMessage(), e);
+    }
   }
 }

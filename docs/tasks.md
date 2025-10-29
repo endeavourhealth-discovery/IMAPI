@@ -18,12 +18,12 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 2 — Transformation Core (IMQ Mapping)
 
-9. [ ] Implement internal AST model for boolean expressions (AND/OR/NOT, leaf predicates). (P3, R3)
-10. [ ] Build parser from input JSON to AST, preserving grouping/precedence. (P3, R3)
-11. [ ] Implement mapper from AST to IMQ objects (`Query`, `PathQuery`, `QueryType`, etc.). (P4, R4, R8)
-12. [ ] Implement value handling for predicates (equals, range, set, exists, negation). (P4, R4)
-13. [ ] Implement concept/IRI resolution with `Namespace` and configurable mappings; fail fast on missing. (P5, R5, R14)
-14. [ ] Define clear exceptions for validation vs mapping vs IO errors. (P11, R6)
+9. [x] Implement internal AST model for boolean expressions (AND/OR/NOT, leaf predicates). (P3, R3)
+10. [x] Build parser from input JSON to AST, preserving grouping/precedence. (P3, R3)
+11. [x] Implement mapper from AST to IMQ objects (`Query`, `PathQuery`, `QueryType`, etc.). (P4, R4, R8)
+12. [x] Implement value handling for predicates (equals, range, set, exists, negation). (P4, R4)
+13. [x] Implement concept/IRI resolution with `Namespace` and configurable mappings; fail fast on missing. (P5, R5, R14)
+14. [x] Define clear exceptions for validation vs mapping vs IO errors. (P11, R6)
 
 ## Phase 3 — Execution Modes & Outputs
 

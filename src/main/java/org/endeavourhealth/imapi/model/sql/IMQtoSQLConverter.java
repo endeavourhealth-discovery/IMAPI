@@ -671,14 +671,17 @@ public class IMQtoSQLConverter {
       String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, property.getRelativeTo().getParameter());
       qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
     } else if (property.getRelativeTo().getNodeRef() != null) {
-      qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
-      String fieldName = qry.getFieldName(property.getIri(), null, tableMap, true);
+      String joinAlias = property.getRelativeTo().getNodeRef();
+      String iri = property.getRelativeTo().getIri();
+      String rhsColumn = qry.getFieldName(iri, getDataModelFromKeepAs(property.getNodeRef()), tableMap, true);
+      if (rhsColumn == null) {
+        rhsColumn = iri.substring(iri.lastIndexOf('#') + 1);
+      }
+      String rhsField = joinAlias + "." + rhsColumn;
+      String lhsField = qry.getFieldName(property.getIri(), getDataModelFromKeepAs(property.getNodeRef()), tableMap, true);
       String operator = property.getOperator().getValue();
-//      here
-      String relativeToFieldName = qry.getFieldName(property.getRelativeTo().getIri(), getDataModelFromKeepAs(property.getRelativeTo().getNodeRef()), tableMap, true);
-      String relativeToValue = convertMatchPropertyRelativeTo(qry, property, relativeToFieldName);
-      String conditions = fieldName + " " + operator + " " + relativeToValue;
-      qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
+      String condition = lhsField + " " + operator + " " + rhsField;
+      qry.getWheres().add(property.isNot() ? " NOT (" + condition + ")" : condition);
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE COMPARISON\n" + mapper.writeValueAsString(property));
     }

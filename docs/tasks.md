@@ -27,11 +27,11 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 3 — Execution Modes & Outputs
 
-15. [ ] Implement batch processor that iterates files independently; collect per-file results and timings. (P6, R7, R13)
-16. [ ] Implement final run summary: counts of total/success/failure; output path and duration. (P6, R7, R13)
-17. [ ] Implement optional serializer to IMQ-JSON artifacts and write per input file to output dir. (P7, R9)
-18. [ ] Implement CLI entry point with flags `--input`, `--output`, `--emit-json`, `--fail-fast`. (P8, R10)
-19. [ ] Define exit codes: 0 success, >0 failures; non-zero on unexpected exceptions. (P8, R10)
+15. [x] Implement batch processor that iterates files independently; collect per-file results and timings. (P6, R7, R13)
+16. [x] Implement final run summary: counts of total/success/failure; output path and duration. (P6, R7, R13)
+17. [x] Implement optional serializer to IMQ-JSON artifacts and write per input file to output dir. (P7, R9)
+18. [x] Implement CLI entry point with flags `--input`, `--output`, `--emit-json`, `--fail-fast`. (P8, R10)
+19. [x] Define exit codes: 0 success, >0 failures; non-zero on unexpected exceptions. (P8, R10)
 20. [ ] Optional: Implement REST endpoint to accept JSON body and return IMQ JSON or error; wire `SecurityConfig`. (P9, R11, R16)
 
 ## Phase 4 — Non-Functional Concerns

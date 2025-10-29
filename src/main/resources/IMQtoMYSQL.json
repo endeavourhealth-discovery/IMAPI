@@ -190,11 +190,15 @@
       "dataModels": [
         "http://endhealth.info/im#PersonInRole"
       ],
-      "table": "person",
+      "table": "practitioner",
       "fields": {
         "http://endhealth.info/im#dateOfBirth": {
           "field": "date_of_birth",
           "type": "date"
+        },
+        "http://endhealth.info/im#mnemonic": {
+          "field": "name",
+          "type": "string"
         }
       }
     },
@@ -215,7 +219,9 @@
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
-        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"}
+        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"},
+        "http://endhealth.info/im#Concept": {"fromField": "core_concept_id", "toField": "dbid"}
+
       }
     },
     {
@@ -278,7 +284,9 @@
         "http://endhealth.info/im#endDate": {"field": "date_registered_end", "type": "date"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"}
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
+        "http://endhealth.info/im#PersonInRole": {"fromField": "usual_gp_practitioner_id", "toField": "id"},
+        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"}
       }
     },
     {

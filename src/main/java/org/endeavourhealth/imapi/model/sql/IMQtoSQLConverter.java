@@ -245,8 +245,8 @@ public class IMQtoSQLConverter {
   }
 
   private String getNestedPropertyFromArgument(SQLQuery qry, String valuePath, String typeOf, String path) throws SQLConversionException, JsonProcessingException {
-    Table table = tableMap.getTableFromDataModel(valuePath);
-    String tableAlias = getNameFromIri(valuePath) + "_" + qry.getAlias();
+    Table table = tableMap.getTableFromDataModel(typeOf);
+    String tableAlias = getNameFromIri(typeOf) + "_" + qry.getAlias();
     String property = table.getFields().get(path).getField();
     String propertyName = property.replace("{alias}.", "");
     property = property.replace("{alias}", tableAlias);

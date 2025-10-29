@@ -3,4 +3,5 @@ qofimq:
   input-path: "Z:\\Data\\QOF"
   output-path: "Z:\\Data\\QOF\\_imq_out"
   emit-json: false
+  max-file-size-bytes: 5242880 # 5 MiB
   namespace-mappings: {}

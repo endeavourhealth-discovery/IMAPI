@@ -24,6 +24,9 @@ public class QofImqProperties {
   /** Whether to emit IMQ JSON artifacts per input file. */
   private boolean emitJson = false;
 
+  /** Maximum allowed file size in bytes for input JSON (0 = unlimited). */
+  private long maxFileSizeBytes = 5L * 1024 * 1024; // 5 MiB default
+
   /** Namespace mappings (alias → IRI). */
   private Map<String, String> namespaceMappings = new LinkedHashMap<>();
 
@@ -49,6 +52,14 @@ public class QofImqProperties {
 
   public void setEmitJson(boolean emitJson) {
     this.emitJson = emitJson;
+  }
+
+  public long getMaxFileSizeBytes() {
+    return maxFileSizeBytes;
+  }
+
+  public void setMaxFileSizeBytes(long maxFileSizeBytes) {
+    this.maxFileSizeBytes = maxFileSizeBytes;
   }
 
   public Map<String, String> getNamespaceMappings() {

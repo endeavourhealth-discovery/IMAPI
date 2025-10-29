@@ -10,11 +10,11 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 1 — Ingestion & Validation
 
-4. [ ] Implement recursive file discovery for `.json` under configurable input root (default `Z:\Data\QOF`). (P1, R1)
-5. [ ] Implement streamed UTF-8 file reads with size safeguards. (P1, R12, R1)
-6. [ ] Draft JSON Schema for boolean queries (operators, operands, fields, values, types). (P2, R2)
-7. [ ] Implement schema validation with precise error reporting (file path, JSON pointer, message). (P2, R2)
-8. [ ] Add structural checks beyond schema (e.g., balanced boolean trees, unsupported operators). (P2, R2, R3)
+4. [x] Implement recursive file discovery for `.json` under configurable input root (default `Z:\Data\QOF`). (P1, R1)
+5. [x] Implement streamed UTF-8 file reads with size safeguards. (P1, R12, R1)
+6. [x] Draft JSON Schema for boolean queries (operators, operands, fields, values, types). (P2, R2)
+7. [x] Implement schema validation with precise error reporting (file path, JSON pointer, message). (P2, R2)
+8. [x] Add structural checks beyond schema (e.g., balanced boolean trees, unsupported operators). (P2, R2, R3)
 
 ## Phase 2 — Transformation Core (IMQ Mapping)
 

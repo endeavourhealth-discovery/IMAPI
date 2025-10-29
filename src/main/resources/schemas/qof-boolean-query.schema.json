@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://imapi.endeavourhealth.org/schemas/qof-boolean-query.schema.json",
+  "title": "QOF Boolean Query",
+  "description": "Schema for boolean query JSON used as input to the QOF→IMQ transformer",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/BoolNode" },
+    { "$ref": "#/$defs/Predicate" }
+  ],
+  "$defs": {
+    "BoolOp": {
+      "type": "string",
+      "enum": ["AND", "OR", "NOT"]
+    },
+    "ComparisonOp": {
+      "type": "string",
+      "enum": ["EQUALS", "IN", "RANGE", "EXISTS", "NOT_EQUALS", "NOT_IN"]
+    },
+    "BoolNode": {
+      "type": "object",
+      "required": ["operator", "operands"],
+      "properties": {
+        "operator": { "$ref": "#/$defs/BoolOp" },
+        "operands": {
+          "type": "array",
+          "items": { "oneOf": [ { "$ref": "#/$defs/BoolNode" }, { "$ref": "#/$defs/Predicate" } ] },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "Predicate": {
+      "type": "object",
+      "required": ["field", "op"],
+      "properties": {
+        "field": { "type": "string", "minLength": 1 },
+        "op": { "$ref": "#/$defs/ComparisonOp" },
+        "value": {},
+        "values": { "type": "array", "items": {} },
+        "min": {},
+        "max": {},
+        "negated": { "type": "boolean" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -349,12 +349,13 @@ public class IMQtoSQLConverter {
     if (bool == Bool.not) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
 
     qry.getJoins().add(createJoin(qry, subQry, joiner));
-    if (null != match.getThen())
+    if (null != match.getThen()) {
       addIMQueryToSQLQueryRecursively(qry, match.getThen(), Bool.and);
+    }
   }
 
-  private SQLQuery convertMatchToQuery(SQLQuery parent, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
-    SQLQuery qry = createMatchQuery(match, parent);
+  private SQLQuery convertMatchToQuery(SQLQuery parentSQL, Match match, Bool bool) throws SQLConversionException, JsonProcessingException {
+    SQLQuery qry = createMatchQuery(match, parentSQL);
 
     convertMatch(match, qry, bool);
 
@@ -370,7 +371,7 @@ public class IMQtoSQLConverter {
     if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(qry.getModel())) {
       return qry.subQuery(match.getTypeOf().getIri(), variable, tableMap, null);
     } else if (match.getNodeRef() != null && !match.getNodeRef().equals(qry.getModel())) {
-      return qry.subQuery(match.getNodeRef(), variable, tableMap, null);
+      return qry.subQuery(getDataModelFromKeepAs(match.getNodeRef()), match.getNodeRef() + "_sub", tableMap, null);
     } else if (match.getPath() != null) {
       return qry.subQuery(match.getPath().getFirst().getTypeOf().getIri(), variable, tableMap, null);
     } else return qry.subQuery(qry.getModel(), variable, tableMap, null);
@@ -671,7 +672,12 @@ public class IMQtoSQLConverter {
       qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
     } else if (property.getRelativeTo().getNodeRef() != null) {
       qry.getJoins().add("JOIN " + property.getRelativeTo().getNodeRef() + " ON " + property.getRelativeTo().getNodeRef() + ".id = " + qry.getAlias() + ".id");
-      String conditions = qry.getFieldName(property.getIri(), null, tableMap, true) + " " + property.getOperator().getValue() + " " + convertMatchPropertyRelativeTo(qry, property, qry.getFieldName(property.getRelativeTo().getIri(), property.getRelativeTo().getNodeRef(), tableMap, true));
+      String fieldName = qry.getFieldName(property.getIri(), null, tableMap, true);
+      String operator = property.getOperator().getValue();
+//      here
+      String relativeToFieldName = qry.getFieldName(property.getRelativeTo().getIri(), getDataModelFromKeepAs(property.getRelativeTo().getNodeRef()), tableMap, true);
+      String relativeToValue = convertMatchPropertyRelativeTo(qry, property, relativeToFieldName);
+      String conditions = fieldName + " " + operator + " " + relativeToValue;
       qry.getWheres().add(property.isNot() ? " NOT (" + conditions + ")" : conditions);
     } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED RELATIVE COMPARISON\n" + mapper.writeValueAsString(property));
@@ -905,5 +911,53 @@ public class IMQtoSQLConverter {
     }
     return splits[0];
   }
+
+  public String getDataModelFromKeepAs(String keepAs) {
+    Match match = findMatchByKeepAs(queryRequest.getQuery(), keepAs);
+    if (match != null) {
+      if (match.getTypeOf() != null) {
+        return match.getTypeOf().getIri();
+      }
+      if (match.getPath() != null) {
+        return match.getPath().getFirst().getTypeOf().getIri();
+      }
+    }
+    return null;
+  }
+
+  public Match findMatchByKeepAs(Match match, String keepAs) {
+    if (match == null) return null;
+    if (match.getKeepAs() != null && match.getKeepAs().equals(keepAs)) {
+      return match;
+    }
+
+    if (match.getAnd() != null) {
+      for (Match child : match.getAnd()) {
+        Match result = findMatchByKeepAs(child, keepAs);
+        if (result != null) return result;
+      }
+    }
+
+    if (match.getOr() != null) {
+      for (Match child : match.getOr()) {
+        Match result = findMatchByKeepAs(child, keepAs);
+        if (result != null) return result;
+      }
+    }
+
+    if (match.getNot() != null) {
+      for (Match child : match.getNot()) {
+        Match result = findMatchByKeepAs(child, keepAs);
+        if (result != null) return result;
+      }
+    }
+
+    if (match.getThen() != null) {
+      return findMatchByKeepAs(match.getThen(), keepAs);
+    }
+
+    return null;
+  }
+
 
 }

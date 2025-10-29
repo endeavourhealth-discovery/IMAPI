@@ -270,6 +270,7 @@ public class QueryService {
 
   public Set<String> testRunQuery(QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
 //    should connect to test data database (current one)
+    getSQLFromIMQIri(queryRequest.getQuery().getIri(), DatabaseOption.MYSQL);
     return executeQuery(getQueryRequestForSqlConversion(queryRequest));
   }
 
@@ -510,8 +511,8 @@ public class QueryService {
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
     TTEntity entity = entityRepository.getEntityPredicates(iri, asHashSet(RDFS.LABEL, RDFS.COMMENT,
-      IM.IS_SUBINDICATOR_OF,IM.DENOMINATOR,IM.NUMERATOR,IM.HAS_DATASET)).getEntity();
-    Indicator indicator= new Indicator();
+      IM.IS_SUBINDICATOR_OF, IM.DENOMINATOR, IM.NUMERATOR, IM.HAS_DATASET)).getEntity();
+    Indicator indicator = new Indicator();
     indicator.setIri(entity.getIri());
     indicator.setName(entity.getName());
     indicator.setDescription(entity.getDescription());

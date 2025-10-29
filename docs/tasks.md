@@ -4,9 +4,9 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 0 — Setup
 
-1. [ ] Confirm availability of IMQ model classes in codebase (`org.endeavourhealth.imapi.model.imq`) and review their constructors and usage patterns. (P4, R8)
-2. [ ] Create a new module or package for the transformer (e.g., `org.endeavourhealth.imapi.transform.qofimq`). (P4, R17)
-3. [ ] Define configuration structure (properties/YAML) with defaults for input/output paths and namespace mappings. (P12, R14)
+1. [x] Confirm availability of IMQ model classes in codebase (`org.endeavourhealth.imapi.model.imq`) and review their constructors and usage patterns. (P4, R8)
+2. [x] Create a new module or package for the transformer (e.g., `org.endeavourhealth.imapi.transform.qofimq`). (P4, R17)
+3. [x] Define configuration structure (properties/YAML) with defaults for input/output paths and namespace mappings. (P12, R14)
 
 ## Phase 1 — Ingestion & Validation
 

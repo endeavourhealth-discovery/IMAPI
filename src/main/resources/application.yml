@@ -1,0 +1,6 @@
+# Defaults for QOF → IMQ transformer
+qofimq:
+  input-path: "Z:\\Data\\QOF"
+  output-path: "Z:\\Data\\QOF\\_imq_out"
+  emit-json: false
+  namespace-mappings: {}

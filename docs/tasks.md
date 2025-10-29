@@ -52,7 +52,7 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 6 — Documentation & Packaging
 
-31. [ ] Author developer docs for schema, mapping rules, configuration, and examples; link to this spec. (P14, R17)
-32. [ ] Usage docs for CLI and (optional) REST endpoint with sample invocations. (P14, R10, R11)
-33. [ ] Package runnable jar and integrate into Gradle build; update `README.md`. (P15, R10)
-34. [ ] Provide extension guidance and strategy interfaces for new operators/fields. (P16, R17)
+31. [x] Author developer docs for schema, mapping rules, configuration, and examples; link to this spec. (P14, R17)
+32. [x] Usage docs for CLI and (optional) REST endpoint with sample invocations. (P14, R10, R11)
+33. [x] Package runnable jar and integrate into Gradle build; update `README.md`. (P15, R10)
+34. [x] Provide extension guidance and strategy interfaces for new operators/fields. (P16, R17)

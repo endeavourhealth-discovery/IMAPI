@@ -1,4 +1,5 @@
 import cz.habarta.typescript.generator.*
+import org.gradle.jvm.tasks.Jar
 
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
@@ -83,6 +84,27 @@ sonar {
 
 tasks.war {
   archiveFileName.set("imapi.war")
+}
+
+// Fat-jar for QOF→IMQ CLI usage (includes runtime dependencies)
+// Usage: gradlew qofimqFatJar  →  build/libs/imapi-cli.jar
+
+val runtimeClasspath = configurations.runtimeClasspath
+
+tasks.register<Jar>("qofimqFatJar") {
+  group = "build"
+  description = "Assemble a runnable fat-jar for the IMAPI application with QOF→IMQ CLI."
+  archiveBaseName.set("imapi-cli")
+  archiveClassifier.set("")
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  manifest {
+    attributes(mapOf(
+      "Main-Class" to "org.endeavourhealth.imapi.ImApiSpringApplication"
+    ))
+  }
+  from(sourceSets.main.get().output)
+  dependsOn(runtimeClasspath)
+  from({ runtimeClasspath.get().filter { it.name.endsWith(".jar") }.map { zipTree(it) } })
 }
 
 tasks.generateTypeScript {

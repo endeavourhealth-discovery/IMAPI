@@ -24,3 +24,34 @@ NOTE: The following environment variables need to be set
 | OPENSEARCH_INDEX      | Name of the OpenSearch index to use                             |                           
 | OPENSEARCH_URL        | Base URL of the OpenSearch server                               |    
 
+
+
+## QOF → IMQ Transformer
+
+This project includes a QOF boolean-query to IMQ transformer with CLI support.
+
+- Developer guide: `docs/qofimq/DEVELOPER.md`
+- Usage guide: `docs/qofimq/USAGE.md`
+- Extending the transformer: `docs/qofimq/EXTENDING.md`
+
+### Build a runnable CLI fat-jar
+
+Use the provided Gradle task to assemble a runnable jar containing all dependencies:
+
+```
+./gradlew qofimqFatJar
+```
+
+The artifact will be created at `build/libs/imapi-cli.jar`.
+
+### Run the CLI
+
+```
+java -jar build/libs/imapi-cli.jar --qofimq-cli \
+  --input="Z:\\Data\\QOF" \
+  --output="Z:\\Data\\QOF\\_imq_out" \
+  --emit-json \
+  --parallelism=4
+```
+
+Exit code is `0` on success, otherwise the number of failed files (capped at 255). On unexpected exception, exit code `2` is returned.

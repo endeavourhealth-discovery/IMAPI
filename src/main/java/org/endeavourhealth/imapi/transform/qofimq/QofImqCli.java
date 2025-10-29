@@ -44,6 +44,14 @@ public class QofImqCli implements ApplicationRunner {
     if (args.containsOption("emit-json")) {
       props.setEmitJson(true);
     }
+    if (args.containsOption("parallelism")) {
+      try {
+        int p = Integer.parseInt(args.getOptionValues("parallelism").get(0));
+        props.setParallelism(Math.max(1, p));
+      } catch (Exception e) {
+        LOG.warn("Ignoring invalid --parallelism value; must be an integer >= 1");
+      }
+    }
     boolean failFast = args.containsOption("fail-fast");
 
     int exitCode = 0;

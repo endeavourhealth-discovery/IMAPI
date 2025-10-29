@@ -36,9 +36,9 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 4 — Non-Functional Concerns
 
-21. [ ] Add structured logging with correlation per file; log validation vs mapping categories and stack traces at debug. (P11, R13, R6)
-22. [ ] Performance: stream IO; consider bounded parallelism for CPU-bound mapping; configure thread pool. (P10, R12)
-23. [ ] Make configuration pluggable and documented; support overrides via env and CLI. (P12, R14)
+21. [x] Add structured logging with correlation per file; log validation vs mapping categories and stack traces at debug. (P11, R13, R6)
+22. [x] Performance: stream IO; consider bounded parallelism for CPU-bound mapping; configure thread pool. (P10, R12)
+23. [x] Make configuration pluggable and documented; support overrides via env and CLI. (P12, R14)
 
 ## Phase 5 — Testing & QA
 

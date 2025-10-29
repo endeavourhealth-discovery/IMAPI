@@ -4,4 +4,5 @@ qofimq:
   output-path: "Z:\\Data\\QOF\\_imq_out"
   emit-json: false
   max-file-size-bytes: 5242880 # 5 MiB
+  parallelism: 1 # 1 = sequential; >1 uses fixed thread pool
   namespace-mappings: {}

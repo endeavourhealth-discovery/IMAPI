@@ -27,6 +27,9 @@ public class QofImqProperties {
   /** Maximum allowed file size in bytes for input JSON (0 = unlimited). */
   private long maxFileSizeBytes = 5L * 1024 * 1024; // 5 MiB default
 
+  /** Bounded parallelism for batch processing (1 = sequential). */
+  private int parallelism = 1;
+
   /** Namespace mappings (alias → IRI). */
   private Map<String, String> namespaceMappings = new LinkedHashMap<>();
 
@@ -68,5 +71,13 @@ public class QofImqProperties {
 
   public void setNamespaceMappings(Map<String, String> namespaceMappings) {
     this.namespaceMappings = namespaceMappings;
+  }
+
+  public int getParallelism() {
+    return parallelism;
+  }
+
+  public void setParallelism(int parallelism) {
+    this.parallelism = parallelism;
   }
 }

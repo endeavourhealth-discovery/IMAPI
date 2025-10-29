@@ -39,9 +39,13 @@ VALUES
   ('p','r.sub != null && ''CREATOR'' in r.sub.roles','ENTITY_APPROVAL','WRITE'),
   ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','ENTITY_APPROVAL','READ'),
   ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','ENTITY_APPROVAL','WRITE'),
-  ('p','r.sub != null && ''APPROVER'' in r.sub.roles','ENTITY_APPROVAL','APPROVE'),
+  ('p','r.sub != null && ''APPROVER'' in r.sub.roles','ENTITY_APPROVAL','APPROVE')
+;
 
-
+INSERT INTO casbin_rule (ptype, v0, v1, v2)
+VALUES
+  ('p','r.sub != null && ''EXECUTOR'' in r.sub.roles','QUERY','EXECUTE'),
+  ('p','r.sub != null && ''EXECUTOR'' in r.sub.roles','QUERY_RESULTS','READ')
 
 
 

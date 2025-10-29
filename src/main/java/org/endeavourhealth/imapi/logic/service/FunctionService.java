@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpSession;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.admin.User;
@@ -28,7 +29,7 @@ public class FunctionService {
   private final UserService userService = new UserService();
   private final CasdoorService casdoorService = new CasdoorService();
 
-  public JsonNode callFunction(HttpSession session, String iri, List<Argument> arguments) throws JsonProcessingException {
+  public JsonNode callFunction(HttpSession session, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
     return switch (IM_FUNCTION.from(iri)) {
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
@@ -126,7 +127,7 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getUserEditableSchemes(HttpSession session) throws JsonProcessingException {
+  private JsonNode getUserEditableSchemes(HttpSession session) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
     User user = casdoorService.getUser(session);
     List<String> organisations = userService.getUserOrganisations(user.getId());

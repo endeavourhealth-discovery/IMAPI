@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.Resource;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class CasbinEnforcer {
     }
   }
 
-  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException {
+  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException, UserNotFoundException {
     User user = casdoorService.getUser(request.getSession());
     enforceWithError(user, resource, action);
   }
@@ -64,7 +65,7 @@ public class CasbinEnforcer {
     return enforcer.enforce(user, resource, action);
   }
 
-  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException {
+  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException {
     User user = casdoorService.getUser(request.getSession());
     List<Boolean> results = new ArrayList<>();
     for (Action accessRight : accessRights) {
@@ -75,9 +76,8 @@ public class CasbinEnforcer {
     }
   }
 
-  public void addPolicy(String userId, Resource resource, Action action) throws UserNotFoundException {
-    User user = casdoorService.adminGetUser(userId);
-    enforcer.addPolicy(user.toString(), resource.toString(), action.toString());
+  public void addPolicy(UserRole userRole, Resource resource, Action action) throws UserNotFoundException {
+    enforcer.addPolicy("p", String.format("r.sub != null && '%s' in r.sub.roles", userRole), resource.toString(), action.toString());
   }
 
 }

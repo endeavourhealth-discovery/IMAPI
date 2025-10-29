@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 
 @Getter
@@ -19,7 +20,7 @@ public class WorkflowRequest {
   private Integer size = 25;
   private String userId;
 
-  public WorkflowRequest(HttpSession session) throws JsonProcessingException {
+  public WorkflowRequest(HttpSession session) throws JsonProcessingException, UserNotFoundException {
     this.userId = casdoorService.getUser(session).getId();
   }
 

@@ -42,13 +42,13 @@ Derived from `docs/plan.md`. Each task includes links to Plan items (P#) and Req
 
 ## Phase 5 — Testing & QA
 
-24. [ ] Unit tests: file discovery and schema validation with valid and invalid fixtures. (P13, R15, R1, R2)
-25. [ ] Unit tests: boolean parser and AST construction for nested AND/OR/NOT. (P13, R15, R3)
-26. [ ] Unit tests: mapper to IMQ objects for equality, range, set, exists, negation. (P13, R15, R4, R8)
-27. [ ] Unit tests: IRI resolution with happy path and failure modes. (P13, R15, R5)
-28. [ ] Integration tests: batch run over sample directory with mixed success; verify summary and artifacts. (P13, R15, R7, R9)
-29. [ ] Performance test: process ~1,000 small files to meet time/memory criteria. (P10, P13, R12)
-30. [ ] Security tests (if endpoint enabled): unauthorized access returns 403 via `RestAccessDeniedHandler`. (P9, P13, R16)
+24. [x] Unit tests: file discovery and schema validation with valid and invalid fixtures. (P13, R15, R1, R2)
+25. [x] Unit tests: boolean parser and AST construction for nested AND/OR/NOT. (P13, R15, R3)
+26. [x] Unit tests: mapper to IMQ objects for equality, range, set, exists, negation. (P13, R15, R4, R8)
+27. [x] Unit tests: IRI resolution with happy path and failure modes. (P13, R15, R5)
+28. [x] Integration tests: batch run over sample directory with mixed success; verify summary and artifacts. (P13, R15, R7, R9)
+29. [x] Performance test: process ~1,000 small files to meet time/memory criteria. (P10, P13, R12)
+30. [ ] Security tests (if endpoint enabled): unauthorized access returns 403 via `RestAccessDeniedHandler`. (P9, P13, R16) (n/a — REST endpoint not implemented)
 
 ## Phase 6 — Documentation & Packaging
 

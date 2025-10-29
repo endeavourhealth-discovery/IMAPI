@@ -9,7 +9,8 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.model.admin.User;
-import org.endeavourhealth.imapi.model.casbin.AccessRequest;
+import org.endeavourhealth.imapi.model.casbin.Action;
+import org.endeavourhealth.imapi.model.casbin.Resource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,42 +38,46 @@ public class CasbinEnforcer {
       throw new UserAuthorisationException("Failed to setup enforcer");
     }
     this.enforcer = new Enforcer("casbin_model.conf", this.adapter);
+    this.enforcer.enableAutoSave(true);
   }
 
-  public void enforce(User user, String dataRequest, AccessRequest accessRequest) throws UserAuthorisationException {
+  public void enforceWithError(User user, Resource resource, Action action) throws UserAuthorisationException {
+    try {
+      boolean result = enforce(user, resource, action);
+      if (!result) {
+        throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, action));
+      }
+    } catch (Exception e) {
+      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, action));
+    }
+  }
+
+  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException {
+    User user = casdoorService.getUser(request.getSession());
+    enforceWithError(user, resource, action);
+  }
+
+  public boolean enforce(User user, Resource resource, Action action) throws UserAuthorisationException {
     if (null == this.enforcer) {
       setupEnforcer();
     }
-    try {
-      boolean result = enforcer.enforce(user, dataRequest, accessRequest);
-      if (!result) {
-        throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, dataRequest, accessRequest));
-      }
-    } catch (Exception e) {
-      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, dataRequest, accessRequest));
-    }
+    return enforcer.enforce(user, resource, action);
   }
 
-  public void enforce(HttpServletRequest request, AccessRequest accessRequest) throws UserAuthorisationException {
+  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException {
     User user = casdoorService.getUser(request.getSession());
-    String path = request.getRequestURI();
-    enforce(user, path, accessRequest);
-  }
-
-  public void enforceOr(HttpServletRequest request, List<AccessRequest> accessRequests) throws UserAuthorisationException {
-    User user = casdoorService.getUser(request.getSession());
-    String path = request.getRequestURI();
     List<Boolean> results = new ArrayList<>();
-    for (AccessRequest accessRequest : accessRequests) {
-      results.add(enforcer.enforce(user, path, accessRequest));
+    for (Action accessRight : accessRights) {
+      results.add(enforcer.enforce(user, resource, accessRight));
     }
     if (results.stream().noneMatch(r -> r)) {
-      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, path, accessRequests));
+      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, accessRights));
     }
   }
 
-  public void addPolicy(String userId, String dataSource, AccessRequest accessRequest) throws UserNotFoundException {
+  public void addPolicy(String userId, Resource resource, Action action) throws UserNotFoundException {
     User user = casdoorService.adminGetUser(userId);
-    enforcer.addPolicy(user.toString(), dataSource, accessRequest.toString());
+    enforcer.addPolicy(user.toString(), resource.toString(), action.toString());
   }
+
 }

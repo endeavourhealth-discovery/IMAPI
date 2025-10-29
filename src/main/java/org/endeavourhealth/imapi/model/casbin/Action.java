@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.model.casbin;
 
-public enum AccessRequest {
+public enum Action {
   READ,
   WRITE,
   DELETE,
-  PUBLISH
+  PUBLISH,
+  APPROVE,
+  EXECUTE
 }

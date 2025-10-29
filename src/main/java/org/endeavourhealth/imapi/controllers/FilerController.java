@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
@@ -14,7 +15,6 @@ import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.admin.User;
-import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;
@@ -29,6 +29,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.server.ResponseStatusException;
@@ -64,11 +65,11 @@ public class FilerController {
   private final CasdoorService casdoorService = new CasdoorService();
 
   @PostMapping("file/document")
+  @PreAuthorize("@guard.hasPermission('DOCUMENT','WRITE')")
   @Operation(summary = "Files a document and returns the task ID.")
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
-      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       User user = casdoorService.getUser(request.getSession());
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
@@ -88,9 +89,9 @@ public class FilerController {
   }
 
   @GetMapping("file/document/{taskId}")
+  @PreAuthorize("@guard.hasPermission('DOCUMENT','WRITE')")
   @Operation(summary = "Retrieves the progress of a document file operation.")
   public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId, HttpServletRequest request) throws UserAuthorisationException {
-    casbinEnforcer.enforce(request, AccessRequest.WRITE);
     Integer progress = filerService.getTaskProgress(taskId);
     Map<String, Integer> response = new HashMap<>();
     response.put("progress", progress);
@@ -98,11 +99,11 @@ public class FilerController {
   }
 
   @PostMapping("file/entity")
+  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
   @Operation(summary = "Files an entity with specified graph and CRUD operation.")
-  public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserAuthorisationException {
+  public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
-      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       User user = casdoorService.getUser(request.getSession());
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
@@ -124,6 +125,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/move")
+  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(
     @RequestParam(name = "entity") String entityIri,
@@ -132,7 +134,6 @@ public class FilerController {
     @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
     HttpServletRequest request
   ) throws Exception {
-    casbinEnforcer.enforce(request, AccessRequest.WRITE);
     Graph filingGraph = Graph.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
@@ -177,6 +178,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/add")
+  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Adds an entity to a specified folder.")
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
@@ -186,7 +188,6 @@ public class FilerController {
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
-      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       Graph filingGraph = Graph.from(graphString);
 
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
@@ -212,6 +213,7 @@ public class FilerController {
   }
 
   @PostMapping("folder/create")
+  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
@@ -223,7 +225,6 @@ public class FilerController {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");
-      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       if (name.isBlank()) {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, name is null");
       }
@@ -273,11 +274,11 @@ public class FilerController {
   }
 
   @GetMapping("deltas/download")
+  @PreAuthorize("@guard.hasPermission('DELTA','READ')")
   @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas(HttpServletRequest request) throws NullPointerException, IOException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
       log.debug("downloadDeltas");
-      casbinEnforcer.enforce(request, AccessRequest.READ);
       HttpHeaders headers = new HttpHeaders();
 
       // Collect files into Zip

@@ -24,6 +24,7 @@ import java.util.UUID;
 
 
 @RestController
+@RequestMapping("query")
 @CrossOrigin(origins = "*")
 @Tag(name = "SmartLife Query Controller")
 @RequestScope
@@ -33,7 +34,7 @@ public class SmartLifeQueryController {
   private final SmartLifeQueryService smartLifeQueryService = new SmartLifeQueryService();
   private final CasdoorService casdoorService = new CasdoorService();
 
-  @PostMapping(value = "query/run")
+  @PostMapping(value = "run")
   @Operation(
     summary = "TODO",
     description = "Queues a predefined query for execution based on a given query_id and optional date parameters. " +
@@ -51,7 +52,7 @@ public class SmartLifeQueryController {
     }
   }
 
-  @GetMapping(value = "/query/executions/{queryExecutionId}")
+  @GetMapping(value = "executions/{queryExecutionId}")
   @Operation(
     summary = "TODO",
     description = "Returns the current status and metadata of a specific query execution, " +
@@ -64,7 +65,7 @@ public class SmartLifeQueryController {
     }
   }
 
-  @PostMapping(value = "/query/executions/{queryExecutionId}/cancel")
+  @PostMapping(value = "executions/{queryExecutionId}/cancel")
   @Operation(
     summary = "TODO",
     description = "Cancels a query execution that is in queued state. Has no effect if the execution is already completed, failed, or cancelled. " +
@@ -78,7 +79,7 @@ public class SmartLifeQueryController {
     }
   }
 
-  @GetMapping(value = "/query/executions/{queryExecutionId}/results")
+  @GetMapping(value = "executions/{queryExecutionId}/results")
   @Operation(
     summary = "TODO",
     description = "Returns the result of a query execution once it has completed successfully."

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
@@ -16,7 +17,6 @@ import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.admin.User;
-import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -31,6 +31,7 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -60,6 +61,7 @@ public class SetController {
   private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/publish")
+  @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   public void publish(
     HttpServletRequest request,
@@ -67,7 +69,6 @@ public class SetController {
   ) throws IOException, QueryException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
-      casbinEnforcer.enforce(request, AccessRequest.PUBLISH);
       setService.publishSetToIM1(iri);
     }
   }
@@ -178,11 +179,11 @@ public class SetController {
   }
 
   @PostMapping(value = "/updateSubsetsFromSuper")
+  @PreAuthorize("@guard.hasPermission('SET','WRITE')")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
-  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException {
+  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      casbinEnforcer.enforce(request, AccessRequest.WRITE);
       User user = casdoorService.getUser(request.getSession());
       setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getGraph());
     }

@@ -3,11 +3,10 @@ package org.endeavourhealth.imapi.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
-import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
-import org.endeavourhealth.imapi.model.casbin.AccessRequest;
 import org.endeavourhealth.imapi.model.casbin.PolicyRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +21,9 @@ public class CasbinController {
   private CasdoorService casdoorService = new CasdoorService();
 
   @PostMapping("addPolicy")
-  public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserAuthorisationException, UserNotFoundException {
-    casbinEnforcer.enforce(request, AccessRequest.WRITE);
-    casbinEnforcer.addPolicy(policyRequest.getUserId(), policyRequest.getDataSource(), policyRequest.getAccessRequest());
+  @PreAuthorize("@guard.hasPermission('POLICY','WRITE')")
+  public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
+    casbinEnforcer.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
   }
+
 }

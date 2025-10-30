@@ -35,8 +35,8 @@ public class SecurityConfig {
         .accessDeniedHandler(accessDeniedHandler())
         .authenticationEntryPoint(authenticationEntryPoint())
       )
-      .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
+      .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
+//      .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())));
     return http.build();
   }
 

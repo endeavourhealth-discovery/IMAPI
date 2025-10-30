@@ -11,6 +11,8 @@ import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,7 +25,7 @@ public class CasdoorService {
 
   private String clientId = System.getenv("CASDOOR_CLIENT_ID");
   private String endpoint = System.getenv("CASDOOR_ENDPOINT");
-  private String certificate = System.getenv("CASDOOR_CERTIFICATE");
+  private String certificate;
   private String applicationName = System.getenv("CASDOOR_APPLICATION_NAME");
   private String clientSecret = System.getenv("CASDOOR_CLIENT_SECRET");
   private String organisationName = System.getenv("CASDOOR_ORGANISATION_NAME");
@@ -33,6 +35,11 @@ public class CasdoorService {
     casdoorConfiguration.setApplicationName(applicationName);
     casdoorConfiguration.setClientId(clientId);
     casdoorConfiguration.setEndpoint(endpoint);
+    try {
+      this.certificate = new String(Files.readAllBytes(Paths.get("src/main/resources/casdoor-cert.txt")));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     casdoorConfiguration.setCertificate(certificate);
     casdoorConfiguration.setClientSecret(clientSecret);
     casdoorConfiguration.setOrganizationName(organisationName);

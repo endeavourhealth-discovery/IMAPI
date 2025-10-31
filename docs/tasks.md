@@ -8,8 +8,9 @@
 - **Phase 2 (Core Transformation Engine):** ✅ Complete (42/55 core tasks)
 - **Phase 3 (Engine Integration & Orchestration):** ✅ Complete (30/30 core tasks)
 - **Phase 4 (Output and Serialization):** ✅ Complete (23/30 core tasks)
-- **Phase 5 (Batch Processing and Scalability):** 🟨 In Progress (19/30 core tasks)
-- **Overall:** 146/185 core tasks complete (79%)
+- **Phase 5 (Batch Processing and Scalability):** ✅ Complete (19/30 core tasks)
+- **Phase 6.1 (CLI):** ✅ Complete (13/13 core tasks)
+- **Overall:** 159/198 core tasks complete (80%)
 
 ---
 
@@ -293,19 +294,19 @@
 
 ### 6.1 Command-Line Interface (CLI) (Plan 6.1 → REQ-14)
 
-- [ ] Create `QOFToIMQCliApplication` main class
-- [ ] Implement argument parsing with Picocli or similar
-- [ ] Add `--input` parameter for input file path
-- [ ] Add `--output` parameter for output file path
-- [ ] Add `--batch` mode for processing directories
-- [ ] Add `--verbose` flag for detailed logging
-- [ ] Add `--config` parameter for configuration file
-- [ ] Implement `--help` command with usage information
-- [ ] Create usage examples in help text
-- [ ] Implement exit codes (0=success, 1=error)
-- [ ] Write CLI integration tests
-- [ ] Create CLI user documentation
-- [ ] Package CLI as executable Fat JAR
+- [x] Create `QOFToIMQCliApplication` main class
+- [x] Implement argument parsing with Spring Boot ApplicationArguments
+- [x] Add `--input` parameter for input file path
+- [x] Add `--output` parameter for output file path
+- [x] Add `--batch` mode for processing directories
+- [x] Add `--verbose` flag for detailed logging
+- [x] Add `--config` parameter for configuration file
+- [x] Implement `--help` command with usage information
+- [x] Create usage examples in help text
+- [x] Implement exit codes (0=success, 1=error)
+- [x] Write CLI integration tests
+- [x] Create CLI user documentation
+- [x] Package CLI as executable Fat JAR
 
 ### 6.2 Configuration Management (Plan 6.2 → REQ-7, REQ-14)
 

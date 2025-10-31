@@ -1,0 +1,82 @@
+# QOF to IMQ Transformation - Production Configuration
+# This configuration overrides config.yaml for production environments.
+# 
+# Apply this configuration using:
+#   java -jar qofimq-cli.jar --config=config.yaml --profile=prod
+# 
+# Or if this file is in the same directory as config.yaml:
+#   java -jar qofimq-cli.jar --config=config.yaml
+#   (it will automatically load config-prod.yaml if profile=prod)
+
+# ===== Production Transformation Settings =====
+
+transformation:
+  # Batch processing of multiple files for maximum throughput
+  batchMode: true
+  
+  # Process all JSON files
+  filePattern: "*.json"
+  
+  # Minimal logging for production
+  verbose: false
+  
+  # Parallel processing for performance
+  parallelProcessing: true
+
+# ===== Production Performance Settings =====
+
+performance:
+  # Use all available CPU cores
+  maxParallelThreads: 16
+  
+  # Large cache for high throughput
+  cacheSize: 50000
+  
+  # Process many files before cache flush
+  batchSize: 500
+  
+  # Allocate significant memory for performance
+  # 8GB example: 8589934592
+  maxMemoryUsage: 8589934592
+
+# ===== Production Error Handling =====
+
+errorHandling:
+  # Continue batch processing on individual file failures
+  continueOnError: true
+  
+  # Retry failed transformations
+  maxRetries: 3
+  
+  # Wait before retrying to avoid transient issues
+  retryDelayMs: 2000
+
+# ===== Production Output =====
+
+output:
+  # Don't overwrite existing output by default
+  overwrite: false
+  
+  # Create backups for safety
+  createBackup: true
+  
+  # UTF-8 encoding for universal compatibility
+  encoding: UTF-8
+
+# ===== Production Logging =====
+
+logging:
+  # Warnings and errors only in production
+  level: WARN
+
+# ===== Production Monitoring =====
+
+monitoring:
+  # Disable metrics for performance (can be overridden)
+  enableMetrics: false
+  
+  # If metrics enabled, write to metrics aggregation point
+  # metricsOutput: /var/log/qofimq/metrics.json
+
+# Profile: Production
+profile: prod

@@ -1,0 +1,96 @@
+# QOF to IMQ Transformation - Base Configuration
+# This is the base configuration template for production use.
+# For development, use config-dev.yaml
+# For testing, use config-test.yaml
+
+# ===== Transformation Settings =====
+# Core parameters for QOF to IMQ transformation
+
+transformation:
+  # Required: Path to input QOF JSON file or directory
+  inputPath: /path/to/input.json
+  
+  # Required: Path to output IMQ JSON file or directory
+  outputPath: /path/to/output.json
+  
+  # Enable batch mode for processing directories
+  batchMode: false
+  
+  # Glob pattern for batch file selection (e.g., *.json, qof-*.json)
+  filePattern: "*.json"
+  
+  # Enable verbose logging output
+  verbose: false
+  
+  # Enable parallel processing for batch operations
+  parallelProcessing: false
+
+# ===== Performance Tuning =====
+# Resource allocation and optimization settings
+
+performance:
+  # Maximum number of threads for parallel processing
+  # Default: CPU core count
+  maxParallelThreads: 8
+  
+  # Reference mapping cache size
+  # Larger cache = faster lookups but more memory
+  cacheSize: 10000
+  
+  # Files to process before cache flush
+  batchSize: 100
+  
+  # Maximum memory usage in bytes
+  # Default: JVM maximum heap
+  # Example: 8589934592 = 8GB
+  maxMemoryUsage: null
+
+# ===== Error Handling =====
+# Error resilience and recovery configuration
+
+errorHandling:
+  # Continue processing remaining files if one fails
+  continueOnError: true
+  
+  # Number of retry attempts for failed transformations
+  maxRetries: 3
+  
+  # Delay in milliseconds between retry attempts
+  retryDelayMs: 1000
+
+# ===== Output Configuration =====
+# Output file handling and formatting
+
+output:
+  # Overwrite existing output files (if false, fail on existing file)
+  overwrite: false
+  
+  # Create backup of existing output files before overwriting
+  createBackup: true
+  
+  # Output file character encoding
+  encoding: UTF-8
+
+# ===== Logging Configuration =====
+# Log level and output settings
+
+logging:
+  # Log level: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
+  level: WARN
+
+# ===== Monitoring and Metrics =====
+# Observability and metrics collection
+
+monitoring:
+  # Enable metrics collection during transformation
+  enableMetrics: false
+  
+  # Path to write metrics output (if enabled)
+  # If not specified, metrics are logged only
+  metricsOutput: null
+
+# ===== Profile Selection =====
+# Configuration profile: dev, prod, or test
+# This sets predefined defaults for all above settings
+
+profile: prod

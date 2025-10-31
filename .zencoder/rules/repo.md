@@ -21,7 +21,7 @@ IMAPI (Information Model API) is a comprehensive Spring Boot REST API applicatio
 ## Language & Runtime
 **Language**: Java
 **Version**: Java 21 (source and target compatibility: JavaVersion.VERSION_21)
-**Home**: %USERPROFILE%\.jdks\corretto-21.0.8
+**Java Home**: %USERPROFILE%\.jdks\corretto-21.0.8
 **Build System**: Gradle with wrapper
 **Gradle Version**: Latest (wrapper-based)
 **Package Manager**: Gradle with catalog-based version management

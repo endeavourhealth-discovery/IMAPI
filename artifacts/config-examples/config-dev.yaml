@@ -1,0 +1,66 @@
+# QOF to IMQ Transformation - Development Configuration
+# This configuration overrides config.yaml for development environments.
+# 
+# Apply this configuration using:
+#   java -jar qofimq-cli.jar --config=config.yaml --profile=dev
+# 
+# Or if this file is in the same directory as config.yaml:
+#   java -jar qofimq-cli.jar --config=config.yaml
+#   (it will automatically load config-dev.yaml if profile=dev)
+
+# ===== Development Transformation Settings =====
+
+transformation:
+  # Enable verbose logging to see transformation details
+  verbose: true
+  
+  # Single-threaded for easier debugging
+  parallelProcessing: false
+
+# ===== Development Performance Settings =====
+
+performance:
+  # Single thread for deterministic debugging
+  maxParallelThreads: 1
+  
+  # Smaller cache to catch cache-related issues
+  cacheSize: 1000
+
+# ===== Development Error Handling =====
+
+errorHandling:
+  # Continue on error to see all issues at once
+  continueOnError: true
+  
+  # Fewer retries in development
+  maxRetries: 1
+  
+  # Quick retry for testing
+  retryDelayMs: 100
+
+# ===== Development Output =====
+
+output:
+  # Don't overwrite by default in dev
+  overwrite: false
+  
+  # Create backups for safety
+  createBackup: true
+
+# ===== Development Logging =====
+
+logging:
+  # Debug level for detailed logging
+  level: DEBUG
+
+# ===== Development Monitoring =====
+
+monitoring:
+  # Enable metrics for performance analysis
+  enableMetrics: true
+  
+  # Write metrics to file for analysis
+  metricsOutput: /tmp/qofimq-metrics-dev.json
+
+# Profile: Development
+profile: dev

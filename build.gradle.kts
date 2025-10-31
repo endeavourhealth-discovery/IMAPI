@@ -225,4 +225,65 @@ tasks.jacocoTestReport {
   }
 }
 
+/**
+ * Fat JAR task for QOF to IMQ CLI
+ * Creates an executable JAR with all dependencies included
+ * Usage: java -jar qofimq-cli.jar [OPTIONS]
+ */
+tasks.register<Jar>("qofimqCliFatJar") {
+  group = "build"
+  description = "Creates a Fat JAR for the QOF to IMQ CLI with all dependencies"
+  
+  // Depend on processResources to ensure resources are available
+  dependsOn("processResources")
+  
+  // Set archive name
+  archiveFileName.set("qofimq-cli.jar")
+  archiveClassifier.set("")
+  
+  // Include compiled classes
+  from(sourceSets.main.get().output.classesDirs)
+  from(sourceSets.main.get().output.resourcesDir)
+  
+  // Include all dependencies
+  from({
+    configurations.runtimeClasspath.get().map { 
+      if (it.isDirectory) it else zipTree(it)
+    }
+  })
+  
+  // Set main class manifest entry
+  manifest {
+    attributes(
+      "Main-Class" to "org.endeavourhealth.imapi.transformation.cli.QOFToIMQCliApplication",
+      "Implementation-Title" to "QOF to IMQ Transformation CLI",
+      "Implementation-Version" to project.version.toString(),
+      "Built-By" to "Endeavour Health Discovery"
+    )
+  }
+  
+  // Handle duplicate files by excluding them
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+  
+  // Enable zip64 for large JARs with many dependencies
+  isZip64 = true
+  
+  // Ensure deterministic JAR creation
+  isReproducibleFileOrder = true
+  isPreserveFileTimestamps = false
+  
+  // Exclude signing files and other unnecessary files
+  exclude(
+    "META-INF/*.SF",
+    "META-INF/*.DSA",
+    "META-INF/*.RSA",
+    "META-INF/maven/**"
+  )
+}
+
+// Make the Fat JAR available for the build artifact
+artifacts {
+  add("archives", tasks.named("qofimqCliFatJar"))
+}
+
 

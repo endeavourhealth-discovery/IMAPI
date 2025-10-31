@@ -9,52 +9,52 @@
 
 ### 1.1 Project Structure and Module Setup (Plan 1.1 → REQ-7)
 
-- [ ] Create `org.endeavourhealth.imapi.transformation` package hierarchy
-- [ ] Create `org.endeavourhealth.imapi.transformation.core` subpackage
-- [ ] Create `org.endeavourhealth.imapi.transformation.component` subpackage
-- [ ] Create `org.endeavourhealth.imapi.transformation.util` subpackage
-- [ ] Create base interface `QOFTransformer` in core package
-- [ ] Create base interface `TransformationContext` in core package
-- [ ] Configure logging infrastructure with SLF4J/Logback
-- [ ] Create transformation configuration properties class
-- [ ] Update build.gradle.kts with new module dependencies
-- [ ] Create initial module documentation
+- [x] Create `org.endeavourhealth.imapi.transformation` package hierarchy
+- [x] Create `org.endeavourhealth.imapi.transformation.core` subpackage
+- [x] Create `org.endeavourhealth.imapi.transformation.component` subpackage
+- [x] Create `org.endeavourhealth.imapi.transformation.util` subpackage
+- [x] Create base interface `QOFTransformer` in core package
+- [x] Create base interface `TransformationContext` in core package
+- [x] Configure logging infrastructure with SLF4J/Logback
+- [x] Create transformation configuration properties class
+- [x] Update build.gradle.kts with new module dependencies (using existing SLF4J/Logback)
+- [x] Create initial module documentation
 
 ### 1.2 QOF Model Extension and Utilities (Plan 1.2 → REQ-1, REQ-2)
 
-- [ ] Analyze existing QOF model classes for extension points
-- [ ] Add validation method to QOFDocument class
-- [ ] Add validation methods to Selection, Register, ExtractionField, Indicator classes
-- [ ] Create `QOFModelValidator` utility class
-- [ ] Create `QOFDocumentDeserializer` Jackson deserializer
-- [ ] Add null-safety wrapper methods to QOFDocument
-- [ ] Create `QOFDocumentDefaults` class for default value handling
-- [ ] Add metadata accessor utility methods
+- [x] Analyze existing QOF model classes for extension points
+- [x] Add validation method to QOFDocument class (created QOFModelValidator)
+- [x] Add validation methods to Selection, Register, ExtractionField, Indicator classes (in QOFModelValidator)
+- [x] Create `QOFModelValidator` utility class
+- [x] Create `QOFDocumentDeserializer` Jackson deserializer
+- [x] Add null-safety wrapper methods to QOFDocument (in QOFDocumentDefaults)
+- [x] Create `QOFDocumentDefaults` class for default value handling
+- [x] Add metadata accessor utility methods (in QOFDocumentDefaults)
 - [ ] Create unit tests for model utilities
 - [ ] Create integration tests for QOF deserialization
 
 ### 1.3 IMQ Query Builder and Factories (Plan 1.3 → REQ-7)
 
-- [ ] Create `QueryBuilder` fluent builder class
-- [ ] Create `MatchBuilder` fluent builder class
-- [ ] Create `PathBuilder` fluent builder class
-- [ ] Create `ReturnBuilder` fluent builder class
-- [ ] Create `WhereBuilder` fluent builder class
-- [ ] Create `NodeBuilder` for Node object construction
-- [ ] Create factory method `createEmptyQuery()`
-- [ ] Add builder pattern chainable methods
+- [x] Create `QueryBuilder` fluent builder class
+- [x] Create `MatchBuilder` fluent builder class
+- [x] Create `PathBuilder` fluent builder class
+- [x] Create `ReturnBuilder` fluent builder class
+- [x] Create `WhereBuilder` fluent builder class
+- [x] Create `NodeBuilder` for Node object construction
+- [x] Create factory method `createEmptyQuery()` (via QueryBuilderFactory)
+- [x] Add builder pattern chainable methods
 - [ ] Create unit tests for all builder classes
 - [ ] Document builder usage patterns
 
 ### 1.4 Error Handling Framework (Plan 1.4 → REQ-8)
 
-- [ ] Create `TransformationException` custom exception
-- [ ] Create `ValidationException` custom exception
-- [ ] Create `TransformationError` data class
-- [ ] Create `ErrorCollector` for aggregating transformation errors
-- [ ] Create `TransformationLogger` with correlation ID support
-- [ ] Create `ErrorReporter` for formatted error output
-- [ ] Add error context enrichment utilities
+- [x] Create `TransformationException` custom exception
+- [x] Create `ValidationException` custom exception
+- [x] Create `TransformationError` data class
+- [x] Create `ErrorCollector` for aggregating transformation errors (TransformationErrorCollector)
+- [x] Create `TransformationLogger` with correlation ID support
+- [x] Create `ErrorReporter` for formatted error output
+- [x] Add error context enrichment utilities (via TransformationErrorCollector)
 - [ ] Create error handling unit tests
 - [ ] Create integration tests for error scenarios
 - [ ] Document error handling patterns

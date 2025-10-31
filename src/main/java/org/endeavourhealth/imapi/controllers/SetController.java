@@ -184,7 +184,7 @@ public class SetController {
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getGraph());
     }
   }

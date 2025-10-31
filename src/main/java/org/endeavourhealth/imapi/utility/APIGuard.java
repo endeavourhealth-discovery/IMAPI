@@ -25,7 +25,7 @@ public class APIGuard {
     ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
     if (attributes == null) return false;
     HttpServletRequest request = attributes.getRequest();
-    User user = casdoorService.getUser(request.getSession());
+    User user = casdoorService.getUser(request);
     return casbinEnforcer.enforce(user, resource, action);
   }
 }

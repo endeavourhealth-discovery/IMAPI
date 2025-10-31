@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
@@ -20,8 +20,8 @@ public class WorkflowRequest {
   private Integer size = 25;
   private String userId;
 
-  public WorkflowRequest(HttpSession session) throws JsonProcessingException, UserNotFoundException {
-    this.userId = casdoorService.getUser(session).getId();
+  public WorkflowRequest(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
+    this.userId = casdoorService.getUser(request).getId();
   }
 
   public WorkflowRequest(Integer page, Integer size, String userId) {

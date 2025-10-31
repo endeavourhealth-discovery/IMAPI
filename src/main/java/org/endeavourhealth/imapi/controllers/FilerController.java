@@ -70,7 +70,7 @@ public class FilerController {
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
@@ -104,7 +104,7 @@ public class FilerController {
   public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
       Graph filingGraph = editRequest.getGraph();
@@ -170,7 +170,7 @@ public class FilerController {
       folders.add(iri(newFolderIri));
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), usedEntity, filingGraph);
 
       return ResponseEntity.ok().build();
@@ -203,7 +203,7 @@ public class FilerController {
       if (folders == null) folders = new TTArray();
       folders.add(iri(folderIri));
 
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, user.getUsername(), usedEntity, filingGraph);
@@ -267,7 +267,7 @@ public class FilerController {
       }
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), null, filingGraph);
       return iri;
     }

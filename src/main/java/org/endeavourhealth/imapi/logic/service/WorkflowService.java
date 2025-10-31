@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import org.casbin.casdoor.service.UserService;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
@@ -40,8 +40,8 @@ public class WorkflowService {
     return workflowRepository.getBugReport(id);
   }
 
-  public void updateBugReport(BugReport bugReport, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     if (!user.getUsername().equals(bugReport.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update bug report");
     BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
@@ -101,8 +101,8 @@ public class WorkflowService {
     return workflowRepository.getRoleRequest(id);
   }
 
-  public void updateRoleRequest(RoleRequest roleRequest, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     if (!user.getUsername().equals(roleRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update role request");
     RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
@@ -111,16 +111,16 @@ public class WorkflowService {
     updateTask(roleRequest, user.getId());
   }
 
-  public void approveRoleRequest(HttpSession session, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectRoleRequest(HttpSession session, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
@@ -133,8 +133,8 @@ public class WorkflowService {
     return workflowRepository.getGraphRequest(id);
   }
 
-  public void updateGraphRequest(GraphRequest graphRequest, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     if (!user.getUsername().equals(graphRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update graph request");
     GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
@@ -143,8 +143,8 @@ public class WorkflowService {
     updateTask(graphRequest, user.getId());
   }
 
-  public void approveGraphRequest(HttpSession session, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     List<Graph> graphs = userRepository.getUserGraphs(user.getId());
     if (!graphs.contains(graphRequest.getGraph())) {
       graphs.add(graphRequest.getGraph());
@@ -154,7 +154,7 @@ public class WorkflowService {
     workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectGraphRequest(HttpSession request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = casdoorService.getUser(request);
     workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
@@ -168,8 +168,8 @@ public class WorkflowService {
     return workflowRepository.getEntityApproval(id);
   }
 
-  public void updateEntityApproval(EntityApproval entityApproval, HttpSession session) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     if (!user.getUsername().equals(entityApproval.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update entity approval");
     EntityApproval originalEntityApproval = getEntityApproval(entityApproval.getId().getIri());
@@ -178,15 +178,15 @@ public class WorkflowService {
     updateTask(entityApproval, user.getId());
   }
 
-  public void approveEntityApproval(HttpSession session, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(session);
+  public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = casdoorService.getUser(request);
     //TODO entity draft replace active
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectEntityApproval(HttpSession session, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
-    User user = casdoorService.getUser(session);
+  public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
+    User user = casdoorService.getUser(request);
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 

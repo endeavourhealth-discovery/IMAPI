@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -29,7 +29,7 @@ public class FunctionService {
   private final UserService userService = new UserService();
   private final CasdoorService casdoorService = new CasdoorService();
 
-  public JsonNode callFunction(HttpSession session, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
     return switch (IM_FUNCTION.from(iri)) {
       case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
@@ -37,7 +37,7 @@ public class FunctionService {
       case IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
       case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
       case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
-      case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(session);
+      case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
       default -> throw new IllegalArgumentException("No such function: " + iri);
     };
   }
@@ -127,9 +127,9 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getUserEditableSchemes(HttpSession session) throws JsonProcessingException, UserNotFoundException {
+  private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
-    User user = casdoorService.getUser(session);
+    User user = casdoorService.getUser(request);
     List<String> organisations = userService.getUserOrganisations(user.getId());
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {

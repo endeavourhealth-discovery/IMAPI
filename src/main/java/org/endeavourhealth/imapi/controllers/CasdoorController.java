@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
@@ -23,18 +23,23 @@ public class CasdoorController {
   private CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping("/user")
-  public User getUser(HttpSession session) throws UserNotFoundException {
-    return casdoorService.getUser(session);
+  public User getUser(HttpServletRequest request) throws UserNotFoundException {
+    return casdoorService.getUser(request);
+  }
+
+  @GetMapping("user/profileUrl")
+  public String getUserProfileUrl(HttpServletRequest request) throws UserNotFoundException {
+    return casdoorService.getUserUrl(request);
   }
 
   @GetMapping("/public/login")
-  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpSession session) {
-    casdoorService.loginUser(code, state, session);
+  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletResponse response) {
+    casdoorService.loginUser(code, state, response);
   }
 
   @GetMapping("/logout")
-  public void logout(HttpSession session) {
-    casdoorService.logout(session);
+  public void logout(HttpServletResponse response) {
+    casdoorService.logout(response);
   }
 
   @GetMapping("getUsersInGroup")

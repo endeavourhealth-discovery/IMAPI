@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -263,10 +262,10 @@ public class EntityController {
   @PostMapping(value = "/create")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
   @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpSession session, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      User user = casdoorService.getUser(session);
+      User user = casdoorService.getUser(request);
       casbinEnforcer.enforceWithError(user, Resource.ENTITY, Action.WRITE);
       return filerService.createEntity(editRequest, user.getUsername(), editRequest.getGraph());
     }
@@ -289,7 +288,7 @@ public class EntityController {
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       return filerService.updateEntity(editRequest.getEntity(), user.getUsername(), editRequest.getGraph());
     }
   }

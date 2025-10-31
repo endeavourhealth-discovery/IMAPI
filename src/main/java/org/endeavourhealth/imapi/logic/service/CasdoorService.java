@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.casbin.casdoor.config.CasdoorConfiguration;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
@@ -47,10 +49,40 @@ public class CasdoorService {
     casdoorUserService = new UserService(casdoorConfiguration);
   }
 
-  public User getUser(HttpSession session) throws UserNotFoundException {
-    User user = (User) session.getAttribute("casdoorUser");
-    if (user == null) throw new UserNotFoundException("User session not found");
-    return user;
+  public boolean validateToken(String token) {
+    try {
+      org.casbin.casdoor.entity.User user = casdoorAuthService.parseJwtToken(token);
+      return user != null;
+    } catch (AuthException e) {
+      return false;
+    }
+  }
+
+  public User getUser(HttpServletRequest request) throws UserNotFoundException {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("casdoorToken")) {
+          String token = cookie.getValue();
+          org.casbin.casdoor.entity.User user = casdoorAuthService.parseJwtToken(token);
+          return parseUser(user);
+        }
+      }
+    }
+    throw new UserNotFoundException("User not found");
+  }
+
+  public String getUserUrl(HttpServletRequest request) throws UserNotFoundException {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("casdoorToken")) {
+          String token = cookie.getValue();
+          return casdoorAuthService.getMyProfileUrl(token);
+        }
+      }
+    }
+    throw new UserNotFoundException("User token not found");
   }
 
   private User parseUser(org.casbin.casdoor.entity.User casdoorUser) {
@@ -61,24 +93,24 @@ public class CasdoorService {
     user.setEmail(casdoorUser.email);
     user.setUsername(casdoorUser.name);
     user.setAvatar(casdoorUser.avatar);
+    user.setRoles(casdoorUser.roles.stream().map(role -> UserRole.valueOf(role.name)).collect(Collectors.toList()));
     return user;
   }
 
-  public void loginUser(String code, String state, HttpSession session) {
-    String token = "";
-    User user = null;
-    try {
-      token = casdoorAuthService.getOAuthToken(code, state);
-      org.casbin.casdoor.entity.User casdoorUser = casdoorAuthService.parseJwtToken(token);
-      user = parseUser(casdoorUser);
-    } catch (AuthException e) {
-      e.printStackTrace();
-    }
-    session.setAttribute("casdoorUser", user);
+  public void loginUser(String code, String state, HttpServletResponse response) {
+    String token = casdoorAuthService.getOAuthToken(code, state);
+    Cookie cookie = new Cookie("casdoorToken", token);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    response.addCookie(cookie);
   }
 
-  public void logout(HttpSession session) {
-    session.invalidate();
+  public void logout(HttpServletResponse response) {
+    Cookie cookie = new Cookie("casdoorToken", "");
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    cookie.setMaxAge(0);
+    response.addCookie(cookie);
   }
 
   public User adminGetUser(String userId) throws UserNotFoundException {

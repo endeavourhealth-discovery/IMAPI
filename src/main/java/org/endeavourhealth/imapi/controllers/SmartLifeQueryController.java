@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
@@ -42,11 +41,11 @@ public class SmartLifeQueryController {
   )
   public UUID runSmartLifeQuery(
     @RequestBody SmartLifeQueryRunDTO query,
-    HttpSession session
+    HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("Query.RunSmartLifeQuery.POST")) {
       log.debug("runSmartLifeQuery");
-      User user = casdoorService.getUser(session);
+      User user = casdoorService.getUser(request);
       UUID userId = UUID.fromString(user.getId());
       return smartLifeQueryService.runQuery(userId, user.getUsername(), query);
     }

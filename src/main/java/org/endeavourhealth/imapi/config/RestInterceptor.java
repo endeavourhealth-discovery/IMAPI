@@ -22,7 +22,7 @@ public class RestInterceptor implements HandlerInterceptor {
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     try {
-      User user = casdoorService.getUser(request.getSession());
+      User user = casdoorService.getUser(request);
       if (user == null) {
         ThreadContext.setUserGraphs(new ArrayList<>());
         return true;

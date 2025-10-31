@@ -1,10 +1,7 @@
 package org.endeavourhealth.imapi.transformation.component;
 
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Where;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Fluent builder for constructing IMQ Where clauses.
@@ -31,46 +28,74 @@ public class WhereBuilder {
   }
 
   /**
-   * Adds a match condition.
+   * Sets the IRI for the where clause.
    */
-  public WhereBuilder addMatch(Match match) {
-    if (where.getRule() == null) {
-      where.setRule(new ArrayList<>());
-    }
-    where.getRule().add(match);
+  public WhereBuilder withIri(String iri) {
+    where.setIri(iri);
+    return this;
+  }
+
+  /**
+   * Sets the type constraint for this where clause.
+   */
+  public WhereBuilder withTypeOf(String typeOfIri) {
+    where.setTypeOf(typeOfIri);
+    return this;
+  }
+
+  /**
+   * Sets the type constraint for this where clause.
+   */
+  public WhereBuilder withTypeOf(Node typeOfNode) {
+    where.setTypeOf(typeOfNode);
     return this;
   }
 
   /**
    * Adds an AND condition.
    */
-  public WhereBuilder addAnd(Match match) {
-    if (where.getAnd() == null) {
-      where.setAnd(new ArrayList<>());
-    }
-    where.getAnd().add(match);
+  public WhereBuilder addAnd(Where andClause) {
+    where.addAnd(andClause);
     return this;
   }
 
   /**
    * Adds an OR condition.
    */
-  public WhereBuilder addOr(Match match) {
-    if (where.getOr() == null) {
-      where.setOr(new ArrayList<>());
-    }
-    where.getOr().add(match);
+  public WhereBuilder addOr(Where orClause) {
+    where.addOr(orClause);
     return this;
   }
 
   /**
-   * Adds a NOT condition.
+   * Sets the NOT flag.
    */
-  public WhereBuilder addNot(Match match) {
-    if (where.getNot() == null) {
-      where.setNot(new ArrayList<>());
-    }
-    where.getNot().add(match);
+  public WhereBuilder not(boolean notFlag) {
+    where.setNot(notFlag);
+    return this;
+  }
+
+  /**
+   * Sets the value constraint.
+   */
+  public WhereBuilder withValue(String value) {
+    where.setValue(value);
+    return this;
+  }
+
+  /**
+   * Adds an IS constraint.
+   */
+  public WhereBuilder addIs(String isIri) {
+    where.addIs(isIri);
+    return this;
+  }
+
+  /**
+   * Adds an IS constraint with a Node.
+   */
+  public WhereBuilder addIs(Node isNode) {
+    where.addIs(isNode);
     return this;
   }
 

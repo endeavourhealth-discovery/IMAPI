@@ -94,13 +94,10 @@ public class ExtractionFieldTransformer {
 
     // Add paths to Query
     if (!paths.isEmpty()) {
-      for (Path path : paths) {
-        // Add path to query if it supports paths
-        if (query instanceof org.endeavourhealth.imapi.model.imq.HasPaths) {
-          ((org.endeavourhealth.imapi.model.imq.HasPaths) query).addPath(path);
-        }
+      if (query instanceof org.endeavourhealth.imapi.model.imq.HasPaths) {
+        ((org.endeavourhealth.imapi.model.imq.HasPaths) query).setPath(paths);
+        transformationLogger.info("Added {} paths to query", paths.size());
       }
-      transformationLogger.info("Added {} paths to query", paths.size());
     }
 
     // Add returns to Query
@@ -138,12 +135,12 @@ public class ExtractionFieldTransformer {
     if (field.getCluster() != null && !field.getCluster().isBlank()) {
       transformationLogger.debug("Field cluster: {}", field.getCluster());
       // Create node reference for cluster
-      Node clusterNode = nodeBuilder.create()
+      Node clusterNode = new NodeBuilder()
           .withName(field.getCluster())
           .build();
       
       // Store node in context for reference mapping
-      context.putMapping("field_" + field.getField() + "_cluster", clusterNode);
+      context.mapReference("field_" + field.getField() + "_cluster", clusterNode);
     }
 
     // Handle field logic/conditions
@@ -180,7 +177,7 @@ public class ExtractionFieldTransformer {
     }
 
     // Store field metadata
-    context.putMapping("return_field_" + field.getField(), field.getName());
+    context.mapReference("return_field_" + field.getField(), field.getName());
 
     return returnObj;
   }

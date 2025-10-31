@@ -36,31 +36,39 @@ public class ReturnBuilder {
   }
 
   /**
-   * Adds a property with variable to the return clause.
+   * Adds a property with IRI to the return clause.
    */
-  public ReturnBuilder addProperty(String variable) {
+  public ReturnBuilder addProperty(String iri) {
     ReturnProperty property = new ReturnProperty();
-    property.setVariable(variable);
-    returnClause.addProperty(property);
-    return this;
-  }
-
-  /**
-   * Adds a property with variable and IRI.
-   */
-  public ReturnBuilder addProperty(String variable, String iri) {
-    ReturnProperty property = new ReturnProperty();
-    property.setVariable(variable);
     property.setIri(iri);
     returnClause.addProperty(property);
     return this;
   }
 
   /**
-   * Sets distinct flag for return values.
+   * Adds a property with IRI and name.
    */
-  public ReturnBuilder withDistinct(boolean distinct) {
-    returnClause.setDistinct(distinct);
+  public ReturnBuilder addProperty(String iri, String name) {
+    ReturnProperty property = new ReturnProperty();
+    property.setIri(iri);
+    property.setName(name);
+    returnClause.addProperty(property);
+    return this;
+  }
+
+  /**
+   * Sets the as-clause for renaming the return.
+   */
+  public ReturnBuilder as(String asName) {
+    returnClause.setAs(asName);
+    return this;
+  }
+
+  /**
+   * Sets the node reference.
+   */
+  public ReturnBuilder withNodeRef(String nodeRef) {
+    returnClause.setNodeRef(nodeRef);
     return this;
   }
 

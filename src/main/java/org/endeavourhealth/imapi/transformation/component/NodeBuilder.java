@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transformation.component;
 
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Prefix;
-import org.endeavourhealth.imapi.model.imq.Property;
 
 /**
  * Fluent builder for constructing IMQ Node objects.
@@ -61,20 +60,34 @@ public class NodeBuilder {
   }
 
   /**
-   * Adds a property to this node.
+   * Sets the code for this node.
    */
-  public NodeBuilder addProperty(Property property) {
-    node.addProperty(property);
+  public NodeBuilder withCode(String code) {
+    node.setCode(code);
     return this;
   }
 
   /**
-   * Adds a property with IRI to this node.
+   * Sets the variable binding for this node.
    */
-  public NodeBuilder addProperty(String propertyIri) {
-    Property property = new Property();
-    property.setIri(propertyIri);
-    node.addProperty(property);
+  public NodeBuilder withVariable(String variable) {
+    node.setVariable(variable);
+    return this;
+  }
+
+  /**
+   * Marks this node as excluded.
+   */
+  public NodeBuilder exclude() {
+    node.setExclude(true);
+    return this;
+  }
+
+  /**
+   * Marks this node as inverse.
+   */
+  public NodeBuilder inverse() {
+    node.setInverse(true);
     return this;
   }
 

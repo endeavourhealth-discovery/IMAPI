@@ -82,7 +82,7 @@ public class IndicatorTransformer {
     transformationLogger.debug("Transforming indicator: {}", indicator.getName());
 
     // Store indicator metadata
-    context.putMapping("indicator_" + indicator.getName() + "_base", indicator.getBase());
+    context.mapReference("indicator_" + indicator.getName() + "_base", indicator.getBase());
 
     // Transform indicator rules (denominator and numerator logic)
     if (indicator.getRules() != null && !indicator.getRules().isEmpty()) {

@@ -46,7 +46,7 @@ public class QOFDocumentLoader {
    * @return deserialized QOFDocument
    * @throws TransformationException if file cannot be read or JSON is invalid
    */
-  public QOFDocument loadFromFile(String filePath) {
+  public QOFDocument loadFromFile(String filePath) throws TransformationException {
     return loadFromFile(new File(filePath));
   }
 
@@ -57,14 +57,13 @@ public class QOFDocumentLoader {
    * @return deserialized QOFDocument
    * @throws TransformationException if file cannot be read or JSON is invalid
    */
-  public QOFDocument loadFromFile(File file) {
+  public QOFDocument loadFromFile(File file) throws TransformationException {
     transformationLogger.info("Loading QOF document from file: {}", file.getAbsolutePath());
     
     try {
       if (!file.exists()) {
         throw new TransformationException(
-            "QOF file not found",
-            "FILE_NOT_FOUND",
+            "QOF file not found: " + file.getAbsolutePath(),
             new IOException("File does not exist: " + file.getAbsolutePath())
         );
       }
@@ -75,8 +74,7 @@ public class QOFDocumentLoader {
     } catch (IOException e) {
       transformationLogger.error("Failed to load QOF document from file: {}", e.getMessage());
       throw new TransformationException(
-          "Failed to load QOF document from file",
-          "FILE_READ_ERROR",
+          "Failed to load QOF document from file: " + e.getMessage(),
           e
       );
     }
@@ -89,7 +87,7 @@ public class QOFDocumentLoader {
    * @return deserialized QOFDocument
    * @throws TransformationException if file cannot be read or JSON is invalid
    */
-  public QOFDocument loadFromPath(Path path) {
+  public QOFDocument loadFromPath(Path path) throws TransformationException {
     return loadFromFile(path.toFile());
   }
 
@@ -100,7 +98,7 @@ public class QOFDocumentLoader {
    * @return deserialized QOFDocument
    * @throws TransformationException if JSON is invalid
    */
-  public QOFDocument loadFromString(String jsonContent) {
+  public QOFDocument loadFromString(String jsonContent) throws TransformationException {
     transformationLogger.info("Loading QOF document from JSON string");
     
     try {
@@ -110,8 +108,7 @@ public class QOFDocumentLoader {
     } catch (IOException e) {
       transformationLogger.error("Failed to parse QOF JSON string: {}", e.getMessage());
       throw new TransformationException(
-          "Failed to parse QOF JSON content",
-          "JSON_PARSE_ERROR",
+          "Failed to parse QOF JSON content: " + e.getMessage(),
           e
       );
     }
@@ -124,7 +121,7 @@ public class QOFDocumentLoader {
    * @return deserialized QOFDocument
    * @throws TransformationException if content cannot be read or JSON is invalid
    */
-  public QOFDocument loadFromBytes(byte[] content) {
+  public QOFDocument loadFromBytes(byte[] content) throws TransformationException {
     return loadFromString(new String(content, StandardCharsets.UTF_8));
   }
 }

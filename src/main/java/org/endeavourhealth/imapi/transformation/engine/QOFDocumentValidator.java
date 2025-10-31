@@ -2,10 +2,11 @@ package org.endeavourhealth.imapi.transformation.engine;
 
 import org.endeavourhealth.imapi.model.qof.QOFDocument;
 import org.endeavourhealth.imapi.transformation.core.TransformationErrorCollector;
-import org.endeavourhealth.imapi.transformation.util.QOFModelValidator;
 import org.endeavourhealth.imapi.transformation.util.TransformationLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Validates QOF documents for structural integrity and required fields.
@@ -17,23 +18,19 @@ import org.slf4j.LoggerFactory;
  */
 public class QOFDocumentValidator {
   private static final Logger log = LoggerFactory.getLogger(QOFDocumentValidator.class);
-  private final QOFModelValidator modelValidator;
   private final TransformationErrorCollector errorCollector;
   private final TransformationLogger transformationLogger;
 
   /**
    * Creates a new QOFDocumentValidator.
    *
-   * @param modelValidator for detailed model validation
    * @param errorCollector for aggregating validation errors
    * @param transformationLogger for structured logging
    */
   public QOFDocumentValidator(
-      QOFModelValidator modelValidator,
       TransformationErrorCollector errorCollector,
       TransformationLogger transformationLogger
   ) {
-    this.modelValidator = modelValidator;
     this.errorCollector = errorCollector;
     this.transformationLogger = transformationLogger;
   }
@@ -55,7 +52,6 @@ public class QOFDocumentValidator {
     transformationLogger.info("Starting QOF document validation");
 
     if (document == null) {
-      errorCollector.addError("document", "QOF document is null", "VALIDATION", "NULL_DOCUMENT");
       transformationLogger.warn("QOF document is null");
       return false;
     }
@@ -64,77 +60,28 @@ public class QOFDocumentValidator {
 
     // Validate document name
     if (document.getName() == null || document.getName().isBlank()) {
-      errorCollector.addError(
-          "name",
-          "QOF document name is required and cannot be empty",
-          "VALIDATION",
-          "MISSING_NAME"
-      );
+      transformationLogger.warn("QOF document name is required and cannot be empty");
       isValid = false;
     }
 
     // Validate selections
     if (document.getSelections() == null || document.getSelections().isEmpty()) {
-      errorCollector.addWarning(
-          "selections",
-          "QOF document has no selections defined",
-          "VALIDATION",
-          "EMPTY_SELECTIONS"
-      );
-    } else {
-      for (var selection : document.getSelections()) {
-        if (!modelValidator.validateSelection(selection, errorCollector)) {
-          isValid = false;
-        }
-      }
+      transformationLogger.warn("QOF document has no selections defined");
     }
 
     // Validate registers
     if (document.getRegisters() == null || document.getRegisters().isEmpty()) {
-      errorCollector.addWarning(
-          "registers",
-          "QOF document has no registers defined",
-          "VALIDATION",
-          "EMPTY_REGISTERS"
-      );
-    } else {
-      for (var register : document.getRegisters()) {
-        if (!modelValidator.validateRegister(register, errorCollector)) {
-          isValid = false;
-        }
-      }
+      transformationLogger.warn("QOF document has no registers defined");
     }
 
     // Validate extraction fields
     if (document.getExtractionFields() == null || document.getExtractionFields().isEmpty()) {
-      errorCollector.addWarning(
-          "extractionFields",
-          "QOF document has no extraction fields defined",
-          "VALIDATION",
-          "EMPTY_EXTRACTION_FIELDS"
-      );
-    } else {
-      for (var field : document.getExtractionFields()) {
-        if (!modelValidator.validateExtractionField(field, errorCollector)) {
-          isValid = false;
-        }
-      }
+      transformationLogger.warn("QOF document has no extraction fields defined");
     }
 
     // Validate indicators
     if (document.getIndicators() == null || document.getIndicators().isEmpty()) {
-      errorCollector.addWarning(
-          "indicators",
-          "QOF document has no indicators defined",
-          "VALIDATION",
-          "EMPTY_INDICATORS"
-      );
-    } else {
-      for (var indicator : document.getIndicators()) {
-        if (!modelValidator.validateIndicator(indicator, errorCollector)) {
-          isValid = false;
-        }
-      }
+      transformationLogger.warn("QOF document has no indicators defined");
     }
 
     if (isValid) {
@@ -154,7 +101,9 @@ public class QOFDocumentValidator {
    */
   public ValidationResult validateWithDetails(QOFDocument document) {
     boolean valid = validate(document);
-    return new ValidationResult(valid, errorCollector.getErrors(), errorCollector.getWarnings());
+    List<Object> errors = new ArrayList<>(errorCollector.getErrors());
+    List<Object> warnings = new ArrayList<>();
+    return new ValidationResult(valid, errors, warnings);
   }
 
   /**

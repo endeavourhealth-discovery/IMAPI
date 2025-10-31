@@ -108,7 +108,7 @@ public class RegisterTransformer {
     if (register.getBase() != null && !register.getBase().isBlank()) {
       transformationLogger.debug("Register base (data source): {}", register.getBase());
       // Store base/source information
-      context.putMapping("register_" + register.getName() + "_base", register.getBase());
+      context.mapReference("register_" + register.getName() + "_base", register.getBase());
     }
 
     // Transform register rules

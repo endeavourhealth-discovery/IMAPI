@@ -2,10 +2,6 @@ package org.endeavourhealth.imapi.transformation.component;
 
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Property;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Fluent builder for constructing IMQ Path objects.
@@ -32,28 +28,44 @@ public class PathBuilder {
   }
 
   /**
-   * Sets the starting node.
+   * Sets the IRI for this path.
    */
-  public PathBuilder withStartNode(Node node) {
-    path.setStartNode(node);
+  public PathBuilder withIri(String iri) {
+    path.setIri(iri);
     return this;
   }
 
   /**
-   * Adds a property to the path.
+   * Sets the name for this path.
    */
-  public PathBuilder addProperty(Property property) {
-    path.addNode(property);
+  public PathBuilder withName(String name) {
+    path.setName(name);
     return this;
   }
 
   /**
-   * Adds a property with IRI to the path.
+   * Sets the description for this path.
    */
-  public PathBuilder addProperty(String propertyIri) {
-    Property property = new Property();
-    property.setIri(propertyIri);
-    path.addNode(property);
+  public PathBuilder withDescription(String description) {
+    path.setDescription(description);
+    return this;
+  }
+
+  /**
+   * Adds a nested path to this path.
+   */
+  public PathBuilder addPath(Path nestedPath) {
+    path.addPath(nestedPath);
+    return this;
+  }
+
+  /**
+   * Adds a nested path with IRI to this path.
+   */
+  public PathBuilder addPath(String pathIri) {
+    Path nestedPath = new Path();
+    nestedPath.setIri(pathIri);
+    path.addPath(nestedPath);
     return this;
   }
 
@@ -62,6 +74,38 @@ public class PathBuilder {
    */
   public PathBuilder withVariable(String variable) {
     path.setVariable(variable);
+    return this;
+  }
+
+  /**
+   * Sets the typeOf constraint for this path.
+   */
+  public PathBuilder withTypeOf(String typeOfIri) {
+    path.setTypeOf(typeOfIri);
+    return this;
+  }
+
+  /**
+   * Sets the typeOf constraint for this path.
+   */
+  public PathBuilder withTypeOf(Node typeOfNode) {
+    path.setTypeOf(typeOfNode);
+    return this;
+  }
+
+  /**
+   * Marks this path as optional.
+   */
+  public PathBuilder optional() {
+    path.setOptional(true);
+    return this;
+  }
+
+  /**
+   * Marks this path as inverse.
+   */
+  public PathBuilder inverse() {
+    path.setInverse(true);
     return this;
   }
 

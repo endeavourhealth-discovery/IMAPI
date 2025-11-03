@@ -55,56 +55,108 @@ public class IMQtoSQLConverter {
   public void IMQtoSQL() throws SQLConversionException, JsonProcessingException {
     if (queryRequest.getQuery() == null) throw new SQLConversionException("Query is null");
     Query definition = queryRequest.getQuery();
-    if ((definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) && definition.getPath() != null) {
-      definition.setTypeOf(definition.getPath().getFirst().getIri());
-    }
+
+    initializeQueryTypeOf(definition);
 
     try {
       StringBuilder sql = new StringBuilder();
       if (definition.getColumnGroup() != null) {
-        for (Match dataset : definition.getColumnGroup()) {
-          if (null != definition.getTypeOf() && null != definition.getTypeOf().getIri()) {
-            String typeOf = (null != dataset.getPath() && null != dataset.getPath().getFirst())
-              ? dataset.getPath().getFirst().getTypeOf().getIri()
-              : definition.getTypeOf().getIri();
-            SQLQuery qry = new SQLQuery().create(typeOf, null, tableMap, null);
-            if (definition.getInstanceOf() != null)
-              addDatasetInstanceOf(qry, definition.getInstanceOf());
-            if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null)
-              addDatasetSubQuery(qry, dataset, typeOf);
-            if (null != dataset.getWhere())
-              addIMQueryToSQLQueryRecursively(qry, dataset, Bool.and);
-            if (dataset.getReturn() != null) {
-              addSelectFromReturnRecursively(qry, dataset.getReturn(), null, typeOf, null, false);
-            }
-            if (null != definition.getIsCohort()) {
-              convertIsCohort(qry, definition.getIsCohort(), definition.getTypeOf(), Bool.and);
-            }
-            sql.append(qry.toSql(2)).append(";\n\n");
-          } else if (null != dataset.getReturn().getFunction() && null != dataset.getIsCohort()) {
-            String sqlfn = getFunction(dataset.getReturn().getFunction());
-            if (null != sqlfn) {
-              String from = getTableNameFromIri(dataset.getIsCohort().getIri());
-              SQLQuery qry = new SQLQuery().create(null, null, tableMap, from);
-              qry.getSelects().add(sqlfn);
-              sql.append(qry.toSql(2)).append(";\n\n");
-            }
-          }
-        }
+        sql.append(processColumnGroup(definition));
       } else {
-        if (null == definition.getTypeOf() || null == definition.getTypeOf().getIri())
-          throw new SQLConversionException("SQL Conversion Error: Cohort Query typeOf is null");
-        SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap, null);
-        addBooleanMatchesToSQL(qry, definition);
-        if (null != definition.getIsCohort()) {
-          convertIsCohort(qry, definition.getIsCohort(), null, Bool.and);
-        }
-        sql = new StringBuilder(qry.toSql(2));
+        sql.append(processSingleQuery(definition));
       }
       this.sql = sql.toString();
     } catch (SQLConversionException | JsonProcessingException e) {
       log.error("SQL Conversion Error: {}", e.getMessage());
       throw e;
+    }
+  }
+
+  private void initializeQueryTypeOf(Query definition) {
+    if ((definition.getTypeOf() == null || definition.getTypeOf().getIri() == null) && definition.getPath() != null) {
+      definition.setTypeOf(definition.getPath().getFirst().getIri());
+    }
+  }
+
+  private String processColumnGroup(Query definition) throws SQLConversionException, JsonProcessingException {
+    StringBuilder sql = new StringBuilder();
+    for (Match dataset : definition.getColumnGroup()) {
+      sql.append(processDataset(dataset, definition)).append(";\n\n");
+    }
+    return sql.toString();
+  }
+
+  private String processDataset(Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
+    if (null != definition.getTypeOf() && null != definition.getTypeOf().getIri()) {
+      return processDatasetWithTypeOf(dataset, definition);
+    } else if (null != dataset.getReturn().getFunction() && null != dataset.getIsCohort()) {
+      return processDatasetWithFunction(dataset);
+    }
+    return "";
+  }
+
+  private String processDatasetWithTypeOf(Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
+    String typeOf = getDatasetTypeOf(dataset, definition);
+    SQLQuery qry = new SQLQuery().create(typeOf, null, tableMap, null);
+
+    applyDatasetFilters(qry, dataset, definition);
+
+    if (dataset.getReturn() != null) {
+      addSelectFromReturnRecursively(qry, dataset.getReturn(), null, typeOf, null, false);
+    }
+
+    if (null != definition.getIsCohort()) {
+      convertIsCohort(qry, definition.getIsCohort(), definition.getTypeOf(), Bool.and);
+    }
+
+    return qry.toSql(2);
+  }
+
+  private String getDatasetTypeOf(Match dataset, Query definition) {
+    return (null != dataset.getPath() && null != dataset.getPath().getFirst())
+      ? dataset.getPath().getFirst().getTypeOf().getIri()
+      : definition.getTypeOf().getIri();
+  }
+
+  private void applyDatasetFilters(SQLQuery qry, Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
+    if (definition.getInstanceOf() != null) {
+      addDatasetInstanceOf(qry, definition.getInstanceOf());
+    }
+    if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null) {
+      addDatasetSubQuery(qry, dataset, getDatasetTypeOf(dataset, definition));
+    }
+    if (null != dataset.getWhere()) {
+      addIMQueryToSQLQueryRecursively(qry, dataset, Bool.and);
+    }
+  }
+
+  private String processDatasetWithFunction(Match dataset) throws SQLConversionException, JsonProcessingException {
+    String sqlfn = getFunction(dataset.getReturn().getFunction());
+    if (null != sqlfn) {
+      String from = getTableNameFromIri(dataset.getIsCohort().getIri());
+      SQLQuery qry = new SQLQuery().create(null, null, tableMap, from);
+      qry.getSelects().add(sqlfn);
+      return qry.toSql(2);
+    }
+    return "";
+  }
+
+  private String processSingleQuery(Query definition) throws SQLConversionException, JsonProcessingException {
+    validateSingleQueryTypeOf(definition);
+
+    SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap, null);
+    addBooleanMatchesToSQL(qry, definition);
+
+    if (null != definition.getIsCohort()) {
+      convertIsCohort(qry, definition.getIsCohort(), null, Bool.and);
+    }
+
+    return qry.toSql(2);
+  }
+
+  private void validateSingleQueryTypeOf(Query definition) throws SQLConversionException {
+    if (null == definition.getTypeOf() || null == definition.getTypeOf().getIri()) {
+      throw new SQLConversionException("SQL Conversion Error: Cohort Query typeOf is null");
     }
   }
 
@@ -146,38 +198,92 @@ public class IMQtoSQLConverter {
     }
   }
 
-  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty, String gParentTypeOf, String tableAlias, boolean isNested) throws SQLConversionException, JsonProcessingException {
+  private void addSelectFromReturnRecursively(SQLQuery qry, Return aReturn, ReturnProperty parentProperty,
+                                              String gParentTypeOf, String tableAlias, boolean isNested)
+    throws SQLConversionException, JsonProcessingException {
+
     if (aReturn.getProperty() != null) {
-      for (ReturnProperty property : aReturn.getProperty()) {
-        if (property.getReturn() != null) {
-          addNestedProperty(qry, property, parentProperty, gParentTypeOf);
-        } else if (property.getAs() != null) {
-          if (property.getAs().equals("Y-N")) {
-            if (parentProperty == null) {
-              addRootYNCase(qry);
-            } else {
-              addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
-            }
-          } else {
-            if (isNested) {
-              for (String fkey : qry.getGetForeignKeys())
-                if (!qry.getSelects().contains(fkey))
-                  qry.getSelects().add(fkey);
-            } else if (null != property.getFunction()) {
-              String select = getSelectFromFunction(qry, property.getFunction()) + " AS `" + property.getAs() + "`";
-              qry.getSelects().add(select);
-            } else {
-              String select = qry.getFieldName(property.getIri(), null, tableMap, false) + " AS `" + property.getAs() + "`";
-              qry.getSelects().add(select);
-            }
-          }
-        }
-      }
+      processReturnProperties(qry, aReturn.getProperty(), parentProperty, gParentTypeOf, tableAlias, isNested);
     } else if (aReturn.getFunction() != null && parentProperty != null) {
-      String fn = getFunction(aReturn.getFunction());
-      fn = fn.replaceAll("\\{propertyName}", getNameFromIri(parentProperty.getIri()));
-      qry.getSelects().add(fn);
+      processReturnFunction(qry, aReturn.getFunction(), parentProperty);
     }
+  }
+
+  private void processReturnProperties(SQLQuery qry, List<ReturnProperty> properties,
+                                       ReturnProperty parentProperty, String gParentTypeOf,
+                                       String tableAlias, boolean isNested)
+    throws SQLConversionException, JsonProcessingException {
+
+    for (ReturnProperty property : properties) {
+      if (property.getReturn() != null) {
+        addNestedProperty(qry, property, parentProperty, gParentTypeOf);
+      } else if (property.getAs() != null) {
+        processReturnPropertyAs(qry, property, parentProperty, gParentTypeOf, tableAlias, isNested);
+      }
+    }
+  }
+
+  private void processReturnPropertyAs(SQLQuery qry, ReturnProperty property,
+                                       ReturnProperty parentProperty, String gParentTypeOf,
+                                       String tableAlias, boolean isNested)
+    throws SQLConversionException, JsonProcessingException {
+
+    if (property.getAs().equals("Y-N")) {
+      processYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
+    } else {
+      processRegularAs(qry, property, isNested);
+    }
+  }
+
+  private void processYNCase(SQLQuery qry, ReturnProperty parentProperty,
+                             String gParentTypeOf, String tableAlias)
+    throws SQLConversionException {
+
+    if (parentProperty == null) {
+      addRootYNCase(qry);
+    } else {
+      addYNCase(qry, parentProperty, gParentTypeOf, tableAlias);
+    }
+  }
+
+  private void processRegularAs(SQLQuery qry, ReturnProperty property, boolean isNested)
+    throws SQLConversionException, JsonProcessingException {
+
+    if (isNested) {
+      addForeignKeysToSelect(qry);
+    } else if (null != property.getFunction()) {
+      addFunctionSelect(qry, property);
+    } else {
+      addPropertySelect(qry, property);
+    }
+  }
+
+  private void addForeignKeysToSelect(SQLQuery qry) {
+    for (String fkey : qry.getGetForeignKeys()) {
+      if (!qry.getSelects().contains(fkey)) {
+        qry.getSelects().add(fkey);
+      }
+    }
+  }
+
+  private void addFunctionSelect(SQLQuery qry, ReturnProperty property)
+    throws SQLConversionException, JsonProcessingException {
+
+    String select = getSelectFromFunction(qry, property.getFunction()) + " AS `" + property.getAs() + "`";
+    qry.getSelects().add(select);
+  }
+
+  private void addPropertySelect(SQLQuery qry, ReturnProperty property) throws SQLConversionException {
+    String select = qry.getFieldName(property.getIri(), null, tableMap, false) + " AS `" + property.getAs() + "`";
+    qry.getSelects().add(select);
+  }
+
+  private void processReturnFunction(SQLQuery qry, FunctionClause function, ReturnProperty parentProperty)
+    throws SQLConversionException, JsonProcessingException {
+
+    String fn = getFunction(function);
+    fn = fn.replaceAll("\\{propertyName}", getNameFromIri(parentProperty.getIri()));
+    qry.getSelects().add(fn);
   }
 
   private String getSelectFromFunction(SQLQuery qry, FunctionClause function) throws SQLConversionException, JsonProcessingException {
@@ -192,33 +298,50 @@ public class IMQtoSQLConverter {
 
   private String getConcatSelect(SQLQuery qry, FunctionClause function) throws SQLConversionException, JsonProcessingException {
     StringBuilder sb = new StringBuilder();
-    for (Argument arg : function.getArgument()) {
-      String value = null;
 
-      if ("text".equals(arg.getParameter())) {
-        if (null != arg.getValuePath()) {
-          String valuePath = arg.getValuePath().getIri();
-          if (null != arg.getValuePath().getPath() && !arg.getValuePath().getPath().isEmpty()) {
-            String path = arg.getValuePath().getPath().getFirst().getIri();
-            String typeOf = arg.getValuePath().getTypeOf().getIri();
-            try {
-              value = getDirectPropertyFromArgument(qry, valuePath, path);
-            } catch (SQLConversionException e) {
-              value = getNestedPropertyFromArgument(qry, valuePath, typeOf, path);
-            }
-          } else
-            value = getDirectPropertyFromArgument(qry, valuePath, null);
-        }
-      } else {
-        throw new SQLConversionException("SQL Conversion Error: Function argument type not implemented:", mapper.writeValueAsString(arg));
-      }
+    for (Argument arg : function.getArgument()) {
+      String value = processConcatArgument(qry, arg);
 
       if (value != null && !value.isBlank()) {
         if (!sb.isEmpty()) sb.append(", ");
         sb.append(value);
       }
     }
+
     return "CONCAT(" + sb + ")";
+  }
+
+  private String processConcatArgument(SQLQuery qry, Argument arg)
+    throws SQLConversionException, JsonProcessingException {
+
+    if (!"text".equals(arg.getParameter())) {
+      throw new SQLConversionException("SQL Conversion Error: Function argument type not implemented:",
+        mapper.writeValueAsString(arg));
+    }
+
+    if (arg.getValuePath() == null) {
+      return null;
+    }
+
+    String valuePath = arg.getValuePath().getIri();
+
+    if (arg.getValuePath().getPath() != null && !arg.getValuePath().getPath().isEmpty()) {
+      String path = arg.getValuePath().getPath().getFirst().getIri();
+      String typeOf = arg.getValuePath().getTypeOf().getIri();
+      return getPropertyFromPath(qry, valuePath, path, typeOf);
+    } else {
+      return getDirectPropertyFromArgument(qry, valuePath, null);
+    }
+  }
+
+  private String getPropertyFromPath(SQLQuery qry, String valuePath, String path, String typeOf)
+    throws SQLConversionException, JsonProcessingException {
+
+    try {
+      return getDirectPropertyFromArgument(qry, valuePath, path);
+    } catch (SQLConversionException e) {
+      return getNestedPropertyFromArgument(qry, valuePath, typeOf, path);
+    }
   }
 
   private String getDirectPropertyFromArgument(SQLQuery qry, String valuePath, String path) throws SQLConversionException {
@@ -528,6 +651,14 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatchProperty(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
+    applyPropertyConversion(qry, property);
+
+    if (null != property.getFunction()) {
+      resolveFunctionArgs(qry, property.getFunction());
+    }
+  }
+
+  private void applyPropertyConversion(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
     if (property.getIs() != null) {
       convertMatchPropertyIs(qry, property, property.getIs());
     } else if (property.getRange() != null) {
@@ -543,13 +674,15 @@ public class IMQtoSQLConverter {
     } else if (property.getIsNull()) {
       convertMatchPropertyNull(qry, property);
     } else if (property.getFunction() != null) {
-      qry.getWheres().add(property.isNot() ? " NOT (" + getWhereFromFunction(qry, property) + ")" : getWhereFromFunction(qry, property));
-    } else
+      addFunctionWhere(qry, property);
+    } else {
       throw new SQLConversionException("SQL Conversion Error: UNHANDLED PROPERTY PATTERN\n" + mapper.writeValueAsString(property));
-
-    if (null != property.getFunction()) {
-      resolveFunctionArgs(qry, property.getFunction());
     }
+  }
+
+  private void addFunctionWhere(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
+    String where = getWhereFromFunction(qry, property);
+    qry.getWheres().add(property.isNot() ? " NOT (" + where + ")" : where);
   }
 
   private String getWhereFromFunction(SQLQuery qry, Where property) throws SQLConversionException, JsonProcessingException {
@@ -936,6 +1069,12 @@ public class IMQtoSQLConverter {
 
   public String getDataModelFromKeepAs(String keepAs) {
     Match match = findMatchByKeepAs(queryRequest.getQuery(), keepAs);
+    if (match == null && queryRequest.getQuery().getColumnGroup() != null) {
+      for (Match child : queryRequest.getQuery().getColumnGroup()) {
+        Match result = findMatchByKeepAs(child, keepAs);
+        if (result != null) match = result;
+      }
+    }
     if (match != null) {
       if (match.getTypeOf() != null) {
         return match.getTypeOf().getIri();

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS casbin_rule (
   v5 VARCHAR(256)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+# IMAPI API guards
 INSERT INTO casbin_rule (ptype, v0, v1, v2)
 VALUES
   ('p','r.sub != null && ''ADMIN'' in r.sub.roles','*','*'),
@@ -33,7 +34,7 @@ VALUES
   ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','ROLE_REQUEST','READ'),
   ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','ROLE_REQUEST','WRITE'),
   ('p','r.sub != null && ''APPROVER'' in r.sub.roles','ROLE_REQUEST','APPROVE'),
-  ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','GRAPH_REQUEST','TASK_MANAGER','READ'),
+  ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','GRAPH_REQUEST','READ'),
   ('p','r.sub != null && ''TASK_MANAGER'' in r.sub.roles','GRAPH_REQUEST','WRITE'),
   ('p','r.sub != null && ''APPROVER'' in r.sub.roles','GRAPH_REQUEST','APPROVE'),
   ('p','r.sub != null && ''CREATOR'' in r.sub.roles','ENTITY_APPROVAL','WRITE'),
@@ -42,10 +43,17 @@ VALUES
   ('p','r.sub != null && ''APPROVER'' in r.sub.roles','ENTITY_APPROVAL','APPROVE')
 ;
 
+# IMQuery API guards
 INSERT INTO casbin_rule (ptype, v0, v1, v2)
 VALUES
   ('p','r.sub != null && ''EXECUTOR'' in r.sub.roles','QUERY','EXECUTE'),
   ('p','r.sub != null && ''EXECUTOR'' in r.sub.roles','QUERY_RESULTS','READ')
+;
 
-
-
+# IMDirectory page guards
+INSERT INTO casbin_rule (ptype,v0, v1, v2)
+VALUES
+  ('p','r.sub != null && ''ADMIN'' in r.sub.roles','PAGE_ADMIN','READ'),
+  ('p','r.sub != null && ''CREATOR'' in r.sub.roles', 'PAGE_CREATOR','READ'),
+  ('p','r.sub != null && ''EDITOR'' in r.sub.roles','PAGE_EDITOR','READ')
+;

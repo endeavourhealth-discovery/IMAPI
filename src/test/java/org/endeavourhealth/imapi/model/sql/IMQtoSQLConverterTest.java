@@ -18,18 +18,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
   private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
+  private static final ObjectMapper om = new ObjectMapper();
 
-//  @Test
-  public void IMQtoSQL() {
+  // @Test
+  public void IMQtoSQL() throws JsonProcessingException {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
     List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY);
@@ -38,7 +36,7 @@ public class IMQtoSQLConverterTest {
     // Prepare
     ObjectMapper om = new ObjectMapper();
     int passed = 0;
-    Set<String> errors = new HashSet<>();
+    Map<String, Integer> errors = new HashMap<>();
     // For each query iri
     for (TTIriRef cohortQueryIri : cohortQueryIris) {
       TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
@@ -57,10 +55,10 @@ public class IMQtoSQLConverterTest {
         LOG.error("Error parsing query", e);
       } catch (SQLConversionException e) {
         LOG.error("Failed to convert query:{} - error:{}", cohortQueryIri.getIri(), e.getMessage());
-        errors.add(e.getMessage());
+        errors.merge(e.getMessage(), 1, Integer::sum);
       }
     }
     LOG.info("Passed {} of {} tests", passed, cohortQueryIris.size());
-    LOG.info("Errors: {}", errors);
+    LOG.info("Errors: {}", om.writeValueAsString(errors));
   }
 }

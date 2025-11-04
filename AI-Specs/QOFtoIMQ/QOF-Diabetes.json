@@ -1,0 +1,1074 @@
+{
+  "name" : "Diabetes_v49.0",
+  "selections" : [ {
+    "name" : "GMS registration status",
+    "rules" : [ {
+      "logic" : "(If REG_DAT ≠ Null AND If DEREG_DAT = Null)OR(If REG_DAT ≠ Null AND If DEREG_DAT > ACHV_DAT)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Reject",
+      "description" : "Select patients who, on the achievement date, were registered for GMS.i.e., registered for GMS prior to or on the achievement date and either:did not subsequently deregister from GMS, orderegistered from GMS after the achievement date.Reject the remaining patients."
+    } ]
+  } ],
+  "registers" : [ {
+    "name" : "DM_REG",
+    "description" : "Diabetes register:  Patients aged at least 17 years old with an unresolved diabetes diagnosis.",
+    "base" : "GMS registration status",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If DMLAT_DAT ≠ NullANDIf DMRES_DAT = Null",
+      "ifTrue" : "Next rule",
+      "ifFalse" : "Reject",
+      "description" : "Pass to the next rule all patients from the specified population who meet both of the criteria below:Have a diabetes diagnosis in the patient record up to and including the achievement date.Latest diabetes diagnosis is not followed by a diabetes resolved code.Reject the remaining patients."
+    }, {
+      "rule" : 2,
+      "logic" : "If PAT_AGE < 17 years",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who are aged under 17 years old on the achievement date. Select the remaining patients."
+    } ]
+  } ],
+  "extractionFields" : [ {
+    "field" : 1,
+    "name" : "PAT_ID",
+    "cluster" : "n/a",
+    "logic" : "Unconditional",
+    "description" : "The patient’s unique ID number for the practice in question."
+  }, {
+    "field" : 2,
+    "name" : "REG_DAT",
+    "cluster" : "n/a",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "The most recent date that the patient registered for GMS, where this registration occurred on or before the achievement date."
+  }, {
+    "field" : 3,
+    "name" : "DEREG_DAT",
+    "cluster" : "n/a",
+    "logic" : "Earliest > REG_DAT",
+    "description" : "The first occurrence of the patient deregistering from GMS following the latest GMS registration. "
+  }, {
+    "field" : 4,
+    "name" : "PAT_AGE",
+    "cluster" : "n/a",
+    "logic" : "Unconditional at ACHV_DAT",
+    "description" : "The age of the patient in full years at the achievement date."
+  }, {
+    "field" : 5,
+    "name" : "DM_DAT",
+    "cluster" : "DM_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first diabetes diagnosis up to and including the achievement date."
+  }, {
+    "field" : 6,
+    "name" : "DMLAT_DAT",
+    "cluster" : "DM_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent diabetes diagnosis up to and including the achievement date."
+  }, {
+    "field" : 7,
+    "name" : "DMRES_DAT",
+    "cluster" : "DMRES_COD",
+    "logic" : "Latest > DMLAT_DATAND <= ACHV_DAT",
+    "description" : "Date of the most recent diabetes diagnosis resolved code recorded after the most recent diabetes diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 8,
+    "name" : "DMMAX_DAT",
+    "cluster" : "DMMAX_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent maximum tolerated diabetes treatment code up to and including the achievement date."
+  }, {
+    "field" : 9,
+    "name" : "IFCCHBA_DAT",
+    "cluster" : "IFCCHBAM_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent IFCC HbA1c monitoring range code up to and including the achievement date. "
+  }, {
+    "field" : 10,
+    "name" : "IFCCHBA_VAL",
+    "cluster" : "IFCCHBAM_COD",
+    "logic" : "Recorded on IFCCHBA_DAT",
+    "description" : "The IFCC HbA1c value associated with the most recent IFCC HbA1c monitoring range recording."
+  }, {
+    "field" : 11,
+    "name" : "SERFRUC_DAT",
+    "cluster" : "SERFRUC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent serum fructosamine code recorded up to and including the achievement date."
+  }, {
+    "field" : 12,
+    "name" : "{CLINBP_DAT}",
+    "cluster" : "CLINBP_COD",
+    "logic" : "ALL <= ACHV_DAT",
+    "description" : "All dates on which a blood pressure was recorded (excluding blood pressure readings taken at home and using ambulatory blood pressure monitors), up to and including the achievement date."
+  }, {
+    "field" : 13,
+    "name" : "[CLINBPSYS_VAL]",
+    "cluster" : "CLINBP_COD",
+    "logic" : "Recorded on each {CLINBP_DAT}",
+    "description" : "The systolic blood pressure values associated with each date in the {CLINBP_DAT} array."
+  }, {
+    "field" : 14,
+    "name" : "[CLINBPDIA_VAL]",
+    "cluster" : "CLINBP_COD ",
+    "logic" : "Recorded on each {CLINBP_DAT} ",
+    "description" : "The diastolic blood pressure values associated with each date in the {CLINBP_DAT}  array."
+  }, {
+    "field" : 15,
+    "name" : "CLINBPLAT_DAT",
+    "cluster" : "CLINBP_COD",
+    "logic" : "Latest <= ACHV_DATWhere [CLINBPSYS_VAL] ≠ NullAND [CLINBPDIA_VAL] ≠ Null",
+    "description" : "Date of the most recent blood pressure reading, with a systolic and diastolic value, up to and including the achievement date, excluding home or ambulatory blood pressures."
+  }, {
+    "field" : 16,
+    "name" : "CLINBPSYSLAT_VAL",
+    "cluster" : "CLINBP_COD",
+    "logic" : "Recorded on CLINBPLAT_DAT ",
+    "description" : "The systolic blood pressure value associated with the most recent blood pressure where both a systolic and diastolic value are recorded, excluding home or ambulatory blood pressures."
+  }, {
+    "field" : 17,
+    "name" : "CLINBPDIALAT_VAL",
+    "cluster" : "CLINBP_COD",
+    "logic" : "Recorded on CLINBPLAT_DAT",
+    "description" : "The diastolic blood pressure value associated with the most recent blood pressure recording where both a systolic and diastolic value are recorded,  excluding home or ambulatory blood pressures."
+  }, {
+    "field" : 18,
+    "name" : "{HOMEAMBBP_DAT}",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "ALL <= ACHV_DAT",
+    "description" : "All dates on which a  home or ambulatory blood pressure was recorded, up to and including the achievement date."
+  }, {
+    "field" : 19,
+    "name" : "[HOMEAMBPSYS_VAL]",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "Recorded on each {HOMEAMBBP_DAT}",
+    "description" : "The systolic blood pressure values associated with each date in the {HOMEAMBBP_DAT}  array."
+  }, {
+    "field" : 20,
+    "name" : "[HOMEAMBPDIA_VAL]",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "Recorded on each {HOMEAMBBP_DAT}",
+    "description" : "The diastolic blood pressure values associated with each date in the {HOMEAMBBP_DAT} array."
+  }, {
+    "field" : 21,
+    "name" : "HOMEAMBBPLAT_DAT",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "Latest <= ACHV_DATWhere [HOMEAMBPSYS_VAL] ≠ NullAND [HOMEAMBPDIA_VAL] ≠ Null",
+    "description" : "Date of the most recent home or ambulatory blood pressure reading with a systolic and diastolic value, up to and including the achievement date."
+  }, {
+    "field" : 22,
+    "name" : "HOMEAMBBPSYSLAT_VAL",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "Recorded on HOMEAMBBPLAT_DAT",
+    "description" : "The systolic blood pressure value associated with the most recent home or ambulatory blood pressure recording, where both a systolic and diastolic value are recorded."
+  }, {
+    "field" : 23,
+    "name" : "HOMEAMBBPDIALAT_VAL",
+    "cluster" : "HOMEAMBBP_COD",
+    "logic" : "Recorded on HOMEAMBBPLAT_DAT",
+    "description" : "The diastolic blood pressure value associated with the most recent home or ambulatory blood pressure recording, where both a systolic and diastolic value are recorded."
+  }, {
+    "field" : 24,
+    "name" : "CLHMAMBBPLAT_DAT",
+    "cluster" : "n/a",
+    "logic" : "Latest of(CLINBPLAT_DAT, HOMEAMBBPLAT_DAT)",
+    "description" : "The latest date of a blood pressure reading including home/ambulatory, with a systolic and diastolic value recorded, up to and including the achievement date."
+  }, {
+    "field" : 25,
+    "name" : "HOMEBPDEC_DAT",
+    "cluster" : "HOMEBPDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent code indicating the patient has chosen not to undertake home blood pressure measurement up to and including the achievement date."
+  }, {
+    "field" : 26,
+    "name" : "BPDEC_DAT",
+    "cluster" : "BPDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive a blood pressure recording up to and including the achievement date."
+  }, {
+    "field" : 27,
+    "name" : "HTMAX_DAT",
+    "cluster" : "HTMAX_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent maximal blood pressure therapy up to and including the achievement date."
+  }, {
+    "field" : 28,
+    "name" : "PRT_DAT",
+    "cluster" : "PRT_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent proteinuria diagnosis up to and including the achievement date."
+  }, {
+    "field" : 29,
+    "name" : "MAL_DAT",
+    "cluster" : "MAL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent microalbuminuria diagnosis up to and including the achievement date."
+  }, {
+    "field" : 30,
+    "name" : "XACE_DAT",
+    "cluster" : "XACE_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent persisting ACE inhibitor contraindication up to and including the achievement date."
+  }, {
+    "field" : 31,
+    "name" : "TXACE_DAT",
+    "cluster" : "TXACE_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent expiring ACE inhibitor contraindication up to and including the achievement date."
+  }, {
+    "field" : 32,
+    "name" : "XAII_DAT",
+    "cluster" : "XAII_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent persisting ARB contraindication up to and including the achievement date. "
+  }, {
+    "field" : 33,
+    "name" : "TXAII_DAT",
+    "cluster" : "TXAII_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent expiring ARB contraindication up to and including the achievement date."
+  }, {
+    "field" : 34,
+    "name" : "ACE_DAT",
+    "cluster" : "ACE_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent ACE inhibitor prescription code up to and including the achievement date."
+  }, {
+    "field" : 35,
+    "name" : "AII_DAT",
+    "cluster" : "AII_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent ARB prescription code up to and including the achievement date."
+  }, {
+    "field" : 36,
+    "name" : "FRC_DAT",
+    "cluster" : "FRC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent foot risk classification up to and including the achievement date."
+  }, {
+    "field" : 37,
+    "name" : "AMPR_DAT",
+    "cluster" : "AMPR_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent right foot amputation code up to and including the achievement date."
+  }, {
+    "field" : 38,
+    "name" : "AMPL_DAT",
+    "cluster" : "AMPL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent left foot amputation code up to and including the achievement date."
+  }, {
+    "field" : 39,
+    "name" : "DSEP_DAT",
+    "cluster" : "DSEP_COD",
+    "logic" : "Earliest >= DM_DAT AND <= ACHV_DAT",
+    "description" : "Date of the first diabetes structured education programme referral on or after the date of the diabetes diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 40,
+    "name" : "DSEPSU_DAT",
+    "cluster" : "DSEPSU_COD",
+    "logic" : "Latest >= DM_DAT AND <= (DM_DAT + 279 days) AND <= ACHV_DAT",
+    "description" : "The most recent record of diabetes structured education programme services being unavailable in the 279 days following the patient’s diabetes diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 41,
+    "name" : "ACEDEC_DAT",
+    "cluster" : "ACEDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "The most recent date the patient chose not to receive ACE inhibitors up to and including the achievement date."
+  }, {
+    "field" : 42,
+    "name" : "AIIDEC_DAT",
+    "cluster" : "AIIDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "The most recent date the patient chose not to receive ARB up to and including the achievement date. "
+  }, {
+    "field" : 43,
+    "name" : "BLDTESTDEC_DAT",
+    "cluster" : "BLDTESTDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive a blood test up to and including the achievement date."
+  }, {
+    "field" : 44,
+    "name" : "CHD_DAT",
+    "cluster" : "CHD_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first CHD diagnosis up to and including the achievement date."
+  }, {
+    "field" : 45,
+    "name" : "CHOLMAX_DAT",
+    "cluster" : "CHOLMAX_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent maximum tolerated cholesterol lowering treatment up to and including the achievement date."
+  }, {
+    "field" : 46,
+    "name" : "CKD_DAT",
+    "cluster" : "CKD_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent chronic kidney disease (3-5) diagnosis recorded up to and including the achievement date."
+  }, {
+    "field" : 47,
+    "name" : "CKD1AND2_DAT",
+    "cluster" : "CKD1AND2_COD",
+    "logic" : "Latest > CKD_DAT  AND <= (ACHV_DAT)",
+    "description" : "Date of the most recent chronic kidney disease (1-2) diagnosis recorded after the latest chronic kidney disease (3-5) diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 48,
+    "name" : "CKDRES_DAT",
+    "cluster" : "CKDRES_COD",
+    "logic" : "Latest > CKD_DAT  AND <= (ACHV_DAT)",
+    "description" : "Date of the most recent chronic kidney disease resolved code recorded after the latest chronic kidney disease (3-5) diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 49,
+    "name" : "CVDASSU10_DAT",
+    "cluster" : "CVDASS2_COD",
+    "logic" : "Latest > (ACHV_DAT – 3 years) AND <= (ACHV_DAT)WHERE score is < 10%",
+    "description" : "Date of the latest cardiovascular disease risk assessment code in the 3 years leading up to and including the achievement date where the score value was under 10%."
+  }, {
+    "field" : 50,
+    "name" : "CVDASSO10_DAT",
+    "cluster" : "CVDASS2_COD",
+    "logic" : "Latest > CVDASSU10_DAT AND <= (ACHV_DAT)WHERE score is >=10%",
+    "description" : "Date of the patient’s latest cardiovascular disease risk assessment with a score of 10% or more which was recorded after the patient’s latest low scoring risk assessment (as defined in CVDASSU10_DAT) and up to and including the achievement date."
+  }, {
+    "field" : 51,
+    "name" : "DMINVITE1_DAT",
+    "cluster" : "DMINVITE_COD",
+    "logic" : "Earliest >= QSSD AND <= ACHV_DAT",
+    "description" : "Date of the earliest invitation for a diabetes review on or after the quality service start date and up to and including the achievement date."
+  }, {
+    "field" : 52,
+    "name" : "DMINVITE2_DAT",
+    "cluster" : "DMINVITE_COD",
+    "logic" : "Earliest >= (DMINVITE1_DAT + 7 days) AND <= ACHV_DAT",
+    "description" : "Date of the earliest invitation for a diabetes review recorded at least 7 days after the first invitation and up to and including the achievement date."
+  }, {
+    "field" : 53,
+    "name" : "DMPCADEC_DAT",
+    "cluster" : "DMPCADEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive diabetes quality indicator care up to and including the achievement date."
+  }, {
+    "field" : 54,
+    "name" : "DMPCAPU_DAT",
+    "cluster" : "DMPCAPU_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Most recent date that diabetes quality indicator care was deemed unsuitable for the patient up to and including the achievement date."
+  }, {
+    "field" : 55,
+    "name" : "DMTYPE2_DAT",
+    "cluster" : "DMTYPE2_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent diabetes type 2 diagnosis up to and including the achievement date."
+  }, {
+    "field" : 56,
+    "name" : "DSEPDEC_DAT",
+    "cluster" : "DSEPDEC_COD",
+    "logic" : "Latest >= DM_DAT AND <= (DM_DAT + 279 days) AND <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive a diabetes structured education programme in the 279 days following the patient’s diabetes diagnosis and up to and including the achievement date."
+  }, {
+    "field" : 57,
+    "name" : "DSEPPU_DAT",
+    "cluster" : "DSEPPU_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Most recent date that the patient was deemed unsuitable for a diabetes structured education programme up to and including the achievement date."
+  }, {
+    "field" : 58,
+    "name" : "FEDEC_DAT",
+    "cluster" : "FEDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive a foot examination up to and including the achievement date."
+  }, {
+    "field" : 59,
+    "name" : "FEPU_DAT",
+    "cluster" : "FEPU_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Most recent date that the patient was deemed unsuitable for a foot examination up to and including the achievement date."
+  }, {
+    "field" : 60,
+    "name" : "FHYP_DAT",
+    "cluster" : "FHYP_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first familial hypercholesterolemia diagnosis up to and including the achievement date. "
+  }, {
+    "field" : 61,
+    "name" : "HSTRK_DAT",
+    "cluster" : "HSTRK_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first haemorrhagic stroke diagnosis up to and including the achievement date. "
+  }, {
+    "field" : 62,
+    "name" : "MILDFRAIL_DAT",
+    "cluster" : "MILDFRAIL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent mild frailty diagnosis up to and including the achievement date."
+  }, {
+    "field" : 63,
+    "name" : "MODFRAIL_DAT",
+    "cluster" : "MODFRAIL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent moderate frailty diagnosis up to and including the achievement date."
+  }, {
+    "field" : 64,
+    "name" : "NPTDEC_DAT",
+    "cluster" : "NPTDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date the patient most recently chose not to receive a neuropathy assessment up to and including the achievement date."
+  }, {
+    "field" : 65,
+    "name" : "NPTPU_DAT",
+    "cluster" : "NPTPU_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Most recent date that the patient was deemed unsuitable for a neuropathy assessment up to and including the achievement date."
+  }, {
+    "field" : 66,
+    "name" : "PAD_DAT",
+    "cluster" : "PAD_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first peripheral arterial disease diagnosis up to and including the achievement date."
+  }, {
+    "field" : 67,
+    "name" : "SEVFRAIL_DAT",
+    "cluster" : "SEVFRAIL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent severe frailty diagnosis up to and including the achievement date."
+  }, {
+    "field" : 68,
+    "name" : "STAT_DAT",
+    "cluster" : "STAT_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent statin code in the patient’s record up to and including the achievement date."
+  }, {
+    "field" : 69,
+    "name" : "STATINDEC_DAT",
+    "cluster" : "STATINDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "The most recent date the patient chose not to receive statins up to and including the achievement date."
+  }, {
+    "field" : 70,
+    "name" : "STRK_DAT",
+    "cluster" : "STRK_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first stroke diagnosis up to and including the achievement date."
+  }, {
+    "field" : 71,
+    "name" : "TIA_DAT",
+    "cluster" : "TIA_COD",
+    "logic" : "Earliest <= ACHV_DAT",
+    "description" : "Date of the first TIA diagnosis up to and including the achievement date."
+  }, {
+    "field" : 72,
+    "name" : "TXSTAT_DAT",
+    "cluster" : "TXSTAT_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent expiring statin contraindication up to and including the achievement date."
+  }, {
+    "field" : 73,
+    "name" : "XSTAT_DAT",
+    "cluster" : "XSTAT_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent persisting statin contraindication in the patient’s record up to and including the achievement date."
+  }, {
+    "field" : 74,
+    "name" : "FRAILLAT_DAT",
+    "cluster" : "n/a",
+    "logic" : "Latest of (MILDFRAIL_DAT, MODFRAIL_DAT,SEVFRAIL_DAT)",
+    "description" : "The date of the latest frailty diagnosis up to and including the achievement date."
+  }, {
+    "field" : 75,
+    "name" : "CONABL_DAT",
+    "cluster" : "CONABL_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent recording of congenital absence of the left foot up to and including the achievement date."
+  }, {
+    "field" : 76,
+    "name" : "CONABR_DAT",
+    "cluster" : "CONABR_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent recording of congenital absence of the right foot up to and including the achievement date."
+  }, {
+    "field" : 77,
+    "name" : "ABPMDEC_DAT",
+    "cluster" : "ABPMDEC_COD",
+    "logic" : "Latest <= ACHV_DAT",
+    "description" : "Date of the most recent code indicating the patient has chosen not to undertake ambulatory blood pressure measurement up to and including the achievement date."
+  } ],
+  "indicators" : [ {
+    "name" : "DM006",
+    "description" : "The percentage of patients with diabetes, on the register, with a diagnosis of nephropathy (clinical proteinuria) or micro-albuminuria who are currently treated with an ACE-I (or ARBs).",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If PRT_DAT = NullANDIf MAL_DAT = Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients from the specified population who meet both of the criteria below:Have no record of a proteinuria code.Have no record of a microalbuminuria code.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "If ACE_DAT > (PPED – 6 months)ORIf AII_DAT > (PPED – 6 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who meet either of the criteria below:Have been treated with an ACE inhibitor (ACE-I) in the 6 months leading up to and including the payment period end date.Have been treated with an ARB in the 6 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "(If XACE_DAT ≠ Null ORIf TXACE_DAT > (PPED – 12 months))AND(If XAII_DAT ≠ NullORIf TXAII_DAT > (PPED – 12 months))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet both of the criteria below:Have a persisting contraindication or an expiring contraindication to an ACE-I recorded in the 12 months leading up to and including the payment period end date.Have a persisting contraindication or an expiring contraindication to an ARB recorded in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If ACEDEC_DAT > (PPED – 12 months)ANDIf AIIDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who, in the 12 months leading up to and including the payment period end date, met both of the criteria below:Chose not to receive an ACE inhibitor Chose not to receive an ARB Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "(If XACE_DAT ≠ Null ORIf TXACE_DAT > (PPED – 12 months)ORIf ACEDEC_DAT > (PPED – 12 months))AND(If XAII_DAT ≠ NullORIf TXAII_DAT > (PPED – 12 months)ORIf AIIDEC_DAT > (PPED – 12 months))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet both of the criteria below:Have any of the following in their record:A persisting contraindication to an ACE-I anywhere in their record.An expiring contraindication to an ACE-I recorded in the 12 months leading up to and including the payment period end date.Have chosen not to receive an ACE-I in the 12 months leading up to and including the payment period end date.ANDHave any of the following in their record:A persisting contraindication to an ARB anywhere in their record.An expiring contraindication to an ARB recorded in the 12 months leading up to and including the payment period end date.Have chosen not to receive an ARB in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "If DMINVITE1_DAT ≠ NullANDIf DMINVITE2_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have not responded to at least two diabetes care review invitations, made at least 7 days apart, in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 9,
+      "logic" : "If DM_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who were recently diagnosed (first diabetes diagnosis recorded in the 3 month period leading up to and including the payment period end date). Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If REG_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who were recently registered at the practice (patient registered in the 3 months leading up to and including the payment period end date). Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM012",
+    "description" : "The percentage of patients with diabetes, on the register, with a record of a foot examination and risk classification: 1) low risk (normal sensation, palpable pulses), 2) increased risk (neuropathy or absent pulses), 3) high risk (neuropathy or absent pulses plus deformity or skin changes in previous ulcer) or 4) ulcerated foot within the preceding 12 months.",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If FRC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients from the specified population who have had their foot risk classified in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "(If AMPR_DAT ≠ NullORIf CONABR_DAT ≠ Null)AND(If AMPL_DAT ≠ NullORIf CONABL_DAT ≠ Null)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have had their foot amputated or have a congenital abnormality for both their left and right foot which means a foot examination is unsuitable. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "If NPTPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom neuropathy testing was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If FEPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom a foot examination was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If NPTDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive neuropathy testing in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If FEDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive a foot examination in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 9,
+      "logic" : "If DMINVITE1_DAT ≠ NullANDIf DMINVITE2_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have not responded to at least two diabetes care review invitations, made at least 7 days apart, in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule.Please note: To support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 10,
+      "logic" : "If DM_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 3 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 11,
+      "logic" : "If REG_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who were recently registered at the practice (patient registered in the 3 months leading up to and including the payment period end date). Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM014",
+    "description" : "The percentage of patients newly diagnosed with diabetes, on the register, in the preceding 1 April to 31 March who have a record of being referred to a structured education programme within 9 months after entry on to the diabetes register.",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If DM_DAT < 01/04/2013",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients from the specified population whose earliest diabetes diagnosis was before 1st April 2013. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "If DM_DAT <= (PPED – 21 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose earliest diabetes diagnosis was at least 21 months before the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "If DM_DAT > (PPED – 9 months)ANDIf DSEP_DAT = Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet both of the criteria below:Have been diagnosed with diabetes in the 9 months leading up to and including the payment period end date.Have not yet been referred to a structured education programme.Pass all remaining patients to the next rule. Please note that patients who are rejected by this rule, by virtue of the practice having not had the full 9 months allowed to refer the patient, will be checked upon the following QOF year as this 9 month timeframe from diagnosis has the potential to span two QOF years. "
+    }, {
+      "rule" : 4,
+      "logic" : "If DSEP_DAT <= (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who were referred to a structured education programme at least 12 months before the payment period end date i.e. in a previous QOF year. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If DSEP_DAT <= (DM_DAT + 279 days)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who have been referred to a structured education programme in the 279 days following their diabetes diagnosis. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If DSEPSU_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom a diabetes structured education programme service was unavailable in the 279 days following their diabetes diagnosis. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DSEPPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom a referral to a diabetes structured education programme was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 9,
+      "logic" : "If DSEPDEC_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to be referred to a diabetes structured education programme in the 279 days following their diabetes diagnosis. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 11,
+      "logic" : "If DMINVITE1_DAT ≠ NullANDIf DMINVITE2_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have not responded to at least two diabetes care review invitations, made at least 7 days apart, in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 12,
+      "logic" : "If DM_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 3 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 13,
+      "logic" : "If REG_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who were recently registered at the practice (patient registered in the 3 months leading up to and including the payment period end date). Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM020",
+    "description" : "The percentage of patients with diabetes, on the register, without moderate or severe frailty in whom the last IFCC-HbA1c is 58 mmol/mol or less in the preceding 12 months.",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If SEVFRAIL_DAT = FRAILLAT_DATORIf MODFRAIL_DAT = FRAILLAT_DAT",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients from the specified population whose latest frailty diagnosis is moderate or severe. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "If IFCCHBA_VAL <= 58ANDIf IFCCHBA_DAT > (PPED – 12 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who meet both of the criteria below:Have their latest IFCC-HbA1c of 58 mmol/mol or less.Have their latest IFCC-HbA1c reading was recorded in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "(If IFCCHBA_DAT <= (PPED – 12 months)ORIf IFCCHBA_DAT = Null)AND(If SERFRUC_DAT > (PPED – 12 months))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who did not have their IFCC-HbA1c recorded during the current service year but did have serum fructosamine recorded during the service year. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If DMMAX_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who are on maximum tolerated diabetes treatment in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If BLDTESTDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive a blood test in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "(If IFCCHBA_DAT > (PPED – 12 months)ANDIf IFCCHBA_VAL > 58AND If DMINVITE1_DAT > IFCCHBA_DATANDIf DMINVITE2_DAT ≠ Null)OR(If DMINVITE2_DAT ≠ NullAND(If IFCCHBA_DAT = NullORIf IFCCHBA_DAT <= (PPED – 12 months)))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet either of the criteria below:Latest IFCC-HbA1c recorded in the 12 months leading up to and including the payment period end date was above target levels (IFCC-HbA1c was above 58 mmol/mol), and was followed by two invitations for diabetes monitoring.Received two invitations for diabetes monitoring and had no IFCC-HbA1c recorded during the 12 months leading up to and including the achievement date.Pass all remaining patients to the next rule.Please note: To support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 9,
+      "logic" : "If DM_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 9 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If REG_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who registered with the practice in the 9 months leading up to and including the payment period end date. Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM021",
+    "description" : "The percentage of patients with diabetes, on the register, with moderate or severe frailty in whom the last IFCC-HbA1c is 75 mmol/mol or less in the preceding 12 months.",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If SEVFRAIL_DAT = FRAILLAT_DATORIf MODFRAIL_DAT = FRAILLAT_DAT",
+      "ifTrue" : "Next rule",
+      "ifFalse" : "Reject",
+      "description" : "Pass to the next rule all patients from the specified population whose latest frailty diagnosis is moderate or severe. Reject the remaining patients."
+    }, {
+      "rule" : 2,
+      "logic" : "If IFCCHBA_VAL <= 75ANDIf IFCCHBA_DAT > (PPED – 12 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who meet both of the criteria below:Have their latest IFCC-HbA1c of 75 mmol/mol or less.Have their latest IFCC-HbA1c reading was recorded in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "(If IFCCHBA_DAT <= (PPED – 12 months)ORIf IFCCHBA_DAT = Null)AND(If SERFRUC_DAT > (PPED – 12 months))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who did not have their IFCC-HbA1c recorded during the current service year but did have serum fructosamine recorded during the service year. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If DMMAX_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who are on maximum tolerated diabetes treatment in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If BLDTESTDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive a blood test in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "(If IFCCHBA_DAT > (PPED – 12 months)ANDIf IFCCHBA_VAL > 75AND If DMINVITE1_DAT > IFCCHBA_DATANDIf DMINVITE2_DAT ≠ Null)OR(If DMINVITE2_DAT ≠ NullAND(If IFCCHBA_DAT = NullORIf IFCCHBA_DAT <= (PPED – 12 months)))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet either of the criteria below:Latest IFCC-HbA1c recorded in the 12 months leading up to and including the payment period end date was above target levels (IFCC-HbA1c was above 75 mmol/mol), and was followed by two invitations for diabetes monitoring.Received two invitations for diabetes monitoring and had no IFCC-HbA1c recorded during the 12 months leading up to and including the achievement date.Pass all remaining patients to the next rule.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 9,
+      "logic" : "If DM_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 9 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If REG_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who registered with the practice in the 9 months leading up to and including the payment period end date. Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM022",
+    "description" : "The percentage of patients with diabetes, on the register, aged 40 years or over, with no history of CVD and without moderate or severe frailty, who are currently treated with a statin (excluding patients with type 2 diabetes and a CVD risk score of <10% recorded in the preceding 3 years).",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If PAT_AGE < 40 ",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients from the specified population who are aged 39 years or less at the achievement date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "If CHD_DAT ≠ NullORIf STRK_DAT ≠ NullORIf TIA_DAT ≠ NullORIf PAD_DAT ≠ NullORIf FHYP_DAT ≠ NullOR(If CKD_DAT ≠ NullANDIf CKD1AND2_DAT = NullAND If CKDRES_DAT = Null)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have any of the following diagnoses up to and including the achievement date:Coronary heart disease (CHD) diagnosis.Stroke diagnosis.Transient ischaemic attack (TIA) diagnosis.Peripheral arterial disease (PAD) diagnosis.Familial hypercholesterolemia diagnosis.Unresolved chronic kidney disease (CKD) 3-5 diagnosis not superseded by a chronic kidney disease (CKD) 1-2 diagnosis.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "If SEVFRAIL_DAT = FRAILLAT_DATORIf MODFRAIL_DAT = FRAILLAT_DAT",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose latest frailty diagnosis is moderate or severe. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If DMTYPE2_DAT = DMLAT_DATANDIf CVDASSU10_DAT ≠ NullANDIf CVDASSO10_DAT = Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet all of the criteria below:Latest diagnosis is type 2 diabetes.Latest CVD risk score is under 10% with no subsequent score of 10% or over recorded in the 3 years leading up to and including the achievement date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If STAT_DAT > (PPED – 6 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who were on statins in the 6 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If CHOLMAX_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who are receiving maximum tolerated cholesterol lowering treatment in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If XSTAT_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have a persisting statin contraindication anywhere in the patient record. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "If TXSTAT_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have an expiring statin contraindication recorded in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 9,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If STATINDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive a statin prescription in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 11,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 12,
+      "logic" : "If DMINVITE1_DAT ≠ NullANDIf DMINVITE2_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have not responded to at least two diabetes care review invitations, made at least 7 days apart, in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 13,
+      "logic" : "If DM_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 3 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 14,
+      "logic" : "If REG_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who registered with the practice in the 3 months leading up to and including the payment period end date. Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM023",
+    "description" : "The percentage of patients with diabetes, on the register, and a history of CVD (excluding haemorrhagic stroke) who are currently treated with a statin.",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If CHD_DAT ≠ NullORIf STRK_DAT ≠ NullORIf TIA_DAT ≠ NullORIf PAD_DAT ≠ NullORIf FHYP_DAT ≠ NullOR(If CKD_DAT ≠ NullANDIf CKD1AND2_DAT = NullAND If CKDRES_DAT = Null)",
+      "ifTrue" : "Next rule",
+      "ifFalse" : "Reject",
+      "description" : "Pass to the next rule all patients from the specified population who have any of the following diagnoses up to and including the achievement date:Coronary heart disease (CHD) diagnosis.Stroke diagnosis.Transient ischaemic attack (TIA) diagnosis.Peripheral arterial disease (PAD) diagnosis.Familial hypercholesterolemia diagnosis.Unresolved chronic kidney disease (CKD) 3-5 diagnosis not superseded by a chronic kidney disease (CKD) 1-2 diagnosis.Reject the remaining patients."
+    }, {
+      "rule" : 2,
+      "logic" : "If HSTRK_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have had a haemorrhagic stroke up to and including the achievement date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "If STAT_DAT > (PPED – 6 months)",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule who were on statins in the 6 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If CHOLMAX_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who are receiving maximum tolerated cholesterol lowering treatment in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If XSTAT_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have a persisting statin contraindication anywhere in the patient record. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If TXSTAT_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have an expiring statin contraindication recorded in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "If STATINDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive a statin prescription in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 9,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If DMINVITE1_DAT ≠ NullANDIf DMINVITE2_DAT ≠ Null",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who have not responded to at least two diabetes care review invitations, made at least 7 days apart, in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 11,
+      "logic" : "If DM_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 3 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 12,
+      "logic" : "If REG_DAT > (PPED – 3 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who registered with the practice in the 3 months leading up to and including the payment period end date. Select the remaining patients."
+    } ]
+  }, {
+    "name" : "DM033",
+    "description" : "The percentage of patients with diabetes, on the register, without moderate or severe frailty in whom the last blood pressure reading (measured in the preceding 12 months) is 140/90mmHg or less (or equivalent home blood pressure reading). ",
+    "base" : "DM_REG",
+    "rules" : [ {
+      "rule" : 1,
+      "logic" : "If SEVFRAIL_DAT = FRAILLAT_DATORIf MODFRAIL_DAT = FRAILLAT_DAT",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients from the specified population whose latest frailty diagnosis is moderate or severe. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 2,
+      "logic" : "If CLINBPSYSLAT_VAL <= 140ANDIf CLINBPDIALAT_VAL <= 90ANDIf CLINBPLAT_DAT > (PPED – 12 months)ANDIf CLHMAMBBPLAT_DAT = CLINBPLAT_DAT",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule whose latest blood pressure recording was not taken using a Home Blood Pressure Monitor or Ambulatory Blood Pressure Monitor and meets all of the criteria below:Systolic blood pressure value was 140 mmHg or less.Diastolic blood pressure value was 90 mmHg or less.Recorded in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 3,
+      "logic" : "If HOMEAMBBPSYSLAT_VAL <= 135ANDIf HOMEAMBBPDIALAT_VAL <= 85ANDIf HOMEAMBBPLAT_DAT > (PPED – 12 months)ANDIf CLHMAMBBPLAT_DAT = HOMEAMBBPLAT_DAT ",
+      "ifTrue" : "Select",
+      "ifFalse" : "Next rule",
+      "description" : "Select patients passed to this rule whose latest blood pressure recording taken using a Home Blood Pressure Monitor or Ambulatory Blood Pressure Monitor and meets all of the criteria below:Systolic blood pressure value was 135 mmHg or less.Diastolic blood pressure value was 85 mmHg or less.Recorded in the 12 months leading up to and including the payment period end date.Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 4,
+      "logic" : "If HTMAX_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who are receiving maximal blood pressure therapy in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 5,
+      "logic" : "If DMPCAPU_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule for whom diabetes quality indicator care was unsuitable in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 6,
+      "logic" : "If BPDEC_DAT > (PPED – 12 months)ORIf HOMEBPDEC_DAT > (PPED – 12 months)ORIf ABPMDEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to have their blood pressure recorded or undertake home blood pressure or ambulatory blood pressure monitoring in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 7,
+      "logic" : "If DMPCADEC_DAT > (PPED – 12 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who chose not to receive diabetes quality indicator care in the 12 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 8,
+      "logic" : "(If CLINBPLAT_DAT > (PPED – 12 months)AND(If CLINBPSYSLAT_VAL > 140ORIf CLINBPDIALAT_VAL > 90)ANDIf CLHMAMBBPLAT_DAT = CLINBPLAT_DAT ANDIf DMINVITE1_DAT > CLINBPLAT_DATAND  If DMINVITE2_DAT ≠ Null)OR(If HOMEAMBBPLAT_DAT > (PPED – 12 months)AND(If HOMEAMBBPSYSLAT_VAL > 135ORIf HOMEAMBBPDIALAT_VAL > 85)ANDIf CLHMAMBBPLAT_DAT = HOMEAMBBPLAT_DATANDIf DMINVITE1_DAT > HOMEAMBBPLAT_DAT AND  If DMINVITE2_DAT ≠ Null)OR (If DMINVITE2_DAT ≠ NullAND(If CLHMAMBBPLAT_DAT = NullORIf CLHMAMBBPLAT_DAT <= (PPED – 12 months)))",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule who meet either of the criteria below:Latest blood pressure reading in the 12 months leading up to and including the payment period end date was above target levels*, and was followed by two invitations for diabetes monitoring.Received two invitations for diabetes monitoring and had no blood pressure recordings during the 12 months leading up to and including the achievement date.Pass all remaining patients to the next rule.* Above target level indicates a systolic value of over 140 mmHg and/or a diastolic value of over 90 mmHg for non-home or non-ambulatory blood pressure readings, or systolic value of over 135 mmHg and/or a diastolic value of over 85 mmHg for home or ambulatory blood pressure readings.Please note: to support GP practices in enabling them to carry out QOF care reviews after two invitations for care have been coded, clinical system prompts should not remove a patient from the indicator. Currently, once the second invite code has been added to the patient record, the Business Rules logic will remove the patient from the Denominator and clinical systems may automatically remove the prompt, removing the chance for opportunistic reviews where necessary. If a patient has not responded to the invitations, and has not received the intervention required by a given indicator, then that patient will be removed from the indicator via personalised care adjustments at year end. This is for payment purposes only. However, up until year end it is expected that such patients should still be flagged up to practices as requiring the care specified by the indicator."
+    }, {
+      "rule" : 9,
+      "logic" : "If DM_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Next rule",
+      "description" : "Reject patients passed to this rule whose diabetes diagnosis was in the 9 months leading up to and including the payment period end date. Pass all remaining patients to the next rule."
+    }, {
+      "rule" : 10,
+      "logic" : "If REG_DAT > (PPED – 9 months)",
+      "ifTrue" : "Reject",
+      "ifFalse" : "Select",
+      "description" : "Reject patients passed to this rule who registered with the practice in the 9 months leading up to and including the payment period end date. Select the remaining patients."
+    } ]
+  } ]
+}

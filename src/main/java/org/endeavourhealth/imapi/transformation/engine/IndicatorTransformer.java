@@ -2,269 +2,146 @@ package org.endeavourhealth.imapi.transformation.engine;
 
 import org.endeavourhealth.imapi.model.qof.Indicator;
 import org.endeavourhealth.imapi.model.qof.Rule;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.GroupBy;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.transformation.component.QueryBuilder;
+import org.endeavourhealth.imapi.transformation.component.MatchBuilder;
 import org.endeavourhealth.imapi.transformation.core.TransformationContext;
-import org.endeavourhealth.imapi.transformation.util.TransformationLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.endeavourhealth.imapi.transformation.util.LogicExpressionParser;
+import org.endeavourhealth.imapi.transformation.util.FieldMappingDictionary;
 
 /**
- * Transforms QOF Indicator definitions and calculations into IMQ query logic.
- * Maps indicator calculations, numerator/denominator logic into query expressions.
- *
- * Indicator Transformation Rules:
- * - Indicator.denominator criteria → IMQ filtering logic
- * - Indicator.numerator calculation → IMQ return/groupBy clauses
- * - Calculation rules → IMQ expressions
- * - KPI-specific logic preservation
- * - GroupBy clause creation for indicator aggregations
+ * Transforms QOF Indicators to IMQuery queries.
+ * Indicators represent calculated measures based on Registers.
  */
 public class IndicatorTransformer {
-  private static final Logger log = LoggerFactory.getLogger(IndicatorTransformer.class);
-  private final TransformationLogger transformationLogger;
+  private final LogicExpressionParser logicParser;
+  private final FieldMappingDictionary fieldMapping;
 
-  /**
-   * Creates a new IndicatorTransformer.
-   *
-   * @param transformationLogger for structured logging with correlation tracking
-   */
-  public IndicatorTransformer(TransformationLogger transformationLogger) {
-    this.transformationLogger = transformationLogger;
+  public IndicatorTransformer(LogicExpressionParser logicParser, FieldMappingDictionary fieldMapping) {
+    this.logicParser = logicParser;
+    this.fieldMapping = fieldMapping;
   }
 
   /**
-   * Transforms all indicators from a QOF document into Query calculation and aggregation logic.
-   *
-   * Transformation Process:
-   * 1. Extract all Indicator definitions
-   * 2. Transform denominator criteria to filtering logic
-   * 3. Transform numerator calculations to return/groupBy clauses
-   * 4. Populate Query with indicator logic
-   *
-   * @param indicators list of QOF Indicator objects
-   * @param query target Query object to populate
-   * @param context transformation context
-   * @return Query with indicators transformed to calculation logic
+   * Transform a QOF Indicator to an IMQuery Query.
    */
-  public Query transformIndicators(List<Indicator> indicators, Query query, TransformationContext context) {
-    transformationLogger.info("Transforming QOF indicators to IMQ query calculation logic");
+  public Query transform(Indicator indicator, TransformationContext context) {
+    try {
+      String indicatorIri = generateIri(indicator.getName());
+      
+      QueryBuilder queryBuilder = new QueryBuilder(indicatorIri, indicator.getName())
+        .description(indicator.getDescription() != null ? indicator.getDescription() :
+                     String.format("Indicator: %s", indicator.getName()))
+        .typeOf("http://endhealth.info/im#Patient");
 
-    if (indicators == null || indicators.isEmpty()) {
-      transformationLogger.warn("No indicators to transform");
-      return query;
-    }
+      // Link to base Register as cohort
+      if (indicator.getBase() != null && !indicator.getBase().isEmpty()) {
+        Query baseQuery = context.getQuery(indicator.getBase());
+        if (baseQuery != null) {
+          queryBuilder.isCohort(baseQuery.getIri());
+        } else {
+          String baseIri = "http://endhealth.info/qof#register-" + toSlugFormat(indicator.getBase());
+          queryBuilder.isCohort(baseIri);
+        }
+      }
 
-    for (Indicator indicator : indicators) {
-      transformIndicator(indicator, query, context);
-    }
-
-    transformationLogger.info("Transformed {} indicators successfully", indicators.size());
-    return query;
-  }
-
-  /**
-   * Transforms a single Indicator into query calculation logic.
-   *
-   * @param indicator QOF Indicator to transform
-   * @param query target Query object to populate
-   * @param context transformation context
-   */
-  private void transformIndicator(Indicator indicator, Query query, TransformationContext context) {
-    if (indicator == null) {
-      return;
-    }
-
-    transformationLogger.debug("Transforming indicator: {}", indicator.getName());
-
-    // Store indicator metadata
-    context.mapReference("indicator_" + indicator.getName() + "_base", indicator.getBase());
-
-    // Transform indicator rules (denominator and numerator logic)
-    if (indicator.getRules() != null && !indicator.getRules().isEmpty()) {
-      List<Match> denominatorMatches = new ArrayList<>();
-      List<Match> numeratorMatches = new ArrayList<>();
-
-      for (int i = 0; i < indicator.getRules().size(); i++) {
-        Rule rule = indicator.getRules().get(i);
-        
-        if (isDenominatorRule(rule, i)) {
-          // Transform to filtering/where logic
-          Match denominatorMatch = transformDenominatorRule(rule, context);
-          if (denominatorMatch != null) {
-            denominatorMatches.add(denominatorMatch);
-          }
-        } else if (isNumeratorRule(rule, i)) {
-          // Transform to return/groupBy logic
-          Match numeratorMatch = transformNumeratorRule(rule, context);
-          if (numeratorMatch != null) {
-            numeratorMatches.add(numeratorMatch);
+      // Process each rule
+      if (indicator.getRules() != null && !indicator.getRules().isEmpty()) {
+        for (Rule rule : indicator.getRules()) {
+          Match ruleMatch = transformRule(rule, context);
+          if (ruleMatch != null) {
+            queryBuilder.addRule(ruleMatch);
           }
         }
       }
 
-      // Add denominator rules as AND clauses (filtering)
-      for (Match denominatorMatch : denominatorMatches) {
-        query.addAnd(denominatorMatch);
-      }
+      Query query = queryBuilder.build();
+      context.addQuery(indicator.getName(), query);
+      return query;
 
-      // Add numerator rules for grouping/aggregation
-      for (Match numeratorMatch : numeratorMatches) {
-        // These would typically become groupBy clauses
-        transformationLogger.debug("Adding numerator logic for aggregation");
-      }
+    } catch (Exception e) {
+      context.addError("Error transforming Indicator '" + indicator.getName() + "': " + e.getMessage());
+      return null;
     }
-
-    // Create indicator description for reference
-    String indicatorDescription = "Indicator: " + indicator.getName();
-    if (indicator.getDescription() != null && !indicator.getDescription().isBlank()) {
-      indicatorDescription += " - " + indicator.getDescription();
-    }
-    transformationLogger.debug("Indicator description: {}", indicatorDescription);
   }
 
-  /**
-   * Determines if a rule represents denominator logic.
-   * Typically, denominator rules are the first or explicitly marked.
-   *
-   * @param rule Rule to check
-   * @param ruleIndex position in rule list
-   * @return true if rule is a denominator rule
-   */
-  private boolean isDenominatorRule(Rule rule, int ruleIndex) {
-    // Convention: First rule or rules with "denominator" in description are denominator rules
-    if (ruleIndex == 0) {
-      return true;
+  private Match transformRule(Rule rule, TransformationContext context) {
+    try {
+      MatchBuilder matchBuilder = new MatchBuilder();
+
+      // Set rule number
+      if (rule.getRule() > 0) {
+        matchBuilder.ruleNumber(rule.getRule());
+      }
+
+      // Parse logic expression
+      if (rule.getLogic() != null && !rule.getLogic().isEmpty()) {
+        Match logicMatch = logicParser.parseLogic(rule.getLogic(), fieldMapping);
+        if (logicMatch != null) {
+          mergeLogicMatch(logicMatch, matchBuilder);
+        }
+      }
+
+      // Map outcomes
+      if (rule.getIfTrue() != null) {
+        try {
+          if (!"Next rule".equalsIgnoreCase(rule.getIfTrue())) {
+            RuleAction action = RuleAction.valueOf(rule.getIfTrue().toUpperCase());
+            matchBuilder.ifTrue(action);
+          }
+        } catch (IllegalArgumentException e) {
+          context.addWarning("Unknown ifTrue action in Indicator rule: " + rule.getIfTrue());
+        }
+      }
+
+      if (rule.getIfFalse() != null) {
+        try {
+          if (!"Next rule".equalsIgnoreCase(rule.getIfFalse())) {
+            RuleAction action = RuleAction.valueOf(rule.getIfFalse().toUpperCase());
+            matchBuilder.ifFalse(action);
+          }
+        } catch (IllegalArgumentException e) {
+          context.addWarning("Unknown ifFalse action in Indicator rule: " + rule.getIfFalse());
+        }
+      }
+
+      if (rule.getDescription() != null) {
+        matchBuilder.description(rule.getDescription());
+      }
+
+      return matchBuilder.build();
+
+    } catch (Exception e) {
+      context.addWarning("Error transforming Indicator Rule: " + e.getMessage());
+      return null;
+    }
+  }
+
+  private void mergeLogicMatch(Match logicMatch, MatchBuilder matchBuilder) {
+    if (logicMatch.getWhere() != null) {
+      matchBuilder.addWhere(logicMatch.getWhere());
     }
     
-    if (rule.getDescription() != null && 
-        rule.getDescription().toLowerCase().contains("denominator")) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * Determines if a rule represents numerator logic.
-   * Typically, numerator rules are subsequent to denominator rules.
-   *
-   * @param rule Rule to check
-   * @param ruleIndex position in rule list
-   * @return true if rule is a numerator rule
-   */
-  private boolean isNumeratorRule(Rule rule, int ruleIndex) {
-    // Convention: Non-first rules or rules with "numerator" in description
-    if (ruleIndex > 0) {
-      return true;
-    }
-
-    if (rule.getDescription() != null && 
-        rule.getDescription().toLowerCase().contains("numerator")) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /**
-   * Transforms a denominator rule into filtering logic.
-   *
-   * @param rule Rule representing denominator criteria
-   * @param context transformation context
-   * @return Match object for filtering
-   */
-  private Match transformDenominatorRule(Rule rule, TransformationContext context) {
-    if (rule == null) {
-      return null;
-    }
-
-    Match denominatorMatch = new Match();
-
-    if (rule.getDescription() != null && !rule.getDescription().isBlank()) {
-      denominatorMatch.setDescription("Denominator: " + rule.getDescription());
-    }
-
-    if (rule.getLogic() != null && !rule.getLogic().isBlank()) {
-      transformationLogger.debug("Denominator logic: {}", rule.getLogic());
-      denominatorMatch.setName(rule.getLogic());
-    }
-
-    return denominatorMatch;
-  }
-
-  /**
-   * Transforms a numerator rule into calculation/aggregation logic.
-   *
-   * @param rule Rule representing numerator calculation
-   * @param context transformation context
-   * @return Match object for aggregation
-   */
-  private Match transformNumeratorRule(Rule rule, TransformationContext context) {
-    if (rule == null) {
-      return null;
-    }
-
-    Match numeratorMatch = new Match();
-
-    if (rule.getDescription() != null && !rule.getDescription().isBlank()) {
-      numeratorMatch.setDescription("Numerator: " + rule.getDescription());
-    }
-
-    if (rule.getLogic() != null && !rule.getLogic().isBlank()) {
-      transformationLogger.debug("Numerator logic: {}", rule.getLogic());
-      numeratorMatch.setName(rule.getLogic());
-    }
-
-    return numeratorMatch;
-  }
-
-  /**
-   * Creates a GroupBy clause for indicator aggregation.
-   *
-   * @param indicator Indicator to create grouping for
-   * @return GroupBy object for query aggregation
-   */
-  public GroupBy createGroupByForIndicator(Indicator indicator) {
-    if (indicator == null) {
-      return null;
-    }
-
-    transformationLogger.debug("Creating GroupBy clause for indicator: {}", indicator.getName());
-
-    GroupBy groupBy = new GroupBy();
-    // Additional configuration would be done here
-
-    return groupBy;
-  }
-
-  /**
-   * Validates that indicators have required fields for transformation.
-   *
-   * @param indicators list of indicators to validate
-   * @return true if all indicators are valid, false otherwise
-   */
-  public boolean validateIndicators(List<Indicator> indicators) {
-    if (indicators == null || indicators.isEmpty()) {
-      transformationLogger.warn("No indicators to validate");
-      return true;
-    }
-
-    for (Indicator indicator : indicators) {
-      if (indicator.getName() == null || indicator.getName().isBlank()) {
-        transformationLogger.error("Indicator has no name");
-        return false;
-      }
-
-      if (indicator.getRules() == null || indicator.getRules().isEmpty()) {
-        transformationLogger.warn("Indicator has no rules defined: {}", indicator.getName());
+    if (logicMatch.getAnd() != null && !logicMatch.getAnd().isEmpty()) {
+      for (Match andCondition : logicMatch.getAnd()) {
+        matchBuilder.addAnd(andCondition);
       }
     }
+    
+    if (logicMatch.getOr() != null && !logicMatch.getOr().isEmpty()) {
+      for (Match orCondition : logicMatch.getOr()) {
+        matchBuilder.addOr(orCondition);
+      }
+    }
+  }
 
-    return true;
+  private String generateIri(String indicatorName) {
+    return "http://endhealth.info/qof#indicator-" + toSlugFormat(indicatorName);
+  }
+
+  private String toSlugFormat(String input) {
+    return input.toLowerCase()
+      .replaceAll("\\s+", "-")
+      .replaceAll("[^a-z0-9-]", "");
   }
 }

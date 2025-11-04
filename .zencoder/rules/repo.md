@@ -17,6 +17,7 @@ IMAPI (Information Model API) is a comprehensive Spring Boot REST API applicatio
 - **TestQueries**: Sample SPARQL and test queries
 - **TestTransforms**: Test data for transformation validation
 - **gradle**: Gradle build configuration and dependency versions
+- **AI-Specs**: Specifications for work packages, designed for use by Zencoder (AI). Markdown files should be numbered to maintain order, starting at 1 within each subfolder.
 
 ## Language & Runtime
 **Language**: Java

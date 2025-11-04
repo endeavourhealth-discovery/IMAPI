@@ -1,182 +1,127 @@
 package org.endeavourhealth.imapi.transformation.component;
 
 import org.endeavourhealth.imapi.model.imq.*;
-
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
- * Fluent builder for constructing IMQ Query objects.
- * Simplifies the creation of complex Query structures with a chainable API.
+ * Fluent builder for constructing IMQuery Query objects.
+ * Simplifies programmatic query construction during transformation.
  */
 public class QueryBuilder {
-
   private final Query query;
 
-  /**
-   * Creates a new QueryBuilder.
-   */
   public QueryBuilder() {
     this.query = new Query();
   }
 
-  /**
-   * Creates a QueryBuilder from an existing Query.
-   *
-   * @param query The query to build upon
-   */
-  public QueryBuilder(Query query) {
-    this.query = query;
+  public QueryBuilder(String iri, String name) {
+    this.query = new Query();
+    this.query.setIri(iri);
+    this.query.setName(name);
   }
 
-  /**
-   * Sets the query name.
-   */
-  public QueryBuilder withName(String name) {
-    query.setName(name);
-    return this;
-  }
-
-  /**
-   * Sets the query description.
-   */
-  public QueryBuilder withDescription(String description) {
-    query.setDescription(description);
-    return this;
-  }
-
-  /**
-   * Sets the query IRI.
-   */
-  public QueryBuilder withIri(String iri) {
+  public QueryBuilder iri(String iri) {
     query.setIri(iri);
     return this;
   }
 
-  /**
-   * Sets active-only filtering.
-   */
-  public QueryBuilder withActiveOnly(boolean activeOnly) {
+  public QueryBuilder name(String name) {
+    query.setName(name);
+    return this;
+  }
+
+  public QueryBuilder description(String description) {
+    query.setDescription(description);
+    return this;
+  }
+
+  public QueryBuilder typeOf(String iriRef) {
+    Node typeOf = new Node();
+    typeOf.setIri(iriRef);
+    query.setTypeOf(typeOf);
+    return this;
+  }
+
+  public QueryBuilder isCohort(String cohortIri) {
+    TTIriRef cohort = new TTIriRef();
+    cohort.setIri(cohortIri);
+    query.setIsCohort(cohort);
+    return this;
+  }
+
+  public QueryBuilder addRule(Match rule) {
+    query.addRule(rule);
+    return this;
+  }
+
+  public QueryBuilder rule(List<Match> rules) {
+    query.setRule(rules);
+    return this;
+  }
+
+  public QueryBuilder addWhere(Match where) {
+    query.addAnd(where);
+    return this;
+  }
+
+  public QueryBuilder returnProperty(String property) {
+    Return returnSpec = query.getReturn();
+    if (returnSpec == null) {
+      returnSpec = new Return();
+      query.setReturn(returnSpec);
+    }
+    // Add return property
+    return this;
+  }
+
+  public QueryBuilder variable(String variable) {
+    query.setVariable(variable);
+    return this;
+  }
+
+  public QueryBuilder activeOnly(boolean activeOnly) {
     query.setActiveOnly(activeOnly);
     return this;
   }
 
-  /**
-   * Adds a prefix to the query.
-   */
-  public QueryBuilder addPrefix(String prefix, String namespace) {
-    query.addPrefix(prefix, namespace);
+  public QueryBuilder parameter(String parameter) {
+    query.setParameter(parameter);
     return this;
   }
 
-  /**
-   * Adds a match condition using AND logic.
-   */
-  public QueryBuilder addAnd(Match match) {
-    query.addAnd(match);
+  public QueryBuilder bindAs(String bindAs) {
+    query.setBindAs(bindAs);
     return this;
   }
 
-  /**
-   * Adds a match condition using AND logic with builder.
-   */
-  public QueryBuilder and(Consumer<Match> builder) {
-    Match match = new Match();
-    query.addAnd(match);
-    builder.accept(match);
+  public QueryBuilder addAndCondition(Match condition) {
+    query.addAnd(condition);
     return this;
   }
 
-  /**
-   * Adds a match condition using OR logic.
-   */
-  public QueryBuilder addOr(Match match) {
-    query.addOr(match);
+  public QueryBuilder addOrCondition(Match condition) {
+    query.addOr(condition);
     return this;
   }
 
-  /**
-   * Adds a match condition using OR logic with builder.
-   */
-  public QueryBuilder or(Consumer<Match> builder) {
-    Match match = new Match();
-    query.addOr(match);
-    builder.accept(match);
+  public QueryBuilder addNotCondition(Match condition) {
+    query.addNot(condition);
     return this;
   }
 
-  /**
-   * Adds a match condition using NOT logic.
-   */
-  public QueryBuilder addNot(Match match) {
-    query.addNot(match);
-    return this;
-  }
-
-  /**
-   * Adds a match condition using NOT logic with builder.
-   */
-  public QueryBuilder not(Consumer<Match> builder) {
-    Match match = new Match();
-    query.addNot(match);
-    builder.accept(match);
-    return this;
-  }
-
-  /**
-   * Adds a path to the query.
-   */
-  public QueryBuilder addPath(Path path) {
-    query.addPath(path);
-    return this;
-  }
-
-  /**
-   * Adds a path using builder.
-   */
-  public QueryBuilder path(Consumer<Path> builder) {
-    Path path = new Path();
-    query.addPath(path);
-    builder.accept(path);
-    return this;
-  }
-
-  /**
-   * Adds a column group.
-   */
-  public QueryBuilder addColumnGroup(Match match) {
-    query.addColumnGroup(match);
-    return this;
-  }
-
-  /**
-   * Adds a group-by clause.
-   */
-  public QueryBuilder addGroupBy(GroupBy groupBy) {
-    query.addGroupBy(groupBy);
-    return this;
-  }
-
-  /**
-   * Sets the return clause.
-   */
-  public QueryBuilder withReturn(Consumer<Return> builder) {
-    query.return_(builder);
-    return this;
-  }
-
-  /**
-   * Builds and returns the Query object.
-   */
   public Query build() {
+    // Set default typeOf if not specified
+    if (query.getTypeOf() == null) {
+      Node defaultType = new Node();
+      defaultType.setIri("http://endhealth.info/im#Patient");
+      query.setTypeOf(defaultType);
+    }
     return query;
   }
 
-  /**
-   * Gets the underlying Query object without building.
-   */
-  public Query get() {
+  public Query buildWithoutValidation() {
     return query;
   }
 }

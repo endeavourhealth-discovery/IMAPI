@@ -2,198 +2,154 @@ package org.endeavourhealth.imapi.transformation.engine;
 
 import org.endeavourhealth.imapi.model.qof.Register;
 import org.endeavourhealth.imapi.model.qof.Rule;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.transformation.component.QueryBuilder;
+import org.endeavourhealth.imapi.transformation.component.MatchBuilder;
 import org.endeavourhealth.imapi.transformation.core.TransformationContext;
-import org.endeavourhealth.imapi.transformation.util.TransformationLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.endeavourhealth.imapi.transformation.util.LogicExpressionParser;
+import org.endeavourhealth.imapi.transformation.util.FieldMappingDictionary;
 
 /**
- * Transforms QOF Register definitions into IMQ dataSet declarations.
- * Maps data registry and source information into query dataset specifications.
- *
- * Register Transformation Rules:
- * - Register.name → Query.dataSet reference
- * - Register.description → metadata preservation
- * - Register.base → data source identification
- * - Multiple registers aggregation with AND logic
- * - Preserve registry metadata and source information
+ * Transforms QOF Registers to IMQuery queries.
+ * Registers are populations based on Selections with additional filtering rules.
  */
 public class RegisterTransformer {
-  private static final Logger log = LoggerFactory.getLogger(RegisterTransformer.class);
-  private final TransformationLogger transformationLogger;
+  private final LogicExpressionParser logicParser;
+  private final FieldMappingDictionary fieldMapping;
 
-  /**
-   * Creates a new RegisterTransformer.
-   *
-   * @param transformationLogger for structured logging with correlation tracking
-   */
-  public RegisterTransformer(TransformationLogger transformationLogger) {
-    this.transformationLogger = transformationLogger;
+  public RegisterTransformer(LogicExpressionParser logicParser, FieldMappingDictionary fieldMapping) {
+    this.logicParser = logicParser;
+    this.fieldMapping = fieldMapping;
   }
 
   /**
-   * Transforms all registers from a QOF document into Query dataSet specifications.
-   *
-   * Transformation Process:
-   * 1. Extract all Register definitions
-   * 2. Convert each Register to dataSet entry
-   * 3. Aggregate multiple registers
-   * 4. Populate Query with dataSet information
-   *
-   * @param registers list of QOF Register objects
-   * @param query target Query object to populate
-   * @param context transformation context
-   * @return Query with registers transformed to dataSet declarations
+   * Transform a QOF Register to an IMQuery Query.
    */
-  public Query transformRegisters(List<Register> registers, Query query, TransformationContext context) {
-    transformationLogger.info("Transforming QOF registers to IMQ dataSet declarations");
+  public Query transform(Register register, TransformationContext context) {
+    try {
+      String registerIri = generateIri(register.getName());
+      
+      QueryBuilder queryBuilder = new QueryBuilder(registerIri, register.getName())
+        .description(register.getDescription() != null ? register.getDescription() : 
+                     String.format("Query for register: %s", register.getName()))
+        .typeOf("http://endhealth.info/im#Patient");
 
-    if (registers == null || registers.isEmpty()) {
-      transformationLogger.warn("No registers to transform");
+      // Link to base Selection as cohort if specified
+      if (register.getBase() != null && !register.getBase().isEmpty()) {
+        Query baseQuery = context.getQuery(register.getBase());
+        if (baseQuery != null) {
+          queryBuilder.isCohort(baseQuery.getIri());
+        } else {
+          String baseIri = "http://endhealth.info/qof#selection-" + toSlugFormat(register.getBase());
+          queryBuilder.isCohort(baseIri);
+        }
+      }
+
+      // Process each rule in the register
+      if (register.getRules() != null && !register.getRules().isEmpty()) {
+        for (Rule rule : register.getRules()) {
+          Match ruleMatch = transformRule(rule, context);
+          if (ruleMatch != null) {
+            queryBuilder.addRule(ruleMatch);
+          }
+        }
+      }
+
+      Query query = queryBuilder.build();
+      context.addQuery(register.getName(), query);
       return query;
-    }
 
-    List<Match> registerMatches = new ArrayList<>();
-
-    for (Register register : registers) {
-      Match registerMatch = transformRegister(register, context);
-      if (registerMatch != null) {
-        registerMatches.add(registerMatch);
-      }
-    }
-
-    // Add combined registers to Query
-    if (!registerMatches.isEmpty()) {
-      for (Match registerMatch : registerMatches) {
-        query.addAnd(registerMatch);
-      }
-      transformationLogger.info("Transformed {} registers successfully", registers.size());
-    }
-
-    return query;
-  }
-
-  /**
-   * Transforms a single Register into a Match object representing a dataSet.
-   *
-   * @param register QOF Register to transform
-   * @param context transformation context
-   * @return Match object representing the register as dataSet
-   */
-  private Match transformRegister(Register register, TransformationContext context) {
-    if (register == null) {
+    } catch (Exception e) {
+      context.addError("Error transforming Register '" + register.getName() + "': " + e.getMessage());
       return null;
     }
+  }
 
-    transformationLogger.debug("Transforming register: {}", register.getName());
+  private Match transformRule(Rule rule, TransformationContext context) {
+    try {
+      MatchBuilder matchBuilder = new MatchBuilder();
 
-    Match registerMatch = new Match();
+      // Set rule number
+      if (rule.getRule() > 0) {
+        matchBuilder.ruleNumber(rule.getRule());
+      }
 
-    // Map register name to Match name
-    if (register.getName() != null && !register.getName().isBlank()) {
-      registerMatch.setName(register.getName());
-    }
-
-    // Map register description if available
-    if (register.getDescription() != null && !register.getDescription().isBlank()) {
-      registerMatch.setDescription(register.getDescription());
-    }
-
-    // Map register base (data source)
-    if (register.getBase() != null && !register.getBase().isBlank()) {
-      transformationLogger.debug("Register base (data source): {}", register.getBase());
-      // Store base/source information
-      context.mapReference("register_" + register.getName() + "_base", register.getBase());
-    }
-
-    // Transform register rules
-    if (register.getRules() != null && !register.getRules().isEmpty()) {
-      List<Match> ruleMatches = new ArrayList<>();
-
-      for (Rule rule : register.getRules()) {
-        Match ruleMatch = transformRegisterRule(rule, context);
-        if (ruleMatch != null) {
-          ruleMatches.add(ruleMatch);
+      // Parse logic expression
+      if (rule.getLogic() != null && !rule.getLogic().isEmpty()) {
+        Match logicMatch = logicParser.parseLogic(rule.getLogic(), fieldMapping);
+        if (logicMatch != null) {
+          // Merge the entire parsed logic structure into the rule match
+          mergeLogicMatch(matchBuilder, logicMatch);
         }
       }
 
-      // Add rules to register match
-      if (!ruleMatches.isEmpty()) {
-        for (Match ruleMatch : ruleMatches) {
-          registerMatch.addAnd(ruleMatch);
+      // Map outcomes
+      if (rule.getIfTrue() != null) {
+        try {
+          // Handle special cases like "Next rule"
+          if ("Next rule".equalsIgnoreCase(rule.getIfTrue())) {
+            // Next rule is implicit in the rule sequence
+          } else {
+            RuleAction action = RuleAction.valueOf(rule.getIfTrue().toUpperCase());
+            matchBuilder.ifTrue(action);
+          }
+        } catch (IllegalArgumentException e) {
+          context.addWarning("Unknown ifTrue action: " + rule.getIfTrue());
         }
       }
-    }
 
-    return registerMatch;
-  }
+      if (rule.getIfFalse() != null) {
+        try {
+          if ("Next rule".equalsIgnoreCase(rule.getIfFalse())) {
+            // Next rule is implicit
+          } else {
+            RuleAction action = RuleAction.valueOf(rule.getIfFalse().toUpperCase());
+            matchBuilder.ifFalse(action);
+          }
+        } catch (IllegalArgumentException e) {
+          context.addWarning("Unknown ifFalse action: " + rule.getIfFalse());
+        }
+      }
 
-  /**
-   * Transforms a Rule within a Register into a Match object.
-   *
-   * @param rule QOF Rule to transform
-   * @param context transformation context
-   * @return Match object representing the rule
-   */
-  private Match transformRegisterRule(Rule rule, TransformationContext context) {
-    if (rule == null) {
+      if (rule.getDescription() != null) {
+        matchBuilder.description(rule.getDescription());
+      }
+
+      return matchBuilder.build();
+
+    } catch (Exception e) {
+      context.addWarning("Error transforming Register Rule: " + e.getMessage());
       return null;
     }
-
-    Match ruleMatch = new Match();
-
-    // Set rule number if available
-    if (rule.getRule() > 0) {
-      ruleMatch.setRuleNumber(rule.getRule());
-      transformationLogger.debug("Processing rule number: {}", rule.getRule());
-    }
-
-    // Set rule description
-    if (rule.getDescription() != null && !rule.getDescription().isBlank()) {
-      ruleMatch.setDescription(rule.getDescription());
-    }
-
-    // Handle logic expressions
-    if (rule.getLogic() != null && !rule.getLogic().isBlank()) {
-      transformationLogger.debug("Processing rule logic: {}", rule.getLogic());
-      ruleMatch.setName("Rule " + rule.getRule() + ": " + rule.getLogic());
-    }
-
-    // Handle conditional branches
-    if (rule.getIfTrue() != null && !rule.getIfTrue().isBlank()) {
-      transformationLogger.debug("Rule true action: {}", rule.getIfTrue());
-    }
-    if (rule.getIfFalse() != null && !rule.getIfFalse().isBlank()) {
-      transformationLogger.debug("Rule false action: {}", rule.getIfFalse());
-    }
-
-    return ruleMatch;
   }
 
   /**
-   * Validates that all registers have required fields for successful transformation.
-   *
-   * @param registers list of registers to validate
-   * @return true if all registers are valid, false otherwise
+   * Merge the parsed logic match structure into the rule match builder.
+   * Handles single WHERE clauses as well as nested OR/AND conditions.
    */
-  public boolean validateRegisters(List<Register> registers) {
-    if (registers == null || registers.isEmpty()) {
-      transformationLogger.warn("No registers to validate");
-      return true;
+  private void mergeLogicMatch(MatchBuilder matchBuilder, Match logicMatch) {
+    if (logicMatch.getWhere() != null) {
+      matchBuilder.addWhere(logicMatch.getWhere());
     }
-
-    for (Register register : registers) {
-      if (register.getName() == null || register.getName().isBlank()) {
-        transformationLogger.error("Register has no name");
-        return false;
+    if (logicMatch.getAnd() != null && !logicMatch.getAnd().isEmpty()) {
+      for (Match andMatch : logicMatch.getAnd()) {
+        matchBuilder.addAnd(andMatch);
       }
     }
+    if (logicMatch.getOr() != null && !logicMatch.getOr().isEmpty()) {
+      for (Match orMatch : logicMatch.getOr()) {
+        matchBuilder.addOr(orMatch);
+      }
+    }
+  }
 
-    return true;
+  private String generateIri(String registerName) {
+    return "http://endhealth.info/qof#register-" + toSlugFormat(registerName);
+  }
+
+  private String toSlugFormat(String input) {
+    return input.toLowerCase()
+      .replaceAll("\\s+", "-")
+      .replaceAll("[^a-z0-9-]", "");
   }
 }

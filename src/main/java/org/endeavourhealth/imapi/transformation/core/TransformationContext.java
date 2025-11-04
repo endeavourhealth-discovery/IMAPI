@@ -1,124 +1,81 @@
 package org.endeavourhealth.imapi.transformation.core;
 
+import org.endeavourhealth.imapi.model.qof.QOFDocument;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 /**
- * Maintains state and context information during a QOF to IMQ transformation.
- * Provides access to the Query being built, error tracking, and reference mappings
- * between QOF and IMQ elements.
+ * Context holder for QOF to IMQuery transformation.
+ * Maintains state throughout the transformation pipeline.
  */
 public class TransformationContext {
-
-  private static final Logger log = LoggerFactory.getLogger(TransformationContext.class);
-
-  private final Query targetQuery;
-  private final String correlationId;
-  private final TransformationErrorCollector errorCollector;
-  private final Map<String, Object> referenceMap; // Maps QOF IDs to IMQ equivalents
-  private final Map<String, Object> metadata; // Generic metadata storage
-
-  /**
-   * Creates a new transformation context.
-   *
-   * @param targetQuery The Query object being built
-   */
-  public TransformationContext(Query targetQuery) {
-    this.targetQuery = targetQuery;
-    this.correlationId = UUID.randomUUID().toString();
-    this.errorCollector = new TransformationErrorCollector();
-    this.referenceMap = new HashMap<>();
-    this.metadata = new HashMap<>();
-    log.debug("Created transformation context with ID: {}", correlationId);
+  private final QOFDocument qofDocument;
+  private final Map<String, Query> generatedQueries = new LinkedHashMap<>();
+  private final Map<String, String> fieldToIriMapping = new HashMap<>();
+  private final List<String> errors = new ArrayList<>();
+  private final List<String> warnings = new ArrayList<>();
+  
+  public TransformationContext(QOFDocument qofDocument) {
+    this.qofDocument = qofDocument;
   }
 
-  /**
-   * Gets the target Query object being built.
-   */
-  public Query getTargetQuery() {
-    return targetQuery;
+  public QOFDocument getQofDocument() {
+    return qofDocument;
   }
 
-  /**
-   * Gets the unique correlation ID for this transformation.
-   */
-  public String getCorrelationId() {
-    return correlationId;
+  public Map<String, Query> getGeneratedQueries() {
+    return generatedQueries;
   }
 
-  /**
-   * Gets the error collector for tracking transformation errors.
-   */
-  public TransformationErrorCollector getErrorCollector() {
-    return errorCollector;
+  public void addQuery(String name, Query query) {
+    generatedQueries.put(name, query);
   }
 
-  /**
-   * Stores a reference mapping from QOF element to IMQ equivalent.
-   *
-   * @param qofId The QOF element identifier
-   * @param imqElement The corresponding IMQ element
-   */
-  public void mapReference(String qofId, Object imqElement) {
-    referenceMap.put(qofId, imqElement);
+  public Query getQuery(String name) {
+    return generatedQueries.get(name);
   }
 
-  /**
-   * Retrieves a previously mapped reference.
-   *
-   * @param qofId The QOF element identifier
-   * @return The mapped IMQ element, or null if not found
-   */
-  public Object getReference(String qofId) {
-    return referenceMap.get(qofId);
+  public Map<String, String> getFieldToIriMapping() {
+    return fieldToIriMapping;
   }
 
-  /**
-   * Stores generic metadata for transformation state.
-   *
-   * @param key The metadata key
-   * @param value The metadata value
-   */
-  public void putMetadata(String key, Object value) {
-    metadata.put(key, value);
+  public void mapFieldToIri(String fieldName, String iri) {
+    fieldToIriMapping.put(fieldName, iri);
   }
 
-  /**
-   * Retrieves previously stored metadata.
-   *
-   * @param key The metadata key
-   * @return The metadata value, or null if not found
-   */
-  public Object getMetadata(String key) {
-    return metadata.get(key);
+  public String getIriForField(String fieldName) {
+    return fieldToIriMapping.get(fieldName);
   }
 
-  /**
-   * Checks if this transformation has any errors.
-   */
+  public List<String> getErrors() {
+    return errors;
+  }
+
+  public void addError(String error) {
+    errors.add(error);
+  }
+
+  public List<String> getWarnings() {
+    return warnings;
+  }
+
+  public void addWarning(String warning) {
+    warnings.add(warning);
+  }
+
   public boolean hasErrors() {
-    return errorCollector.hasErrors();
+    return !errors.isEmpty();
   }
 
-  /**
-   * Gets all collected errors.
-   */
-  public List<TransformationError> getErrors() {
-    return errorCollector.getErrors();
+  public boolean hasWarnings() {
+    return !warnings.isEmpty();
   }
 
-  /**
-   * Logs the transformation context state for debugging.
-   */
-  public void logContextState() {
-    log.debug("Transformation context [{}]: {} errors, {} references, {} metadata items",
-        correlationId,
-        errorCollector.getErrorCount(),
-        referenceMap.size(),
-        metadata.size()
-    );
+  public void clear() {
+    generatedQueries.clear();
+    fieldToIriMapping.clear();
+    errors.clear();
+    warnings.clear();
   }
 }

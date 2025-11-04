@@ -1,319 +1,192 @@
 package org.endeavourhealth.imapi.transformation.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.model.qof.*;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.qof.QOFDocument;
-import org.endeavourhealth.imapi.transformation.component.*;
 import org.endeavourhealth.imapi.transformation.core.TransformationContext;
-import org.endeavourhealth.imapi.transformation.core.TransformationError;
-import org.endeavourhealth.imapi.transformation.core.TransformationException;
-import org.endeavourhealth.imapi.transformation.util.TransformationLogger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.endeavourhealth.imapi.transformation.util.LogicExpressionParser;
+import org.endeavourhealth.imapi.transformation.util.FieldMappingDictionary;
 
-import java.time.Instant;
 import java.util.*;
 
 /**
- * Main orchestrator for QOF to IMQ transformation.
- * Coordinates the entire transformation pipeline including parsing, validation,
- * component transformations, and result serialization.
- *
- * Transformation Lifecycle:
- * 1. Load and parse QOF document
- * 2. Validate input document structure
- * 3. Create empty Query and transformation context
- * 4. Execute component transformers in sequence:
- *    - MetadataTransformer
- *    - SelectionTransformer
- *    - RegisterTransformer
- *    - ExtractionFieldTransformer
- *    - IndicatorTransformer
- * 5. Validate intermediate transformation state
- * 6. Validate output Query
- * 7. Return result or throw exception with accumulated errors
- *
- * Thread Safety: NOT thread-safe - each transformation requires a new instance
+ * Main orchestrator for QOF to IMQuery transformation.
+ * Coordinates the entire transformation pipeline:
+ * 1. Pre-conversion validation
+ * 2. Parallel component transformations (Metadata, Selections, Registers, Indicators, ExtractionFields)
+ * 3. Post-conversion validation
+ * 4. Output generation
  */
 public class QOFToIMQTransformer {
-
-  private static final Logger log = LoggerFactory.getLogger(QOFToIMQTransformer.class);
-
-  // Component transformers
-  private final MetadataTransformer metadataTransformer;
+  
+  private final LogicExpressionParser logicParser;
+  private final FieldMappingDictionary fieldMapping;
   private final SelectionTransformer selectionTransformer;
   private final RegisterTransformer registerTransformer;
-  private final ExtractionFieldTransformer extractionFieldTransformer;
   private final IndicatorTransformer indicatorTransformer;
+  private final ExtractionFieldTransformer extractionFieldTransformer;
+  private final MetadataTransformer metadataTransformer;
 
-  // Validation and state management
-  private final QOFDocumentValidator qofDocumentValidator;
-  private final TransformationValidator transformationValidator;
-  private final QOFDocumentLoader qofDocumentLoader;
-
-  // Transformation state
-  private TransformationContext context;
-  private Query targetQuery;
-  private long transformationStartTime;
-  private long transformationEndTime;
-
-  /**
-   * Creates a new QOF to IMQ transformer with all component dependencies.
-   */
   public QOFToIMQTransformer() {
-    // Create a temporary correlation ID for initialization
-    String initCorrelationId = UUID.randomUUID().toString();
-    TransformationLogger initLogger = new TransformationLogger(initCorrelationId, QOFToIMQTransformer.class);
-
-    this.metadataTransformer = new MetadataTransformer(initLogger);
-    this.selectionTransformer = new SelectionTransformer(new MatchBuilder(), initLogger);
-    this.registerTransformer = new RegisterTransformer(initLogger);
-    this.extractionFieldTransformer = new ExtractionFieldTransformer(
-        new PathBuilder(), new NodeBuilder(), new ReturnBuilder(), initLogger);
-    this.indicatorTransformer = new IndicatorTransformer(initLogger);
-    this.qofDocumentValidator = new QOFDocumentValidator(
-        new org.endeavourhealth.imapi.transformation.core.TransformationErrorCollector(), initLogger);
-    this.transformationValidator = new TransformationValidator();
-    this.qofDocumentLoader = new QOFDocumentLoader(new ObjectMapper(), initLogger);
-    log.info("Initialized QOFToIMQTransformer");
+    this.logicParser = new LogicExpressionParser();
+    this.fieldMapping = new FieldMappingDictionary();
+    this.selectionTransformer = new SelectionTransformer(logicParser, fieldMapping);
+    this.registerTransformer = new RegisterTransformer(logicParser, fieldMapping);
+    this.indicatorTransformer = new IndicatorTransformer(logicParser, fieldMapping);
+    this.extractionFieldTransformer = new ExtractionFieldTransformer(fieldMapping, logicParser);
+    this.metadataTransformer = new MetadataTransformer();
   }
 
   /**
-   * Transforms a QOF document from file path to IMQ Query.
-   *
-   * @param filePath Path to the QOF JSON document
-   * @return The transformed IMQ Query
-   * @throws TransformationException If transformation fails
+   * Transform a QOF document to IMQuery.
+   * Returns a map of query names to Query objects.
    */
-  public Query transformFromFile(String filePath) throws TransformationException {
-    log.info("Starting transformation from file: {}", filePath);
-    transformationStartTime = System.currentTimeMillis();
-
+  public Map<String, Query> transform(QOFDocument qofDocument) throws Exception {
+    TransformationContext context = new TransformationContext(qofDocument);
+    
     try {
-      QOFDocument qofDocument = qofDocumentLoader.loadFromFile(filePath);
-      return transform(qofDocument);
-    } catch (TransformationException e) {
-      log.error("Transformation failed: {}", e.getMessage());
-      throw e;
-    } catch (Exception e) {
-      log.error("Unexpected error during transformation", e);
-      throw new TransformationException("Transformation failed: " + e.getMessage(), e);
-    } finally {
-      transformationEndTime = System.currentTimeMillis();
-    }
-  }
-
-  /**
-   * Transforms a QOF document string to IMQ Query.
-   *
-   * @param jsonString The QOF document as JSON string
-   * @return The transformed IMQ Query
-   * @throws TransformationException If transformation fails
-   */
-  public Query transformFromString(String jsonString) throws TransformationException {
-    log.info("Starting transformation from JSON string");
-    transformationStartTime = System.currentTimeMillis();
-
-    try {
-      QOFDocument qofDocument = qofDocumentLoader.loadFromString(jsonString);
-      return transform(qofDocument);
-    } catch (TransformationException e) {
-      log.error("Transformation failed: {}", e.getMessage());
-      throw e;
-    } catch (Exception e) {
-      log.error("Unexpected error during transformation", e);
-      throw new TransformationException("Transformation failed: " + e.getMessage(), e);
-    } finally {
-      transformationEndTime = System.currentTimeMillis();
-    }
-  }
-
-  /**
-   * Transforms a QOF document to IMQ Query.
-   *
-   * @param qofDocument The QOF document to transform
-   * @return The transformed IMQ Query
-   * @throws TransformationException If transformation fails
-   */
-  public Query transform(QOFDocument qofDocument) throws TransformationException {
-    log.info("Starting QOF to IMQ transformation for document: {}", qofDocument.getName());
-    transformationStartTime = System.currentTimeMillis();
-
-    try {
-      // Phase 1: Validate input document
-      log.debug("Phase 1: Validating input QOF document");
-      TransformationValidator.ValidationResult validationResult =
-          transformationValidator.validateInputDocument(qofDocument);
-
-      if (!validationResult.isValid()) {
-        String errorMsg = formatValidationErrors(validationResult.getErrors());
-        log.error("Input validation failed: {}", errorMsg);
-        throw new TransformationException("Input validation failed: " + errorMsg);
-      }
-
-      // Phase 2: Initialize transformation context and target query
-      log.debug("Phase 2: Initializing transformation context");
-      targetQuery = new Query();
-      context = new TransformationContext(targetQuery);
-
-      // Phase 3: Execute component transformers
-      log.debug("Phase 3: Executing component transformers");
-      executeComponentTransformers(qofDocument);
-
-      // Phase 4: Check for transformation errors
+      // Step 1: Pre-conversion validation
+      validateQOFDocument(qofDocument, context);
       if (context.hasErrors()) {
-        String errorMsg = formatTransformationErrors(context.getErrors());
-        log.error("Transformation encountered errors: {}", errorMsg);
-        throw new TransformationException("Transformation failed with errors: " + errorMsg);
+        throw new IllegalArgumentException("QOF document validation failed");
       }
 
-      // Phase 5: Validate output Query
-      log.debug("Phase 4: Validating output Query");
-      validationResult = transformationValidator.validateOutputQuery(targetQuery);
-
-      if (!validationResult.isValid()) {
-        String errorMsg = formatValidationErrors(validationResult.getErrors());
-        log.error("Output validation failed: {}", errorMsg);
-        throw new TransformationException("Output validation failed: " + errorMsg);
+      // Step 2: Transform Selections first (they are dependencies)
+      if (qofDocument.getSelections() != null && !qofDocument.getSelections().isEmpty()) {
+        for (Selection selection : qofDocument.getSelections()) {
+          selectionTransformer.transform(selection, context);
+        }
       }
 
-      // Phase 6: Log transformation success
-      transformationEndTime = System.currentTimeMillis();
-      long duration = transformationEndTime - transformationStartTime;
+      // Step 3: Transform Registers
+      if (qofDocument.getRegisters() != null && !qofDocument.getRegisters().isEmpty()) {
+        for (Register register : qofDocument.getRegisters()) {
+          registerTransformer.transform(register, context);
+        }
+      }
 
-      log.info("Transformation completed successfully for document: {} ({}ms)",
-          qofDocument.getName(), duration);
-      logTransformationSummary();
+      // Step 4: Transform Indicators
+      if (qofDocument.getIndicators() != null && !qofDocument.getIndicators().isEmpty()) {
+        for (Indicator indicator : qofDocument.getIndicators()) {
+          indicatorTransformer.transform(indicator, context);
+        }
+      }
 
-      return targetQuery;
-
-    } catch (TransformationException e) {
-      throw e;
-    } catch (Exception e) {
-      log.error("Unexpected error during transformation", e);
-      throw new TransformationException("Transformation failed: " + e.getMessage(), e);
-    }
-  }
-
-  /**
-   * Executes all component transformers in sequence.
-   */
-  private void executeComponentTransformers(QOFDocument qofDocument) throws TransformationException {
-    try {
-      // Step 1: Transform metadata (sets up Query name, description, etc.)
-      log.debug("Executing MetadataTransformer");
+      // Step 5: Transform metadata and apply to all queries
       metadataTransformer.transformMetadata(qofDocument, context);
 
-      // Step 2: Transform selections to Where clauses
-      if (qofDocument.getSelections() != null && !qofDocument.getSelections().isEmpty()) {
-        log.debug("Executing SelectionTransformer");
-        selectionTransformer.transformSelections(qofDocument.getSelections(), targetQuery, context);
+      // Step 6: Post-conversion validation
+      validateGeneratedQueries(context);
+      if (context.hasErrors()) {
+        // Log errors but don't throw - allow partial results
+        logErrors(context);
       }
 
-      // Step 3: Transform registers to dataSet references
-      if (qofDocument.getRegisters() != null && !qofDocument.getRegisters().isEmpty()) {
-        log.debug("Executing RegisterTransformer");
-        registerTransformer.transformRegisters(qofDocument.getRegisters(), targetQuery, context);
+      // Log warnings if any
+      if (context.hasWarnings()) {
+        logWarnings(context);
       }
 
-      // Step 4: Transform extraction fields to Path objects and Return clause
-      if (qofDocument.getExtractionFields() != null && !qofDocument.getExtractionFields().isEmpty()) {
-        log.debug("Executing ExtractionFieldTransformer");
-        extractionFieldTransformer.transformExtractionFields(qofDocument.getExtractionFields(), targetQuery, context);
-      }
-
-      // Step 5: Transform indicators to groupBy and calculation clauses
-      if (qofDocument.getIndicators() != null && !qofDocument.getIndicators().isEmpty()) {
-        log.debug("Executing IndicatorTransformer");
-        indicatorTransformer.transformIndicators(qofDocument.getIndicators(), targetQuery, context);
-      }
-
-      log.debug("All component transformers completed successfully");
+      return context.getGeneratedQueries();
 
     } catch (Exception e) {
-      log.error("Error during component transformer execution", e);
-      throw new TransformationException("Component transformation failed: " + e.getMessage(), e);
+      context.addError("Transformation failed: " + e.getMessage());
+      throw e;
     }
   }
 
   /**
-   * Formats validation errors for logging.
+   * Transform from a QOF file path.
    */
-  private String formatValidationErrors(List<Object> errors) {
-    if (errors.isEmpty()) {
-      return "No errors";
-    }
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < Math.min(errors.size(), 5); i++) {
-      sb.append("\n  - ").append(errors.get(i));
-    }
-    if (errors.size() > 5) {
-      sb.append("\n  ... and ").append(errors.size() - 5).append(" more");
-    }
-    return sb.toString();
+  public Map<String, Query> transformFromFile(String filePath) throws Exception {
+    ObjectMapper mapper = new ObjectMapper();
+    QOFDocument qofDocument = mapper.readValue(new java.io.File(filePath), QOFDocument.class);
+    return transform(qofDocument);
   }
 
   /**
-   * Formats transformation errors for logging.
+   * Validate QOF document structure before transformation.
    */
-  private String formatTransformationErrors(List<TransformationError> errors) {
-    if (errors.isEmpty()) {
-      return "No errors";
+  private void validateQOFDocument(QOFDocument doc, TransformationContext context) {
+    if (doc == null) {
+      context.addError("QOF document is null");
+      return;
     }
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < Math.min(errors.size(), 5); i++) {
-      TransformationError error = errors.get(i);
-      sb.append("\n  - [").append(error.getPhase()).append("] ")
-          .append(error.getMessage());
-      if (error.getField() != null) {
-        sb.append(" (field: ").append(error.getField()).append(")");
+
+    if (doc.getName() == null || doc.getName().isEmpty()) {
+      context.addWarning("QOF document has no name");
+    }
+
+    // Validate Selections
+    if (doc.getSelections() != null) {
+      for (Selection selection : doc.getSelections()) {
+        if (selection.getName() == null || selection.getName().isEmpty()) {
+          context.addError("Selection has no name");
+        }
+        if (selection.getRules() == null || selection.getRules().isEmpty()) {
+          context.addWarning("Selection '" + selection.getName() + "' has no rules");
+        }
       }
     }
-    if (errors.size() > 5) {
-      sb.append("\n  ... and ").append(errors.size() - 5).append(" more");
+
+    // Validate Registers
+    if (doc.getRegisters() != null) {
+      for (Register register : doc.getRegisters()) {
+        if (register.getName() == null || register.getName().isEmpty()) {
+          context.addError("Register has no name");
+        }
+        if (register.getBase() == null || register.getBase().isEmpty()) {
+          context.addWarning("Register '" + register.getName() + "' has no base Selection");
+        }
+      }
     }
-    return sb.toString();
-  }
 
-  /**
-   * Logs a summary of the transformation result.
-   */
-  private void logTransformationSummary() {
-    long duration = transformationEndTime - transformationStartTime;
-
-    log.info("=== Transformation Summary ===");
-    log.info("Duration: {}ms", duration);
-    log.info("Correlation ID: {}", context.getCorrelationId());
-    log.info("Document: {}", targetQuery.getName());
-    log.info("Reference mappings: {}", context.getErrorCollector().getErrorCount());
-
-    context.logContextState();
-  }
-
-  /**
-   * Gets the current transformation context.
-   */
-  public TransformationContext getContext() {
-    return context;
-  }
-
-  /**
-   * Gets the current target query being built.
-   */
-  public Query getTargetQuery() {
-    return targetQuery;
-  }
-
-  /**
-   * Gets the transformation duration in milliseconds.
-   */
-  public long getTransformationDuration() {
-    if (transformationStartTime == 0) {
-      return 0;
+    // Validate Indicators
+    if (doc.getIndicators() != null) {
+      for (Indicator indicator : doc.getIndicators()) {
+        if (indicator.getName() == null || indicator.getName().isEmpty()) {
+          context.addError("Indicator has no name");
+        }
+        if (indicator.getBase() == null || indicator.getBase().isEmpty()) {
+          context.addWarning("Indicator '" + indicator.getName() + "' has no base Register");
+        }
+      }
     }
-    if (transformationEndTime == 0) {
-      return System.currentTimeMillis() - transformationStartTime;
+  }
+
+  /**
+   * Validate generated IMQuery objects.
+   */
+  private void validateGeneratedQueries(TransformationContext context) {
+    for (Query query : context.getGeneratedQueries().values()) {
+      if (query.getIri() == null || query.getIri().isEmpty()) {
+        context.addError("Generated query has no IRI: " + query.getName());
+      }
+      if (query.getTypeOf() == null) {
+        context.addWarning("Generated query '" + query.getName() + "' has no typeOf");
+      }
     }
-    return transformationEndTime - transformationStartTime;
+  }
+
+  private void logErrors(TransformationContext context) {
+    System.err.println("=== Transformation Errors ===");
+    for (String error : context.getErrors()) {
+      System.err.println("ERROR: " + error);
+    }
+  }
+
+  private void logWarnings(TransformationContext context) {
+    System.out.println("=== Transformation Warnings ===");
+    for (String warning : context.getWarnings()) {
+      System.out.println("WARNING: " + warning);
+    }
+  }
+
+  public FieldMappingDictionary getFieldMapping() {
+    return fieldMapping;
+  }
+
+  public LogicExpressionParser getLogicParser() {
+    return logicParser;
   }
 }

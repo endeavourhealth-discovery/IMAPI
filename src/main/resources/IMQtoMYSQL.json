@@ -189,6 +189,10 @@
         "http://endhealth.info/im#ethnicity": {
           "field": "ethnic_code_concept_id",
           "type": "iri"
+        },
+        "http://endhealth.info/im#fullName": {
+          "field": "last_name",
+          "type": "string"
         }
       }
     },

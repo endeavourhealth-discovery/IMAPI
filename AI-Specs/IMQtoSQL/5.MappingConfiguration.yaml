@@ -1,0 +1,264 @@
+# IMQ to Compass Mapping Configuration
+# Configurable mapping file defining IMQ entity/property IRIs to Compass schema translations
+# Format: YAML (can be converted to JSON if needed)
+
+entityMappings:
+  - imqEntityIri: "http://endhealth.info/im#Patient"
+    tableName: "patient"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#EpisodeOfCare"
+    tableName: "episode_of_care"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Encounter"
+    tableName: "encounter"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#ClinicalEntry"
+    tableName: "observation"
+    primaryKey: "id"
+    isPolymorphic: true
+    alternateTables:
+      - "diagnostic_order"
+      - "medication_statement"
+
+  - imqEntityIri: "http://endhealth.info/im#Observation"
+    tableName: "observation"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Medication"
+    tableName: "medication_statement"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables:
+      - "medication_order"
+
+  - imqEntityIri: "http://endhealth.info/im#Allergy"
+    tableName: "allergy_intolerance"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Appointment"
+    tableName: "appointment"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Flag"
+    tableName: "flag"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Organization"
+    tableName: "organization"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Practitioner"
+    tableName: "practitioner"
+    primaryKey: "id"
+    isPolymorphic: false
+    alternateTables: []
+
+  - imqEntityIri: "http://endhealth.info/im#Concept"
+    tableName: "concept"
+    primaryKey: "dbid"
+    isPolymorphic: false
+    alternateTables: []
+
+propertyMappings:
+  # Core concept properties
+  - imqPropertyIri: "http://endhealth.info/im#concept"
+    compassTable: "observation"
+    compassColumn: "core_concept_id"
+    dataType: "int"
+    requiresJoin: true
+    joinTable: "concept"
+    joinCondition: "observation.core_concept_id = concept.dbid"
+
+  - imqPropertyIri: "http://endhealth.info/im#concept"
+    compassTable: "medication_statement"
+    compassColumn: "core_concept_id"
+    dataType: "int"
+    requiresJoin: true
+    joinTable: "concept"
+    joinCondition: "medication_statement.core_concept_id = concept.dbid"
+
+  # Temporal properties
+  - imqPropertyIri: "http://endhealth.info/im#effectiveDate"
+    compassTable: "observation"
+    compassColumn: "clinical_effective_date"
+    dataType: "datetime"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#effectiveDate"
+    compassTable: "medication_statement"
+    compassColumn: "clinical_effective_date"
+    dataType: "datetime"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#dateOfBirth"
+    compassTable: "patient"
+    compassColumn: "date_of_birth"
+    dataType: "date"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#age"
+    compassTable: "patient"
+    compassColumn: "date_of_birth"
+    dataType: "computed"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  # Status properties
+  - imqPropertyIri: "http://endhealth.info/im#gmsPatientType"
+    compassTable: "episode_of_care"
+    compassColumn: "registration_type_concept_id"
+    dataType: "int"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#status"
+    compassTable: "episode_of_care"
+    compassColumn: "registration_status_concept_id"
+    dataType: "int"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  # Observation/Result properties
+  - imqPropertyIri: "http://endhealth.info/im#resultValue"
+    compassTable: "observation"
+    compassColumn: "result_value"
+    dataType: "double"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#resultText"
+    compassTable: "observation"
+    compassColumn: "result_text"
+    dataType: "text"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  # Name/Label properties
+  - imqPropertyIri: "http://endhealth.info/im#label"
+    compassTable: "concept"
+    compassColumn: "name"
+    dataType: "varchar"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://www.w3.org/2000/01/rdf-schema#label"
+    compassTable: "concept"
+    compassColumn: "name"
+    dataType: "varchar"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  # Medication properties
+  - imqPropertyIri: "http://endhealth.info/im#dose"
+    compassTable: "medication_statement"
+    compassColumn: "dose"
+    dataType: "varchar"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#quantity"
+    compassTable: "medication_statement"
+    compassColumn: "quantity_value"
+    dataType: "double"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  # Flag/Problem properties
+  - imqPropertyIri: "http://endhealth.info/im#problem"
+    compassTable: "observation"
+    compassColumn: "is_problem"
+    dataType: "tinyint"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+  - imqPropertyIri: "http://endhealth.info/im#isActive"
+    compassTable: "observation"
+    compassColumn: "is_active"
+    dataType: "tinyint"
+    requiresJoin: false
+    joinTable: null
+    joinCondition: null
+
+# Temporal parameters for date precision
+temporalParameters:
+  year: 1
+  month: 2
+  day: 5
+  minute: 10
+  second: 11
+  millisecond: 12
+
+# Common join patterns
+commonJoins:
+  - name: "patient_to_encounter"
+    source: "patient"
+    target: "encounter"
+    joinCondition: "patient.id = encounter.patient_id AND patient.organization_id = encounter.organization_id"
+
+  - name: "patient_to_episode"
+    source: "patient"
+    target: "episode_of_care"
+    joinCondition: "patient.id = episode_of_care.patient_id AND patient.organization_id = episode_of_care.organization_id"
+
+  - name: "encounter_to_observation"
+    source: "encounter"
+    target: "observation"
+    joinCondition: "encounter.id = observation.encounter_id"
+
+  - name: "observation_to_concept"
+    source: "observation"
+    target: "concept"
+    joinCondition: "observation.core_concept_id = concept.dbid"
+
+# Concept resolution strategies (for phase 2 and beyond)
+conceptResolutionStrategies:
+  - type: "DIRECT_CORE_CONCEPT"
+    description: "Direct mapping to core concept ID"
+    example: "WHERE core_concept_id = 12345"
+
+  - type: "LEGACY_CONCEPT_MAPPING"
+    description: "Lookup through concept_map table"
+    example: "WHERE core_concept_id IN (SELECT core FROM concept_map WHERE legacy = ?)"
+
+  - type: "CONCEPT_SET_MEMBERSHIP"
+    description: "Lookup concept set members"
+    example: "WHERE core_concept_id IN (SELECT member_concept_id FROM concept_set_member WHERE concept_set_id = ?)"
+
+  - type: "DESCENDANT_HIERARCHY"
+    description: "Include descendants of referenced concept"
+    example: "WHERE core_concept_id IN (WITH RECURSIVE ... SELECT dbid FROM concept_tree)"

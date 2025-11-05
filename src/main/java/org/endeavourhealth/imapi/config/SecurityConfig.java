@@ -16,8 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
@@ -26,6 +29,7 @@ public class SecurityConfig {
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
+      .cors(cors -> cors.configurationSource(corsFilter()))
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(this::setRequestPermissions)
       .exceptionHandling(ex -> ex
@@ -35,6 +39,18 @@ public class SecurityConfig {
       .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .addFilterBefore(new JwtCookieAuthFilter(), BasicAuthenticationFilter.class);
     return http.build();
+  }
+
+  @Bean
+  public UrlBasedCorsConfigurationSource corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.setAllowedOrigins(List.of("http://localhost:8082"));
+    config.setAllowedMethods(Arrays.asList("POST", "GET", "DELETE", "PUT", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
+    source.registerCorsConfiguration("/**", config);
+    return source;
   }
 
   @Bean
@@ -68,7 +84,7 @@ public class SecurityConfig {
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
-    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT"));
+    firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
     return firewall;
   }
 

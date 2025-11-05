@@ -27,14 +27,14 @@ public class CasbinEnforcer {
   }
 
   private void setupEnforcer() throws UserAuthorisationException {
-    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASDOOR_URL", "jdbc:mysql://localhost:3306/casdoor");
+    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casbin");
     this.dataSource.setURL(mysqlCasdoorUrl);
     String mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root");
     this.dataSource.setUser(mysqlUser);
     String mysqlPassword = System.getenv().getOrDefault("MYSQL_PASSWORD", "password");
     this.dataSource.setPassword(mysqlPassword);
     try {
-      this.adapter = new JDBCAdapter(this.dataSource);
+      this.adapter = new JDBCAdapter(this.dataSource, false, "casbin_imapi", true);
     } catch (Exception e) {
       throw new UserAuthorisationException("Failed to setup enforcer");
     }
@@ -62,7 +62,7 @@ public class CasbinEnforcer {
     if (null == this.enforcer) {
       setupEnforcer();
     }
-    return enforcer.enforce(user, resource, action);
+    return enforcer.enforce(user, resource.name(), action.name());
   }
 
   public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException {

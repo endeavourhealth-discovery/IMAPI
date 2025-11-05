@@ -18,6 +18,7 @@ public class User implements Serializable {
   private transient String password;
   private String avatar;
   private List<UserRole> roles;
+  private List<String> groups;
 
   public User setPassword(String password) {
     this.password = "";

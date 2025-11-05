@@ -94,6 +94,7 @@ public class CasdoorService {
     user.setUsername(casdoorUser.name);
     user.setAvatar(casdoorUser.avatar);
     user.setRoles(casdoorUser.roles.stream().map(role -> UserRole.valueOf(role.name)).collect(Collectors.toList()));
+    user.setGroups(casdoorUser.groups);
     return user;
   }
 

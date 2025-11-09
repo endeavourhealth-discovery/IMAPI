@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.casbin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
@@ -22,12 +24,13 @@ public class CasbinEnforcer {
   private MysqlDataSource dataSource = new MysqlDataSource();
   private JDBCAdapter adapter;
   private CasdoorService casdoorService = new CasdoorService();
+  private ObjectMapper om = new ObjectMapper();
 
   public CasbinEnforcer() {
   }
 
   private void setupEnforcer() throws UserAuthorisationException {
-    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casbin");
+    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casdoor");
     this.dataSource.setURL(mysqlCasdoorUrl);
     String mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root");
     this.dataSource.setUser(mysqlUser);
@@ -58,7 +61,7 @@ public class CasbinEnforcer {
     enforceWithError(user, resource, action);
   }
 
-  public boolean enforce(User user, Resource resource, Action action) throws UserAuthorisationException {
+  public boolean enforce(User user, Resource resource, Action action) throws UserAuthorisationException, JsonProcessingException {
     if (null == this.enforcer) {
       setupEnforcer();
     }

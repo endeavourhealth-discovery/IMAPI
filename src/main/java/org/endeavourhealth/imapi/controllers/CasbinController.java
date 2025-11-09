@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
@@ -28,7 +29,7 @@ public class CasbinController {
   }
 
   @GetMapping("hasPermission")
-  public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException {
+  public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
     User user = casdoorService.getUser(request);
     return casbinEnforcer.enforce(user, resource, action);
   }

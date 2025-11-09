@@ -24,4 +24,9 @@ public class User implements Serializable {
     this.password = "";
     return this;
   }
+
+  public List<String> getRoleNames() {
+    if (roles == null) return List.of();
+    return roles.stream().map(Enum::name).toList();
+  }
 }

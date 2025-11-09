@@ -1,5 +1,8 @@
 import cz.habarta.typescript.generator.*
 
+apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
+apply(from = "$rootDir/gradle/copyAutoGenToQueryRunner.gradle")
+
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)

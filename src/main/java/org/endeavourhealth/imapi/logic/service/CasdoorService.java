@@ -112,6 +112,11 @@ public class CasdoorService {
     cookie.setHttpOnly(true);
     cookie.setMaxAge(0);
     response.addCookie(cookie);
+    Cookie sessionCookie = new Cookie("casdoor_session_id", "");
+    sessionCookie.setPath("/");
+    sessionCookie.setHttpOnly(true);
+    sessionCookie.setMaxAge(0);
+    response.addCookie(sessionCookie);
   }
 
   public User adminGetUser(String userId) throws UserNotFoundException {

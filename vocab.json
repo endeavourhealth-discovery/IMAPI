@@ -2343,6 +2343,10 @@
         "value": "\"qof\""
       },
       {
+        "name": "QOFDOC",
+        "value": "\"qofdoc\""
+      },
+      {
         "name": "CORE",
         "value": "\"core\""
       },

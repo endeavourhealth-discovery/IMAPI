@@ -20,6 +20,7 @@ public enum ImportType implements VocabEnum {
     FHIR("fhir"),
     SMARTLIFE("smartlifequery"),
     QOF("qof"),
+    QOFDOC("qofdoc"),
     CORE("core"),
     SINGLE_FILE("singlefile"),
     BNF("bnf"),

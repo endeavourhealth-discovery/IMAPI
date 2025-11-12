@@ -59,6 +59,7 @@ VALUES
 # IMQuery API guards
 INSERT INTO casbin_query_runner (ptype, v0, v1, v2, v3)
 VALUES
+  ('p','ADMIN','*','*','allow')
   ('p','EXECUTOR','QUERY','EXECUTE','allow'),
   ('p','EXECUTOR','QUERY_RESULTS','READ','allow')
 ;

@@ -29,7 +29,8 @@ public class SetTextFileExporter {
     results.add(headerLine);
   }
 
-  public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy) throws IOException, GeneralCustomException {
+  public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy
+  ,String ecl) throws IOException, GeneralCustomException {
     log.trace("Generating output...");
     switch (fileType) {
       case "tsv" -> {
@@ -40,7 +41,7 @@ public class SetTextFileExporter {
       }
       case "xlsx" -> {
         String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy);
-        return getExcel(fileContent);
+        return getExcel(fileContent,ecl);
       }
       default -> {
         return new byte[0];
@@ -58,9 +59,16 @@ public class SetTextFileExporter {
     return results.toString();
   }
 
-  private byte[] getExcel(String csvString) throws IOException, GeneralCustomException {
+  private byte[] getExcel(String csvString,String ecl) throws IOException, GeneralCustomException {
     try (Workbook workbook = new XSSFWorkbook()) {
-      Sheet sheet = workbook.createSheet("Sheet1");
+      if (ecl != null && !ecl.isEmpty()) {
+        Sheet sheet = workbook.createSheet("ECLDefinition");
+        Row row = sheet.createRow(0);
+        row.createCell(0).setCellValue("ECL");
+        row= sheet.createRow(1);
+        row.createCell(0).setCellValue(ecl);
+      }
+      Sheet sheet = workbook.createSheet("Expansion");
       String[] lines = csvString.split("\n");
       int rowNum = 0;
 

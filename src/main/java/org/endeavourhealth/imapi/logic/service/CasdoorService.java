@@ -3,6 +3,14 @@ package org.endeavourhealth.imapi.logic.service;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.oltu.oauth2.client.OAuthClient;
+import org.apache.oltu.oauth2.client.URLConnectionClient;
+import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
+import org.apache.oltu.oauth2.client.response.OAuthJSONAccessTokenResponse;
+import org.apache.oltu.oauth2.common.OAuth;
+import org.apache.oltu.oauth2.common.exception.OAuthProblemException;
+import org.apache.oltu.oauth2.common.exception.OAuthSystemException;
+import org.apache.oltu.oauth2.common.message.types.GrantType;
 import org.casbin.casdoor.config.CasdoorConfiguration;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
@@ -13,10 +21,15 @@ import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -104,6 +117,36 @@ public class CasdoorService {
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
+  }
+
+  public HttpResponse<String> authenticateToken(String token)  throws IOException, InterruptedException {
+    try (HttpClient client = HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build()) {
+
+      String clientHash = Base64.getEncoder().encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+
+      Map<String, String> params = new HashMap<>();
+      params.put("token", token);
+      params.put("token_type_hint", "access_token");
+
+      String formData = params.entrySet()
+        .stream()
+        .map(e -> e.getKey() + "=" + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+        .collect(Collectors.joining("&"));
+
+      URI uri = URI.create(String.format("%s/api/login/oauth/introspect", endpoint));
+
+      HttpRequest httpRequest = HttpRequest.newBuilder()
+        .uri(uri)
+        .setHeader("Accept", "application/json")
+        .setHeader("Content-Type", "application/x-www-form-urlencoded")
+        .setHeader("Authorization", "Basic " + clientHash)
+        .POST(HttpRequest.BodyPublishers.ofString(formData))
+        .build();
+
+     return client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+    }
   }
 
   public void logout(HttpServletResponse response) {

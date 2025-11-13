@@ -12,6 +12,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -40,6 +42,11 @@ public class CasdoorController {
   @GetMapping("/logout")
   public void logout(HttpServletResponse response) {
     casdoorService.logout(response);
+  }
+
+  @GetMapping("/public/auth")
+  public HttpResponse<String> authenticateToken(String token) throws IOException, InterruptedException {
+    return casdoorService.authenticateToken(token);
   }
 
   @GetMapping("getUsersInGroup")

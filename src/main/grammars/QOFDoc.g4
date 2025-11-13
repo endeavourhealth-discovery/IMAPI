@@ -18,6 +18,7 @@ notExpression
 
 comparisonExpression
     : 'If'? term (COMPARISON_OPERATOR term)?
+    | COMPARISON_OPERATOR term
     ;
 
 term
@@ -28,7 +29,7 @@ term
     | LPAREN orExpression RPAREN
     | FUNCTION_NAME LPAREN (term (COMMA term)*)? RPAREN
     | NULL
-    | term OPERATOR term  // Handle arithmetic
+    | term OPERATOR term
     ;
 
 // Lexer Rules
@@ -40,11 +41,11 @@ LPAREN      : '(';
 RPAREN      : ')';
 OPERATOR    : ('+' | '–' | '-');
 COMPARISON_OPERATOR
-            : '=' | '!=' | '≠' |'<>' | '<' | '>' | '<=' | '>=' | 'LIKE' | 'NOT LIKE' | 'on each'
+            : '=' | '!=' | '≠' | '<>' | '<' | '>' | '<=' | '>=' | 'LIKE' | 'NOT LIKE' | 'on each' | 'at'
             ;
 IDENTIFIER  : ('{' | '[')? [a-zA-Z_][a-zA-Z0-9_.]* ('}' | ']')?;
 NUMBER      : OPERATOR? DIGIT+ ('.' DIGIT+)? (WS? UNIT)?;
-UNIT        : 'years' | 'months' | '%';
+UNIT        : 'years' | 'months' | 'days' | '%';
 DATE        : DIGIT DIGIT '/' DIGIT DIGIT '/' DIGIT DIGIT DIGIT DIGIT;
 STRING_LITERAL
             : '\'' ( ~('\'' | '\\') | '\\' . )* '\'';

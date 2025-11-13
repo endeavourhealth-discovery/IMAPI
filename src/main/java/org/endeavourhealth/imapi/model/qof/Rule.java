@@ -1,31 +1,40 @@
 package org.endeavourhealth.imapi.model.qof;
 
+import org.endeavourhealth.imapi.logic.importers.QOFExpressionParser;
+
 public class Rule {
-    private int rule;
-    private String logic;
+    private String logicText;
+    private QOFExpressionNode logic;
     private String ifTrue;
     private String ifFalse;
     private String description;
+    private Integer order;
 
-    public int getRule() {
-        return rule;
+    public Integer getOrder() {
+        return order;
     }
 
-    public Rule setRule(int rule) {
-        this.rule = rule;
+    public Rule setOrder(Integer order) {
+        this.order = order;
         return this;
     }
 
-    public String getLogic() {
-        return logic;
+    public String getLogicText() {
+        return logicText;
     }
 
-    public Rule setLogic(String logic) {
-        this.logic = logic;
+    public Rule setLogicText(String logicText) {
+        this.logicText = logicText;
+        this.logic = QOFExpressionParser.parseExpression(logicText);
         return this;
     }
 
-    public String getIfTrue() {
+  public QOFExpressionNode getLogic() {
+    return logic;
+  }
+
+
+  public String getIfTrue() {
         return ifTrue;
     }
 

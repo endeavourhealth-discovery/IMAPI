@@ -7,7 +7,8 @@ public class Indicator {
     private String name;
     private String description;
     private String base;
-    private List<Rule> rules = new ArrayList<>();
+    private List<Rule> denominator = new ArrayList<>();
+    private List<Rule> numerator = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -36,17 +37,31 @@ public class Indicator {
         return this;
     }
 
-    public List<Rule> getRules() {
-        return rules;
+    public List<Rule> getDenominator() {
+        return denominator;
     }
 
-    public Indicator setRules(List<Rule> rules) {
-        this.rules = rules;
+    public Indicator setDenominator(List<Rule> denominator) {
+        this.denominator = denominator;
         return this;
     }
 
-    public Indicator addRule(Rule rule) {
-        this.rules.add(rule);
+    public Indicator addDenominator(Rule rule) {
+        this.denominator.add(rule);
         return this;
     }
+
+  public List<Rule> getNumerator() {
+    return numerator;
+  }
+
+  public Indicator setNumerator(List<Rule> numerator) {
+    this.numerator = numerator;
+    return this;
+  }
+
+  public Indicator addNumerator(Rule rule) {
+    this.numerator.add(rule);
+    return this;
+  }
 }

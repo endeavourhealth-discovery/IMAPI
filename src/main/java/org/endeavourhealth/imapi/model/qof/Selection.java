@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Selection {
     private String name;
-    private List<SelectionRule> rules = new ArrayList<>();
+    private List<Rule> rules = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -16,16 +16,16 @@ public class Selection {
         return this;
     }
 
-    public List<SelectionRule> getRules() {
+    public List<Rule> getRules() {
         return rules;
     }
 
-    public Selection setRules(List<SelectionRule> rules) {
+    public Selection setRules(List<Rule> rules) {
         this.rules = rules;
         return this;
     }
 
-    public Selection addRule(SelectionRule rule) {
+    public Selection addRule(Rule rule) {
         this.rules.add(rule);
         return this;
     }

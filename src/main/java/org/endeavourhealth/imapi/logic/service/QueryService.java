@@ -90,18 +90,18 @@ public class QueryService {
   }
 
 
-  public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException {
+  public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverter(queryRequestForSql).getSql();
   }
 
-  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, QueryException, SQLConversionException {
+  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverter(queryRequestForSql).getSql();
   }
 
-  public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException {
+  public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (null == queryRequest.getQuery()) throw new SQLConversionException("Query in query request cannot be null");
 
     if (null != queryRequest.getLanguage() && !queryRequest.getLanguage().equals(DatabaseOption.MYSQL) && !queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL)) {
@@ -178,7 +178,6 @@ public class QueryService {
   }
 
   private Map<String, Integer> runSubQueries(QueryRequest queryRequest) throws QueryException, JsonProcessingException, SQLConversionException, SQLException {
-//    List<String> subQueries = getSubqueryIris(queryRequest.getQuery());
     List<SubQueryDependency> subQueries = entityRepository.getOrderedSubqueries(queryRequest.getQuery().getIri());
     List<String> subQueryIris = subQueries.stream().map(SubQueryDependency::getIri)
       .toList();
@@ -200,7 +199,7 @@ public class QueryService {
     return queryIrisToHashCodes;
   }
 
-  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException, SQLConversionException {
+  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws JsonProcessingException, SQLConversionException {
     Map<String, Integer> queryIrisToHashCodes = new HashMap<>();
     for (String subQueryIri : subQueries) {
       QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(argument));
@@ -423,77 +422,6 @@ public class QueryService {
       if (whereList != null) {
         for (Where subWhere : whereList)
           getNodeRefs(subWhere, nodeRefs);
-      }
-    }
-  }
-
-  private List<String> getSubqueryIris(Query query) throws QueryException, JsonProcessingException, SQLConversionException {
-    List<String> subQueryIris = new ArrayList<>();
-    populateSubqueryIrisConclusively(query, subQueryIris);
-    subQueryIris = deduplicateKeepLast(subQueryIris);
-    return subQueryIris;
-  }
-
-  private List<String> deduplicateKeepLast(List<String> subQueryIris) {
-    LinkedHashSet<String> seen = new LinkedHashSet<>();
-    ListIterator<String> it = subQueryIris.listIterator(subQueryIris.size());
-    while (it.hasPrevious()) {
-      String iri = it.previous();
-      seen.add(iri);
-    }
-    List<String> result = new ArrayList<>(seen);
-    Collections.reverse(result);
-    return result;
-  }
-
-  private void populateSubqueryIrisConclusively(Query query, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
-    if (query.getIsCohort() != null) {
-      subQueryIris.add(query.getIsCohort().getIri());
-    }
-
-    if (query.getAnd() != null) {
-      for (Match and : query.getAnd()) {
-        processMatch(and, subQueryIris);
-      }
-    }
-
-    if (query.getOr() != null) {
-      for (Match or : query.getOr()) {
-        processMatch(or, subQueryIris);
-      }
-    }
-
-    if (query.getNot() != null) {
-      for (Match not : query.getNot()) {
-        processMatch(not, subQueryIris);
-      }
-    }
-  }
-
-  private void processMatch(Match match, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
-    if (null != match.getIsCohort()) {
-      String iri = match.getIsCohort().getIri();
-      subQueryIris.add(iri);
-      Query subQuery = describeQuery(iri, DisplayMode.LOGICAL);
-      if (null == subQuery) throw new SQLConversionException("Sub query with iri:" + iri + " not found");
-      populateSubqueryIrisConclusively(subQuery, subQueryIris);
-    }
-
-    if (match.getAnd() != null) {
-      for (Match nestedAnd : match.getAnd()) {
-        processMatch(nestedAnd, subQueryIris);
-      }
-    }
-
-    if (match.getOr() != null) {
-      for (Match nestedOr : match.getOr()) {
-        processMatch(nestedOr, subQueryIris);
-      }
-    }
-
-    if (match.getNot() != null) {
-      for (Match nestedNot : match.getNot()) {
-        processMatch(nestedNot, subQueryIris);
       }
     }
   }

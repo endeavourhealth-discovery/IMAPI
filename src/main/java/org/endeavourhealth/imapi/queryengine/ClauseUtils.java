@@ -16,8 +16,6 @@ public class ClauseUtils {
       }
       where.setFunction(buildFunction(
         Namespace.IM + "age",
-        argPath("dateOfBirth", new Path().setIri(Namespace.IM + "dateOfBirth")),
-        argRelativeTo(relativeTo),
         argUnits(units)
       ));
     } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getQualifier()==null)&&(where.getValue()!=null||where.getRange()!=null)) {

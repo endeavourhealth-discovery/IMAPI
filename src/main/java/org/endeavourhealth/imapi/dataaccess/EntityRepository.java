@@ -1828,15 +1828,18 @@ public class EntityRepository {
            ?entity rdfs:label ?label.
           ?entity sh:property ?property.
           ?property sh:path ?path.
-              ?path rdfs:label ?pathLabel.
+           ?path rdfs:label ?pathLabel.
           ?property sh:node ?entity.
           }
           union {
-              VALUES ?path {im:isContainedIn}
            ?parent im:contentType ?entity.
            ?entity rdfs:label ?label.
-              ?entity sh:property ?property.
-              ?path rdfs:label ?pathLabel.
+          }
+          union {
+          ?parent rdf:type im:Folder.
+           filter not exists {?parent im:contentType ?anything}
+            ?entity im:isContainedIn im:EntityTypes.
+            ?entity rdfs:label ?label.
           }
       }
       """.formatted("<" + iri + ">");
@@ -1855,9 +1858,13 @@ public class EntityRepository {
             iriMap.put(bs.getValue("entity").stringValue(), child);
             result.add(child);
           }
-          child.set(TTIriRef.iri(SHACL.PATH), TTIriRef
-            .iri(bs.getValue("path").stringValue())
-            .setName(bs.getValue("pathLabel").stringValue()));
+          if (bs.getValue("path") != null) {
+            child.set(TTIriRef.iri(SHACL.PATH), TTIriRef
+              .iri(bs.getValue("path").stringValue())
+              .setName(bs.getValue("pathLabel").stringValue()));
+          } else {
+            child.set(TTIriRef.iri(SHACL.PATH), TTIriRef.iri(IM.IS_CONTAINED_IN).setName("is contained in"));
+          }
         }
       }
     }

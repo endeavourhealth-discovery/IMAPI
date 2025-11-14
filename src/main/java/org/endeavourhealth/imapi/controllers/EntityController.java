@@ -260,7 +260,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName, editRequest.getGraph());
+      return filerService.createEntity(editRequest, agentName);
     }
   }
 
@@ -281,7 +281,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntity(editRequest.getEntity(), agentName, editRequest.getGraph());
+      return filerService.updateEntity(editRequest.getEntity(), agentName);
     }
   }
 

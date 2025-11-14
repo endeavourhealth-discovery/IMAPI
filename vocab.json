@@ -514,6 +514,10 @@
         "value": "Namespace.IM + \"isMemberOf\""
       },
       {
+        "name": "AVOID_REPLACED_BY",
+        "value": "Namespace.IM + \"avoidReplacedBy\""
+      },
+      {
         "name": "IS_SUBSET_OF",
         "value": "Namespace.IM + \"isSubsetOf\""
       },

@@ -125,6 +125,7 @@ public enum IM implements VocabEnum {
     SUPPLIER_ASSURED(Namespace.IM + "SupplierAssured"),
     HAS_MEMBER(Namespace.IM + "hasMember"),
     IS_MEMBER_OF(Namespace.IM + "isMemberOf"),
+    AVOID_REPLACED_BY(Namespace.IM + "avoidReplacedBy"),
     IS_SUBSET_OF(Namespace.IM + "isSubsetOf"),
     HAS_SUBSET(Namespace.IM + "hasSubset"),
     SOURCE_CONTEXT(Namespace.IM + "sourceContext"),

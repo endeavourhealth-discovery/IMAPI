@@ -345,10 +345,10 @@ public class SetService {
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
           subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
           isSubsetOf.add(iri(entityIri));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         }
       }
     }
@@ -357,7 +357,7 @@ public class SetService {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         isSubsetOf.remove(iri(entityIri));
-        filerService.updateEntity(subsetEntity, agentName, updateGraph);
+        filerService.updateEntity(subsetEntity, agentName);
       }
     }
   }

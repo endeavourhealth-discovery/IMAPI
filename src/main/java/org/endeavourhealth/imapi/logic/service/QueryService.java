@@ -505,7 +505,7 @@ public class QueryService {
   }
 
   public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
-    return new IMQToIML().getIML(queryIri);
+    return new IMQToIML().getIML(queryIri,true);
   }
 
 

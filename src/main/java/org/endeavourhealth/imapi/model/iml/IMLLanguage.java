@@ -18,10 +18,18 @@ public class IMLLanguage {
   private Map<String,String> prefixes = new HashMap<>();
   @Getter
   private Set<String> keywords= new HashSet<>();
+  @Getter Set<String> booleans= new HashSet<>();
+  @Getter Set<String> alerts= new HashSet<>();
   private Map<String,Set<String>> iriVariables= new HashMap<>();
 
   public Map<String, Set<String>> getIriVariables() {
     return iriVariables;
+  }
+
+  public IMLLanguage(){
+    this.getKeywords().addAll(Set.of("define","get","match","with","has","as","from","is","where","in","exclude","if","prefix","info"));
+    this.getBooleans().addAll(Set.of("either","and","or"));
+    this.getAlerts().addAll(Set.of("exclude","warning"));
   }
   public IMLLanguage setIriVariables(Map<String, Set<String>> iriVariables) {
     this.iriVariables = iriVariables;

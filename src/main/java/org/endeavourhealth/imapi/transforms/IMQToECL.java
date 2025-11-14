@@ -163,11 +163,11 @@ public class IMQToECL {
         if (getEclType(subMatch) == ECLType.refined) ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, true);
         if (getEclType(subMatch) == ECLType.refined) ecl.append(")");
-        ecl.append("\n");
       }
       if (match.getNot().size() > 1)
         ecl.append(")");
     }
+    ecl.append("\n");
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {

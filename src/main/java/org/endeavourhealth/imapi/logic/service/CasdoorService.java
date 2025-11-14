@@ -7,6 +7,7 @@ import org.casbin.casdoor.config.CasdoorConfiguration;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
 import org.casbin.casdoor.service.UserService;
+import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
@@ -100,6 +101,18 @@ public class CasdoorService {
 
   public void loginUser(String code, String state, HttpServletResponse response) {
     String token = casdoorAuthService.getOAuthToken(code, state);
+    Cookie cookie = new Cookie("casdoorToken", token);
+    cookie.setPath("/");
+    cookie.setHttpOnly(true);
+    response.addCookie(cookie);
+  }
+
+  public void loginWithBearerToken(HttpServletRequest request, HttpServletResponse response) {
+    String header = request.getHeader("Authorization");
+    if (header == null || !header.startsWith("Bearer ")) {
+      throw new UnauthorizedException("Unauthorized");
+    }
+    String token = header.substring(7);
     Cookie cookie = new Cookie("casdoorToken", token);
     cookie.setPath("/");
     cookie.setHttpOnly(true);

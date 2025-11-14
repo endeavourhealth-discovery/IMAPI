@@ -37,6 +37,11 @@ public class CasdoorController {
     casdoorService.loginUser(code, state, response);
   }
 
+  @GetMapping("/public/loginWithBearerToken")
+  public void loginWithToken(HttpServletRequest request, HttpServletResponse response) {
+    casdoorService.loginWithBearerToken(request, response);
+  }
+
   @GetMapping("/logout")
   public void logout(HttpServletResponse response) {
     casdoorService.logout(response);

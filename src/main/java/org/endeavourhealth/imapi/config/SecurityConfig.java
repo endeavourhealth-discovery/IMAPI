@@ -25,7 +25,7 @@ import java.util.List;
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
-  
+
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
@@ -61,8 +61,8 @@ public class SecurityConfig {
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
     req.requestMatchers(HttpMethod.OPTIONS).permitAll();
     if (EnvHelper.isPublicMode()) {
-      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+      req.requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
 //        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
     }

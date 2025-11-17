@@ -17,7 +17,7 @@ public class JwtCookieAuthFilter extends OncePerRequestFilter {
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
     try {
-      String token = extractTokenFromCookie(request, "casdoorToken");
+      String token = extractTokenFromCookie(request, "access_token");
       if (token != null) {
         boolean isValid = casdoorService.validateToken(token);
         if (isValid) {

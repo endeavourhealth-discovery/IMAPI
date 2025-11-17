@@ -63,7 +63,7 @@ public class CasdoorService {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("casdoorToken")) {
+        if (cookie.getName().equals("access_token")) {
           String token = cookie.getValue();
           org.casbin.casdoor.entity.User user = casdoorAuthService.parseJwtToken(token);
           return parseUser(user);
@@ -77,7 +77,7 @@ public class CasdoorService {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("casdoorToken")) {
+        if (cookie.getName().equals("access_token")) {
           String token = cookie.getValue();
           return casdoorAuthService.getMyProfileUrl(token);
         }
@@ -101,7 +101,7 @@ public class CasdoorService {
 
   public void loginUser(String code, String state, HttpServletResponse response) {
     String token = casdoorAuthService.getOAuthToken(code, state);
-    Cookie cookie = new Cookie("casdoorToken", token);
+    Cookie cookie = new Cookie("access_token", token);
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
@@ -113,14 +113,14 @@ public class CasdoorService {
       throw new UnauthorizedException("Unauthorized");
     }
     String token = header.substring(7);
-    Cookie cookie = new Cookie("casdoorToken", token);
+    Cookie cookie = new Cookie("access_token", token);
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
   }
 
   public void logout(HttpServletResponse response) {
-    Cookie cookie = new Cookie("casdoorToken", "");
+    Cookie cookie = new Cookie("access_token", "");
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     cookie.setMaxAge(0);

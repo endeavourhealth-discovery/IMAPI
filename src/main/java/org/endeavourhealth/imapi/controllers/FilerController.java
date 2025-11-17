@@ -78,7 +78,7 @@ public class FilerController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
-        filerService.fileDocument(fileDocumentRequest.getDocument(), user.getUsername(), taskId, fileDocumentRequest.getInsertGraph());
+        filerService.fileDocument(fileDocumentRequest.getDocument(), user.getUsername(), taskId);
         response.put("taskId", taskId);
       } catch (Exception e) {
         Integer taskProgress = filerService.getTaskProgress(taskId);
@@ -119,7 +119,7 @@ public class FilerController {
       if (!filerService.userCanFile(user.getId(), filingGraph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, user.getUsername(), usedEntity, filingGraph);
+      filerService.fileEntity(entity, user.getUsername(), usedEntity);
       return ResponseEntity.ok().build();
     }
   }
@@ -171,7 +171,7 @@ public class FilerController {
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       User user = casdoorService.getUser(request);
-      filerService.fileEntity(entity, user.getUsername(), usedEntity, filingGraph);
+      filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -206,7 +206,7 @@ public class FilerController {
       User user = casdoorService.getUser(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, user.getUsername(), usedEntity, filingGraph);
+      filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -268,7 +268,7 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       User user = casdoorService.getUser(request);
-      filerService.fileEntity(entity, user.getUsername(), null, filingGraph);
+      filerService.fileEntity(entity, user.getUsername(), null);
       return iri;
     }
   }

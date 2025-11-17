@@ -37,8 +37,6 @@ public class EqdResources {
   @Getter
   private Namespace namespace;
   @Setter
-  private Properties criteriaMaps;
-  @Setter
   private String activeReport;
   @Getter
   @Setter
@@ -512,8 +510,9 @@ public class EqdResources {
         String vsetName = "Unnamed library set " + this.setCounter;
         Node iri = (new Node()).setIri(this.namespace + vset).setName(vsetName);
         iri.setMemberOf(true);
-        if (in) pv.addIs(iri);
-        else pv.addNotIs(iri);
+        pv.addIs(iri);
+        if (!in)
+          pv.setNot(true);
         pv.setValueLabel(valueLabel);
         this.createLibraryValueSet(iri.getIri(), vsetName);
       }
@@ -522,6 +521,8 @@ public class EqdResources {
       if (pv.getIri().toLowerCase().contains("age")||pv.getRelativeTo()!=null) {
         ClauseUtils.assignFunction(pv);
       }
+    } else if (cv.getSingleValue() != null) {
+      setSingleValue(cv,pv,in);
     }
   }
 
@@ -551,7 +552,7 @@ public class EqdResources {
 
     if (target.isEmpty()) {
       return "";
-    } else if (target.startsWith("{")) {
+    } else if (target.startsWith("$")) {
       return target;
     } else {
       String[] paths = (target).split(" ");
@@ -660,6 +661,47 @@ public class EqdResources {
       }
     }
     return relationship.toString();
+  }
+
+  private void setSingleValue(EQDOCColumnValue cv, Where pv,boolean in) throws IOException, EQDException {
+    EQDOCSingleValue sv=  cv.getSingleValue();
+    EQDOCValue variable= sv.getVariable();
+      if (variable!=null) {
+        String value = variable.getValue();
+        VocValueUnit qualifier = variable.getUnit();
+        VocRelation relative = variable.getRelation();
+        if (relative != null && relative.equals(VocRelation.RELATIVE)) {
+          if (value.equalsIgnoreCase("last")) {
+            pv.setOperator(Operator.eq);
+            pv.setValue("-1");
+            if (!in) pv.setNot(true);
+          } else if (value.equalsIgnoreCase("this")) {
+            pv.setOperator(Operator.eq);
+            if (!in) pv.setNot(true);
+          }
+          switch (qualifier) {
+            case MONTH -> pv.setQualifier(iri(Namespace.IM + "month").setName("month"));
+            case DAY -> pv.setQualifier(iri(Namespace.IM + "day").setName("day"));
+            case YEAR -> pv.setQualifier(iri(Namespace.IM + "year").setName("year"));
+            case FISCALYEAR -> pv.setQualifier(iri(Namespace.IM + "fiscalYear").setName("fiscalYear"));
+            case WEEK -> pv.setQualifier(iri(Namespace.IM + "weekNumber").setName("week number"));
+          }
+          pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
+        } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
+          pv.setValue(value);
+          pv.setOperator(Operator.eq);
+          if (!in) pv.setNot(true);
+        } else {
+          String key = this.sourceContext + "/EMISINTERNAL/" + value;
+          Object mapValue = this.dataMap.get(key);
+          if (mapValue != null) {
+              pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
+              if (!in) pv.setNot(true);
+          } else throw new EQDException("variable " + value + "with " + relative + " not supported");
+        }
+      }
+      else throw new EQDException("no variable found for single value");
+      ClauseUtils.assignFunction(pv);
   }
 
 
@@ -887,9 +929,8 @@ public class EqdResources {
 
     TTIriRef cluster = this.getClusterSet(vs);
     if (cluster != null) {
-      if (in)
         pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
-      else pv.addNotIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
+        if (!in) pv.setNot(true);
     } else {
       Set<Node> setContent = new HashSet<>();
       for (EQDOCValueSetValue ev : vs.getValues()) {
@@ -916,9 +957,8 @@ public class EqdResources {
       if (scheme == VocCodeSystemEx.SCT_CONST) {
         Query eclQuery = this.convertToEcl(scheme, setContent);
         TTEntity valueSet = this.createValueSet(vs, eclQuery, setContent);
-        if (in)
-          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
-        else pv.addNotIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+        pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+        if (!in) pv.setNot(true);
         pv.setValueLabel(valueSet.getName() + (eclQuery.getNot() != null ? " (+exclusions)" : ""));
       } else {
         String name = null;
@@ -928,8 +968,8 @@ public class EqdResources {
             if (node.isExclude()) {
               exclusions = " (exclusions)";
             }
-            if (in) pv.addIs(node);
-            else pv.addNotIs(node);
+            pv.addIs(node);
+            if (!in) pv.setNot(true);
             if (node.getName() != null && name == null) {
               name = this.getShortName(node.getName(), null);
             }
@@ -945,14 +985,14 @@ public class EqdResources {
             }
 
             if (node.isMemberOf()) {
-              if (in) pv.addIs(node);
-              else pv.addNotIs(node);
+              pv.addIs(node);
+             if (!in) pv.setNot(true);
             }
           }
           Set<Node> conceptContent = setContent.stream().filter(c -> !c.isMemberOf()).collect(Collectors.toSet());
           TTEntity valueSet = this.createValueSet(vs, conceptContent);
-          if (in) pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
-          else pv.addNotIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          if (!in) pv.setNot(true);
           pv.setValueLabel(valueSet.getName() + exclusions);
         }
 

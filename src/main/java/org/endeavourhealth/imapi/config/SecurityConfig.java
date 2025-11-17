@@ -59,10 +59,11 @@ public class SecurityConfig {
   }
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    req.requestMatchers(HttpMethod.OPTIONS).permitAll();
     if (EnvHelper.isPublicMode()) {
       req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
+//        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
     }
 
@@ -74,6 +75,7 @@ public class SecurityConfig {
       .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
       // Temporary for testing Smartlife API
+      .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/entity/public/partial").permitAll()
       .requestMatchers(HttpMethod.POST, "/api/query/public/sql").permitAll()
       // -----------------------------------

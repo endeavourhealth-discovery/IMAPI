@@ -1,49 +1,65 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+
+@NoArgsConstructor
 @Getter
 @Setter
-@AllArgsConstructor
 public class TableMap {
-  private HashMap<String, Table> properties;
-  private HashMap<String, Table> dataModels;
-  private HashMap<String, String> functions;
+  private List<MappingProperty> properties;
+  private Map<String, Table> tables;
+  private Map<String, String> functions;
+  private transient Map<List<String>, String> propertiesMap;
 
-  public TableMap() {
+  public Map<List<String>, String> getPropertiesMap() {
+    if (propertiesMap == null) buildPropertiesMap();
+    return propertiesMap;
   }
 
-  public Table getTable(String iri) throws SQLConversionException {
-    if (null == iri) throw new SQLConversionException("iri is null");
-    Table propTable = properties.get(iri);
-    if (propTable != null) {
-      String dataModel = propTable.getDataModel();
-      Table dmTable = dataModels.get(dataModel);
-      if (dmTable == null) {
-        throw new SQLConversionException("No table for Data model: " + dataModel + " not found.");
-      }
-      Table returnTable = new Table();
-      returnTable.setDataModel(dataModel);
-      returnTable.setTable(propTable.getTable() != null ? propTable.getTable() : dmTable.getTable());
-      returnTable.setCondition(propTable.getCondition() != null ? propTable.getCondition() : dmTable.getCondition());
-      returnTable.setFields(dmTable.getFields());
-      returnTable.setRelationships(dmTable.getRelationships());
-      return returnTable;
+  private void buildPropertiesMap() {
+    if (properties == null) return;
+    propertiesMap = new HashMap<>();
+    for (MappingProperty p : properties) {
+      propertiesMap.put(List.copyOf(p.getPath()), p.getDataModel());
     }
-    Table returnTable = dataModels.get(iri);
-    if (returnTable == null) {
+  }
+
+  public void setProperties(List<MappingProperty> properties) {
+    this.properties = properties;
+    buildPropertiesMap();
+  }
+
+  public Table getTableFromDataModel(String iri) throws SQLConversionException {
+    if (null == iri) throw new SQLConversionException("iri is null");
+    Table dmTable = tables.get(iri);
+    if (dmTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
+    Table returnTable = new Table();
     returnTable.setDataModel(iri);
+    returnTable.setTable(dmTable.getTable());
+    returnTable.setCondition(dmTable.getCondition());
+    returnTable.setFields(dmTable.getFields());
+    returnTable.setRelationships(dmTable.getRelationships());
+    returnTable.setPrimaryKey(dmTable.getPrimaryKey());
     return returnTable;
   }
 
+  public Table getTableFromProperty(List<String> iris) throws SQLConversionException {
+    if (null == iris || iris.isEmpty()) throw new SQLConversionException("iri is null");
+    String dataModel = propertiesMap.get(iris);
+    if (null == dataModel) throw new SQLConversionException("No table for properties: " + iris);
+    return getTableFromDataModel(dataModel);
+  }
+
   public void putTable(String iri, Table table) {
-    dataModels.put(iri, table);
+    tables.put(iri, table);
   }
 }

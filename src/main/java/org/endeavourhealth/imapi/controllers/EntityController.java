@@ -267,7 +267,7 @@ public class EntityController {
       log.debug("createEntity");
       User user = casdoorService.getUser(request);
       casbinEnforcer.enforceWithError(user, Resource.ENTITY, Action.WRITE);
-      return filerService.createEntity(editRequest, user.getUsername(), editRequest.getGraph());
+      return filerService.createEntity(editRequest, user.getUsername());
     }
   }
 
@@ -289,7 +289,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       User user = casdoorService.getUser(request);
-      return filerService.updateEntity(editRequest.getEntity(), user.getUsername(), editRequest.getGraph());
+      return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
     }
   }
 

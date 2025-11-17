@@ -26,11 +26,18 @@ public class Argument {
   private Path valuePath;
   private String valueNodeRef;
   private TTIriRef dataType;
-  private List<Path> valuePathList;
   @Getter
   private Object valueObject;
   @Getter
   private String valueVariable;
+  @Getter
+  private TTIriRef qualifier;
+
+
+  public Argument setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
 
   public Argument setValueVariable(String valueVariable) {
     this.valueVariable = valueVariable;
@@ -42,21 +49,6 @@ public class Argument {
     return this;
   }
 
-  public List<Path> getValuePathList() {
-    return valuePathList;
-  }
-
-  public Argument setValuePathList(List<Path> valuePathList) {
-    this.valuePathList = valuePathList;
-    return this;
-  }
-
-  public Argument addValuePath(Path valuePath) {
-    if (this.valuePathList == null)
-      this.valuePathList = List.of();
-    this.valuePathList.add(valuePath);
-    return this;
-  }
 
 
   public String getValueNodeRef() {
@@ -171,10 +163,6 @@ public class Argument {
     if (null != valuePath) hs.append(valuePath.getIri());
     if (null != valueNodeRef) hs.append(valueNodeRef);
     if (null != dataType) hs.append(dataType.getIri());
-    if (null != valuePathList) {
-      List<Path> sorted = valuePathList.stream().sorted().toList();
-      for (Path p : sorted) hs.append(p.getIri());
-    }
     if (null != valueObject) hs.append(valueObject);
     if (null != valueVariable) hs.append(valueVariable);
     return hs.toString();

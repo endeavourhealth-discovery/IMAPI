@@ -21,15 +21,7 @@ public class Return {
   private List<ReturnProperty> property;
   private FunctionClause function;
   private String as;
-  private String asDescription;
 
-  public String getAsDescription() {
-    return asDescription;
-  }
-  public Return setAsDescription(String asDescription) {
-    this.asDescription = asDescription;
-    return this;
-  }
 
 
 

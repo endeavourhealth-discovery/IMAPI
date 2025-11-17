@@ -72,15 +72,11 @@ public class EqdToIMQ {
     return this;
   }
 
-  public static void addGmsPatient(String patientId) {
-    gmsPatients.add(patientId);
-  }
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Properties criteriaMaps, Namespace namespace) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Namespace namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
-    this.resources.setCriteriaMaps(criteriaMaps);
     this.resources.setBaseCounter(0);
     if (singleEntity==null){
       this.addReportNames(eqd);
@@ -215,6 +211,9 @@ public class EqdToIMQ {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() != null) {
         this.resources.reportNames.put(eqReport.getId(), eqReport.getName());
+      }
+      if (eqReport.getName()!=null &&eqReport.getName().equals("All currently registered patients")) {
+        gmsPatients.add(eqReport.getId());
       }
     }
 

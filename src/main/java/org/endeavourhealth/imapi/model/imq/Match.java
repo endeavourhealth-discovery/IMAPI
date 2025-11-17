@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","path","and","or","not","where","return","then"})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","path","and","or","not","where","return","then",""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
+public class Match extends IriLD implements HasPaths {
   private Element graph;
   @Getter
   private Where where;
@@ -74,6 +74,26 @@ public class Match extends IriLD implements BoolGroup<Match>, HasPaths {
   @Getter
   private String keepAs;
   private OrderLimit orderBy;
+  @Getter
+  private String asDescription;
+  @Getter
+  private Match from;
+
+  public Match setFrom(Match from) {
+    this.from = from;
+    return this;
+  }
+  public Match from(Consumer<Match> builder) {
+    Match from = new Match();
+    setFrom(from);
+    builder.accept(from);
+    return this;
+  }
+
+  public Match setAsDescription(String asDescription) {
+    this.asDescription = asDescription;
+    return this;
+  }
 
   public OrderLimit getOrderBy() {
     return orderBy;

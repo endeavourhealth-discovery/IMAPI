@@ -145,9 +145,6 @@ public class SetController {
   ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {
-        setExportRequest.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
-      }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");

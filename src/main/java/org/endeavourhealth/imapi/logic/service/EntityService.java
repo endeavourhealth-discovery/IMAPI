@@ -67,6 +67,12 @@ public class EntityService {
     return entityRepository.getBundle(iri, predicates);
   }
 
+  public TTEntity getPartialEntity(String iri,Set<String> predicates) {
+    TTBundle bundle= getBundle(iri, predicates);
+    if (bundle==null) return null;
+    return bundle.getEntity();
+  }
+
   public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);

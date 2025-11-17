@@ -40,7 +40,7 @@ public class TransformService {
     TTDocument document = new TTDocument();
 
     EqdToIMQ converter = new EqdToIMQ(false);
-    converter.convertEQD(document, eqDoc, dataMap, null, namespace);
+    converter.convertEQD(document, eqDoc, dataMap,  namespace);
     return document;
 
   }

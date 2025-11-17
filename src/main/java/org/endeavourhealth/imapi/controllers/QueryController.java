@@ -12,10 +12,13 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.IMLLanguage;
+import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -26,6 +29,7 @@ import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -115,6 +119,21 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("describeQuery");
       return queryService.describeQuery(iri, displayMode);
+    }
+  }
+
+  @GetMapping(value = "/public/indicatorDisplay", produces = "application/json")
+  @Operation(
+    summary = "Describe a query",
+    description = "Retrieves the details of a query based on the given query IRI."
+  )
+  public Indicator describeIndicator(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String iri
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("describeQuery");
+      return queryService.describeIndicator(iri);
     }
   }
 
@@ -244,6 +263,21 @@ public class QueryController {
     }
   }
 
+  @GetMapping("/public/imlFromIri")
+  @Operation(
+    summary = "Generate IML from a query iri",
+    description = "Generates IMQ from the given IMQ query IRI."
+  )
+  public IMLLanguage getIMLFromIMQIri(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) throws QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
+      log.debug("getIMLFromIMQIri");
+      return queryService.getIMLFromIMQIri(queryIri);
+    }
+  }
+  
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {
@@ -285,6 +319,30 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
       return queryService.getArgumentType(referenceIri);
+    }
+  }
+
+  @GetMapping("/public/subQueries")
+  @Operation(summary = "Get all subQueries ordered of a query using the query iri")
+  public Collection<SubQueryDependency> getSubQueries(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSubQueries");
+      return queryService.getOrderedSubqueries(queryIri);
+    }
+  }
+
+  @GetMapping("/public/queryRequestForSQL")
+  @Operation(summary = "Get all subQueries ordered of a query using the query iri")
+  public QueryRequest getQueryRequestForSql(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws SQLConversionException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSubQueries");
+      return queryService.getQueryRequestForSqlConversion(queryRequest);
     }
   }
 }

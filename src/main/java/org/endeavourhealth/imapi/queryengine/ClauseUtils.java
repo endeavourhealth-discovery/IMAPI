@@ -16,11 +16,9 @@ public class ClauseUtils {
       }
       where.setFunction(buildFunction(
         Namespace.IM + "age",
-        argPath("dateOfBirth", new Path().setIri(Namespace.IM + "dateOfBirth")),
-        argRelativeTo(relativeTo),
         argUnits(units)
       ));
-    } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getValue()!=null||where.getRange()!=null)) {
+    } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getQualifier()==null)&&(where.getValue()!=null||where.getRange()!=null)) {
       if ("0".equals(where.getValue())){
         where.setValue(null);
         return;
@@ -31,10 +29,10 @@ public class ClauseUtils {
         argRelativeTo(relativeTo),
         argUnits(units)
       ));
-    } else if (iri.toLowerCase().contains("value")&&relativeTo!=null) {
+    } else if ((iri.toLowerCase().contains("value")||where.getQualifier()!=null)&&relativeTo!=null) {
       where.setFunction(buildFunction(
         Namespace.IM + "NumericDifference",
-        argPath("firstValue", new Path().setIri(iri)),
+        argPath("firstValue", new Path().setIri(iri).setQualifier(where.getQualifier())),
         buildValueArgument(relativeTo)
       ));
     }
@@ -76,6 +74,8 @@ public class ClauseUtils {
 
   private static Argument buildValueArgument(RelativeTo relativeTo) {
     Argument arg = new Argument().setParameter("secondValue");
+    if (relativeTo.getQualifier()!=null)
+      arg.setQualifier(relativeTo.getQualifier());
     if (relativeTo.getNodeRef() != null) {
       arg.setValueParameter(relativeTo.getNodeRef());
     } else if (relativeTo.getParameter() != null) {

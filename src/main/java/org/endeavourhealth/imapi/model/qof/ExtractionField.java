@@ -45,7 +45,7 @@ public class ExtractionField {
 
   public ExtractionField setLogicText(String logicText) {
     this.logicText = logicText;
-    this.logic = QOFExpressionParser.parseExpression(logicText);
+    this.logic = new QOFExpressionParser(logicText).parse();
     return this;
   }
 

@@ -5,16 +5,22 @@ import org.endeavourhealth.imapi.model.qof.QOFExpressionNode;
 import java.util.*;
 
 public class QOFExpressionParser {
+  private final Set<String> comparators = Set.of("=", "<", ">", "<=", ">=");
+  private String expression;
+  private String lastVariable;
 
-
-  public static QOFExpressionNode parseExpression(String expression) {
+  public QOFExpressionParser(String expression) {
+    this.expression = expression;
+  }
+  public QOFExpressionNode parse() {
     if (expression.contains("WHERE"))
       expression = expression.substring(expression.indexOf("WHERE ") + 6).trim();
 
     expression = expression
       .replace("If ", "")
       .replace("RETURN ", "")
-      .replace("  "," ");
+      .replace("  "," ")
+      .replace("–","-");
 
     // Remove extra whitespace and normalize
     String normalized = expression.trim();
@@ -34,7 +40,7 @@ public class QOFExpressionParser {
     return root;
   }
 
-  private static QOFExpressionNode parseRecursive(String expression) {
+  private QOFExpressionNode parseRecursive(String expression) {
     // Look for top-level AND/OR operations
     int topLevelAnd = findTopLevelOperator(expression, "AND");
     int topLevelOr = findTopLevelOperator(expression, "OR");
@@ -61,13 +67,21 @@ public class QOFExpressionParser {
       for (String part : parts) {
         // Remove outer parentheses if present
         String trimmedPart = part.trim();
-        String cleanPart = trimmedPart;
 
         if (trimmedPart.startsWith("(") && trimmedPart.endsWith(")")) {
-          cleanPart = trimmedPart.substring(1, trimmedPart.length() - 1).trim();
+          trimmedPart = trimmedPart.substring(1, trimmedPart.length() - 1).trim();
         }
 
-        node.addChild(parseRecursive(cleanPart));
+        if (trimmedPart.contains(" ")) {
+          String firstPart = trimmedPart.substring(0, trimmedPart.indexOf(" "));
+          if (comparators.contains(firstPart)) {
+            trimmedPart = lastVariable + " " + trimmedPart;
+          } else {
+            lastVariable = firstPart;
+          }
+        }
+
+        node.addChild(parseRecursive(trimmedPart));
       }
 
       return node;
@@ -83,7 +97,7 @@ public class QOFExpressionParser {
     return QOFExpressionNode.createConditionNode(expression);
   }
 
-  private static int findTopLevelOperator(String expression, String operator) {
+  private int findTopLevelOperator(String expression, String operator) {
     int parenCount = 0;
     for (int i = 0; i < expression.length(); i++) {
       char c = expression.charAt(i);
@@ -114,7 +128,7 @@ public class QOFExpressionParser {
     return -1;
   }
 
-  private static List<String> splitAtOperator(String expression, String operator) {
+  private List<String> splitAtOperator(String expression, String operator) {
     List<String> parts = new ArrayList<>();
     int parenCount = 0;
     int start = 0;
@@ -156,13 +170,13 @@ public class QOFExpressionParser {
   }
 
   public static void main(String[] args) {
-    String input = "Find ANY [REV_DAT] WHERE ({REV_DAT} = {WRITPASTP_DAT}  AND  {ASTCONTASS_DAT} > ({REV_DAT} – 1 month)  AND {ASTCONTASS_DAT} <= {REV_DAT} AND {ASTEXACB_DAT} > ({REV_DAT} – 1 month)  AND {ASTEXACB_DAT} <= {REV_DAT}  AND  (REV_DAT > (PPED – 12 months))";
+    String input = "Find ANY [REV_DAT] WHERE ({REV_DAT} = {WRITPASTP_DAT}  AND  {ASTCONTASS_DAT} > ({REV_DAT} – 1 month)  AND <= {REV_DAT} AND {ASTEXACB_DAT} > ({REV_DAT} – 1 month)  AND {ASTEXACB_DAT} <= {REV_DAT}  AND  (REV_DAT > (PPED – 12 months))";
 
     System.out.println("Input expression:");
     System.out.println(input);
     System.out.println("\nParsed hierarchy:");
 
-    QOFExpressionNode rootNode = parseExpression(input);
+    QOFExpressionNode rootNode = new QOFExpressionParser(input).parse();
     System.out.println(rootNode.toFormattedString());
   }
 }

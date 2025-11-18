@@ -132,7 +132,7 @@ public class QOFImportEngine {
     qofDoc.getRegisters().add(register);
 
     for (int i = 1; i < ruleTable.getRows().size() - 1; i++) {
-      cells = getCellText(regTable.getRow(i).getTableICells());
+      cells = getCellText(ruleTable.getRow(i).getTableICells());
       if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
         continue;
 
@@ -229,7 +229,7 @@ public class QOFImportEngine {
       .map(QOFImportEngine::getICellText)
       .toList();
 
-    if (result.stream().allMatch(String::isEmpty))
+    if (result.stream().allMatch(s -> s.trim().isEmpty()))
       return List.of();
 
     return result;
@@ -243,6 +243,6 @@ public class QOFImportEngine {
       text = sdtCell.getContent().getText();
     }
 
-    return text.trim();
+    return text;
   }
 }

@@ -94,9 +94,9 @@ public class QOFExpressionNode {
       sb.append(indentStr).append(condition);
     }
 
-    String result = sb.toString().trim();
+    String result = sb.toString();
 
-    if (result.isEmpty())
+    if (result.trim().isEmpty())
       return "==EMPTY==";
     else
       return result;

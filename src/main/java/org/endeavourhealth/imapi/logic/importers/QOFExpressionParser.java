@@ -185,7 +185,7 @@ public class QOFExpressionParser {
   }
 
   public static void main(String[] args) {
-    String input = "Find ANY [REV_DAT] WHERE ({REV_DAT} = {WRITPASTP_DAT}  AND  {ASTCONTASS_DAT} > ({REV_DAT} – 1 month)  AND <= {REV_DAT} AND {ASTEXACB_DAT} > ({REV_DAT} – 1 month)  AND {ASTEXACB_DAT} <= {REV_DAT}  AND  (REV_DAT > (PPED – 12 months))";
+    String input = "(If PATY1_AGE < 80 years AND  If PATY2_AGE = 80 years)  OR  (If PATY1_AGE < 81 years AND  If PATY2_AGE = 81 years AND  If SHVACGP1_DAT <= (PPED – 12 months) AND (If SHVACGP2_DAT > (PPED – 12 months) OR If SHVACGP2_DAT = Null))";
 
     System.out.println("Input expression:");
     System.out.println(input);

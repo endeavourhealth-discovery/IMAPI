@@ -88,15 +88,16 @@ public class QOFExpressionNode {
     if (operator != null && !operator.isEmpty()) {
       sb.append(indentStr).append(operator).append("\n");
       for (QOFExpressionNode child : children) {
-        sb.append(child.toRecursiveFormattedString(indent + 1)).append("\n");
+        String childResult = child.toRecursiveFormattedString(indent + 1);
+          sb.append(childResult);
       }
     } else if (condition != null && !condition.isEmpty()) {
-      sb.append(indentStr).append(condition);
+      sb.append(indentStr).append(condition).append("\n");
     }
 
     String result = sb.toString();
 
-    if (result.trim().isEmpty())
+    if (result.replace("\n","").isBlank())
       return "==EMPTY==";
     else
       return result;

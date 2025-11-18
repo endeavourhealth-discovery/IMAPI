@@ -95,12 +95,11 @@ public class QOFImportEngine {
 
   private static void processDatasetTable(QOFDocument qofDoc, XWPFTable datasetTable) {
     for (int i = 1; i < datasetTable.getRows().size() - 1; i++) {
-      List<ICell> cells = datasetTable.getRow(i).getTableICells();
-
-      if ("Term".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(datasetTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Term".equals(cells.get(0)))
         continue;
 
-      qofDoc.addTerm(getICellText(cells.get(0)), getICellText(cells.get(1)));
+      qofDoc.addTerm(cells.get(0), cells.get(1));
     }
   }
 
@@ -110,56 +109,54 @@ public class QOFImportEngine {
     qofDoc.getSelections().add(selection);
 
     for (int i = 1; i < ruleTable.getRows().size() - 1; i++) {
-      List<ICell> cells = ruleTable.getRow(i).getTableICells();
-
-      if ("Qualifying criteria".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Qualifying criteria".equals(cells.get(0)))
         continue;
 
       selection.addRule(new Rule()
-        .setLogicText(getICellText(cells.get(0)))
-        .setIfTrue(getICellText(cells.get(1)).toUpperCase())
-        .setIfFalse(getICellText(cells.get(2)).toUpperCase())
-        .setDescription(getICellText(cells.get(3)))
+        .setLogicText(cells.get(0))
+        .setIfTrue(cells.get(1).toUpperCase())
+        .setIfFalse(cells.get(2).toUpperCase())
+        .setDescription(cells.get(3))
       );
     }
   }
 
   private static void processPopulationsTable(QOFDocument qofDoc, XWPFTable regTable, XWPFTable ruleTable) {
-    List<ICell> cells = regTable.getRow(1).getTableICells();
+    List<String> cells = getCellText(regTable.getRow(1).getTableICells());
 
     Register register = new Register()
-      .setName(getICellText(cells.get(0)))
-      .setDescription(getICellText(cells.get(1)))
-      .setBase(getICellText(cells.get(2)));
+      .setName(cells.get(0))
+      .setDescription(cells.get(1))
+      .setBase(cells.get(2));
     qofDoc.getRegisters().add(register);
 
     for (int i = 1; i < ruleTable.getRows().size() - 1; i++) {
-      cells = ruleTable.getRow(i).getTableICells();
-
-      if ("Rule number".equals(getICellText(cells.get(0))))
+      cells = getCellText(regTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
         continue;
 
       register.addRule(new Rule()
         .setOrder(i)
-        .setLogicText(getICellText(cells.get(1)))
-        .setIfTrue(getICellText(cells.get(2)).toUpperCase())
-        .setIfFalse(getICellText(cells.get(3)).toUpperCase())
-        .setDescription(getICellText(cells.get(4)))
+        .setLogicText(cells.get(1))
+        .setIfTrue(cells.get(2).toUpperCase())
+        .setIfFalse(cells.get(3).toUpperCase())
+        .setDescription(cells.get(4))
       );
+
     }
   }
 
   private static void processCodeClusterTable(QOFDocument qofDoc, XWPFTable codeClusterTable) {
     for (int i = 1; i < codeClusterTable.getRows().size() - 1; i++) {
-      List<ICell> cells = codeClusterTable.getRow(i).getTableICells();
-
-      if ("Cluster name".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(codeClusterTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Cluster name".equals(cells.get(0)))
         continue;
 
       CodeCluster codeCluster = new CodeCluster()
-        .setCode(getICellText(cells.get(0)))
-        .setDescription(getICellText(cells.get(1)))
-        .setSNOMEDCT(getICellText(cells.get(2)));
+        .setCode(cells.get(0))
+        .setDescription(cells.get(1))
+        .setSNOMEDCT(cells.get(2));
 
       qofDoc.addCodeCluster(codeCluster);
     }
@@ -168,28 +165,27 @@ public class QOFImportEngine {
 
   private static void processExtractionTable(QOFDocument qofDoc, XWPFTable fieldTable) {
     for (int i = 1; i < fieldTable.getRows().size() - 1; i++) {
-      List<ICell> cells = fieldTable.getRow(i).getTableICells();
-
-      if ("Field number".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(fieldTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Field number".equals(cells.get(0)))
         continue;
 
       qofDoc.getExtractionFields().add(new ExtractionField()
         .setField(i)
-        .setName(getICellText(cells.get(1)))
-        .setCluster(getICellText(cells.get(2)))
-        .setLogicText(getICellText(cells.get(3)))
-        .setDescription(getICellText(cells.get(4)))
+        .setName(cells.get(1))
+        .setCluster(cells.get(2))
+        .setLogicText(cells.get(3))
+        .setDescription(cells.get(4))
       );
     }
   }
 
   private static Indicator processIndicator(QOFDocument qofDoc, String category, XWPFTable indTable) {
-    List<ICell> cells = indTable.getRow(1).getTableICells();
+    List<String> cells = getCellText(indTable.getRow(1).getTableICells());
 
     Indicator indicator = new Indicator()
-      .setName(getICellText(cells.get(0)))
-      .setDescription(getICellText(cells.get(1)))
-      .setBase(category + getICellText(cells.get(2)));
+      .setName(cells.get(0))
+      .setDescription(cells.get(1))
+      .setBase(category + cells.get(2));
     qofDoc.getIndicators().add(indicator);
 
     return indicator;
@@ -197,17 +193,16 @@ public class QOFImportEngine {
 
   private static void processDenominatorsTable(Indicator indicator, XWPFTable ruleTable) {
     for (int i = 2; i < ruleTable.getRows().size() - 1; i++) {
-      List<ICell> cells = ruleTable.getRow(i).getTableICells();
-
-      if ("Rule number".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
         continue;
 
       indicator.addDenominator(new Rule()
         .setOrder(i-1)
-        .setLogicText(getICellText(cells.get(1)))
-        .setIfTrue(getICellText(cells.get(2)).toUpperCase())
-        .setIfFalse(getICellText(cells.get(3)).toUpperCase())
-        .setDescription(getICellText(cells.get(4)))
+        .setLogicText(cells.get(1))
+        .setIfTrue(cells.get(2).toUpperCase())
+        .setIfFalse(cells.get(3).toUpperCase())
+        .setDescription(cells.get(4))
       );
     }
   }
@@ -215,21 +210,30 @@ public class QOFImportEngine {
   private static void processNumeratorsTable(Indicator indicator, XWPFTable ruleTable) {
 
     for (int i = 2; i < ruleTable.getRows().size() - 1; i++) {
-      List<ICell> cells = ruleTable.getRow(i).getTableICells();
-
-      if ("Rule number".equals(getICellText(cells.get(0))))
+      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
+      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
         continue;
 
       indicator.addNumerator(new Rule()
         .setOrder(i-1)
-        .setLogicText(getICellText(cells.get(1)))
-        .setIfTrue(getICellText(cells.get(2)).toUpperCase())
-        .setIfFalse(getICellText(cells.get(3)).toUpperCase())
-        .setDescription(getICellText(cells.get(4)))
+        .setLogicText(cells.get(1))
+        .setIfTrue(cells.get(2).toUpperCase())
+        .setIfFalse(cells.get(3).toUpperCase())
+        .setDescription(cells.get(4))
       );
     }
   }
 
+  private static List<String> getCellText(List<ICell> cells) {
+    List<String> result = cells.stream()
+      .map(QOFImportEngine::getICellText)
+      .toList();
+
+    if (result.stream().allMatch(String::isEmpty))
+      return List.of();
+
+    return result;
+  }
 
   private static String getICellText(ICell cell) {
     String text = "";

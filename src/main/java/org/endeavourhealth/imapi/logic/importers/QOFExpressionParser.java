@@ -1,9 +1,11 @@
 package org.endeavourhealth.imapi.logic.importers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.qof.QOFExpressionNode;
 
 import java.util.*;
 
+@Slf4j
 public class QOFExpressionParser {
   private final Set<String> comparators = Set.of("=", "<", ">", "<=", ">=");
   private String expression;
@@ -16,27 +18,40 @@ public class QOFExpressionParser {
     if (expression.contains("WHERE"))
       expression = expression.substring(expression.indexOf("WHERE ") + 6).trim();
 
+    log.info("=========================================================================================");
+    log.info("Original expression: {}", expression);
+
     expression = expression
       .replace("If ", "")
       .replace("RETURN ", "")
+      .replace("≠", "!=")
       .replace("  "," ")
       .replace("–","-");
 
     // Remove extra whitespace and normalize
     String normalized = expression.trim();
 
+    log.info("Normalized expression: {}", normalized);
+
     // Simple approach: look for AND/OR operators with proper grouping
     QOFExpressionNode root = parseRecursive(normalized);
 
     if (expression.contains("ELSE ")) {
-      root.setFailResult(expression.substring(expression.indexOf("ELSE ")+5));
+      String elsePart = expression.substring(expression.indexOf("ELSE ")+5).trim();
+      if (!"NULL".equalsIgnoreCase(elsePart))
+        root.setFailResult(elsePart);
       expression = expression.substring(0, expression.indexOf("ELSE "));
     }
 
     if (expression.contains("THEN ")) {
-      root.setPassResult(expression.substring(expression.indexOf("THEN ")+5));
+      String thenPart = expression.substring(expression.indexOf("THEN ")+5);
+      if (!"NULL".equalsIgnoreCase(thenPart))
+        root.setPassResult(thenPart);
       expression = expression.substring(0, expression.indexOf("THEN "));
     }
+
+    log.info("Parsed expression:\n{}", root.toFormattedString());
+
     return root;
   }
 

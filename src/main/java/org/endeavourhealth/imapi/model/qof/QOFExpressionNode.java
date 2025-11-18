@@ -70,11 +70,17 @@ public class QOFExpressionNode {
   }
 
   public String toFormattedString() {
-    return toRecursiveFormattedString(0)
-      .trim()+"\n"
-      + "On Pass: " + this.passResult+"\n"
-      + "On Fail: " + this.failResult;
+    String result = toRecursiveFormattedString(0).trim();
+
+    if (this.passResult != null)
+      result += "\nOn Pass: " + this.passResult;
+
+    if (this.failResult != null)
+      result += "\nOn Fail: " + this.failResult;
+
+    return result;
   }
+
   private String toRecursiveFormattedString(int indent) {
     StringBuilder sb = new StringBuilder();
     String indentStr = "    ".repeat(indent);
@@ -88,6 +94,11 @@ public class QOFExpressionNode {
       sb.append(indentStr).append(condition);
     }
 
-    return sb.toString();
+    String result = sb.toString().trim();
+
+    if (result.isEmpty())
+      return "==EMPTY==";
+    else
+      return result;
   }
 }

@@ -24,6 +24,7 @@ public class Node extends Element{
   }
 
 
+
   public String getType() {
     return type;
   }
@@ -63,15 +64,15 @@ public class Node extends Element{
   }
 
   public static Node iri(String iri) {
-    return new Node(iri);
+    Node node= new Node();
+    node.setIri(iri);
+    return node;
   }
 
   public Node() {
   }
 
-  public Node(String iri) {
-    super.setIri(iri);
-  }
+
 
 
   public Node setAncestorsOf(boolean ancestorsOf) {

@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","is", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
@@ -100,20 +100,18 @@ public class Query extends Match {
     return this;
   }
 
-  public Query addInstanceOf(Node instanceOf) {
-    super.addInstanceOf(instanceOf);
+  public Query addIs(Node is) {
+    super.addIs(is);
     return this;
   }
 
-  public Query instanceOf(Consumer<Node> builder) {
-    Node node = new Node();
-    super.addInstanceOf(node);
-    builder.accept(node);
-    return this;
+  public Query is(Consumer<Node> builder) {
+   super.is(builder);
+   return this;
   }
 
-  public Query setInstanceOf(List<Node> instanceOf) {
-    super.setInstanceOf(instanceOf);
+  public Query setIs(List<Node> is) {
+    super.setIs(is);
     return this;
   }
 

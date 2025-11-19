@@ -18,13 +18,13 @@ public class QueryValidator {
     if (query.getParameter()!=null){
       mainEntity=query.getParameter().replace("$","");
     }
-    if (query.getAnd() == null && query.getOr() == null && null == query.getInstanceOf() && null == query.getWhere()&&null==query.getTypeOf())
-      throw new QueryException("Query must have match clause or instanceOf or where clause");
+    if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere()&&null==query.getTypeOf())
+      throw new QueryException("Query must have match clause or is or where clause");
 
     variables.put(mainEntity, VarType.NODE);
     processMatches(query, mainEntity);
-    if (null != query.getInstanceOf()) {
-      query.getInstanceOf().getFirst().setVariable(mainEntity);
+    if (null != query.getIs()) {
+      query.getIs().getFirst().setVariable(mainEntity);
       variables.put(mainEntity, VarType.NODE);
     }
     if (null != query.getWhere()) {

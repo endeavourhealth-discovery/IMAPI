@@ -13,7 +13,6 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -32,7 +31,7 @@ public class EqdListToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       id = Namespace.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
-    query.setIsCohort(iri(id)
+    query.addIs(Node.iri(id)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();

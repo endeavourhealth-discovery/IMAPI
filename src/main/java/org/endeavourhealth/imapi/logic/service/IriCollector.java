@@ -59,19 +59,17 @@ public class IriCollector {
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
     }
-    if (match.getIsCohort() != null) {
-      iriSet.add(match.getIsCohort().getIri());
+    if (match.getIs() != null) {
+      for (Node node : match.getIs())
+        iriSet.add(node.getIri());
     }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         collectPathIris(path, iriSet);
       }
     }
-    if (match.getInstanceOf() != null) {
-      match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
-    }
-    if (match.getThen() != null) {
-      collectMatchIris(match.getThen(), iriSet);
+    if (match.getIs() != null) {
+      match.getIs().forEach(i -> iriSet.add(i.getIri()));
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {

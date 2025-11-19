@@ -23,7 +23,7 @@ public class EqdAuditToIMQ {
       String finalPopId = popId;
       popQuery
         .setVariable(POPULATION)
-        .setIsCohort(iri(resources.getNamespace() + finalPopId)
+        .addIs(Node.iri(resources.getNamespace() + finalPopId)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + finalPopId));
       Return populationReturn = new Return();

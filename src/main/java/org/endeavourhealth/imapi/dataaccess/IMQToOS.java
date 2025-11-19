@@ -286,8 +286,8 @@ public class IMQToOS {
       addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.and, boolBuilder);
     }
 
-    if (match.getInstanceOf() != null) {
-      setFromAliases(boolBuilder, match.getInstanceOf());
+    if (match.getIs() != null) {
+      setFromAliases(boolBuilder, match.getIs());
     }
     return addProperties(boolBuilder, match);
   }

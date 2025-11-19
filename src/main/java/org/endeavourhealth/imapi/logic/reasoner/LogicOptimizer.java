@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 
@@ -147,7 +146,7 @@ public class LogicOptimizer {
   }
 
   private static void mergeMatch(Match match, Match nestedMatch) {
-    match.setInstanceOf(nestedMatch.getInstanceOf());
+    match.setIs(nestedMatch.getIs());
     match.setOr(nestedMatch.getOr());
     match.setAnd(nestedMatch.getAnd());
     if (nestedMatch.getNot() != null) {
@@ -258,7 +257,7 @@ public class LogicOptimizer {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;
-    if (match.getWhere() == null && match.getIsCohort()==null){
+    if (match.getWhere() == null && match.getIs()==null){
       if (match.getAnd().size() > 1){
       List<Match> originalAnds = match.getAnd();
       List<Match> optimalAnds = new ArrayList<>();

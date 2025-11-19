@@ -22,10 +22,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
@@ -366,7 +363,7 @@ public class QueryRepository {
   public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
     Query query;
     Query cohort;
-    String sql= """
+    String sql = """
       select ?query ?cohort
       where {
        Values ?queryIri {%s}
@@ -374,23 +371,31 @@ public class QueryRepository {
        ?queryIri im:definition ?query .
        ?cohortIri im:definition ?cohort .
        }
-      """.formatted("<"+queryIri+">", "<"+cohortIri+">");
+      """.formatted("<" + queryIri + ">", "<" + cohortIri + ">");
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
-        BindingSet bs = rs.next();
-        query= mapper.readValue(bs.getValue("query").stringValue(), Query.class);
-        cohort= mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
-        if (cohort.getIsCohort()!=null)
-          if (query.getIsCohort()!=null)
-            if (query.getIsCohort().equals(cohort.getIsCohort()))
-              cohort.setIsCohort(null);
-        return cohort;
+          BindingSet bs = rs.next();
+          query = mapper.readValue(bs.getValue("query").stringValue(), Query.class);
+          cohort = mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
+          if (cohort.getIs() != null) {
+            if (query.getIs() != null) {
+              for (int i = 0; i < query.getIs().size(); i++) {
+                if (i > cohort.getIs().size() - 1) {
+                  if (cohort.getIs().get(i).equals(query.getIs().get(i))) {
+                    cohort.getIs().remove(i);
+                    i--;
+                  }
+                }
+              }
+            }
+          }
+          return cohort;
         }
       }
+      return null;
     }
-    return null;
   }
 }

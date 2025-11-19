@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -12,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "instanceOf","path","and","or","not","where","return","then",""})
+@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "is","path","and","or","not","where","return","then",""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements HasPaths {
   private Element graph;
@@ -23,8 +20,6 @@ public class Match extends IriLD implements HasPaths {
   private String nodeRef;
   private boolean optional;
   private FunctionClause aggregate;
-  @Getter
-  private List<Node> instanceOf;
   @Getter
   private Node typeOf;
   @Getter
@@ -53,8 +48,7 @@ public class Match extends IriLD implements HasPaths {
   private Integer ruleNumber;
   @Getter
   private boolean inverse;
-  @Getter
-  private Match then;
+
   @Getter
   private List<Match> not;
   @Getter
@@ -69,26 +63,15 @@ public class Match extends IriLD implements HasPaths {
   @Setter
   private boolean invalid;
   @Getter
-  private TTIriRef isCohort;
+  private List<Node> is;
   private List<GroupBy> groupBy;
   @Getter
   private String keepAs;
   private OrderLimit orderBy;
   @Getter
   private String asDescription;
-  @Getter
-  private Match from;
 
-  public Match setFrom(Match from) {
-    this.from = from;
-    return this;
-  }
-  public Match from(Consumer<Match> builder) {
-    Match from = new Match();
-    setFrom(from);
-    builder.accept(from);
-    return this;
-  }
+
 
   public Match setAsDescription(String asDescription) {
     this.asDescription = asDescription;
@@ -140,10 +123,13 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
-  public Match setIsCohort(TTIriRef isCohort) {
-    this.isCohort = isCohort;
+  @JsonSetter
+  public Match setIs(List<Node> is) {
+    this.is = is;
     return this;
   }
+
+
 
   public Match setLibraryItem(String libraryItem) {
     this.libraryItem = libraryItem;
@@ -239,17 +225,7 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
-  public Match setThen(Match then) {
-    this.then = then;
-    return this;
-  }
 
-  public Match then(Consumer<Match> builder) {
-    Match then = new Match();
-    setThen(then);
-    builder.accept(then);
-    return this;
-  }
 
 
   public Match setBaseRule(boolean baseRule) {
@@ -358,25 +334,26 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setInstanceOf(List<Node> instanceOf) {
-    this.instanceOf = instanceOf;
-    return this;
-  }
-
-  public Match addInstanceOf(Node instanceOf) {
-    if (this.instanceOf == null) {
-      this.instanceOf = new ArrayList<>();
+  public Match addIs(Node is){
+    if (this.is == null) {
+      this.is = new ArrayList<>();
     }
-    this.instanceOf.add(instanceOf);
+    this.is.add(is);
     return this;
   }
 
-  public Match instanceOf(Consumer<Node> builder) {
-    Node node = new Node();
-    addInstanceOf(node);
-    builder.accept(node);
+
+  @JsonIgnore
+  public Match is(Consumer<Node> builder){
+    Node is = new Node();
+    addIs(is);
+    builder.accept(is);
     return this;
   }
+
+
+
+
 
   @JsonSetter
   public Match setTypeOf(Node typeOf) {

@@ -655,7 +655,7 @@ public class SetRepository {
         Select ?member ?entailment ?name  ?exclude
         where {
         ?s im:entailedMember ?instance.
-        ?instance im:instanceOf ?member.
+        ?instance im:is ?member.
         ?member rdfs:label ?name.
         optional {?instance im:exclude ?exclude.}
         optional {?instance im:entailment ?entailment}
@@ -710,41 +710,41 @@ public class SetRepository {
         Values ?set { <%s> }
         ?set im:entailedMember ?entailed.
         {
-          ?entailed im:instanceOf ?member.
+          ?entailed im:is ?member.
           filter not exists {?entailed im:entailment ?entailment}
         }
         union {
-          ?entailed im:instanceOf ?parent.
+          ?entailed im:is ?parent.
           ?entailed im:entailment im:DescendantsOrSelfOf.
           ?member im:isA ?parent.
         }
         union {
-          ?entailed im:instanceOf ?parent.
+          ?entailed im:is ?parent.
           ?entailed im:entailment im:DescendantsOf.
           ?member im:isA ?parent.
           filter (?member!=?parent)
         }
         union {
-          ?entailed im:instanceOf ?child.
+          ?entailed im:is ?child.
           ?entailed im:entailment im:AncestorsOf.
           ?child im:isA ?member.
         }
         filter not exists {
           ?member im:isA ?parent2.
-          ?parent2 ^im:instanceOf ?entailment2.
+          ?parent2 ^im:is ?entailment2.
           ?entailment2 im:entailment im:DescendantsOrSelfOf.
           ?entailment2 im:exclude true.
         }
         filter not exists {
           ?member im:isA ?parent2.
           filter (?member!=?parent2)
-          ?parent2 ^im:instanceOf ?entailment2.
+          ?parent2 ^im:is ?entailment2.
           ?entailment2 im:entailment im:DescendantsOf.
           ?entailment2 im:exclude true.
         }
         filter not exists {
           ?parent2 im:isA ?member.
-          ?parent2 ^im:instanceOf ?entailment2.
+          ?parent2 ^im:is ?entailment2.
           ?entailment2 im:entailment im:AncestorsOf.
           ?entailment2 im:exclude true.
         }

@@ -100,7 +100,7 @@ public class QueryDescriptor {
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, RDF.TYPE,IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -178,15 +178,15 @@ public class QueryDescriptor {
     if (match.getTypeOf() != null) {
       match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
     }
-    if (match.getInstanceOf() != null) {
-      describeInstance(match.getInstanceOf());
+    if (match.getIs() != null) {
+      describeIs(match.getIs());
     }
-    if (match.getIsCohort() != null) {
-      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(), Context.MATCH));
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        node.setName(getTermInContext(node.getIri(), Context.MATCH));
+      }
     }
-    if (match.getFrom() != null) {
-      describeMatch(match.getFrom());
-    }
+
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
         describeMatch(subMatch);
@@ -266,7 +266,7 @@ public class QueryDescriptor {
   }
 
 
-  private void describeInstance(List<Node> inSets) {
+  private void describeIs(List<Node> inSets) {
     for (Node set : inSets) {
       String qualifier = "";
       if (set.isExclude()) {

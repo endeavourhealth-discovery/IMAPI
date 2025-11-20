@@ -10,9 +10,9 @@ import org.casbin.jcasbin.main.Enforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
-import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.Resource;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 
 import java.util.ArrayList;

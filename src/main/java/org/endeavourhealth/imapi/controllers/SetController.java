@@ -16,7 +16,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
-import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;

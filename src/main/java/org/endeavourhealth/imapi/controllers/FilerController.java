@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
-import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;

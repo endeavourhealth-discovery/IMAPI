@@ -250,10 +250,10 @@ public class TaskFilerRdf4j {
   private EmailService getEmailService() {
     if (emailService == null) {
       emailService = new EmailService(
-        System.getenv("EMAILER_HOST"),
-        Integer.parseInt(System.getenv("EMAILER_PORT")),
-        System.getenv("EMAILER_USERNAME"),
-        System.getenv("EMAILER_PASSWORD")
+        System.getenv("EMAILER_PORTAL_HOST"),
+        Integer.parseInt(System.getenv("EMAILER_PORTAL_PORT")),
+        System.getenv("EMAILER_PORTAL_USERNAME"),
+        System.getenv("EMAILER_PORTAL_PASSWORD")
       );
     }
     return emailService;

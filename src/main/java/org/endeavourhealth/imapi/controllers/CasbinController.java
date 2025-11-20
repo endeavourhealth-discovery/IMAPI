@@ -7,10 +7,10 @@ import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
-import org.endeavourhealth.imapi.model.admin.User;
 import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.PolicyRequest;
 import org.endeavourhealth.imapi.model.casbin.Resource;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

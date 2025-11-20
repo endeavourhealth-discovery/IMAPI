@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;

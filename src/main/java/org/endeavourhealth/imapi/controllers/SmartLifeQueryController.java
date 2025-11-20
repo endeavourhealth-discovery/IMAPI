@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.SmartLifeQueryService;
-import org.endeavourhealth.imapi.model.admin.User;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.smartlife.SmartLifeQueryRunDTO;
 import org.endeavourhealth.imapi.utility.MetricsHelper;

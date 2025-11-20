@@ -1,5 +1,6 @@
-package org.endeavourhealth.imapi.model.admin;
+package org.endeavourhealth.imapi.model.casdoor;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
@@ -22,6 +23,12 @@ public class User implements Serializable {
 
   public User setPassword(String password) {
     this.password = "";
+    return this;
+  }
+
+  @JsonIgnore
+  public User adminSetPassword(String password) {
+    this.password = password;
     return this;
   }
 

@@ -21,14 +21,14 @@ public class Element extends IriLD implements Entailment {
   private boolean parentOf;
   private boolean memberOf;
   @Getter
-  private boolean isCohort;
+  private boolean cohort;
   private String nodeRef;
   @Getter
   @Setter
   private boolean invalid;
 
   public Element setIsCohort(boolean cohort) {
-    this.isCohort= cohort;
+    this.cohort= cohort;
     return this;
   }
   public boolean isMemberOf() {

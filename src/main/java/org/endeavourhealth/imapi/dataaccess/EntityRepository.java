@@ -1882,10 +1882,10 @@ public class EntityRepository {
         optional {?child im:contextOrder ?co.
                   ?co im:context ?iri.
                   ?co sh:order ?contextOrder}
-            
+      
       }
       order by ?contextOrder ?order
-            
+      
       """.formatted(toIri(iri));
     List<String> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
@@ -2156,5 +2156,34 @@ public class EntityRepository {
     List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
     valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
     return valuelist;
+  }
+
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
+    String spq = """
+      SELECT ?s ?name ?type WHERE {
+        VALUES ?s {%s}
+        ?s rdf:type ?type .
+        ?s rdfs:label ?name .
+      }""".formatted(getIriLine(iris));
+    Map<String, Entity> results = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("s").stringValue();
+          String name = bs.getValue("name").stringValue();
+          String type = bs.getValue("type").stringValue();
+          TTIriRef typeRef = TTIriRef.iri(type);
+          if (!results.containsKey(bs.getValue("s").stringValue())) {
+            Entity entity = new Entity().setIri(iri).setName(name).setName(name).setType(Set.of(typeRef));
+            results.put(iri, entity);
+          } else {
+            results.get(iri).getType().add(typeRef);
+          }
+        }
+      }
+    }
+    return results;
   }
 }

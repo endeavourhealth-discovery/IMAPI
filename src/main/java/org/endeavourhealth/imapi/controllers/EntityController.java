@@ -19,6 +19,7 @@ import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
+import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
@@ -31,6 +32,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.utility.IriExtractor;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -526,4 +528,13 @@ public class EntityController {
   }
 
 
+  @PostMapping(value = "/public/iriDetails")
+  @Operation(summary = "Get names and types for iris in object", description = "Fetches names and types for the iris in the object")
+  public Map<String, Entity> getChildEntities(HttpServletRequest request, @RequestBody Object object) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.POST")) {
+      log.debug("iriDetails");
+      Set<String> iris = new IriExtractor().extractIris(object);
+      return entityService.getIriDetails(iris);
+    }
+  }
 }

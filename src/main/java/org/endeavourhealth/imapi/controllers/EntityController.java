@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -94,7 +95,7 @@ public class EntityController {
 
   @GetMapping(value = "/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
@@ -127,7 +128,7 @@ public class EntityController {
   public List<TTBundle> getEntityFromTerm(HttpServletRequest request, @RequestParam(name = "term") String term, @RequestParam(name = "schemes") Set<String> schemes) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
       log.debug("getEntitiesFromTerm " + term + " " + schemes + "");
-      return entityService.getEntityFromTerm(term,schemes);
+      return entityService.getEntityFromTerm(term, schemes);
     }
   }
 
@@ -362,7 +363,7 @@ public class EntityController {
 
   @GetMapping("/public/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
-  public TTEntity getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
+  public TTEntity getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates).getEntity();
@@ -371,7 +372,7 @@ public class EntityController {
 
   @GetMapping("/public/bundleByPredicateExclusions")
   @Operation(summary = "Get bundle by predicate exclusions", description = "Fetches a bundle of entities identified by IRI, excluding specified predicates")
-  public TTBundle getBundleByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
+  public TTBundle getBundleByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
       log.debug("getBundleByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates);
@@ -398,7 +399,7 @@ public class EntityController {
 
   @GetMapping(value = "/public/detailsDisplay")
   @Operation(summary = "Get entity details display", description = "Fetches the detailed display information for an entity specified by its IRI")
-  public TTBundle getDetailsDisplay(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+  public TTBundle getDetailsDisplay(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
       log.debug("getDetailsDisplay");
       return entityService.getDetailsDisplay(iri);

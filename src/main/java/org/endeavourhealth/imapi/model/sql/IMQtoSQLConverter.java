@@ -106,7 +106,7 @@ public class IMQtoSQLConverter {
     }
 
     if (null != definition.getIs()) {
-      convertIsCohort(qry, definition.getIs().get(0), definition.getTypeOf(), Bool.and);
+      convertIsCohort(qry, definition.getIs().getFirst(), definition.getTypeOf(), Bool.and);
     }
 
     return qry.toSql(2);
@@ -511,10 +511,12 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException, JsonProcessingException {
+//    TODO: instanceOf or isCohort based on type
+//    TODO: Handle list array
     if (match.getIs() != null) {
       convertInstanceOf(qry, match.getIs(), bool);
     } else if (null != match.getIs()) {
-      convertIsCohort(qry, match.getIs().get(0), null, bool);
+      convertIsCohort(qry, match.getIs().getFirst(), null, bool);
     } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }

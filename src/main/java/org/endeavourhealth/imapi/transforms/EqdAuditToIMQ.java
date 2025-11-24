@@ -24,6 +24,7 @@ public class EqdAuditToIMQ {
       popQuery
         .setVariable(POPULATION)
         .addIs(Node.iri(resources.getNamespace() + finalPopId)
+          .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + finalPopId));
       Return populationReturn = new Return();

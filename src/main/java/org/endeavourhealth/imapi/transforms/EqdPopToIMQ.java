@@ -23,6 +23,7 @@ public class EqdPopToIMQ {
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query
         .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
+          .setIsCohort(true)
             .setName("Registered with GP for GMS services on the reference date"));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
@@ -37,11 +38,13 @@ public class EqdPopToIMQ {
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query
           .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
+            .setIsCohort(true)
             .setName("Registered with GP for GMS services on the reference date"));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       } else {
         query
           .addIs(Node.iri(resources.getNamespace() + id)
+            .setIsCohort(true)
             .setName(resources.reportNames.get(id)));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
       }

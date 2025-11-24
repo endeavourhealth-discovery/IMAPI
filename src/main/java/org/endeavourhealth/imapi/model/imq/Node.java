@@ -14,6 +14,10 @@ public class Node extends Element{
   private String type;
   private boolean inverse;
 
+  public Node setIsCohort(boolean isCohort) {
+    super.setIsCohort(isCohort);
+    return this;
+  }
   public boolean isInverse() {
     return inverse;
   }

@@ -32,6 +32,7 @@ public class EqdListToIMQ {
       id = Namespace.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
     query.addIs(Node.iri(id)
+      .setIsCohort(true)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();

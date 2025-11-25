@@ -11,58 +11,11 @@ class QOFExpressionNode {
   val ANSI_CYAN: String = "\u001B[36m"
   val ANSI_WHITE: String = "\u001B[37m"
 
-  private var _operator: String? = null
-  private var _condition: String? = null
-  private var _passResult: String? = null
-  private var _failResult: String? = null
-  private val _children: MutableList<QOFExpressionNode> = mutableListOf()
-
-  companion object {
-    @JvmStatic
-    fun createOperatorNode(operator: String): QOFExpressionNode {
-      val node = QOFExpressionNode()
-      node.operator = operator
-      return node
-    }
-
-    @JvmStatic
-    fun createConditionNode(condition: String): QOFExpressionNode {
-      val node = QOFExpressionNode()
-      node.condition = condition
-      return node
-    }
-  }
-
-  var operator: String?
-    get() = _operator
-    set(value) {
-      _operator = value
-    }
-
-  var condition: String?
-    get() = _condition
-    set(value) {
-      _condition = value
-    }
-
-  var children: MutableList<QOFExpressionNode>
-    get() = _children
-    set(value) {
-      _children.clear()
-      _children.addAll(value)
-    }
-
-  var passResult: String?
-    get() = _passResult
-    set(value) {
-      _passResult = value
-    }
-
-  var failResult: String?
-    get() = _failResult
-    set(value) {
-      _failResult = value
-    }
+  val condition: QOFCondition = QOFCondition();
+  var operator: String? = null
+  var passResult: String? = null
+  var failResult: String? = null
+  val children: MutableList<QOFExpressionNode> = mutableListOf()
 
   fun toFormattedString(): String {
     val result = toRecursiveFormattedString(0).trim()
@@ -88,8 +41,8 @@ class QOFExpressionNode {
         val childResult = child.toRecursiveFormattedString(indent + 1)
         sb.append(childResult)
       }
-    } else if (!condition.isNullOrEmpty()) {
-      sb.append("$indentStr$ANSI_BLUE$condition$ANSI_RESET\n")
+    } else if (!condition.leftOperand.isNullOrEmpty()) {
+      sb.append("$indentStr$ANSI_BLUE${condition.leftOperand}$ANSI_RESET $ANSI_YELLOW${condition.comparator}$ANSI_RESET $ANSI_CYAN${condition.rightOperand}\n")
     }
 
     val result = sb.toString()

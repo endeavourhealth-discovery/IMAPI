@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.importers
 
+import org.endeavourhealth.imapi.model.imq.Operator
 import org.endeavourhealth.imapi.model.qof.QOFExpressionNode
 import org.endeavourhealth.imapi.utility.logger
 
@@ -19,7 +20,7 @@ class QOFExpressionParser(private var expression: String) {
     expression = expression
       .replace("≠", "!=")
       .replace("–", "-")
-      .replace("  |If |RETURN ", " ")
+      .replace(Regex("(If |RETURN | {2})"), " ")
 
     // Remove extra whitespace and normalize
     val normalized = expression.trim()
@@ -75,12 +76,45 @@ class QOFExpressionParser(private var expression: String) {
     }
 
     // Return as a simple condition
-    return QOFExpressionNode.createConditionNode(expression)
+    return getOperationFromExpression(cleanedExpression);
   }
 
+  private fun getOperationFromExpression(expression: String): QOFExpressionNode {
+    val equalityReplacements = listOf<String?>("!=", " on ", " of ", " at ")
+
+    val result = QOFExpressionNode()
+
+    log.debug("Expression: {}", expression)
+    val expParts: Array<String> = splitByOperator(expression)
+    log.debug(
+      "Parts: {}",
+      expParts.contentToString()
+    )
+
+    result.condition.leftOperand = expParts[0]
+    result.condition.comparator = expParts[1]
+    result.condition.rightOperand = expParts[2]
+
+    return result
+  }
+
+  private fun splitByOperator(expression: String): Array<String> {
+    val operators = arrayOf<String?>(" at ", " on ", " of ", "!=", "<=", ">=", "=", "<", ">")
+    for (op in operators) {
+      val index = expression.indexOf(op!!)
+      if (index != -1) {
+        val left = expression.substring(0, index).trim { it <= ' ' }
+        val right = expression.substring(index + op.length).trim { it <= ' ' }
+        return arrayOf<String>(left, op, right)
+      }
+    }
+    // If no operator found, return the expression as left, empty operator, empty right
+    return arrayOf<String>(expression.trim { it <= ' ' }, "", "")
+  }
   private fun splitOperatorAndParseRecursive(expression: String, operator: String): QOFExpressionNode {
     val parts = splitAtOperator(expression, operator)
-    val node = QOFExpressionNode.createOperatorNode(operator)
+    val node = QOFExpressionNode();
+    node.operator = operator;
 
     for (part in parts) {
       // Remove outer parentheses if present

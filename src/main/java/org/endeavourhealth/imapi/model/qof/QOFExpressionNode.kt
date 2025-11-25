@@ -1,105 +1,99 @@
-package org.endeavourhealth.imapi.model.qof;
+package org.endeavourhealth.imapi.model.qof
 
-import java.util.ArrayList;
-import java.util.List;
+class QOFExpressionNode {
+  val ANSI_RESET: String = "\u001B[0m"
+  val ANSI_BLACK: String = "\u001B[30m"
+  val ANSI_RED: String = "\u001B[31m"
+  val ANSI_GREEN: String = "\u001B[32m"
+  val ANSI_YELLOW: String = "\u001B[33m"
+  val ANSI_BLUE: String = "\u001B[34m"
+  val ANSI_PURPLE: String = "\u001B[35m"
+  val ANSI_CYAN: String = "\u001B[36m"
+  val ANSI_WHITE: String = "\u001B[37m"
 
-public class QOFExpressionNode {
-  private String operator;
-  private String condition;
-  private String passResult;
-  private String failResult;
-  private List<QOFExpressionNode> children;
+  private var _operator: String? = null
+  private var _condition: String? = null
+  private var _passResult: String? = null
+  private var _failResult: String? = null
+  private val _children: MutableList<QOFExpressionNode> = mutableListOf()
 
-  private QOFExpressionNode() {
-    this.children = new ArrayList<>();
-  }
-
-  // Factory methods to avoid constructor ambiguity
-  public static QOFExpressionNode createOperatorNode(String operator) {
-    QOFExpressionNode node = new QOFExpressionNode();
-    node.operator = operator;
-    return node;
-  }
-
-  public static QOFExpressionNode createConditionNode(String condition) {
-    QOFExpressionNode node = new QOFExpressionNode();
-    node.condition = condition;
-    return node;
-  }
-
-  public String getOperator() {
-    return operator;
-  }
-
-  public void setOperator(String operator) {
-    this.operator = operator;
-  }
-
-  public String getCondition() {
-    return condition;
-  }
-
-  public void setCondition(String condition) {
-    this.condition = condition;
-  }
-
-  public List<QOFExpressionNode> getChildren() {
-    return children;
-  }
-
-  public void addChild(QOFExpressionNode child) {
-    this.children.add(child);
-  }
-
-  public String getPassResult() {
-    return passResult;
-  }
-
-  public QOFExpressionNode setPassResult(String result) {
-    this.passResult = result;
-    return this;
-  }
-
-  public String getFailResult() {
-    return failResult;
-  }
-
-  public QOFExpressionNode setFailResult(String failResult) {
-    this.failResult = failResult;
-    return this;
-  }
-
-  public String toFormattedString() {
-    String result = toRecursiveFormattedString(0).trim();
-
-    if (this.passResult != null)
-      result += "\nOn Pass: " + this.passResult;
-
-    if (this.failResult != null)
-      result += "\nOn Fail: " + this.failResult;
-
-    return result;
-  }
-
-  private String toRecursiveFormattedString(int indent) {
-    StringBuilder sb = new StringBuilder();
-    String indentStr = "    ".repeat(indent);
-
-    if (operator != null && !operator.isEmpty()) {
-      sb.append(indentStr).append(operator).append("\n");
-      for (QOFExpressionNode child : children) {
-        String childResult = child.toRecursiveFormattedString(indent + 1);
-          sb.append(childResult);
-      }
-    } else if (condition != null && !condition.isEmpty()) {
-      sb.append(indentStr).append(condition).append("\n");
+  companion object {
+    @JvmStatic
+    fun createOperatorNode(operator: String): QOFExpressionNode {
+      val node = QOFExpressionNode()
+      node.operator = operator
+      return node
     }
 
-    String result = sb.toString();
+    @JvmStatic
+    fun createConditionNode(condition: String): QOFExpressionNode {
+      val node = QOFExpressionNode()
+      node.condition = condition
+      return node
+    }
+  }
 
-    if (result.replace("\n","").isBlank())
-      return "==EMPTY==";
-    else
-      return result;
+  var operator: String?
+    get() = _operator
+    set(value) {
+      _operator = value
+    }
+
+  var condition: String?
+    get() = _condition
+    set(value) {
+      _condition = value
+    }
+
+  var children: MutableList<QOFExpressionNode>
+    get() = _children
+    set(value) {
+      _children.clear()
+      _children.addAll(value)
+    }
+
+  var passResult: String?
+    get() = _passResult
+    set(value) {
+      _passResult = value
+    }
+
+  var failResult: String?
+    get() = _failResult
+    set(value) {
+      _failResult = value
+    }
+
+  fun toFormattedString(): String {
+    val result = toRecursiveFormattedString(0).trim()
+
+    val finalResult = StringBuilder(result)
+    if (passResult != null) {
+      finalResult.append("$ANSI_GREEN\nOn Pass: $passResult $ANSI_RESET")
+    }
+    if (failResult != null) {
+      finalResult.append("$ANSI_RED\nOn Fail: $failResult $ANSI_RESET")
+    }
+
+    return finalResult.toString()
+  }
+
+  private fun toRecursiveFormattedString(indent: Int): String {
+    val sb = StringBuilder()
+    val indentStr = "    ".repeat(indent)
+
+    if (!operator.isNullOrEmpty()) {
+      sb.append("$indentStr$ANSI_YELLOW$operator$ANSI_RESET\n")
+      for (child in children) {
+        val childResult = child.toRecursiveFormattedString(indent + 1)
+        sb.append(childResult)
+      }
+    } else if (!condition.isNullOrEmpty()) {
+      sb.append("$indentStr$ANSI_BLUE$condition$ANSI_RESET\n")
+    }
+
+    val result = sb.toString()
+
+    return if (result.replace("\n", "").isBlank()) "==EMPTY==" else result
   }
 }

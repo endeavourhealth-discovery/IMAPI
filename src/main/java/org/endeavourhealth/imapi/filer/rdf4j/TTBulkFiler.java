@@ -57,20 +57,23 @@ public class TTBulkFiler implements TTDocumentFiler {
     try {
       String config = configTTl;
       String data = dataPath;
-      String preloadPath = preload;
+      String preloadCmdPath = preload;
       String command;
-      if (!SystemUtils.OS_NAME.contains("Windows"))
-        command = "importrdf preload -c " + config + "/config.ttl --force -q "
-          + data + " " + data + "/BulkImport*.nq";
-      else
-        command = "importrdf preload -c " + config + "\\config.ttl --force -q "
+      if (SystemUtils.OS_NAME.toUpperCase().contains("WINDOWS")) {
+        command = "cmd /c importrdf preload -c " + config + "\\config.ttl --force -q "
           + data + " " + data + "\\BulkImport*.nq";
-      String startCommand = SystemUtils.OS_NAME.contains("Windows") ? "cmd /c " : "bash ";
+      } else {
+        command = "bash importrdf preload -c " + config + "/config.ttl --force -q "
+          + data + " " + data + "/BulkImport*.nq";
+      }
 
-      log.info("Executing command [{}{}]", startCommand, command);
+      log.info("Executing command [{}][{}]", preloadCmdPath, command);
 
-      Process process = Runtime.getRuntime()
-        .exec((startCommand + command).split(" "),null, new File(preloadPath));
+      File workingDirectory = new File(preloadCmdPath);
+
+      ProcessBuilder pb = new ProcessBuilder(command.split(" ")).directory(workingDirectory);
+      Process process = pb.start();
+
       BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
       BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 

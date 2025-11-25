@@ -1,248 +1,197 @@
-package org.endeavourhealth.imapi.logic.importers;
+package org.endeavourhealth.imapi.logic.importers
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.usermodel.*;
-import org.endeavourhealth.imapi.model.qof.*;
+import org.apache.poi.xwpf.usermodel.*
+import org.endeavourhealth.imapi.model.qof.*
+import org.slf4j.LoggerFactory
+import java.io.File
+import java.nio.file.Files
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.List;
+object QOFImportEngine {
+    private val log = LoggerFactory.getLogger(QOFImportEngine::class.java)
 
-@Slf4j
-public class QOFImportEngine {
+    fun processFile(file: File): QOFDocument {
+        log.info("Processing QOF file: {}", file.name)
+        val fileName = file.name.replace(".docx", "")
+        val document = XWPFDocument(Files.newInputStream(file.toPath()))
 
-  public static QOFDocument processFile(File file) throws IOException {
-    log.info("Processing QOF file: {}", file.getName());
-    String fileName = file.getName().replace(".docx", "");
-    XWPFDocument document = new XWPFDocument(Files.newInputStream(file.toPath()));
+        val qofDoc = QOFDocument().setName(fileName)
 
-    QOFDocument qofDoc = new QOFDocument()
-      .setName(fileName);
+        val bodyElements = document.bodyElements
 
-    List<IBodyElement> bodyElements = document.getBodyElements();
+        val category = document.properties.coreProperties.category
+        var h3 = ""
+        var prevTable: XWPFTable? = null
+        var currIndicator: Indicator? = null
 
-    String category = document.getProperties().getCoreProperties().getCategory();
-    String h1 = "";
-    String h2 = "";
-    String h3 = "";
-    String h4 = "";
-    XWPFTable prevTable = null;
-    Indicator currIndicator = null;
+        log.info("Processing document elements")
 
-    log.info("Processing document elements");
-
-    for (IBodyElement bodyElement : bodyElements) {
-      if (bodyElement instanceof XWPFParagraph && !((XWPFParagraph) bodyElement).getText().trim().isEmpty()) {
-        XWPFParagraph p = (XWPFParagraph) bodyElement;
-        if (p.getStyleID() != null) {
-          switch (p.getStyleID()) {
-            case "Heading1" -> {
-              h1 = p.getText();
-              h2 = "";
-              h3 = "";
-              h4 = "";
+        for (bodyElement in bodyElements) {
+          if (bodyElement is XWPFParagraph && bodyElement.text.trim().isNotEmpty()) {
+            val p = bodyElement
+            if (p.styleID != null) {
+              h3 = when (p.styleID) {
+                "Heading1" -> ""
+                "Heading2" -> ""
+                "Heading3" -> p.text
+                else -> h3
+              }
             }
-            case "Heading2" -> {
-              h2 = p.getText();
-              h3 = "";
-              h4 = "";
+          } else if (bodyElement is XWPFTable) {
+            val table = bodyElement
+            val tableTitle = table.getRow(0).getCell(0).text.trim()
+            when (tableTitle) {
+              "Term" -> processDatasetTable(qofDoc, table)
+              "Qualifying criteria" -> processSelectionTable(qofDoc, h3, table)
+              "Rule number" -> processPopulationsTable(qofDoc, prevTable!!, table)
+              "Cluster name" -> processCodeClusterTable(qofDoc, table)
+              "Field number" -> processExtractionTable(qofDoc, table)
+              "Indicator ID" -> currIndicator = processIndicator(qofDoc, category, table)
+              "Denominator" -> processDenominatorsTable(currIndicator!!, table)
+              "Numerator" -> processNumeratorsTable(currIndicator!!, table)
             }
-            case "Heading3" -> {
-              h3 = p.getText();
-              h4 = "";
-            }
-            case "Heading4" -> h4 = p.getText();
+            prevTable = table
           }
         }
-      } else if (bodyElement instanceof XWPFTable table) {
-        String tableTitle = table.getRow(0).getCell(0).getText().trim();
-        switch (tableTitle) {
-          case "Term":
-            processDatasetTable(qofDoc, table);
-            break;
-          case "Qualifying criteria":
-            processSelectionTable(qofDoc, h3, table);
-            break;
-          case "Rule number":
-            processPopulationsTable(qofDoc, prevTable, table);
-            break;
-          case "Cluster name":
-            processCodeClusterTable(qofDoc, table);
-            break;
-          case "Field number":
-            processExtractionTable(qofDoc, table);
-            break;
-          case "Indicator ID":
-            currIndicator = processIndicator(qofDoc, category, table);
-            break;
-          case "Denominator":
-            processDenominatorsTable(currIndicator, table);
-            break;
-          case "Numerator":
-            processNumeratorsTable(currIndicator, table);
-            break;
+
+        document.close()
+        log.info("QOF file processed")
+
+        return qofDoc
+    }
+
+    private fun processDatasetTable(qofDoc: QOFDocument, datasetTable: XWPFTable) {
+        for (i in 1 until datasetTable.rows.size - 1) {
+            val cells = getCellText(datasetTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Term" == cells[0]) continue
+
+            qofDoc.addTerm(cells[0], cells[1])
         }
-        prevTable = table;
-      }
     }
 
-    document.close();
-    log.info("QOF file processed");
+    private fun processSelectionTable(qofDoc: QOFDocument, name: String, ruleTable: XWPFTable) {
+        val selection = Selection().setName(name)
+        qofDoc.selections.add(selection)
 
-    return qofDoc;
-  }
+        for (i in 1 until ruleTable.rows.size - 1) {
+            val cells = getCellText(ruleTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Qualifying criteria" == cells[0]) continue
 
-  private static void processDatasetTable(QOFDocument qofDoc, XWPFTable datasetTable) {
-    for (int i = 1; i < datasetTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(datasetTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Term".equals(cells.get(0)))
-        continue;
-
-      qofDoc.addTerm(cells.get(0), cells.get(1));
-    }
-  }
-
-  private static void processSelectionTable(QOFDocument qofDoc, String name, XWPFTable ruleTable) {
-    Selection selection = new Selection()
-      .setName(name);
-    qofDoc.getSelections().add(selection);
-
-    for (int i = 1; i < ruleTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Qualifying criteria".equals(cells.get(0)))
-        continue;
-
-      selection.addRule(new Rule()
-        .setLogicText(cells.get(0))
-        .setIfTrue(cells.get(1).toUpperCase())
-        .setIfFalse(cells.get(2).toUpperCase())
-        .setDescription(cells.get(3))
-      );
-    }
-  }
-
-  private static void processPopulationsTable(QOFDocument qofDoc, XWPFTable regTable, XWPFTable ruleTable) {
-    List<String> cells = getCellText(regTable.getRow(1).getTableICells());
-
-    Register register = new Register()
-      .setName(cells.get(0))
-      .setDescription(cells.get(1))
-      .setBase(cells.get(2));
-    qofDoc.getRegisters().add(register);
-
-    for (int i = 1; i < ruleTable.getRows().size() - 1; i++) {
-      cells = getCellText(ruleTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
-        continue;
-
-      register.addRule(new Rule()
-        .setOrder(i)
-        .setLogicText(cells.get(1))
-        .setIfTrue(cells.get(2).toUpperCase())
-        .setIfFalse(cells.get(3).toUpperCase())
-        .setDescription(cells.get(4))
-      );
-
-    }
-  }
-
-  private static void processCodeClusterTable(QOFDocument qofDoc, XWPFTable codeClusterTable) {
-    for (int i = 1; i < codeClusterTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(codeClusterTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Cluster name".equals(cells.get(0)))
-        continue;
-
-      CodeCluster codeCluster = new CodeCluster()
-        .setCode(cells.get(0))
-        .setDescription(cells.get(1))
-        .setSNOMEDCT(cells.get(2));
-
-      qofDoc.addCodeCluster(codeCluster);
-    }
-  }
-
-
-  private static void processExtractionTable(QOFDocument qofDoc, XWPFTable fieldTable) {
-    for (int i = 1; i < fieldTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(fieldTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Field number".equals(cells.get(0)))
-        continue;
-
-      qofDoc.getExtractionFields().add(new ExtractionField()
-        .setField(i)
-        .setName(cells.get(1))
-        .setCluster(cells.get(2))
-        .setLogicText(cells.get(3))
-        .setDescription(cells.get(4))
-      );
-    }
-  }
-
-  private static Indicator processIndicator(QOFDocument qofDoc, String category, XWPFTable indTable) {
-    List<String> cells = getCellText(indTable.getRow(1).getTableICells());
-
-    Indicator indicator = new Indicator()
-      .setName(cells.get(0))
-      .setDescription(cells.get(1))
-      .setBase(category + cells.get(2));
-    qofDoc.getIndicators().add(indicator);
-
-    return indicator;
-  }
-
-  private static void processDenominatorsTable(Indicator indicator, XWPFTable ruleTable) {
-    for (int i = 2; i < ruleTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
-        continue;
-
-      indicator.addDenominator(new Rule()
-        .setOrder(i-1)
-        .setLogicText(cells.get(1))
-        .setIfTrue(cells.get(2).toUpperCase())
-        .setIfFalse(cells.get(3).toUpperCase())
-        .setDescription(cells.get(4))
-      );
-    }
-  }
-
-  private static void processNumeratorsTable(Indicator indicator, XWPFTable ruleTable) {
-
-    for (int i = 2; i < ruleTable.getRows().size() - 1; i++) {
-      List<String> cells = getCellText(ruleTable.getRow(i).getTableICells());
-      if (cells.isEmpty() || "Rule number".equals(cells.get(0)))
-        continue;
-
-      indicator.addNumerator(new Rule()
-        .setOrder(i-1)
-        .setLogicText(cells.get(1))
-        .setIfTrue(cells.get(2).toUpperCase())
-        .setIfFalse(cells.get(3).toUpperCase())
-        .setDescription(cells.get(4))
-      );
-    }
-  }
-
-  private static List<String> getCellText(List<ICell> cells) {
-    List<String> result = cells.stream()
-      .map(QOFImportEngine::getICellText)
-      .toList();
-
-    if (result.stream().allMatch(s -> s.trim().isEmpty()))
-      return List.of();
-
-    return result;
-  }
-
-  private static String getICellText(ICell cell) {
-    String text = "";
-    if (cell instanceof XWPFTableCell tabCell) {
-      text = tabCell.getTextRecursively().replace("\t", " ").replace("\u00A0", " ");
-    } else if (cell instanceof XWPFSDTCell sdtCell) {
-      text = sdtCell.getContent().getText();
+            selection.addRule(Rule()
+                .setLogicText(cells[0])
+                .setIfTrue(cells[1].uppercase())
+                .setIfFalse(cells[2].uppercase())
+                .setDescription(cells[3])
+            )
+        }
     }
 
-    return text;
-  }
+    private fun processPopulationsTable(qofDoc: QOFDocument, regTable: XWPFTable, ruleTable: XWPFTable) {
+        val cells = getCellText(regTable.getRow(1).tableICells)
+
+        val register = Register()
+            .setName(cells[0])
+            .setDescription(cells[1])
+            .setBase(cells[2])
+        qofDoc.registers.add(register)
+
+        for (i in 1 until ruleTable.rows.size - 1) {
+            val cells2 = getCellText(ruleTable.getRow(i).tableICells)
+            if (cells2.isEmpty() || "Rule number" == cells2[0]) continue
+
+            register.addRule(Rule()
+                .setOrder(i)
+                .setLogicText(cells2[1])
+                .setIfTrue(cells2[2].uppercase())
+                .setIfFalse(cells2[3].uppercase())
+                .setDescription(cells2[4])
+            )
+        }
+    }
+
+    private fun processCodeClusterTable(qofDoc: QOFDocument, codeClusterTable: XWPFTable) {
+        for (i in 1 until codeClusterTable.rows.size - 1) {
+            val cells = getCellText(codeClusterTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Cluster name" == cells[0]) continue
+
+            val codeCluster = CodeCluster()
+                .setCode(cells[0])
+                .setDescription(cells[1])
+                .setSNOMEDCT(cells[2])
+
+            qofDoc.addCodeCluster(codeCluster)
+        }
+    }
+
+    private fun processExtractionTable(qofDoc: QOFDocument, fieldTable: XWPFTable) {
+        for (i in 1 until fieldTable.rows.size - 1) {
+            val cells = getCellText(fieldTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Field number" == cells[0]) continue
+
+            qofDoc.extractionFields.add(ExtractionField()
+                .setField(i)
+                .setName(cells[1])
+                .setCluster(cells[2])
+                .setLogicText(cells[3])
+                .setDescription(cells[4])
+            )
+        }
+    }
+
+    private fun processIndicator(qofDoc: QOFDocument, category: String, indTable: XWPFTable): Indicator {
+        val cells = getCellText(indTable.getRow(1).tableICells)
+
+        val indicator = Indicator()
+            .setName(cells[0])
+            .setDescription(cells[1])
+            .setBase(category + cells[2])
+        qofDoc.indicators.add(indicator)
+
+        return indicator
+    }
+
+    private fun processDenominatorsTable(indicator: Indicator, ruleTable: XWPFTable) {
+        for (i in 2 until ruleTable.rows.size - 1) {
+            val cells = getCellText(ruleTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Rule number" == cells[0]) continue
+
+            indicator.addDenominator(Rule()
+                .setOrder(i - 1)
+                .setLogicText(cells[1])
+                .setIfTrue(cells[2].uppercase())
+                .setIfFalse(cells[3].uppercase())
+                .setDescription(cells[4])
+            )
+        }
+    }
+
+    private fun processNumeratorsTable(indicator: Indicator, ruleTable: XWPFTable) {
+        for (i in 2 until ruleTable.rows.size - 1) {
+            val cells = getCellText(ruleTable.getRow(i).tableICells)
+            if (cells.isEmpty() || "Rule number" == cells[0]) continue
+
+            indicator.addNumerator(Rule()
+                .setOrder(i - 1)
+                .setLogicText(cells[1])
+                .setIfTrue(cells[2].uppercase())
+                .setIfFalse(cells[3].uppercase())
+                .setDescription(cells[4])
+            )
+        }
+    }
+
+    private fun getCellText(cells: List<ICell>): List<String> {
+        val result = cells.map { getICellText(it) }
+
+        return if (result.all { it.trim().isEmpty() }) emptyList() else result
+    }
+
+    private fun getICellText(cell: ICell): String {
+        val text = when (cell) {
+            is XWPFTableCell -> cell.textRecursively.replace("\t", " ").replace("\u00A0", " ")
+            is XWPFSDTCell -> cell.content.text
+            else -> ""
+        }
+
+        return text
+    }
 }

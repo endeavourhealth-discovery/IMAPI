@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
@@ -560,6 +561,10 @@ public class EntityService {
 
   public List<TTBundle> getEntityFromTerm(String term, Set<String> schemes) {
     return entityRepository.getEntityFromTerm(term, schemes);
+  }
+
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
+    return entityRepository.getIriDetails(iris);
   }
 }
 

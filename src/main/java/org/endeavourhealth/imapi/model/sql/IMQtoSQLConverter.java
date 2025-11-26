@@ -106,7 +106,7 @@ public class IMQtoSQLConverter {
     }
 
     if (null != definition.getIs()) {
-      convertIsCohort(qry, definition.getIs().getFirst(), definition.getTypeOf(), Bool.and);
+      convertIs(qry, definition.getIs(), definition.getTypeOf(), Bool.and);
     }
 
     return qry.toSql(2);
@@ -148,7 +148,7 @@ public class IMQtoSQLConverter {
     addBooleanMatchesToSQL(qry, definition);
 
     if (null != definition.getIs()) {
-      convertIsCohort(qry, definition.getIs().getFirst(), null, Bool.and);
+      convertIs(qry, definition.getIs(), null, Bool.and);
     }
 
     return qry.toSql(2);
@@ -511,12 +511,8 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException, JsonProcessingException {
-//    TODO: instanceOf or isCohort based on type
-//    TODO: Handle list array
     if (match.getIs() != null) {
-      convertInstanceOf(qry, match.getIs(), bool);
-    } else if (null != match.getIs()) {
-      convertIsCohort(qry, match.getIs().getFirst(), null, bool);
+      convertIs(qry, match.getIs(), null, bool);
     } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }
@@ -552,20 +548,13 @@ public class IMQtoSQLConverter {
     return "rn = " + order.getLimit();
   }
 
-  private void convertInstanceOf(SQLQuery qry, List<Node> is, Bool bool) throws SQLConversionException {
-    if (is.isEmpty())
-      throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
-    String rsltTbl = getTableNameFromIri(is.getFirst().getIri());
-    String fromField = getFromField(qry, is.getFirst());
-    qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
-  }
-
-  private void convertIsCohort(SQLQuery qry, Node isCohort, Node cohortTypeOf, Bool bool) throws SQLConversionException {
-    String rsltTbl = getTableNameFromIri(isCohort.getIri());
-    String fromField = getFromField(qry, cohortTypeOf);
-    qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
+  private void convertIs(SQLQuery qry, List<Node> nodes, Node cohortTypeOf, Bool bool) throws SQLConversionException {
+    for (Node node : nodes) {
+      String rsltTbl = getTableNameFromIri(node.getIri());
+      String fromField = getFromField(qry, cohortTypeOf);
+      qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
+      if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
+    }
   }
 
   private String getFromField(SQLQuery qry, Node typeOf) throws SQLConversionException {
@@ -773,6 +762,8 @@ public class IMQtoSQLConverter {
       return "set";
     } else if (node.isAncestorsOf()) {
       throw new SQLConversionException("SQL Conversion Error: Ancestor joining currently not supported");
+    } else if (node.isCohort()) {
+      throw new SQLConversionException("SQL Conversion Error: Cohort joining currently not supported");
     } else return "set";
   }
 

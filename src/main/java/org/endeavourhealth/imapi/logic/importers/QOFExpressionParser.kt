@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.logic.importers
 
-import org.endeavourhealth.imapi.model.imq.Operator
 import org.endeavourhealth.imapi.model.qof.QOFExpressionNode
 import org.endeavourhealth.imapi.utility.logger
 
@@ -33,7 +32,7 @@ class QOFExpressionParser(private var expression: String) {
     if (expression.contains("ELSE ")) {
       val elsePart = expression.substring(expression.indexOf("ELSE ") + 5).trim()
       if (!"NULL".equals(elsePart, ignoreCase = true)) {
-        root.failResult = elsePart;
+        root.failResult = elsePart
       }
       expression = expression.substring(0, expression.indexOf("ELSE "))
     }
@@ -41,7 +40,7 @@ class QOFExpressionParser(private var expression: String) {
     if (expression.contains("THEN ")) {
       val thenPart = expression.substring(expression.indexOf("THEN ") + 5)
       if (!"NULL".equals(thenPart, ignoreCase = true)) {
-        root.passResult = thenPart;
+        root.passResult = thenPart
       }
       expression = expression.substring(0, expression.indexOf("THEN "))
     }
@@ -56,7 +55,7 @@ class QOFExpressionParser(private var expression: String) {
     val topLevelAnd = findTopLevelOperator(expression, "AND")
     val topLevelOr = findTopLevelOperator(expression, "OR")
 
-    // If we have both AND and OR, use the one that comes first
+    // If we have both "AND" and "OR", use the one that comes first
     val operator: String? = when {
       topLevelAnd != -1 && topLevelOr != -1 -> if (topLevelAnd < topLevelOr) "AND" else "OR"
       topLevelAnd != -1 -> "AND"
@@ -76,12 +75,10 @@ class QOFExpressionParser(private var expression: String) {
     }
 
     // Return as a simple condition
-    return getOperationFromExpression(cleanedExpression);
+    return getOperationFromExpression(cleanedExpression)
   }
 
   private fun getOperationFromExpression(expression: String): QOFExpressionNode {
-    val equalityReplacements = listOf<String?>("!=", " on ", " of ", " at ")
-
     val result = QOFExpressionNode()
 
     log.debug("Expression: {}", expression)
@@ -103,18 +100,18 @@ class QOFExpressionParser(private var expression: String) {
     for (op in operators) {
       val index = expression.indexOf(op!!)
       if (index != -1) {
-        val left = expression.substring(0, index).trim { it <= ' ' }
+        val left = expression.take(index).trim { it <= ' ' }
         val right = expression.substring(index + op.length).trim { it <= ' ' }
-        return arrayOf<String>(left, op, right)
+        return arrayOf(left, op, right)
       }
     }
     // If no operator found, return the expression as left, empty operator, empty right
-    return arrayOf<String>(expression.trim { it <= ' ' }, "", "")
+    return arrayOf(expression.trim { it <= ' ' }, "", "")
   }
   private fun splitOperatorAndParseRecursive(expression: String, operator: String): QOFExpressionNode {
     val parts = splitAtOperator(expression, operator)
-    val node = QOFExpressionNode();
-    node.operator = operator;
+    val node = QOFExpressionNode()
+    node.operator = operator
 
     for (part in parts) {
       // Remove outer parentheses if present

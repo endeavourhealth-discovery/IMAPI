@@ -27,29 +27,27 @@ object QOFImportEngine {
 
         for (bodyElement in bodyElements) {
           if (bodyElement is XWPFParagraph && bodyElement.text.trim().isNotEmpty()) {
-            val p = bodyElement
-            if (p.styleID != null) {
-              h3 = when (p.styleID) {
+            if (bodyElement.styleID != null) {
+              h3 = when (bodyElement.styleID) {
                 "Heading1" -> ""
                 "Heading2" -> ""
-                "Heading3" -> p.text
+                "Heading3" -> bodyElement.text
                 else -> h3
               }
             }
           } else if (bodyElement is XWPFTable) {
-            val table = bodyElement
-            val tableTitle = table.getRow(0).getCell(0).text.trim()
+            val tableTitle = bodyElement.getRow(0).getCell(0).text.trim()
             when (tableTitle) {
-              "Term" -> processDatasetTable(qofDoc, table)
-              "Qualifying criteria" -> processSelectionTable(qofDoc, h3, table)
-              "Rule number" -> processPopulationsTable(qofDoc, prevTable!!, table)
-              "Cluster name" -> processCodeClusterTable(qofDoc, table)
-              "Field number" -> processExtractionTable(qofDoc, table)
-              "Indicator ID" -> currIndicator = processIndicator(qofDoc, category, table)
-              "Denominator" -> processDenominatorsTable(currIndicator!!, table)
-              "Numerator" -> processNumeratorsTable(currIndicator!!, table)
+              "Term" -> processDatasetTable(qofDoc, bodyElement)
+              "Qualifying criteria" -> processSelectionTable(qofDoc, h3, bodyElement)
+              "Rule number" -> processPopulationsTable(qofDoc, prevTable!!, bodyElement)
+              "Cluster name" -> processCodeClusterTable(qofDoc, bodyElement)
+              "Field number" -> processExtractionTable(qofDoc, bodyElement)
+              "Indicator ID" -> currIndicator = processIndicator(qofDoc, category, bodyElement)
+              "Denominator" -> processDenominatorsTable(currIndicator!!, bodyElement)
+              "Numerator" -> processNumeratorsTable(currIndicator!!, bodyElement)
             }
-            prevTable = table
+            prevTable = bodyElement
           }
         }
 

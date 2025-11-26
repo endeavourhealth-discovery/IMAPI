@@ -1,17 +1,15 @@
 package org.endeavourhealth.imapi.model.qof
 
-class QOFExpressionNode {
-  val ANSI_RESET: String = "\u001B[0m"
-  val ANSI_BLACK: String = "\u001B[30m"
-  val ANSI_RED: String = "\u001B[31m"
-  val ANSI_GREEN: String = "\u001B[32m"
-  val ANSI_YELLOW: String = "\u001B[33m"
-  val ANSI_BLUE: String = "\u001B[34m"
-  val ANSI_PURPLE: String = "\u001B[35m"
-  val ANSI_CYAN: String = "\u001B[36m"
-  val ANSI_WHITE: String = "\u001B[37m"
+const val ANSI_RESET: String = "\u001B[0m"
+const val ANSI_RED: String = "\u001B[31m"
+const val ANSI_GREEN: String = "\u001B[32m"
+const val ANSI_YELLOW: String = "\u001B[33m"
+const val ANSI_BLUE: String = "\u001B[34m"
+const val ANSI_PURPLE: String = "\u001B[35m"
+const val ANSI_CYAN: String = "\u001B[36m"
 
-  val condition: QOFCondition = QOFCondition();
+class QOFExpressionNode {
+  val condition: QOFCondition = QOFCondition()
   var operator: String? = null
   var passResult: String? = null
   var failResult: String? = null
@@ -42,7 +40,7 @@ class QOFExpressionNode {
         sb.append(childResult)
       }
     } else if (!condition.leftOperand.isNullOrEmpty()) {
-      sb.append("$indentStr$ANSI_BLUE${condition.leftOperand}$ANSI_RESET $ANSI_YELLOW${condition.comparator}$ANSI_RESET $ANSI_CYAN${condition.rightOperand}\n")
+      sb.append("$indentStr$ANSI_BLUE${condition.leftOperand}$ANSI_RESET $ANSI_PURPLE${condition.comparator}$ANSI_RESET $ANSI_CYAN${condition.rightOperand}\n")
     }
 
     val result = sb.toString()

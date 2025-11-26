@@ -41,6 +41,9 @@ public class IriCollector {
   private static void collectPathIris(Path path, Set<String> iriSet) {
     if (path.getIri() != null)
       iriSet.add(path.getIri());
+    if (path.getTypeOf()!=null){
+      iriSet.add(path.getTypeOf().getIri());
+    }
     if (path.getPath() != null) {
       for (Path subPath : path.getPath()) {
         collectPathIris(subPath, iriSet);
@@ -56,19 +59,17 @@ public class IriCollector {
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
     }
-    if (match.getIsCohort() != null) {
-      iriSet.add(match.getIsCohort().getIri());
+    if (match.getIs() != null) {
+      for (Node node : match.getIs())
+        iriSet.add(node.getIri());
     }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         collectPathIris(path, iriSet);
       }
     }
-    if (match.getInstanceOf() != null) {
-      match.getInstanceOf().forEach(i -> iriSet.add(i.getIri()));
-    }
-    if (match.getThen() != null) {
-      collectMatchIris(match.getThen(), iriSet);
+    if (match.getIs() != null) {
+      match.getIs().forEach(i -> iriSet.add(i.getIri()));
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
@@ -115,6 +116,9 @@ public class IriCollector {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
     }
+    if (where.getFunction() != null) {
+      collectFunctionIris(where.getFunction(),iriSet);
+    }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
     }
@@ -149,6 +153,23 @@ public class IriCollector {
     }
     if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
       iriSet.add(where.getRelativeTo().getQualifier().getIri());
+    }
+  }
+
+  private static void collectFunctionIris(FunctionClause function,Set<String> iriSet) {
+    if (function.getIri() != null) {
+      iriSet.add(function.getIri());
+    }
+    if (function.getArgument() != null) {
+      for (Argument argument : function.getArgument()) {
+        if (argument.getValuePath()!=null){
+          collectPathIris(argument.getValuePath(),iriSet);
+        }
+        if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
+        if (argument.getValueIriList() != null) {
+          for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+        }
+      }
     }
   }
 

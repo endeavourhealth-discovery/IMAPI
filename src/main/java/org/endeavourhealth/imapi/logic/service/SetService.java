@@ -244,11 +244,10 @@ public class SetService {
       throw new IllegalArgumentException("File type format needs to be set.");
 
     TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    String ecl= null;
 
     if (options.includeDefinition()) {
-      String ecl = getEcl(setEntity);
-      if (null != ecl) return ecl.getBytes();
-      else throw new GeneralCustomException("Set does not have a definition.", HttpStatus.INTERNAL_SERVER_ERROR);
+       ecl = getEcl(setEntity);
     }
 
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
@@ -266,7 +265,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy());
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),ecl);
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -346,10 +345,10 @@ public class SetService {
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
           subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
           isSubsetOf.add(iri(entityIri));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         }
       }
     }
@@ -358,7 +357,7 @@ public class SetService {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         isSubsetOf.remove(iri(entityIri));
-        filerService.updateEntity(subsetEntity, agentName, updateGraph);
+        filerService.updateEntity(subsetEntity, agentName);
       }
     }
   }

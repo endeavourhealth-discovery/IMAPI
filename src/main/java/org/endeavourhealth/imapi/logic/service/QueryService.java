@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -90,18 +89,18 @@ public class QueryService {
   }
 
 
-  public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException {
+  public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverter(queryRequestForSql).getSql();
   }
 
-  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, QueryException, SQLConversionException {
+  public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverter(queryRequestForSql).getSql();
   }
 
-  public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException {
+  public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (null == queryRequest.getQuery()) throw new SQLConversionException("Query in query request cannot be null");
 
     if (null != queryRequest.getLanguage() && !queryRequest.getLanguage().equals(DatabaseOption.MYSQL) && !queryRequest.getLanguage().equals(DatabaseOption.POSTGRESQL)) {
@@ -178,7 +177,6 @@ public class QueryService {
   }
 
   private Map<String, Integer> runSubQueries(QueryRequest queryRequest) throws QueryException, JsonProcessingException, SQLConversionException, SQLException {
-//    List<String> subQueries = getSubqueryIris(queryRequest.getQuery());
     List<SubQueryDependency> subQueries = entityRepository.getOrderedSubqueries(queryRequest.getQuery().getIri());
     List<String> subQueryIris = subQueries.stream().map(SubQueryDependency::getIri)
       .toList();
@@ -200,7 +198,7 @@ public class QueryService {
     return queryIrisToHashCodes;
   }
 
-  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws QueryException, JsonProcessingException, SQLConversionException {
+  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws JsonProcessingException, SQLConversionException {
     Map<String, Integer> queryIrisToHashCodes = new HashMap<>();
     for (String subQueryIri : subQueries) {
       QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(argument));
@@ -243,7 +241,7 @@ public class QueryService {
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
+      defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     } else return null;
   }
@@ -284,9 +282,11 @@ public class QueryService {
     return query;
   }
 
-  public Query getQueryFromIri(String iri) throws JsonProcessingException {
+  public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
-    return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    Query query= queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+    return query;
   }
 
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
@@ -317,8 +317,8 @@ public class QueryService {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
-    if (null != match.getInstanceOf()) {
-      List<Node> instances = match.getInstanceOf();
+    if (null != match.getIs()) {
+      List<Node> instances = match.getIs();
       instances.forEach(instance -> {
         if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
           addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
@@ -427,77 +427,6 @@ public class QueryService {
     }
   }
 
-  private List<String> getSubqueryIris(Query query) throws QueryException, JsonProcessingException, SQLConversionException {
-    List<String> subQueryIris = new ArrayList<>();
-    populateSubqueryIrisConclusively(query, subQueryIris);
-    subQueryIris = deduplicateKeepLast(subQueryIris);
-    return subQueryIris;
-  }
-
-  private List<String> deduplicateKeepLast(List<String> subQueryIris) {
-    LinkedHashSet<String> seen = new LinkedHashSet<>();
-    ListIterator<String> it = subQueryIris.listIterator(subQueryIris.size());
-    while (it.hasPrevious()) {
-      String iri = it.previous();
-      seen.add(iri);
-    }
-    List<String> result = new ArrayList<>(seen);
-    Collections.reverse(result);
-    return result;
-  }
-
-  private void populateSubqueryIrisConclusively(Query query, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
-    if (query.getIsCohort() != null) {
-      subQueryIris.add(query.getIsCohort().getIri());
-    }
-
-    if (query.getAnd() != null) {
-      for (Match and : query.getAnd()) {
-        processMatch(and, subQueryIris);
-      }
-    }
-
-    if (query.getOr() != null) {
-      for (Match or : query.getOr()) {
-        processMatch(or, subQueryIris);
-      }
-    }
-
-    if (query.getNot() != null) {
-      for (Match not : query.getNot()) {
-        processMatch(not, subQueryIris);
-      }
-    }
-  }
-
-  private void processMatch(Match match, List<String> subQueryIris) throws QueryException, JsonProcessingException, SQLConversionException {
-    if (null != match.getIsCohort()) {
-      String iri = match.getIsCohort().getIri();
-      subQueryIris.add(iri);
-      Query subQuery = describeQuery(iri, DisplayMode.LOGICAL);
-      if (null == subQuery) throw new SQLConversionException("Sub query with iri:" + iri + " not found");
-      populateSubqueryIrisConclusively(subQuery, subQueryIris);
-    }
-
-    if (match.getAnd() != null) {
-      for (Match nestedAnd : match.getAnd()) {
-        processMatch(nestedAnd, subQueryIris);
-      }
-    }
-
-    if (match.getOr() != null) {
-      for (Match nestedOr : match.getOr()) {
-        processMatch(nestedOr, subQueryIris);
-      }
-    }
-
-    if (match.getNot() != null) {
-      for (Match nestedNot : match.getNot()) {
-        processMatch(nestedNot, subQueryIris);
-      }
-    }
-  }
-
   public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     Query query = new QueryRepository().expandCohort(queryIri, cohortIri, displayMode);
     query = new QueryDescriptor().describeQuery(query, displayMode);
@@ -505,7 +434,7 @@ public class QueryService {
   }
 
   public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
-    return new IMQToIML().getIML(queryIri);
+    return new IMQToIML().getIML(queryIri,true);
   }
 
 

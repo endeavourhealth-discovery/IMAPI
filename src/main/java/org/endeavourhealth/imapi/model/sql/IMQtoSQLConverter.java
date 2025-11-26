@@ -89,7 +89,7 @@ public class IMQtoSQLConverter {
   private String processDataset(Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
     if (null != definition.getTypeOf() && null != definition.getTypeOf().getIri()) {
       return processDatasetWithTypeOf(dataset, definition);
-    } else if (null != dataset.getReturn().getFunction() && null != dataset.getIsCohort()) {
+    } else if (null != dataset.getReturn().getFunction() && null != dataset.getIs()) {
       return processDatasetWithFunction(dataset);
     }
     return "";
@@ -105,8 +105,8 @@ public class IMQtoSQLConverter {
       addSelectFromReturnRecursively(qry, dataset.getReturn(), null, typeOf, null, false);
     }
 
-    if (null != definition.getIsCohort()) {
-      convertIsCohort(qry, definition.getIsCohort(), definition.getTypeOf(), Bool.and);
+    if (null != definition.getIs()) {
+      convertIs(qry, definition.getIs(), definition.getTypeOf(), Bool.and);
     }
 
     return qry.toSql(2);
@@ -119,8 +119,8 @@ public class IMQtoSQLConverter {
   }
 
   private void applyDatasetFilters(SQLQuery qry, Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
-    if (definition.getInstanceOf() != null) {
-      addDatasetInstanceOf(qry, definition.getInstanceOf());
+    if (definition.getIs() != null) {
+      addDatasetInstanceOf(qry, definition.getIs());
     }
     if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null) {
       addDatasetSubQuery(qry, dataset, getDatasetTypeOf(dataset, definition));
@@ -133,7 +133,7 @@ public class IMQtoSQLConverter {
   private String processDatasetWithFunction(Match dataset) throws SQLConversionException, JsonProcessingException {
     String sqlfn = getFunction(dataset.getReturn().getFunction());
     if (null != sqlfn) {
-      String from = getTableNameFromIri(dataset.getIsCohort().getIri());
+      String from = getTableNameFromIri(dataset.getIs().getFirst().getIri());
       SQLQuery qry = new SQLQuery().create(null, null, tableMap, from);
       qry.getSelects().add(sqlfn);
       return qry.toSql(2);
@@ -147,8 +147,8 @@ public class IMQtoSQLConverter {
     SQLQuery qry = new SQLQuery().create(definition.getTypeOf().getIri(), null, tableMap, null);
     addBooleanMatchesToSQL(qry, definition);
 
-    if (null != definition.getIsCohort()) {
-      convertIsCohort(qry, definition.getIsCohort(), null, Bool.and);
+    if (null != definition.getIs()) {
+      convertIs(qry, definition.getIs(), null, Bool.and);
     }
 
     return qry.toSql(2);
@@ -171,8 +171,8 @@ public class IMQtoSQLConverter {
     qry.getJoins().add(createJoin(qry, subQuery, joiner));
   }
 
-  private void addDatasetInstanceOf(SQLQuery qry, List<Node> instanceOf) throws SQLConversionException, JsonProcessingException {
-    SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setInstanceOf(instanceOf), Bool.and);
+  private void addDatasetInstanceOf(SQLQuery qry, List<Node> is) throws SQLConversionException, JsonProcessingException {
+    SQLQuery cohortQry = convertMatchToQuery(qry, new Match().setIs(is), Bool.and);
     qry.getWiths().addAll(cohortQry.getWiths());
     cohortQry.setWiths(new ArrayList<>());
     qry.getWiths().add(cohortQry.getAlias() + " AS (" + cohortQry.toSql(2) + "\n)");
@@ -476,17 +476,6 @@ public class IMQtoSQLConverter {
     String joiner = (bool == Bool.not) ? "LEFT JOIN " : "JOIN ";
     if (bool == Bool.not) qry.getWheres().add(subQry.getAlias() + ".id IS NULL");
     qry.getJoins().add(createJoin(qry, subQry, joiner));
-    if (match.getThen() != null) {
-      Match thenMatch = match.getThen();
-      if (thenMatch.getKeepAs() != null) {
-        SQLQuery thenQry = convertMatchToQuery(qry, thenMatch, Bool.and);
-        qry.getWiths().addAll(thenQry.getWiths());
-        thenQry.setWiths(new ArrayList<>());
-        qry.getWiths().add(thenMatch.getKeepAs() + " AS (" + thenQry.toSql(2) + "\n)");
-      } else {
-        addIMQueryToSQLQueryRecursively(qry, thenMatch, Bool.and);
-      }
-    }
   }
 
 
@@ -522,10 +511,8 @@ public class IMQtoSQLConverter {
   }
 
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException, JsonProcessingException {
-    if (match.getInstanceOf() != null) {
-      convertInstanceOf(qry, match.getInstanceOf(), bool);
-    } else if (null != match.getIsCohort()) {
-      convertIsCohort(qry, match.getIsCohort(), null, bool);
+    if (match.getIs() != null) {
+      convertIs(qry, match.getIs(), null, bool);
     } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }
@@ -561,20 +548,13 @@ public class IMQtoSQLConverter {
     return "rn = " + order.getLimit();
   }
 
-  private void convertInstanceOf(SQLQuery qry, List<Node> instanceOf, Bool bool) throws SQLConversionException {
-    if (instanceOf.isEmpty())
-      throw new SQLConversionException("SQL Conversion Error: MatchSet must have at least one element");
-    String rsltTbl = getTableNameFromIri(instanceOf.getFirst().getIri());
-    String fromField = getFromField(qry, instanceOf.getFirst());
-    qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
-  }
-
-  private void convertIsCohort(SQLQuery qry, TTIriRef isCohort, Node cohortTypeOf, Bool bool) throws SQLConversionException {
-    String rsltTbl = getTableNameFromIri(isCohort.getIri());
-    String fromField = getFromField(qry, cohortTypeOf);
-    qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
-    if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
+  private void convertIs(SQLQuery qry, List<Node> nodes, Node cohortTypeOf, Bool bool) throws SQLConversionException {
+    for (Node node : nodes) {
+      String rsltTbl = getTableNameFromIri(node.getIri());
+      String fromField = getFromField(qry, cohortTypeOf);
+      qry.getJoins().add(((bool == Bool.or || bool == Bool.not) ? "LEFT " : "") + "JOIN " + rsltTbl + " ON " + rsltTbl + ".id = " + fromField);
+      if (bool == Bool.not) qry.getWheres().add(rsltTbl + ".id IS NULL");
+    }
   }
 
   private String getFromField(SQLQuery qry, Node typeOf) throws SQLConversionException {
@@ -782,6 +762,8 @@ public class IMQtoSQLConverter {
       return "set";
     } else if (node.isAncestorsOf()) {
       throw new SQLConversionException("SQL Conversion Error: Ancestor joining currently not supported");
+    } else if (node.isCohort()) {
+      throw new SQLConversionException("SQL Conversion Error: Cohort joining currently not supported");
     } else return "set";
   }
 
@@ -1113,9 +1095,6 @@ public class IMQtoSQLConverter {
       }
     }
 
-    if (match.getThen() != null) {
-      return findMatchByKeepAs(match.getThen(), keepAs);
-    }
 
     return null;
   }

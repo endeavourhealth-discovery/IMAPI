@@ -47,7 +47,7 @@ public class QueryDescriptor {
 
   public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
     setIriNames(match);
-    describeMatch(match, typeOf);
+    describeMatch(match);
     return match;
   }
 
@@ -59,7 +59,7 @@ public class QueryDescriptor {
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
-    describeMatch(query, null);
+    describeMatch(query);
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
@@ -77,9 +77,7 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return ret) {
-    if (ret.getAs() != null && ret.getAsDescription() != null) {
-      nodeRefToLabel.put(ret.getAs(), ret.getAsDescription());
-    }
+
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
         if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
@@ -102,7 +100,7 @@ public class QueryDescriptor {
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, RDF.TYPE,IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -160,16 +158,8 @@ public class QueryDescriptor {
   }
 
 
-  public void describeMatch(Match match, String inheritedType) {
+  public void describeMatch(Match match) {
     String typeOf;
-    if (match.getTypeOf() == null) {
-      if (inheritedType != null && match.getPath() == null) {
-        match.setTypeOf(new Node().setIri(inheritedType));
-        typeOf = inheritedType;
-      } else typeOf = null;
-    } else {
-      typeOf = match.getTypeOf().getIri();
-    }
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
 
 
@@ -177,7 +167,8 @@ public class QueryDescriptor {
       describeReturn(match.getReturn());
     }
     if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
+      String orderDisplay= describeOrderBy(match.getOrderBy());
+      if (!orderDisplay.equals("")) shortDescription.append(orderDisplay);
     }
     if (match.getName() == null && match.getDescription() != null) {
       match.setName(match.getDescription());
@@ -187,33 +178,33 @@ public class QueryDescriptor {
     if (match.getTypeOf() != null) {
       match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
     }
-    if (match.getInstanceOf() != null) {
-      describeInstance(match.getInstanceOf());
+    if (match.getIs() != null) {
+      describeIs(match.getIs());
     }
-    if (match.getIsCohort() != null) {
-      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(), Context.MATCH));
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        node.setName(getTermInContext(node.getIri(), Context.MATCH));
+      }
     }
-    if (match.getThen() != null) {
-      describeMatch(match.getThen(), typeOf);
-    }
+
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getPath() != null) {
@@ -225,7 +216,9 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere());
     }
-
+    if (match.getKeepAs() != null && match.getAsDescription() != null) {
+        nodeRefToLabel.put(match.getKeepAs(), match.getAsDescription());
+    }
   }
 
   private void describePath(Path path) {
@@ -273,7 +266,7 @@ public class QueryDescriptor {
   }
 
 
-  private void describeInstance(List<Node> inSets) {
+  private void describeIs(List<Node> inSets) {
     for (Node set : inSets) {
       String qualifier = "";
       if (set.isExclude()) {
@@ -289,7 +282,7 @@ public class QueryDescriptor {
   }
 
 
-  private void describeOrderBy(OrderLimit orderBy) {
+  public static String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
@@ -304,7 +297,8 @@ public class QueryDescriptor {
     if (orderBy.getLimit() > 1)
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
-    shortDescription.append(orderDisplay);
+
+    return orderDisplay;
   }
 
   private void describeWhere(Where where) {
@@ -442,7 +436,7 @@ public class QueryDescriptor {
           assignable.setValueLabel(value.replace("-", ""));
         }
         if (unit != null) {
-          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.PLURAL));
+          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getName(), Context.PLURAL));
         }
       }
     }
@@ -550,36 +544,23 @@ public class QueryDescriptor {
   }
 
   private void describeRelativeTo(Where where) {
-    RelativeTo relativeTo = where.getRelativeTo();
-    if (relativeTo != null) {
-      String qualifier="";
-      if (relativeTo.getQualifier()!=null){
-        qualifier=relativeTo.getQualifier().getName()+" of ";
-      }
-      String relation = getRelation(where.getRelativeTo());
-      if (relation != null) relativeTo.setDescription(qualifier+relation);
-    }
+    if (where.getRelativeTo() == null) return;
+    describeRelation(where.getRelativeTo());
   }
 
-  private String getRelation(RelativeTo relativeTo) {
+  private void describeRelation(RelativeTo relativeTo) {
     if (relativeTo.getNodeRef() != null) {
       if (nodeRefToLabel.get(relativeTo.getNodeRef()) != null) {
         relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
       } else relativeTo.setTargetLabel("the above");
     }
-    String relation = null;
-    if (relativeTo.getIri() != null) {
-      String propertyName = getTermInContext(relativeTo);
-      relation = propertyName + " of ";
-    }
     if (relativeTo.getParameter() != null) {
       if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
-        relation = (relation != null ? relation : "") + "search date";
+        relativeTo.setParameterName("search date");
       } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
-        relation = (relation != null ? relation : "") + "achievement date";
-      } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
+        relativeTo.setParameterName("achievement date");
+      } else relativeTo.setParameterName(relativeTo.getParameter());
     }
-    return relation;
   }
 
 
@@ -688,8 +669,8 @@ public class QueryDescriptor {
     shortDescription = new StringBuilder();
     setIriNames(match);
     if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
-      shortDescription.append(" ");
+      String orderDisplay = describeOrderBy(match.getOrderBy());
+      if (!orderDisplay.isEmpty()) shortDescription.append(orderDisplay).append(" ");
     }
     if (match.getWhere() != null) {
       describeWhere(match.getWhere());

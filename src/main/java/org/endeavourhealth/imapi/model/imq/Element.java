@@ -20,11 +20,17 @@ public class Element extends IriLD implements Entailment {
   private boolean parentOrSelfOf;
   private boolean parentOf;
   private boolean memberOf;
+  @Getter
+  private boolean cohort;
   private String nodeRef;
   @Getter
   @Setter
   private boolean invalid;
 
+  public Element setIsCohort(boolean cohort) {
+    this.cohort= cohort;
+    return this;
+  }
   public boolean isMemberOf() {
     return memberOf;
   }

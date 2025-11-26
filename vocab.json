@@ -190,8 +190,8 @@
         "value": "Namespace.IM + \"definition\""
       },
       {
-        "name": "INSTANCE_OF",
-        "value": "Namespace.IM + \"instanceOf\""
+        "name": "IS",
+        "value": "Namespace.IM + \"is\""
       },
       {
         "name": "RETURN_TYPE",
@@ -506,12 +506,20 @@
         "value": "Namespace.IM + \"SupplierAssured\""
       },
       {
+        "name": "COHORT",
+        "value": "Namespace.IM +\"Cohort\""
+      },
+      {
         "name": "HAS_MEMBER",
         "value": "Namespace.IM + \"hasMember\""
       },
       {
         "name": "IS_MEMBER_OF",
         "value": "Namespace.IM + \"isMemberOf\""
+      },
+      {
+        "name": "AVOID_REPLACED_BY",
+        "value": "Namespace.IM + \"avoidReplacedBy\""
       },
       {
         "name": "IS_SUBSET_OF",

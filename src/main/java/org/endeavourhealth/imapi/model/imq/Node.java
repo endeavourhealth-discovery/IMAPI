@@ -14,6 +14,10 @@ public class Node extends Element{
   private String type;
   private boolean inverse;
 
+  public Node setIsCohort(boolean isCohort) {
+    super.setIsCohort(isCohort);
+    return this;
+  }
   public boolean isInverse() {
     return inverse;
   }
@@ -22,6 +26,7 @@ public class Node extends Element{
     this.inverse = inverse;
     return this;
   }
+
 
 
   public String getType() {
@@ -63,15 +68,15 @@ public class Node extends Element{
   }
 
   public static Node iri(String iri) {
-    return new Node(iri);
+    Node node= new Node();
+    node.setIri(iri);
+    return node;
   }
 
   public Node() {
   }
 
-  public Node(String iri) {
-    super.setIri(iri);
-  }
+
 
 
   public Node setAncestorsOf(boolean ancestorsOf) {

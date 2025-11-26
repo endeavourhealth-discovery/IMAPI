@@ -142,6 +142,7 @@ public class QueryController {
       return queryService.describeIndicator(iri);
     }
   }
+
   @GetMapping(value = "/public/expandCohort", produces = "application/json")
   @Operation(
     summary = "Expands a cohort reference from a source query",
@@ -155,7 +156,7 @@ public class QueryController {
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("expandCohort");
-      return queryService.expandCohort(queryIri,cohortIri, displayMode);
+      return queryService.expandCohort(queryIri, cohortIri, displayMode);
     }
   }
 
@@ -167,7 +168,7 @@ public class QueryController {
   public Query queryFromIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String iri
-  ) throws IOException {
+  ) throws IOException, QueryException{
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
       return queryService.getQueryFromIri(iri);
@@ -267,6 +268,7 @@ public class QueryController {
       return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
+
   @GetMapping("/public/imlFromIri")
   @Operation(
     summary = "Generate IML from a query iri",
@@ -275,7 +277,7 @@ public class QueryController {
   public IMLLanguage getIMLFromIMQIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String queryIri
-  ) throws  QueryException {
+  ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
       log.debug("getIMLFromIMQIri");
       return queryService.getIMLFromIMQIri(queryIri);
@@ -443,6 +445,18 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getSubQueries");
       return queryService.getOrderedSubqueries(queryIri);
+    }
+  }
+
+  @GetMapping("/public/queryRequestForSQL")
+  @Operation(summary = "Get all subQueries ordered of a query using the query iri")
+  public QueryRequest getQueryRequestForSql(
+    HttpServletRequest request,
+    @RequestBody QueryRequest queryRequest
+  ) throws SQLConversionException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSubQueries");
+      return queryService.getQueryRequestForSqlConversion(queryRequest);
     }
   }
 }

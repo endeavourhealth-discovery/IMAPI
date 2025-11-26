@@ -121,11 +121,17 @@ public class IMQToOS {
 
   private NestedQueryBuilder buildNested(QueryBuilder query, Script script) {
     ScriptScoreQueryBuilder ssb = new ScriptScoreQueryBuilder(
-      query,
+      new MatchAllQueryBuilder(),
       script
     );
+
+    BoolQueryBuilder bqb = new BoolQueryBuilder();
+    bqb.must().add(query);
+    bqb.must().add(new ExistsQueryBuilder("termCode.length"));
+    bqb.should().add(ssb);
+
     String[] includes = {"termCode.term"};
-    return new NestedQueryBuilder("termCode", ssb, ScoreMode.Max)
+    return new NestedQueryBuilder("termCode", bqb, ScoreMode.Max)
       .innerHit(new InnerHitBuilder()
         .setFetchSourceContext(new FetchSourceContext(true, includes, null)));
   }
@@ -280,8 +286,8 @@ public class IMQToOS {
       addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.and, boolBuilder);
     }
 
-    if (match.getInstanceOf() != null) {
-      setFromAliases(boolBuilder, match.getInstanceOf());
+    if (match.getIs() != null) {
+      setFromAliases(boolBuilder, match.getIs());
     }
     return addProperties(boolBuilder, match);
   }

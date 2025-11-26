@@ -45,6 +45,7 @@ public class EclService {
   public String getEcl(EclSearchRequest inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+    eclQueryRequest.setShowNames(true);
     eclQueryRequest.setQuery(inferred.getEclQuery());
     new IMQToECL().getECLFromQuery(eclQueryRequest);
     return eclQueryRequest.getEcl();

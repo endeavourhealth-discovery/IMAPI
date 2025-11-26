@@ -68,7 +68,7 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
+        .addIs(new Node().setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true)
         ));
 
@@ -86,7 +86,7 @@ class OSQueryTest_IM {
         (Set.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
-        .addInstanceOf(new Node().setParameter("$isas")
+        .addIs(new Node().setParameter("$isas")
           .setDescendantsOrSelfOf(true)
         ));
 

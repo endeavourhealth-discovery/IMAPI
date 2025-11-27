@@ -16,6 +16,9 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -328,6 +331,23 @@ public class QueryDescriptor {
     }
   }
 
+  private static boolean isValidDate(String dateStr) {
+    String[] patterns = {
+      "yyyy-MM-dd",
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyyMMdd"
+    };
+    for (String pattern : patterns) {
+      try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDate.parse(dateStr, formatter);
+        return true;
+      } catch (DateTimeParseException ignored) {}
+    }
+    return false;
+  }
+
   private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
@@ -343,7 +363,9 @@ public class QueryDescriptor {
               if (value.equals("0")) {
                 qualifier = "after ";
               } else {
-                qualifier = "is within ";
+                if (isValidDate(value))
+                  qualifier=" after";
+                else qualifier = "is within ";
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
               }
@@ -359,7 +381,17 @@ public class QueryDescriptor {
         inclusive = true;
         if (date) {
           if (!isRange) {
-            qualifier = "on or after";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = " on or after ";
+              } else {
+                if (isValidDate(value))
+                  qualifier=" on or after";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            } else qualifier = "on or after";
             relativity = " the ";
           }
           if (past && relativeTo) relativity = " before ";
@@ -375,6 +407,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "before ";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = "before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
             if (relativeTo) relativity = " the ";
           }
           if (past && relativeTo) relativity = " before the ";
@@ -391,7 +434,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "on or before ";
-
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "on or before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = " on or before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
           }
           if (past && relativeTo) relativity = " before the ";
         } else {

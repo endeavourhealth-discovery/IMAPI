@@ -20,10 +20,10 @@ class QOFExpressionNode {
 
     val finalResult = StringBuilder(result)
     if (passResult != null) {
-      finalResult.append("$ANSI_GREEN\nOn Pass: $passResult $ANSI_RESET")
+      finalResult.append("\n${ANSI_GREEN}Pass: $passResult $ANSI_RESET")
     }
     if (failResult != null) {
-      finalResult.append("$ANSI_RED\nOn Fail: $failResult $ANSI_RESET")
+      finalResult.append("\n${ANSI_RED}Fail: $failResult $ANSI_RESET")
     }
 
     return finalResult.toString()

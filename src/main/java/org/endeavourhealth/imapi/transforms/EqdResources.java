@@ -125,7 +125,7 @@ public class EqdResources {
     if (eqGroup.getDefinition().getParentPopulationGuid() != null) {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
-      match.setIsCohort(iri(this.namespace + parent).setName(this.reportNames.get(parent)));
+      match.addIs(Node.iri(this.namespace + parent).setName(this.reportNames.get(parent)));
       queryEntity.addObject(iri(IM.DEPENDENT_ON),iri(namespace+parent));
       return match;
     } else {
@@ -199,7 +199,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.setIsCohort(new TTIriRef().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
+    match.addIs(new Node().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
     queryEntity.addObject(iri(IM.DEPENDENT_ON),iri(namespace+searchId));
     return match;
   }
@@ -208,45 +208,43 @@ public class EqdResources {
     Match baseMatch = null;
     Match standardMatch = null;
     Match testMatch = null;
-    Match linkedMatch;
+    Match linkedMatch = null;
+    Match outerMatch = new Match();
+    Match lastMatch = null;
     EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
     boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
-    boolean hasStandard= (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
+    boolean hasStandard = (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
       baseMatch = this.convertBaseCriteriaGroups(eqCriterion);
+      lastMatch = baseMatch;
+      outerMatch.addAnd(baseMatch);
     }
 
     if (hasStandard) {
       standardMatch = this.convertStandardCriterion(eqCriterion, baseMatch == null ? null : "IndexEvent");
+      outerMatch.addAnd(standardMatch);
+      lastMatch= standardMatch;
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
-        injectReturn(standardMatch, testMatch);
-        standardMatch.setThen(testMatch);
-      }
-      if (baseMatch!=null) baseMatch.setThen(standardMatch);
-    }
-    if (hasLinked) {
-      if (testMatch != null) {
-        setAndGetReturnAs(testMatch);
-        linkedMatch = this.convertLinkedCriterion(eqCriterion, testMatch);
-        testMatch.setThen(linkedMatch);
-      }
-      else if (standardMatch != null) {
         setAndGetReturnAs(standardMatch);
-        linkedMatch = this.convertLinkedCriterion(eqCriterion, standardMatch);
-        standardMatch.setThen(linkedMatch);
-      }
-      else if (baseMatch==null) {
-        throw new EQDException("No match found for linked criterion");
-      }
-      else {
-        setAndGetReturnAs(baseMatch);
-        linkedMatch = this.convertLinkedCriterion(eqCriterion, baseMatch);
-        baseMatch.setThen(linkedMatch);
+        testMatch.setNodeRef(standardMatch.getKeepAs());
+        outerMatch.addAnd(testMatch);
+        lastMatch= testMatch;
       }
     }
-    if (baseMatch != null) return baseMatch;
-    else return standardMatch;
+    if (lastMatch == null) {
+      throw new EQDException("No matches found for criterion");
+    }
+
+    if (hasLinked) {
+      setAndGetReturnAs(lastMatch);
+      linkedMatch = this.convertLinkedCriterion(eqCriterion, lastMatch);
+      outerMatch.addAnd(linkedMatch);
+    }
+    if (outerMatch.getAnd().size() == 1) {
+      return outerMatch.getAnd().getFirst();
+    }
+    else return outerMatch;
   }
 
   private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
@@ -273,7 +271,9 @@ public class EqdResources {
   private void setAndGetReturnAs(Match match) {
     if (match.getKeepAs() == null) {
       matchCounter++;
-      String as = "Match_" + matchCounter;
+      String as="Match_"+matchCounter;
+      if (match.getPath()!=null)
+        as = match.getPath().getFirst().getVariable()+"_" + matchCounter;
       if (match.getOr() != null) {
         int orIndex = 0;
         for (Match subQuery : match.getOr()) {
@@ -287,7 +287,13 @@ public class EqdResources {
         }
       }
       match.setKeepAs(as);
-      match.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(match)).setIri(Namespace.IM + "effectiveDate")));
+      match.setReturn((new Return())
+        .property(p -> p
+          .setNodeRef(getNodeRef(match))
+          .setIri(Namespace.IM + "effectiveDate"))
+        .property(p->p
+          .setNodeRef(getNodeRef(match))
+          .setIri(Namespace.IM+"concept")));
     }
   }
 
@@ -463,15 +469,7 @@ public class EqdResources {
     return "";
   }
 
-  private void injectReturn(Match parentMatch, Match childMatch) throws QueryException {
-    Return ret;
-    if (parentMatch.getKeepAs() == null) {
-      matchCounter++;
-      String as = "Match_" + matchCounter;
-      parentMatch.setKeepAs(as);
-    }
-    childMatch.setNodeRef(parentMatch.getKeepAs());
-  }
+
 
 
   private String getPathFromPath(Path pathMatch, String[] paths, int offset) {
@@ -1272,7 +1270,7 @@ public class EqdResources {
       for (Node node : setContent) {
         TTNode instance = new TTNode();
         valueSet.addObject(iri(IM.ENTAILED_MEMBER), instance);
-        instance.set(IM.INSTANCE_OF.toString(), iri(node.getIri()));
+        instance.set(IM.IS.toString(), iri(node.getIri()));
         if (node.isExclude()) {
           instance.set(iri(IM.EXCLUDE), TTLiteral.literal(true));
         }
@@ -1297,11 +1295,15 @@ public class EqdResources {
   }
 
   private String getNameFromSet(Set<Node> set) {
-    String name = set.stream().limit(1L).map(IriLD::getName).collect(Collectors.joining(","));
-    if (set.size() > 1) {
-      name = name + " ... etc";
+    String name="";
+    if (set.size()>2) {
+      name="Clinical codes..";
+    } else {
+      for (Node node : set) {
+        if (!name.isEmpty()) name = name + " or ";
+        name = name + node.getName();
+      }
     }
-
     return name;
   }
 

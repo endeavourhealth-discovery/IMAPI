@@ -190,8 +190,8 @@
         "value": "Namespace.IM + \"definition\""
       },
       {
-        "name": "INSTANCE_OF",
-        "value": "Namespace.IM + \"instanceOf\""
+        "name": "IS",
+        "value": "Namespace.IM + \"is\""
       },
       {
         "name": "RETURN_TYPE",
@@ -504,6 +504,10 @@
       {
         "name": "SUPPLIER_ASSURED",
         "value": "Namespace.IM + \"SupplierAssured\""
+      },
+      {
+        "name": "COHORT",
+        "value": "Namespace.IM +\"Cohort\""
       },
       {
         "name": "HAS_MEMBER",

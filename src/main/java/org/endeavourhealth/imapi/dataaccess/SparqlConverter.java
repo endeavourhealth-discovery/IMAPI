@@ -126,8 +126,8 @@ public class SparqlConverter {
     StringBuilder selectQl = new StringBuilder();
     if (countOnly) {
       mainEntity = query.getVariable();
-      if (null != query.getInstanceOf() && null != query.getInstanceOf().getFirst().getVariable())
-        mainEntity = query.getInstanceOf().getFirst().getVariable();
+      if (null != query.getIs() && null != query.getIs().getFirst().getVariable())
+        mainEntity = query.getIs().getFirst().getVariable();
       selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
     } else {
       selectQl.append("SELECT ");
@@ -281,7 +281,7 @@ public class SparqlConverter {
     if (match.getTypeOf() != null) {
       processTypeOf(whereQl, match.getTypeOf(), subject);
     }
-    if (match.getInstanceOf() != null) {
+    if (match.getIs() != null) {
       processMatchInstanceOf(match, whereQl, subject);
     }
     if (match.getWhere() != null) {
@@ -311,11 +311,11 @@ public class SparqlConverter {
 
 
   private void processMatchInstanceOf(Match match, StringBuilder whereQl, String subject) throws QueryException {
-    if (match.getInstanceOf().size() == 1) {
+    if (match.getIs().size() == 1) {
       o++;
       String object = "instance" + o;
-      String inList = iriFromAliases(match.getInstanceOf());
-      Node instance = match.getInstanceOf().getFirst();
+      String inList = iriFromAliases(match.getIs());
+      Node instance = match.getIs().getFirst();
       if (instance.getNodeRef() != null) {
         object = instance.getNodeRef();
       }
@@ -334,7 +334,7 @@ public class SparqlConverter {
     } else {
       Map<Entail, List<String>> inTypes = new HashMap<>();
       Map<Entail, List<String>> outTypes = new HashMap<>();
-      sortInstances(match.getInstanceOf(), inTypes, outTypes);
+      sortInstances(match.getIs(), inTypes, outTypes);
       boolean first = true;
       for (Map.Entry<Entail, List<String>> entry : inTypes.entrySet()) {
         o++;
@@ -390,8 +390,8 @@ public class SparqlConverter {
     }
   }
 
-  private void sortInstances(List<Node> instanceOf, Map<Entail, List<String>> inTypes, Map<Entail, List<String>> outTypes) throws QueryException {
-    for (Node instance : instanceOf) {
+  private void sortInstances(List<Node> is, Map<Entail, List<String>> inTypes, Map<Entail, List<String>> outTypes) throws QueryException {
+    for (Node instance : is) {
       Entail entail = Entail.equal;
       if (instance.isMemberOf())
         entail = Entail.memberOf;

@@ -208,9 +208,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       int i = 0;
       entitiesFiled = new HashSet<>();
       for (TTEntity entity : document.getEntities()) {
-        if (entity.getIri().equals("http://endhealth.info/emis#29711000033114")) {
-          System.out.println("here");
-        }
         setEntityCrudOperation(document, entity);
 
         if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))

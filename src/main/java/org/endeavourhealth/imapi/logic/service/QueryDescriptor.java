@@ -16,6 +16,9 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -100,7 +103,7 @@ public class QueryDescriptor {
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, RDF.TYPE,IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -178,15 +181,15 @@ public class QueryDescriptor {
     if (match.getTypeOf() != null) {
       match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
     }
-    if (match.getInstanceOf() != null) {
-      describeInstance(match.getInstanceOf());
+    if (match.getIs() != null) {
+      describeIs(match.getIs());
     }
-    if (match.getIsCohort() != null) {
-      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(), Context.MATCH));
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        node.setName(getTermInContext(node.getIri(), Context.MATCH));
+      }
     }
-    if (match.getFrom() != null) {
-      describeMatch(match.getFrom());
-    }
+
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
         describeMatch(subMatch);
@@ -266,7 +269,7 @@ public class QueryDescriptor {
   }
 
 
-  private void describeInstance(List<Node> inSets) {
+  private void describeIs(List<Node> inSets) {
     for (Node set : inSets) {
       String qualifier = "";
       if (set.isExclude()) {
@@ -328,6 +331,23 @@ public class QueryDescriptor {
     }
   }
 
+  private static boolean isValidDate(String dateStr) {
+    String[] patterns = {
+      "yyyy-MM-dd",
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyyMMdd"
+    };
+    for (String pattern : patterns) {
+      try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDate.parse(dateStr, formatter);
+        return true;
+      } catch (DateTimeParseException ignored) {}
+    }
+    return false;
+  }
+
   private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
@@ -343,7 +363,9 @@ public class QueryDescriptor {
               if (value.equals("0")) {
                 qualifier = "after ";
               } else {
-                qualifier = "is within ";
+                if (isValidDate(value))
+                  qualifier=" after";
+                else qualifier = "is within ";
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
               }
@@ -359,7 +381,17 @@ public class QueryDescriptor {
         inclusive = true;
         if (date) {
           if (!isRange) {
-            qualifier = "on or after";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = " on or after ";
+              } else {
+                if (isValidDate(value))
+                  qualifier=" on or after";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            } else qualifier = "on or after";
             relativity = " the ";
           }
           if (past && relativeTo) relativity = " before ";
@@ -375,6 +407,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "before ";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = "before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
             if (relativeTo) relativity = " the ";
           }
           if (past && relativeTo) relativity = " before the ";
@@ -391,7 +434,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "on or before ";
-
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "on or before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = " on or before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
           }
           if (past && relativeTo) relativity = " before the ";
         } else {

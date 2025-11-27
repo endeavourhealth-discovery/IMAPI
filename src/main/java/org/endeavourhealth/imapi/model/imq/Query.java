@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query", "activeOnly", "typeOf", "is", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
@@ -37,6 +37,7 @@ public class Query extends Match {
     this.query = query;
     return this;
   }
+
   public Query addQuery(Query query) {
     if (this.query == null)
       this.query = new ArrayList<>();
@@ -53,7 +54,6 @@ public class Query extends Match {
     this.bindAs = bindAs;
     return this;
   }
-
 
 
   public Query setRule(List<Match> rule) {
@@ -100,20 +100,18 @@ public class Query extends Match {
     return this;
   }
 
-  public Query addInstanceOf(Node instanceOf) {
-    super.addInstanceOf(instanceOf);
+  public Query addIs(Node is) {
+    super.addIs(is);
     return this;
   }
 
-  public Query instanceOf(Consumer<Node> builder) {
-    Node node = new Node();
-    super.addInstanceOf(node);
-    builder.accept(node);
+  public Query is(Consumer<Node> builder) {
+    super.is(builder);
     return this;
   }
 
-  public Query setInstanceOf(List<Node> instanceOf) {
-    super.setInstanceOf(instanceOf);
+  public Query setIs(List<Node> is) {
+    super.setIs(is);
     return this;
   }
 
@@ -133,7 +131,6 @@ public class Query extends Match {
     builder.accept(match);
     return this;
   }
-
 
 
   public Query setPath(List<Path> path) {
@@ -272,10 +269,8 @@ public class Query extends Match {
   }
 
 
-
-
   public Query setGroupBy(List<GroupBy> groupBy) {
-   super.setGroupBy(groupBy);
+    super.setGroupBy(groupBy);
     return this;
   }
 
@@ -312,7 +307,7 @@ public class Query extends Match {
   }
 
   public Query columnGroup(Consumer<Match> builder) {
-    Match match= new Match();
+    Match match = new Match();
     addColumnGroup(match);
     builder.accept(match);
     return this;

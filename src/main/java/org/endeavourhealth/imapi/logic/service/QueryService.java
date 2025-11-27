@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -242,7 +241,7 @@ public class QueryService {
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
+      defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     } else return null;
   }
@@ -283,9 +282,11 @@ public class QueryService {
     return query;
   }
 
-  public Query getQueryFromIri(String iri) throws JsonProcessingException {
+  public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
-    return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    Query query= queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+    return query;
   }
 
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
@@ -316,8 +317,8 @@ public class QueryService {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
-    if (null != match.getInstanceOf()) {
-      List<Node> instances = match.getInstanceOf();
+    if (null != match.getIs()) {
+      List<Node> instances = match.getIs();
       instances.forEach(instance -> {
         if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
           addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());

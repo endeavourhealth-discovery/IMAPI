@@ -10,7 +10,7 @@ class QOFExpressionParser(private var expression: String) {
 
   fun parse(): QOFExpressionNode {
     if (expression.contains("WHERE")) {
-      expression = expression.substring(expression.indexOf("WHERE ") + 6).trim()
+      expression = expression.substringAfter("WHERE ").trim()
     }
 
     log.info("=========================================================================================")
@@ -22,28 +22,32 @@ class QOFExpressionParser(private var expression: String) {
       .replace(Regex("(If |RETURN | {2})"), " ")
 
     // Remove extra whitespace and normalize
+    var elsePart = "NULL"
+    var thenPart = "NULL"
+    if (expression.contains("ELSE ")) {
+      elsePart = expression.substringAfterLast("ELSE ")
+      expression = expression.substringBeforeLast("ELSE ")
+    }
+
+    if (expression.contains("THEN ")) {
+      thenPart = expression.substringAfterLast("THEN ")
+      expression = expression.substringBeforeLast("THEN ")
+    }
+
     val normalized = expression.trim()
 
     log.info("Normalized expression: {}", normalized)
 
-    // Simple approach: look for AND/OR operators with proper grouping
     val root = parseRecursive(normalized)
 
-    if (expression.contains("ELSE ")) {
-      val elsePart = expression.substring(expression.indexOf("ELSE ") + 5).trim()
-      if (!"NULL".equals(elsePart, ignoreCase = true)) {
-        root.failResult = elsePart
-      }
-      expression = expression.substring(0, expression.indexOf("ELSE "))
+    if (!"NULL".equals(elsePart, ignoreCase = true)) {
+      root.failResult = elsePart
     }
 
-    if (expression.contains("THEN ")) {
-      val thenPart = expression.substring(expression.indexOf("THEN ") + 5)
-      if (!"NULL".equals(thenPart, ignoreCase = true)) {
-        root.passResult = thenPart
-      }
-      expression = expression.substring(0, expression.indexOf("THEN "))
+    if (!"NULL".equals(thenPart, ignoreCase = true)) {
+      root.passResult = thenPart
     }
+
 
     log.info("Parsed expression:\n{}", root.toFormattedString())
 
@@ -56,7 +60,7 @@ class QOFExpressionParser(private var expression: String) {
     val topLevelOr = findTopLevelOperator(expression, "OR")
 
     // If we have both "AND" and "OR", use the one that comes first
-    val operator: String? = when {
+    val operator = when {
       topLevelAnd != -1 && topLevelOr != -1 -> if (topLevelAnd < topLevelOr) "AND" else "OR"
       topLevelAnd != -1 -> "AND"
       topLevelOr != -1 -> "OR"
@@ -71,7 +75,7 @@ class QOFExpressionParser(private var expression: String) {
     // If no top-level operator found, check if it's a simple condition or has nested parentheses
     val cleanedExpression = expression.trim()
     if (cleanedExpression.startsWith("(") && cleanedExpression.endsWith(")")) {
-      return parseRecursive(cleanedExpression.substring(1, cleanedExpression.length - 1))
+      return parseRecursive(cleanedExpression.removeSurrounding("(", ")"))
     }
 
     // Return as a simple condition

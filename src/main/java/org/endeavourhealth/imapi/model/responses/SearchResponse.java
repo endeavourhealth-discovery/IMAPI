@@ -41,6 +41,10 @@ public class SearchResponse {
     return this;
   }
 
+  public List<SearchResultSummary> getEntities() {
+    return entities;
+  }
+
   public SearchResponse addEntity(SearchResultSummary entity) {
     this.entities.add(entity);
     return this;

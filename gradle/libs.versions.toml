@@ -32,8 +32,9 @@ rabbitmqAmqpClient = "5.24.0"
 rdf4j = "4.3.13"
 reactor = "3.6.10"
 slf4j = "2.0.17"
-spring = "3.4.5"
+spring = "4.0.0"
 springContext = "6.2.5"
+springAI = "2.0.0-SNAPSHOT"
 springdoc = "2.8.6"
 springTestSecurity = "6.2.0"
 systemStubs = "2.1.7"
@@ -88,11 +89,12 @@ spring-amqp = { module = "org.springframework.boot:spring-boot-starter-amqp", ve
 spring-context = { module = "org.springframework:spring-context", version.ref = "springContext" }
 spring-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring" }
 spring-dev-tools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring" }
-springdoc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+spring-doc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 spring-oauth-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server", version.ref = "spring" }
 spring-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring" }
 spring-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "spring" }
 spring-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "spring" }
+spring-ai = { module = "org.springframework.ai:spring-ai-starter-mcp-server-webmvc", version.ref = "springAI" }
 system-stubs = { module = "uk.org.webcompere:system-stubs-jupiter", version.ref = "systemStubs" }
 validation = { module = "jakarta.validation:jakarta.validation-api", version.ref = "validation" }
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }

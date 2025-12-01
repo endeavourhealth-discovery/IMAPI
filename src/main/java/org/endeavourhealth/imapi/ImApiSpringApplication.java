@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi;
 
+import org.endeavourhealth.imapi.ai.IMAIService;
+import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.method.MethodToolCallbackProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
+@SpringBootApplication()
 @Configuration
 public class ImApiSpringApplication extends SpringBootServletInitializer {
 
@@ -31,6 +33,11 @@ public class ImApiSpringApplication extends SpringBootServletInitializer {
     config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
     source.registerCorsConfiguration("/**", config);
     return new CorsFilter(source);
+  }
+
+  @Bean
+  public ToolCallbackProvider weatherTools(IMAIService IMAIService) {
+    return MethodToolCallbackProvider.builder().toolObjects(IMAIService).build();
   }
 
   @Override

@@ -10,6 +10,7 @@ plugins {
   alias(libs.plugins.static.const.generator)
   id("java-library")
   id("maven-publish")
+    kotlin("jvm")
 }
 
 group = "org.endeavourhealth.imapi"
@@ -19,10 +20,8 @@ description = "Information Model API"
 
 repositories {
   gradlePluginPortal()
+    mavenCentral()
 }
-
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
 
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
@@ -200,6 +199,7 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 repositories {
@@ -226,3 +226,6 @@ tasks.jacocoTestReport {
 }
 
 
+kotlin {
+    jvmToolchain(21)
+}

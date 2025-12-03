@@ -14,8 +14,14 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonPropertyOrder({"iri", "qualifier", "name", "description"})
 public class IriLD {
+  @Getter
+  @Setter
   private String iri;
+  @Getter
+  @Setter
   private String name;
+  @Getter
+  @Setter
   private String description;
   @Getter
   @Setter

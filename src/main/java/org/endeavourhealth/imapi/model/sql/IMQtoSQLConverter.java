@@ -1021,10 +1021,6 @@ public class IMQtoSQLConverter {
         if (result != null) return result;
       }
     }
-
-
     return null;
   }
-
-
 }

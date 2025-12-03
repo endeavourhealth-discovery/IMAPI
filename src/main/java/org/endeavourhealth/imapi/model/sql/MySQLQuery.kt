@@ -1,9 +1,11 @@
 package org.endeavourhealth.imapi.model.sql
 
-data class MySQLQuery(var ctes: MutableList<CTE> = ArrayList(), var selects: MutableList<Select> = ArrayList()) {
-  fun toSql(): String = """
-    WITH ${ctes.joinToString(",\n")}
-    SELECT ${selects.joinToString(",\n")} 
-    FROM ${ctes.last().alias}
-  """
+data class MySQLQuery(var withs: MutableList<MySQLWith> = ArrayList(), var selects: MutableList<MySQLSelect> = ArrayList()) {
+  fun toSql(): String = buildString {
+    append("WITH ")
+    append(withs.joinToString(",\n") { it.toSql() })
+    append("\nSELECT ")
+    append(selects.joinToString(",\n") { it.toSql() })
+    append("\nFROM ${withs.last().alias}")
+  }
 }

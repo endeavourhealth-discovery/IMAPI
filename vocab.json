@@ -2574,6 +2574,22 @@
         "value": "IM.QUERY"
       },
       {
+        "name": "CONCEPT",
+        "value": "IM.CONCEPT"
+      },
+      {
+        "name": "SET",
+        "value": "IM.VALUESET"
+      },
+      {
+        "name": "DATAMODEL",
+        "value": "SHACL.NODESHAPE"
+      },
+      {
+        "name": "PROPERTY",
+        "value": "RDF.PROPERTY"
+      },
+      {
         "name": "NODESHAPE",
         "value": "SHACL.NODESHAPE"
       }

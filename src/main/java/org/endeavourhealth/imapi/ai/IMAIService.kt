@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.ai
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
+import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.logic.service.DataModelService
 import org.endeavourhealth.imapi.logic.service.SearchService
 import org.endeavourhealth.imapi.model.DataModelProperty
@@ -12,37 +13,56 @@ import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.imq.QueryException
 import org.endeavourhealth.imapi.model.imq.Where
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.imapi.model.responses.SearchResponse
-import org.endeavourhealth.imapi.model.search.SearchResultSummary
-import org.endeavourhealth.imapi.model.sql.MappingParser
-import org.endeavourhealth.imapi.model.sql.TableMap
+import org.endeavourhealth.imapi.vocabulary.EntityType
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.Namespace
+import org.endeavourhealth.imapi.vocabulary.RDF
+import org.slf4j.LoggerFactory
 import org.springframework.ai.tool.annotation.Tool
 import org.springframework.stereotype.Service
-import java.io.IOException
+import java.net.URI
+
 @Service
 class IMAIService {
+  private val log = LoggerFactory.getLogger(IMAIService::class.java)
   private val om = ObjectMapper()
   private val dataModelService = DataModelService()
   private val searchService = SearchService()
 
-  @Tool(description = "Get an IRI for an entity (concept, data model, property, query, set or SNOMED code) given its name")
+  @Tool(description = "Get the properties (and their types) of a data model given its IRI")
+  fun getHealthDataModelProperties(iri: URI): List<DataModelProperty> {
+    log.debug("Getting properties for model $iri")
+    return dataModelService.getDataModelProperties(iri.toString())
+  }
+  @Tool(description = "Get an IRI for an entity given its name and type (DATAMODEL, PROPERTY, CONCEPT)")
   @Throws(OpenSearchException::class, JsonProcessingException::class, QueryException::class)
-  fun getIriForEntity(text: String): String {
+  fun getIriForEntity(text: String, type: EntityType): String {
+    log.debug("Getting IRI for entity $text of type $type ")
     val w = Where()
     w.addAnd(Where()
       .setIri(IM.HAS_STATUS)
       .setIs(listOf(
         Node().setIri(IM.ACTIVE.toString())))
     )
+
+    val schemes = mutableListOf(
+      Node().setIri(Namespace.IM.toString())
+    )
+
+    if (EntityType.CONCEPT == type) {
+      schemes.add(Node().setIri(Namespace.SNOMED.toString()))
+      schemes.add(Node().setIri(Namespace.SMARTLIFE.toString()))
+      }
+
     w.addAnd(Where()
       .setIri(IM.HAS_SCHEME)
+      .setIs(schemes)
+    )
+    w.addAnd(Where()
+      .setIri(RDF.TYPE)
       .setIs(listOf(
-        Node().setIri(Namespace.IM.toString()),
-        Node().setIri(Namespace.SNOMED.toString()),
-        Node().setIri(Namespace.SMARTLIFE.toString()))
-      )
+        Node().setIri(type.toString())
+      ))
     )
 
     val qry = Query()
@@ -60,10 +80,5 @@ class IMAIService {
         return om.writeValueAsString(entities.first())
     }
     return ""
-  }
-
-  @Tool(description = "Get the properties of a given data model")
-  fun getHealthDataModelProperties(modelIri: String): List<DataModelProperty> {
-    return dataModelService.getDataModelProperties(modelIri)
   }
 }

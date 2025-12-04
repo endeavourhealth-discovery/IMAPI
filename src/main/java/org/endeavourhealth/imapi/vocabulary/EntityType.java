@@ -15,6 +15,10 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum EntityType implements VocabEnum {
 
     QUERY(IM.QUERY),
+    CONCEPT(IM.CONCEPT),
+    SET(IM.VALUESET),
+    DATAMODEL(SHACL.NODESHAPE),
+    PROPERTY(RDF.PROPERTY),
     NODESHAPE(SHACL.NODESHAPE),
     ;
 

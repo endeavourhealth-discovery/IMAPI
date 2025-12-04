@@ -175,7 +175,23 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/queryDisplayFromQuery")
+  @PostMapping("/public/queryDisplayFromIMQ")
+  @Operation(
+    summary = "Describe query content",
+    description = "Returns a query view, transforming an IMQ query into a viewable object."
+  )
+  public Query describeQueryContent(
+    HttpServletRequest request,
+    @RequestBody Query query
+  ) throws IOException, QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
+      log.debug("getQueryDisplayFromQuery");
+
+      return queryService.describeQuery(query, DisplayMode.LOGICAL);
+    }
+  }
+
+  @PostMapping("/public/queryDisplayQuery")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
@@ -457,6 +473,20 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getSubQueries");
       return queryService.getQueryRequestForSqlConversion(queryRequest);
+    }
+  }
+
+  @PostMapping("/public/imqtosql")
+  @Operation(
+    summary = "Generate SQL",
+    description = "Generates SQL from the provided IMQ query request."
+  )
+  public String imqToSQL(@RequestBody Query query) throws SQLConversionException, QueryException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQ.POST")) {
+      log.debug("getSQLFromIMQR");
+      QueryRequest queryRequest = new QueryRequest()
+        .setQuery(query);
+      return queryService.getSQLFromIMQ(queryRequest);
     }
   }
 }

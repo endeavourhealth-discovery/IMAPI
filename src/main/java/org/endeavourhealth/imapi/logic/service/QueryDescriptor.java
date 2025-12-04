@@ -111,7 +111,7 @@ public class QueryDescriptor {
 
 
   public String getTermInContext(String source, Context... contexts) {
-    if (source.isEmpty()) return "";
+    if (source == null || source.isEmpty()) return "";
     StringBuilder term = new StringBuilder(source);
     TTEntity entity = iriContext.get(source);
     if (entity != null) {

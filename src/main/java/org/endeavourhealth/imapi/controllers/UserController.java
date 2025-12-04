@@ -12,9 +12,9 @@ import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.Resource;
 import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.casdoor.UserSettings;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -37,12 +37,12 @@ public class UserController {
   private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
   private final CasdoorService casdoorService = new CasdoorService();
 
-  @GetMapping(value = "/data")
-  public UserDataDto getUserData(HttpServletRequest request) throws IOException, UserNotFoundException {
+  @GetMapping(value = "/settings")
+  public UserSettings getUserSettings(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
-      log.debug("getUserData");
+      log.debug("getUserSettings");
       User user = casdoorService.getUser(request);
-      return userService.getUserData(user.getId());
+      return userService.getUserSettings(user.getId());
     }
   }
 

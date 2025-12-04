@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
+import org.endeavourhealth.imapi.model.casdoor.UserSettings;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.dto.UserDataDto;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -118,12 +118,17 @@ public class UserService {
     return organisations.contains(entity.getScheme().getIri());
   }
 
-  public UserDataDto getUserData(String userId) throws JsonProcessingException {
-    UserDataDto userData = new UserDataDto();
-    userData.setPreset(getUserPreset(userId).replace("\"", ""));
-    userData.setPrimaryColor(getUserPrimaryColor(userId).replace("\"", ""));
+  public UserSettings getUserSettings(String userId) throws JsonProcessingException {
+    UserSettings userData = new UserSettings();
+    String preset = getUserPreset(userId).replace("\"", "");
+    if (!preset.isEmpty()) userData.setPreset(preset);
+    String primaryColor = getUserPrimaryColor(userId).replace("\"", "");
+    if (!primaryColor.isEmpty()) userData.setPrimaryColor(primaryColor);
+    String surfaceColor = getUserSurfaceColor(userId).replace("\"", "");
+    if (!surfaceColor.isEmpty()) userData.setSurfaceColor(surfaceColor);
     userData.setDarkMode(getUserDarkMode(userId));
-    userData.setScale(getUserScale(userId).replace("\"", "").replace("\\\\", ""));
+    String fontSize = getUserScale(userId).replace("\"", "").replace("\\\\", "");
+    if (!fontSize.isEmpty()) userData.setScale(fontSize);
     userData.setOrganisations(getUserOrganisations(userId));
     userData.setFavourites(getUserFavourites(userId));
     userData.setMru(getUserMRU(userId));

@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.model.casdoor.UserSettings;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.model.primevue.FontSize;
+import org.endeavourhealth.imapi.model.primevue.PrimeVueColors;
+import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -25,6 +28,9 @@ public class UserService {
   }
 
   public void updateUserPreset(String userId, String preset) throws JsonProcessingException {
+    if (!PrimeVuePresetThemes.Companion.isTheme(preset)) {
+      throw new IllegalArgumentException("Invalid preset");
+    }
     userRepository.updateByPredicate(userId, preset, USER.USER_PRESET);
   }
 
@@ -33,6 +39,9 @@ public class UserService {
   }
 
   public void updateUserPrimaryColor(String userId, String color) throws JsonProcessingException {
+    if (!PrimeVueColors.Companion.isColor(color)) {
+      throw new IllegalArgumentException("Invalid color");
+    }
     userRepository.updateByPredicate(userId, color, USER.USER_PRIMARY_COLOR);
   }
 
@@ -41,6 +50,9 @@ public class UserService {
   }
 
   public void updateUserSurfaceColor(String userId, String color) throws JsonProcessingException {
+    if (!PrimeVueColors.Companion.isColor(color)) {
+      throw new IllegalArgumentException("Invalid color");
+    }
     userRepository.updateByPredicate(userId, color, USER.USER_SURFACE_COLOR);
   }
 
@@ -57,6 +69,9 @@ public class UserService {
   }
 
   public void updateUserScale(String userId, String scale) throws JsonProcessingException {
+    if (!FontSize.Companion.isFontSize(scale)) {
+      throw new IllegalArgumentException("Invalid scale");
+    }
     userRepository.updateByPredicate(userId, scale, USER.USER_SCALE);
   }
 
@@ -119,20 +134,20 @@ public class UserService {
   }
 
   public UserSettings getUserSettings(String userId) throws JsonProcessingException {
-    UserSettings userData = new UserSettings();
+    UserSettings userSettings = new UserSettings();
     String preset = getUserPreset(userId).replace("\"", "");
-    if (!preset.isEmpty()) userData.setPreset(preset);
+    if (!preset.isEmpty()) userSettings.setPreset(preset);
     String primaryColor = getUserPrimaryColor(userId).replace("\"", "");
-    if (!primaryColor.isEmpty()) userData.setPrimaryColor(primaryColor);
+    if (!primaryColor.isEmpty()) userSettings.setPrimaryColor(primaryColor);
     String surfaceColor = getUserSurfaceColor(userId).replace("\"", "");
-    if (!surfaceColor.isEmpty()) userData.setSurfaceColor(surfaceColor);
-    userData.setDarkMode(getUserDarkMode(userId));
+    if (!surfaceColor.isEmpty()) userSettings.setSurfaceColor(surfaceColor);
+    userSettings.setDarkMode(getUserDarkMode(userId));
     String fontSize = getUserScale(userId).replace("\"", "").replace("\\\\", "");
-    if (!fontSize.isEmpty()) userData.setScale(fontSize);
-    userData.setOrganisations(getUserOrganisations(userId));
-    userData.setFavourites(getUserFavourites(userId));
-    userData.setMru(getUserMRU(userId));
-    return userData;
+    if (!fontSize.isEmpty()) userSettings.setScale(fontSize);
+    userSettings.setOrganisations(getUserOrganisations(userId));
+    userSettings.setFavourites(getUserFavourites(userId));
+    userSettings.setMru(getUserMRU(userId));
+    return userSettings;
   }
 
   public List<Graph> getUserGraphs(String userId) throws JsonProcessingException {

@@ -190,6 +190,28 @@
     },
     {
       "dataModels": [
+        "http://endhealth.info/im#Cohort"
+      ],
+      "table": "cohort",
+      "fields": {
+        "http://endhealth.info/im#hashCode": {
+          "field": "hashCode",
+          "type": "string"
+        },
+        "http://endhealth.info/im#id": {
+          "field": "id",
+          "type": "string"
+        }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {
+          "fromField": "id",
+          "toField": "id"
+        }
+      }
+    },
+    {
+      "dataModels": [
         "http://endhealth.info/im#Patient"
       ],
       "table": "patient",

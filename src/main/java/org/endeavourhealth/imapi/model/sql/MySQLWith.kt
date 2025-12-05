@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.model.sql
 
 data class MySQLWith(
-  val table: String,
+  val table: Table,
   val alias: String,
   val wheres: MutableList<MySQLWhere>?,
   val selects: MutableList<MySQLSelect>,
-  val joins: MutableList<MySQLJoin>?
+  var joins: MutableList<MySQLJoin>?
 ) {
   fun toSql(): String {
     val selectSql = selects.joinToString(", ") { sel ->
@@ -18,13 +18,13 @@ data class MySQLWith(
 
     val joinSql = joins
       ?.takeIf { it.isNotEmpty() }
-      ?.joinToString(" ") { "JOIN ${it.table} ON ${it.table}.${it.innerProperty} = $table.${it.outerProperty}" }
+      ?.joinToString(" ") { "JOIN ${it.table} ON ${it.table}.${it.innerProperty} = ${table.table}.${it.outerProperty}" }
 
     return buildString {
       appendLine("$alias AS (")
       append("  SELECT $selectSql")
       appendLine()
-      appendLine("  FROM $table")
+      appendLine("  FROM ${table.table}")
 
       if (joinSql != null) {
         appendLine("  $joinSql")

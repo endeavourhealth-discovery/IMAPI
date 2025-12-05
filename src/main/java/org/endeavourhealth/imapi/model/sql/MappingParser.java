@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MappingParser {
 
@@ -46,35 +47,32 @@ public class MappingParser {
     );
     HashMap<String, Table> dMtablesMap = new HashMap<String, Table>();
     for (Table table : tableList) {
-      if (table.getPrimaryKey() == null || table.getPrimaryKey().isEmpty()) {
+      table.getPrimaryKey();
+      if (table.getPrimaryKey().isEmpty()) {
         table.setPrimaryKey("id");
       }
-      for (String dataModel : table.getDataModels()) {
+      for (String dataModel : Objects.requireNonNull(table.getDataModels())) {
         dMtablesMap.put(dataModel, table);
       }
     }
 
     // After populating all tables
     for (Table table : tableList) {
-      for (String fromDataModel : table.getDataModels()) {
+      for (String fromDataModel : Objects.requireNonNull(table.getDataModels())) {
         Map<String, Relationship> rels = table.getRelationships();
-        if (rels != null) {
-          for (Map.Entry<String, Relationship> entry : rels.entrySet()) {
-            String toDataModel = entry.getKey();
-            Relationship rel = entry.getValue();
+        for (Map.Entry<String, Relationship> entry : rels.entrySet()) {
+          String toDataModel = entry.getKey();
+          Relationship rel = entry.getValue();
 
-            Table toTable = dMtablesMap.get(toDataModel);
-            if (toTable != null) {
-              if (toTable.getRelationships() == null) {
-                toTable.setRelationships(new HashMap<>());
-              }
-              // Add reverse relationship if not already present
-              if (!toTable.getRelationships().containsKey(fromDataModel)) {
-                Relationship reverse = new Relationship();
-                reverse.setFromField(rel.getToField().replace("{alias}.", ""));
-                reverse.setToField(rel.getFromField().replace("{alias}.", ""));
-                toTable.getRelationships().put(fromDataModel, reverse);
-              }
+          Table toTable = dMtablesMap.get(toDataModel);
+          if (toTable != null) {
+            toTable.getRelationships();
+            // Add reverse relationship if not already present
+            if (!toTable.getRelationships().containsKey(fromDataModel)) {
+              Relationship reverse = new Relationship();
+              reverse.setFromField(rel.getToField().replace("{alias}.", ""));
+              reverse.setToField(rel.getFromField().replace("{alias}.", ""));
+              toTable.getRelationships().put(fromDataModel, reverse);
             }
           }
         }

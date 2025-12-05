@@ -16,36 +16,103 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends Element implements Assignable {
-  @Getter
+
   private String description;
   private Range range;
-  @Getter
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+  public Node getTypeOf() {
+    return typeOf;
+  }
+
+  public List<Node> getIs() {
+    return is;
+  }
+
+  @Override
+  public Operator getOperator() {
+    return operator;
+  }
+
+  public boolean isNot() {
+    return not;
+  }
+
+  public boolean isAnyRoleGroup() {
+    return anyRoleGroup;
+  }
+
+  public boolean isNull() {
+    return isNull;
+  }
+
+  public void setNull(boolean aNull) {
+    isNull = aNull;
+  }
+
+  public boolean isRoleGroup() {
+    return roleGroup;
+  }
+
+  public boolean isNotNull() {
+    return isNotNull;
+  }
+
+  public void setNotNull(boolean notNull) {
+    isNotNull = notNull;
+  }
+
+  @Override
+  public TTIriRef getUnits() {
+    return units;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public List<Where> getOr() {
+    return or;
+  }
+
+  public List<Where> getAnd() {
+    return and;
+  }
+
+  public String getShortLabel() {
+    return shortLabel;
+  }
+
   private Node typeOf;
-  @Getter
+
   private List<Node> is;
-  @Getter
+
   private Operator operator;
   private String value;
   private String valueLabel;
-  @Getter
+
   private boolean not;
-  @Getter
+
   private boolean anyRoleGroup;
   private boolean isNull;
-  @Getter
+
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  @Getter
+
   private TTIriRef units;
   private String valueVariable;
-  @Getter
+
   private boolean inverse;
-  @Getter
+
   private List<Where> or;
-  @Getter
+
   private List<Where> and;
-  @Getter
+
   private String shortLabel;
   private FunctionClause function;
   private TTIriRef qualifier;
@@ -136,16 +203,9 @@ public class Where extends Element implements Assignable {
   }
 
 
-
-
-
-
-
-
   public static Where iri(String iri) {
     return new Where(iri);
   }
-
 
 
   @Override
@@ -294,7 +354,7 @@ public class Where extends Element implements Assignable {
 
   @Override
   public Assignable setQualifier(TTIriRef qualifier) {
-    this.qualifier= qualifier;
+    this.qualifier = qualifier;
     return this;
   }
 
@@ -335,6 +395,7 @@ public class Where extends Element implements Assignable {
     this.function = function;
     return this;
   }
+
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();
     builder.accept(this.function);

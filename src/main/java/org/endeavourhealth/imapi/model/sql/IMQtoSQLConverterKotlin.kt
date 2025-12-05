@@ -4,17 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-import org.endeavourhealth.imapi.model.imq.Bool
-import org.endeavourhealth.imapi.model.imq.FunctionClause
-import org.endeavourhealth.imapi.model.imq.Match
-import org.endeavourhealth.imapi.model.imq.Query
-import org.endeavourhealth.imapi.model.imq.Where
+import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.imapi.vocabulary.IM
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper()
 ) {
+  val queryTypeOf = queryRequest.query?.typeOf?.iri
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
@@ -28,21 +26,20 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val resourcePath = "IMQtoMYSQL.json"
       tableMap = MappingParser().parse(resourcePath)
       sql = generateSQL(queryRequest.query)
-    } catch (e: Exception) {
-      throw RuntimeException(e)
     } catch (e: SQLConversionException) {
-      println("SQL Conversion Error: $e.message")
+      println("SQL Conversion Error: $e")
       throw e
     } catch (e: JsonProcessingException) {
-      println("SQL Conversion Error: $e.message")
+      println("SQL Conversion Error: $e")
       throw e
+    } catch (e: Exception) {
+      throw RuntimeException(e)
     }
   }
 
   private fun generateSQL(definition: Query): String {
-    if (definition.getTypeOf() == null || definition.getTypeOf()
-        .getIri() == null
-    ) throw SQLConversionException("Query typeOf is null")
+    if (definition.typeOf == null || definition.typeOf.iri == null
+    ) throw SQLConversionException("Query typeOf +is null")
     val mySQLQuery = MySQLQuery()
 
     if (definition.`is` != null) {
@@ -61,11 +58,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.not, definition, Bool.not, mySQLQuery)
     }
 
+    if (definition.`return` == null) {
+      mySQLQuery.selects.add(MySQLSelect("id"))
+    }
 
-//    if(definition.`return` != null) {
-//
-//    }
-    mySQLQuery.selects.add(MySQLSelect("id"))
     return mySQLQuery.toSql()
   }
 
@@ -79,9 +75,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       mySQLQuery.withs.add(
         MySQLWith(
-          "cohort",
+          getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
           isAlias,
-          mutableListOf(MySQLWhere("hashCode", isA.iri, "=", null)),
+          mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)),
           isSelects,
           joins.ifEmpty { null }
         )
@@ -90,19 +86,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getFunctionArgumentMap(where: Where): HashMap<String, String> {
-    val argMap = HashMap<String, String>()
-    if (where.function.argument != null)
-      for (argument in where.function.argument) {
-        val valueToReplace = argument.parameter
-        val valueToReplaceWith =
-          argument.valuePath?.iri
-            ?: argument.valueParameter
-            ?: argument.valueIri?.iri
-            ?: throw SQLConversionException("No value provided for argument $argument")
-        argMap[valueToReplace] = valueToReplaceWith
-      }
-    return argMap
+  private fun getCteAlias(typeIri: String?, propertyIri: String?): String {
+    val typeIriSuffix = typeIri?.substringAfter('#')
+    if (propertyIri == null)
+      return "${typeIriSuffix}_cte"
+    val propertyIriSuffix = propertyIri.substringAfter('#')
+    return "${typeIriSuffix}_${propertyIriSuffix}_cte"
   }
 
   private fun addMatchWiths(match: List<Match>, definition: Query, bool: Bool, mySQLQuery: MySQLQuery) {
@@ -143,22 +132,82 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
-    val table = getTableFromTypeAndProperty(match.typeOf.iri, match.where.iri)
-    val isAlias = getCteAlias(match.typeOf.iri, match.where.iri)
+    val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
+    val table = getTableFromTypeAndProperty(typeOf, match.where.iri)
+    val isAlias = getCteAlias(typeOf, match.where.iri)
     val isSelects = mutableListOf(MySQLSelect("id"))
     val field = getPropertyNameByTableAndPropertyIri(table, match.where.iri)
-    val joins = mutableListOf<MySQLJoin>()
-    if (mySQLQuery.withs.isNotEmpty()) {
-      joins.add(MySQLJoin(mySQLQuery.withs.last().alias, "id", "id"))
+
+    val where = if (match.where.`is` != null) {
+      MySQLPropertyIsWhere(
+        field.field,
+        match.where.`is`,
+        "=",
+        match.where.isNot,
+        getFunctionArgumentMap(table, match.where)
+      )
+    } else {
+      MySQLPropertyValueWhere(
+        field.field,
+        match.where.operator.value,
+        match.where.value,
+        match.where.isNot,
+        getFunctionArgumentMap(table, match.where)
+      )
     }
-    return MySQLWith(
-      if (match.typeOf.iri == "cohort") "cohort" else table.table,
+
+    val with = MySQLWith(
+      table,
       isAlias,
-      mutableListOf(MySQLWhere(field.field, match.where.value, match.where.operator.value, getFunctionArgumentMap(match.where))),
+      mutableListOf(
+        where
+      ),
       isSelects,
-      joins.ifEmpty { null }
+      null
     )
+
+    with.joins = getJoins(mySQLQuery, with)
+    return with
   }
+
+
+  private fun getFunctionArgumentMap(table: Table, where: Where): HashMap<String, String> {
+    val argMap = HashMap<String, String>()
+    if (where.function?.argument != null)
+      for (argument in where.function.argument) {
+        val valueToReplace = argument.parameter
+        var valueToReplaceWith = getArgValue(table, argument)
+        if (argument.parameter == "units") valueToReplaceWith = getUnitName(valueToReplaceWith)
+        argMap[valueToReplace] = valueToReplaceWith
+      }
+    return argMap
+  }
+
+  private fun getArgValue(table: Table, argument: Argument): String {
+    if (argument.valuePath != null) {
+      return getPropertyNameByTableAndPropertyIri(table, argument.valuePath.iri).field
+    } else if (argument.valueParameter != null) {
+      return argument.valueParameter
+    } else if (argument.valueIri != null) {
+      return argument.valueIri.iri
+    } else {
+      throw SQLConversionException("No value provided for argument $argument")
+    }
+  }
+
+  private fun getUnitName(iri: String): String {
+    return when (IM.from(iri)) {
+      IM.YEARS -> "YEAR"
+      IM.MONTHS, IM.MONTH -> "MONTH"
+      IM.DAYS -> "DAY"
+      IM.HOURS -> "HOUR"
+      IM.MINUTES -> "MINUTE"
+      IM.SECONDS -> "SECOND"
+      IM.FISCAL_YEAR -> "FISCAL_YEAR"
+      else -> ""
+    }
+  }
+
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
     val table = tableMap?.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
@@ -174,11 +223,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return field
   }
 
-  private fun getCteAlias(typeIri: String?, propertyIri: String?): String {
-    val typeIriSuffix = typeIri?.substringAfter('#')
-    if (propertyIri == null)
-      return "${typeIriSuffix}_cte"
-    val propertyIriSuffix = propertyIri.substringAfter('#')
-    return "${typeIriSuffix}_${propertyIriSuffix}_cte"
+  private fun getJoins(mySQLQuery: MySQLQuery, with: MySQLWith): MutableList<MySQLJoin> {
+    val joins: MutableList<MySQLJoin> = mutableListOf()
+    if (mySQLQuery.withs.isNotEmpty()) {
+      joins.add((with.table.getJoinCondition(mySQLQuery.withs.last().table, mySQLQuery.withs.last().alias, null)))
+    }
+    if (queryTypeOf != null && queryTypeOf != with.table.dataModel) {
+      val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+      joins.add(with.table.getJoinCondition(queryTypeOfTable, queryTypeOfTable.table, null))
+    }
+    return joins
   }
 }

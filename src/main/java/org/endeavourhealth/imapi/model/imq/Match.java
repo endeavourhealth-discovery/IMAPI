@@ -48,6 +48,8 @@ public class Match extends IriLD implements HasPaths {
   private Integer ruleNumber;
   @Getter
   private boolean inverse;
+  @Getter
+  private boolean activeOnly;
 
   @Getter
   private List<Match> not;
@@ -72,6 +74,10 @@ public class Match extends IriLD implements HasPaths {
   private String asDescription;
 
 
+  public Match setActiveOnly(boolean activeOnly) {
+    this.activeOnly = activeOnly;
+    return this;
+  }
 
   public Match setAsDescription(String asDescription) {
     this.asDescription = asDescription;

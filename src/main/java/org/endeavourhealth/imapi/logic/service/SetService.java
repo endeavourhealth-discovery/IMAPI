@@ -20,6 +20,9 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -63,6 +66,7 @@ public class SetService {
   SetService(SetRepository setRepository) {
     this.setRepository = setRepository;
   }
+
 
   private static void getContains(SetContent result, List<ValueSet.ValueSetExpansionContainsComponent> contains) {
     if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
@@ -126,13 +130,32 @@ public class SetService {
     return setDiffObject;
   }
 
-  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
-    return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
-  }
+
 
   public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
+
+  public Pageable<Node> getMembersFromQuery(EclSearchRequest request) throws QueryException {
+    EclService eclService = new EclService();
+    SearchResponse response= eclService.eclSearch(request);
+    Pageable<Node> result = new Pageable<>();
+    result.setTotalCount(response.getTotalCount());
+    result.setCurrentPage(response.getPage());
+    result.setPageSize(response.getCount());
+    result.setResult(new ArrayList<>());
+    if (response.getEntities()!=null) {
+      for (SearchResultSummary entity : response.getEntities()) {
+        Node node= new Node();
+        node.setIri(entity.getIri());
+        node.setName(entity.getName());
+        node.setCode(entity.getCode());
+        result.getResult().add(node);
+      }
+    }
+    return result;
+  }
+
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();

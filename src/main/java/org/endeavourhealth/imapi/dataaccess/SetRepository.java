@@ -11,10 +11,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
@@ -40,24 +37,12 @@ public class SetRepository {
 
   public static final String CONCEPT = "concept";
 
-  /**
-   * Returns an expanded set members match an iml set definition. If already expanded then returns members
-   * otherwise expands and retuens members
-   *
-   * @param imQuery       im query conforming to ecl language constraints
-   * @param includeLegacy to include legacy concepts linked by matchedTo to core concept
-   * @return a Set of concepts with matchedFrom legacy concepts and list of im1 ids
-   * @throws QueryException if json definitino invalid
-   */
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter) throws QueryException {
-    //add scheme filter
-    return getSetExpansionFromQuery(imQuery, includeLegacy, statusFilter, schemeFilter, null);
-  }
+
 
   public Set<Concept> getMembersFromDefinition(Query imQuery) throws QueryException {
     Set<Concept> result = new HashSet<>();
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
-    String sql = new SparqlConverter(newRequest).getSelectSparql(null);
+    String sql = new SparqlConverter(newRequest).getSelectSparql(false,false);
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -70,34 +55,19 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page) throws QueryException {
-    imQuery = getFullExpansionDefinition(imQuery, includeLegacy);
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page
+  ) throws QueryException {
+    setReturn(imQuery, includeLegacy);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
-    String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter);
+    String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter,false,false);
+    String entityVariable= imQuery.getKeepAs()!=null ? imQuery.getKeepAs(): "entity";
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter, imQuery.getVariable());
+      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter,entityVariable);
     }
   }
 
-  private Query getFullExpansionDefinition(Query imQuery, boolean includeLegacy) {
-    Query fullQuery = new Query();
-    fullQuery.addQuery(imQuery);
-    setReturn(fullQuery, includeLegacy);
-    fullQuery.setVariable(EXPANDED_ENTITY);
-    fullQuery
-      .or(m -> m
-        .where(p -> p
-          .setIri(IM.PREVIOUS_ENTITY_OF)
-          .addIs(new Node().setNodeRef(ENTITY))))
-      .or(m1 -> m1
-        .where(p -> p
-          .setIri(IM.SUBSUMED_BY)
-          .addIs(new Node().setNodeRef(ENTITY))));
-    return fullQuery;
-
-  }
 
 
   private void setReturn(Query imQuery, boolean includeLegacy) {
@@ -211,7 +181,7 @@ public class SetRepository {
     return result;
   }
 
-  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes, String entityVariable) {
+  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes,String entityVariable) {
     Set<Concept> result = new HashSet<>();
     Set<String> coreSchemes = asHashSet(Namespace.SNOMED, Namespace.IM);
     Map<String, Concept> conceptMap = new HashMap<>();

@@ -103,7 +103,7 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       entity.setIri("http://endhealth.info/im903031000252104");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.IS_IRI).setEntity(entity);
-      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity IRI must contain #");
+      EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Iri URL is invalid");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
     }
 

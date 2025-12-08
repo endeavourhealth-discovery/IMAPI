@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
@@ -15,6 +18,9 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
+import org.endeavourhealth.imapi.model.casbin.Action;
+import org.endeavourhealth.imapi.model.casbin.Resource;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
@@ -63,13 +69,10 @@ public class EntityController {
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
   private final GraphDtoService graphDtoService = new GraphDtoService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
   private final ProvService provService = new ProvService();
-  private final FilerService filerService;
-
-  public EntityController(FilerService filerService) {
-    this.filerService = filerService;
-  }
+  private final FilerService filerService = new FilerService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/public/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
@@ -97,6 +100,7 @@ public class EntityController {
 
   @GetMapping(value = "/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
+  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
@@ -106,6 +110,7 @@ public class EntityController {
 
   @GetMapping(value = "/entityTypes", produces = "application/json")
   @Operation(summary = "Get entity type", description = "Fetches entity types using IRI")
+  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public Set<String> getEntityType(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getEntityTypes");
@@ -257,19 +262,21 @@ public class EntityController {
   }
 
   @PostMapping(value = "/create")
-  @PreAuthorize("hasAuthority('CREATOR')")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException {
+  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName);
+      User user = casdoorService.getUser(request);
+      casbinEnforcer.enforceWithError(user, Resource.ENTITY, Action.WRITE);
+      return filerService.createEntity(editRequest, user.getUsername());
     }
   }
 
 
   @GetMapping(value = "/checkExists")
   @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
+  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
@@ -278,13 +285,13 @@ public class EntityController {
   }
 
   @PostMapping(value = "/update")
-  @PreAuthorize("hasAuthority('EDITOR')")
+  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException {
+  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntity(editRequest.getEntity(), agentName);
+      User user = casdoorService.getUser(request);
+      return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
     }
   }
 

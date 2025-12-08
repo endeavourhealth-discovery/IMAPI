@@ -1,0 +1,39 @@
+package org.endeavourhealth.imapi.model.casdoor;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+
+import java.io.Serializable;
+import java.util.List;
+
+@Getter
+@Setter
+public class User implements Serializable {
+  private String id;
+  private String username;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private transient String password;
+  private String avatar;
+  private List<UserRole> roles;
+  private List<String> groups;
+
+  public User setPassword(String password) {
+    this.password = "";
+    return this;
+  }
+
+  @JsonIgnore
+  public User adminSetPassword(String password) {
+    this.password = password;
+    return this;
+  }
+
+  public List<String> getRoleNames() {
+    if (roles == null) return List.of();
+    return roles.stream().map(Enum::name).toList();
+  }
+}

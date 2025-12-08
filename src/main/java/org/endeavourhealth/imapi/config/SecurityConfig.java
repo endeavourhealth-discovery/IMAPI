@@ -12,24 +12,24 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
     http
+      .cors(cors -> cors.configurationSource(corsFilter()))
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(this::setRequestPermissions)
       .exceptionHandling(ex -> ex
@@ -37,8 +37,20 @@ public class SecurityConfig {
         .authenticationEntryPoint(authenticationEntryPoint())
       )
       .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
+      .addFilterBefore(new JwtCookieAuthFilter(), BasicAuthenticationFilter.class);
     return http.build();
+  }
+
+  @Bean
+  public UrlBasedCorsConfigurationSource corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.setAllowedOrigins(List.of("http://localhost:8082"));
+    config.setAllowedMethods(Arrays.asList("POST", "GET", "DELETE", "PUT", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
+    source.registerCorsConfiguration("/**", config);
+    return source;
   }
 
   @Bean
@@ -49,8 +61,8 @@ public class SecurityConfig {
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
     req.requestMatchers(HttpMethod.OPTIONS).permitAll();
     if (EnvHelper.isPublicMode()) {
-      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
+      req.requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
 //        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
     }
@@ -76,19 +88,6 @@ public class SecurityConfig {
     firewall.setAllowUrlEncodedDoubleSlash(true);
     firewall.setAllowedHttpMethods(Arrays.asList("GET", "POST", "DELETE", "PUT", "OPTIONS"));
     return firewall;
-  }
-
-  private JwtAuthenticationConverter grantedAuthoritiesExtractor() {
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-        List<String> list = jwt.getClaimAsStringList("cognito:groups");
-        if (list != null && !list.isEmpty())
-          return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        else
-          return null;
-      }
-    );
-    return jwtAuthenticationConverter;
   }
 
   RestAccessDeniedHandler accessDeniedHandler() {

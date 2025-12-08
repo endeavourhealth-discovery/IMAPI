@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.TransformService;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -25,7 +24,6 @@ import java.util.Set;
 @Slf4j
 public class TransformController {
   private final TransformService transformService = new TransformService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
   @GetMapping("/public/transformeqd")
   @Operation(

@@ -1,4 +1,10 @@
 package org.endeavourhealth.imapi.model.sql
 
-class MySQLJoin(val table: String, val innerProperty: String, val outerProperty: String, val inner: Boolean? = false, val exclude: Boolean? = false) {
-}
+data class MySQLJoin(
+  val tableFrom: String,
+  val tableTo: String,
+  val fromProperty: String? = null,
+  val toProperty: String? = null,
+  val inner: Boolean? = false,
+  val exclude: Boolean? = false
+)

@@ -57,19 +57,19 @@ class MySQLPropertyIsWhere(
       val selfValue = if (node.isDescendantsOf) 0 else 1
       if (isNot == true)
         """
-            (
-                $property $operator '$iri'
-                AND csm_concept.self = $selfValue
+            NOT (
+                concept_set_member.set $operator '$iri'
+                AND concept_set_member.self = $selfValue
             )
             """.trimIndent()
       else """
-            NOT (
-                $property $operator '$iri'
-                AND csm_concept.self = $selfValue
+            (
+                concept_set_member.set $operator '$iri'
+                AND concept_set_member.self = $selfValue
             )
             """.trimIndent()
     }
-    var sql = blocks.joinToString(" OR ", prefix = "(", postfix = ")")
+    val sql = blocks.joinToString(" OR ", prefix = "(", postfix = ")")
     if (args == null) return sql
     var resolved = sql
     for ((key, value) in args) {

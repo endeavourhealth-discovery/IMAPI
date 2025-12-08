@@ -79,7 +79,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           isAlias,
           mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)),
           isSelects,
-          joins.ifEmpty { null }
+          joins.ifEmpty { null },
+          Bool.and
         )
       )
       // TODO: replace isA.iri in new MySQLWhere() with the hashcode of query definition+arguments - create a map of iri to hashCode initially
@@ -134,52 +135,103 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where.iri)
-    val isAlias = getCteAlias(typeOf, match.where.iri)
-    val isSelects = mutableListOf(MySQLSelect("id"))
-    val field = getPropertyNameByTableAndPropertyIri(table, match.where.iri)
+    val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
 
-    val where = if (match.where.`is` != null) {
-      MySQLPropertyIsWhere(
-        field.field,
-        match.where.`is`,
-        "=",
-        match.where.isNot,
-        getFunctionArgumentMap(table, match.where)
+    val isSelects = mutableListOf(
+      MySQLSelect(
+        "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
       )
+    )
+    val wheres = mutableListOf<MySQLWhere>()
+    var whereBool = Bool.and
+    if (match.where.and != null) {
+      for (where in match.where.and) {
+        wheres.add(getMySQLWhereFromWhere(where, table))
+      }
+    } else if (match.where.or != null) {
+      for (where in match.where.or) {
+        wheres.add(getMySQLWhereFromWhere(where, table))
+      }
+      whereBool = Bool.or
     } else {
-      MySQLPropertyValueWhere(
-        field.field,
-        match.where.operator.value,
-        match.where.value,
-        match.where.isNot,
-        getFunctionArgumentMap(table, match.where)
-      )
+      wheres.add(getMySQLWhereFromWhere(match.where, table))
     }
+    val isAlias =
+      getCteAlias(typeOf, match.where?.iri ?: match.where.and?.firstOrNull()?.iri ?: match.where.or?.firstOrNull()?.iri)
 
     val with = MySQLWith(
       table,
       isAlias,
-      mutableListOf(
-        where
-      ),
+      wheres,
       isSelects,
-      null
+      null,
+      whereBool
     )
 
     with.joins = getJoins(mySQLQuery, with)
+    for (where in wheres) {
+      if (where is MySQLPropertyIsWhere) {
+        val newJoins = addWhereConceptJoin(with)
+        newJoins.forEach { join ->
+          if (join !in with.joins!!) {
+            with.joins!!.add(join)
+          }
+        }
+      }
+    }
+
     return with
+  }
+
+  private fun getMySQLWhereFromWhere(where: Where, table: Table): MySQLWhere {
+    val field = getPropertyNameByTableAndPropertyIri(table, where.iri)
+    val args = getFunctionArgumentMap(table, where)
+
+    val where = if (where.`is` != null) {
+      MySQLPropertyIsWhere(
+        field.field,
+        where.`is`,
+        "=",
+        where.isNot,
+        args
+      )
+    } else if (where.range != null) {
+      MySQLPropertyRangeWhere(
+        field.field,
+        where.range.from.operator.value,
+        where.range.from.value,
+        where.range.to.value,
+        where.range.to.operator.value,
+        where.isNot,
+        args
+      )
+    } else {
+      MySQLPropertyValueWhere(
+        field.field,
+        where.operator.value,
+        where.value ?: where.relativeTo.parameter,
+        where.isNot,
+        args
+      )
+    }
+
+    return where
   }
 
 
   private fun getFunctionArgumentMap(table: Table, where: Where): HashMap<String, String> {
     val argMap = HashMap<String, String>()
-    if (where.function?.argument != null)
+    if (where.function?.argument != null) {
       for (argument in where.function.argument) {
         val valueToReplace = argument.parameter
         var valueToReplaceWith = getArgValue(table, argument)
         if (argument.parameter == "units") valueToReplaceWith = getUnitName(valueToReplaceWith)
         argMap[valueToReplace] = valueToReplaceWith
       }
+      if (!argMap.containsKey("relativeTo")) {
+        argMap["relativeTo"] = $$"$searchDate"
+      }
+    }
     return argMap
   }
 
@@ -226,12 +278,32 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getJoins(mySQLQuery: MySQLQuery, with: MySQLWith): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     if (mySQLQuery.withs.isNotEmpty()) {
-      joins.add((with.table.getJoinCondition(mySQLQuery.withs.last().table, mySQLQuery.withs.last().alias, null)))
+      joins.add(
+        (with.table.getJoinCondition(
+          tableTo = mySQLQuery.withs.last().table,
+          tableToAlias = mySQLQuery.withs.last().alias
+        ))
+      )
     }
     if (queryTypeOf != null && queryTypeOf != with.table.dataModel) {
       val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
-      joins.add(with.table.getJoinCondition(queryTypeOfTable, queryTypeOfTable.table, null))
+      joins.add(with.table.getJoinCondition(tableTo = queryTypeOfTable, tableToAlias = queryTypeOfTable.table))
     }
+    return joins
+  }
+
+  private fun addWhereConceptJoin(with: MySQLWith): MutableList<MySQLJoin> {
+    val joins: MutableList<MySQLJoin> = mutableListOf()
+    val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
+    joins.add(with.table.getJoinCondition(tableTo = conceptTable, ))
+
+    val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
+    joins.add(
+      conceptTable.getJoinCondition(
+        tableFrom = conceptTable,
+        tableTo = conceptMemberTable,
+      )
+    )
     return joins
   }
 }

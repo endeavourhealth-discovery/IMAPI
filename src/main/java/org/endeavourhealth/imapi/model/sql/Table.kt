@@ -12,10 +12,22 @@ class Table(
   var fields: HashMap<String, Field> = HashMap(),
   var relationships: HashMap<String, Relationship> = HashMap()
 ) {
-  fun getJoinCondition(tableTo: Table, tableAlias: String, fromField: String?): MySQLJoin {
+  fun getJoinCondition(
+    tableFrom: Table? = null,
+    tableFromAlias: String? = null,
+    tableTo: Table,
+    tableToAlias: String? = null,
+    fromField: String? = null,
+    toField: String? = null,
+  ): MySQLJoin {
     if (relationships[tableTo.dataModel] == null) throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
     val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.toField!!
-    return MySQLJoin(tableAlias, innerField, relationships[tableTo.dataModel]?.fromField!!)
+    return MySQLJoin(
+      tableFromAlias ?: tableFrom?.table ?: table,
+      tableToAlias ?: tableTo.table,
+      toField ?: relationships[tableTo.dataModel]?.fromField,
+      fromField ?: innerField
+    )
   }
 }

@@ -207,6 +207,10 @@
         "http://endhealth.info/im#Patient": {
           "fromField": "id",
           "toField": "id"
+        },
+        "http://endhealth.info/im#Observation": {
+          "fromField": "id",
+          "toField": "patient_id"
         }
       }
     },
@@ -217,7 +221,7 @@
       "table": "patient",
       "fields": {
         "http://endhealth.info/im#age": {
-          "field": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})",
+          "field": "TIMESTAMPDIFF({units}, date_of_birth, {relativeTo})",
           "type": "number",
           "function": true
         },
@@ -415,6 +419,16 @@
       "primaryKey": "dbid",
       "fields": {
         "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"}
+      }
+    },
+    {
+      "dataModels": [
+        "http://endhealth.info/im#ConceptMember"
+      ],
+      "table": "concept_set_member",
+      "primaryKey": "im1id",
+      "relationships": {
+        "http://endhealth.info/im#Concept": {"fromField": "im1id", "toField": "id"}
       }
     },
     {

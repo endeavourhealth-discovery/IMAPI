@@ -30,7 +30,7 @@ public class CasbinEnforcer {
   }
 
   private void setupEnforcer() throws UserAuthorisationException {
-    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casdoor");
+    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casbin");
     this.dataSource.setURL(mysqlCasdoorUrl);
     String mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root");
     this.dataSource.setUser(mysqlUser);

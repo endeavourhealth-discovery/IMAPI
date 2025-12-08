@@ -49,6 +49,21 @@ public class Where extends Element implements Assignable {
   private String shortLabel;
   private FunctionClause function;
   private TTIriRef qualifier;
+  @Getter
+  private List<Node> propertyList;
+
+
+  public Where setPropertyList(List<Node> propertyList) {
+    this.propertyList = propertyList;
+    return this;
+  }
+  public Where addToPropertyList(Node property) {
+    if (this.propertyList == null) this.propertyList = new ArrayList<>();
+    this.propertyList.add(property);
+    return this;
+  }
+
+
 
   public Where setNot(boolean not) {
     this.not = not;

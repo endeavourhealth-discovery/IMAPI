@@ -63,7 +63,7 @@ public class EclController {
   public ECLQueryRequest getECLFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) {
+  ) throws QueryException{
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
       return eclService.getECLFromQuery(eclQueryRequest);
@@ -125,7 +125,7 @@ public class EclController {
   public ECLQueryRequest validateEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) {
+  ) throws QueryException{
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       log.debug("validatesEcl");
       return eclService.validateEcl(eclQueryRequest);

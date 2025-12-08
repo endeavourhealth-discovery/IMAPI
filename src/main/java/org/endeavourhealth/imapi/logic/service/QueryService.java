@@ -305,15 +305,10 @@ public class QueryService {
   }
 
   private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
-    recursivelyCheckMatchArguments(query, missingArguments, arguments);
-    if (null != query.getQuery()) {
-      for (Query subquery : query.getQuery()) {
-        recursivelyCheckQueryArguments(subquery, missingArguments, arguments);
-      }
-    }
+    checkMatchArguments(query, missingArguments, arguments);
   }
 
-  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
+  private void checkMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
@@ -327,15 +322,15 @@ public class QueryService {
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
-      matches.forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+      matches.forEach(andMatch -> checkMatchArguments(andMatch, missingArguments, arguments));
     }
     if (null != match.getOr()) {
       List<Match> matches = match.getOr();
-      matches.forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+      matches.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
     }
     if (null != match.getNot()) {
       List<Match> matches = match.getNot();
-      matches.forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+      matches.forEach(notMatch -> checkMatchArguments(notMatch, missingArguments, arguments));
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);

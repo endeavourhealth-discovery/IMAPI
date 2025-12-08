@@ -66,10 +66,7 @@ public class QueryDescriptor {
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
-    if (query.getQuery() != null) {
-      for (Query matchQuery : query.getQuery())
-        describeQuery(matchQuery, displayMode);
-    }
+
     return query;
   }
 
@@ -186,7 +183,8 @@ public class QueryDescriptor {
     }
     if (match.getIs() != null) {
       for (Node node : match.getIs()) {
-        node.setName(getTermInContext(node.getIri(), Context.MATCH));
+        if (node.getIri() != null)
+          node.setName(getTermInContext(node.getIri(), Context.MATCH));
       }
     }
 
@@ -281,6 +279,9 @@ public class QueryDescriptor {
       String label = getTermInContext(set);
       set.setName(label);
       set.setDescription(qualifier);
+      if (set.getMatch()!=null) {
+        describeMatch(set.getMatch());
+      }
     }
   }
 
@@ -619,18 +620,17 @@ public class QueryDescriptor {
 
   private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {
-      if (iriContext.get(set.getIri()) != null) {
-        TTEntity nodeEntity = (iriContext.get(set.getIri()));
-        set.setCode(nodeEntity.getCode());
-        String modifier = set.isExclude() ? " but not: " : " ";
-        set.setDescription(modifier);
+      if (set.getIri()!=null) {
+        if (iriContext.get(set.getIri()) != null) {
+          TTEntity nodeEntity = (iriContext.get(set.getIri()));
+          set.setCode(nodeEntity.getCode());
+          String modifier = set.isExclude() ? " but not: " : " ";
+          set.setDescription(modifier);
+        }
       }
       if (set.getName() == null) {
         String value = getTermInContext(set);
         set.setName(value);
-      }
-      if (iriContext.get(set.getIri()) != null) {
-        set.setCode(iriContext.get(set.getIri()).getCode());
       }
     }
     StringBuilder valueLabel = new StringBuilder();

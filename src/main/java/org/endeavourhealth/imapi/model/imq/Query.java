@@ -17,11 +17,8 @@ import java.util.function.Consumer;
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
-  @Getter
-  private boolean activeOnly;
   private List<Match> columnGroup;
-  @Getter
-  private List<Query> query;
+
 
   private String iri;
   private String name;
@@ -33,17 +30,7 @@ public class Query extends Match {
   @Getter
   private String bindAs;
 
-  public Query setQuery(List<Query> query) {
-    this.query = query;
-    return this;
-  }
 
-  public Query addQuery(Query query) {
-    if (this.query == null)
-      this.query = new ArrayList<>();
-    this.query.add(query);
-    return this;
-  }
 
   public Query setParameter(String parameter) {
     super.setParameter(parameter);
@@ -315,7 +302,7 @@ public class Query extends Match {
 
 
   public Query setActiveOnly(boolean activeOnly) {
-    this.activeOnly = activeOnly;
+    super.setActiveOnly(activeOnly);
     return this;
   }
 

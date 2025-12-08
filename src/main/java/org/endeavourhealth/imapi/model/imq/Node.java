@@ -5,14 +5,33 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.function.Consumer;
 
-@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
+
+@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "variable", "qualifier","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
   private boolean exclude;
   private String code;
   private String type;
   private boolean inverse;
+  private Match match;
+
+  public Match getMatch() {
+    return match;
+  }
+
+  public Node setMatch(Match match) {
+    this.match = match;
+    return this;
+  }
+
+  public Node match(Consumer<Match> match) {
+    Match m = new Match();
+    match.accept(m);
+    this.match = m;
+    return this;
+  }
 
   public Node setIsCohort(boolean isCohort) {
     super.setIsCohort(isCohort);

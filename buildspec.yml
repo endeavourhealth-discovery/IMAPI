@@ -13,7 +13,9 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - aws s3 cp $CERT_FILE './src/main/java/resources/casdoor-cert.txt'
+      - aws s3 cp $CERT_FILE ./src/main/java/resources/casdoor-cert.txt
+      - pwd
+      - ls -lrt ./src/main/java/resources/
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh IMAPI 1.0.0
   post_build:

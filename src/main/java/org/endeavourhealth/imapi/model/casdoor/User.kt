@@ -22,4 +22,9 @@ class User {
   fun adminSetPassword(password: String) {
     this.password = password
   }
+
+  // required for casbin
+  fun getRoleNames(): List<String> {
+    return this.roles.map { it.name }
+  }
 }

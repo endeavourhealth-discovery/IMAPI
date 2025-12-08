@@ -47,15 +47,15 @@ class UserSettings {
   var darkMode: Boolean = false
 
   @JsonIgnore
-  var scale: FontSize = FontSize.LARGE
+  var fontSize: FontSize = FontSize.LARGE
 
-  @JsonSetter("scale")
-  fun setScale(scale: String) {
-    this.scale = FontSize.fromValue(scale) ?: throw IllegalArgumentException("Invalid scale: $scale")
+  @JsonSetter("fontSize")
+  fun setFontSize(fontSize: String) {
+    this.fontSize = FontSize.fromValue(fontSize) ?: throw IllegalArgumentException("Invalid font size: $fontSize")
   }
 
-  @JsonGetter("scale")
-  fun getScale(): String = scale.value
+  @JsonGetter("fontSize")
+  fun getFontSize(): String = fontSize.value
 
   var organisations: MutableList<String> = mutableListOf()
   var favourites: MutableList<String> = mutableListOf()

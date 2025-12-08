@@ -20,7 +20,7 @@ public enum USER implements VocabEnum {
     USER_PRIMARY_COLOR(Namespace.USER + "UserPrimaryColor"),
     USER_SURFACE_COLOR(Namespace.USER + "UserSurfaceColor"),
     USER_DARK_MODE(Namespace.USER + "UserDarkMode"),
-    USER_SCALE(Namespace.USER + "UserScale"),
+    USER_FONT_SIZE(Namespace.USER + "UserFontSize"),
     USER_MRU(Namespace.USER + "UserMRU"),
     USER_FAVOURITES(Namespace.USER + "UserFavourites"),
     ORGANISATIONS(Namespace.USER + "Organisations"),

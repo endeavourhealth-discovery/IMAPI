@@ -1792,8 +1792,8 @@
         "value": "Namespace.USER + \"UserDarkMode\""
       },
       {
-        "name": "USER_SCALE",
-        "value": "Namespace.USER + \"UserScale\""
+        "name": "USER_FONT_SIZE",
+        "value": "Namespace.USER + \"UserFontSize\""
       },
       {
         "name": "USER_MRU",

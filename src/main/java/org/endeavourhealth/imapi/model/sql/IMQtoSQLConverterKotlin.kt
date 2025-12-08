@@ -184,12 +184,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getMySQLWhereFromWhere(where: Where, table: Table): MySQLWhere {
-    val field = getPropertyNameByTableAndPropertyIri(table, where.iri)
+    val field = tableMap?.functions[where.function?.iri] ?: getPropertyNameByTableAndPropertyIri(
+      table,
+      where.iri
+    ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
     val args = getFunctionArgumentMap(table, where)
 
     val where = if (where.`is` != null) {
       MySQLPropertyIsWhere(
-        field.field,
+        field,
         where.`is`,
         "=",
         where.isNot,
@@ -197,7 +200,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     } else if (where.range != null) {
       MySQLPropertyRangeWhere(
-        field.field,
+        field,
         where.range.from.operator.value,
         where.range.from.value,
         where.range.to.value,
@@ -207,7 +210,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     } else {
       MySQLPropertyValueWhere(
-        field.field,
+        field,
         where.operator.value,
         where.value ?: where.relativeTo.parameter,
         where.isNot,
@@ -236,12 +239,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getArgValue(table: Table, argument: Argument): String {
-    if (argument.valuePath != null) {
-      return getPropertyNameByTableAndPropertyIri(table, argument.valuePath.iri).field
+    return if (argument.valuePath != null) {
+      getPropertyNameByTableAndPropertyIri(table, argument.valuePath.iri).field
     } else if (argument.valueParameter != null) {
-      return argument.valueParameter
+      argument.valueParameter
     } else if (argument.valueIri != null) {
-      return argument.valueIri.iri
+      argument.valueIri.iri
     } else {
       throw SQLConversionException("No value provided for argument $argument")
     }
@@ -256,10 +259,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       IM.MINUTES -> "MINUTE"
       IM.SECONDS -> "SECOND"
       IM.FISCAL_YEAR -> "FISCAL_YEAR"
-      else -> ""
+      else -> throw SQLConversionException("No unit name found for $iri")
     }
   }
-
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
     val table = tableMap?.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
@@ -295,7 +297,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addWhereConceptJoin(with: MySQLWith): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(with.table.getJoinCondition(tableTo = conceptTable, ))
+    joins.add(with.table.getJoinCondition(tableTo = conceptTable))
 
     val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
     joins.add(

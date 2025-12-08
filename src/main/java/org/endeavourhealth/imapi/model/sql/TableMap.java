@@ -10,10 +10,33 @@ import java.util.Map;
 
 
 @NoArgsConstructor
-@Getter
-@Setter
 public class TableMap {
   private List<MappingProperty> properties;
+
+  public Map<String, Table> getTables() {
+    return tables;
+  }
+
+  public Map<String, String> getFunctions() {
+    return functions;
+  }
+
+  public List<MappingProperty> getProperties() {
+    return properties;
+  }
+
+  public void setTables(Map<String, Table> tables) {
+    this.tables = tables;
+  }
+
+  public void setFunctions(Map<String, String> functions) {
+    this.functions = functions;
+  }
+
+  public void setPropertiesMap(Map<List<String>, String> propertiesMap) {
+    this.propertiesMap = propertiesMap;
+  }
+
   private Map<String, Table> tables;
   private Map<String, String> functions;
   private transient Map<List<String>, String> propertiesMap;

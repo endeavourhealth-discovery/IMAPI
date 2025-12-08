@@ -220,11 +220,6 @@
       ],
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#age": {
-          "field": "TIMESTAMPDIFF({units}, date_of_birth, {relativeTo})",
-          "type": "number",
-          "function": true
-        },
         "http://endhealth.info/im#dateOfBirth": {
           "field": "date_of_birth",
           "type": "date"
@@ -459,8 +454,8 @@
     }
   ],
   "functions": {
-    "http://endhealth.info/im#age": "TIMESTAMPDIFF({units}, {dateOfBirth}, {relativeTo})",
-    "http://endhealth.info/im#TimeDifference": "TIMESTAMPDIFF({units}, {firstDateTime}, {relativeTo}",
+    "http://endhealth.info/im#age": "TIMESTAMPDIFF({units}, date_of_birth, {relativeTo})",
+    "http://endhealth.info/im#TimeDifference": "TIMESTAMPDIFF({units}, {firstDateTime}, {relativeTo})",
     "http://endhealth.info/im#Count": "COUNT(*) AS count",
     "http://endhealth.info/im#Average": "AVG({propertyName}) AS average_{propertyName}",
     "http://endhealth.info/im#Sum": "SUM({propertyName}) AS sum_{propertyName}",

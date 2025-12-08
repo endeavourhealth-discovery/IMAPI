@@ -12,6 +12,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
+      - aws s3 cp 's3://endeavour-deployment/InformationModel(v2)/casdoor-cert-$ENV.txt' './src/main/java/resources/casdoor-cert.txt'
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh IMAPI 1.0.0
   post_build:

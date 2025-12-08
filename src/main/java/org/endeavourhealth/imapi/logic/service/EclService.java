@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.logic.reasoner.SparqlOptimizer;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -56,6 +58,7 @@ public class EclService {
   }
 
   public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
+
     return setRepository.getSetExpansionFromQuery(
       request.getEclQuery(),
       request.isIncludeLegacy(),
@@ -64,10 +67,14 @@ public class EclService {
       new Page()
         .setPageNumber(request.getPage())
         .setPageSize(request.getSize()));
+
   }
 
   public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {
-    int totalCount = getEclSearchTotalCount(request);
+    new SparqlOptimizer().optimizeQuery(request.getEclQuery());
+    int totalCount = 0;
+    if (request.getPage()==1)
+      totalCount = getEclSearchTotalCount(request);
     Set<Concept> evaluated = evaluateECLQuery(request);
     List<SearchResultSummary> evaluatedAsSummary = evaluated
       .stream()
@@ -87,8 +94,14 @@ public class EclService {
     return result;
   }
 
-  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) {
-    new IMQToECL().getECLFromQuery(eclQuery);
+  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) throws QueryException {
+    try {
+      new QueryDescriptor().describeQuery(eclQuery.getQuery(), DisplayMode.ORIGINAL);
+      new IMQToECL().getECLFromQuery(eclQuery);
+    } catch (Exception e) {
+      throw new QueryException(e.getMessage(),e);
+
+    }
     return eclQuery;
   }
 
@@ -110,11 +123,16 @@ public class EclService {
     return eclQuery;
   }
 
-  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) {
+  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) throws QueryException {
     String ecl = eclQuery.getEcl();
     if (ecl == null || ecl.isEmpty())
       return eclQuery;
     new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    try {
+      new QueryDescriptor().describeQuery(eclQuery.getQuery(), DisplayMode.ORIGINAL);
+    } catch (Exception e) {
+      throw new QueryException(e.getMessage(),e);
+    }
     return eclQuery;
   }
 

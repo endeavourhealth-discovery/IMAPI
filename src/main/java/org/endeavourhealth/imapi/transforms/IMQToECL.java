@@ -223,11 +223,18 @@ public class IMQToECL {
     }
   }
 
-  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) {
+  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (match.getIs().size() == 1) {
       if (match.getIs().getFirst().isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      addClass(match.getIs().getFirst(), ecl, includeNames);
+      if (match.getIs().getFirst().getMatch() != null){
+        ecl.append(getSubsumption(match.getIs().getFirst()));
+        ecl.append("(");
+        expressionMatch(match.getIs().getFirst().getMatch(),ecl,includeNames,false);
+        ecl.append(")");
+      }
+      else
+        addClass(match.getIs().getFirst(), ecl, includeNames);
     } else {
       ecl.append("(");
       boolean first = true;

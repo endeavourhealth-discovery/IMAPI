@@ -13,8 +13,9 @@ public class EclSearchRequest {
   private Set<TTIriRef> statusFilter = new HashSet<>();
   private int page = 1;
   private int size = 20;
-  private Set<String> select = new HashSet<>();
 
+  private Set<String> select = new HashSet<>();
+  
   public Query getEclQuery() {
     return eclQuery;
   }

@@ -19,6 +19,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   private Prefixes prefixes;
   @Getter
   private boolean hasNames;
+  private int counter =0;
 
 
   public Query getIMQ(IMECLParser.ImeclContext ctx) {
@@ -209,21 +210,23 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   public Object visitSubexpressionconstraint(IMECLParser.SubexpressionconstraintContext ctx) {
     Match match = null;
     Node node = null;
+    boolean nested = false;
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
+        if (child.toString().equals("(")) {
+          nested = true;
+        }
+
         Object result = visit(child);
         if (result != null) {
-          if (result instanceof Match)
-            return result;
-          if (match == null)
-            match = new Match();
+          if (result instanceof Match asMatch) {
+            match = asMatch;
+          }
           if (result instanceof Node asNode) {
             node = asNode;
-            match.addIs(asNode);
           } else if (result instanceof TTIriRef iri) {
             if (node == null) {
               node = new Node();
-              match.addIs(node);
             }
             if (iri.getIri() != null)
               node.setIri(iri.getIri());
@@ -231,6 +234,20 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
               node.setName(iri.getName());
           }
         }
+      }
+      if (match==null&&node!=null&&!nested){
+        match = new Match();
+        match.addIs(node);
+        return match;
+      }
+      else if (match!=null&&node!=null&&nested){
+        Match outerMatch = new Match();
+        outerMatch.addIs(node);
+        node.setMatch(match);
+        return outerMatch;
+      }
+      else if (match!=null){
+        return match;
       }
     }
     return match;
@@ -563,7 +580,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   private void getWhereFromMatch(Match match, Where where) {
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        where.addIs(new Node().setIri(subMatch.getIs().getFirst().getIri()));
+        where.addIs(subMatch.getIs().getFirst());
       }
     }
 

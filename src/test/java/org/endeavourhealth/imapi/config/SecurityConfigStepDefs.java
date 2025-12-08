@@ -67,6 +67,6 @@ public class SecurityConfigStepDefs {
 
   @Then("protected endpoints will be available")
   public void protectedEndpointsWillBeAvailable() {
-    assertTrue(permittedEndpoints.contains("/api/**/public/**"));
+    assertTrue(permittedEndpoints.contains("/api/*/public/**"));
   }
 }

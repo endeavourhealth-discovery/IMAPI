@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.vocabulary.IM
+import kotlin.collections.ifEmpty
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
@@ -66,25 +67,70 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery) {
+    val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
       val isAlias = getCteAlias(isA.iri, null)
-      val isSelects = mutableListOf(MySQLSelect("id"))
-      val joins = mutableListOf<MySQLJoin>()
-      if (mySQLQuery.withs.isNotEmpty()) {
-        joins.add(MySQLJoin(mySQLQuery.withs.last().alias, "id", "id"))
-      }
-      mySQLQuery.withs.add(
-        MySQLWith(
-          getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
-          isAlias,
-          mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)),
-          isSelects,
-          joins.ifEmpty { null },
-          Bool.and
-        )
-      )
+      val with = getIsWith(isA, isAlias, mySQLQuery)
+      if (isA.isExclude) {
+        val (with, join) = getIsExcludeWith(isA, isAlias, mySQLQuery)
+        mySQLQuery.withs.add(with)
+        mySQLQueryJoins.add(join)
+      } else mySQLQuery.withs.add(with)
       // TODO: replace isA.iri in new MySQLWhere() with the hashcode of query definition+arguments - create a map of iri to hashCode initially
     }
+    for (join in mySQLQueryJoins) {
+      join.tableFrom = mySQLQuery.withs.last().alias
+      mySQLQuery.joins.add(join)
+    }
+  }
+
+  private fun getIsWith(isA: Node, isAlias: String, mySQLQuery: MySQLQuery): MySQLWith {
+    val withJoins = mutableListOf<MySQLJoin>()
+    if (mySQLQuery.withs.isNotEmpty()) {
+      withJoins.add(
+        MySQLJoin(
+          "JOIN",
+          tableFrom = "cohort",
+          tableTo = mySQLQuery.withs.last { !it.exclude }.alias,
+          fromProperty = "id",
+          toProperty = "id",
+          wheres = mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null))
+        )
+      )
+    }
+    return MySQLWith(
+      getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
+      isAlias,
+      if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)) else null,
+      mutableListOf(MySQLSelect("id"), MySQLSelect("hashCode")),
+      withJoins.ifEmpty { null },
+      Bool.and,
+    )
+  }
+
+  private fun getIsExcludeWith(isA: Node, isAlias: String, mySQLQuery: MySQLQuery): Pair<MySQLWith, MySQLJoin> {
+    val with = MySQLWith(
+      getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
+      isAlias,
+      mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)),
+      mutableListOf(MySQLSelect("id"), MySQLSelect("hashCode")),
+      null,
+      Bool.and,
+      exclude = true
+    )
+
+    val join = MySQLJoin(
+      "LEFT JOIN",
+      tableFrom = mySQLQuery.withs.last().alias,
+      tableTo = with.alias,
+      fromProperty = "id",
+      toProperty = "id",
+      wheres = mutableListOf(
+        MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null),
+        MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL", null, null)
+      )
+    )
+    return Pair(with, join)
   }
 
   private fun getCteAlias(typeIri: String?, propertyIri: String?): String {

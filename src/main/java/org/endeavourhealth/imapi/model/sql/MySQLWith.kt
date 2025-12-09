@@ -8,7 +8,8 @@ data class MySQLWith(
   val wheres: MutableList<MySQLWhere>?,
   val selects: MutableList<MySQLSelect>,
   var joins: MutableList<MySQLJoin>?,
-  val whereBool: Bool
+  val whereBool: Bool,
+  val exclude: Boolean = false
 ) {
   fun toSql(): String {
     val selectSql = selects.joinToString(", ") { sel ->
@@ -21,9 +22,7 @@ data class MySQLWith(
 
     val joinSql = joins
       ?.takeIf { it.isNotEmpty() }
-      ?.joinToString("\n") {
-        "  JOIN ${it.tableTo} ON ${it.tableFrom}.${it.fromProperty} = ${it.tableTo}.${it.toProperty}"
-      }
+      ?.joinToString("\n") { it.toSql() }
 
     return buildString {
       appendLine("$alias AS (")

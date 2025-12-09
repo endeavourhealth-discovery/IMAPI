@@ -13,6 +13,7 @@ class Table(
   var relationships: HashMap<String, Relationship> = HashMap()
 ) {
   fun getJoinCondition(
+    joinType: String = "JOIN",
     tableFrom: Table? = null,
     tableFromAlias: String? = null,
     tableTo: Table,
@@ -24,6 +25,7 @@ class Table(
     if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
     val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.toField!!
     return MySQLJoin(
+      joinType,
       tableFromAlias ?: tableFrom?.table ?: table,
       tableToAlias ?: tableTo.table,
       toField ?: relationships[tableTo.dataModel]?.fromField,

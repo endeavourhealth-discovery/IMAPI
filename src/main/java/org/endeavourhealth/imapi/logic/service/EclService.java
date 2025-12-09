@@ -61,7 +61,6 @@ public class EclService {
 
     return setRepository.getSetExpansionFromQuery(
       request.getEclQuery(),
-      request.isIncludeLegacy(),
       request.getStatusFilter(),
       List.of(),
       new Page()

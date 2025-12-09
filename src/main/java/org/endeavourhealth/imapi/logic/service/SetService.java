@@ -288,7 +288,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),ecl);
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),options.getSubsumptions(),ecl);
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -310,7 +310,7 @@ public class SetService {
     boolean legacy,
     boolean subsets,
     List<String> schemes,
-    List<String> subsumptions
+    List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
@@ -323,13 +323,13 @@ public class SetService {
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions);
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumption);
     }
 
     if (null == result) result = new HashSet<>();
 
     if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result, subsumptions);
+      expandSubsets(iri, core, legacy, schemes, result, subsumption);
       result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

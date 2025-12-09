@@ -46,6 +46,9 @@ public class IMQToOS {
       .replace("{", "")
       .replace("}", ""));
     switch (type) {
+      case exact -> {
+        return exactQuery();
+      }
       case autocomplete -> {
         return autocompleteQuery();
       }
@@ -146,7 +149,6 @@ public class IMQToOS {
         if (splits.length == 2) term = namespace + term.split(":")[1];
       }
     }
-    addCodesAndIri(boolBuilder, term);
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     String field = "termCode.keyTerm";
@@ -166,6 +168,30 @@ public class IMQToOS {
     addPages(sourceBuilder);
     return sourceBuilder;
   }
+
+
+  private SearchSourceBuilder exactQuery() throws QueryException {
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+    String term = request.getTextSearch();
+    if (term.contains(":") && (!term.contains(" "))) {
+      String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
+      if (namespace != null) {
+        String[] splits = term.split(":");
+        if (splits.length == 2) term = namespace + term.split(":")[1];
+      }
+    }
+    addCodesAndIri(boolBuilder, term);
+    boolBuilder.minimumShouldMatch(1);
+    if (!addMatches(boolBuilder))
+      return null;
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
+      return null;
+    sourceBuilder.query(boolBuilder);
+    return sourceBuilder;
+  }
+
+
 
   private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
     if (query == null)

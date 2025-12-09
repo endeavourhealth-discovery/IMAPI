@@ -21,16 +21,15 @@ public enum ErrorCodes {
   DOWNLOAD_EXCEPTION("DownloadException"),
   ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
   SQL_CONVERSION_EXCEPTION("SQLConversionException"),
-  ECL_BUILDER_EXCEPTION("EclBuilderException"),
-  USER_NOT_FOUND_EXCEPTION("UserNotFoundException");
+  ECL_BUILDER_EXCEPTION("EclBuilderException");
 
   private final String code;
 
-  ErrorCodes(String code) {
-    this.code = code;
-  }
-
   public String asString() {
     return code;
+  }
+
+  ErrorCodes(String code) {
+    this.code = code;
   }
 }

@@ -44,9 +44,8 @@ public class EmailService {
     Multipart multipart = new MimeMultipart();
     multipart.addBodyPart(mimeBodyPart);
     message.setContent(multipart);
-    if (!EnvHelper.isDevMode()) {
-      Transport.send(message);
-    } else log.info("Email sent");
+    if (!EnvHelper.isDevMode()) Transport.send(message);
+    else log.info("Email sent");
   }
 
   public void sendMailWithAttachment(String subject, String content, File attachment, String to) throws MessagingException, IOException {
@@ -60,9 +59,8 @@ public class EmailService {
     multipart.addBodyPart(mimeBodyPart);
     multipart.addBodyPart(attachmentBodyPart);
     message.setContent(multipart);
-    if (!EnvHelper.isDevMode()) {
-      Transport.send(message);
-    } else log.info("Email with attachment sent");
+    if ("production".equals(System.getenv("MODE"))) Transport.send(message);
+    else log.info("Email with attachment sent");
   }
 
   private Session setupSession() {
@@ -76,7 +74,7 @@ public class EmailService {
 
   private Message setupMessage(Session session, String subject, String toEmail) throws MessagingException {
     Message message = new MimeMessage(session);
-    message.setFrom(new InternetAddress(prop.getProperty("mail.smtp.host")));
+    message.setFrom(new InternetAddress(System.getenv("EMAILER_HOST")));
     message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
     message.setSubject(subject);
     return message;

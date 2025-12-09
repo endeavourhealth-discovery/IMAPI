@@ -6,15 +6,19 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
+import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
+import org.endeavourhealth.imapi.model.postgres.DBEntry;
+import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
@@ -32,6 +36,7 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("api/query")
@@ -41,10 +46,11 @@ import java.util.Set;
 @Slf4j
 public class QueryController {
 
+  private final RequestObjectService requestObjectService = new RequestObjectService();
+
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
-  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
 
   @PostMapping("/public/queryIM")
   @Operation(
@@ -277,7 +283,117 @@ public class QueryController {
       return queryService.getIMLFromIMQIri(queryIri);
     }
   }
-  
+
+
+  @PostMapping("/addToQueue")
+  @Operation(
+    summary = "Add query to execution queue",
+    description = "Transforms query to SQL and adds it to the execution queue"
+  )
+  public void addToQueue(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
+      log.debug("addToQueue");
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      String userName = requestObjectService.getRequestAgentName(request);
+      queryService.addToExecutionQueue(userId, userName, queryRequest);
+    }
+  }
+
+  @GetMapping("/userQueryQueue")
+  @Operation(
+    summary = "Get the query queue items and status for a user"
+  )
+  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
+      log.debug("getUserQueryQueue");
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      return postgresService.getAllByUserId(userId, page, size);
+    }
+  }
+
+  @GetMapping("/userQueryQueueByStatus")
+  @Operation(
+    summary = "Get query queue items by user id and status"
+  )
+  public Pageable<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueueByStatus.GET")) {
+      log.debug("getUserQueryQueueByStatus");
+      String userId = requestObjectService.getRequestAgentId(request);
+      return postgresService.findAllByUserIdAndStatus(userId, status, page, size);
+    }
+  }
+
+  @GetMapping("/queryQueueByStatus")
+  @Operation(
+    summary = "get query queue items by status as admin"
+  )
+  @PreAuthorize("hasAuthority('ADMIN')")
+  public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
+      log.debug("getQueryQueueByStatus");
+      return postgresService.findAllByStatus(status, page, size);
+    }
+  }
+
+  @PostMapping(value = "/cancelQuery", consumes = "application/json")
+  @Operation(
+    summary = "Cancel a query from running either whilst in the queue or runner using the query uuid"
+  )
+  public void cancelQuery(@RequestBody UUIDBody id) throws IOException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.CancelQuery.POST")) {
+      log.debug("cancelQuery");
+      postgresService.cancelQuery(id.getValue());
+    }
+  }
+
+  @DeleteMapping("/deleteFromQueue")
+  @Operation(
+    summary = "Delete a query from the queue using the query uuid"
+  )
+  public void deleteFromQueue(HttpServletRequest request, @RequestParam(name = "id") UUID id) throws IOException, SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DeleteFromQueue.DELETE")) {
+      log.debug("deleteFromQueue");
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      postgresService.delete(userId, id);
+    }
+  }
+
+  @PostMapping("/requeueQuery")
+  @Operation(
+    summary = "Requeue a cancelled or errored query"
+  )
+  public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.RequeueQuery.POST")) {
+      log.debug("requeueQuery");
+      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
+      String userName = requestObjectService.getRequestAgentName(request);
+      queryService.reAddToExecutionQueue(userId, userName, requeueQueryRequest);
+    }
+  }
+
+  @PostMapping("/killActiveQuery")
+  @Operation(
+    summary = "Kills the active running query"
+  )
+  @PreAuthorize("hasAuthority('ADMIN')")
+  public void killActiveQuery() throws SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
+      log.debug("killActiveQuery");
+      queryService.killActiveQuery();
+    }
+  }
+
+  @PostMapping("/getQueryResults")
+  @Operation(
+    summary = "Get query results using a hash of the query request"
+  )
+  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
+      log.debug("getQueryResults");
+      return queryService.getQueryResults(queryRequest);
+    }
+  }
+
   @GetMapping(value = "/public/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {
@@ -298,7 +414,6 @@ public class QueryController {
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
-  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
@@ -311,7 +426,6 @@ public class QueryController {
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
-  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public TTIriRef getArgumentType(
     HttpServletRequest request,
     @RequestParam String referenceIri

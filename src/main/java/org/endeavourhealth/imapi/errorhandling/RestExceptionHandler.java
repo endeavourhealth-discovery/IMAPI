@@ -161,12 +161,6 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return buildResponseEntity(error);
   }
 
-  @ExceptionHandler(UserNotFoundException.class)
-  protected ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
-    ApiError error = new ApiError(HttpStatus.FORBIDDEN, ex.getMessage(), ex, ErrorCodes.USER_NOT_FOUND_EXCEPTION);
-    return buildResponseEntity(error);
-  }
-
   private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
     return new ResponseEntity<>(apiError, apiError.getStatus());
   }

@@ -15,5 +15,3 @@ org.eclipse.jdt.core.prefs
 *.backup.json
 gradle.properties
 *.xml
-/src/main/resources/application.properties
-/src/main/resources/casdoor-cert.txt

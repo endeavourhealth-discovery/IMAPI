@@ -1,15 +1,14 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
-import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
-import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.RepositoryException;
+import org.endeavourhealth.imapi.aws.AWSCognitoClient;
+import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
-import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.model.workflow.*;
@@ -19,35 +18,18 @@ import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.StringJoiner;
 
 import static org.eclipse.rdf4j.model.util.Values.*;
 
-@Component
 public class TaskFilerRdf4j {
   private final WorkflowDB conn;
-  @Resource
-  private UserService casdoorUserService;
   private EmailService emailService;
 
   public TaskFilerRdf4j() {
     conn = WorkflowDB.getConnection();
-  }
-
-  private static StringJoiner getTaskUpdateSparql(String originalObject, String newObject) {
-    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
-    stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
-    stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
-    stringJoiner.add("WHERE { ?subject ?predicate ?o ");
-    if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
-    stringJoiner.add("BIND(?o AS ?originalObject)");
-    if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
-    stringJoiner.add("}");
-    return stringJoiner;
   }
 
   public void fileBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
@@ -125,7 +107,7 @@ public class TaskFilerRdf4j {
     }
   }
 
-  public void fileEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
+  public void fileEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
     replaceUsernameWithId(entityApproval);
     try {
       ModelBuilder builder = new ModelBuilder();
@@ -159,7 +141,7 @@ public class TaskFilerRdf4j {
     }
   }
 
-  public void replaceBugReport(BugReport bugReport) throws TaskFilerException, IOException, UserNotFoundException {
+  public void replaceBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     deleteTask(bugReport.getId().getIri());
     fileBugReport(bugReport);
   }
@@ -182,6 +164,18 @@ public class TaskFilerRdf4j {
     } catch (UpdateExecutionException e) {
       throw new TaskFilerException("Failed to update task", e);
     }
+  }
+
+  private static StringJoiner getTaskUpdateSparql(String originalObject, String newObject) {
+    StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
+    stringJoiner.add("DELETE { ?subject ?predicate ?originalObject }");
+    stringJoiner.add("INSERT { ?subject ?predicate ?newObject }");
+    stringJoiner.add("WHERE { ?subject ?predicate ?o ");
+    if (null != originalObject) stringJoiner.add("FILTER (?o = ?originalObject)");
+    stringJoiner.add("BIND(?o AS ?originalObject)");
+    if (null != newObject) stringJoiner.add("BIND(?newVal AS ?newObject)");
+    stringJoiner.add("}");
+    return stringJoiner;
   }
 
   private void updateHistory(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
@@ -207,33 +201,18 @@ public class TaskFilerRdf4j {
   }
 
   private void replaceUsernameWithId(Task task) throws UserNotFoundException {
+    AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
-    if (null != task.getCreatedBy() && !task.getCreatedBy().matches(cognitoIdRegex)) {
-      try {
-        task.setCreatedBy(casdoorUserService.getUser(task.getCreatedBy()).id);
-      } catch (IOException e) {
-        throw new UserNotFoundException(task.getCreatedBy());
-      }
-    }
-    if (null != task.getAssignedTo() && !(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED"))) {
-      try {
-        task.setAssignedTo(casdoorUserService.getUser(task.getAssignedTo()).id);
-      } catch (IOException e) {
-        throw new UserNotFoundException(task.getAssignedTo());
-      }
-    }
+    if (null != task.getCreatedBy() && !task.getCreatedBy().matches(cognitoIdRegex))
+      task.setCreatedBy(awsCognitoClient.adminGetId(task.getCreatedBy()));
+    if (null != task.getAssignedTo() && !(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED")))
+      task.setAssignedTo(awsCognitoClient.adminGetId(task.getAssignedTo()));
   }
 
   private String usernameToId(String username) throws UserNotFoundException {
     if (username.equals("UNASSIGNED")) return username;
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
-    if (!username.matches(cognitoIdRegex)) {
-      try {
-        return casdoorUserService.getUser(username).id;
-      } catch (IOException e) {
-        throw new UserNotFoundException(username);
-      }
-    }
+    if (!username.matches(cognitoIdRegex)) return new AWSCognitoClient().adminGetId(username);
     return username;
   }
 
@@ -250,10 +229,10 @@ public class TaskFilerRdf4j {
   private EmailService getEmailService() {
     if (emailService == null) {
       emailService = new EmailService(
-        System.getenv("EMAILER_PORTAL_HOST"),
-        Integer.parseInt(System.getenv("EMAILER_PORTAL_PORT")),
-        System.getenv("EMAILER_PORTAL_USERNAME"),
-        System.getenv("EMAILER_PORTAL_PASSWORD")
+        System.getenv("EMAILER_HOST"),
+        Integer.parseInt(System.getenv("EMAILER_PORT")),
+        System.getenv("EMAILER_USERNAME"),
+        System.getenv("EMAILER_PASSWORD")
       );
     }
     return emailService;

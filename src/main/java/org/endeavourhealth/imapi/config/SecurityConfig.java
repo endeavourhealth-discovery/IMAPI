@@ -74,6 +74,9 @@ public class SecurityConfig {
       .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/loginWithBearerToken").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/logout").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/login").permitAll()
       // Temporary for testing Smartlife API
       .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/api/entity/public/partial").permitAll()

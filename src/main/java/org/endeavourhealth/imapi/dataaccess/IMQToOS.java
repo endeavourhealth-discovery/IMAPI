@@ -233,7 +233,12 @@ public class IMQToOS {
 
   private void addPages(SearchSourceBuilder sourceBuilder) {
     if (request.getPage() != null) {
-      sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      if (request.getPage().getOffset()==null) {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      }
+      else {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getOffset());
+      }
     } else {
       sourceBuilder.size(1000).from(0);
     }

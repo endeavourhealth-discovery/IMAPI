@@ -126,7 +126,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       fromProperty = "id",
       toProperty = "id",
       wheres = mutableListOf(
-        MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null),
         MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL", null, null)
       )
     )
@@ -178,56 +177,134 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+  private fun getMySQLWithFromMatch(
+    match: Match,
+    mySQLQuery: MySQLQuery
+  ): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where.iri)
     val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
-
-    val isSelects = mutableListOf(
+    val selects = mutableListOf(
       MySQLSelect(
         "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
       )
     )
-    val wheres = mutableListOf<MySQLWhere>()
-    var whereBool = Bool.and
-    if (match.where.and != null) {
-      for (where in match.where.and) {
-        wheres.add(getMySQLWhereFromWhere(where, table))
-      }
-    } else if (match.where.or != null) {
-      for (where in match.where.or) {
-        wheres.add(getMySQLWhereFromWhere(where, table))
-      }
-      whereBool = Bool.or
-    } else {
-      wheres.add(getMySQLWhereFromWhere(match.where, table))
-    }
-    val isAlias =
-      getCteAlias(typeOf, match.where?.iri ?: match.where.and?.firstOrNull()?.iri ?: match.where.or?.firstOrNull()?.iri)
-
-    val with = MySQLWith(
-      table,
-      isAlias,
-      wheres,
-      isSelects,
-      null,
-      whereBool
+    val isAlias = getCteAlias(
+      typeOf,
+      match.where?.iri
+        ?: match.where.and?.firstOrNull()?.iri
+        ?: match.where.or?.firstOrNull()?.iri
     )
-
+    val with = MySQLWith(
+      table = table,
+      alias = isAlias,
+      selects = selects,
+      joins = null,
+      wheres = mutableListOf(),
+      whereBool = Bool.and
+    )
+    addWheresRecursively(
+      where = match.where,
+      with = with,
+      parentWhere = null,
+      bool = null
+    )
     with.joins = getJoins(mySQLQuery, with)
-    for (where in wheres) {
-      if (where is MySQLPropertyIsWhere) {
-        val newJoins = addWhereConceptJoin(with)
-        newJoins.forEach { join ->
-          if (join !in with.joins!!) {
-            with.joins!!.add(join)
+    with.wheres?.forEach { rootWhere ->
+      walkMySQLWheres(rootWhere) { where ->
+        if (where is MySQLPropertyIsWhere) {
+          val newJoins = addWhereConceptJoin(with)
+          newJoins.forEach { join ->
+            if (join !in with.joins!!) {
+              with.joins!!.add(join)
+            }
           }
         }
       }
     }
-
     return with
   }
+
+  private fun walkMySQLWheres(
+    where: MySQLWhere,
+    visit: (MySQLWhere) -> Unit
+  ) {
+    visit(where)
+
+    where.and?.forEach { child ->
+      walkMySQLWheres(child, visit)
+    }
+
+    where.or?.forEach { child ->
+      walkMySQLWheres(child, visit)
+    }
+  }
+
+  private fun addWheresRecursively(
+    where: Where,
+    with: MySQLWith,
+    parentWhere: MySQLWhere? = null,
+    bool: Bool? = null
+  ) {
+    where.and?.let { andList ->
+      val boolWhere = MySQLBoolWhere()
+      when (bool) {
+        Bool.and -> parentWhere
+          ?.also { it.and = it.and ?: mutableListOf() }
+          ?.and
+          ?.add(boolWhere)
+
+        Bool.or -> parentWhere
+          ?.also { it.or = it.or ?: mutableListOf() }
+          ?.or
+          ?.add(boolWhere)
+
+        else -> with.wheres?.add(boolWhere)
+      }
+      andList.forEach {
+        addWheresRecursively(it, with, boolWhere, Bool.and)
+      }
+      return
+    }
+
+    where.or?.let { orList ->
+      val boolWhere = MySQLBoolWhere()
+      when (bool) {
+        Bool.and -> parentWhere
+          ?.also { it.and = it.and ?: mutableListOf() }
+          ?.and
+          ?.add(boolWhere)
+
+        Bool.or -> parentWhere
+          ?.also { it.or = it.or ?: mutableListOf() }
+          ?.or
+          ?.add(boolWhere)
+
+        else -> with.wheres?.add(boolWhere)
+      }
+
+      orList.forEach {
+        addWheresRecursively(it, with, boolWhere, Bool.or)
+      }
+      return
+    }
+
+    val leaf = getMySQLWhereFromWhere(where, with.table)
+    when (bool) {
+      Bool.and -> parentWhere
+        ?.also { it.and = it.and ?: mutableListOf() }
+        ?.and
+        ?.add(leaf)
+
+      Bool.or -> parentWhere
+        ?.also { it.or = it.or ?: mutableListOf() }
+        ?.or
+        ?.add(leaf)
+
+      else -> with.wheres?.add(leaf)
+    }
+  }
+
 
   private fun getMySQLWhereFromWhere(where: Where, table: Table): MySQLWhere {
     val field = tableMap?.functions[where.function?.iri] ?: getPropertyNameByTableAndPropertyIri(
@@ -241,8 +318,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         field,
         where.`is`,
         "=",
-        where.isNot,
-        args
+        not = where.isNot,
+        args = args
       )
     } else if (where.range != null) {
       MySQLPropertyRangeWhere(
@@ -251,19 +328,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.range.from.value,
         where.range.to.value,
         where.range.to.operator.value,
-        where.isNot,
-        args
+        not = where.isNot,
+        args = args
       )
     } else {
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
         where.value ?: where.relativeTo.parameter,
-        where.isNot,
-        args
+        not = where.isNot,
+        args = args
       )
     }
-
     return where
   }
 

@@ -144,6 +144,17 @@ public class EclController {
     }
   }
 
+  @GetMapping(value = "/private/isValidPropertyForDomains")
+  @Operation(summary = "Check if a property is valid for a list of domains")
+  public Boolean isValidPropertyForDomains(
+    @RequestParam(name = "propertyIri") String propertyIri,
+    @RequestParam(name = "conceptIris") Set<String> iris
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.isValidPropertyForDomains.GET")) {
+      log.debug("isValidPropertyForDomains");
+      return conceptService.isValidPropertyForDomains(propertyIri, iris);
+    }
+  }
 
   @GetMapping(value = "/private/rangesForProperty")
   @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")

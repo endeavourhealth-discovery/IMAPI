@@ -16,7 +16,9 @@ import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
@@ -84,6 +86,17 @@ public class SetController {
         size = 10;
       }
       return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size);
+    }
+  }
+  @PostMapping(value = "/public/membersFromQuery")
+  @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
+  public Pageable<Node> getMembersFromQuery(
+    HttpServletRequest request,
+    @RequestBody EclSearchRequest eclRequest
+  ) throws QueryException{
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
+      log.debug("getMembersFromQuery");
+      return setService.getMembersFromQuery(eclRequest);
     }
   }
 

@@ -20,6 +20,9 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -63,6 +66,7 @@ public class SetService {
   SetService(SetRepository setRepository) {
     this.setRepository = setRepository;
   }
+
 
   private static void getContains(SetContent result, List<ValueSet.ValueSetExpansionContainsComponent> contains) {
     if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
@@ -126,13 +130,32 @@ public class SetService {
     return setDiffObject;
   }
 
-  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
-    return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
-  }
+
 
   public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
+
+  public Pageable<Node> getMembersFromQuery(EclSearchRequest request) throws QueryException {
+    EclService eclService = new EclService();
+    SearchResponse response= eclService.eclSearch(request);
+    Pageable<Node> result = new Pageable<>();
+    result.setTotalCount(response.getTotalCount());
+    result.setCurrentPage(response.getPage());
+    result.setPageSize(response.getCount());
+    result.setResult(new ArrayList<>());
+    if (response.getEntities()!=null) {
+      for (SearchResultSummary entity : response.getEntities()) {
+        Node node= new Node();
+        node.setIri(entity.getIri());
+        node.setName(entity.getName());
+        node.setCode(entity.getCode());
+        result.getResult().add(node);
+      }
+    }
+    return result;
+  }
+
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();
@@ -265,7 +288,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),ecl);
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),options.getSubsumptions(),ecl);
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -287,7 +310,7 @@ public class SetService {
     boolean legacy,
     boolean subsets,
     List<String> schemes,
-    List<String> subsumptions
+    List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
@@ -300,13 +323,13 @@ public class SetService {
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions);
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumption);
     }
 
     if (null == result) result = new HashSet<>();
 
     if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result, subsumptions);
+      expandSubsets(iri, core, legacy, schemes, result, subsumption);
       result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 

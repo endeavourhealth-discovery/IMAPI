@@ -29,7 +29,10 @@ println("Build environment = [$ENV]")
 if (ENV == "prod") {
   tasks.build { finalizedBy("safeSonar") }
   tasks.build { finalizedBy("publish") }
-} else {
+}
+
+val CI = System.getenv("CI") ?: "false"
+if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
   }

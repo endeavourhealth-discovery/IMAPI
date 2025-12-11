@@ -60,7 +60,7 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
+        .is(n -> n.setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -75,7 +75,7 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
+        .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
           .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -90,9 +90,9 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
+        .is(n -> n.setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true))
-        .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
+        .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
           .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -107,7 +107,7 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
+        .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
           .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);
@@ -120,9 +120,9 @@ class OSQueryTest_OS {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
-        .instanceOf(n -> n.setIri("http://snomed.info/sct#57148006")
+        .is(n -> n.setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true))
-        .instanceOf(n -> n.setIri("http://endhealth.info/im#VSET_LongTermConditions")
+        .is(n -> n.setIri("http://endhealth.info/im#VSET_LongTermConditions")
           .setMemberOf(true)));
 
     SearchResponse results = osq.openSearchQuery(req);

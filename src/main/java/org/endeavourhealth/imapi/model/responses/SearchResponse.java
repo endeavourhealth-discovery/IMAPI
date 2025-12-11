@@ -15,6 +15,16 @@ public class SearchResponse {
   private Integer highestUsage;
   private String term;
   private List<SearchResultSummary> entities = new ArrayList<>();
+  private boolean isExactMatch;
+
+  public SearchResponse setExactMatch(boolean exactMatch) {
+    isExactMatch = exactMatch;
+    return this;
+  }
+
+  public boolean isExactMatch() {
+    return isExactMatch;
+  }
 
   public SearchResponse setTerm(String term) {
     this.term = term;

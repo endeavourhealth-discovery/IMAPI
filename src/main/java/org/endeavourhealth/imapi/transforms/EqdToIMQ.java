@@ -133,7 +133,7 @@ public class EqdToIMQ {
     for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
       if (matches != null) {
         for (Match match : matches) {
-          if (match.getIsCohort() == null) {
+          if (match.getIs() == null) {
             Match logicalMatch = new LogicOptimizer().getLogicalMatch(match);
             String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
@@ -182,11 +182,11 @@ public class EqdToIMQ {
   private void createLibrary(Query query) throws JsonProcessingException {
     if (query.getRule() == null) return;
     for (Match rule : query.getRule()) {
-      if (rule.getIsCohort() == null) {
+      if (rule.getIs() == null) {
         for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
           if (matches != null) {
             for (Match subMatch : matches) {
-              if (subMatch.getIsCohort() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
+              if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
                 if (subMatch.getDescription() != null) {
                   Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
                   addLibraryItem(subMatch, logicalMatch);
@@ -266,10 +266,12 @@ public class EqdToIMQ {
   }
 
   private void checkGms(Match match) {
-    if (match.getIsCohort() != null) {
-        if (gmsPatients.contains(match.getIsCohort().getIri())) {
-          match.getIsCohort().setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+    if (match.getIs() != null) {
+      for (Node node:match.getIs()){
+        if (gmsPatients.contains(node.getIri())) {
+          node.setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
+      }
     }
   }
 

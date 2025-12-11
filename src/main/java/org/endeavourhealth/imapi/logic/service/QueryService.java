@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -242,7 +241,7 @@ public class QueryService {
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addInstanceOf(new Node().setIri(cohort.getIri()).setMemberOf(true));
+      defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     } else return null;
   }
@@ -283,9 +282,11 @@ public class QueryService {
     return query;
   }
 
-  public Query getQueryFromIri(String iri) throws JsonProcessingException {
+  public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
-    return queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    Query query= queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
+    return query;
   }
 
   public List<ArgumentReference> findMissingArguments(QueryRequest queryRequest) throws QueryException, JsonProcessingException {
@@ -304,20 +305,15 @@ public class QueryService {
   }
 
   private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
-    recursivelyCheckMatchArguments(query, missingArguments, arguments);
-    if (null != query.getQuery()) {
-      for (Query subquery : query.getQuery()) {
-        recursivelyCheckQueryArguments(subquery, missingArguments, arguments);
-      }
-    }
+    checkMatchArguments(query, missingArguments, arguments);
   }
 
-  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
+  private void checkMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
-    if (null != match.getInstanceOf()) {
-      List<Node> instances = match.getInstanceOf();
+    if (null != match.getIs()) {
+      List<Node> instances = match.getIs();
       instances.forEach(instance -> {
         if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
           addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
@@ -326,15 +322,15 @@ public class QueryService {
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
-      matches.forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+      matches.forEach(andMatch -> checkMatchArguments(andMatch, missingArguments, arguments));
     }
     if (null != match.getOr()) {
       List<Match> matches = match.getOr();
-      matches.forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
+      matches.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
     }
     if (null != match.getNot()) {
       List<Match> matches = match.getNot();
-      matches.forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+      matches.forEach(notMatch -> checkMatchArguments(notMatch, missingArguments, arguments));
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);

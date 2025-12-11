@@ -126,7 +126,7 @@ public class FilerService {
       setupEntityFiler();
       entityFiler.fileEntity(entity);
 
-     entityFiler.updateIsAs(entity);
+     entityFiler.updateIsAs(entity.getIri());
 
       if (entity.isType(iri(IM.VALUESET))||entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);

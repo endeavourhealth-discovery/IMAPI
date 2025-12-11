@@ -20,15 +20,23 @@ public class TTIriRef implements TTValue, Serializable {
   @Schema(description = "The actual iri")
   private String iri;
 
-  @Getter
+  //@Getter
   @JsonProperty()
   @Schema(description = "The name of the concept the IRI represents")
   private String name;
 
-  @Getter
+  //@Getter
   @JsonProperty()
   @Schema(description = "Longer/fuller description of the represented concept")
   private String description;
+
+  public String getName() {
+    return name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
 
   public TTIriRef() {
   }

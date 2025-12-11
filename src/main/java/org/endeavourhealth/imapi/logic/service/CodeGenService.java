@@ -1,3 +1,4 @@
+/*
 package org.endeavourhealth.imapi.logic.service;
 
 import org.apache.commons.text.WordUtils;
@@ -274,3 +275,4 @@ public class CodeGenService {
     return WordUtils.capitalizeFully(str);
   }
 }
+*/

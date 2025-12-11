@@ -10,6 +10,7 @@ plugins {
   alias(libs.plugins.static.const.generator)
   id("java-library")
   id("maven-publish")
+  kotlin("jvm") version "2.2.21"
 }
 
 group = "org.endeavourhealth.imapi"

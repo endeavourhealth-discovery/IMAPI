@@ -28,7 +28,7 @@ public class CasbinController {
     casbinEnforcer.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
   }
 
-  @GetMapping("hasPermission")
+  @GetMapping("public/hasPermission")
   public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
     User user = casdoorService.getUser(request);
     return casbinEnforcer.enforce(user, resource, action);

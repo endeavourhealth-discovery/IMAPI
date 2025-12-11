@@ -25,7 +25,7 @@ import java.util.Set;
 public class TransformController {
   private final TransformService transformService = new TransformService();
 
-  @GetMapping("/public/transformeqd")
+  @GetMapping("/private/transformeqd")
   @Operation(
     summary = "Run transform of eqd to imq",
     description = "Runs a transform from an xml eqd query document to a set of target objects"
@@ -40,7 +40,7 @@ public class TransformController {
     }
   }
 
-  @PostMapping("/public/run")
+  @PostMapping("/private/run")
   @Operation(
     summary = "Run transform",
     description = "Runs a transform from a set of typed sources to a set of target objects defined by a transform map"

@@ -58,7 +58,7 @@ public class CasdoorController {
     }
   }
 
-  @GetMapping("/logout")
+  @GetMapping("/public/logout")
   public void logout(HttpServletResponse response) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGOUT.GET")) {
       log.debug("logout");

@@ -63,24 +63,20 @@ public class SecurityConfig {
     if (EnvHelper.isPublicMode()) {
       req.requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
+        .requestMatchers(HttpMethod.GET, "/api/*/private/**").permitAll()
 //        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
         .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
     }
 
     req.requestMatchers(HttpMethod.GET, "/").permitAll()
       .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
       .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/loginWithBearerToken").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/logout").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/casdoor/public/login").permitAll()
+      .requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
+      .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
       // Temporary for testing Smartlife API
       .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/entity/public/partial").permitAll()
-      .requestMatchers(HttpMethod.POST, "/api/query/public/sql").permitAll()
       // -----------------------------------
       .anyRequest().authenticated();
   }

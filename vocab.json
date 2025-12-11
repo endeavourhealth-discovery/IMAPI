@@ -1763,6 +1763,9 @@
   },
   {
     "name": "USER",
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1774,39 +1777,39 @@
       },
       {
         "name": "USER_PRESET",
-        "value": "USER.DOMAIN + \"UserPreset\""
+        "value": "Namespace.USER + \"UserPreset\""
       },
       {
         "name": "USER_PRIMARY_COLOR",
-        "value": "USER.DOMAIN + \"UserPrimaryColor\""
+        "value": "Namespace.USER + \"UserPrimaryColor\""
       },
       {
         "name": "USER_SURFACE_COLOR",
-        "value": "USER.DOMAIN + \"UserSurfaceColor\""
+        "value": "Namespace.USER + \"UserSurfaceColor\""
       },
       {
         "name": "USER_DARK_MODE",
-        "value": "USER.DOMAIN + \"UserDarkMode\""
+        "value": "Namespace.USER + \"UserDarkMode\""
       },
       {
-        "name": "USER_SCALE",
-        "value": "USER.DOMAIN + \"UserScale\""
+        "name": "USER_FONT_SIZE",
+        "value": "Namespace.USER + \"UserFontSize\""
       },
       {
         "name": "USER_MRU",
-        "value": "USER.DOMAIN + \"UserMRU\""
+        "value": "Namespace.USER + \"UserMRU\""
       },
       {
         "name": "USER_FAVOURITES",
-        "value": "USER.DOMAIN + \"UserFavourites\""
+        "value": "Namespace.USER + \"UserFavourites\""
       },
       {
         "name": "ORGANISATIONS",
-        "value": "USER.DOMAIN + \"ORGANISATIONS\""
+        "value": "Namespace.USER + \"Organisations\""
       },
       {
         "name": "GRAPHS",
-        "value": "USER.DOMAIN + \"GRAPHS\""
+        "value": "Namespace.USER + \"Graphs\""
       }
     ]
   },

@@ -14,10 +14,12 @@ import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.Resource;
 import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CasbinEnforcer {
   @Getter
   private Enforcer enforcer;

@@ -11,6 +11,16 @@ public class ConceptSet extends Entity {
   private Set<TTIriRef> hasMember;
   private Set<TTIriRef> usedIn;
 
+  public Boolean getAvoidReplacedBy() {
+    return avoidReplacedBy;
+  }
+
+  public void setAvoidReplacedBy(Boolean avoidReplacedBy) {
+    this.avoidReplacedBy = avoidReplacedBy;
+  }
+
+  private Boolean avoidReplacedBy;
+
   public Set<TTIriRef> getUsedIn() {
     return usedIn;
   }

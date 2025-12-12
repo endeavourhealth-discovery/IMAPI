@@ -7,13 +7,13 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.vocabulary.IM
-import kotlin.collections.ifEmpty
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper()
 ) {
   val queryTypeOf = queryRequest.query?.typeOf?.iri
+  val mySQLQuery = MySQLQuery()
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
@@ -41,22 +41,21 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun generateSQL(definition: Query): String {
     if (definition.typeOf == null || definition.typeOf.iri == null
     ) throw SQLConversionException("Query typeOf +is null")
-    val mySQLQuery = MySQLQuery()
 
     if (definition.`is` != null) {
-      (addIsWiths(definition, mySQLQuery))
+      (addIsWiths(definition))
     }
 
     if (definition.and != null) {
-      addMatchWiths(definition.and, definition, Bool.and, mySQLQuery)
+      addMatchWiths(definition.and, definition, Bool.and)
     }
 
     if (definition.or != null) {
-      addMatchWiths(definition.or, definition, Bool.or, mySQLQuery)
+      addMatchWiths(definition.or, definition, Bool.or)
     }
 
     if (definition.not != null) {
-      addMatchWiths(definition.not, definition, Bool.not, mySQLQuery)
+      addMatchWiths(definition.not, definition, Bool.not)
     }
 
     if (definition.`return` == null) {
@@ -66,13 +65,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return mySQLQuery.toSql()
   }
 
-  private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery) {
+  private fun addIsWiths(match: Match) {
     val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
       val isAlias = getCteAlias(isA.iri, null)
-      val with = getIsWith(isA, isAlias, mySQLQuery)
+      val with = getIsWith(isA, isAlias)
       if (isA.isExclude) {
-        val (with, join) = getIsExcludeWith(isA, isAlias, mySQLQuery)
+        val (with, join) = getIsExcludeWith(isA, isAlias)
         mySQLQuery.withs.add(with)
         mySQLQueryJoins.add(join)
       } else mySQLQuery.withs.add(with)
@@ -84,7 +83,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getIsWith(isA: Node, isAlias: String, mySQLQuery: MySQLQuery): MySQLWith {
+  private fun getIsWith(isA: Node, isAlias: String): MySQLWith {
     val withJoins = mutableListOf<MySQLJoin>()
     if (mySQLQuery.withs.isNotEmpty()) {
       withJoins.add(
@@ -108,7 +107,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-  private fun getIsExcludeWith(isA: Node, isAlias: String, mySQLQuery: MySQLQuery): Pair<MySQLWith, MySQLJoin> {
+  private fun getIsExcludeWith(isA: Node, isAlias: String): Pair<MySQLWith, MySQLJoin> {
     val with = MySQLWith(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
@@ -140,46 +139,44 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "${typeIriSuffix}_${propertyIriSuffix}_cte"
   }
 
-  private fun addMatchWiths(match: List<Match>, definition: Query, bool: Bool, mySQLQuery: MySQLQuery) {
+  private fun addMatchWiths(match: List<Match>, definition: Query, bool: Bool) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, Bool.and, mySQLQuery)
+      addMatchWithsRecursively(m, definition, Bool.and)
     }
   }
 
   private fun addMatchWithsRecursively(
     currentMatch: Match,
     parentMatch: Match,
-    bool: Bool,
-    mySQLQuery: MySQLQuery
+    bool: Bool
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
         if (m.typeOf == null) m.typeOf = parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, Bool.and, mySQLQuery)
+        addMatchWithsRecursively(m, currentMatch, Bool.and)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
         if (m.typeOf == null) m.typeOf = parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, Bool.or, mySQLQuery)
+        addMatchWithsRecursively(m, currentMatch, Bool.or)
       }
     }
     if (currentMatch.not != null) {
       for (m in currentMatch.not) {
         if (m.typeOf == null) m.typeOf = parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, Bool.not, mySQLQuery)
+        addMatchWithsRecursively(m, currentMatch, Bool.not)
       }
     }
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.not == null) {
       if (currentMatch.typeOf == null) currentMatch.typeOf = parentMatch.typeOf
-      mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySQLQuery))
+      mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch))
     }
   }
 
   private fun getMySQLWithFromMatch(
     match: Match,
-    mySQLQuery: MySQLQuery
   ): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where.iri)
@@ -335,12 +332,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
-        where.value ?: where.relativeTo.parameter,
+        where.value ?: where.relativeTo.parameter ?: getValueFromRelativeTo(where)
+        ?: throw SQLConversionException("No value provided for where $where"),
         not = where.isNot,
         args = args
       )
     }
     return where
+  }
+
+  private fun getValueFromRelativeTo(where: Where): String? {
+    val nodeRef = where.relativeTo?.nodeRef ?: return null
+    var property = ""
+    val with = mySQLQuery.withs.find { it.alias == nodeRef }
+    if (with != null) {
+      property = getPropertyNameByTableAndPropertyIri(with.table, where.iri).field
+    } else {
+      getDataModelFromKeepAs(nodeRef)?.let {
+        property = getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), where.iri).field
+      }
+    }
+    return "${nodeRef}.${property}"
   }
 
 
@@ -385,13 +397,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    val table = tableMap?.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
-      "Type $typeIri not found in table map"
-    )
-    return table
-  }
-
   private fun getPropertyNameByTableAndPropertyIri(table: Table, propertyIri: String): Field {
     val field = table.fields.get(propertyIri) ?: throw SQLConversionException(
       "Property $propertyIri not found in table ${table.table}"
@@ -429,5 +434,60 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
     return joins
+  }
+
+  private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
+    val table = tableMap?.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
+      "Type $typeIri not found in table map"
+    )
+    return table
+  }
+
+  fun getDataModelFromKeepAs(keepAs: String?): String? {
+    var match: Match? = findMatchByKeepAs(queryRequest.query, keepAs)
+    if (match == null && queryRequest.query.columnGroup != null) {
+      for (child in queryRequest.query.columnGroup) {
+        val result: Match? = findMatchByKeepAs(child, keepAs)
+        if (result != null) match = result
+      }
+    }
+    if (match != null) {
+      if (match.typeOf != null) {
+        return match.typeOf.iri
+      }
+      if (match.path != null) {
+        return match.path.first().typeOf.iri
+      }
+    }
+    return null
+  }
+
+  fun findMatchByKeepAs(match: Match?, keepAs: String?): Match? {
+    if (match == null) return null
+    if (match.keepAs != null && match.keepAs == keepAs) {
+      return match
+    }
+
+    if (match.and != null) {
+      for (child in match.and) {
+        val result = findMatchByKeepAs(child, keepAs)
+        if (result != null) return result
+      }
+    }
+
+    if (match.or != null) {
+      for (child in match.or) {
+        val result = findMatchByKeepAs(child, keepAs)
+        if (result != null) return result
+      }
+    }
+
+    if (match.not != null) {
+      for (child in match.not) {
+        val result = findMatchByKeepAs(child, keepAs)
+        if (result != null) return result
+      }
+    }
+    return null
   }
 }

@@ -21,14 +21,17 @@ class Table(
     fromField: String? = null,
     toField: String? = null,
   ): MySQLJoin {
-    if (relationships[tableTo.dataModel] == null) throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+    if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
-    val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.toField!!
+    val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.toField
+    ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
+    val outerField = relationships[tableTo.dataModel]?.fromField
+      ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     return MySQLJoin(
       joinType,
       tableFromAlias ?: tableFrom?.table ?: table,
       tableToAlias ?: tableTo.table,
-      toField ?: relationships[tableTo.dataModel]?.fromField,
+      toField ?: outerField,
       fromField ?: innerField
     )
   }

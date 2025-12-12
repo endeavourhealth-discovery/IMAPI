@@ -151,28 +151,34 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
-        if (m.typeOf == null) m.typeOf = parentMatch.typeOf
+        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.and)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
-        if (m.typeOf == null) m.typeOf = parentMatch.typeOf
+        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.or)
       }
     }
     if (currentMatch.not != null) {
       for (m in currentMatch.not) {
-        if (m.typeOf == null) m.typeOf = parentMatch.typeOf
+        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.not)
       }
     }
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.not == null) {
-      if (currentMatch.typeOf == null) currentMatch.typeOf = parentMatch.typeOf
+      if (currentMatch.typeOf == null) currentMatch.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
       if (currentMatch.`is` != null) addIsWiths(currentMatch, if (bool == Bool.not) true else null)
       else mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch))
     }
+  }
+
+  private fun getTypeOf(match: Match): Node? {
+    if (match.nodeRef != null) return Node.iri(getDataModelFromKeepAs(match.nodeRef))
+    if (match.path?.firstOrNull()?.typeOf?.iri != null) return Node.iri(match.path.first().typeOf.iri)
+    return null
   }
 
   private fun getMySQLWithFromMatch(
@@ -398,7 +404,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getPropertyNameByTableAndPropertyIri(table: Table, propertyIri: String): Field {
-    val field = table.fields.get(propertyIri) ?: throw SQLConversionException(
+    val field = table.fields[propertyIri] ?: throw SQLConversionException(
       "Property $propertyIri not found in table ${table.table}"
     )
     return field
@@ -407,12 +413,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getJoins(mySQLQuery: MySQLQuery, with: MySQLWith): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     if (mySQLQuery.withs.isNotEmpty()) {
-      joins.add(
-        (with.table.getJoinCondition(
-          tableTo = mySQLQuery.withs.last().table,
-          tableToAlias = mySQLQuery.withs.last().alias
-        ))
-      )
+        joins.add(
+          (with.table.getJoinCondition(
+            tableTo = mySQLQuery.withs.last().table,
+            tableToAlias = mySQLQuery.withs.last().alias
+          ))
+        )
     }
     if (queryTypeOf != null && queryTypeOf != with.table.dataModel) {
       val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)

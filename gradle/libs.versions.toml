@@ -66,6 +66,7 @@ hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.re
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jersey-client = { module = "org.glassfish.jersey.core:jersey-client", version.ref = "jersey" }
 jersey-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }

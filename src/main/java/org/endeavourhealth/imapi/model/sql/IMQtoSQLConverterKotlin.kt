@@ -40,7 +40,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun generateSQL(definition: Query): String {
     if (definition.typeOf == null || definition.typeOf.iri == null
-    ) throw SQLConversionException("Query typeOf +is null")
+    ) throw SQLConversionException("Query typeOf is null")
 
     if (definition.`is` != null) {
       (addIsWiths(definition))
@@ -65,17 +65,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return mySQLQuery.toSql()
   }
 
-  private fun addIsWiths(match: Match) {
+  private fun addIsWiths(match: Match, not: Boolean? = null) {
     val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
-      val isAlias = getCteAlias(isA.iri, null)
+      val isAlias = match.keepAs ?: getCteAlias(isA.iri, null)
       val with = getIsWith(isA, isAlias)
-      if (isA.isExclude) {
+      if (isA.isExclude || not == true) {
         val (with, join) = getIsExcludeWith(isA, isAlias)
         mySQLQuery.withs.add(with)
         mySQLQueryJoins.add(join)
       } else mySQLQuery.withs.add(with)
-      // TODO: replace isA.iri in new MySQLWhere() with the hashcode of query definition+arguments - create a map of iri to hashCode initially
     }
     for (join in mySQLQueryJoins) {
       join.tableFrom = mySQLQuery.withs.last().alias
@@ -141,7 +140,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addMatchWiths(match: List<Match>, definition: Query, bool: Bool) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, Bool.and)
+      addMatchWithsRecursively(m, definition, bool)
     }
   }
 
@@ -171,7 +170,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.not == null) {
       if (currentMatch.typeOf == null) currentMatch.typeOf = parentMatch.typeOf
-      mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch))
+      if (currentMatch.`is` != null) addIsWiths(currentMatch, if (bool == Bool.not) true else null)
+      else mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch))
     }
   }
 
@@ -186,7 +186,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
       )
     )
-    val isAlias = getCteAlias(
+    val isAlias = match.keepAs ?: getCteAlias(
       typeOf,
       match.where?.iri
         ?: match.where.and?.firstOrNull()?.iri

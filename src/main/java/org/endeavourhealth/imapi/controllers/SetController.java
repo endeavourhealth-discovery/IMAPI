@@ -16,7 +16,9 @@ import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
@@ -86,6 +88,17 @@ public class SetController {
       return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size);
     }
   }
+  @PostMapping(value = "/public/membersFromQuery")
+  @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
+  public Pageable<Node> getMembersFromQuery(
+    HttpServletRequest request,
+    @RequestBody EclSearchRequest eclRequest
+  ) throws QueryException{
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
+      log.debug("getMembersFromQuery");
+      return setService.getMembersFromQuery(eclRequest);
+    }
+  }
 
   @GetMapping(value = "/public/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
@@ -140,9 +153,6 @@ public class SetController {
   ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {
-        setExportRequest.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
-      }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");

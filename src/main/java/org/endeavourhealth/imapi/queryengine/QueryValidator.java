@@ -10,58 +10,67 @@ public class QueryValidator {
   private final Map<String, Map<String, String>> propertyMap = new HashMap<>();
   private int o = 0;
 
-  public void validateQuery(Query query) throws QueryException {
-    String mainEntity = "entity";
-    if (query.getVariable() != null) {
-      mainEntity = query.getVariable();
-    }
-    if (query.getParameter()!=null){
+  public void validateQuery(Match query) throws QueryException {
+   String mainEntity="entity";
+   if (query.getKeepAs()!=null){
+     mainEntity=query.getKeepAs();
+   } else if (query.getParameter()!=null){
       mainEntity=query.getParameter().replace("$","");
     }
-    if (query.getAnd() == null && query.getOr() == null && null == query.getInstanceOf() && null == query.getWhere()&&null==query.getTypeOf())
-      throw new QueryException("Query must have match clause or instanceOf or where clause");
+
+    if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere()&&null==query.getTypeOf())
+      throw new QueryException("Query must have match clause or is or where clause");
 
     variables.put(mainEntity, VarType.NODE);
-    processMatches(query, mainEntity);
-    if (null != query.getInstanceOf()) {
-      query.getInstanceOf().getFirst().setVariable(mainEntity);
-      variables.put(mainEntity, VarType.NODE);
-    }
+    processMatches(query);
     if (null != query.getWhere()) {
-      validateWhere(query.getWhere(), query.getVariable());
+      validateWhere(query.getWhere(), mainEntity);
     }
 
-    if (query.getReturn() == null) {
-      String finalMainEntity = mainEntity;
-      query.return_(r -> r.setNodeRef(finalMainEntity));
-    }
     processReturn(query, mainEntity);
   }
 
-  private void processMatches(Match boolMatch, String mainEntity) throws QueryException {
-    processMatch(mainEntity, boolMatch);
+  private void processMatches(Match boolMatch) throws QueryException {
+    processMatch(boolMatch);
     validateMatch(boolMatch);
     for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr(), boolMatch.getNot())) {
       if (matches != null) {
         for (Match match : matches) {
-          processMatch(mainEntity, match);
+          processMatch(match);
           validateMatch(match);
         }
       }
     }
   }
 
-  private void processMatch(String mainEntity, Match match) {
-    if (match.getVariable() != null) {
-      variables.put(match.getVariable(), VarType.NODE);
+  private void processMatch(Match match) throws QueryException {
+    if (match.getKeepAs() != null) {
+      variables.put(match.getKeepAs(), VarType.NODE);
     } else if (match.getParameter() != null) {
       variables.put(match.getParameter(), VarType.NODE);
-    } else if (match.getNodeRef() == null) {
-      match.setVariable(mainEntity);
     }
     if (match.getPath() != null) {
       for (Path pathMatch : match.getPath()) {
         processPath(pathMatch);
+      }
+    }
+    if (match.getIs()!=null){
+      processIs(match.getIs());
+    }
+  }
+
+  private void processIs(List<Node> is) throws QueryException {
+    if (is.size()>1){
+      Node first= is.getFirst();
+      if (first.getNodeRef()!=null|| first.getMatch()!=null||first.getVariable()!=null){
+        throw new QueryException("in list cannot have nore than one entry if references are used");
+      }
+    }
+    else {
+      Node first= is.getFirst();
+      if
+      (first.getMatch()!=null){
+        processMatch(first.getMatch());
       }
     }
   }
@@ -77,7 +86,7 @@ public class QueryValidator {
     }
   }
 
-  private void processReturn(Query query, String mainEntity) throws QueryException {
+  private void processReturn(Match query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
       Return aReturn = query.getReturn();
       if (aReturn.getNodeRef() == null && aReturn.getAs() == null)

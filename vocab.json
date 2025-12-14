@@ -190,8 +190,8 @@
         "value": "Namespace.IM + \"definition\""
       },
       {
-        "name": "INSTANCE_OF",
-        "value": "Namespace.IM + \"instanceOf\""
+        "name": "IS",
+        "value": "Namespace.IM + \"is\""
       },
       {
         "name": "RETURN_TYPE",
@@ -252,10 +252,6 @@
       {
         "name": "DEFAULT_COHORTS",
         "value": "Namespace.IM + \"Q_DefaultCohorts\""
-      },
-      {
-        "name": "DATASET_QUERY",
-        "value": "Namespace.IM + \"DatasetQuery\""
       },
       {
         "name": "DATA_UPDATE",
@@ -510,12 +506,20 @@
         "value": "Namespace.IM + \"SupplierAssured\""
       },
       {
+        "name": "COHORT",
+        "value": "Namespace.IM +\"Cohort\""
+      },
+      {
         "name": "HAS_MEMBER",
         "value": "Namespace.IM + \"hasMember\""
       },
       {
         "name": "IS_MEMBER_OF",
         "value": "Namespace.IM + \"isMemberOf\""
+      },
+      {
+        "name": "AVOID_REPLACED_BY",
+        "value": "Namespace.IM + \"avoidReplacedBy\""
       },
       {
         "name": "IS_SUBSET_OF",
@@ -830,6 +834,10 @@
         "value": "Namespace.IM + \"Entity\""
       },
       {
+        "name": "IS_SUBINDICATOR_OF",
+        "value": "Namespace.IM + \"isSubIndicatorOf\""
+      },
+      {
         "name": "QUERY_SET",
         "value": "Namespace.IM + \"QuerySet\""
       },
@@ -850,8 +858,16 @@
         "value": "Namespace.IM + \"QueryTemplate\""
       },
       {
-        "name": "HAS_QUERY",
-        "value": "Namespace.IM + \"hasQuery\""
+        "name": "NUMERATOR",
+        "value": "Namespace.IM + \"numerator\""
+      },
+      {
+        "name": "DENOMINATOR",
+        "value": "Namespace.IM + \"denominator\""
+      },
+      {
+        "name": "HAS_DATASET",
+        "value": "Namespace.IM + \"dataset\""
       },
       {
         "name": "RECORD_TYPE",
@@ -2131,6 +2147,10 @@
       {
         "name": "PROPERTY_SHAPE",
         "value": "Namespace.IM_EDITOR + \"PropertyShape\""
+      },
+      {
+        "name": "INDICATOR_SHAPE",
+        "value": "Namespace.IM_EDITOR + \"IndicatorShape\""
       }
     ]
   },

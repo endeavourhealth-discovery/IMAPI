@@ -49,9 +49,7 @@ public class SQLQuery {
     this.wheres = new ArrayList<>();
     this.dependencies = new ArrayList<>();
     this.from = from;
-
-    this.model = model;
-    if (null != model) {
+    if (model != null) {
       this.map = this.getMap(model, tableMap);
       this.primaryKey = this.map.getPrimaryKey();
       this.model = this.map.getDataModel();
@@ -92,10 +90,11 @@ public class SQLQuery {
 
   private String generateFroms() {
     String sql = "";
-    if (null != map.getTable())
-      sql = "\nFROM " + map.getTable() + " AS " + alias;
-    else if (null != from)
-      sql += "\nFROM " + from + " ";
+    if (null != from)
+      sql += "\nFROM " + from;
+    else if (null != map.getTable())
+      sql = "\nFROM " + map.getTable();
+    if (alias != null && !alias.isEmpty()) sql += " AS " + alias;
     if (joins != null && !joins.isEmpty()) sql += "\n" + StringUtils.join(joins, "\n");
     return sql;
   }
@@ -137,7 +136,7 @@ public class SQLQuery {
   }
 
   private Field getField(String field, String table, TableMap tableMap, boolean defaultToString) throws SQLConversionException {
-    Table map = table != null ? tableMap.getTable(table) : this.map;
+    Table map = table != null ? tableMap.getTableFromDataModel(table) : this.map;
     if (map == null) throw new SQLConversionException("SQL Conversion Error: Unknown table [" + table + "]");
     if (map.getFields().get(field) != null) return map.getFields().get(field);
     log.error("UNKNOWN FIELD [{}] ON [{}] - assuming its a string with the same JSON field name", field, map.getTable());
@@ -154,7 +153,7 @@ public class SQLQuery {
 
   public Relationship getRelationshipTo(String targetModel) throws SQLConversionException {
     if (map.getRelationships().get(targetModel) != null) return map.getRelationships().get(targetModel);
-    throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "] to [" + targetModel + "]");
+    throw new SQLConversionException("SQL Conversion Error: Unknown relationship from [" + this.model + "-" + map.getTable() + "] to [" + targetModel + "]");
   }
 
   public SQLQuery clone(String alias, TableMap tableMap) throws SQLConversionException {
@@ -171,10 +170,10 @@ public class SQLQuery {
   }
 
   private Table getMap(String model, TableMap tableMap) throws SQLConversionException {
-    Table map = tableMap.getTable(model);
+    Table map = tableMap.getTableFromDataModel(model);
 
     if (map == null) {
-      map = tableMap.getTable(Namespace.IM + model);
+      map = tableMap.getTableFromDataModel(Namespace.IM + model);
     }
 
     if (map != null) {

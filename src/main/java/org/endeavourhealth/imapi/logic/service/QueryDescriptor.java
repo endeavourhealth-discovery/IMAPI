@@ -16,6 +16,9 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,7 +50,7 @@ public class QueryDescriptor {
 
   public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
     setIriNames(match);
-    describeMatch(match, typeOf);
+    describeMatch(match);
     return match;
   }
 
@@ -59,14 +62,11 @@ public class QueryDescriptor {
     } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
-    describeMatch(query, null);
+    describeMatch(query);
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
-    if (query.getQuery() != null) {
-      for (Query matchQuery : query.getQuery())
-        describeQuery(matchQuery, displayMode);
-    }
+
     return query;
   }
 
@@ -77,9 +77,7 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return ret) {
-    if (ret.getAs() != null && ret.getAsDescription() != null) {
-      nodeRefToLabel.put(ret.getAs(), ret.getAsDescription());
-    }
+
     if (ret.getProperty() != null) {
       for (ReturnProperty prop : ret.getProperty()) {
         if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
@@ -102,7 +100,7 @@ public class QueryDescriptor {
   private void setIriNames(Query query) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(query);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, RDF.TYPE,IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL,IM.ALTERNATIVE_CODE));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -160,16 +158,8 @@ public class QueryDescriptor {
   }
 
 
-  public void describeMatch(Match match, String inheritedType) {
+  public void describeMatch(Match match) {
     String typeOf;
-    if (match.getTypeOf() == null) {
-      if (inheritedType != null && match.getPath() == null) {
-        match.setTypeOf(new Node().setIri(inheritedType));
-        typeOf = inheritedType;
-      } else typeOf = null;
-    } else {
-      typeOf = match.getTypeOf().getIri();
-    }
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
 
 
@@ -177,7 +167,8 @@ public class QueryDescriptor {
       describeReturn(match.getReturn());
     }
     if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
+      String orderDisplay= describeOrderBy(match.getOrderBy());
+      if (!orderDisplay.equals("")) shortDescription.append(orderDisplay);
     }
     if (match.getName() == null && match.getDescription() != null) {
       match.setName(match.getDescription());
@@ -187,33 +178,34 @@ public class QueryDescriptor {
     if (match.getTypeOf() != null) {
       match.getTypeOf().setName(getTermInContext(match.getTypeOf(), Context.PLURAL));
     }
-    if (match.getInstanceOf() != null) {
-      describeInstance(match.getInstanceOf());
+    if (match.getIs() != null) {
+      describeIs(match.getIs());
     }
-    if (match.getIsCohort() != null) {
-      match.getIsCohort().setName(getTermInContext(match.getIsCohort().getIri(), Context.MATCH));
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        if (node.getIri() != null)
+          node.setName(getTermInContext(node.getIri(), Context.MATCH));
+      }
     }
-    if (match.getThen() != null) {
-      describeMatch(match.getThen(), typeOf);
-    }
+
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
-        describeMatch(subMatch, typeOf);
+        describeMatch(subMatch);
       }
     }
     if (match.getPath() != null) {
@@ -225,7 +217,9 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere());
     }
-
+    if (match.getKeepAs() != null && match.getAsDescription() != null) {
+        nodeRefToLabel.put(match.getKeepAs(), match.getAsDescription());
+    }
   }
 
   private void describePath(Path path) {
@@ -273,7 +267,7 @@ public class QueryDescriptor {
   }
 
 
-  private void describeInstance(List<Node> inSets) {
+  private void describeIs(List<Node> inSets) {
     for (Node set : inSets) {
       String qualifier = "";
       if (set.isExclude()) {
@@ -285,11 +279,14 @@ public class QueryDescriptor {
       String label = getTermInContext(set);
       set.setName(label);
       set.setDescription(qualifier);
+      if (set.getMatch()!=null) {
+        describeMatch(set.getMatch());
+      }
     }
   }
 
 
-  private void describeOrderBy(OrderLimit orderBy) {
+  public static String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
@@ -304,7 +301,8 @@ public class QueryDescriptor {
     if (orderBy.getLimit() > 1)
       orderDisplay = orderDisplay + " " + orderBy.getLimit();
     orderBy.setDescription(orderDisplay);
-    shortDescription.append(orderDisplay);
+
+    return orderDisplay;
   }
 
   private void describeWhere(Where where) {
@@ -334,6 +332,23 @@ public class QueryDescriptor {
     }
   }
 
+  private static boolean isValidDate(String dateStr) {
+    String[] patterns = {
+      "yyyy-MM-dd",
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyyMMdd"
+    };
+    for (String pattern : patterns) {
+      try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDate.parse(dateStr, formatter);
+        return true;
+      } catch (DateTimeParseException ignored) {}
+    }
+    return false;
+  }
+
   private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
     String qualifier = null;
     boolean inclusive = false;
@@ -349,7 +364,9 @@ public class QueryDescriptor {
               if (value.equals("0")) {
                 qualifier = "after ";
               } else {
-                qualifier = "is within ";
+                if (isValidDate(value))
+                  qualifier=" after";
+                else qualifier = "is within ";
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
               }
@@ -365,7 +382,17 @@ public class QueryDescriptor {
         inclusive = true;
         if (date) {
           if (!isRange) {
-            qualifier = "on or after";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = " on or after ";
+              } else {
+                if (isValidDate(value))
+                  qualifier=" on or after";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            } else qualifier = "on or after";
             relativity = " the ";
           }
           if (past && relativeTo) relativity = " before ";
@@ -381,6 +408,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "before ";
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = "before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
             if (relativeTo) relativity = " the ";
           }
           if (past && relativeTo) relativity = " before the ";
@@ -397,7 +435,17 @@ public class QueryDescriptor {
         if (date) {
           if (!isRange) {
             qualifier = "on or before ";
-
+            if (value != null) {
+              if (value.equals("0")) {
+                qualifier = "on or before ";
+              } else {
+                if (isValidDate(value))
+                  qualifier = " on or before ";
+                else qualifier = "is within ";
+                if (past && relativeTo) relativity = " before the ";
+                if (!past && relativeTo) relativity = " of the ";
+              }
+            }
           }
           if (past && relativeTo) relativity = " before the ";
         } else {
@@ -442,7 +490,7 @@ public class QueryDescriptor {
           assignable.setValueLabel(value.replace("-", ""));
         }
         if (unit != null) {
-          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getIri(), Context.PLURAL));
+          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getName(), Context.PLURAL));
         }
       }
     }
@@ -550,53 +598,39 @@ public class QueryDescriptor {
   }
 
   private void describeRelativeTo(Where where) {
-    RelativeTo relativeTo = where.getRelativeTo();
-    if (relativeTo != null) {
-      String qualifier="";
-      if (relativeTo.getQualifier()!=null){
-        qualifier=relativeTo.getQualifier().getName()+" of ";
-      }
-      String relation = getRelation(where.getRelativeTo());
-      if (relation != null) relativeTo.setDescription(qualifier+relation);
-    }
+    if (where.getRelativeTo() == null) return;
+    describeRelation(where.getRelativeTo());
   }
 
-  private String getRelation(RelativeTo relativeTo) {
+  private void describeRelation(RelativeTo relativeTo) {
     if (relativeTo.getNodeRef() != null) {
       if (nodeRefToLabel.get(relativeTo.getNodeRef()) != null) {
         relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
       } else relativeTo.setTargetLabel("the above");
     }
-    String relation = null;
-    if (relativeTo.getIri() != null) {
-      String propertyName = getTermInContext(relativeTo);
-      relation = propertyName + " of ";
-    }
     if (relativeTo.getParameter() != null) {
       if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
-        relation = (relation != null ? relation : "") + "search date";
+        relativeTo.setParameterName("search date");
       } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
-        relation = (relation != null ? relation : "") + "achievement date";
-      } else relation = (relation != null ? relation : "") + relativeTo.getParameter();
+        relativeTo.setParameterName("achievement date");
+      } else relativeTo.setParameterName(relativeTo.getParameter());
     }
-    return relation;
   }
 
 
   private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {
-      if (iriContext.get(set.getIri()) != null) {
-        TTEntity nodeEntity = (iriContext.get(set.getIri()));
-        set.setCode(nodeEntity.getCode());
-        String modifier = set.isExclude() ? " but not: " : " ";
-        set.setDescription(modifier);
+      if (set.getIri()!=null) {
+        if (iriContext.get(set.getIri()) != null) {
+          TTEntity nodeEntity = (iriContext.get(set.getIri()));
+          set.setCode(nodeEntity.getCode());
+          String modifier = set.isExclude() ? " but not: " : " ";
+          set.setDescription(modifier);
+        }
       }
       if (set.getName() == null) {
         String value = getTermInContext(set);
         set.setName(value);
-      }
-      if (iriContext.get(set.getIri()) != null) {
-        set.setCode(iriContext.get(set.getIri()).getCode());
       }
     }
     StringBuilder valueLabel = new StringBuilder();
@@ -688,8 +722,8 @@ public class QueryDescriptor {
     shortDescription = new StringBuilder();
     setIriNames(match);
     if (match.getOrderBy() != null) {
-      describeOrderBy(match.getOrderBy());
-      shortDescription.append(" ");
+      String orderDisplay = describeOrderBy(match.getOrderBy());
+      if (!orderDisplay.isEmpty()) shortDescription.append(orderDisplay).append(" ");
     }
     if (match.getWhere() != null) {
       describeWhere(match.getWhere());

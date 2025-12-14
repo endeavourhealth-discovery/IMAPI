@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -32,7 +33,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
-  static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf";
+  static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf| im:isSubIndicatorOf";
   private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
   private int row = 0;
 
@@ -765,7 +766,7 @@ public class EntityRepository {
         }
         ?concept rdf:type ?type.
       }
-      """.formatted("\""+ code+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + code + "\"", SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return getConceptRefsFromResult(qry);
@@ -953,7 +954,7 @@ public class EntityRepository {
           Entity concept = new Entity().setIri(iri);
           concept.addType(TTIriRef.iri(bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
-          if (bs.getValue("legacyLabel")!=null)
+          if (bs.getValue("legacyLabel") != null)
             concept.setName(bs.getValue("legacyLabel").stringValue());
           results.add(concept);
         }
@@ -1827,15 +1828,18 @@ public class EntityRepository {
            ?entity rdfs:label ?label.
           ?entity sh:property ?property.
           ?property sh:path ?path.
-              ?path rdfs:label ?pathLabel.
+           ?path rdfs:label ?pathLabel.
           ?property sh:node ?entity.
           }
           union {
-              VALUES ?path {im:isContainedIn}
            ?parent im:contentType ?entity.
            ?entity rdfs:label ?label.
-              ?entity sh:property ?property.
-              ?path rdfs:label ?pathLabel.
+          }
+          union {
+          ?parent rdf:type im:Folder.
+           filter not exists {?parent im:contentType ?anything}
+            ?entity im:isContainedIn im:EntityTypes.
+            ?entity rdfs:label ?label.
           }
       }
       """.formatted("<" + iri + ">");
@@ -1854,9 +1858,13 @@ public class EntityRepository {
             iriMap.put(bs.getValue("entity").stringValue(), child);
             result.add(child);
           }
-          child.set(TTIriRef.iri(SHACL.PATH), TTIriRef
-            .iri(bs.getValue("path").stringValue())
-            .setName(bs.getValue("pathLabel").stringValue()));
+          if (bs.getValue("path") != null) {
+            child.set(TTIriRef.iri(SHACL.PATH), TTIriRef
+              .iri(bs.getValue("path").stringValue())
+              .setName(bs.getValue("pathLabel").stringValue()));
+          } else {
+            child.set(TTIriRef.iri(SHACL.PATH), TTIriRef.iri(IM.IS_CONTAINED_IN).setName("is contained in"));
+          }
         }
       }
     }
@@ -2050,7 +2058,7 @@ public class EntityRepository {
                    im:scheme ?scheme.
         }
       }
-      """.formatted("\""+term+"\"",SparqlHelper.valueList("scheme", schemes));
+      """.formatted("\"" + term + "\"", SparqlHelper.valueList("scheme", schemes));
     List<TTBundle> result = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -2067,5 +2075,115 @@ public class EntityRepository {
       }
     }
     return result;
+  }
+
+
+  public List<SubQueryDependency> getOrderedSubqueries(String iri) {
+    Map<String, SubQueryDependency> results = new HashMap<>();
+    String sql = """
+          SELECT DISTINCT ?o ?label ?depth
+          WHERE {
+             {
+                 ?s im:dependentOn ?o .
+                 BIND(1 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn ?o .
+                 BIND(2 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(3 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(4 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(5 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(6 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(7 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(8 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(9 AS ?depth)
+             }
+             UNION
+             {
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 BIND(10 AS ?depth)
+             }
+             OPTIONAL {
+                 ?o rdfs:label ?label
+             }
+          }
+          ORDER BY DESC(?depth) ?label
+      """;
+
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String subqIri = bs.getValue("o").stringValue();
+          String label = bs.getValue("label").stringValue();
+          String depth = bs.getValue("depth").stringValue();
+          if (!results.containsKey(subqIri))
+            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+        }
+      }
+    }
+    List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
+    valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+    return valuelist;
+  }
+
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
+    String spq = """
+      SELECT ?s ?name ?type WHERE {
+        VALUES ?s {%s}
+        ?s rdf:type ?type .
+        ?s rdfs:label ?name .
+      }""".formatted(getIriLine(iris));
+    Map<String, Entity> results = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("s").stringValue();
+          String name = bs.getValue("name").stringValue();
+          String type = bs.getValue("type").stringValue();
+          TTIriRef typeRef = TTIriRef.iri(type);
+          if (!results.containsKey(bs.getValue("s").stringValue())) {
+            Entity entity = new Entity().setIri(iri).setName(name).setName(name).setType(Set.of(typeRef));
+            results.put(iri, entity);
+          } else {
+            results.get(iri).getType().add(typeRef);
+          }
+        }
+      }
+    }
+    return results;
   }
 }

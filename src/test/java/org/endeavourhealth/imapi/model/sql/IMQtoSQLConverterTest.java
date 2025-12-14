@@ -18,22 +18,16 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQtoSQLConverterTest {
   private static final Logger LOG = LoggerFactory.getLogger(IMQtoSQLConverterTest.class);
-  private final String db_url = System.getenv("DB_URL");
-  private final String db_user = System.getenv("DB_USER");
-  private final String db_password = System.getenv("DB_PASSWORD");
-  private final String db_driver = System.getenv("DB_DRIVER");
+  private static final ObjectMapper om = new ObjectMapper();
 
   // @Test
-  public void IMQtoSQL() {
+  public void IMQtoSQL() throws JsonProcessingException {
     // Get list of queries from GraphDb
     EntityRepository entityRepository = new EntityRepository();
     List<TTIriRef> cohortQueryIris = entityRepository.findEntitiesByType(EntityType.QUERY);
@@ -42,20 +36,16 @@ public class IMQtoSQLConverterTest {
     // Prepare
     ObjectMapper om = new ObjectMapper();
     int passed = 0;
-    Set<String> errors = new HashSet<>();
+    Map<String, Integer> errors = new HashMap<>();
     // For each query iri
     for (TTIriRef cohortQueryIri : cohortQueryIris) {
-      // Get the definition
-      LOG.info("Checking [{} | {}]", cohortQueryIri.getIri(), cohortQueryIri.getName());
       TTBundle bundle = entityRepository.getBundle(cohortQueryIri.getIri(), asHashSet(IM.DEFINITION));
-
       if (bundle == null || bundle.getEntity() == null || !bundle.getEntity().has(IM.DEFINITION.asIri())) {
         LOG.error("Entity or definition not found!");
         continue;
       }
 
       String definition = bundle.getEntity().get(IM.DEFINITION.asIri()).asLiteral().getValue();
-      LOG.info("Definition found");
       try {
         // convert it
         Query query = om.readValue(definition, Query.class);
@@ -64,12 +54,11 @@ public class IMQtoSQLConverterTest {
       } catch (JsonProcessingException e) {
         LOG.error("Error parsing query", e);
       } catch (SQLConversionException e) {
-        LOG.error("Failed to convert query: {}", cohortQueryIri.getIri(), e);
-        LOG.error(definition);
-        errors.add(e.getMessage());
+        LOG.error("Failed to convert query:{} - error:{}", cohortQueryIri.getIri(), e.getMessage());
+        errors.merge(e.getMessage(), 1, Integer::sum);
       }
     }
     LOG.info("Passed {} of {} tests", passed, cohortQueryIris.size());
-    LOG.info("Errors: {}", errors);
+    LOG.info("Errors: {}", om.writeValueAsString(errors));
   }
 }

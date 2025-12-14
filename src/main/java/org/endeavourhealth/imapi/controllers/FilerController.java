@@ -76,7 +76,7 @@ public class FilerController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
-        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId, fileDocumentRequest.getInsertGraph());
+        filerService.fileDocument(fileDocumentRequest.getDocument(), agentName, taskId);
         response.put("taskId", taskId);
       } catch (Exception e) {
         Integer taskProgress = filerService.getTaskProgress(taskId);
@@ -117,7 +117,7 @@ public class FilerController {
       if (!filerService.userCanFile(agentId, filingGraph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
-      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
+      filerService.fileEntity(entity, agentName, usedEntity);
       return ResponseEntity.ok().build();
     }
   }
@@ -163,7 +163,7 @@ public class FilerController {
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
+      filerService.fileEntity(entity, agentName, usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -198,7 +198,7 @@ public class FilerController {
       String agentName = reqObjService.getRequestAgentName(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
-      filerService.fileEntity(entity, agentName, usedEntity, filingGraph);
+      filerService.fileEntity(entity, agentName, usedEntity);
 
       return ResponseEntity.ok().build();
     }
@@ -261,7 +261,7 @@ public class FilerController {
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
       String agentName = reqObjService.getRequestAgentName(request);
-      filerService.fileEntity(entity, agentName, null, filingGraph);
+      filerService.fileEntity(entity, agentName, null);
       return iri;
     }
   }

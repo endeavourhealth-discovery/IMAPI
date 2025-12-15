@@ -83,6 +83,20 @@ class MySQLPropertyValueWhere(
     }
 }
 
+class MySQLPropertyIsNullWhere(
+  override val property: String,
+  override val args: Map<String, String>? = null,
+  override var and: MutableList<MySQLWhere>? = null,
+  override var or: MutableList<MySQLWhere>? = null,
+  override val not: Boolean? = false
+) : MySQLWhere {
+  override val sqlTemplate: String
+    get() {
+      val base = "$property IS NULL"
+      return if (not == true) "$property IS NOT NULL" else base
+    }
+}
+
 
 class MySQLPropertyRangeWhere(
   override val property: String,

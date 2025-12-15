@@ -403,7 +403,8 @@
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
         "http://endhealth.info/im#PersonInRole": {"fromField": "usual_gp_practitioner_id", "toField": "id"},
-        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"}
+        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"},
+        "http://endhealth.info/im#Concept": {"fromField": "registration_type_concept_id", "toField": "dbid"}
       }
     },
     {

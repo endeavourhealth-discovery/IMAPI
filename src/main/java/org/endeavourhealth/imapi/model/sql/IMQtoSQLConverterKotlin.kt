@@ -225,7 +225,24 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
       }
     }
+
+    if (match.orderBy != null) {
+      with.orderBy = getMySQLOrderBy(table, match.orderBy)
+    }
+
     return with
+  }
+
+  private fun getMySQLOrderBy(table: Table, orderBy: OrderLimit): MySQLOrderBy {
+    val items = mutableListOf<MySQLOrderByItem>()
+    for (p in orderBy.property) {
+      val field = getPropertyNameByTableAndPropertyIri(
+        table,
+        p.iri
+      ).field ?: throw SQLConversionException("No field found for property ${p.iri}")
+      items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC"))
+    }
+    return MySQLOrderBy(items, orderBy.limit)
   }
 
   private fun walkMySQLWheres(
@@ -334,6 +351,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         not = where.isNot,
         args = args
       )
+    } else if (where.getIsNull()) {
+      MySQLPropertyIsNullWhere(
+        field,
+        args = args,
+        not = where.isNot,
+      )
     } else {
       MySQLPropertyValueWhere(
         field,
@@ -413,12 +436,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getJoins(mySQLQuery: MySQLQuery, with: MySQLWith): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     if (mySQLQuery.withs.isNotEmpty()) {
-        joins.add(
-          (with.table.getJoinCondition(
-            tableTo = mySQLQuery.withs.last().table,
-            tableToAlias = mySQLQuery.withs.last().alias
-          ))
-        )
+      joins.add(
+        (with.table.getJoinCondition(
+          tableTo = mySQLQuery.withs.last().table,
+          tableToAlias = mySQLQuery.withs.last().alias
+        ))
+      )
     }
     if (queryTypeOf != null && queryTypeOf != with.table.dataModel) {
       val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)

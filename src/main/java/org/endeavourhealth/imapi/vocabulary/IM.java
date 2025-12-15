@@ -59,7 +59,6 @@ public enum IM implements VocabEnum {
     NAMESPACE(Namespace.IM + "Namespace"),
     FUNCTION(Namespace.IM + "FunctionClause"),
     QUERY(Namespace.IM + "Query"),
-    COHORT_QUERY(Namespace.IM + "CohortQuery"),
     DEFAULT_COHORTS(Namespace.IM + "Q_DefaultCohorts"),
     DATA_UPDATE(Namespace.IM + "DataUpdate"),
     PATH_QUERY(Namespace.IM + "PathQuery"),

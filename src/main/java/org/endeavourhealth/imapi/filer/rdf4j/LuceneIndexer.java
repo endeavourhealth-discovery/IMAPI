@@ -54,7 +54,7 @@ public class LuceneIndexer {
             }
           ''' .
         }
-        """.formatted(RDFS.LABEL, IM.CODE, IM.CONCEPT, IM.FOLDER, IM.FORM_GENERATOR, IM.FUNCTION, IM.COHORT_QUERY, IM.QUERY, SHACL.NODESHAPE, RDFS.CLASS, RDF.PROPERTY);
+        """.formatted(RDFS.LABEL, IM.CODE, IM.CONCEPT, IM.FOLDER, IM.FORM_GENERATOR, IM.FUNCTION, IM.QUERY, SHACL.NODESHAPE, RDFS.CLASS, RDF.PROPERTY);
       log.info("Building lucene index... This will take an hour or so...");
       Update upd = conn.prepareInsertSparql(sql, insertGraph);
       upd.execute();

@@ -250,10 +250,6 @@
         "value": "Namespace.IM + \"Query\""
       },
       {
-        "name": "COHORT_QUERY",
-        "value": "Namespace.IM + \"CohortQuery\""
-      },
-      {
         "name": "DEFAULT_COHORTS",
         "value": "Namespace.IM + \"Q_DefaultCohorts\""
       },

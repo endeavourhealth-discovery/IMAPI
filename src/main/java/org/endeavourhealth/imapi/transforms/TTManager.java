@@ -458,21 +458,25 @@ public class TTManager implements AutoCloseable {
   }
 
   public TTEntity createNamespaceEntity(Namespace namespace, String name, String description) {
-    return createNamespaceEntity(namespace, name, description,false,false);
+    return createNamespaceEntity(namespace, name, description,null,false);
+
   }
 
-  public TTEntity createNamespaceEntity(Namespace namespace, String name, String description,boolean defaultScheme, boolean coreScheme) {
+
+  public TTEntity createNamespaceEntity(Namespace namespace, String name, String description,List<String> defaultTypes, boolean coreScheme) {
     TTEntity result = new TTEntity()
       .setIri(namespace.toString())
       .addType(RDFS.CLASS.asIri())
       .setName(name)
       .setDescription(description)
       .setScheme(namespace.asIri());
-    if (defaultScheme)
-      result.addObject(iri(IM.IS_CONTAINED_IN), iri(Namespace.IM+"SchemeFilterDefaultOptions"));
+    if (defaultTypes!=null) {
+      for (String defaultType : defaultTypes) {
+        result.addObject(iri(IM.IS_CONTAINED_IN), iri(Namespace.IM + "DefaultSchemesFor"+ defaultType));
+      }
+    }
     if (coreScheme)
       result.addObject(iri(IM.IS_CONTAINED_IN), iri(Namespace.IM+"coreSchemes"));
-    result.addObject(iri(RDFS.SUBCLASS_OF), IM.NAMESPACE.asIri());
     return result;
   }
 

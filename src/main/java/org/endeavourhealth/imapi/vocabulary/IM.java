@@ -37,6 +37,7 @@ public enum IM implements VocabEnum {
     KEY_TERM(Namespace.IM + "keyTerm"),
     PREFERRED_NAME(Namespace.IM + "preferredName"),
     HAS_SCHEME(Namespace.IM + "scheme"),
+    DEFAULT_SCHEME(Namespace.IM + "defaultScheme"),
     BINDING(Namespace.IM + "binding"),
     HAS_STATUS(Namespace.IM + "status"),
     STATUS(Namespace.IM + "Status"),

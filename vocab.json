@@ -162,6 +162,10 @@
         "value": "Namespace.IM + \"scheme\""
       },
       {
+        "name": "DEFAULT_SCHEME",
+        "value": "Namespace.IM + \"defaultScheme\""
+      },
+      {
         "name": "BINDING",
         "value": "Namespace.IM + \"binding\""
       },

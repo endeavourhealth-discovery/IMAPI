@@ -25,6 +25,7 @@ public class Match extends IriLD implements HasPaths {
   private List<Path> path;
   private FunctionClause function;
   private Entail entailment;
+  @JsonIgnore
   private Return returx;
   private RuleAction ifTrue;
   private RuleAction ifFalse;
@@ -83,10 +84,6 @@ public class Match extends IriLD implements HasPaths {
 
   public Entail getEntailment() {
     return entailment;
-  }
-
-  public Return getReturx() {
-    return returx;
   }
 
   public RuleAction getIfTrue() {
@@ -160,6 +157,7 @@ public class Match extends IriLD implements HasPaths {
   public String getAsDescription() {
     return asDescription;
   }
+
   public Match setActiveOnly(boolean activeOnly) {
     this.activeOnly = activeOnly;
     return this;
@@ -328,12 +326,6 @@ public class Match extends IriLD implements HasPaths {
 
   public Match setInverse(boolean inverse) {
     this.inverse = inverse;
-    return this;
-  }
-
-
-  public Match setReturx(Return returx) {
-    this.returx = returx;
     return this;
   }
 

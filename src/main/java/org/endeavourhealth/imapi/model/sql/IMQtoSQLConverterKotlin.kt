@@ -379,16 +379,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getValueFromRelativeTo(where: Where): String? {
-    val nodeRef = where.relativeTo?.nodeRef ?: return null
+    val nodeRef = where.relativeTo?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.relativeTo}")
     var property = ""
     val with = mySQLQuery.withs.find { it.alias == nodeRef }
     if (with != null) {
-      property = getPropertyNameByTableAndPropertyIri(with.table, where.iri).field
+      property = getPropertyNameByTableAndPropertyIri(with.table, where.relativeTo.iri).field
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
-        property = getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), where.iri).field
+        property =
+          getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), where.relativeTo.iri).field
       }
     }
+    if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo ${where.relativeTo.nodeRef}")
     return "${nodeRef}.${property}"
   }
 

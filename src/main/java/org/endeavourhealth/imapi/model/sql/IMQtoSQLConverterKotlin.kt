@@ -151,33 +151,41 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
-        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
+        if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
+          getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.and)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
-        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
+        if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
+          getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.or)
       }
     }
     if (currentMatch.not != null) {
       for (m in currentMatch.not) {
-        if (m.typeOf == null) m.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
+        if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
+          getTypeOf(currentMatch) ?: parentMatch.typeOf
         addMatchWithsRecursively(m, currentMatch, Bool.not)
       }
     }
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.not == null) {
-      if (currentMatch.typeOf == null) currentMatch.typeOf = getTypeOf(currentMatch) ?: parentMatch.typeOf
+      if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
+        getTypeOf(currentMatch) ?: parentMatch.typeOf
       if (currentMatch.`is` != null) addIsWiths(currentMatch, if (bool == Bool.not) true else null)
       else mySQLQuery.withs.add(getMySQLWithFromMatch(currentMatch))
     }
   }
 
   private fun getTypeOf(match: Match): Node? {
-    if (match.nodeRef != null) return Node.iri(getDataModelFromKeepAs(match.nodeRef))
-    if (match.path?.firstOrNull()?.typeOf?.iri != null) return Node.iri(match.path.first().typeOf.iri)
+    if (match.nodeRef != null) return Node.iri(getDataModelFromKeepAs(match.nodeRef)) ?: throw SQLConversionException(
+      "Cannot resolve typeOf from nodeRef ${match.nodeRef}"
+    )
+    if (match.path != null) return Node.iri(match.path.first()?.typeOf?.iri) ?: throw SQLConversionException(
+      "Cannot resolve typeOf from path ${match.path}"
+    )
     return null
   }
 

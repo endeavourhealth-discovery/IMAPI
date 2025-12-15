@@ -151,6 +151,12 @@
     },
     {
       "path": [
+        "http://endhealth.info/im#usualGP"
+      ],
+      "dataModel": "http://endhealth.info/im#PersonInRole"
+    },
+    {
+      "path": [
         "http://endhealth.info/im#homeAddress"
       ],
       "dataModel": "http://endhealth.info/im#Address"
@@ -425,32 +431,6 @@
       "primaryKey": "im1id",
       "relationships": {
         "http://endhealth.info/im#Concept": {"fromField": "im1id", "toField": "id"}
-      }
-    },
-    {
-      "dataModels": [
-        "http://endhealth.info/im#ethnicityConcept"
-      ],
-      "table": "concept",
-      "primaryKey": "dbid",
-      "fields": {
-        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"}
-      },
-      "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "dbid", "toField": "ethnic_code_concept_id"}
-      }
-    },
-    {
-      "dataModels": [
-        "http://endhealth.info/im#statedGenderConcept"
-      ],
-      "table": "concept",
-      "primaryKey": "dbid",
-      "fields": {
-        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"}
-      },
-      "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "dbid", "toField": "gender_concept_id"}
       }
     }
   ],

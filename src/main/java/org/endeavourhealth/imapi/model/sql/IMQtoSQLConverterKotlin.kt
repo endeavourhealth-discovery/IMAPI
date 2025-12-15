@@ -58,8 +58,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.not, definition, Bool.not)
     }
 
+    if (definition.columnGroup != null) {
+      addMatchWiths(definition.columnGroup, definition, Bool.and)
+    }
+
     if (definition.`return` == null) {
-      mySQLQuery.selects.add(MySQLSelect("id"))
+      mySQLQuery.selects.add(if (definition.columnGroup != null) MySQLSelect("*") else MySQLSelect("id"))
     }
 
     return mySQLQuery.toSql()
@@ -193,19 +197,23 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     match: Match,
   ): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
-    val table = getTableFromTypeAndProperty(typeOf, match.where.iri)
+    val table = getTableFromTypeAndProperty(typeOf, match.where?.iri)
     val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
-    val selects = mutableListOf(
-      MySQLSelect(
-        "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
+    val (selects, selectJoins) =
+      if (match.getReturn() != null) getSelects(table, match.getReturn()) else Pair(
+        mutableListOf(
+          MySQLSelect(
+            "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
+          )
+        ), mutableListOf()
       )
-    )
-    val isAlias = match.keepAs ?: getCteAlias(
-      typeOf,
-      match.where?.iri
-        ?: match.where.and?.firstOrNull()?.iri
-        ?: match.where.or?.firstOrNull()?.iri
-    )
+    val isAlias = match.name?.replace(" ", "")
+      ?: match.keepAs ?: getCteAlias(
+        typeOf,
+        match.where?.iri
+          ?: match.where?.and?.firstOrNull()?.iri
+          ?: match.where?.or?.firstOrNull()?.iri
+      )
     val with = MySQLWith(
       table = table,
       alias = isAlias,
@@ -214,12 +222,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       wheres = mutableListOf(),
       whereBool = Bool.and
     )
-    addWheresRecursively(
-      where = match.where,
-      with = with,
-      parentWhere = null,
-      bool = null
-    )
+    if (match.where != null)
+      addWheresRecursively(
+        where = match.where,
+        with = with,
+        parentWhere = null,
+        bool = null
+      )
     with.joins = getJoins(mySQLQuery, with)
     with.wheres?.forEach { rootWhere ->
       walkMySQLWheres(rootWhere) { where ->
@@ -238,7 +247,84 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       with.orderBy = getMySQLOrderBy(table, match.orderBy)
     }
 
+    if (selectJoins.isNotEmpty()) with.joins?.addAll(selectJoins)
     return with
+  }
+
+  private fun getSelects(table: Table, returx: Return): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
+    val selects = mutableListOf<MySQLSelect>()
+    val joins = mutableListOf<MySQLJoin>()
+    if (returx.property.firstOrNull()?.getReturn() == null)
+      for (p in returx.property) {
+        if (p.getReturn() != null) addSelectFromNestedProperty(table, p, selects, joins)
+        else addSelectFromProperty(table, p.iri, p.`as`, selects, joins)
+      }
+    return Pair(selects, joins)
+  }
+
+  private fun addSelectFromProperty(
+    table: Table,
+    pIri: String,
+    pAs: String?,
+    selects: MutableList<MySQLSelect>,
+    joins: MutableList<MySQLJoin>
+  ) {
+    var field = if (pIri == "http://endhealth.info/im#age") tableMap?.functions[pIri]?.replace(
+      "{units}",
+      "YEAR"
+    )?.replace("{relativeTo}", $$"$searchDate") else tableMap?.functions[pIri]
+    if (field == null) {
+      val property = getPropertyNameByTableAndPropertyIri(
+        table,
+        pIri
+      )
+      if (property.type == "iri") {
+        val conceptTableAlias = "${pAs?.replace(" ", "")}_concept"
+        val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
+        field = "${conceptTableAlias}.${conceptTable.primaryKey}"
+        joins.add(
+          table.getJoinCondition(
+            joinType = "LEFT JOIN",
+            tableTo = conceptTable,
+            tableToAlias = conceptTableAlias,
+            fromField = property.field,
+            toField = conceptTable.primaryKey
+          )
+        )
+      } else {
+        field = "${table.table}.${property.field}"
+      }
+    }
+    selects.add(MySQLSelect(field, if (pAs != null) "`${pAs}`" else null))
+  }
+
+  private fun addSelectFromNestedProperty(
+    table: Table,
+    p: ReturnProperty,
+    selects: MutableList<MySQLSelect>,
+    joins: MutableList<MySQLJoin>
+  ) {
+    var path = mutableListOf<ReturnProperty>()
+    walkPropertyPath(p, path)
+    val lastP = path.last()
+    path = path.dropLast(1) as MutableList<ReturnProperty>
+    val toTable = tableMap?.getTableFromProperty(path.map { it.iri })
+    if (toTable == null) throw SQLConversionException("No table found for property path ${path.map { it.iri }}")
+    addSelectFromProperty(
+      toTable,
+      lastP.iri,
+      lastP.`as`,
+      selects,
+      joins
+    )
+    joins.add(table.getJoinCondition(tableTo = toTable, tableToAlias = toTable.table))
+  }
+
+  private fun walkPropertyPath(property: ReturnProperty, propertyPath: MutableList<ReturnProperty>) {
+    propertyPath.add(property)
+    if (null != property.getReturn() && null != property.getReturn().property && !property.getReturn()
+        .property.isEmpty()
+    ) walkPropertyPath(property.getReturn().property.first(), propertyPath)
   }
 
   private fun getMySQLOrderBy(table: Table, orderBy: OrderLimit): MySQLOrderBy {
@@ -379,7 +465,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getValueFromRelativeTo(where: Where): String? {
-    val nodeRef = where.relativeTo?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.relativeTo}")
+    val nodeRef =
+      where.relativeTo?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.relativeTo}")
     var property = ""
     val with = mySQLQuery.withs.find { it.alias == nodeRef }
     if (with != null) {

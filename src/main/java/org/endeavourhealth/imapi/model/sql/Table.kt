@@ -31,8 +31,25 @@ class Table(
       joinType,
       tableFromAlias ?: tableFrom?.table ?: table,
       tableToAlias ?: tableTo.table,
-      toField ?: outerField,
-      fromField ?: innerField
+      toProperty = toField ?: outerField,
+      fromProperty = fromField ?: innerField
+    )
+  }
+
+  fun getJoinCondition(
+    joinType: String = "JOIN",
+    tableTo: Table,
+    tableToAlias: String,
+    fromField: String,
+    toField: String,
+  ): MySQLJoin {
+    return MySQLJoin(
+      joinType,
+      table,
+      tableTo.table,
+      tableToAlias,
+      fromField,
+      toField
     )
   }
 }

@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
@@ -12,39 +9,87 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as"})
+@JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as", "return"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ReturnProperty {
-  @Getter
   private String iri;
-  @Getter
   private String nodeRef;
-  @Getter
   private String name;
-  @Getter
   private String propertyRef;
-  @Getter
   private String value;
-  @Getter
   private String valueRef;
-  @Getter
   private boolean inverse;
-  @Getter
   private FunctionClause function;
-  @Getter
   private String unit;
-  @Getter
   private String as;
+  @JsonIgnore
   private Return returx;
   private TTIriRef dataType;
   @JsonProperty("case")
   private Case case_;
-  @Getter
   private String description;
-  @Getter
   private List<Match> match;
-  @Getter
   private Bool boolMatch;
+
+  public String getIri() {
+    return iri;
+  }
+
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public String getValue() {
+    return value;
+  }
+
+  public String getValueRef() {
+    return valueRef;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
+
+  public String getAs() {
+    return as;
+  }
+
+  public Case getCase_() {
+    return case_;
+  }
+
+  public void setCase_(Case case_) {
+    this.case_ = case_;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public List<Match> getMatch() {
+    return match;
+  }
+
+  public Bool getBoolMatch() {
+    return boolMatch;
+  }
 
   public ReturnProperty setName(String name) {
     this.name = name;

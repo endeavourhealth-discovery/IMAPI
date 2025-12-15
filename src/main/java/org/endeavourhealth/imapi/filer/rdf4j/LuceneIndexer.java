@@ -47,8 +47,6 @@ public class LuceneIndexer {
                 %s,
                 %s,
                 %s,
-                %s,
-                %s,
                 %s
               ]
             }

@@ -535,12 +535,23 @@ public class EntityService {
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS));
     filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
+    filterOptions.setTypeSchemes(getAllTypeSchemes());
+    filterOptions.setSchemes(getDefaultSchemes(filterOptions));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS));
     filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS));
     return filterOptions;
+  }
+
+  private List<TTIriRef> getDefaultSchemes( FilterOptionsDto filterOptions) {
+    List<TTIriRef> schemes = new ArrayList<>();
+    filterOptions.getTypes().forEach(type -> {for (TTIriRef iri:filterOptions.getTypeSchemes().get(type.getIri())) if (!schemes.contains(iri)) schemes.add(iri);});
+    return schemes;
+  }
+
+  private Map<String, List<TTIriRef>> getAllTypeSchemes() {
+    return entityRepository.getTypeSchemeDefaults();
   }
 
   private List<TTIriRef> getAllChildren(IM iri) {

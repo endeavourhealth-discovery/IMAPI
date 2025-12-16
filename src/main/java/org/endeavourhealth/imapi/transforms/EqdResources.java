@@ -1220,7 +1220,7 @@ public class EqdResources {
 
   private TTEntity createValueSet(EQDOCValueSet vs, Query definition, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
-    String name = description == null ? this.getNameFromSet(setContent) : description;
+    String name = description == null ? this.getNameFromSet(vs,setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(definition);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
@@ -1241,7 +1241,7 @@ public class EqdResources {
 
   private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
-    String name = description == null ? this.getNameFromSet(setContent) : description;
+    String name = description == null ? this.getNameFromSet(vs,setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(setContent);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
@@ -1294,10 +1294,16 @@ public class EqdResources {
     }
   }
 
-  private String getNameFromSet(Set<Node> set) {
+  private String getNameFromSet(EQDOCValueSet vs,Set<Node> set) {
+    if (EqdToIMQ.getInlineSets().get(namespace + vs.getId()) != null) {
+      return EqdToIMQ.getInlineSets().get(namespace + vs.getId()).getName();
+    }
     String name="";
     if (set.size()>2) {
       name="Clinical codes..";
+      for (Node node : set) {
+        EqdToIMQ.getUnnamedSets().computeIfAbsent(node.getIri(), k -> new HashSet<>()).add(name);
+      }
     } else {
       for (Node node : set) {
         if (!name.isEmpty()) name = name + " or ";

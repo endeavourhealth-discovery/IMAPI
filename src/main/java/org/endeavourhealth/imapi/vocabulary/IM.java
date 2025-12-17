@@ -293,7 +293,6 @@ public enum IM implements VocabEnum {
     TYPE_FILTER_OPTIONS(Namespace.IM + "TypeFilterOptions"),
     SORT_FIELD_FILTER_OPTIONS(Namespace.IM + "SortFieldFilterOptions"),
     SORT_DIRECTION_FILTER_OPTIONS(Namespace.IM + "SortDirectionFilterOptions"),
-    SCHEME_FILTER_DEFAULTS(Namespace.IM + "SchemeFilterDefaultOptions"),
     STATUS_FILTER_DEFAULTS(Namespace.IM + "StatusFilterDefaultOptions"),
     TYPE_FILTER_DEFAULTS(Namespace.IM + "TypeFilterDefaultOptions"),
     SORT_FIELD_FILTER_DEFAULTS(Namespace.IM + "SortFieldFilterDefaultOptions"),

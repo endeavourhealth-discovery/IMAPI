@@ -473,7 +473,6 @@ public class TTManager implements AutoCloseable {
     if (defaultTypes!=null) {
       for (String defaultType : defaultTypes) {
         result.addObject(iri(IM.IS_CONTAINED_IN), iri(Namespace.IM + "DefaultSchemesFor"+ defaultType.substring(defaultType.lastIndexOf("#")+1)));
-        result.addObject(iri(IM.DEFAULT_SCHEME),iri(defaultType));
       }
     }
     if (coreScheme)

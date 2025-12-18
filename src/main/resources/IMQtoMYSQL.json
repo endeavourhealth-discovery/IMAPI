@@ -15,6 +15,12 @@
     },
     {
       "path": [
+        "http://endhealth.info/im#quantity"
+      ],
+      "dataModel": "http://endhealth.info/im#MedicationRequest"
+    },
+    {
+      "path": [
         "http://endhealth.info/im#place"
       ],
       "dataModel": "http://endhealth.info/im#Address"
@@ -75,18 +81,6 @@
         "http://endhealth.info/im#organisation"
       ],
       "dataModel": "http://endhealth.info/im#Organisation"
-    },
-    {
-      "path": [
-        "http://endhealth.info/im#statedGender"
-      ],
-      "dataModel": "http://endhealth.info/im#statedGenderConcept"
-    },
-    {
-      "path": [
-        "http://endhealth.info/im#ethnicity"
-      ],
-      "dataModel": "http://endhealth.info/im#ethnicityConcept"
     },
     {
       "path": [
@@ -215,6 +209,10 @@
           "toField": "id"
         },
         "http://endhealth.info/im#Observation": {
+          "fromField": "id",
+          "toField": "patient_id"
+        },
+        "http://endhealth.info/im#MedicationRequest": {
           "fromField": "id",
           "toField": "patient_id"
         }
@@ -379,14 +377,15 @@
         "http://endhealth.info/im#MedicationRequest"
       ],
       "table": "medication_order",
+      "primaryKey": "id",
       "fields": {
         "http://endhealth.info/im#concept": {"field": "core_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#dosage": {"field": "dose", "type": "string"},
-        "http://endhealth.info/im#quantity_http://endhealth.info/im#value": {
+        "http://endhealth.info/im#value": {
           "field": "quantity_value", "type": "number"
         },
-        "http://endhealth.info/im#quantity_http://endhealth.info/im#units": {"field": "quantity_unit", "type": "string"}
+        "http://endhealth.info/im#units": {"field": "quantity_unit", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
@@ -420,7 +419,8 @@
       "table": "concept",
       "primaryKey": "dbid",
       "fields": {
-        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"}
+        "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"},
+        "http://endhealth.info/im#code": {"field": "code", "type": "string"}
       }
     },
     {

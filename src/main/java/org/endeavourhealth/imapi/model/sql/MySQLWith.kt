@@ -10,7 +10,8 @@ data class MySQLWith(
   var joins: MutableList<MySQLJoin>? = mutableListOf(),
   val whereBool: Bool,
   val exclude: Boolean = false,
-  var orderBy: MySQLOrderBy? = null
+  var orderBy: MySQLOrderBy? = null,
+  val fromAlias: String? = null
 ) {
   fun toSql(): String {
     val selectSql = selects.joinToString(", ") { sel ->
@@ -30,7 +31,7 @@ data class MySQLWith(
     return buildString {
       appendLine("$alias AS (")
       appendLine("  SELECT $selectSql")
-      appendLine("  FROM ${table.table}")
+      appendLine("  FROM ${fromAlias ?: table.table}")
 
       if (joinSql != null) {
         appendLine(joinSql)

@@ -39,12 +39,17 @@ public class EqdToIMQ {
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
+  @Getter
+  private static Map<String,TTEntity> inlineSets= new HashMap<>();
   private final boolean versionIndependent;
   private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   @Getter
   private String singleEntity;
+  @Getter
+  private static final Map<String,String> autoNamedSets = new HashMap<>();
+
 
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
@@ -53,6 +58,12 @@ public class EqdToIMQ {
     gmsPatients.add("DA05DBF2-72AB-41A3-968F-E4A061F411A4");
     gmsPatients.add("591C5738-2F6B-4A6F-A2B3-05FA538A1B3B");
   }
+
+
+  public static void addInlineSets(String setIri,TTEntity entity) {
+    inlineSets.put(setIri,entity);
+  }
+
 
   public static void incrementSetNumber() {
     if (setNumber == null) {

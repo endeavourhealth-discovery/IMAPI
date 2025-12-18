@@ -1186,10 +1186,6 @@
         "value": "Namespace.IM + \"SortDirectionFilterOptions\""
       },
       {
-        "name": "SCHEME_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"SchemeFilterDefaultOptions\""
-      },
-      {
         "name": "STATUS_FILTER_DEFAULTS",
         "value": "Namespace.IM + \"StatusFilterDefaultOptions\""
       },

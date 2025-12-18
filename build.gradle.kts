@@ -25,16 +25,15 @@ repositories {
 
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
-if (ENV == "prod") {
-  tasks.build { finalizedBy("safeSonar") }
-  tasks.build { finalizedBy("publish") }
-}
 
 val CI = System.getenv("CI") ?: "false"
 if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
   }
+} else {
+  tasks.build { finalizedBy("safeSonar") }
+  tasks.build { finalizedBy("publish") }
 }
 
 tasks.register("safeSonar") {

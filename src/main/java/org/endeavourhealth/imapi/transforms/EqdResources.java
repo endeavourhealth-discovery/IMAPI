@@ -1295,6 +1295,9 @@ public class EqdResources {
   }
 
   private String getNameFromSet(EQDOCValueSet vs,Set<Node> set) {
+    if (EqdToIMQ.getAutoNamedSets().get(namespace+ vs.getId())!=null){
+      return EqdToIMQ.getAutoNamedSets().get(namespace+ vs.getId());
+    }
     if (EqdToIMQ.getInlineSets().get(namespace + vs.getId()) != null) {
       return EqdToIMQ.getInlineSets().get(namespace + vs.getId()).getName();
     }

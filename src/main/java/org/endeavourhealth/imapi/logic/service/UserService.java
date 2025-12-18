@@ -19,8 +19,6 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 public class UserService {
   private final UserRepository userRepository = new UserRepository();
   private final EntityService entityService = new EntityService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
-
 
   public String getUserPreset(String userId) {
     return userRepository.getByPredicate(userId, USER.USER_PRESET);
@@ -130,5 +128,13 @@ public class UserService {
     userData.setFavourites(getUserFavourites(userId));
     userData.setMru(getUserMRU(userId));
     return userData;
+  }
+
+  public List<Graph> getUserGraphs(String userId) throws JsonProcessingException {
+    try {
+      return userRepository.getUserGraphs(userId);
+    } catch (IllegalArgumentException e) {
+      return List.of(Graph.IM);
+    }
   }
 }

@@ -4,9 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.UserService;
+import org.endeavourhealth.imapi.model.casbin.Action;
+import org.endeavourhealth.imapi.model.casbin.Resource;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.dto.BooleanBody;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.dto.UserDataDto;
@@ -29,168 +34,169 @@ import java.util.List;
 @Slf4j
 public class UserController {
   private final UserService userService = new UserService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/data")
-  public UserDataDto getUserData(HttpServletRequest request) throws IOException {
+  public UserDataDto getUserData(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserData");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserData(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserData(user.getId());
     }
   }
 
   @Operation(summary = "Get user preset", description = "Fetches the user preset configuration based on the request.")
   @GetMapping(value = "/preset")
-  public String getUserPreset(HttpServletRequest request) throws IOException {
+  public String getUserPreset(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserPreset");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserPreset(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserPreset(user.getId());
     }
   }
 
   @Operation(summary = "Update user preset", description = "Updates the user preset configuration.")
   @PostMapping(value = "/preset", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException {
+  public void updateUserPreset(HttpServletRequest request, @RequestBody String preset) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserPreset");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserPreset(userId, preset);
+      User user = casdoorService.getUser(request);
+      userService.updateUserPreset(user.getId(), preset);
     }
   }
 
   @Operation(summary = "Get user primary color", description = "Fetches the primary color configuration for the user.")
   @GetMapping(value = "/primaryColor")
-  public String getUserPrimaryColor(HttpServletRequest request) throws IOException {
+  public String getUserPrimaryColor(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserPrimaryColor");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserPrimaryColor(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserPrimaryColor(user.getId());
     }
   }
 
   @Operation(summary = "Update user primary color", description = "Updates the primary color configuration for the user.")
   @PostMapping(value = "/primaryColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException {
+  public void updateUserPriaryColor(HttpServletRequest request, @RequestBody String color) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserPrimaryColor");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserPrimaryColor(userId, color);
+      User user = casdoorService.getUser(request);
+      userService.updateUserPrimaryColor(user.getId(), color);
     }
   }
 
   @GetMapping(value = "/surfaceColor")
-  public String getUserSurfaceColor(HttpServletRequest request) throws IOException {
+  public String getUserSurfaceColor(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserSurfaceColor");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserSurfaceColor(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserSurfaceColor(user.getId());
     }
   }
 
   @PostMapping(value = "/surfaceColor", consumes = "text/plain")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserSurfaceColor(HttpServletRequest request, @RequestBody String color) throws IOException {
+  public void updateUserSurfaceColor(HttpServletRequest request, @RequestBody String color) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserSurfaceColor");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserSurfaceColor(userId, color);
+      User user = casdoorService.getUser(request);
+      userService.updateUserSurfaceColor(user.getId(), color);
     }
   }
 
   @GetMapping(value = "/darkMode")
-  public Boolean getUserDarkMode(HttpServletRequest request) throws IOException {
+  public Boolean getUserDarkMode(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.GET")) {
       log.debug("getUserDarkMode");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserDarkMode(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserDarkMode(user.getId());
     }
   }
 
   @PostMapping(value = "/darkMode")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserDarkMode(HttpServletRequest request, @RequestBody BooleanBody darkMode) throws IOException {
+  public void updateUserDarkMode(HttpServletRequest request, @RequestBody BooleanBody darkMode) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Theme.POST")) {
       log.debug("updateUserDarkMode");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserDarkMode(userId, darkMode.getBool());
+      User user = casdoorService.getUser(request);
+      userService.updateUserDarkMode(user.getId(), darkMode.getBool());
     }
   }
 
   @GetMapping(value = "/scale", produces = "application/json")
-  public String getUserScale(HttpServletRequest request) throws IOException {
+  public String getUserScale(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.GET")) {
       log.debug("getUserScale");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserScale(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserScale(user.getId());
     }
   }
 
   @PostMapping(value = "/scale", consumes = "text/plain", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserScale(HttpServletRequest request, @RequestBody String scale) throws IOException {
+  public void updateUserScale(HttpServletRequest request, @RequestBody String scale) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Scale.POST")) {
       log.debug("updateUserScale");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserScale(userId, scale);
+      User user = casdoorService.getUser(request);
+      userService.updateUserScale(user.getId(), scale);
     }
   }
 
   @GetMapping(value = "/MRU", produces = "application/json")
-  public List<RecentActivityItemDto> getUserMRU(HttpServletRequest request) throws IOException {
+  public List<RecentActivityItemDto> getUserMRU(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.MRU.GET")) {
       log.debug("getUserMRU");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserMRU(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserMRU(user.getId());
     }
   }
 
   @PostMapping(value = "/MRU", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserMRU(HttpServletRequest request, @RequestBody List<RecentActivityItemDto> mru) throws IOException {
+  public void updateUserMRU(HttpServletRequest request, @RequestBody List<RecentActivityItemDto> mru) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.MRU.POST")) {
       log.debug("updateUserMRU");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserMRU(userId, mru);
+      User user = casdoorService.getUser(request);
+      userService.updateUserMRU(user.getId(), mru);
     }
   }
 
   @GetMapping(value = "/favourites", produces = "application/json")
-  public List<String> getUserFavourites(HttpServletRequest request) throws IOException {
+  public List<String> getUserFavourites(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Favourites.GET")) {
       log.debug("getUserFavourites");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserFavourites(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserFavourites(user.getId());
     }
   }
 
   @PostMapping(value = "/favourites", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  public void updateUserFavourites(HttpServletRequest request, @RequestBody List<String> favourites) throws IOException {
+  public void updateUserFavourites(HttpServletRequest request, @RequestBody List<String> favourites) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Favourites.POST")) {
       log.debug("updateUserFavourites");
-      String userId = requestObjectService.getRequestAgentId(request);
-      userService.updateUserFavourites(userId, favourites);
+      User user = casdoorService.getUser(request);
+      userService.updateUserFavourites(user.getId(), favourites);
     }
   }
 
   @GetMapping(value = "/organisations", produces = "application/json")
-  public List<String> getOrganisations(HttpServletRequest request) throws IOException {
+  public List<String> getOrganisations(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.GET")) {
       log.debug(("getOrganisations"));
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getUserOrganisations(userId);
+      User user = casdoorService.getUser(request);
+      return userService.getUserOrganisations(user.getId());
     }
   }
 
   @Operation(summary = "Update user organisations", description = "Updates the list of organisations for a user. Requires admin authority.")
   @PostMapping(value = "/organisations", produces = "application/json")
+  @PreAuthorize("@guard.hasPermission('USER','WRITE')")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  @PreAuthorize("hasAuthority('ADMIN')")
-  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations) throws Exception {
+  public void updateUserOrganisations(@RequestParam("UserId") String userId, @RequestBody List<String> organisations, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Organisations.POST")) {
       log.debug("updateUserOrganisations");
       if (!userService.userIdExists(userId))
@@ -200,20 +206,22 @@ public class UserController {
   }
 
   @GetMapping(value = "/graphs", produces = "application/json")
-  public List<Graph> getGraphs(HttpServletRequest request) throws IOException {
+  public List<Graph> getGraphs(HttpServletRequest request) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.GET")) {
       log.debug(("getGraphs"));
-      return requestObjectService.getUserGraphs(request);
+      User user = casdoorService.getUser(request);
+      return userService.getUserGraphs(user.getId());
     }
   }
 
   @Operation(summary = "Update user graphs", description = "Updates the list of graphs for a user. Requires admin authority.")
   @PostMapping(value = "/graphs", produces = "application/json")
+  @PreAuthorize("@guard.hasPermission('USER','WRITE')")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  @PreAuthorize("hasAuthority('ADMIN')")
-  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs) throws Exception {
+  public void updateUserGraphs(@RequestParam("UserId") String userId, @RequestBody List<Graph> graphs, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.Graphs.POST")) {
       log.debug("updateUserGraphs");
+      casbinEnforcer.enforceWithError(request, Resource.USER, Action.WRITE);
       if (!userService.userIdExists(userId))
         throw new GeneralCustomException("user not found", HttpStatus.BAD_REQUEST);
       userService.updateUserGraphs(userId, graphs);
@@ -221,11 +229,11 @@ public class UserController {
   }
 
   @GetMapping(value = "/editAccess", produces = "application/json")
-  public boolean getEditAccess(HttpServletRequest request, @RequestParam("iri") String iri) throws IOException {
+  public boolean getEditAccess(HttpServletRequest request, @RequestParam("iri") String iri) throws IOException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.User.EditAccess.GET")) {
       log.debug(("getEditAccess"));
-      String userId = requestObjectService.getRequestAgentId(request);
-      return userService.getEditAccess(userId, iri);
+      User user = casdoorService.getUser(request);
+      return userService.getEditAccess(user.getId(), iri);
     }
   }
 

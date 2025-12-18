@@ -41,8 +41,6 @@ public class EqdToIMQ {
   private final ObjectMapper mapper = new ObjectMapper();
   @Getter
   private static Map<String,TTEntity> inlineSets= new HashMap<>();
-  @Getter
-  private static final Map<String,Set<String>> unnamedSets = new HashMap<>();
   private final boolean versionIndependent;
   private Namespace namespace;
   private EqdResources resources;
@@ -62,9 +60,6 @@ public class EqdToIMQ {
     inlineSets.put(setIri,entity);
   }
 
-  public static void addUnnamedSet(String setIri,Set<String> members) {
-    unnamedSets.put(setIri,members);
-  }
 
   public static void incrementSetNumber() {
     if (setNumber == null) {

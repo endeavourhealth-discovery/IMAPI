@@ -1301,9 +1301,6 @@ public class EqdResources {
     String name="";
     if (set.size()>2) {
       name="Clinical codes..";
-      for (Node node : set) {
-        EqdToIMQ.getUnnamedSets().computeIfAbsent(node.getIri(), k -> new HashSet<>()).add(name);
-      }
     } else {
       for (Node node : set) {
         if (!name.isEmpty()) name = name + " or ";

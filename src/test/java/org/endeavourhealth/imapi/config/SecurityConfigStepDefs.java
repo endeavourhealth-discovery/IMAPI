@@ -19,13 +19,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class SecurityConfigStepDefs {
-  AutoCloseable mocks;
-
   final SecurityConfig securityConfig = new SecurityConfig();
   final List<String> permittedEndpoints = new ArrayList<>();
-
-  @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
-  @Mock AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorisedUrl;
+  AutoCloseable mocks;
+  @Mock
+  AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry reqMatcher;
+  @Mock
+  AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizedUrl authorisedUrl;
 
   @Before
   public void initMocks() {
@@ -57,7 +57,7 @@ public class SecurityConfigStepDefs {
 
   @Then("the is isPublic endpoint will be available")
   public void theIsPublicEndpointWillBeAvailable() {
-    assertTrue(permittedEndpoints.contains("/api/status/public/**"));
+    assertTrue(permittedEndpoints.contains("/api/*/public/**"));
   }
 
   @Then("protected endpoints will not be available")
@@ -67,6 +67,6 @@ public class SecurityConfigStepDefs {
 
   @Then("protected endpoints will be available")
   public void protectedEndpointsWillBeAvailable() {
-    assertTrue(permittedEndpoints.contains("/api/**/public/**"));
+    assertTrue(permittedEndpoints.contains("/api/*/private/**"));
   }
 }

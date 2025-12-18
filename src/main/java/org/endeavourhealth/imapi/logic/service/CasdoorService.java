@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -42,7 +43,9 @@ public class CasdoorService {
     casdoorConfiguration.setClientId(clientId);
     casdoorConfiguration.setEndpoint(endpoint);
     try {
-      this.certificate = new String(Files.readAllBytes(Paths.get("src/main/resources/casdoor-cert.txt")));
+      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+      InputStream is = classloader.getResourceAsStream("casdoor-cert.txt");
+      this.certificate = new String(is.readAllBytes());
     } catch (IOException e) {
       e.printStackTrace();
     }

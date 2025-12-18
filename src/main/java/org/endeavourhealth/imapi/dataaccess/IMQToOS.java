@@ -46,6 +46,9 @@ public class IMQToOS {
       .replace("{", "")
       .replace("}", ""));
     switch (type) {
+      case exact -> {
+        return exactQuery();
+      }
       case autocomplete -> {
         return autocompleteQuery();
       }
@@ -146,12 +149,11 @@ public class IMQToOS {
         if (splits.length == 2) term = namespace + term.split(":")[1];
       }
     }
-    addCodesAndIri(boolBuilder, term);
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     String field = "termCode.keyTerm";
     if (prefix.length() > 31)
-      field = "termCode.term.keyword";
+      prefix= prefix.substring(0, 30);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder(field, prefix).caseInsensitive(true);
     Script script = new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, "100000 - doc['termCode.length'].value", Collections.emptyMap());
     NestedQueryBuilder nested = buildNested(pqb, script);
@@ -166,6 +168,30 @@ public class IMQToOS {
     addPages(sourceBuilder);
     return sourceBuilder;
   }
+
+
+  private SearchSourceBuilder exactQuery() throws QueryException {
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+    String term = request.getTextSearch();
+    if (term.contains(":") && (!term.contains(" "))) {
+      String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
+      if (namespace != null) {
+        String[] splits = term.split(":");
+        if (splits.length == 2) term = namespace + term.split(":")[1];
+      }
+    }
+    addCodesAndIri(boolBuilder, term);
+    boolBuilder.minimumShouldMatch(1);
+    if (!addMatches(boolBuilder))
+      return null;
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
+      return null;
+    sourceBuilder.query(boolBuilder);
+    return sourceBuilder;
+  }
+
+
 
   private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
     if (query == null)
@@ -207,7 +233,12 @@ public class IMQToOS {
 
   private void addPages(SearchSourceBuilder sourceBuilder) {
     if (request.getPage() != null) {
-      sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      if (request.getPage().getOffset()==null) {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      }
+      else {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getOffset());
+      }
     } else {
       sourceBuilder.size(1000).from(0);
     }

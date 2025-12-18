@@ -4,6 +4,7 @@ import lombok.Data;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class FilterOptionsDto {
@@ -12,4 +13,5 @@ public class FilterOptionsDto {
   private List<TTIriRef> types;
   private List<TTIriRef> sortFields;
   private List<TTIriRef> sortDirections;
+  private Map<String,List<TTIriRef>> typeSchemes;
 }

@@ -162,6 +162,10 @@
         "value": "Namespace.IM + \"scheme\""
       },
       {
+        "name": "DEFAULT_SCHEME",
+        "value": "Namespace.IM + \"defaultScheme\""
+      },
+      {
         "name": "BINDING",
         "value": "Namespace.IM + \"binding\""
       },
@@ -244,10 +248,6 @@
       {
         "name": "QUERY",
         "value": "Namespace.IM + \"Query\""
-      },
-      {
-        "name": "COHORT_QUERY",
-        "value": "Namespace.IM + \"CohortQuery\""
       },
       {
         "name": "DEFAULT_COHORTS",
@@ -1184,10 +1184,6 @@
       {
         "name": "SORT_DIRECTION_FILTER_OPTIONS",
         "value": "Namespace.IM + \"SortDirectionFilterOptions\""
-      },
-      {
-        "name": "SCHEME_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"SchemeFilterDefaultOptions\""
       },
       {
         "name": "STATUS_FILTER_DEFAULTS",

@@ -3,6 +3,16 @@ package org.endeavourhealth.imapi.model.iml;
 public class Page {
   private Integer pageNumber;
   private Integer pageSize;
+  private Integer offset;
+
+  public Integer getOffset() {
+    return offset;
+  }
+
+  public Page setOffset(Integer offset) {
+    this.offset = offset;
+    return this;
+  }
 
   public Integer getPageNumber() {
     return pageNumber;

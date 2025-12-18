@@ -12,6 +12,7 @@ import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
@@ -81,7 +82,16 @@ public class SearchService {
 
     if (null != queryRequest.getTextSearch()) {
       SearchResponse results = new OSQuery().openSearchQuery(queryRequest);
-      if (results != null) return results;
+      if (results != null) {
+        if (results.getEntities().size() ==1&&queryRequest.getPage()!=null &&queryRequest.getPage().getPageNumber()==1){
+          SearchResultSummary summary = results.getEntities().getFirst();
+          if (summary.getCode() != null && summary.getCode().equals(queryRequest.getTextSearch()))
+            results.setExactMatch(true);
+          if (summary.getIri().equals(queryRequest.getTextSearch()))
+            results.setExactMatch(true);
+        }
+        return results;
+      }
     }
     JsonNode queryResults = repo.queryIM(queryRequest, false);
     return new QueryService().convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);

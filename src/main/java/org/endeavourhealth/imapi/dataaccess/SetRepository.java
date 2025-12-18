@@ -55,16 +55,16 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, boolean includeLegacy, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page
   ) throws QueryException {
-    setReturn(imQuery, includeLegacy);
+    setReturn(imQuery, false);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter,false,false);
     String entityVariable= imQuery.getKeepAs()!=null ? imQuery.getKeepAs(): "entity";
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      return getCoreLegacyCodesForSparql(qry, includeLegacy, schemeFilter,entityVariable);
+      return expand(qry, false,false, schemeFilter,entityVariable);
     }
   }
 
@@ -181,7 +181,7 @@ public class SetRepository {
     return result;
   }
 
-  private Set<Concept> getCoreLegacyCodesForSparql(TupleQuery qry, boolean includeLegacy, List<String> schemes,String entityVariable) {
+  private Set<Concept> expand(TupleQuery qry, boolean includeLegacy, boolean subsumedBy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
     Set<String> coreSchemes = asHashSet(Namespace.SNOMED, Namespace.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
@@ -193,6 +193,8 @@ public class SetRepository {
         Value scheme = bs.getValue("scheme");
         if (cl == null) {
           cl = buildConcept(concept, conceptMap, result, bs, scheme);
+          if (subsumedBy)
+            cl.setSubsumed(bs.getValue("subsumed").stringValue().equals("Y"));
         } else {
           Value type = bs.getValue(ENTITY_TYPE);
           Value typeName = bs.getValue(TYPE_NAME);
@@ -319,7 +321,7 @@ public class SetRepository {
       org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = conn.prepareInsertSparql(newBinding.toString(), insertGraph);
+      upd = conn.prepareInsertSparql(newBinding.toString(),Graph.IM);
       upd.execute();
       conn.commit();
     }
@@ -379,7 +381,7 @@ public class SetRepository {
 
 
   private void sendUp(StringJoiner sj, IMDB conn, Graph graph) {
-    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(), graph);
+    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(),Graph.IM);
     upd.setBinding("g", graph.asDbIri());
     conn.begin();
     upd.execute();
@@ -420,6 +422,8 @@ public class SetRepository {
       if (lid != null) legacy.setIm1Id(lid.stringValue());
     }
   }
+
+
 
   private Concept matchLegacy(Concept cl, String iri) {
     if (cl.getMatchedFrom() != null) for (Concept legacy : cl.getMatchedFrom())
@@ -492,39 +496,56 @@ public class SetRepository {
 
 
   public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
-                                          List<String> subsumptions) {
+                                          List<String> subsumptionPredicates) {
+    StringBuilder select= new StringBuilder().append("Select distinct ?entity ?subsumed ");
+    if (!subsumptionPredicates.isEmpty()) {
+      select.append("?subsumed ");
+    }
+    select.append("?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId ?alternativeCode ");
+    if (includeLegacy) {
+      select.append("?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id ?legacyUse ?legacyCodeId ");
+    }
+    select.append("\n")
+      .append("""
+      WHERE {
+       Values ?setIri{%s}
+     """.formatted("<" + setIri + ">"))
+      .append("\n");
+     select.append(addUnion(true,includeLegacy,schemes,null));
+     select.append(addUnion(false,includeLegacy,schemes,subsumptionPredicates));
+    select.append("}  ");
+    boolean subsumedBy= !subsumptionPredicates.isEmpty();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(select.toString());
+      return expand(qry, includeLegacy,subsumedBy,List.of(), "entity");
+    }
+  }
 
-    StringJoiner spql = new StringJoiner(System.lineSeparator())
-      .add("""
-        SELECT distinct ?entity ?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId
-        ?alternativeCode ?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName
-        ?legacyIm1Id ?legacyUse ?legacyCodeId
-        WHERE {
-            Values ?setIri{%s}
-            {
-                    ?setIri im:hasMember ?entity .
-            }
-        """.formatted("<" + setIri + ">"));
-    if (subsumptions != null) {
+  private String addUnion(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {
+    StringJoiner spql = new StringJoiner("\n");
+    if (first) {
+      spql.add("{");
+      spql.add("BIND(\"N\" AS ?subsumed)");
+      spql.add(" ?setIri im:hasMember ?entity.");
+    } else {
       spql.add("""
-        union {
-          ?setIri im:hasMember ?member.
-          ?entity ?subsumption ?member.
-          Values ?subsumption {%s}
-        }
-        """.formatted(subsumptions.stream().map(s -> "<" + s + ">").collect(Collectors.joining(" "))));
+      UNION {
+        BIND("Y" AS ?subsumed)
+        ?setIri im:hasMember ?member.
+        Values ?subsumedBy{%s}
+       ?entity ?subsumedBy ?member.
+    """.formatted(subsumptionPredicates.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "))));
     }
     spql.add("""
-        ?entity rdfs:label ?term;
-        im:code ?code;
-        im:scheme ?scheme.
-        ?scheme rdfs:label ?schemeName .
-        OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }
-        OPTIONAL { ?entity im:im1Id ?im1Id . }
-        OPTIONAL { ?entity im:usageTotal ?use . }
-        OPTIONAL { ?entity im:codeId ?codeId . }
-        OPTIONAL { ?entity im:alternativeCode ?alternativeCode.}
-      
+      ?entity rdfs:label ?term;
+              im:code ?code;
+              im:scheme ?scheme.
+      ?scheme rdfs:label ?schemeName .
+      OPTIONAL { ?entity im:status ?status . ?status rdfs:label ?statusName . }
+      OPTIONAL { ?entity im:im1Id ?im1Id . }
+      OPTIONAL { ?entity im:usageTotal ?use . }
+      OPTIONAL { ?entity im:codeId ?codeId . }
+      OPTIONAL { ?entity im:alternativeCode ?alternativeCode.} 
       """);
     if (includeLegacy) {
       spql.add("""
@@ -533,32 +554,23 @@ public class SetRepository {
           ?legacy rdfs:label ?legacyTerm.
           ?legacy im:code ?legacyCode.
           ?legacy im:scheme ?legacyScheme.
-        """);
-
-      if (!schemes.isEmpty()) {
-        String schemeIris = String.join(",", getIris(schemes));
-        spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
-      }
-
-      spql.add("""
           ?legacyScheme rdfs:label ?legacySchemeName .
           OPTIONAL { ?legacy im:im1Id ?legacyIm1Id }
           OPTIONAL { ?legacy im:status ?legacyStatus . ?legacyStatus rdfs:label ?legacyStatusName . }
           OPTIONAL { ?legacy im:usageTotal ?legacyUse }
           OPTIONAL { ?legacy im:codeId ?codeId}
-          OPTIONAL { ?legacy im:codeId ?legacyCodeId}
-        }
+          OPTIONAL { ?legacy im:codeId ?legacyCodeId }
         """);
+      if (!schemes.isEmpty()) {
+        String schemeIris = String.join(",", getIris(schemes));
+        spql.add(" FILTER (?legacyScheme IN (" + schemeIris + "))");
+      }
+      spql.add("}\n");
     }
-
-    spql.add("}  ");
-
-    try (IMDB conn = IMDB.getConnection()) {
-      TupleQuery qry = conn.prepareTupleSparql(spql.toString());
-      qry.setBinding("setIri", Values.iri(setIri));
-      return getCoreLegacyCodesForSparql(qry, includeLegacy, List.of(), "entity");
-    }
+    spql.add("}");
+    return spql.toString();
   }
+
 
   private List<String> getIris(List<String> schemes) {
     return schemes.stream().map(iri -> "<" + iri + ">").toList();

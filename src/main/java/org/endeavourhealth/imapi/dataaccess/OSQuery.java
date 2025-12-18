@@ -10,6 +10,7 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
@@ -24,6 +25,8 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
@@ -100,48 +103,76 @@ public class OSQuery {
     return getStandardResults(request);
   }
 
-  private JsonNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
+  private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
+    JsonNode results= runQuery(builder);
+    if (results.get("hits").get("hits").isEmpty()) return;
+    fullResults.put("totalCount", fullResults.get("totalCount").asInt()+ results.get("hits").get("total").get("value").asInt());
+    ObjectNode hitsObject= (ObjectNode) fullResults.get("hits");
+    ArrayNode hitsArray = (ArrayNode) hitsObject.get("hits");
+    for (JsonNode hit : results.get("hits").get("hits")) {
+      String entityIri= hit.get("_source").get("iri").textValue();
+      if (!found.contains(entityIri)) {
+        hitsArray.add(hit);
+        found.add(entityIri);
+        hitsObject.put("total", hitsObject.get("total").asInt()+1);
+      }
+    }
+  }
+  private Integer getTotal(JsonNode results) {
+    return results.get("hits").get("total").asInt();
+  }
+
+  private ObjectNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
     Query query = request.getQuery();
-    if (request.getTextSearchStyle() == null) request.setTextSearchStyle(TextSearchStyle.autocomplete);
+    if (request.getPage()==null){
+      request.setPage(new Page()
+        .setPageSize(20)
+        .setPageNumber(1));
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode fullResults = mapper.createObjectNode();
+    fullResults.put("totalCount", 0);
+    ObjectNode hitsNode = fullResults.putObject("hits");  // creates and assigns "hits" node
+    hitsNode.put("total", 0);
+    hitsNode.putArray("hits");
     SearchSourceBuilder builder;
-    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete) {
-      builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
-      if (builder == null)
-        return null;
-      request.addTiming("Entry point for initial search\"" + request.getTextSearch() + "\"");
-      JsonNode results = runQuery(builder);
-      if (!results.get("hits").get("hits").isEmpty()) {
-        return results;
-      }
-    }
+    Set<String> found= new HashSet<>();
+    builder = converter.buildQuery(request, query, TextSearchStyle.exact);
+    runAndAddResults(fullResults, builder, found);
+    if (getTotal(fullResults)==1)
+      return fullResults;
+
+    builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
+    if (builder == null)
+        return fullResults;
+    runAndAddResults(fullResults, builder, found);
+    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete&&fullResults.get("totalCount").asInt()>0) return fullResults;
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+        return fullResults;
+
     builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.ZERO);
-    if (builder == null) return null;
-    JsonNode results = runQuery(builder);
-    if (!results.get("hits").get("hits").isEmpty()) {
-      return results;
-    } else {
-      builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
-      results = runQuery(builder);
-      if (!results.get("hits").get("hits").isEmpty()) {
-        return results;
-      } else {
-        builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
-        results = runQuery(builder);
-        if (!results.get("hits").get("hits").isEmpty()) {
-          return results;
-        }
+    if (builder == null) return fullResults;
+    runAndAddResults(fullResults, builder, found);
+    if (getTotal(fullResults)>= request.getPage().getPageSize())
+        return fullResults;
+    builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
+    runAndAddResults(fullResults, builder, found);
+    if (getTotal(fullResults)>= request.getPage().getPageSize())
+        return fullResults;
+    builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
+    runAndAddResults(fullResults, builder, found);
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+      return fullResults;
+    if (fullResults.get("hits").get("total").asInt() == 0) {
+      String corrected = spellingCorrection(request);
+      if (corrected != null) {
+        request.setTextSearch(corrected);
+        builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.autocomplete, Fuzziness.ZERO);
+        if (builder == null) return fullResults;
+        runAndAddResults(fullResults, builder, found);
       }
     }
-
-    String corrected = spellingCorrection(request);
-    if (corrected != null) {
-      request.setTextSearch(corrected);
-      builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.autocomplete, Fuzziness.ZERO);
-      if (builder == null) return null;
-      return runQuery(builder);
-    }
-    return results;
-
+    return fullResults;
   }
 
   private String spellingCorrection(QueryRequest request) throws OpenSearchException {
@@ -324,7 +355,7 @@ public class OSQuery {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         if (!root.get("hits").get("hits").isEmpty()) {
           ObjectNode searchResults = om.createObjectNode();
-          searchResults.set("totalCount", root.get("hits").get("total").get("value"));
+          searchResults.set("totalCount", root.get("totalCount"));
           ArrayNode resultNodes = om.createArrayNode();
           searchResults.set("entities", resultNodes);
           processNodeResults(request, root, om, resultNodes);

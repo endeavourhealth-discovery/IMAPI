@@ -32,7 +32,7 @@ public class CasbinEnforcer {
   }
 
   private void setupEnforcer() throws UserAuthorisationException {
-    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casbin");
+    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casdoor");
     this.dataSource.setURL(mysqlCasdoorUrl);
     String mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root");
     this.dataSource.setUser(mysqlUser);
@@ -41,7 +41,7 @@ public class CasbinEnforcer {
     try {
       this.adapter = new JDBCAdapter(this.dataSource, false, "casbin_imapi", true);
     } catch (Exception e) {
-      throw new UserAuthorisationException("Failed to setup enforcer");
+      throw new UserAuthorisationException("Failed to setup enforcer", e);
     }
     this.enforcer = new Enforcer("src/main/resources/model.conf", this.adapter);
     this.enforcer.enableAutoSave(true);

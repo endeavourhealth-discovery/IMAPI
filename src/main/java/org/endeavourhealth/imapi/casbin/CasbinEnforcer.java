@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class CasbinEnforcer {
   @Getter
   private Enforcer enforcer;
@@ -32,6 +34,7 @@ public class CasbinEnforcer {
   }
 
   private void setupEnforcer() throws UserAuthorisationException {
+    log.debug("Setting up enforcer");
     String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casdoor");
     this.dataSource.setURL(mysqlCasdoorUrl);
     String mysqlUser = System.getenv().getOrDefault("MYSQL_USER", "root");
@@ -39,8 +42,13 @@ public class CasbinEnforcer {
     String mysqlPassword = System.getenv().getOrDefault("MYSQL_PASSWORD", "password");
     this.dataSource.setPassword(mysqlPassword);
     try {
+      log.debug("Initialising adapter");
       this.adapter = new JDBCAdapter(this.dataSource, false, "casbin_imapi", true);
+      log.debug("Initialised adapter");
     } catch (Exception e) {
+      log.error("Failed to initialise adapter");
+      log.error(e.getMessage());
+      e.printStackTrace();
       throw new UserAuthorisationException("Failed to setup enforcer", e);
     }
     this.enforcer = new Enforcer("src/main/resources/model.conf", this.adapter);

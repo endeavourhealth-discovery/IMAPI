@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.adapter.JDBCAdapter;
 import org.casbin.jcasbin.main.Enforcer;
+import org.casbin.jcasbin.model.Model;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
@@ -17,6 +18,8 @@ import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,13 +46,15 @@ public class CasbinEnforcer {
     this.dataSource.setPassword(mysqlPassword);
     try {
       this.adapter = new JDBCAdapter(this.dataSource, false, "casbin_imapi", true);
+      String modelText = Files.readString(Paths.get(getClass().getClassLoader().getResource("model.conf").toURI()));
+      Model model = Model.newModelFromString(modelText);
+      this.enforcer = new Enforcer(model, this.adapter);
+      this.enforcer.enableAutoSave(true);
     } catch (Exception e) {
       log.error("Failed to initialise adapter");
       log.error(e.getMessage());
       throw new UserAuthorisationException("Failed to setup enforcer", e);
     }
-    this.enforcer = new Enforcer("src/main/resources/model.conf", this.adapter);
-    this.enforcer.enableAutoSave(true);
   }
 
   public void enforceWithError(User user, Resource resource, Action action) throws UserAuthorisationException {

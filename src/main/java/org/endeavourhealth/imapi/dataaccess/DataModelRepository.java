@@ -600,4 +600,27 @@ public class DataModelRepository {
     }
     return results;
   }
+
+  public List<TTIriRef> getDataTypes() {
+    String spq= """
+      select distinct ?rangeType ?rangeTypeName
+      {
+          ?property sh:datatype ?rangeType.
+          ?rangeType rdfs:label ?rangeTypeName.
+      }
+      """;
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        List<TTIriRef> results = new ArrayList<>();
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(new TTIriRef()
+            .setIri(bs.getValue("rangeType").stringValue())
+            .setName(bs.getValue("rangeTypeName").stringValue()));
+        }
+        return results;
+      }
+    }
+  }
 }

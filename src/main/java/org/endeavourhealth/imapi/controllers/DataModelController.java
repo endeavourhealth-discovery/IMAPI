@@ -121,5 +121,17 @@ public class DataModelController {
     }
   }
 
+  @Operation(
+    summary = "Get all simple and complex data types in IM "
+  )
+  @GetMapping(value = "public/datatypes")
+  public List<TTIriRef> getDataTypes(
+    HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Get datatypes.GET")) {
+      log.debug("getDatatypes");
+      return dataModelService.getDataTypes();
+    }
+  }
+
 
 }

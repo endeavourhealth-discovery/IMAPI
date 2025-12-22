@@ -9,6 +9,7 @@ import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
 import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
+import org.endeavourhealth.imapi.config.CasdoorConfig;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.excel.ExcelReader;
 import org.endeavourhealth.imapi.model.casdoor.User;
@@ -16,42 +17,18 @@ import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
 public class CasdoorService {
-  private CasdoorConfiguration casdoorConfiguration;
   private AuthService casdoorAuthService;
   private UserService casdoorUserService;
   private ExcelReader excelReader = new ExcelReader();
 
-  private String clientId = System.getenv("CASDOOR_CLIENT_ID");
-  private String endpoint = System.getenv("CASDOOR_ENDPOINT");
-  private String certificate;
-  private String applicationName = System.getenv("CASDOOR_APPLICATION_NAME");
-  private String clientSecret = System.getenv("CASDOOR_CLIENT_SECRET");
-  private String organisationName = System.getenv("CASDOOR_ORGANISATION_NAME");
-
   public CasdoorService() {
-    casdoorConfiguration = new CasdoorConfiguration();
-    casdoorConfiguration.setApplicationName(applicationName);
-    casdoorConfiguration.setClientId(clientId);
-    casdoorConfiguration.setEndpoint(endpoint);
-    try {
-      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-      InputStream is = classloader.getResourceAsStream("casdoor-cert.txt");
-      this.certificate = new String(is.readAllBytes());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    casdoorConfiguration.setCertificate(certificate);
-    casdoorConfiguration.setClientSecret(clientSecret);
-    casdoorConfiguration.setOrganizationName(organisationName);
+    CasdoorConfiguration casdoorConfiguration = new CasdoorConfig().getCasdoorConfiguration();
     casdoorAuthService = new AuthService(casdoorConfiguration);
     casdoorUserService = new UserService(casdoorConfiguration);
   }

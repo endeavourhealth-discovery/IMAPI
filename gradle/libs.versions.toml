@@ -9,7 +9,7 @@ awsS3 = "2.28.13"
 awsSDKBOM = "2.28.13"
 awsSDKCore = "2.28.13"
 casbin = "1.85.1"
-casdoor = "1.37.0"
+casdoor = "1.38.0"
 casbinJDBCAdapter = "2.10.0"
 casdoorSpringBootStarter = "1.15.0"
 cucumber = "7.22.0"
@@ -60,9 +60,7 @@ aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-casbin = { module = "org.casbin:jcasbin", version.ref = "casbin" }
 casdoor = { module = "org.casbin:casdoor-java-sdk", version.ref = "casdoor" }
-casbin-jdbc-adapter = { module = "org.casbin:jdbc-adapter", version.ref = "casbinJDBCAdapter" }
 casdoor-spring-boot-starter = { module = "org.casbin:casdoor-spring-boot-starter", version.ref = "casdoorSpringBootStarter" }
 elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }

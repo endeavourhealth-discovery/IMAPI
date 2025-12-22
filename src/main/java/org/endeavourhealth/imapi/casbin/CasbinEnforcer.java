@@ -1,65 +1,35 @@
 package org.endeavourhealth.imapi.casbin;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mysql.cj.jdbc.MysqlDataSource;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.casbin.adapter.JDBCAdapter;
-import org.casbin.jcasbin.main.Enforcer;
-import org.casbin.jcasbin.model.Model;
+import org.casbin.casdoor.service.EnforcerService;
+import org.endeavourhealth.imapi.config.CasdoorConfig;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.model.casbin.Action;
 import org.endeavourhealth.imapi.model.casbin.Resource;
 import org.endeavourhealth.imapi.model.casdoor.User;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @Slf4j
 public class CasbinEnforcer {
-  @Getter
-  private Enforcer enforcer;
-  private MysqlDataSource dataSource = new MysqlDataSource();
-  private JDBCAdapter adapter;
   private CasdoorService casdoorService = new CasdoorService();
   private ObjectMapper om = new ObjectMapper();
+  private EnforcerService enforcerService = new EnforcerService(new CasdoorConfig().getCasdoorConfiguration());
 
   public CasbinEnforcer() {
   }
 
-  private void setupEnforcer() throws UserAuthorisationException {
-    log.debug("Setting up enforcer");
-    String mysqlCasdoorUrl = System.getenv().getOrDefault("MYSQL_CASBIN_URL", "jdbc:mysql://localhost:3306/casdoor");
-    this.dataSource.setURL(mysqlCasdoorUrl);
-    String mysqlUser = System.getenv().getOrDefault("MYSQL_USERNAME", "root");
-    this.dataSource.setUser(mysqlUser);
-    String mysqlPassword = System.getenv().getOrDefault("MYSQL_PASSWORD", "password");
-    this.dataSource.setPassword(mysqlPassword);
-    try {
-      this.adapter = new JDBCAdapter(this.dataSource, false, "casbin_imapi", true);
-      String modelText = Files.readString(Paths.get(getClass().getClassLoader().getResource("model.conf").toURI()));
-      Model model = Model.newModelFromString(modelText);
-      this.enforcer = new Enforcer(model, this.adapter);
-      this.enforcer.enableAutoSave(true);
-    } catch (Exception e) {
-      log.error("Failed to initialise adapter");
-      log.error(e.getMessage());
-      throw new UserAuthorisationException("Failed to setup enforcer", e);
-    }
-  }
-
   public void enforceWithError(User user, Resource resource, Action action) throws UserAuthorisationException {
     try {
-      boolean result = enforce(user, resource, action);
+      boolean result = enforcerService.enforce(null, null, null, "IMAPI", null, new Object[]{user, resource.name(), action.name()});
       if (!result) {
         throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, action));
       }
@@ -68,31 +38,23 @@ public class CasbinEnforcer {
     }
   }
 
-  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException, UserNotFoundException {
+  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException, UserNotFoundException, IOException {
     User user = casdoorService.getUser(request);
     enforceWithError(user, resource, action);
   }
 
-  public boolean enforce(User user, Resource resource, Action action) throws UserAuthorisationException, JsonProcessingException {
-    if (null == this.enforcer) {
-      setupEnforcer();
-    }
-    return enforcer.enforce(user, resource.name(), action.name());
+  public boolean enforce(User user, Resource resource, Action action) throws IOException {
+    return enforcerService.enforce(null, null, null, "IMAPI", null, new Object[]{user, resource.name(), action.name()});
   }
 
-  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException {
+  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException, IOException {
     User user = casdoorService.getUser(request);
     List<Boolean> results = new ArrayList<>();
     for (Action accessRight : accessRights) {
-      results.add(enforcer.enforce(user, resource, accessRight));
+      results.add(enforce(user, resource, accessRight));
     }
     if (results.stream().noneMatch(r -> r)) {
       throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, accessRights));
     }
   }
-
-  public void addPolicy(UserRole userRole, Resource resource, Action action) throws UserNotFoundException {
-    enforcer.addPolicy("p", String.format("r.sub != null && '%s' in r.sub.roles", userRole), resource.toString(), action.toString());
-  }
-
 }

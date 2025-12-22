@@ -80,9 +80,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     } else mySQLQueries.add(mySqlQuery)
 
-
-    if (definition.`return` == null) {
-      mySqlQuery.selects.add(MySQLSelect("id"))
+    if (definition.`return` == null && mySqlQuery.withs.last().selects.isEmpty()) {
+      mySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
+      mySqlQuery.selects.add(MySQLSelect( "id"))
     }
 
     if (definition.columnGroup != null)

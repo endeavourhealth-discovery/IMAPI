@@ -12,20 +12,20 @@ import org.endeavourhealth.imapi.vocabulary.IM
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper()
 ) {
-  val queryTypeOf = queryRequest.query?.typeOf?.iri
-  val mySQLQueries = mutableListOf<MySQLQuery>()
+  private var tableMap: TableMap = MappingParser().parse("IMQtoMYSQL.json")
+  var sql: String? = null
+  var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
+  var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
+  var queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
+    require(queryTypeOf != null) { "Queries need a type" }
   }
-
-  private var tableMap: TableMap? = null
-  var sql: String? = null
 
   init {
     try {
-      val resourcePath = "IMQtoMYSQL.json"
-      tableMap = MappingParser().parse(resourcePath)
       sql = generateSQL(queryRequest.query)
     } catch (e: SQLConversionException) {
       println("SQL Conversion Error: $e")
@@ -80,9 +80,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     } else mySQLQueries.add(mySqlQuery)
 
-    if (definition.`return` == null && mySqlQuery.withs.last().selects.isEmpty()) {
+    if (definition.`return` == null) {
       mySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
-      mySqlQuery.selects.add(MySQLSelect( "id"))
+      mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+      mySqlQuery.insert = MySQLInsert("cohort")
     }
 
     if (definition.columnGroup != null)
@@ -230,12 +231,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where?.iri)
-    val queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
     val (selects, selectJoins) =
       if (match.getReturn() != null) getSelects(table, match.getReturn(), fromAlias) else Pair(
         mutableListOf(
           MySQLSelect(
-            "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
+            "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey} as ${queryTypeOfTable.table}_id"
           )
         ), mutableListOf()
       )

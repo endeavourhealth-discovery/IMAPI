@@ -62,34 +62,38 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.columnGroup != null) {
       for (columnGroup in definition.columnGroup) {
         val newMySqlQuery = MySQLQuery()
-        val selectColumnGroup: Match =
-          mapper?.convertValue(columnGroup, Match::class.java)
-            ?: throw SQLConversionException("Unsupported columnGroup $columnGroup")
-        selectColumnGroup.name = columnGroup.name + "Return"
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) addIsWiths(definition, newMySqlQuery)
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
-        val fromAlias = newMySqlQuery.withs.last().alias
-        addMatchWiths(listOf(selectColumnGroup), definition, newMySqlQuery, Bool.and, fromAlias)
-        newMySqlQuery.withs.last().joins?.removeIf { join ->
-          join.tableToAlias == fromAlias
-        }
         if (definition.`return` == null) {
-          newMySqlQuery.selects.add(MySQLSelect("*"))
+          newMySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
+          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+          newMySqlQuery.insert = MySQLInsert("dataset")
+          val jsonObject = buildString {
+            append("JSON_OBJECT(\n")
+            append(
+              newMySqlQuery.withs.last().selects
+                .filterNot { it.name.contains("DISTINCT") }
+                .joinToString(",\n") { select ->
+                  val key = (select.alias ?: select.name).replace("`", "'")
+                  val value = select.alias ?: select.name
+                  "  $key, $value"
+                }
+            )
+            append("\n)")
+          }
+          newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
         }
       }
-    } else mySQLQueries.add(mySqlQuery)
-
-    if (definition.`return` == null) {
-      mySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
-      mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
-      mySqlQuery.insert = MySQLInsert("cohort")
-    }
-
-    if (definition.columnGroup != null)
       return mySQLQueries.joinToString(separator = "\n\n") { it.toSql() }
-
-    return mySqlQuery.toSql()
+    } else {
+      if (definition.`return` == null) {
+        mySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
+        mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+        mySqlQuery.insert = MySQLInsert("cohort")
+      }
+      return mySqlQuery.toSql()
+    }
   }
 
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
@@ -231,14 +235,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ): MySQLWith {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where?.iri)
+    val defaultSelect =
+      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
     val (selects, selectJoins) =
-      if (match.getReturn() != null) getSelects(table, match.getReturn(), fromAlias) else Pair(
-        mutableListOf(
-          MySQLSelect(
-            "DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey} as ${queryTypeOfTable.table}_id"
-          )
-        ), mutableListOf()
-      )
+      if (match.getReturn() != null) getSelects(table, match.getReturn(), fromAlias)
+      else Pair(mutableListOf(defaultSelect), mutableListOf())
     val isAlias = match.name?.replace(" ", "")
       ?: match.keepAs ?: getCteAlias(
         typeOf,
@@ -289,7 +290,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returx: Return,
     fromAlias: String? = null
   ): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
-    val selects = mutableListOf<MySQLSelect>()
+    val defaultSelect =
+      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
+    val selects = mutableListOf(defaultSelect)
     val joins = mutableListOf<MySQLJoin>()
     if (returx.property != null)
       for (p in returx.property) {

@@ -174,10 +174,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     definition: Query,
     mySqlQuery: MySQLQuery,
     bool: Bool,
-    fromAlias: String? = null
   ) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, mySqlQuery, bool, fromAlias)
+      addMatchWithsRecursively(m, definition, mySqlQuery, bool)
     }
   }
 
@@ -186,27 +185,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     parentMatch: Match,
     mySqlQuery: MySQLQuery,
     bool: Bool,
-    fromAlias: String? = null
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
         if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
           getTypeOf(currentMatch) ?: parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, fromAlias)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
         if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
           getTypeOf(currentMatch) ?: parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or, fromAlias)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
       }
     }
     if (currentMatch.not != null) {
       for (m in currentMatch.not) {
         if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
           getTypeOf(currentMatch) ?: parentMatch.typeOf
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.not, fromAlias)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.not)
       }
     }
 
@@ -214,7 +212,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (currentMatch.typeOf == null || currentMatch.nodeRef != null || currentMatch.path != null) currentMatch.typeOf =
         getTypeOf(currentMatch) ?: parentMatch.typeOf
       if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, if (bool == Bool.not) true else null)
-      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery, fromAlias))
+      else mySqlQuery.withs.addAll(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }
 
@@ -231,15 +229,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getMySQLWithFromMatch(
     match: Match,
     mySQLQuery: MySQLQuery,
-    fromAlias: String? = null
-  ): MySQLWith {
+  ): MutableList<MySQLWith> {
     val typeOf = match.path?.firstOrNull()?.typeOf?.iri ?: match.typeOf.iri
     val table = getTableFromTypeAndProperty(typeOf, match.where?.iri)
     val defaultSelect =
       MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
-    val (selects, selectJoins) =
-      if (match.getReturn() != null) getSelects(table, match.getReturn(), fromAlias)
-      else Pair(mutableListOf(defaultSelect), mutableListOf())
+
     val isAlias = match.name?.replace(" ", "")
       ?: match.keepAs ?: getCteAlias(
         typeOf,
@@ -247,6 +242,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           ?: match.where?.and?.firstOrNull()?.iri
           ?: match.where?.or?.firstOrNull()?.iri
       )
+    val (selects, selectJoins, ynWith) =
+      if (match.getReturn() != null) getSelects(table, match.getReturn(), mySQLQuery, isAlias, table)
+      else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
     val with = MySQLWith(
       table = table,
       alias = isAlias,
@@ -282,25 +280,29 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (selectJoins.isNotEmpty()) with.joins?.addAll(selectJoins)
-    return with
+    return if (ynWith != null) {
+      ynWith.selects.addAll(0, with.selects.mapNotNull { it.alias?.let { alias -> MySQLSelect(alias) } })
+      mutableListOf(with, ynWith)
+    } else mutableListOf(with)
   }
 
   private fun getSelects(
     table: Table,
     returx: Return,
-    fromAlias: String? = null
-  ): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
+    mySqlQuery: MySQLQuery,
+    currentWithAlias: String,
+    currentWithTable: Table
+  ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
     val defaultSelect =
       MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
     val selects = mutableListOf(defaultSelect)
     val joins = mutableListOf<MySQLJoin>()
+    var ynWith: MySQLWith? = null
     if (returx.property != null)
       for (p in returx.property) {
         if (p.getReturn() != null) addSelectFromNestedProperty(table, p, selects, joins)
-        else if (p.case != null) {
-          if (fromAlias != null)
-            selects.add(getYNCaseSelect(p, fromAlias))
-        } else if (p.function != null) selects.add(getFunctionSelect(table, p))
+        else if (p.case != null) ynWith = getYNCaseSelect(p, mySqlQuery, currentWithAlias, currentWithTable)
+        else if (p.function != null) selects.add(getFunctionSelect(table, p))
         else addSelectFromProperty(table, p.iri, p.`as`, selects, joins)
       }
     else if (returx.function != null) {
@@ -311,7 +313,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         )
       )
     } else throw SQLConversionException("Unsupported return $returx")
-    return Pair(selects, joins)
+    return Triple(selects, joins, ynWith)
   }
 
   private fun getFunctionSelect(table: Table, returnProperty: ReturnProperty): MySQLSelect {
@@ -347,14 +349,39 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-  private fun getYNCaseSelect(returnProperty: ReturnProperty, fromAlias: String): MySQLSelect {
+  private fun getYNCaseSelect(
+    returnProperty: ReturnProperty,
+    mySqlQuery: MySQLQuery,
+    currentWithAlias: String,
+    currentWithTable: Table
+  ): MySQLWith {
     //    TODO: handle multiple when cases?
     //    TODO: handle when where cases
     //    TODO: handle nested cases?
-    return MySQLSelect(
-      "CASE WHEN EXISTS (SELECT 1 FROM $fromAlias) THEN '${returnProperty.case.`when`.first().then}' ELSE '${returnProperty.case.`else`}' END",
+    if (returnProperty.case.`when`.size != 1) throw SQLConversionException("Unsupported case size ${returnProperty.case.`when`.size}")
+    if (!returnProperty.case.`when`.first().isExists) throw SQLConversionException("Unsupported case ${returnProperty.case}")
+
+    val ynSelect = MySQLSelect(
+      "IFNULL($currentWithAlias.${currentWithTable.primaryKey}, '${returnProperty.case.`else`}', '${returnProperty.case.`when`.first().then}')",
       if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null
     )
+    val tableYNAlias = "${returnProperty.`as` ?: currentWithAlias}_YN"
+    val join = currentWithTable.getJoinCondition(
+      joinType = "LEFT JOIN",
+      tableTo = mySqlQuery.withs.last().table,
+      tableToAlias = mySqlQuery.withs.last().alias,
+      tableFromAlias = currentWithAlias,
+    )
+    val ynWith = MySQLWith(
+      table = currentWithTable,
+      fromAlias = currentWithAlias,
+      alias = tableYNAlias,
+      selects = mutableListOf(ynSelect),
+      joins = mutableListOf(join),
+      wheres = mutableListOf(),
+      whereBool = Bool.and
+    )
+    return ynWith
   }
 
   private fun addSelectFromProperty(
@@ -364,10 +391,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     selects: MutableList<MySQLSelect>,
     joins: MutableList<MySQLJoin>,
   ) {
-    var field = if (pIri == "http://endhealth.info/im#age") tableMap?.functions[pIri]?.replace(
+    var field = if (pIri == "http://endhealth.info/im#age") tableMap.functions[pIri]?.replace(
       "{units}",
       "YEAR"
-    )?.replace("{relativeTo}", $$"$searchDate") else tableMap?.functions[pIri]
+    )?.replace("{relativeTo}", $$"$searchDate") else tableMap.functions[pIri]
     if (field == null) {
       val property = getPropertyNameByTableAndPropertyIri(
         table,
@@ -412,11 +439,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
       if (toTable != null) {
         val join = currentTable.getJoinCondition(
-          joinType = "LEFT JOIN",
+          joinType = "JOIN",
           tableTo = toTable,
           tableToAlias = toTable.table
         )
-        nestedJoins.add(join)
+        if (!nestedJoins.contains(join))
+          nestedJoins.add(join)
         currentTable = toTable
         index = lastIndexUsed + 1
       } else {
@@ -437,10 +465,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun findToTable(
     paths: MutableList<ReturnProperty>,
     startIndex: Int,
-    tableMap: TableMap?,
+    tableMap: TableMap,
     currentIri: String = paths[startIndex].iri
   ): Pair<Table?, Int> {
-    val toTable = tableMap?.getTableFromProperty(listOf(currentIri))
+    val toTable = tableMap.getTableFromProperty(listOf(currentIri))
     if (toTable != null) {
       return toTable to startIndex
     }
@@ -561,7 +589,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
 
   private fun getMySQLWhereFromWhere(where: Where, table: Table, mySQLQuery: MySQLQuery): MySQLWhere {
-    val field = tableMap?.functions[where.function?.iri] ?: getPropertyNameByTableAndPropertyIri(
+    val field = tableMap.functions[where.function?.iri] ?: getPropertyNameByTableAndPropertyIri(
       table,
       where.iri
     ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
@@ -703,7 +731,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    val table = tableMap?.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
+    val table = tableMap.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
       "Type $typeIri not found in table map"
     )
     return table

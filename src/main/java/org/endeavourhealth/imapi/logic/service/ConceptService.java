@@ -76,9 +76,13 @@ public class ConceptService {
   public Set<String> getPropertiesForDomains(Set<String> iris) {
     if (null == iris || iris.isEmpty()) return null;
     return conceptRepository.getPropertiesForDomains(iris);
-
   }
 
+  public Boolean isValidPropertyForDomains(String propertyIri, Set<String> iris) {
+    if (null == iris || iris.isEmpty()) return false;
+    Set<String> properties = conceptRepository.getPropertiesForDomains(iris);
+    return properties.contains(propertyIri);
+  }
 
   public Set<String> getRangesForProperty(String iri) {
     if (null == iri || iri.isEmpty()) return null;
@@ -89,10 +93,9 @@ public class ConceptService {
     return conceptRepository.getConceptContextMaps(iri);
   }
 
-  public String getShortestTerm(String iri){
+  public String getShortestTerm(String iri) {
     return conceptRepository.getShortestTerm(iri);
   }
-
 
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {

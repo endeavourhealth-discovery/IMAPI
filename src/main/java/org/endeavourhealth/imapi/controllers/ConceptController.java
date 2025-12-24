@@ -27,7 +27,7 @@ public class ConceptController {
 
   private final ConceptService conceptService = new ConceptService();
 
-  @GetMapping(value = "/public/matchedFrom", produces = "application/json")
+  @GetMapping(value = "/private/matchedFrom", produces = "application/json")
   @Operation(summary = "Get matched terms from the specified entity", description = "Retrieves terms that are matched from the given entity IRI for further processing or analysis.")
   public Collection<SimpleMap> getMatchedFrom(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedFrom.GET")) {
@@ -36,7 +36,7 @@ public class ConceptController {
     }
   }
 
-  @GetMapping(value = "/public/matchedTo", produces = "application/json")
+  @GetMapping(value = "/private/matchedTo", produces = "application/json")
   @Operation(summary = "Get matched terms to the specified entity", description = "Retrieves terms that are matched to the given entity IRI for further processing or analysis.")
   public Collection<SimpleMap> getMatchedTo(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.MatchedTo.GET")) {
@@ -45,7 +45,7 @@ public class ConceptController {
     }
   }
 
-  @GetMapping("/public/termCode")
+  @GetMapping("/private/termCode")
   @Operation(summary = "Retrieve term codes for the specified entity", description = "Gets a list of term codes associated with the given entity IRI, including the option to include inactive codes.")
   public List<SearchTermCode> getTermCodes(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "includeInactive") Optional<Boolean> includeInactive) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.TermCode.GET")) {
@@ -54,7 +54,7 @@ public class ConceptController {
     }
   }
 
-  @GetMapping(value = "/public/conceptContextMaps")
+  @GetMapping(value = "/private/conceptContextMaps")
   @Operation(summary = "Get concept context maps for the specified entity", description = "Retrieves mappings to various contexts for the given entity IRI, which can be used for contextual analysis.")
   public List<ConceptContextMap> getConceptContextMaps(
     HttpServletRequest request,

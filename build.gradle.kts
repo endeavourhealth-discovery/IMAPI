@@ -1,5 +1,8 @@
 import cz.habarta.typescript.generator.*
 
+apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
+apply(from = "$rootDir/gradle/copyAutoGenToQueryRunner.gradle")
+
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -10,7 +13,7 @@ plugins {
   alias(libs.plugins.static.const.generator)
   id("java-library")
   id("maven-publish")
-    kotlin("jvm")
+  kotlin("jvm")
 }
 
 group = "org.endeavourhealth.imapi"
@@ -20,7 +23,7 @@ description = "Information Model API"
 
 repositories {
   gradlePluginPortal()
-    mavenCentral()
+  mavenCentral()
 }
 
 val ENV = System.getenv("ENV") ?: "dev"
@@ -117,7 +120,9 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
-    "org.endeavourhealth.imapi.model.editor.*"
+    "org.endeavourhealth.imapi.model.editor.*",
+    "org.endeavourhealth.imapi.model.casbin.*",
+    "org.endeavourhealth.imapi.model.casdoor.*",
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
@@ -140,13 +145,16 @@ dependencies {
   implementation(libs.apache.text)
   implementation(libs.apache.commons.text)
   implementation(libs.assert.j)
-  implementation(libs.aws.cognito.idp)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
   implementation(libs.dropwizard)
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
+  implementation(libs.casbin)
+  implementation(libs.casdoor)
+  implementation(libs.casbin.jdbc.adapter)
+  implementation(libs.casdoor.spring.boot.starter)
   implementation(libs.fact.plus.plus)
   implementation(libs.hikari)
   implementation(libs.jackson.databind)
@@ -201,7 +209,7 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
-    implementation(kotlin("stdlib-jdk8"))
+  implementation(kotlin("stdlib-jdk8"))
 }
 
 repositories {
@@ -229,5 +237,5 @@ tasks.jacocoTestReport {
 
 
 kotlin {
-    jvmToolchain(21)
+  jvmToolchain(21)
 }

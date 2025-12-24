@@ -5,10 +5,13 @@ apacheCollections4 = "4.4"
 apachePoi = "5.4.0"
 apacheText = "1.13.1"
 assertJ = "3.27.3"
-awsCognitoIDP = "2.28.13"
 awsS3 = "2.28.13"
 awsSDKBOM = "2.28.13"
 awsSDKCore = "2.28.13"
+casbin = "1.85.1"
+casdoor = "1.37.0"
+casbinJDBCAdapter = "2.10.0"
+casdoorSpringBootStarter = "1.15.0"
 cucumber = "7.22.0"
 commons-text = "1.10.0"
 dropwizard = "4.2.30"
@@ -51,14 +54,17 @@ apache-poi = { module = "org.apache.poi:poi-ooxml", version.ref = "apachePoi" }
 apache-text = { module = "org.apache.commons:commons-text", version.ref = "apacheText" }
 assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
 apache-commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
-aws-cognito-idp = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "awsCognitoIDP" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
 aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-elasticsearch = {module= "org.elasticsearch.client:elasticsearch-rest-high-level-client",version.ref="elasticSearch"}
+casbin = { module = "org.casbin:jcasbin", version.ref = "casbin" }
+casdoor = { module = "org.casbin:casdoor-java-sdk", version.ref = "casdoor" }
+casbin-jdbc-adapter = { module = "org.casbin:jdbc-adapter", version.ref = "casbinJDBCAdapter" }
+casdoor-spring-boot-starter = { module = "org.casbin:casdoor-spring-boot-starter", version.ref = "casdoorSpringBootStarter" }
+elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }

@@ -20,7 +20,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @Slf4j
 public class FunctionController {
 
-  @PostMapping("/public/callFunction")
+  @PostMapping("/private/callFunction")
   @Operation(
     summary = "function",
     description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"

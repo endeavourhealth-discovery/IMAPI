@@ -6,19 +6,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.postRequestPrimatives.UUIDBody;
-import org.endeavourhealth.imapi.model.postgres.DBEntry;
-import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
@@ -36,7 +32,6 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("api/query")
@@ -46,13 +41,12 @@ import java.util.UUID;
 @Slf4j
 public class QueryController {
 
-  private final RequestObjectService requestObjectService = new RequestObjectService();
-
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
   private final PostgresService postgresService = new PostgresService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
 
-  @PostMapping("/public/queryIM")
+  @PostMapping("/private/queryIM")
   @Operation(
     summary = "Query IM",
     description = "Runs a generic query on IM"
@@ -67,7 +61,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/askQueryIM")
+  @PostMapping("/private/askQueryIM")
   @Operation(summary = "Check if an iri is within a query's results")
   public Boolean askQueryIM(
     HttpServletRequest request,
@@ -79,7 +73,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/queryIMSearch")
+  @PostMapping("/private/queryIMSearch")
   @Operation(
     summary = "Query IM returning conceptSummaries",
     description = "Runs a generic query on IM and returns results as ConceptSummary items."
@@ -99,7 +93,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/pathQuery")
+  @PostMapping("/private/pathQuery")
   @Operation(
     summary = "Path Query ",
     description = "Query IM for a path between source and target"
@@ -112,7 +106,7 @@ public class QueryController {
   }
 
 
-  @GetMapping(value = "/public/queryDisplay", produces = "application/json")
+  @GetMapping(value = "/private/queryDisplay", produces = "application/json")
   @Operation(
     summary = "Describe a query",
     description = "Retrieves the details of a query based on the given query IRI."
@@ -128,7 +122,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/public/indicatorDisplay", produces = "application/json")
+  @GetMapping(value = "/private/indicatorDisplay", produces = "application/json")
   @Operation(
     summary = "Describe a query",
     description = "Retrieves the details of a query based on the given query IRI."
@@ -143,7 +137,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/public/expandCohort", produces = "application/json")
+  @GetMapping(value = "/private/expandCohort", produces = "application/json")
   @Operation(
     summary = "Expands a cohort reference from a source query",
     description = "Retrieves the details of a query based on the given source and cohort IRI."
@@ -160,7 +154,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/public/queryFromIri", produces = "application/json")
+  @GetMapping(value = "/private/queryFromIri", produces = "application/json")
   @Operation(
     summary = "gets an original IM  query from its iri",
     description = "Retrieves the original details of a query based on the given query IRI."
@@ -168,14 +162,14 @@ public class QueryController {
   public Query queryFromIri(
     HttpServletRequest request,
     @RequestParam(name = "queryIri") String iri
-  ) throws IOException, QueryException{
+  ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getQueryfromIri");
       return queryService.getQueryFromIri(iri);
     }
   }
 
-  @PostMapping("/public/queryDisplayFromQuery")
+  @PostMapping("/private/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
@@ -196,7 +190,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/flattenBooleans")
+  @PostMapping("/private/flattenBooleans")
   @Operation(
     summary = "optimises logical boolean of query",
     description = "Returns the query with boolean optimisation"
@@ -210,7 +204,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/optimiseECLQuery")
+  @PostMapping("/private/optimiseECLQuery")
   @Operation(
     summary = "optimises logical boolean of query",
     description = "Returns the query with boolean optimisation"
@@ -225,7 +219,7 @@ public class QueryController {
   }
 
 
-  @PostMapping("/public/matchDisplayFromMatch")
+  @PostMapping("/private/matchDisplayFromMatch")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
@@ -241,7 +235,7 @@ public class QueryController {
   }
 
 
-  @PostMapping("/public/sql")
+  @PostMapping("/private/sql")
   @Operation(
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query request."
@@ -253,7 +247,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/public/sql")
+  @GetMapping("/private/sql")
   @Operation(
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
@@ -269,7 +263,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/public/imlFromIri")
+  @GetMapping("/private/imlFromIri")
   @Operation(
     summary = "Generate IML from a query iri",
     description = "Generates IMQ from the given IMQ query IRI."
@@ -284,117 +278,7 @@ public class QueryController {
     }
   }
 
-
-  @PostMapping("/addToQueue")
-  @Operation(
-    summary = "Add query to execution queue",
-    description = "Transforms query to SQL and adds it to the execution queue"
-  )
-  public void addToQueue(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws Exception {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.AddToQueue.POST")) {
-      log.debug("addToQueue");
-      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      String userName = requestObjectService.getRequestAgentName(request);
-      queryService.addToExecutionQueue(userId, userName, queryRequest);
-    }
-  }
-
-  @GetMapping("/userQueryQueue")
-  @Operation(
-    summary = "Get the query queue items and status for a user"
-  )
-  public Pageable<DBEntry> userQueryQueue(HttpServletRequest request, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueue.GET")) {
-      log.debug("getUserQueryQueue");
-      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      return postgresService.getAllByUserId(userId, page, size);
-    }
-  }
-
-  @GetMapping("/userQueryQueueByStatus")
-  @Operation(
-    summary = "Get query queue items by user id and status"
-  )
-  public Pageable<DBEntry> userQueryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.UserQueryQueueByStatus.GET")) {
-      log.debug("getUserQueryQueueByStatus");
-      String userId = requestObjectService.getRequestAgentId(request);
-      return postgresService.findAllByUserIdAndStatus(userId, status, page, size);
-    }
-  }
-
-  @GetMapping("/queryQueueByStatus")
-  @Operation(
-    summary = "get query queue items by status as admin"
-  )
-  @PreAuthorize("hasAuthority('ADMIN')")
-  public Pageable<DBEntry> queryQueueByStatus(HttpServletRequest request, @RequestParam(name = "status") QueryExecutorStatus status, @RequestParam(name = "page") int page, @RequestParam(name = "size") int size) throws IOException, SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryQueueByStatus.GET")) {
-      log.debug("getQueryQueueByStatus");
-      return postgresService.findAllByStatus(status, page, size);
-    }
-  }
-
-  @PostMapping(value = "/cancelQuery", consumes = "application/json")
-  @Operation(
-    summary = "Cancel a query from running either whilst in the queue or runner using the query uuid"
-  )
-  public void cancelQuery(@RequestBody UUIDBody id) throws IOException, SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.CancelQuery.POST")) {
-      log.debug("cancelQuery");
-      postgresService.cancelQuery(id.getValue());
-    }
-  }
-
-  @DeleteMapping("/deleteFromQueue")
-  @Operation(
-    summary = "Delete a query from the queue using the query uuid"
-  )
-  public void deleteFromQueue(HttpServletRequest request, @RequestParam(name = "id") UUID id) throws IOException, SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DeleteFromQueue.DELETE")) {
-      log.debug("deleteFromQueue");
-      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      postgresService.delete(userId, id);
-    }
-  }
-
-  @PostMapping("/requeueQuery")
-  @Operation(
-    summary = "Requeue a cancelled or errored query"
-  )
-  public void requeueQuery(HttpServletRequest request, @RequestBody RequeueQueryRequest requeueQueryRequest) throws Exception {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.RequeueQuery.POST")) {
-      log.debug("requeueQuery");
-      UUID userId = requestObjectService.getRequestAgentIdAsUUID(request);
-      String userName = requestObjectService.getRequestAgentName(request);
-      queryService.reAddToExecutionQueue(userId, userName, requeueQueryRequest);
-    }
-  }
-
-  @PostMapping("/killActiveQuery")
-  @Operation(
-    summary = "Kills the active running query"
-  )
-  @PreAuthorize("hasAuthority('ADMIN')")
-  public void killActiveQuery() throws SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.KillActiveQuery.POST")) {
-      log.debug("killActiveQuery");
-      queryService.killActiveQuery();
-    }
-  }
-
-  @PostMapping("/getQueryResults")
-  @Operation(
-    summary = "Get query results using a hash of the query request"
-  )
-  public Set<String> getQueryResults(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQueryResults.GET")) {
-      log.debug("getQueryResults");
-      return queryService.getQueryResults(queryRequest);
-    }
-  }
-
-  @GetMapping(value = "/public/defaultQuery")
+  @GetMapping(value = "/private/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
@@ -403,7 +287,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/public/testRunQuery")
+  @PostMapping("/private/testRunQuery")
   @Operation(summary = "Run a query with results limited results to test query")
   public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
@@ -414,6 +298,7 @@ public class QueryController {
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
+  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
@@ -426,6 +311,7 @@ public class QueryController {
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
+  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public TTIriRef getArgumentType(
     HttpServletRequest request,
     @RequestParam String referenceIri
@@ -436,7 +322,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/public/subQueries")
+  @GetMapping("/private/subQueries")
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public Collection<SubQueryDependency> getSubQueries(
     HttpServletRequest request,
@@ -448,7 +334,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/public/queryRequestForSQL")
+  @GetMapping("/private/queryRequestForSQL")
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public QueryRequest getQueryRequestForSql(
     HttpServletRequest request,

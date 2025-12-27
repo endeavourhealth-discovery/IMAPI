@@ -108,15 +108,15 @@ public interface IMLListener extends ParseTreeListener {
 	 */
 	void exitWhereStatement(IMLParser.WhereStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#standaloneExpression}.
+	 * Enter a parse tree produced by {@link IMLParser#property}.
 	 * @param ctx the parse tree
 	 */
-	void enterStandaloneExpression(IMLParser.StandaloneExpressionContext ctx);
+	void enterProperty(IMLParser.PropertyContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#standaloneExpression}.
+	 * Exit a parse tree produced by {@link IMLParser#property}.
 	 * @param ctx the parse tree
 	 */
-	void exitStandaloneExpression(IMLParser.StandaloneExpressionContext ctx);
+	void exitProperty(IMLParser.PropertyContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMLParser#expression}.
 	 * @param ctx the parse tree
@@ -137,16 +137,6 @@ public interface IMLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExclusion(IMLParser.ExclusionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#pathExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterPathExpression(IMLParser.PathExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#pathExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitPathExpression(IMLParser.PathExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMLParser#pathSegment}.
 	 * @param ctx the parse tree

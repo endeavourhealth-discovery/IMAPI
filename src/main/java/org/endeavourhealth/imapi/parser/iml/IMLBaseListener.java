@@ -137,13 +137,13 @@ public class IMLBaseListener implements IMLListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterStandaloneExpression(IMLParser.StandaloneExpressionContext ctx) { }
+	@Override public void enterProperty(IMLParser.PropertyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitStandaloneExpression(IMLParser.StandaloneExpressionContext ctx) { }
+	@Override public void exitProperty(IMLParser.PropertyContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -168,18 +168,6 @@ public class IMLBaseListener implements IMLListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExclusion(IMLParser.ExclusionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterPathExpression(IMLParser.PathExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitPathExpression(IMLParser.PathExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

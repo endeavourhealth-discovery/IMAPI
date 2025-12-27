@@ -21,13 +21,15 @@ public class ConceptRepository {
   public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
-      SELECT ?s ?code ?scheme ?name
+      SELECT ?s ?code ?scheme ?name ?alternativeCode ?codeId
       WHERE {
         ?s im:matchedTo ?o .
         ?s im:code ?code .
         %s
         ?s im:scheme ?scheme ;
         rdfs:label ?name .
+        optional {?s im:alternativeCode ?alternativeCode .}
+        optional {?s im:codeId ?codeId .}
       }
       """.formatted(valueList("scheme", schemeIris));
     try (IMDB conn = IMDB.getConnection()) {
@@ -36,7 +38,8 @@ public class ConceptRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")));
+          simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")
+          ,getString(bs,"alternativeCode"),getString(bs,"codeId")));
         }
       }
     }
@@ -62,7 +65,7 @@ public class ConceptRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")));
+          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme"),null,null));
         }
       }
     }

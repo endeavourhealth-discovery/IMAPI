@@ -10,15 +10,20 @@ public class SimpleMap {
   String code;
   String scheme;
   String iri;
+  String alternativeCode;
+  String codeId;
 
   public SimpleMap() {
   }
 
-  public SimpleMap(String iri, String name, String code, String scheme) {
+  public SimpleMap(String iri, String name, String code, String scheme,String alternativeCode, String codeId) {
     this.name = name;
     this.code = code;
     this.scheme = scheme;
     this.iri = iri;
+    this.alternativeCode = alternativeCode;
+    this.codeId = codeId;
+
   }
 
   public SimpleMap setName(String name) {

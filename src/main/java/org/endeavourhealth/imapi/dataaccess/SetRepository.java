@@ -285,6 +285,7 @@ public class SetRepository {
         legacy.setName(cl.getName());
         legacy.setScheme(cl.getScheme());
         legacy.setCodeId(cl.getCodeId());
+        legacy.setAlternativeCode(cl.getAlternativeCode());
         legacy.setUsage(cl.getUsage());
       }
       Value lid = bs.getValue(IM_1_ID);
@@ -403,6 +404,7 @@ public class SetRepository {
         Value lsn = bs.getValue("legacySchemeName");
         Value luse = bs.getValue("legacyUse");
         Value codeId = bs.getValue("legacyCodeId");
+        Value legacyAlternativeCode = bs.getValue("legacyAlternativeCode");
         String legacyStatus = bs.getValue(LEGACY_STATUS) != null ? bs.getValue(LEGACY_STATUS).stringValue() : null;
         String legacyStatusName = bs.getValue(LEGACY_STATUS_NAME) != null ? bs.getValue(LEGACY_STATUS_NAME).stringValue() : null;
         if (null != legacyStatus && null != legacyStatusName)
@@ -415,6 +417,9 @@ public class SetRepository {
         }
         if (codeId != null) {
           legacy.setCodeId(codeId.stringValue());
+        }
+        if (legacyAlternativeCode != null) {
+          legacy.setAlternativeCode(legacyAlternativeCode.stringValue());
         }
         legacy.setUsage(luse == null ? 0 : ((Literal) luse).intValue());
       }
@@ -503,7 +508,7 @@ public class SetRepository {
     }
     select.append("?term ?code ?scheme ?schemeName ?status ?statusName ?im1Id ?use ?codeId ?alternativeCode ");
     if (includeLegacy) {
-      select.append("?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id ?legacyUse ?legacyCodeId ");
+      select.append("?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id ?legacyUse ?legacyCodeId ?legacyAlternativeCode");
     }
     select.append("\n")
       .append("""
@@ -559,6 +564,7 @@ public class SetRepository {
           OPTIONAL { ?legacy im:status ?legacyStatus . ?legacyStatus rdfs:label ?legacyStatusName . }
           OPTIONAL { ?legacy im:usageTotal ?legacyUse }
           OPTIONAL { ?legacy im:codeId ?codeId}
+          OPTIONAL { ?legacy im:alternativeCode ?legacyAlternativeCode.}
           OPTIONAL { ?legacy im:codeId ?legacyCodeId }
         """);
       if (!schemes.isEmpty()) {

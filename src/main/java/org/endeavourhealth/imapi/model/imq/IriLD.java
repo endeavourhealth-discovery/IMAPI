@@ -14,20 +14,10 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonPropertyOrder({"iri", "qualifier", "name", "description"})
 public class IriLD {
-  @Getter
-  @Setter
   private String iri;
-  @Getter
-  @Setter
   private String name;
-  @Getter
-  @Setter
   private String description;
-  @Getter
-  @Setter
   private String uuid;
-
-
 
   public String getDescription() {
     return description;
@@ -37,8 +27,6 @@ public class IriLD {
     this.description = description;
     return this;
   }
-
-
 
   public String getIri() {
     return iri;
@@ -79,5 +67,13 @@ public class IriLD {
       }
     }
     return iri;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 }

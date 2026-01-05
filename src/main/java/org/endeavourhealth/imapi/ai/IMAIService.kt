@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.logic.service.DataModelService
+import org.endeavourhealth.imapi.logic.service.EntityService
 import org.endeavourhealth.imapi.logic.service.SearchService
 import org.endeavourhealth.imapi.model.DataModelProperty
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException
@@ -28,7 +29,13 @@ class IMAIService {
   private val om = ObjectMapper()
   private val dataModelService = DataModelService()
   private val searchService = SearchService()
+  private val entityService = EntityService()
 
+  @Tool(description = "Gets the name of a given IRI to ensure the IRI exists, and check its correctness")
+  fun getNameFromiri(iri: URI): String {
+    log.debug("Getting name for $iri")
+    return entityService.getName(iri.toString())
+  }
   @Tool(description = "Get the properties (and their types) of a data model given its IRI")
   fun getHealthDataModelProperties(iri: URI): List<DataModelProperty> {
     log.debug("Getting properties for model $iri")

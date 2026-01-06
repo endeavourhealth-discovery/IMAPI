@@ -380,35 +380,6 @@ public class QueryService {
   }
 
 
-  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
-    if (path.getVariable() != null) {
-      if (nodeRefs.contains(path.getVariable())) {
-        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false);
-      }
-      if (path.getPath() != null) {
-        for (Path subPath : path.getPath()) {
-          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
-          if (nodeShape != null) return nodeShape;
-        }
-      }
-    }
-    return null;
-  }
-
-  private void getNodeRefs(Match match, Set<String> nodeRefs) {
-    Where where = match.getWhere();
-    if (where != null) {
-      if (where.getNodeRef() != null) {
-        nodeRefs.add(where.getNodeRef());
-      }
-      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
-        if (whereList != null) {
-          for (Where subWhere : whereList)
-            getNodeRefs(subWhere, nodeRefs);
-        }
-      }
-    }
-  }
 
   private void getNodeRefs(Where where, Set<String> nodeRefs) {
     if (where.getNodeRef() != null) {
@@ -429,7 +400,7 @@ public class QueryService {
   }
 
   public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
-    return new IMQToIML().getIML(queryIri, true);
+    return new IMQToIML().getIML(queryIri);
   }
 
 
@@ -447,9 +418,7 @@ public class QueryService {
       indicator.setnumerator(entity.get(IM.NUMERATOR).asIriRef());
     }
     if (entity.get(IM.HAS_DATASET) != null) {
-      Query dataset = entity.get(IM.HAS_DATASET).asLiteral().objectValue(Query.class);
-      new QueryDescriptor().describeQuery(dataset, DisplayMode.ORIGINAL);
-      indicator.setDataset(dataset);
+      indicator.setDataset(entity.get(IM.HAS_DATASET).asIriRef());;
     }
     if (entity.get(IM.IS_SUBINDICATOR_OF) != null) {
       indicator.setIsSubIndicatorOf(entity.get(IM.IS_SUBINDICATOR_OF).getElements()

@@ -17,65 +17,23 @@ public interface IMLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIml(IMLParser.ImlContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link IMLParser#prefix}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrefix(IMLParser.PrefixContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#default}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDefault(IMLParser.DefaultContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link IMLParser#definition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitDefinition(IMLParser.DefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#matchStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMatchStatement(IMLParser.MatchStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#entity}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEntity(IMLParser.EntityContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#fromStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFromStatement(IMLParser.FromStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#booleanExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBooleanExpression(IMLParser.BooleanExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#nestedBooleanExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitNestedBooleanExpression(IMLParser.NestedBooleanExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#disjunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDisjunction(IMLParser.DisjunctionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#conjunction}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitConjunction(IMLParser.ConjunctionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#whereStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitWhereStatement(IMLParser.WhereStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#property}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitProperty(IMLParser.PropertyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMLParser#expression}.
 	 * @param ctx the parse tree
@@ -83,41 +41,185 @@ public interface IMLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(IMLParser.ExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#exclusion}.
+	 * Visit a parse tree produced by {@link IMLParser#assignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitExclusion(IMLParser.ExclusionContext ctx);
+	T visitAssignment(IMLParser.AssignmentContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#pathSegment}.
+	 * Visit a parse tree produced by {@link IMLParser#iriRef}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPathSegment(IMLParser.PathSegmentContext ctx);
+	T visitIriRef(IMLParser.IriRefContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#conceptExpression}.
+	 * Visit a parse tree produced by {@link IMLParser#matchType}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitConceptExpression(IMLParser.ConceptExpressionContext ctx);
+	T visitMatchType(IMLParser.MatchTypeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#rangeExpression}.
+	 * Visit a parse tree produced by {@link IMLParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRangeExpression(IMLParser.RangeExpressionContext ctx);
+	T visitType(IMLParser.TypeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#range}.
+	 * Visit a parse tree produced by {@link IMLParser#match}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitRange(IMLParser.RangeContext ctx);
+	T visitMatch(IMLParser.MatchContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#valueCompare}.
+	 * Visit a parse tree produced by {@link IMLParser#path}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitValueCompare(IMLParser.ValueCompareContext ctx);
+	T visitPath(IMLParser.PathContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#orderBy}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrderBy(IMLParser.OrderByContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#matchIn}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatchIn(IMLParser.MatchInContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#from}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFrom(IMLParser.FromContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#keepAs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKeepAs(IMLParser.KeepAsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#booleanMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBooleanMatch(IMLParser.BooleanMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#nestedBooleanMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNestedBooleanMatch(IMLParser.NestedBooleanMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#disjunctionMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDisjunctionMatch(IMLParser.DisjunctionMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#exclusionMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExclusionMatch(IMLParser.ExclusionMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#conjunctionMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConjunctionMatch(IMLParser.ConjunctionMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#disjunctionWhere}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDisjunctionWhere(IMLParser.DisjunctionWhereContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#conjunctionWhere}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConjunctionWhere(IMLParser.ConjunctionWhereContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#nestedBooleanWhere}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNestedBooleanWhere(IMLParser.NestedBooleanWhereContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#booleanWhere}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBooleanWhere(IMLParser.BooleanWhereContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#whereClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereClause(IMLParser.WhereClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#where}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhere(IMLParser.WhereContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#property}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProperty(IMLParser.PropertyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#propertyOf}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPropertyOf(IMLParser.PropertyOfContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#whereIs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereIs(IMLParser.WhereIsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#concept}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitConcept(IMLParser.ConceptContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#disjunctionConcept}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDisjunctionConcept(IMLParser.DisjunctionConceptContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#whereRange}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereRange(IMLParser.WhereRangeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#units}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnits(IMLParser.UnitsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#whereRelativeTo}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereRelativeTo(IMLParser.WhereRelativeToContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link IMLParser#whereValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhereValue(IMLParser.WhereValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMLParser#functionExpression}.
 	 * @param ctx the parse tree

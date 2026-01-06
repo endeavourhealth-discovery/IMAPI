@@ -103,6 +103,18 @@
     },
     {
       "path": [
+        "http://endhealth.info/im#condition"
+      ],
+      "dataModel": "http://endhealth.info/im#Condition"
+    },
+    {
+      "path": [
+        "http://endhealth.info/im#procedure"
+      ],
+      "dataModel": "http://endhealth.info/im#Procedure"
+    },
+    {
+      "path": [
         "http://endhealth.info/im#clinicalEntry"
       ],
       "dataModel": "http://endhealth.info/im#ClinicalEntry"
@@ -307,7 +319,9 @@
     {
       "dataModels": [
         "http://endhealth.info/im#Observation",
-        "http://endhealth.info/im#ClinicalEntry"
+        "http://endhealth.info/im#ClinicalEntry",
+        "http://endhealth.info/im#Condition",
+        "http://endhealth.info/im#Procedure"
       ],
       "table": "observation",
       "fields": {

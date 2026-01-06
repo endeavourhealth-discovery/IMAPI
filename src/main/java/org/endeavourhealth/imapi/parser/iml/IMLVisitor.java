@@ -71,11 +71,11 @@ public interface IMLVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhereStatement(IMLParser.WhereStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link IMLParser#standaloneExpression}.
+	 * Visit a parse tree produced by {@link IMLParser#property}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStandaloneExpression(IMLParser.StandaloneExpressionContext ctx);
+	T visitProperty(IMLParser.PropertyContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMLParser#expression}.
 	 * @param ctx the parse tree
@@ -88,12 +88,6 @@ public interface IMLVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExclusion(IMLParser.ExclusionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link IMLParser#pathExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPathExpression(IMLParser.PathExpressionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link IMLParser#pathSegment}.
 	 * @param ctx the parse tree

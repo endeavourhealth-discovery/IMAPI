@@ -3,7 +3,7 @@ grammar IML;
 // Parser Rules
 iml : definition EOF;
 
-definition : DEFINE IDENTIFIER AS OPEN_BRACE matchStatement CLOSE_BRACE;
+definition : DEFINE IRIREF AS OPEN_BRACE matchStatement CLOSE_BRACE;
 
 
 matchStatement : MATCH entity
@@ -34,7 +34,7 @@ expression : nestedBooleanExpression
 exclusion : (EXCLUDE IF expression)+;
 
 
-pathSegment : (ARROW|OPTIONAL_ARROW) IDENTIFIER)+ ;
+pathSegment : (ARROW|OPTIONAL_ARROW) IDENTIFIER+ ;
 
 conceptExpression : property (OF|IS|IN|EQ) IDENTIFIER;
 
@@ -92,8 +92,10 @@ LT : '<';
 LTE : '<=';
 EQ : '=';
 NEQ : '!=';
-
-VARIABLE : IDENTIFIER ':';
+PNAME_NS
+   : IDENTIFIER? ':'
+   ;
+IRIREF : PNAME_NS IDENTIFIER;
 IDENTIFIER : [a-zA-Z][a-zA-Z0-9_]+;
 NUMBER : [0-9]+;
 WS : [ \t\r\n]+ -> skip;

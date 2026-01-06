@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
@@ -18,8 +19,10 @@ public class IMQToIML extends QueryDescriptor{
   private final Map<String,String> prefixes= new HashMap<>();
   private final IMLLanguage language= new IMLLanguage();
   private final List<String> definitions= new ArrayList<>();
+  private String defaultDataModel;
   private final Map<String,String> variables= new HashMap<>();
   private String entityType;
+  private Set<String> impliedProperties= Set.of(Namespace.IM+"concept");
 
 
 
@@ -34,6 +37,7 @@ public class IMQToIML extends QueryDescriptor{
       StringBuilder dsl = new StringBuilder();
 
       Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+      defaultDataModel= query.getTypeOf()!=null ?query.getTypeOf().getIri(): Namespace.IM.toString();
       describeQuery(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimizeQuery(query);
       dsl.append("Define ");
@@ -49,6 +53,7 @@ public class IMQToIML extends QueryDescriptor{
       dsl.append(addDefinitions());
       dsl.append("\n");
       dsl.append(addPrefixes());
+      dsl.append("DefaultNamespace=").append(defaultDataModel).append("\n");
       language.setText(dsl.toString());
       return language;
     } catch (Exception ex) {
@@ -110,6 +115,9 @@ public class IMQToIML extends QueryDescriptor{
   private String convertQuery(String entityIri,Query query) throws QueryException {
     variables.clear();
     StringBuilder clause= new StringBuilder();
+    if (query.getTypeOf()!=null) {
+      clause.append(getVariableFromIri(entityIri, Context.TYPE)).append("\n");
+    }
     if (query.getReturn()!=null) {
       clause.append("Get ");
       clause.append(convertReturn(query.getReturn()));
@@ -123,7 +131,7 @@ public class IMQToIML extends QueryDescriptor{
       clause.append("from ");
       clause.append(cohort).append("\n");
     }
-    clause.append(convertBooleans(query));
+    clause.append(convertMatch(query,null));
     if (query.getColumnGroup()!=null){
       clause.append("\n");
       for (Match columnGroup:query.getColumnGroup()) {
@@ -212,10 +220,10 @@ public class IMQToIML extends QueryDescriptor{
       if (match.getAnd()!=null||match.getOr()!=null)
         hasNested= true;
       if (index==0){
-        clause.append(operator==Bool.or ? "Either ": operator==Bool.not ? "Exclude if ":hasNested ?"and if ": "");
+        clause.append(operator==Bool.or ? "Either ": operator==Bool.not ? "Exclude ": "and ");
       }
       else {
-        clause.append(operator== Bool.not ?"Exclude if ":operator==Bool.and ?" and if ":"or ").append(" ");
+        clause.append(operator== Bool.not ?"Exclude ":operator==Bool.and ?" and ":"or ").append(" ");
       }
 
       if (hasNested)
@@ -227,52 +235,58 @@ public class IMQToIML extends QueryDescriptor{
     return clause.toString();
   }
 
+
   private String convertMatch(Match match,String from) throws QueryException {
     StringBuilder clause = new StringBuilder();
+    if (match.getOrderBy() != null) {
+      clause.append(describeOrderBy(match.getOrderBy())).append(" ");
+    }
+    if (match.getPath() != null) {
+      clause.append(convertPath(match, match.getPath(), from));
+      return clause.toString();
+    }
     clause.append(convertMatchContent(match, from));
     return clause.toString();
   }
+
   private String convertMatchContent(Match match,String from) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     if (match.getAnd()!=null||match.getOr()!=null||match.getNot()!=null) {
       clause.append(convertBooleans(match));
       return clause.toString();
     }
-    if (match.getOrderBy() != null) {
-      clause.append(describeOrderBy(match.getOrderBy())).append(" ");
+    if (match.getNodeRef()!=null){
+      clause.append(match.getNodeRef()).append(" ");
     }
     if (match.getIs() != null) {
-      clause.append("is ");
+      clause.append("in ");
       StringBuilder cohort= new StringBuilder();
       for (Node node:match.getIs()) {
         cohort.append(!cohort.toString().isEmpty() ? "," : "").append(getVariableFromIri(node.getIri(), Context.SINGLE));
       }
-      clause.append(cohort).append("\n");
-    }
-    if (match.getTypeOf()!=null) {
-      clause.append(getVariableFromIri(match.getTypeOf().getIri(), Context.SINGLE)).append(" ");
+      clause.append(cohort).append(" ");
     }
 
     if (match.getWhere() != null) {
       clause.append(convertWhere(match.getWhere(),0,match.getVariable(),from)).append(" ");
     }
-    if (match.getPath()!=null){
-      clause.append(convertPath(match,match.getPath(),from));
-      return clause.toString();
+    if (match.getKeepAs()!=null){
+      clause.append("as ").append(match.getKeepAs());
     }
 
     clause.append("\n");
     return clause.toString();
-
   }
 
   private String convertPath(Match match,List<Path> paths,String from) throws QueryException {
     StringBuilder clause= new StringBuilder();
     for (Path path : paths) {
-      clause.append("Link ");
       if (path.getIri() != null) {
-        clause.append(getVariableFromIri(path.getIri(), Context.PROPERTY)).append(" ").append(path.getVariable()).append(" ");
-        clause.append(getMatchWheres(match, path.getVariable(), from));
+        clause.append(getVariableFromIri(path.getIri(), Context.PROPERTY)).append(" ");
+        if (path.getVariable()!=null){
+          clause.append(path.getVariable()).append(" ");
+        }
+        clause.append(convertMatchContent(match,from));
         if (path.getPath() != null) {
           clause.append(convertPath(match, path.getPath(), from));
         }
@@ -281,15 +295,7 @@ public class IMQToIML extends QueryDescriptor{
     return clause.toString();
   }
 
-  private String getMatchWheres(Match match, String nodeRef,String from) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-    if (match.getWhere()!=null) {
-      clause.append(convertWhere(match.getWhere(), 0,nodeRef,from));
-    }
-    else
-      clause.append(convertBooleans(match));
-    return clause.toString();
-  }
+
 
 
   private String convertValuePath(Path path) throws QueryException {
@@ -319,20 +325,18 @@ public class IMQToIML extends QueryDescriptor{
       }
     }
     if (where.getIri() != null) {
-      clause.append(getVariableFromIri(where.getIri(), Context.SINGLE)).append(" ");
+      if (!impliedProperties.contains(where.getIri())) {
+        clause.append(getVariableFromIri(where.getIri(), Context.PROPERTY)).append(" ");
+      }
       if (from!=null){
         clause.append("of ").append(from).append(" ");
       }
-      if (where.getIs()!=null &&where.getValueLabel()!=null){
-        clause.append("is ").append(where.getValueLabel()).append(" ");
-        return clause.toString();
-      }
-      else if (where.getOperator() != null) {
+      if (where.getOperator() != null) {
         if (where.isNot())
           clause.append("not ");
         clause.append(convertValueWhere(where));
       } else if (where.getIs() != null) {
-        clause.append("of ").append(getVariableFromIri(where.getIs(), Context.SINGLE));
+        clause.append(getVariableFromIri(where.getIs(), Context.VALUE));
       } else if (where.getRange() != null) {
         clause.append(convertRangeWhere(where));
       }
@@ -367,7 +371,7 @@ public class IMQToIML extends QueryDescriptor{
     }
     RelativeTo relativeTo= where.getRelativeTo();
     if (relativeTo.getIri()!=null){
-      clause.append(getVariableFromIri(relativeTo.getIri(), Context.SINGLE)).append(" of  ");
+      clause.append(getVariableFromIri(relativeTo.getIri(), Context.PROPERTY)).append(" of  ");
     }
     if (relativeTo.getParameter()!=null){
       clause.append(relativeTo.getParameter()).append(" ");
@@ -437,8 +441,8 @@ public class IMQToIML extends QueryDescriptor{
     if (where.getValue()!=null){
       clause.append(where.getValue()).append(" ");
     }
-    if (where.getUnits()!=null&&where.getFunction()==null){
-      clause.append(getVariableFromIri(where.getUnits().getIri(),Context.PLURAL)).append(" ");
+    if (where.getUnits()!=null){
+      clause.append(getVariableFromIri(where.getUnits().getIri(),Context.VALUE)).append(" ");
     }
     return clause.toString();
 
@@ -477,7 +481,9 @@ public class IMQToIML extends QueryDescriptor{
       variable = entity.get(IM.ALTERNATIVE_CODE).asLiteral().getValue();
     }
     else variable = getIdentifier(entity.getName());
-    iriVariables.computeIfAbsent(variable,v-> new HashSet<>()).add(iri);
+    if (context!=Context.PROPERTY&&context!=Context.TYPE) {
+      iriVariables.computeIfAbsent(variable, v -> new HashSet<>()).add(iri);
+    }
     return variable;
   }
 

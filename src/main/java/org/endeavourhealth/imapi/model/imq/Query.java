@@ -18,8 +18,6 @@ public class Query extends Match {
   private Prefixes prefixes;
   private String description;
   private List<Match> columnGroup;
-
-
   private String iri;
   private String name;
   private boolean imQuery;
@@ -36,6 +34,8 @@ public class Query extends Match {
     super.setParameter(parameter);
     return this;
   }
+
+
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;

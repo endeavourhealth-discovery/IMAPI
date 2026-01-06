@@ -159,7 +159,6 @@ public class QueryDescriptor {
 
 
   public void describeMatch(Match match) {
-    String typeOf;
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
 
 
@@ -490,7 +489,7 @@ public class QueryDescriptor {
           assignable.setValueLabel(value.replace("-", ""));
         }
         if (unit != null) {
-          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getName(), Context.PLURAL));
+          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getName(), Context.VALUE));
         }
       }
     }

@@ -67,9 +67,10 @@ public class EqdListToIMQ {
       if (hasPaths.getPath()!=null) {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
-            if (i == propertyPath.length - 3)
+            if (i == propertyPath.length - 3) {
               return path.getVariable();
-          } else return getNodeRef(path, propertyPath, i + 2);
+            } else return getNodeRef(path, propertyPath, i + 2);
+          }
         }
       }
       else {

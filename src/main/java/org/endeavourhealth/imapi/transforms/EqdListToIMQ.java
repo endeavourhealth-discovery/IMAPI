@@ -63,17 +63,21 @@ public class EqdListToIMQ {
   }
 
   private String getNodeRef(HasPaths hasPaths,String[] propertyPath,int startIndex){
+    String nodeRef=null;
     for (int i=startIndex;i<propertyPath.length-2;i++){
       if (hasPaths.getPath()!=null) {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
             if (i == propertyPath.length - 3) {
               return path.getVariable();
-            } else return getNodeRef(path, propertyPath, i + 2);
+            } else {
+              nodeRef=getNodeRef(path, propertyPath, i + 2);
+              if (nodeRef!=null)
+                return nodeRef;
+            }
           }
         }
       }
-      else {
         Path path=new Path();
         hasPaths.addPath(path);
         path.setIri(propertyPath[i]);
@@ -83,7 +87,6 @@ public class EqdListToIMQ {
         if (i == propertyPath.length - 3)
           return path.getVariable();
         else return getNodeRef(path, propertyPath, i + 2);
-      }
     }
     return null;
   }

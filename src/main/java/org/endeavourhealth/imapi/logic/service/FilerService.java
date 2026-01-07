@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -25,7 +26,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -38,9 +38,9 @@ public class FilerService {
   private final OpenSearchService openSearchService;
   private final UserService userService;
   private final TTEntityFiler entityProvFiler;
+  private final Graph insertGraph = Graph.IM;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
-  private final Graph insertGraph= Graph.IM;
   private IMDB imdb;
 
   public FilerService() {
@@ -126,9 +126,9 @@ public class FilerService {
       setupEntityFiler();
       entityFiler.fileEntity(entity);
 
-     entityFiler.updateIsAs(entity.getIri());
+      entityFiler.updateIsAs(entity.getIri());
 
-      if (entity.isType(iri(IM.VALUESET))||entity.isType((iri(IM.CONCEPT_SET)))) {
+      if (entity.isType(iri(IM.VALUESET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         new SetBinder().bindSet(entity.getIri(), insertGraph);
       }
@@ -141,7 +141,7 @@ public class FilerService {
       writeDelta(entity, activity, provUsedEntity);
       fileOpenSearch(entity.getIri());
     } catch (Exception e) {
-      throw new TTFilerException("Error filing entity: "+e.getMessage(), e);
+      throw new TTFilerException("Error filing entity: " + e.getMessage(), e);
     }
   }
 
@@ -237,9 +237,8 @@ public class FilerService {
     }
   }
 
-  public boolean userCanFile(String agentId, Graph graph) throws JsonProcessingException {
-    List<String> orgList = userService.getUserOrganisations(agentId);
-    return orgList != null && graph != null && orgList.contains(graph.toString());
+  public boolean userCanFile(User user, Graph graph) throws JsonProcessingException {
+    return graph != null && user.getOrganisations().contains(graph.toString());
   }
 
 }

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +28,7 @@ public class CasdoorController {
   private CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping("/user")
-  public User getUser(HttpServletRequest request) throws UserNotFoundException {
+  public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.USER.GET")) {
       log.debug("getUser");
       return casdoorService.getUser(request);
@@ -86,7 +87,7 @@ public class CasdoorController {
 
   @GetMapping(value = "/emailTemporaryPasswords")
   @PreAuthorize("@guard.hasPermission('ADMIN','WRITE')")
-  public void emailTemporaryPasswords(@RequestParam(name = "filePath") String path) throws IOException, MessagingException {
+  public void emailTemporaryPasswords(@RequestParam(name = "filePath") String path) throws MessagingException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.emailTemporaryPasswords.POST")) {
       log.debug("emailTemporaryPasswords");
       casdoorService.emailTemporaryPasswords(path);

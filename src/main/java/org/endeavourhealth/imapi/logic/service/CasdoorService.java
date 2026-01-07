@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,15 +15,18 @@ import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.excel.ExcelReader;
 import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
+import org.endeavourhealth.imapi.model.primevue.FontSize;
+import org.endeavourhealth.imapi.model.primevue.PrimeVueColors;
+import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,6 +35,8 @@ public class CasdoorService {
   private AuthService casdoorAuthService;
   private UserService casdoorUserService;
   private ExcelReader excelReader = new ExcelReader();
+  private ObjectMapper om = new ObjectMapper();
+  private EntityService entityService = new EntityService();
 
   private String clientId = System.getenv("CASDOOR_CLIENT_ID");
   private String endpoint = System.getenv("CASDOOR_ENDPOINT");
@@ -65,14 +73,37 @@ public class CasdoorService {
     }
   }
 
-  public User getUser(HttpServletRequest request) throws UserNotFoundException {
+  public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("access_token")) {
           String token = cookie.getValue();
           org.casbin.casdoor.entity.User user = casdoorAuthService.parseJwtToken(token);
-          return parseUser(user);
+          try {
+            org.casbin.casdoor.entity.User refreshUser = casdoorUserService.getUser(user.name);
+            return casdoorUserToIMUser(refreshUser);
+          } catch (IOException e) {
+            throw new UserNotFoundException(e.getMessage());
+          }
+        }
+      }
+    }
+    throw new UserNotFoundException("User not found");
+  }
+
+  public org.casbin.casdoor.entity.User getCasdoorUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("access_token")) {
+          String token = cookie.getValue();
+          org.casbin.casdoor.entity.User user = casdoorAuthService.parseJwtToken(token);
+          try {
+            return casdoorUserService.getUser(user.name);
+          } catch (IOException e) {
+            throw new UserNotFoundException(e.getMessage());
+          }
         }
       }
     }
@@ -92,7 +123,11 @@ public class CasdoorService {
     throw new UserNotFoundException("User token not found");
   }
 
-  private User parseUser(org.casbin.casdoor.entity.User casdoorUser) {
+  public void updateUser(org.casbin.casdoor.entity.User user) throws UserNotFoundException, IOException {
+    casdoorUserService.updateUser(user);
+  }
+
+  private User casdoorUserToIMUser(org.casbin.casdoor.entity.User casdoorUser) throws JsonProcessingException {
     User user = new User();
     user.setId(casdoorUser.id);
     user.setFirstName(casdoorUser.firstName);
@@ -102,6 +137,33 @@ public class CasdoorService {
     user.setAvatar(casdoorUser.avatar);
     user.setRoles(casdoorUser.roles.stream().map(role -> UserRole.valueOf(role.name)).collect(Collectors.toList()));
     user.setGroups(casdoorUser.groups);
+    if (casdoorUser.properties.containsKey("theme"))
+      user.setTheme(PrimeVuePresetThemes.valueOf(casdoorUser.properties.get("theme")));
+    if (casdoorUser.properties.containsKey("primaryColor"))
+      user.setPrimaryColor(Objects.requireNonNull(PrimeVueColors.Companion.fromValue(casdoorUser.properties.get("primaryColor"))));
+    if (casdoorUser.properties.containsKey("secondaryColor"))
+      user.setSecondaryColor(Objects.requireNonNull(PrimeVueColors.Companion.fromValue(casdoorUser.properties.get("secondaryColor"))));
+    if (casdoorUser.properties.containsKey("darkMode"))
+      user.setDarkMode(casdoorUser.properties.get("darkMode").equals("true"));
+    if (casdoorUser.properties.containsKey("fontSize"))
+      user.setFontSize(Objects.requireNonNull(FontSize.Companion.fromValue(casdoorUser.properties.get("fontSize"))));
+    if (casdoorUser.properties.containsKey("favourites"))
+      user.setFavourites(om.readValue(casdoorUser.properties.get("favourites"), new TypeReference<List<String>>() {
+      }));
+    if (casdoorUser.properties.containsKey("recentActivity")) {
+      List<RecentActivityItemDto> recentActivity = om.readValue(casdoorUser.properties.get("recentActivity"), new TypeReference<List<RecentActivityItemDto>>() {
+      });
+      boolean hasNoneExistingIris = recentActivity.stream().anyMatch(ra -> !entityService.iriExists(ra.getIri()));
+      if (hasNoneExistingIris) {
+        List<RecentActivityItemDto> updatedRecentActivity = recentActivity.stream().filter(ra -> entityService.iriExists(ra.getIri())).collect(Collectors.toList());
+        user.setRecentActivity(updatedRecentActivity);
+      } else {
+        user.setRecentActivity(recentActivity);
+      }
+    }
+    if (casdoorUser.properties.containsKey("organisations"))
+      user.setOrganisations(om.readValue(casdoorUser.properties.get("organisations"), new TypeReference<List<String>>() {
+      }));
     return user;
   }
 
@@ -126,11 +188,19 @@ public class CasdoorService {
   }
 
   public void logout(HttpServletResponse response) {
+    clearAccessToken(response);
+    clearSessionId(response);
+  }
+
+  public void clearAccessToken(HttpServletResponse response) {
     Cookie cookie = new Cookie("access_token", "");
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     cookie.setMaxAge(0);
     response.addCookie(cookie);
+  }
+
+  public void clearSessionId(HttpServletResponse response) {
     Cookie sessionCookie = new Cookie("casdoor_session_id", "");
     sessionCookie.setPath("/");
     sessionCookie.setHttpOnly(true);
@@ -141,7 +211,15 @@ public class CasdoorService {
   public User adminGetUser(String userId) throws UserNotFoundException {
     try {
       org.casbin.casdoor.entity.User casdoorUser = casdoorUserService.getUser(userId);
-      return parseUser(casdoorUser);
+      return casdoorUserToIMUser(casdoorUser);
+    } catch (IOException e) {
+      throw new UserNotFoundException(userId);
+    }
+  }
+
+  public org.casbin.casdoor.entity.User adminGetCasdoorUser(String userId) throws UserNotFoundException {
+    try {
+      return casdoorUserService.getUser(userId);
     } catch (IOException e) {
       throw new UserNotFoundException(userId);
     }
@@ -150,7 +228,13 @@ public class CasdoorService {
   public List<User> adminGetUsersInGroup(UserRole group) throws UserNotFoundException {
     try {
       List<org.casbin.casdoor.entity.User> casdoorUsers = casdoorUserService.getUsers();
-      return casdoorUsers.stream().filter(user -> user.roles.contains(group)).map(user -> parseUser(user)).collect(Collectors.toList());
+      return casdoorUsers.stream().filter(user -> user.roles.contains(group)).map(user -> {
+        try {
+          return casdoorUserToIMUser(user);
+        } catch (JsonProcessingException e) {
+          throw new RuntimeException(e);
+        }
+      }).collect(Collectors.toList());
     } catch (IOException e) {
       throw new UserNotFoundException("Failed to get all users");
     }

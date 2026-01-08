@@ -5,6 +5,8 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.Getter;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
@@ -43,6 +45,7 @@ public class ConnectionManager {
   private final CachingConnectionFactory connectionFactory;
   private final PostgresService postgresService = new PostgresService();
   private final UserService userService = new UserService();
+  private final CasdoorService casdoorService = new CasdoorService();
   private QueryService queryService = new QueryService();
   private boolean createdChannel = false;
 
@@ -106,8 +109,13 @@ public class ConnectionManager {
         } catch (SQLException e) {
           throw new RuntimeException(e);
         }
-        List<Graph> userGraphs = userService.getUserGraphs(String.valueOf(entry.getUserId()));
-        ThreadContext.setUserGraphs(userGraphs);
+        List<String> userGraphs = null;
+        try {
+          userGraphs = casdoorService.adminGetUser(entry.getUserId().toString()).getOrganisations();
+        } catch (UserNotFoundException e) {
+          throw new RuntimeException(e);
+        }
+        ThreadContext.setUserGraphs(userGraphs.stream().map(Graph::valueOf).toList());
         try {
           QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
           if (null == queryService) {

@@ -188,7 +188,7 @@ open class UserController(
   ) {
     MetricsHelper.recordTime("API.User.Organisations.POST").use {
       log.debug("updateUserOrganisations")
-      if (!userService.userIdExists(userId)) throw GeneralCustomException("user not found", HttpStatus.BAD_REQUEST)
+      if (!casdoorService.userExists(userId)) throw GeneralCustomException("user not found", HttpStatus.BAD_REQUEST)
       userService.updateUserOrganisations(userId, organisations)
     }
   }

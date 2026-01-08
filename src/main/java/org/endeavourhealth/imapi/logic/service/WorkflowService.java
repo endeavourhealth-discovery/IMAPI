@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.casbin.casdoor.service.UserService;
-import org.endeavourhealth.imapi.dataaccess.UserRepository;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
@@ -14,10 +13,10 @@ import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,9 +26,10 @@ import java.util.Objects;
 public class WorkflowService {
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final CasdoorService casdoorService = new CasdoorService();
-  private final UserRepository userRepository = new UserRepository();
   @Resource
   private UserService casdoorUserService;
+  @Autowired
+  private org.endeavourhealth.imapi.logic.service.UserService userService;
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -145,10 +145,10 @@ public class WorkflowService {
 
   public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = casdoorService.getUser(request);
-    List<Graph> graphs = userRepository.getUserGraphs(user.getId());
-    if (!graphs.contains(graphRequest.getGraph())) {
-      graphs.add(graphRequest.getGraph());
-      userRepository.updateUserGraphs(user.getId(), graphs);
+    List<String> graphs = user.getOrganisations();
+    if (!graphs.contains(graphRequest.getGraph().toString())) {
+      graphs.add(graphRequest.getGraph().toString());
+      userService.updateUserOrganisations(user.getId(), graphs);
     }
     workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());

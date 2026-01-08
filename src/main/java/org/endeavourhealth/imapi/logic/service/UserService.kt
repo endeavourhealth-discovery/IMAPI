@@ -1,20 +1,17 @@
 package org.endeavourhealth.imapi.logic.service
 
 import org.casbin.casdoor.entity.User
-import org.endeavourhealth.imapi.dataaccess.UserRepository
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
 import org.endeavourhealth.imapi.model.primevue.FontSize
 import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
 import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
 import org.endeavourhealth.imapi.model.tripletree.TTEntity
-import org.endeavourhealth.imapi.vocabulary.Graph
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet
 import org.springframework.stereotype.Component
 
 @Component
 class UserService {
-  private val userRepository = UserRepository()
   private val entityService = EntityService()
   private val casdoorService = CasdoorService()
 
@@ -76,21 +73,9 @@ class UserService {
     casdoorService.updateUser(user)
   }
 
-  fun userIdExists(userId: String): Boolean {
-    return userRepository.getUserIdExists(userId)
-  }
-
   fun getEditAccess(user: org.endeavourhealth.imapi.model.casdoor.User, entityIri: String): Boolean {
     val predicates: Set<String> = asHashSet(IM.HAS_SCHEME)
     val entity: TTEntity = entityService.getBundle(entityIri, predicates).entity
     return user.organisations.contains(entity.scheme?.iri)
-  }
-
-  fun getUserGraphs(userId: String): List<Graph> {
-    return try {
-      userRepository.getUserGraphs(userId)
-    } catch (e: IllegalArgumentException) {
-      listOf(Graph.IM)
-    }
   }
 }

@@ -208,6 +208,10 @@ public class CasdoorService {
     response.addCookie(sessionCookie);
   }
 
+  public boolean userExists(String userId) throws IOException {
+    return casdoorUserService.getUsers().stream().anyMatch(user -> user.id.equals(userId));
+  }
+
   public User adminGetUser(String userId) throws UserNotFoundException {
     try {
       org.casbin.casdoor.entity.User casdoorUser = casdoorUserService.getUser(userId);

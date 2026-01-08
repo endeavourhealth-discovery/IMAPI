@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class RestInterceptor implements HandlerInterceptor {
@@ -27,8 +26,7 @@ public class RestInterceptor implements HandlerInterceptor {
         ThreadContext.setUserGraphs(new ArrayList<>());
         return true;
       }
-      List<Graph> userGraphs = userService.getUserGraphs(user.getId());
-      ThreadContext.setUserGraphs(userGraphs);
+      ThreadContext.setUserGraphs(user.getOrganisations().stream().map(Graph::valueOf).toList());
     } catch (UserNotFoundException e) {
       return true;
     }

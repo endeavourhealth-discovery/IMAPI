@@ -63,16 +63,21 @@ public class EqdListToIMQ {
   }
 
   private String getNodeRef(HasPaths hasPaths,String[] propertyPath,int startIndex){
+    String nodeRef=null;
     for (int i=startIndex;i<propertyPath.length-2;i++){
       if (hasPaths.getPath()!=null) {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
-            if (i == propertyPath.length - 3)
+            if (i == propertyPath.length - 3) {
               return path.getVariable();
-          } else return getNodeRef(path, propertyPath, i + 2);
+            } else {
+              nodeRef=getNodeRef(path, propertyPath, i + 2);
+              if (nodeRef!=null)
+                return nodeRef;
+            }
+          }
         }
       }
-      else {
         Path path=new Path();
         hasPaths.addPath(path);
         path.setIri(propertyPath[i]);
@@ -82,7 +87,6 @@ public class EqdListToIMQ {
         if (i == propertyPath.length - 3)
           return path.getVariable();
         else return getNodeRef(path, propertyPath, i + 2);
-      }
     }
     return null;
   }
@@ -121,9 +125,16 @@ public class EqdListToIMQ {
       for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
-        String[] subPath = (tablePath+" "+resources.getIMPath(eqURL)).trim().split(" ");
-        String nodeRef=getNodeRef(subQuery,subPath,0);
-        convertColumn(aReturn, subPath[subPath.length-1],eqCol.getDisplayName(),nodeRef);
+        String columnPath = resources.getIMPath(eqURL);
+        if (columnPath.contains("$concat(")){
+          convertReturnConcatenate(aReturn,subQuery,eqTable,tablePath,columnPath,eqCol.getDisplayName());
+          continue;
+        }
+        else {
+          String[] subPath = (tablePath+" "+ columnPath).trim().split(" ");
+          String nodeRef = getNodeRef(subQuery, subPath, 0);
+          convertColumn(aReturn, subPath[subPath.length - 1], eqCol.getDisplayName(), nodeRef);
+        }
       }
     }
     return subQuery;
@@ -139,7 +150,7 @@ public class EqdListToIMQ {
         property.setAs(as);
   }
 
-  private void convertReturnConcatenate(Return aReturn, String subPath, String as) throws EQDException {
+  private void convertReturnConcatenate(Return aReturn, Match match,String eqTable, String tablePath,String eqPaths,String as) throws EQDException {
     FunctionClause function = new FunctionClause();
     ReturnProperty property = new ReturnProperty();
     aReturn.addProperty(property);
@@ -147,20 +158,18 @@ public class EqdListToIMQ {
     if (as!=null)
       property.setAs(as);
     function.setIri(IM.CONCATENATE.toString());
-    subPath = subPath.substring(subPath.indexOf("$concat(") + 8, subPath.length() - 1);
-    ObjectMapper mapper = new ObjectMapper();
-    try {
-      List<Path> valuePaths = mapper.readValue(subPath, new TypeReference<List<Path>>() {
-      });
-      for (Path valuePath : valuePaths) {
+    String concats= eqPaths.substring(eqPaths.indexOf("$concat(") + 8, eqPaths.length() - 1);
+    for (String eqPath : concats.split(" ")) {
+      String eqURL = eqTable + "/" + eqPath;
+      String columnPath = resources.getIMPath(eqURL);
+      String[] subPath= (tablePath+" "+ columnPath).trim().split(" ");
+      String nodeRef = getNodeRef(match, subPath, 0);
         Argument arg = new Argument();
         function.addArgument(arg);
-        arg.setParameter("text");
-        arg.setValuePath(valuePath);
+        Path argPath = new Path();
+        argPath.setNodeRef(nodeRef);
+        argPath.setIri(subPath[subPath.length-1]);
+        arg.setValuePath(argPath);
       }
-    } catch (JsonProcessingException e) {
-      throw new EQDException(e.getMessage(), e);
     }
-  }
-
 }

@@ -214,6 +214,10 @@
         "value": "Namespace.IM + \"Concept\""
       },
       {
+        "name": "CODEABLE",
+        "value": "Namespace.IM + \"Codeable\""
+      },
+      {
         "name": "CONCEPT_PROPERTY",
         "value": "Namespace.IM + \"concept\""
       },

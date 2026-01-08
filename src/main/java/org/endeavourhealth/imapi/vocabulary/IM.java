@@ -50,6 +50,7 @@ public enum IM implements VocabEnum {
     UPDATE_PROCEDURE(Namespace.IM + "updateProcedure"),
     INVERSE_PATH(Namespace.IM + "inversePath"),
     CONCEPT(Namespace.IM + "Concept"),
+    CODEABLE(Namespace.IM + "Codeable"),
     CONCEPT_PROPERTY(Namespace.IM + "concept"),
     CONCEPT_SET(Namespace.IM + "ConceptSet"),
     FOLDER(Namespace.IM + "Folder"),

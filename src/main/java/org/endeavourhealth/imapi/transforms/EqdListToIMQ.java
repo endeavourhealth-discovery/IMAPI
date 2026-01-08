@@ -46,49 +46,63 @@ public class EqdListToIMQ {
   private Match convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     Match subQuery;
-
-    if (eqColGroup.getCriteria() == null) {
-      subQuery = convertPatientColumns(eqColGroup, eqTable);
-      subQuery.setName(eqColGroup.getDisplayName());
-      return subQuery;
-    } else {
-      subQuery = convertEventColumns(eqColGroup, eqTable);
-      subQuery.setName(eqColGroup.getDisplayName());
-      return subQuery;
-    }
-  }
-
-  private Match convertPatientColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws EQDException {
-    Match subQuery = new Match();
-    EQDOCListColumns eqCols = eqColGroup.getColumnar();
-    Return select = new Return();
-    subQuery.setReturn(select);
-    for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
-      String eqColumn = String.join("/", eqCol.getColumn());
-      String eqULR = eqTable + "/" + eqColumn;
-      String propertyPath = resources.getIMPath(eqULR);
-      convertColumn(select, propertyPath, eqCol.getDisplayName());
-    }
+    subQuery= convertColumns(eqColGroup,eqTable);
+    subQuery.setName(eqColGroup.getDisplayName());
     return subQuery;
   }
 
-  private Match convertEventColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
+
+  private HasPaths getLeafPath(HasPaths hasPaths) {
+    if (hasPaths.getPath()!=null){
+      if (hasPaths.getPath().getFirst().getPath()!=null){
+        return getLeafPath(hasPaths.getPath().getFirst());
+      }
+      else return hasPaths.getPath().getFirst();
+    }
+    return hasPaths;
+  }
+
+  private String getNodeRef(HasPaths hasPaths,String[] propertyPath,int startIndex){
+    String nodeRef=null;
+    for (int i=startIndex;i<propertyPath.length-2;i++){
+      if (hasPaths.getPath()!=null) {
+        for (Path path : hasPaths.getPath()) {
+          if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
+            if (i == propertyPath.length - 3) {
+              return path.getVariable();
+            } else {
+              nodeRef=getNodeRef(path, propertyPath, i + 2);
+              if (nodeRef!=null)
+                return nodeRef;
+            }
+          }
+        }
+      }
+        Path path=new Path();
+        hasPaths.addPath(path);
+        path.setIri(propertyPath[i]);
+        path.setOptional(true);
+        path.setVariable(resources.getAcronym(propertyPath[i+1]));
+        path.setTypeOf(new Node().setIri(propertyPath[i+1]));
+        if (i == propertyPath.length - 3)
+          return path.getVariable();
+        else return getNodeRef(path, propertyPath, i + 2);
+    }
+    return null;
+  }
+
+  private Match convertColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
     resources.setRule(1);
     resources.setSubRule(1);
-    Match subQuery = resources.convertCriteria(eqColGroup.getCriteria());
+    String tablePath = resources.getIMPath(eqTable);
+    Match subQuery;
+    if (eqColGroup.getCriteria()!=null)
+      subQuery = resources.convertCriteria(eqColGroup.getCriteria());
+    else {
+      subQuery = new Match();
+    }
     Return aReturn = new Return();
     subQuery.setReturn(aReturn);
-    String nodeRef = resources.getNodeRef(subQuery);
-    String tablePath = resources.getIMPath(eqTable);
-    String[] paths = tablePath.split(" ");
-    for (int i = 2; i < paths.length - 1; i = i + 2) {
-      ReturnProperty property = new ReturnProperty();
-      property.setNodeRef(nodeRef);
-      property.setIri(paths[i].replace("^", ""));
-      aReturn.addProperty(property);
-      aReturn = property.setReturn(new Return()).getReturn();
-    }
-
     if (eqColGroup.getColumnar() == null) {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
@@ -107,43 +121,24 @@ public class EqdListToIMQ {
           throw new QueryException("unmapped summary function : " + eqColGroup.getSummary().value());
       }
     } else {
-      aReturn
-        .property(p -> p
-          .as("Y-N")
-          .case_(c -> c
-            .when(w -> w
-              .setExists(true)
-              .setThen("Y"))
-            .setElse("N")));
       EQDOCListColumns eqCols = eqColGroup.getColumnar();
       for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
-        String subPath = resources.getIMPath(eqURL);
-        if (!subPath.contains("notSupported"))
-          convertColumn(aReturn, subPath, eqCol.getDisplayName());
+        String[] subPath = (tablePath+" "+resources.getIMPath(eqURL)).trim().split(" ");
+        String nodeRef=getNodeRef(subQuery,subPath,0);
+        convertColumn(aReturn, subPath[subPath.length-1],eqCol.getDisplayName(),nodeRef);
       }
     }
     return subQuery;
   }
 
-  private void convertColumn(Return aReturn, String subPath, String as) throws EQDException {
-    if (subPath.contains("$concat")) {
-      convertReturnConcatenate(aReturn, subPath, as);
-      return;
-    }
-    String[] elements = subPath.split(" ");
-      for (int i = 0; i < elements.length - 1; i = i + 2) {
-        ReturnProperty path = new ReturnProperty();
-        path.setIri(elements[i]);
-        aReturn.addProperty(path);
-        aReturn = new Return();
-        path.setReturn(aReturn);
-      }
+  private void convertColumn(Return aReturn, String propertyIri,String as,String nodeRef) throws EQDException {
       ReturnProperty property = new ReturnProperty();
       aReturn.addProperty(property);
       property
-        .setIri(elements[elements.length - 1]);
+        .setIri(propertyIri)
+        .setNodeRef(nodeRef);
       if (as != null)
         property.setAs(as);
   }

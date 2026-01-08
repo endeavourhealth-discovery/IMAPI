@@ -1,11 +1,12 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import jakarta.annotation.Resource;
+import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.endeavourhealth.imapi.aws.AWSCognitoClient;
-import org.endeavourhealth.imapi.aws.UserNotFoundException;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
@@ -20,6 +21,7 @@ import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +32,8 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 
 public class WorkflowRepository {
   private final TaskFilerRdf4j taskFilerRdf4j = new TaskFilerRdf4j();
+  @Resource
+  private UserService casdoorUserService;
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty()) bugReport.setId(TTIriRef.iri(generateId()));
@@ -104,23 +108,33 @@ public class WorkflowRepository {
       qry.setBinding("changeDate", WORKFLOW.HISTORY_CHANGE_DATE.asDbIri());
       qry.setBinding("modifiedBy", WORKFLOW.MODIFIED_BY.asDbIri());
 
-      AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
-
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           TaskHistory taskHistory = new TaskHistory();
           BindingSet bs = rs.next();
           taskHistory.setPredicate(bs.getValue("predicateData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED"))
-            taskHistory.setOriginalObject(awsCognitoClient.adminGetUsername(bs.getValue("originalObjectData").stringValue()));
-          else if (null != bs.getValue("originalObjectData"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED")) {
+            try {
+              taskHistory.setOriginalObject(casdoorUserService.getUser(bs.getValue("originalObjectData").stringValue()).name);
+            } catch (IOException e) {
+              throw new UserNotFoundException(bs.getValue("originalObjectData").stringValue());
+            }
+          } else if (null != bs.getValue("originalObjectData"))
             taskHistory.setOriginalObject(bs.getValue("originalObjectData").stringValue());
-          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED"))
-            taskHistory.setNewObject(awsCognitoClient.adminGetUsername(bs.getValue("newObjectData").stringValue()));
-          else if (null != bs.getValue("newObjectData"))
+          if (bs.getValue("predicateData").stringValue().equals(WORKFLOW.ASSIGNED_TO.toString()) && !bs.getValue("newObjectData").stringValue().equals("UNASSIGNED")) {
+            try {
+              taskHistory.setNewObject(casdoorUserService.getUser(bs.getValue("newObjectData").stringValue()).name);
+            } catch (IOException e) {
+              throw new UserNotFoundException(bs.getValue("newObjectData").stringValue());
+            }
+          } else if (null != bs.getValue("newObjectData"))
             taskHistory.setNewObject(bs.getValue("newObjectData").stringValue());
           taskHistory.setChangeDate(LocalDateTime.parse(bs.getValue("changeDateData").stringValue()));
-          taskHistory.setModifiedBy(awsCognitoClient.adminGetUsername(bs.getValue("modifiedByData").stringValue()));
+          try {
+            taskHistory.setModifiedBy(casdoorUserService.getUser(bs.getValue("modifiedByData").stringValue()).name);
+          } catch (IOException e) {
+            throw new UserNotFoundException(bs.getValue("modifiedByData").stringValue());
+          }
           results.add(taskHistory);
         }
       }
@@ -392,7 +406,7 @@ public class WorkflowRepository {
     return null;
   }
 
-  public void createEntityApproval(EntityApproval entityApproval) throws UserNotFoundException, TaskFilerException {
+  public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
     if (null == entityApproval.getId() || entityApproval.getId().getIri().isEmpty())
       entityApproval.setId(TTIriRef.iri(generateId()));
     taskFilerRdf4j.fileEntityApproval(entityApproval);
@@ -483,14 +497,20 @@ public class WorkflowRepository {
   }
 
   private void mapTaskFromBindingSet(Task task, BindingSet bs) throws UserNotFoundException {
-    AWSCognitoClient awsCognitoClient = new AWSCognitoClient();
-
     task.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
     task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
-    task.setCreatedBy(awsCognitoClient.adminGetUsername(bs.getValue("createdByData").stringValue()));
-    if (!bs.getValue("assignedToData").stringValue().equals("UNASSIGNED"))
-      task.setAssignedTo(awsCognitoClient.adminGetUsername(bs.getValue("assignedToData").stringValue()));
-    else task.setAssignedTo(bs.getValue("assignedToData").stringValue());
+    try {
+      task.setCreatedBy(casdoorUserService.getUser(bs.getValue("createdByData").stringValue()).name);
+    } catch (IOException e) {
+      throw new UserNotFoundException(bs.getValue("createdByData").stringValue());
+    }
+    if (!bs.getValue("assignedToData").stringValue().equals("UNASSIGNED")) {
+      try {
+        task.setAssignedTo(casdoorUserService.getUser(bs.getValue("assignedToData").stringValue()).name);
+      } catch (IOException e) {
+        throw new UserNotFoundException(bs.getValue("assignedToData").stringValue());
+      }
+    } else task.setAssignedTo(bs.getValue("assignedToData").stringValue());
     task.setState(TaskState.valueOf(bs.getValue("stateData").stringValue()));
     task.setDateCreated(LocalDateTime.parse(bs.getValue("dateCreatedData").stringValue()));
     task.setHistory(getHistory(task.getId().getIri()));

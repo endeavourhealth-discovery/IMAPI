@@ -18,6 +18,26 @@ public interface IMLListener extends ParseTreeListener {
 	 */
 	void exitIml(IMLParser.ImlContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link IMLParser#prefix}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrefix(IMLParser.PrefixContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#prefix}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrefix(IMLParser.PrefixContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#default}.
+	 * @param ctx the parse tree
+	 */
+	void enterDefault(IMLParser.DefaultContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#default}.
+	 * @param ctx the parse tree
+	 */
+	void exitDefault(IMLParser.DefaultContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link IMLParser#definition}.
 	 * @param ctx the parse tree
 	 */
@@ -27,96 +47,6 @@ public interface IMLListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDefinition(IMLParser.DefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#matchStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterMatchStatement(IMLParser.MatchStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#matchStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitMatchStatement(IMLParser.MatchStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#entity}.
-	 * @param ctx the parse tree
-	 */
-	void enterEntity(IMLParser.EntityContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#entity}.
-	 * @param ctx the parse tree
-	 */
-	void exitEntity(IMLParser.EntityContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#fromStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterFromStatement(IMLParser.FromStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#fromStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitFromStatement(IMLParser.FromStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#booleanExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBooleanExpression(IMLParser.BooleanExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#booleanExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBooleanExpression(IMLParser.BooleanExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#nestedBooleanExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterNestedBooleanExpression(IMLParser.NestedBooleanExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#nestedBooleanExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitNestedBooleanExpression(IMLParser.NestedBooleanExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#disjunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterDisjunction(IMLParser.DisjunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#disjunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitDisjunction(IMLParser.DisjunctionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#conjunction}.
-	 * @param ctx the parse tree
-	 */
-	void enterConjunction(IMLParser.ConjunctionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#conjunction}.
-	 * @param ctx the parse tree
-	 */
-	void exitConjunction(IMLParser.ConjunctionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#whereStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterWhereStatement(IMLParser.WhereStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#whereStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitWhereStatement(IMLParser.WhereStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link IMLParser#standaloneExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterStandaloneExpression(IMLParser.StandaloneExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link IMLParser#standaloneExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitStandaloneExpression(IMLParser.StandaloneExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMLParser#expression}.
 	 * @param ctx the parse tree
@@ -128,75 +58,305 @@ public interface IMLListener extends ParseTreeListener {
 	 */
 	void exitExpression(IMLParser.ExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#exclusion}.
+	 * Enter a parse tree produced by {@link IMLParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void enterExclusion(IMLParser.ExclusionContext ctx);
+	void enterAssignment(IMLParser.AssignmentContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#exclusion}.
+	 * Exit a parse tree produced by {@link IMLParser#assignment}.
 	 * @param ctx the parse tree
 	 */
-	void exitExclusion(IMLParser.ExclusionContext ctx);
+	void exitAssignment(IMLParser.AssignmentContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#pathExpression}.
+	 * Enter a parse tree produced by {@link IMLParser#iriRef}.
 	 * @param ctx the parse tree
 	 */
-	void enterPathExpression(IMLParser.PathExpressionContext ctx);
+	void enterIriRef(IMLParser.IriRefContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#pathExpression}.
+	 * Exit a parse tree produced by {@link IMLParser#iriRef}.
 	 * @param ctx the parse tree
 	 */
-	void exitPathExpression(IMLParser.PathExpressionContext ctx);
+	void exitIriRef(IMLParser.IriRefContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#pathSegment}.
+	 * Enter a parse tree produced by {@link IMLParser#matchType}.
 	 * @param ctx the parse tree
 	 */
-	void enterPathSegment(IMLParser.PathSegmentContext ctx);
+	void enterMatchType(IMLParser.MatchTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#pathSegment}.
+	 * Exit a parse tree produced by {@link IMLParser#matchType}.
 	 * @param ctx the parse tree
 	 */
-	void exitPathSegment(IMLParser.PathSegmentContext ctx);
+	void exitMatchType(IMLParser.MatchTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#conceptExpression}.
+	 * Enter a parse tree produced by {@link IMLParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterConceptExpression(IMLParser.ConceptExpressionContext ctx);
+	void enterType(IMLParser.TypeContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#conceptExpression}.
+	 * Exit a parse tree produced by {@link IMLParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitConceptExpression(IMLParser.ConceptExpressionContext ctx);
+	void exitType(IMLParser.TypeContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#rangeExpression}.
+	 * Enter a parse tree produced by {@link IMLParser#match}.
 	 * @param ctx the parse tree
 	 */
-	void enterRangeExpression(IMLParser.RangeExpressionContext ctx);
+	void enterMatch(IMLParser.MatchContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#rangeExpression}.
+	 * Exit a parse tree produced by {@link IMLParser#match}.
 	 * @param ctx the parse tree
 	 */
-	void exitRangeExpression(IMLParser.RangeExpressionContext ctx);
+	void exitMatch(IMLParser.MatchContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#range}.
+	 * Enter a parse tree produced by {@link IMLParser#path}.
 	 * @param ctx the parse tree
 	 */
-	void enterRange(IMLParser.RangeContext ctx);
+	void enterPath(IMLParser.PathContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#range}.
+	 * Exit a parse tree produced by {@link IMLParser#path}.
 	 * @param ctx the parse tree
 	 */
-	void exitRange(IMLParser.RangeContext ctx);
+	void exitPath(IMLParser.PathContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link IMLParser#valueCompare}.
+	 * Enter a parse tree produced by {@link IMLParser#orderBy}.
 	 * @param ctx the parse tree
 	 */
-	void enterValueCompare(IMLParser.ValueCompareContext ctx);
+	void enterOrderBy(IMLParser.OrderByContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link IMLParser#valueCompare}.
+	 * Exit a parse tree produced by {@link IMLParser#orderBy}.
 	 * @param ctx the parse tree
 	 */
-	void exitValueCompare(IMLParser.ValueCompareContext ctx);
+	void exitOrderBy(IMLParser.OrderByContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#matchIn}.
+	 * @param ctx the parse tree
+	 */
+	void enterMatchIn(IMLParser.MatchInContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#matchIn}.
+	 * @param ctx the parse tree
+	 */
+	void exitMatchIn(IMLParser.MatchInContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#from}.
+	 * @param ctx the parse tree
+	 */
+	void enterFrom(IMLParser.FromContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#from}.
+	 * @param ctx the parse tree
+	 */
+	void exitFrom(IMLParser.FromContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#keepAs}.
+	 * @param ctx the parse tree
+	 */
+	void enterKeepAs(IMLParser.KeepAsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#keepAs}.
+	 * @param ctx the parse tree
+	 */
+	void exitKeepAs(IMLParser.KeepAsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#booleanMatch}.
+	 * @param ctx the parse tree
+	 */
+	void enterBooleanMatch(IMLParser.BooleanMatchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#booleanMatch}.
+	 * @param ctx the parse tree
+	 */
+	void exitBooleanMatch(IMLParser.BooleanMatchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#nestedBooleanMatch}.
+	 * @param ctx the parse tree
+	 */
+	void enterNestedBooleanMatch(IMLParser.NestedBooleanMatchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#nestedBooleanMatch}.
+	 * @param ctx the parse tree
+	 */
+	void exitNestedBooleanMatch(IMLParser.NestedBooleanMatchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#disjunctionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void enterDisjunctionMatch(IMLParser.DisjunctionMatchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#disjunctionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void exitDisjunctionMatch(IMLParser.DisjunctionMatchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#exclusionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void enterExclusionMatch(IMLParser.ExclusionMatchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#exclusionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void exitExclusionMatch(IMLParser.ExclusionMatchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#conjunctionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void enterConjunctionMatch(IMLParser.ConjunctionMatchContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#conjunctionMatch}.
+	 * @param ctx the parse tree
+	 */
+	void exitConjunctionMatch(IMLParser.ConjunctionMatchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#disjunctionWhere}.
+	 * @param ctx the parse tree
+	 */
+	void enterDisjunctionWhere(IMLParser.DisjunctionWhereContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#disjunctionWhere}.
+	 * @param ctx the parse tree
+	 */
+	void exitDisjunctionWhere(IMLParser.DisjunctionWhereContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#conjunctionWhere}.
+	 * @param ctx the parse tree
+	 */
+	void enterConjunctionWhere(IMLParser.ConjunctionWhereContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#conjunctionWhere}.
+	 * @param ctx the parse tree
+	 */
+	void exitConjunctionWhere(IMLParser.ConjunctionWhereContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#nestedBooleanWhere}.
+	 * @param ctx the parse tree
+	 */
+	void enterNestedBooleanWhere(IMLParser.NestedBooleanWhereContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#nestedBooleanWhere}.
+	 * @param ctx the parse tree
+	 */
+	void exitNestedBooleanWhere(IMLParser.NestedBooleanWhereContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#booleanWhere}.
+	 * @param ctx the parse tree
+	 */
+	void enterBooleanWhere(IMLParser.BooleanWhereContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#booleanWhere}.
+	 * @param ctx the parse tree
+	 */
+	void exitBooleanWhere(IMLParser.BooleanWhereContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#whereClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereClause(IMLParser.WhereClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#whereClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereClause(IMLParser.WhereClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#where}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhere(IMLParser.WhereContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#where}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhere(IMLParser.WhereContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#property}.
+	 * @param ctx the parse tree
+	 */
+	void enterProperty(IMLParser.PropertyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#property}.
+	 * @param ctx the parse tree
+	 */
+	void exitProperty(IMLParser.PropertyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#propertyOf}.
+	 * @param ctx the parse tree
+	 */
+	void enterPropertyOf(IMLParser.PropertyOfContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#propertyOf}.
+	 * @param ctx the parse tree
+	 */
+	void exitPropertyOf(IMLParser.PropertyOfContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#whereIs}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereIs(IMLParser.WhereIsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#whereIs}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereIs(IMLParser.WhereIsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#concept}.
+	 * @param ctx the parse tree
+	 */
+	void enterConcept(IMLParser.ConceptContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#concept}.
+	 * @param ctx the parse tree
+	 */
+	void exitConcept(IMLParser.ConceptContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#disjunctionConcept}.
+	 * @param ctx the parse tree
+	 */
+	void enterDisjunctionConcept(IMLParser.DisjunctionConceptContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#disjunctionConcept}.
+	 * @param ctx the parse tree
+	 */
+	void exitDisjunctionConcept(IMLParser.DisjunctionConceptContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#whereRange}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereRange(IMLParser.WhereRangeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#whereRange}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereRange(IMLParser.WhereRangeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#units}.
+	 * @param ctx the parse tree
+	 */
+	void enterUnits(IMLParser.UnitsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#units}.
+	 * @param ctx the parse tree
+	 */
+	void exitUnits(IMLParser.UnitsContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#whereRelativeTo}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereRelativeTo(IMLParser.WhereRelativeToContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#whereRelativeTo}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereRelativeTo(IMLParser.WhereRelativeToContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link IMLParser#whereValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhereValue(IMLParser.WhereValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link IMLParser#whereValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhereValue(IMLParser.WhereValueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link IMLParser#functionExpression}.
 	 * @param ctx the parse tree

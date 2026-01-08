@@ -27,7 +27,7 @@ public class IMLLanguage {
   }
 
   public IMLLanguage(){
-    this.getKeywords().addAll(Set.of("define","get","match","with","has","as","from","is","where","in","exclude","if","prefix","info"));
+    this.getKeywords().addAll(Set.of("define","assign","match","as","from","where","if","prefix","info","default"));
     this.getBooleans().addAll(Set.of("either","and","or"));
     this.getAlerts().addAll(Set.of("exclude","warning"));
   }

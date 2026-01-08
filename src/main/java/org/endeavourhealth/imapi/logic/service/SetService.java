@@ -314,10 +314,8 @@ public class SetService {
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
-    if (!hasMembers) {
-      if (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION))) {
+    if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
         new SetMemberGenerator().generateMembers(iri, Graph.IM);
-      } else return new HashSet<>();
     }
 
     Set<Concept> result = null;

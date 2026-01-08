@@ -106,6 +106,7 @@ public class OSQuery {
   private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
     JsonNode results= runQuery(builder);
     if (results.get("hits").get("hits").isEmpty()) return;
+    fullResults.put("totalCount", fullResults.get("totalCount").asInt()+ results.get("hits").get("total").get("value").asInt());
     ObjectNode hitsObject= (ObjectNode) fullResults.get("hits");
     ArrayNode hitsArray = (ArrayNode) hitsObject.get("hits");
     for (JsonNode hit : results.get("hits").get("hits")) {
@@ -130,6 +131,7 @@ public class OSQuery {
     }
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode fullResults = mapper.createObjectNode();
+    fullResults.put("totalCount", 0);
     ObjectNode hitsNode = fullResults.putObject("hits");  // creates and assigns "hits" node
     hitsNode.put("total", 0);
     hitsNode.putArray("hits");
@@ -144,7 +146,7 @@ public class OSQuery {
     if (builder == null)
         return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete) return fullResults;
+    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete&&fullResults.get("totalCount").asInt()>0) return fullResults;
     if (getTotal(fullResults) >= request.getPage().getPageSize())
         return fullResults;
 
@@ -353,7 +355,7 @@ public class OSQuery {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         if (!root.get("hits").get("hits").isEmpty()) {
           ObjectNode searchResults = om.createObjectNode();
-          searchResults.set("totalCount", root.get("hits").get("total").get("value"));
+          searchResults.set("totalCount", root.get("totalCount"));
           ArrayNode resultNodes = om.createArrayNode();
           searchResults.set("entities", resultNodes);
           processNodeResults(request, root, om, resultNodes);

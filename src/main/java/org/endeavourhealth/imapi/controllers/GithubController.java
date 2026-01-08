@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -44,6 +45,7 @@ public class GithubController {
 
   @Operation(summary = "Update GitHub configuration", description = "Triggers an update to the GitHub repository configuration.")
   @PostMapping(value = "/updateGithubConfig")
+  @PreAuthorize("@guard.hasPermission('GITHUB','WRITE')")
   public void updateGithubConfig() throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");

@@ -57,7 +57,7 @@ public class TTEntity extends TTNode implements Serializable {
 
   public Integer getUsageTotal(){
     TTLiteral literal = getAsLiteral(iri(IM.USAGE_TOTAL));
-    return (literal == null) ? null : literal.intValue();
+    return (literal == null) ? null :literal.getValue()==null ?null: literal.intValue();
   }
 
 

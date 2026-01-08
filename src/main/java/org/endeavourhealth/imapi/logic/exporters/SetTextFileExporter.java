@@ -24,7 +24,7 @@ public class SetTextFileExporter {
     headerLine += "code" + del + "term" + del + "status" + del + "scheme" + del + "usage" + del + "extension" + del + "set";
     if (includeSubsets) headerLine += del + "subset" + del + "subsetIri" + del + "subsetVersion";
     if (includeIM1id) headerLine += del + IM_1_ID;
-    if (includeLegacy) headerLine += del + "legacyCode" + del + "legacyTerm" + del + "legacyScheme" + del + "codeId";
+    if (includeLegacy) headerLine += del + "legacyCode" + del + "legacyTerm" + del + "legacyScheme" + del + "codeId"+del+"legacyAltCode";
     results.add(headerLine);
   }
 
@@ -142,19 +142,20 @@ public class SetTextFileExporter {
     if (member.getMatchedFrom() == null) {
       addLineData(del, results, values.toArray(new String[0]));
       return;
-    }
-    List<String> combined = new ArrayList<>(values);
-    for (Concept matchedFrom : member.getMatchedFrom()) {
-        String[] legacyArray = addLegacy(results, matchedFrom, del);
+    } else {
+      for (Concept matchedFrom : member.getMatchedFrom()) {
+        List<String> combined = new ArrayList<>(values);
+        String[] legacyArray = addLegacy(matchedFrom);
         combined.addAll(Stream.of(legacyArray).toList());
+        addLineData(del, results, combined.toArray(new String[0]));
+      }
     }
-    addLineData(del, results, combined.toArray(new String[0]));
   }
 
-  private String[] addLegacy(StringJoiner results, Concept legacyMember, String del) {
+  private String[] addLegacy(Concept legacyMember) {
 
     String[] valueArray = {legacyMember.getCode(), legacyMember.getName(), legacyMember.getScheme().getIri(),
-      legacyMember.getCodeId()};
+      legacyMember.getCodeId(),legacyMember.getAlternativeCode()};
     for (int i = 0; i < valueArray.length; i++) {
       if (valueArray[i] == null) {
         valueArray[i] = "";

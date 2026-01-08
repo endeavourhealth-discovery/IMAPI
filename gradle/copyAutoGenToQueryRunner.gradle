@@ -1,0 +1,22 @@
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+
+tasks.register("copyAutoGenToQueryRunner") {
+  group = "other"
+  description = "Copys the autoGen typescript file to query runner models"
+  dependsOn("typescriptConstEnumToEnum")
+  doLast {
+    def sourceFile = rootDir.toPath().resolve("../IMDirectory/src/interfaces/AutoGen.ts").normalize()
+    def destFile = rootDir.toPath().resolve("../IMQueryRunner/models/AutoGen.ts").normalize()
+
+    if (!Files.exists(sourceFile)) {
+      throw new GradleException("Autogen file not found. Run generateTypescript to create it.")
+    }
+
+    Files.createDirectories(destFile.parent)
+
+    Files.copy(sourceFile, destFile, StandardCopyOption.REPLACE_EXISTING)
+
+    println "Copied ${sourceFile} → ${destFile}"
+  }
+}

@@ -2186,4 +2186,27 @@ public class EntityRepository {
     }
     return results;
   }
+
+  public Map<String, List<TTIriRef>> getTypeSchemeDefaults() {
+    String spq = """
+      select ?type ?scheme ?schemeLabel
+      where {
+      ?type im:defaultScheme ?scheme.
+      ?scheme rdfs:label ?schemeLabel.}
+      """;
+    Map<String, List<TTIriRef>> results = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String type = bs.getValue("type").stringValue();
+          results.computeIfAbsent(type, k -> new ArrayList<>())
+            .add(TTIriRef.iri(bs.getValue("scheme").stringValue())
+              .setName(bs.getValue("schemeLabel").stringValue()));
+        }
+      }
+    }
+    return results;
+  }
 }

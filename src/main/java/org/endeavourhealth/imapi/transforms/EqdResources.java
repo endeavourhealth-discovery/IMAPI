@@ -32,6 +32,7 @@ public class EqdResources {
   private final Properties dataMap;
   private final Map<Integer, String> baseMatchMap = new HashMap<>();
   private final QueryDescriptor descriptor = new QueryDescriptor();
+  private final Set<String> acronyms = new HashSet<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Getter
@@ -169,6 +170,7 @@ public class EqdResources {
   }
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
+    acronyms.clear();
     if (eqCriteria.getPopulationCriterion() != null) {
       return this.getPopulationQuery(eqCriteria);
     } else {
@@ -321,7 +323,7 @@ public class EqdResources {
     } else {
       if (nodeRef != null) {
         match.setNodeRef(nodeRef);
-        match.setPath(null);
+        match.setPath((List<Path>) null);
       }
 
       return match;
@@ -419,16 +421,11 @@ public class EqdResources {
     }
     addMatchWhere(match, where,null);
     where.setIri(fullPath[fullPath.length - 1]);
-    if ((Namespace.IM + "value").equals(where.getIri())) {
-      if (match.getPath() != null) {
-        match.getPath().getFirst().setIri(Namespace.IM+"observation").setTypeOf((new Node()).setIri(Namespace.IM + "Observation"));
-      }
-    }
 
     this.convertColumnValue(cv, where);
   }
 
-  private String setMatchPath(Match match, String[] paths) {
+  public String setMatchPath(Match match, String[] paths) {
     if (paths.length == 1) {
       return null;
     } else {
@@ -436,14 +433,12 @@ public class EqdResources {
       boolean inverse = path.startsWith("^");
       String pathIri = path.replaceFirst("^", "");
       if (match.getPath() != null) {
-        for (Path pathMatch : match.getPath()) {
-          if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
+        Path pathMatch = match.getPath().getFirst();
+        if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
             if (paths.length == 3) {
               return pathMatch.getVariable();
             }
-
             return this.getPathFromPath(pathMatch, paths, 2);
-          }
         }
       }
 
@@ -451,20 +446,28 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1));
+      pathMatch.setVariable(getAcronym(paths[1]));;
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
       return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
     }
   }
 
-  public String getNodeRef(HasPaths path) {
+  public String getNodeRef(Path path) {
     if (path.getPath() != null) {
-      for (Path pathMatch : path.getPath()) {
-        if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
+      Path pathMatch = path.getPath().getFirst();
+      if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
           return pathMatch.getVariable();
-        } else return getNodeRef(pathMatch);
-      }
-      return "";
+      } else return getNodeRef(pathMatch);
+    }
+    return "";
+  }
+
+  public String getNodeRef(Match match) {
+    if (match.getPath() != null) {
+      Path pathMatch = match.getPath().getFirst();
+      if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
+        return pathMatch.getVariable();
+      } else return getNodeRef(pathMatch);
     }
     return "";
   }
@@ -477,22 +480,20 @@ public class EqdResources {
     boolean inverse = path.startsWith("^");
     String pathIri = path.replaceFirst("^", "");
     if (pathMatch.getPath() != null) {
-      for (Path subPathMatch : pathMatch.getPath()) {
+        Path subPathMatch = pathMatch.getPath().getFirst();
         if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
           if (paths.length == offset + 3) {
             return subPathMatch.getVariable();
           }
-
           return this.getPathFromPath(subPathMatch, paths, offset + 2);
         }
-      }
     }
 
     Path subPathMatch = new Path();
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    subPathMatch.setVariable(paths[offset + 1].substring(paths[offset + 1].lastIndexOf("#") + 1));
+    subPathMatch.setVariable(getAcronym(paths[offset + 1]));
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
     return paths.length == offset + 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
@@ -1220,7 +1221,7 @@ public class EqdResources {
 
   private TTEntity createValueSet(EQDOCValueSet vs, Query definition, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
-    String name = description == null ? this.getNameFromSet(setContent) : description;
+    String name = description == null ? this.getNameFromSet(vs,setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(definition);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
@@ -1241,7 +1242,7 @@ public class EqdResources {
 
   private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
-    String name = description == null ? this.getNameFromSet(setContent) : description;
+    String name = description == null ? this.getNameFromSet(vs,setContent) : description;
     String entailedMembers = (new ObjectMapper()).writeValueAsString(setContent);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
@@ -1294,7 +1295,13 @@ public class EqdResources {
     }
   }
 
-  private String getNameFromSet(Set<Node> set) {
+  private String getNameFromSet(EQDOCValueSet vs,Set<Node> set) {
+    if (EqdToIMQ.getAutoNamedSets().get(namespace+ vs.getId())!=null){
+      return EqdToIMQ.getAutoNamedSets().get(namespace+ vs.getId());
+    }
+    if (EqdToIMQ.getInlineSets().get(namespace + vs.getId()) != null) {
+      return EqdToIMQ.getInlineSets().get(namespace + vs.getId()).getName();
+    }
     String name="";
     if (set.size()>2) {
       name="Clinical codes..";
@@ -1315,6 +1322,27 @@ public class EqdResources {
       return name.contains("resolved") ? previous + " or resolved" : previous + " or " + name;
     }
   }
+
+  public String getAcronym(String iri) {
+    if (iri == null || iri.isBlank()) return "";
+    String local = iri.substring(iri.lastIndexOf("#")+1);
+    String[] parts = local.split("(?<!^)(?=[A-Z0-9])");
+    StringBuilder sb = new StringBuilder();
+    for (String part : parts) {
+      if (part.isBlank()) continue;
+      sb.append(Character.toUpperCase(part.charAt(0)));
+    }
+    String acronym= sb.toString().toLowerCase();
+    if (acronyms.contains(acronym)){
+      int i=1;
+      while(acronyms.contains(acronym+i))
+        i++;
+      acronym=acronym+i;
+    }
+    acronyms.add(acronym);
+    return acronym;
+  }
+
 
 
 }

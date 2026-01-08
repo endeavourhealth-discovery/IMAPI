@@ -5,18 +5,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
+import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
@@ -55,22 +58,23 @@ public class SetController {
   private final EntityService entityService = new EntityService();
   private final SetService setService = new SetService();
   private final SetExporter setExporter = new SetExporter();
-  private final RequestObjectService reqObjService = new RequestObjectService();
+  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
+  private final CasdoorService casdoorService = new CasdoorService();
 
   @GetMapping(value = "/publish")
+  @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  @PreAuthorize("hasAuthority('PUBLISHER')")
   public void publish(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri
-  ) throws IOException, QueryException {
+  ) throws IOException, QueryException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
       setService.publishSetToIM1(iri);
     }
   }
 
-  @GetMapping(value = "/public/members")
+  @GetMapping(value = "/private/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
     HttpServletRequest request,
@@ -88,19 +92,20 @@ public class SetController {
       return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size);
     }
   }
-  @PostMapping(value = "/public/membersFromQuery")
+
+  @PostMapping(value = "/private/membersFromQuery")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembersFromQuery(
     HttpServletRequest request,
     @RequestBody EclSearchRequest eclRequest
-  ) throws QueryException{
+  ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getMembersFromQuery");
       return setService.getMembersFromQuery(eclRequest);
     }
   }
 
-  @GetMapping(value = "/public/export")
+  @GetMapping(value = "/private/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
   public HttpEntity<Object> exportSet(
     HttpServletRequest request,
@@ -124,7 +129,7 @@ public class SetController {
   }
 
 
-  @GetMapping("/public/subsets")
+  @GetMapping("/private/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
   public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
@@ -133,7 +138,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "public/distillation")
+  @PostMapping(value = "private/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
   public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
@@ -142,7 +147,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/public/setExport")
+  @PostMapping(value = "/private/setExport")
   @Operation(
     summary = "Export a set in the specified format",
     description = "Exports a set of data according to the provided options, including various flags such as definition, core, legacy, subsets, etc."
@@ -170,7 +175,7 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/public/setDiff")
+  @GetMapping(value = "/private/setDiff")
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
   public SetDiffObject getSetComparison(
     HttpServletRequest request,
@@ -184,13 +189,13 @@ public class SetController {
   }
 
   @PostMapping(value = "/updateSubsetsFromSuper")
+  @PreAuthorize("@guard.hasPermission('SET','WRITE')")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
-  @PreAuthorize("hasAuthority('EDITOR') or hasAuthority('CREATOR')")
-  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException {
+  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      String agentName = reqObjService.getRequestAgentName(request);
-      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), editRequest.getGraph());
+      User user = casdoorService.getUser(request);
+      setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getGraph());
     }
   }
 }

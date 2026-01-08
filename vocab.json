@@ -2110,6 +2110,10 @@
       {
         "name": "SUBSET_BUILDER",
         "value": "Namespace.IM_COMPONENT + \"subsetBuilder\""
+      },
+      {
+        "name": "CHECKBOX_DISPLAY",
+        "value": "Namespace.IM_COMPONENT + \"checkboxDisplay\""
       }
     ]
   },

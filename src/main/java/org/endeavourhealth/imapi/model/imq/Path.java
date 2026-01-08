@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class Path extends Element implements HasPaths {
-  @Getter
   private boolean inverse;
-  @Getter
   private boolean optional;
   private List<Path> path;
   private Node typeOf;
@@ -98,5 +96,13 @@ public class Path extends Element implements HasPaths {
   public Path setName(String name) {
     super.setName(name);
     return this;
+  }
+
+  public boolean isOptional() {
+    return optional;
+  }
+
+  public boolean isInverse() {
+    return inverse;
   }
 }

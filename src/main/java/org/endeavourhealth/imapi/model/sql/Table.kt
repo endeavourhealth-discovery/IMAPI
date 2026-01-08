@@ -21,7 +21,9 @@ class Table(
     fromField: String? = null,
     toField: String? = null,
   ): MySQLJoin {
-    if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+    if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) {
+      throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+    }
     if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
     val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.fromField
     ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
@@ -41,7 +43,9 @@ class Table(
     tableTo: Table,
     tableToAlias: String,
   ): MySQLJoin {
-    if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+    if (relationships[tableTo.dataModel] == null && (dataModel != tableTo.dataModel && tableTo.table != table)) {
+      throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+    }
     return MySQLJoin(
       joinType,
       table,

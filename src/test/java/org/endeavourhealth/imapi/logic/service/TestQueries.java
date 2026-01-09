@@ -146,7 +146,7 @@ public class TestQueries {
       .setQuery(new Query()
         .setName("Subtypes of concepts as a parameterised query")
         .return_(s -> s.setNodeRef("c").property(p -> p.setIri(RDFS.LABEL)))
-        .setVariable("c")
+        .setNode("c")
         .addIs(new Node()
           .setParameter("this")
           .setDescendantsOrSelfOf(true)));

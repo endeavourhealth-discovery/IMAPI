@@ -116,7 +116,7 @@ public class SparqlConverter {
 
 
   private String getSelectSparql(Match match,boolean countOnly) throws QueryException {
-    mainEntity = match.getKeepAs() != null ? match.getKeepAs() : "entity";
+    mainEntity = match.getNode() != null ? match.getNode() : "entity";
     StringBuilder selectQl = new StringBuilder();
     if (countOnly) {
       selectQl.append("SELECT (count (distinct ?").append(mainEntity).append(") as ?count)");
@@ -143,10 +143,8 @@ public class SparqlConverter {
   private void addMatchWhereSparql(Match match,StringBuilder sparql, boolean includeReturns) throws QueryException {
     StringBuilder whereQl = new StringBuilder();
     mainEntity="entity";
-    if (match.getVariable() != null)
-      mainEntity = match.getVariable();
-    if (match.getKeepAs()!=null)
-      mainEntity = match.getKeepAs();
+    if (match.getNode()!=null)
+      mainEntity = match.getNode();
     if (match.getNodeRef() != null)
       mainEntity = match.getNodeRef();
     if (match.getParameter() != null)
@@ -200,12 +198,10 @@ public class SparqlConverter {
   private void processMatch(StringBuilder whereQl, String parent, Match match) throws QueryException {
     StringBuilder subselects=new StringBuilder();
     String subject;
-    if (match.getVariable() != null)
-      subject = match.getVariable();
-    else if (match.getNodeRef() != null)
+    if (match.getNodeRef() != null)
       subject = match.getNodeRef();
-    else if (match.getKeepAs() != null)
-      subject = match.getKeepAs();
+    else if (match.getNode() != null)
+      subject = match.getNode();
     else if (match.getParameter() != null) {
       subject = match.getParameter().replace("$","");
       whereQl.append(" VALUES ").append("?").append(subject).append("{").append(getIriFromAlias(null, match.getParameter(), null, null)).append("}\n");
@@ -236,7 +232,7 @@ public class SparqlConverter {
     if (match.getAnd() != null) {
       for (int i = 0; i < match.getAnd().size(); i++) {
         Match subMatch = match.getAnd().get(i);
-        if (subMatch.getKeepAs()!=null){
+        if (subMatch.getNode()!=null){
           subselects.append("{").append(getSelectSparql(subMatch,false)).append("}\n");
         }
         else
@@ -289,16 +285,16 @@ public class SparqlConverter {
   private String processPath(StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {
     String pathVariable = null;
     String inverse = pathMatch.isInverse() ? "^" : "";
-    String predicate = getIriFromAlias(pathMatch.getIri(), pathMatch.getParameter(), pathMatch.getVariable(), null);
+    String predicate = getIriFromAlias(pathMatch.getIri(), pathMatch.getParameter(), pathMatch.getNode(), null);
     if (inverse.equals("^") && predicate.startsWith("?"))
       throw new QueryException("Inverse processPath processMatch cannot have a variable as predicate");
-    whereQl.append("?").append(subject).append(" ").append(inverse).append(predicate).append(" ?").append(pathMatch.getVariable()).append(".\n");
+    whereQl.append("?").append(subject).append(" ").append(inverse).append(predicate).append(" ?").append(pathMatch.getNode()).append(".\n");
     if (pathMatch.getPath() != null) {
       for (Path path : pathMatch.getPath()) {
-        pathVariable = processPath(whereQl, pathMatch.getVariable(), path);
+        pathVariable = processPath(whereQl, pathMatch.getNode(), path);
       }
     } else
-      pathVariable = pathMatch.getVariable();
+      pathVariable = pathMatch.getNode();
     return pathVariable;
   }
 
@@ -308,21 +304,21 @@ public class SparqlConverter {
       if (ref!=null)
         throw new QueryException("in list cannot be longer than one if there are references");
       if (node.getMatch()!=null){
-        if (node.getMatch().getKeepAs()!=null){
-          ref= node.getMatch().getKeepAs();
+        if (node.getMatch().getNode()!=null){
+          ref= node.getMatch().getNode();
         }
         else {
           o++;
           ref = "sub" + subject + o;
-          node.getMatch().setKeepAs(ref);
+          node.getMatch().setNode(ref);
         }
       }
       if (node.getNodeRef()!=null)
         ref=node.getNodeRef();
       else if (node.getParameter()!=null)
         ref= node.getParameter().replace("$","");
-      else if (node.getVariable()!=null)
-        ref= node.getVariable();
+      else if (node.getNode()!=null)
+        ref= node.getNode();
       else if (node.getIri()!=null)
         inSet.add("<"+ node.getIri()+">");
     }
@@ -519,8 +515,8 @@ public class SparqlConverter {
     String propertyIris = iriFromAlias(where).replace(",", " ");
     String inverse = where.isInverse() ? "^" : "";
     o++;
-    String propertyVariable = where.getVariable() != null ? where.getVariable() : "property" + o;
-    if (where.isInverse() && (where.getParameter() != null || where.getVariable() != null || where.isDescendantsOrSelfOf() || where.isAncestorsOrSelfOf())) {
+    String propertyVariable = where.getNode() != null ? where.getNode() : "property" + o;
+    if (where.isInverse() && (where.getParameter() != null || where.getNode() != null || where.isDescendantsOrSelfOf() || where.isAncestorsOrSelfOf())) {
       throw new QueryException("Inverse propertyPath with parameters or variables or entailments are not supported\"");
     }
     if (where.getPropertyList()!=null) {
@@ -769,7 +765,7 @@ public class SparqlConverter {
   }
 
   public String iriFromAlias(Element alias) throws QueryException {
-    return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
+    return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getNode(), alias.getNodeRef());
   }
 
   public String iriFromAlias(Where alias) throws QueryException {
@@ -790,13 +786,13 @@ public class SparqlConverter {
   }
 
   public String iriFromAlias(Node alias) throws QueryException {
-    return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef());
+    return getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getNode(), alias.getNodeRef());
   }
 
   public String iriFromAliases(List<Node> aliases) throws QueryException {
     List<String> iriList = new ArrayList<>();
     for (Node alias : aliases) {
-      iriList.add(getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getVariable(), alias.getNodeRef()));
+      iriList.add(getIriFromAlias(alias.getIri(), alias.getParameter(), alias.getNode(), alias.getNodeRef()));
     }
     return String.join(" ", iriList);
   }

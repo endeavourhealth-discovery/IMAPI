@@ -204,8 +204,8 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Where setVariable(String variable) {
-    super.setVariable(variable);
+  public Where setNode(String node) {
+    super.setNode(node);
     return this;
   }
 

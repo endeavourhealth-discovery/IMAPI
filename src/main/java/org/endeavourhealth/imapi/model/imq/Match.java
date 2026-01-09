@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +21,6 @@ public class Match extends IriLD implements HasPaths {
   private FunctionClause aggregate;
   @Getter
   private Node typeOf;
-  @Getter
-  private String variable;
   @Getter
   String parameter;
   @Getter
@@ -68,7 +65,7 @@ public class Match extends IriLD implements HasPaths {
   private List<Node> is;
   private List<GroupBy> groupBy;
   @Getter
-  private String keepAs;
+  private String node;
   private OrderLimit orderBy;
   @Getter
   private String asDescription;
@@ -99,8 +96,8 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setKeepAs(String keepAs) {
-    this.keepAs = keepAs;
+  public Match setNode(String node) {
+    this.node = node;
     return this;
   }
 
@@ -335,10 +332,6 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setVariable(String variable) {
-    this.variable = variable;
-    return this;
-  }
 
   public Match addIs(Node is){
     if (this.is == null) {

@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -13,7 +10,6 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -69,7 +65,7 @@ public class EqdListToIMQ {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
             if (i == propertyPath.length - 3) {
-              return path.getVariable();
+              return path.getNode();
             } else {
               nodeRef=getNodeRef(path, propertyPath, i + 2);
               if (nodeRef!=null)
@@ -82,10 +78,10 @@ public class EqdListToIMQ {
         hasPaths.addPath(path);
         path.setIri(propertyPath[i]);
         path.setOptional(true);
-        path.setVariable(resources.getAcronym(propertyPath[i+1]));
+        path.setNode(resources.getAcronym(propertyPath[i+1]));
         path.setTypeOf(new Node().setIri(propertyPath[i+1]));
         if (i == propertyPath.length - 3)
-          return path.getVariable();
+          return path.getNode();
         else return getNodeRef(path, propertyPath, i + 2);
     }
     return null;

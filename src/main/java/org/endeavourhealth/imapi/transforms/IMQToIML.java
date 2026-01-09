@@ -266,17 +266,17 @@ public class IMQToIML extends QueryDescriptor{
       }
       clause.append(cohort).append(" ");
     }
-    if (match.getWhere()==null &&match.getKeepAs()==null){
+    if (match.getWhere()==null &&match.getNode()==null){
       clause.append("\n");
     }
     else {
       clause.append("\n>>\n");
       if (match.getWhere() != null) {
         clause.append("Where ");
-        clause.append(convertWhere(match.getWhere(), match.getVariable(), from)).append(" ");
+        clause.append(convertWhere(match.getWhere(), match.getNode(), from)).append(" ");
       }
-      if (match.getKeepAs() != null) {
-        clause.append("\nas ").append(match.getKeepAs());
+      if (match.getNode() != null) {
+        clause.append("\nas ").append(match.getNode());
       }
       clause.append("\n<<\n");
     }
@@ -291,8 +291,8 @@ public class IMQToIML extends QueryDescriptor{
       else clause.append("->");
       if (path.getIri() != null) {
         clause.append(getVariableFromIri(path.getIri(), Context.PROPERTY));
-        if (path.getVariable()!=null){
-          clause.append("/").append(path.getVariable());
+        if (path.getNode()!=null){
+          clause.append("/").append(path.getNode());
         }
         clause.append(" ");
         clause.append(convertMatchContent(match,from));

@@ -34,6 +34,9 @@ public class IriCollector {
         if (prop.getReturn() != null) {
           collectReturnIris(prop.getReturn(), iriSet);
         }
+        if (prop.getMatch()!=null){
+          collectMatchIris(prop.getMatch(),iriSet);
+        }
       }
     }
   }

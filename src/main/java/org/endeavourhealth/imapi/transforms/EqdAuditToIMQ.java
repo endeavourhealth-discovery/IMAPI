@@ -22,7 +22,7 @@ public class EqdAuditToIMQ {
       query.addColumnGroup(popQuery);
       String finalPopId = popId;
       popQuery
-        .setVariable(POPULATION)
+        .setNode(POPULATION)
         .addIs(Node.iri(resources.getNamespace() + finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));

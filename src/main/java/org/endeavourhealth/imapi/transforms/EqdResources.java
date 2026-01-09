@@ -229,7 +229,7 @@ public class EqdResources {
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
         setAndGetReturnAs(standardMatch);
-        testMatch.setNodeRef(standardMatch.getKeepAs());
+        testMatch.setNodeRef(standardMatch.getNode());
         outerMatch.addAnd(testMatch);
         lastMatch= testMatch;
       }
@@ -271,24 +271,24 @@ public class EqdResources {
   }
 
   private void setAndGetReturnAs(Match match) {
-    if (match.getKeepAs() == null) {
+    if (match.getNode() == null) {
       matchCounter++;
       String as="Match_"+matchCounter;
       if (match.getPath()!=null)
-        as = match.getPath().getFirst().getVariable()+"_" + matchCounter;
+        as = match.getPath().getFirst().getNode()+"_" + matchCounter;
       if (match.getOr() != null) {
         int orIndex = 0;
         for (Match subQuery : match.getOr()) {
           orIndex++;
-          if (subQuery.getKeepAs() == null) {
-            subQuery.setKeepAs(as+"_"+orIndex);
+          if (subQuery.getNode() == null) {
+            subQuery.setNode(as+"_"+orIndex);
           }
           if (subQuery.getReturn() == null) {
             subQuery.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(subQuery)).setIri(Namespace.IM + "effectiveDate")));
           }
         }
       }
-      match.setKeepAs(as);
+      match.setNode(as);
       match.setReturn((new Return())
         .property(p -> p
           .setNodeRef(getNodeRef(match))
@@ -378,7 +378,7 @@ public class EqdResources {
       relationProperty.setOperator(Operator.eq);
     }
 
-    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getKeepAs()).setIri(parentProperty));
+    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getNode()).setIri(parentProperty));
     ClauseUtils.assignFunction(relationProperty);
     if (match.getDescription()!=null){
       match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
@@ -436,7 +436,7 @@ public class EqdResources {
         Path pathMatch = match.getPath().getFirst();
         if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
             if (paths.length == 3) {
-              return pathMatch.getVariable();
+              return pathMatch.getNode();
             }
             return this.getPathFromPath(pathMatch, paths, 2);
         }
@@ -446,17 +446,17 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setVariable(getAcronym(paths[1]));;
+      pathMatch.setNode(getAcronym(paths[1]));;
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
-      return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
+      return paths.length == 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 2);
     }
   }
 
   public String getNodeRef(Path path) {
     if (path.getPath() != null) {
       Path pathMatch = path.getPath().getFirst();
-      if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
-          return pathMatch.getVariable();
+      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
+          return pathMatch.getNode();
       } else return getNodeRef(pathMatch);
     }
     return "";
@@ -465,8 +465,8 @@ public class EqdResources {
   public String getNodeRef(Match match) {
     if (match.getPath() != null) {
       Path pathMatch = match.getPath().getFirst();
-      if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
-        return pathMatch.getVariable();
+      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
+        return pathMatch.getNode();
       } else return getNodeRef(pathMatch);
     }
     return "";
@@ -483,7 +483,7 @@ public class EqdResources {
         Path subPathMatch = pathMatch.getPath().getFirst();
         if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
           if (paths.length == offset + 3) {
-            return subPathMatch.getVariable();
+            return subPathMatch.getNode();
           }
           return this.getPathFromPath(subPathMatch, paths, offset + 2);
         }
@@ -493,9 +493,9 @@ public class EqdResources {
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    subPathMatch.setVariable(getAcronym(paths[offset + 1]));
+    subPathMatch.setNode(getAcronym(paths[offset + 1]));
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
-    return paths.length == offset + 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, offset + 2);
+    return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
 
   private void convertColumnValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
@@ -595,7 +595,7 @@ public class EqdResources {
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
       matchCounter++;
       String asLabel = "Match_" + matchCounter;
-      restricted.setKeepAs(asLabel);
+      restricted.setNode(asLabel);
       String nodeRef = getNodeRef(restricted);
       restricted.orderBy((o) -> o
         .addProperty(new OrderDirection()

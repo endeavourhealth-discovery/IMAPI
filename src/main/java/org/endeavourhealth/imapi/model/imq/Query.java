@@ -180,8 +180,8 @@ public class Query extends Match {
   }
 
   @Override
-  public Query setVariable(String variable) {
-    super.setVariable(variable);
+  public Query setNode(String node) {
+    super.setNode(node);
     return this;
   }
 

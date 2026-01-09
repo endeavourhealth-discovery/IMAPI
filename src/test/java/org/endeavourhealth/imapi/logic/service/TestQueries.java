@@ -27,7 +27,7 @@ public class TestQueries {
         .setParameter("myDataModel"))
       .path(p -> p
         .setIri("http://www.w3.org/ns/shacl#property")
-        .setVariable("shaclProperty"))
+        .setNode("shaclProperty"))
       .where(w -> w
         .and(p2 -> p2
           .setNodeRef("shaclProperty")
@@ -83,7 +83,7 @@ public class TestQueries {
           .setParameter("$dataModel"))
         .path(p -> p
           .setIri(SHACL.PROPERTY.toString())
-          .setVariable("shaclProperty"))
+          .setNode("shaclProperty"))
         .where(w -> w
           .setNodeRef("shaclProperty")
           .setIri(SHACL.PATH)
@@ -146,7 +146,7 @@ public class TestQueries {
       .setQuery(new Query()
         .setName("Subtypes of concepts as a parameterised query")
         .return_(s -> s.setNodeRef("c").property(p -> p.setIri(RDFS.LABEL)))
-        .setVariable("c")
+        .setNode("c")
         .addIs(new Node()
           .setParameter("this")
           .setDescendantsOrSelfOf(true)));
@@ -226,7 +226,7 @@ public class TestQueries {
       .setTypeOf(SHACL.NODESHAPE.toString())
       .path(p -> p
         .setIri(SHACL.PROPERTY.toString())
-        .setVariable("shaclProperty"))
+        .setNode("shaclProperty"))
       .where(p1 -> p1
         .setNodeRef("shaclProperty")
         .setIri(SHACL.PATH)

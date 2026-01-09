@@ -12,8 +12,8 @@ public class QueryValidator {
 
   public void validateQuery(Match query) throws QueryException {
    String mainEntity="entity";
-   if (query.getKeepAs()!=null){
-     mainEntity=query.getKeepAs();
+   if (query.getNode()!=null){
+     mainEntity=query.getNode();
    } else if (query.getParameter()!=null){
       mainEntity=query.getParameter().replace("$","");
     }
@@ -44,8 +44,8 @@ public class QueryValidator {
   }
 
   private void processMatch(Match match) throws QueryException {
-    if (match.getKeepAs() != null) {
-      variables.put(match.getKeepAs(), VarType.NODE);
+    if (match.getNode() != null) {
+      variables.put(match.getNode(), VarType.NODE);
     } else if (match.getParameter() != null) {
       variables.put(match.getParameter(), VarType.NODE);
     }
@@ -62,7 +62,7 @@ public class QueryValidator {
   private void processIs(List<Node> is) throws QueryException {
     if (is.size()>1){
       Node first= is.getFirst();
-      if (first.getNodeRef()!=null|| first.getMatch()!=null||first.getVariable()!=null){
+      if (first.getNodeRef()!=null|| first.getMatch()!=null||first.getNode()!=null){
         throw new QueryException("in list cannot have nore than one entry if references are used");
       }
     }
@@ -76,8 +76,8 @@ public class QueryValidator {
   }
 
   private void processPath(Path pathMatch) {
-    if (pathMatch.getVariable() != null) {
-      variables.put(pathMatch.getVariable(), VarType.PATH);
+    if (pathMatch.getNode() != null) {
+      variables.put(pathMatch.getNode(), VarType.PATH);
     }
     if (pathMatch.getPath() != null) {
       for (Path subPath : pathMatch.getPath()) {
@@ -127,8 +127,8 @@ public class QueryValidator {
 
 
   private void validateMatch(Match match) throws QueryException {
-    if (match.getVariable() != null) {
-      variables.put(match.getVariable(), VarType.NODE);
+    if (match.getNode() != null) {
+      variables.put(match.getNode(), VarType.NODE);
     }
     if (match.getParameter() != null) {
       variables.put(match.getParameter(), VarType.NODE);
@@ -148,17 +148,17 @@ public class QueryValidator {
       }
     }
     if (match.getWhere() != null) {
-      validateWhere(match.getWhere(), match.getVariable());
+      validateWhere(match.getWhere(), match.getNode());
     }
 
   }
 
   private void validatePath(Path path) {
-    if (path.getVariable() == null) {
+    if (path.getNode() == null) {
       o++;
-      path.setVariable("path" + o);
+      path.setNode("path" + o);
     }
-    variables.put(path.getVariable(), VarType.PATH);
+    variables.put(path.getNode(), VarType.PATH);
     if (path.getPath() != null) {
       for (Path subPath : path.getPath()) {
         validatePath(subPath);
@@ -168,8 +168,8 @@ public class QueryValidator {
 
 
   private void validateWhere(Where where, String subject) throws QueryException {
-    if (where.getVariable() != null)
-      variables.put(where.getVariable(), VarType.PATH);
+    if (where.getNode() != null)
+      variables.put(where.getNode(), VarType.PATH);
     if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null)
       throw new QueryException("Where clause has no where iri  (set iri to where iri) ir a parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))

@@ -61,7 +61,7 @@ public class SetRepository {
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter,false,false);
-    String entityVariable= imQuery.getKeepAs()!=null ? imQuery.getKeepAs(): "entity";
+    String entityVariable= imQuery.getNode()!=null ? imQuery.getNode(): "entity";
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return expand(qry, false,false, schemeFilter,entityVariable);

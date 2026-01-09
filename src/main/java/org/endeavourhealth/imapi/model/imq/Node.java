@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.function.Consumer;
 
@@ -130,8 +129,8 @@ public class Node extends Element{
     return this;
   }
 
-  public Node setVariable(String variable) {
-    super.setVariable(variable);
+  public Node setNode(String node) {
+    super.setNode(node);
     return this;
   }
 

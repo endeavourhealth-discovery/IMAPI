@@ -28,7 +28,7 @@ public class ReturnProperty {
   @JsonProperty("case")
   private Case case_;
   private String description;
-  private List<Match> match;
+  private Match match;
   private Bool boolMatch;
 
   public String getIri() {
@@ -96,31 +96,19 @@ public class ReturnProperty {
     return this;
   }
 
-  public ReturnProperty setMatch(List<Match> match) {
+  public ReturnProperty setMatch(Match match) {
     this.match = match;
     return this;
   }
 
-  public ReturnProperty addMatch(Match match) {
-    if (this.match == null) {
-      this.match = new ArrayList<>();
-    }
-    this.match.add(match);
-    return this;
-  }
 
   public ReturnProperty match(Consumer<Match> builder) {
     Match match = new Match();
-    addMatch(match);
+    this.setMatch(match);
     builder.accept(match);
     return this;
   }
 
-
-  public ReturnProperty setBoolMatch(Bool boolMatch) {
-    this.boolMatch = boolMatch;
-    return this;
-  }
 
   @JsonProperty("case")
   public Case getCase() {

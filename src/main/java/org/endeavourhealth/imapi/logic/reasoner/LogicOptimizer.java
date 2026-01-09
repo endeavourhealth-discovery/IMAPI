@@ -114,7 +114,7 @@ public class LogicOptimizer {
 
   private static void logicalPath(Path path) {
     if (path == null) return;
-    path.setVariable(null);
+    path.setNode(null);
     if (path.getPath() != null)
       for (Path subPath : path.getPath()) {
         logicalPath(subPath);

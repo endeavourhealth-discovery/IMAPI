@@ -9,7 +9,7 @@ import lombok.Setter;
 @JsonPropertyOrder({"parameter", "iri", "variable", "parameter", "name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Element extends IriLD implements Entailment {
-  private String variable;
+  private String node;
   private String parameter;
   private boolean ancestorsOf;
   private boolean ancestorsOrSelfOf;
@@ -135,8 +135,8 @@ public class Element extends IriLD implements Entailment {
     return this;
   }
 
-  public String getVariable() {
-    return variable;
+  public String getNode() {
+    return node;
   }
 
 
@@ -172,8 +172,8 @@ public class Element extends IriLD implements Entailment {
   }
 
 
-  public Element setVariable(String variable) {
-    this.variable = variable;
+  public Element setNode(String node) {
+    this.node = node;
     return this;
   }
 

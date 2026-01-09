@@ -427,8 +427,8 @@ public class IMQtoSQLConverter {
     SQLQuery subQry = convertMatchToQuery(qry, match, bool);
     qry.getWiths().addAll(subQry.getWiths());
     subQry.setWiths(new ArrayList<>());
-    if (match.getKeepAs() != null) {
-      String alias = match.getKeepAs();
+    if (match.getNode() != null) {
+      String alias = match.getNode();
       qry.getWiths().add(alias + " AS (" + subQry.toSql(2) + "\n)");
     } else {
       qry.getWiths().add(subQry.getAlias() + " AS (" + subQry.toSql(2) + "\n)");
@@ -463,10 +463,8 @@ public class IMQtoSQLConverter {
   }
 
   private String getVariableFromMatch(Match match) {
-    if (match.getVariable() != null) {
-      return match.getVariable();
-    } else if (match.getKeepAs() != null) {
-      return match.getKeepAs();
+   if (match.getNode() != null) {
+      return match.getNode();
     } else return null;
   }
 
@@ -997,7 +995,7 @@ public class IMQtoSQLConverter {
 
   public Match findMatchByKeepAs(Match match, String keepAs) {
     if (match == null) return null;
-    if (match.getKeepAs() != null && match.getKeepAs().equals(keepAs)) {
+    if (match.getNode() != null && match.getNode().equals(keepAs)) {
       return match;
     }
 

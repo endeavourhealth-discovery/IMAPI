@@ -13,6 +13,8 @@ data class MySQLWith(
   var orderBy: MySQLOrderBy? = null,
   val fromAlias: String? = null
 ) {
+  val tableMap: HashMap<String, Table> = hashMapOf()
+
   fun toSql(): String {
     val selectSql = selects.joinToString(", ") { sel ->
       sel.alias?.let { "${sel.name} AS $it" } ?: sel.name

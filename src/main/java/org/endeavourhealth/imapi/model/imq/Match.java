@@ -48,10 +48,6 @@ public class Match extends IriLD implements HasPaths {
     return typeOf;
   }
 
-  public String getVariable() {
-    return variable;
-  }
-
   public Where getWhere() {
     return where;
   }
@@ -145,10 +141,6 @@ public class Match extends IriLD implements HasPaths {
 
   public List<Node> getIs() {
     return is;
-  }
-
-  public String getKeepAs() {
-    return keepAs;
   }
 
   public String getAsDescription() {
@@ -494,4 +486,11 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
+  public String getNode() {
+    return node;
+  }
+
+  public boolean isActiveOnly() {
+    return activeOnly;
+  }
 }

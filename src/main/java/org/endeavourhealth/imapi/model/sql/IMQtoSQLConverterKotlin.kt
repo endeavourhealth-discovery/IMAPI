@@ -99,7 +99,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
     val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
-      val isAlias = match.keepAs ?: getCteAliasFromTypeAndProperty(isA.iri, null)
+      val isAlias = match.node ?: getCteAliasFromTypeAndProperty(isA.iri, null)
       val with = getIsWith(isA, isAlias, mySQLQuery)
       if (isA.isExclude || not == true) {
         val (with, join) = getIsExcludeWith(isA, isAlias, mySQLQuery)
@@ -216,7 +216,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val joins = mutableListOf<MySQLJoin>()
     if (match.path != null) addPathTablesAndJoins(match.path, queryTypeOfTable, variableToTableMap, joins)
     val isAlias = match.name?.replace(" ", "")
-      ?: match.keepAs ?: if (variableToTableMap.keys.isNotEmpty()) variableToTableMap.keys.joinToString("_") else
+      ?: match.node ?: if (variableToTableMap.keys.isNotEmpty()) variableToTableMap.keys.joinToString("_") else
         getCteAliasFromTypeAndProperty(
           queryTypeOf,
           match.where?.iri
@@ -672,7 +672,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   fun findMatchByKeepAs(match: Match?, keepAs: String?): Match? {
     if (match == null) return null
-    if (match.keepAs != null && match.keepAs == keepAs) {
+    if (match.node != null && match.node == keepAs) {
       return match
     }
 
@@ -710,11 +710,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val join = parentTable.getJoinCondition(
         joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
         tableTo = table,
-        tableToAlias = path.variable,
+        tableToAlias = path.node,
         tableFromAlias = parentTable.table,
       )
 
-      tableMap[path.variable] = table
+      tableMap[path.node] = table
       joins.add(join)
 
       if (path.path != null) {

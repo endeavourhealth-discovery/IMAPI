@@ -83,10 +83,6 @@ public class ReturnProperty {
     return description;
   }
 
-  public List<Match> getMatch() {
-    return match;
-  }
-
   public Bool getBoolMatch() {
     return boolMatch;
   }
@@ -217,5 +213,13 @@ public class ReturnProperty {
   public ReturnProperty setDescription(String description) {
     this.description = description;
     return this;
+  }
+
+  public Match getMatch() {
+    return match;
+  }
+
+  public void setBoolMatch(Bool boolMatch) {
+    this.boolMatch = boolMatch;
   }
 }

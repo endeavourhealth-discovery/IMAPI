@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.config.CasdoorConfiguration;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
@@ -17,13 +18,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class CasdoorService {
   private CasdoorConfiguration casdoorConfiguration;
   private AuthService casdoorAuthService;
@@ -116,12 +116,15 @@ public class CasdoorService {
   public void loginWithBearerToken(HttpServletRequest request, HttpServletResponse response) {
     String header = request.getHeader("Authorization");
     if (header == null || !header.startsWith("Bearer ")) {
+      log.error("Bearer token not provided");
       throw new UnauthorizedException("Unauthorized");
     }
+    log.debug("Generating cookie");
     String token = header.substring(7);
     Cookie cookie = new Cookie("access_token", token);
     cookie.setPath("/");
     cookie.setHttpOnly(true);
+    log.debug("Setting cookie");
     response.addCookie(cookie);
   }
 

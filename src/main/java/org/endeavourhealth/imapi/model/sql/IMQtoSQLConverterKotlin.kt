@@ -212,11 +212,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     match: Match,
     mySQLQuery: MySQLQuery,
   ): MutableList<MySQLWith> {
-    val variableToTableMap = HashMap<String, Table>()
+    val nodeToTableMap = HashMap<String, Table>()
     val joins = mutableListOf<MySQLJoin>()
-    if (match.path != null) addPathTablesAndJoins(match.path, queryTypeOfTable, variableToTableMap, joins)
+    if (match.path != null) addPathTablesAndJoins(match.path, queryTypeOfTable, nodeToTableMap, joins)
     val isAlias = match.name?.replace(" ", "")
-      ?: match.node ?: if (variableToTableMap.keys.isNotEmpty()) variableToTableMap.keys.joinToString("_") else
+      ?: match.node ?: if (nodeToTableMap.keys.isNotEmpty()) nodeToTableMap.keys.joinToString("_") else
         getCteAliasFromTypeAndProperty(
           queryTypeOf,
           match.where?.iri
@@ -237,7 +237,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addWheresRecursively(
         where = match.where,
         with = with,
-        variableToTableMap = variableToTableMap,
+        variableToTableMap = nodeToTableMap,
         parentWhere = null,
         bool = null
       )
@@ -246,19 +246,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       joins.add(
         (with.table.getJoinCondition(
           tableTo = mySQLQuery.withs.last().table,
-          tableToAlias = mySQLQuery.withs.last().alias
+          tableToAlias = mySQLQuery.withs.last().alias,
+          reference = true
         ))
       )
     }
 
     if (match.orderBy != null) {
-      with.orderBy = getMySQLOrderBy(queryTypeOfTable, match.orderBy)
+      with.orderBy = getMySQLOrderBy(with.table, match.orderBy, nodeToTableMap)
     }
 
     val defaultSelect =
-      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
+      MySQLSelect("DISTINCT ${with.table}.${with.table.primaryKey}", "${with.table.table}_id")
     val (selects, selectJoins, ynWith) =
-      if (match.`return` != null) getSelects(queryTypeOfTable, match.`return`, mySQLQuery, isAlias, queryTypeOfTable)
+      if (match.`return` != null) getSelects(
+        with.table,
+        match.`return`,
+        mySQLQuery,
+        isAlias,
+        with.table,
+        nodeToTableMap
+      )
       else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
     if (selects.isNotEmpty()) with.selects.addAll(selects)
     if (selectJoins.isNotEmpty()) with.joins?.addAll(selectJoins)
@@ -273,7 +281,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returx: Return,
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
-    currentWithTable: Table
+    currentWithTable: Table,
+    nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
     val defaultSelect =
       MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
@@ -284,7 +293,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       for (p in returx.property) {
         if (p.case != null) ynWith = getYNCaseSelect(p, mySqlQuery, currentWithAlias, currentWithTable)
         else if (p.function != null) selects.add(getFunctionSelect(table, p))
-        else addSelectFromProperty(p, selects)
+        else addSelectFromProperty(p, selects, nodeToTableMap)
       }
     else if (returx.function != null) {
       if (returx.function.iri == IM.COUNT.toString()) selects.add(
@@ -368,6 +377,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addSelectFromProperty(
     returnProperty: ReturnProperty,
     selects: MutableList<MySQLSelect>,
+    nodeToTableMap: HashMap<String, Table>
   ) {
     var field =
       if (returnProperty.iri == "http://endhealth.info/im#age") IMtoMySQLMap.functions[returnProperty.iri]?.replace(
@@ -376,7 +386,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )?.replace("{relativeTo}", $$"$searchDate") else IMtoMySQLMap.functions[returnProperty.iri]
     if (field == null) {
       val currentTable =
-        if (returnProperty.nodeRef != null) mySQLQueries.last().tableMap[returnProperty.nodeRef] else queryTypeOfTable
+        if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else queryTypeOfTable
       if (currentTable == null) throw SQLConversionException("No table exists for ${returnProperty.iri}")
       val property = getPropertyNameByTableAndPropertyIri(
         currentTable,
@@ -419,11 +429,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     ) walkPropertyPath(property.getReturn().property.first(), propertyPath)
   }
 
-  private fun getMySQLOrderBy(table: Table, orderBy: OrderLimit): MySQLOrderBy {
+  private fun getMySQLOrderBy(
+    table: Table, orderBy: OrderLimit, nodeToTableMap: HashMap<String, Table>,
+  ): MySQLOrderBy {
     val items = mutableListOf<MySQLOrderByItem>()
     for (p in orderBy.property) {
+      val currentTable =
+        if (p.nodeRef != null) nodeToTableMap[p.nodeRef] else table
+
+      if (currentTable == null) throw SQLConversionException("No table exists for ${p.iri}")
+
       val field = getPropertyNameByTableAndPropertyIri(
-        table,
+        currentTable,
         p.iri
       ).field ?: throw SQLConversionException("No field found for property ${p.iri}")
       items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC"))
@@ -710,7 +727,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val join = parentTable.getJoinCondition(
         joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
         tableTo = table,
-        tableToAlias = path.node,
         tableFromAlias = parentTable.table,
       )
 

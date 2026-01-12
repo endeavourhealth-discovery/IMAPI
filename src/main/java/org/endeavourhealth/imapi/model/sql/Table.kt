@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql;
 
+import org.apache.lucene.search.DoubleValuesSource.fromField
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import kotlin.String
 
@@ -42,6 +43,7 @@ class Table(
     joinType: String = "JOIN",
     tableTo: Table,
     tableToAlias: String,
+    reference: Boolean? = false
   ): MySQLJoin {
     if (relationships[tableTo.dataModel] == null && (dataModel != tableTo.dataModel && tableTo.table != table)) {
       throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
@@ -51,8 +53,9 @@ class Table(
       table,
       tableTo.table,
       tableToAlias,
-      relationships[tableTo.dataModel]?.fromField,
-      relationships[tableTo.dataModel]?.toField
+      relationships[tableTo.dataModel]?.fromField ?: primaryKey,
+      relationships[tableTo.dataModel]?.toField ?: primaryKey,
+      reference = reference
     )
   }
 

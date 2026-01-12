@@ -46,14 +46,6 @@ public class Where extends Element implements Assignable {
     return anyRoleGroup;
   }
 
-  public boolean isNull() {
-    return isNull;
-  }
-
-  public void setNull(boolean aNull) {
-    isNull = aNull;
-  }
-
   public boolean isRoleGroup() {
     return roleGroup;
   }
@@ -124,12 +116,12 @@ public class Where extends Element implements Assignable {
     this.propertyList = propertyList;
     return this;
   }
+
   public Where addToPropertyList(Node property) {
     if (this.propertyList == null) this.propertyList = new ArrayList<>();
     this.propertyList.add(property);
     return this;
   }
-
 
 
   public Where setNot(boolean not) {

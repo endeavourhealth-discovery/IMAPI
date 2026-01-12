@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@JsonPropertyOrder({"parameter", "iri", "variable", "parameter", "name"})
+@JsonPropertyOrder({"parameter", "iri", "parameter", "name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Element extends IriLD implements Entailment {
   private String node;

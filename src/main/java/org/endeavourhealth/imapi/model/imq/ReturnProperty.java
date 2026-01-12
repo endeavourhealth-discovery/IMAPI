@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as", "return"})
+@JsonPropertyOrder({"node", "iri", "name", "function", "as", "return"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class ReturnProperty {
   private String iri;

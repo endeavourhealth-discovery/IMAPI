@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "variable", "qualifier","match"})
+@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "qualifier","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
   private boolean exclude;

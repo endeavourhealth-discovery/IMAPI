@@ -299,7 +299,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       for (p in returx.property) {
         if (p.case != null) ynWith = getYNCaseSelect(p, mySqlQuery, currentWithAlias, currentWithTable)
         else if (p.function != null) selects.add(getFunctionSelect(table, p))
-        else addSelectFromProperty(p, selects, nodeToTableMap)
+        else addSelectFromProperty(p, selects, nodeToTableMap, currentWithTable)
       }
     else if (returx.function != null) {
       if (returx.function.iri == IM.COUNT.toString()) selects.add(
@@ -383,7 +383,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addSelectFromProperty(
     returnProperty: ReturnProperty,
     selects: MutableList<MySQLSelect>,
-    nodeToTableMap: HashMap<String, Table>
+    nodeToTableMap: HashMap<String, Table>,
+    currentWithTable: Table
   ) {
     var field =
       if (returnProperty.iri == "http://endhealth.info/im#age") IMtoMySQLMap.functions[returnProperty.iri]?.replace(
@@ -392,7 +393,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )?.replace("{relativeTo}", $$"$searchDate") else IMtoMySQLMap.functions[returnProperty.iri]
     if (field == null) {
       val currentTable =
-        if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else queryTypeOfTable
+        if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else currentWithTable
       if (currentTable == null) throw SQLConversionException("No table exists for ${returnProperty.iri}")
       val property = getPropertyNameByTableAndPropertyIri(
         currentTable,

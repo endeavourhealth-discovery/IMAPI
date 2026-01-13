@@ -7,7 +7,7 @@ data class MySQLQuery(
   var insert: MySQLInsert? = null,
   var savingAs: String? = null,
 ) {
-  val tableMap: HashMap<String, Table> = hashMapOf()
+  val nodeToTableMap: HashMap<String, Table> = hashMapOf()
 
   fun toSql(): String = buildString {
     insert?.let { append(it.toSql()) }

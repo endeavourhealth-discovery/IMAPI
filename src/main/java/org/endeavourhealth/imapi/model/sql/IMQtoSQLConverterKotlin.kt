@@ -212,20 +212,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     match: Match,
     mySQLQuery: MySQLQuery,
   ): MutableList<MySQLWith> {
-    val nodeToTableMap = HashMap<String, Table>()
     val joins = mutableListOf<MySQLJoin>()
-    if (match.path != null) addPathTablesAndJoins(match.path, queryTypeOfTable, nodeToTableMap, joins)
+    var currentTable = queryTypeOfTable
+    if (match.path != null)
+      currentTable = addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
+    if (match.nodeRef != null) currentTable =
+      mySQLQuery.nodeToTableMap[match.nodeRef] ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
+    if (match.node != null) {
+      mySQLQuery.nodeToTableMap[match.node] = currentTable
+    }
     val isAlias = match.name?.replace(" ", "")
-      ?: match.node ?: if (nodeToTableMap.keys.isNotEmpty()) nodeToTableMap.keys.joinToString("_") else
+      ?: match.node
+      ?: if (mySQLQuery.nodeToTableMap.keys.isNotEmpty()) mySQLQuery.nodeToTableMap.keys.joinToString("_") else
         getCteAliasFromTypeAndProperty(
           queryTypeOf,
           match.where?.iri
             ?: match.where?.and?.firstOrNull()?.iri
             ?: match.where?.or?.firstOrNull()?.iri
         )
-
     val with = MySQLWith(
-      table = queryTypeOfTable,
+      table = currentTable,
       alias = isAlias,
       selects = mutableListOf(),
       joins = joins,
@@ -237,7 +243,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addWheresRecursively(
         where = match.where,
         with = with,
-        variableToTableMap = nodeToTableMap,
+        variableToTableMap = mySQLQuery.nodeToTableMap,
         parentWhere = null,
         bool = null
       )
@@ -253,11 +259,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (match.orderBy != null) {
-      with.orderBy = getMySQLOrderBy(with.table, match.orderBy, nodeToTableMap)
+      with.orderBy = getMySQLOrderBy(with.table, match.orderBy, mySQLQuery.nodeToTableMap)
     }
 
     val defaultSelect =
-      MySQLSelect("DISTINCT ${with.table}.${with.table.primaryKey}", "${with.table.table}_id")
+      MySQLSelect("DISTINCT ${with.table.table}.${with.table.primaryKey}", "${with.table.table}_id")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
         with.table,
@@ -265,7 +271,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySQLQuery,
         isAlias,
         with.table,
-        nodeToTableMap
+        mySQLQuery.nodeToTableMap
       )
       else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
     if (selects.isNotEmpty()) with.selects.addAll(selects)
@@ -536,7 +542,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with: MySQLWith
   ): MySQLWhere {
     val currentTable =
-      if (where.nodeRef != null) variableToTableMap[where.nodeRef] else queryTypeOfTable
+      if (where.nodeRef != null) variableToTableMap[where.nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: ${where.nodeRef}")
     val field = IMtoMySQLMap.functions[where.function?.iri] ?: getPropertyNameByTableAndPropertyIri(
       currentTable,
@@ -721,9 +727,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     parentTable: Table,
     tableMap: HashMap<String, Table>,
     joins: MutableList<MySQLJoin>,
-  ) {
+  ): Table {
+    var lastTable = parentTable
+
     for (path in paths) {
-      val table = getTableFromTypeAndProperty(paths.first().typeOf.iri, null)
+      val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
       val join = parentTable.getJoinCondition(
         joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
         tableTo = table,
@@ -733,9 +741,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       tableMap[path.node] = table
       joins.add(join)
 
-      if (path.path != null) {
-        addPathTablesAndJoins(paths.first().path, table, tableMap, joins)
-      }
+      lastTable =
+        if (path.path != null) {
+          addPathTablesAndJoins(path.path, table, tableMap, joins)
+        } else {
+          table
+        }
     }
+    return lastTable
   }
+
 }

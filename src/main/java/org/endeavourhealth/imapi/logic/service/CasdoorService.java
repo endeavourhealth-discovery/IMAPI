@@ -30,14 +30,12 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class CasdoorService {
+  private static Set<OAuthTokens> activeSessions = new HashSet<>();
   private CasdoorConfiguration casdoorConfiguration;
   private AuthService casdoorAuthService;
   private UserService casdoorUserService;
   private TokenService casdoorTokenService;
   private ExcelReader excelReader = new ExcelReader();
-
-  private Set<OAuthTokens> activeSessions = new HashSet<>();
-
   private String clientId = System.getenv("CASDOOR_CLIENT_ID");
   private String endpoint = System.getenv("CASDOOR_ENDPOINT");
   private String certificate;
@@ -174,22 +172,17 @@ public class CasdoorService {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("access_token")) {
           String token = cookie.getValue();
-          Map<String, Object> body = new HashMap<>();
+          Map<String, Object> idBody = new HashMap<>();
           OAuthTokens session = activeSessions.stream().filter(s -> s.getAccess_token().equals(token)).findFirst().orElse(null);
           if (session != null) {
-            body.put("id_token_hint", session.getId_token());
-            httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/logout", body);
+            idBody.put("id_token_hint", session.getId_token());
+            httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/logout", idBody);
+            Map<String, Object> accessBody = new HashMap<>();
+            accessBody.put("accessToken", token);
+            httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/delete-token", accessBody);
+            activeSessions.remove(session);
           }
-//          Map<String, Object> body = new HashMap<>();
-//          body.put("accessToken", token);
-//          httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/delete-token", body);
         }
-//        if (cookie.getName().equals("casdoor_session_id")) {
-//          String sessionId = cookie.getValue();
-//          Map<String, Object> body = new HashMap<>();
-//          body.put("sessionId", sessionId);
-//          httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/delete-session", body);
-//        }
       }
     }
     Cookie accessCookie = new Cookie("access_token", "");
@@ -197,11 +190,6 @@ public class CasdoorService {
     accessCookie.setHttpOnly(true);
     accessCookie.setMaxAge(0);
     response.addCookie(accessCookie);
-    Cookie sessionCookie = new Cookie("casdoor_session_id", "");
-    sessionCookie.setPath("/");
-    sessionCookie.setHttpOnly(true);
-    sessionCookie.setMaxAge(0);
-    response.addCookie(sessionCookie);
   }
 
   public User adminGetUser(String userId) throws UserNotFoundException {

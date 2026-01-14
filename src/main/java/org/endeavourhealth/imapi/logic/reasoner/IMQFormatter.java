@@ -33,6 +33,7 @@ public class IMQFormatter {
         boolean found = false;
         Return pathReturn = new Return();
         pathReturn.setIri(path.getIri());
+        pathReturn.setName(path.getName());
         List<Return> leafReturns = nodeReturnMap.get(path.getNode());
         if (leafReturns != null) {
           nestedReturns.add(pathReturn);

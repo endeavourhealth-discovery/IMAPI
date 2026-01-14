@@ -263,7 +263,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     val defaultSelect =
-      MySQLSelect("DISTINCT ${with.table.table}.${with.table.primaryKey}", "${with.table.table}_id")
+      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
         with.table,
@@ -733,10 +733,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     for (path in paths) {
       val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
-      val join = parentTable.getJoinCondition(
+      val join = table.getJoinCondition(
         joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
-        tableTo = table,
-        tableFromAlias = parentTable.table,
+        tableTo = parentTable,
+        tableFromAlias = table.table,
       )
 
       tableMap[path.node] = table

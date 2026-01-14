@@ -130,6 +130,10 @@
         "value": "\"iri\""
       },
       {
+        "name": "IM_IRI",
+        "value": "Namespace.IM + \"iri\""
+      },
+      {
         "name": "VALUE",
         "value": "\"value\""
       },

@@ -68,7 +68,7 @@ public class OSQuery {
       processSourceReturns(osResult, resultNode);
       return;
     }
-    Return select = request.getQuery().getReturn();
+    List<Return> select = request.getQuery().getReturn();
     processNodeResultReturnProperty(osResult, resultNode, select);
   }
 
@@ -83,11 +83,8 @@ public class OSQuery {
     }
   }
 
-  private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, Return select) {
-    if (select.getProperty() == null)
-      return;
-
-    for (ReturnProperty prop : select.getProperty()) {
+  private static void processNodeResultReturnProperty(ObjectNode osResult, ObjectNode resultNode, List<Return> select) {
+    for (Return prop : select) {
       if (prop.getIri() != null) {
         String field = prop.getIri();
         String osField = field.substring(field.lastIndexOf("#") + 1);
@@ -97,10 +94,6 @@ public class OSQuery {
       }
     }
 
-  }
-
-  public SearchResponse openSearchQuery(QueryRequest request) throws OpenSearchException {
-    return getStandardResults(request);
   }
 
   private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
@@ -292,9 +285,9 @@ public class OSQuery {
 
   }
 
-  private SearchResponse getStandardResults(QueryRequest request) throws OpenSearchException {
+  public SearchResponse OSQueryAsSearchResponse(QueryRequest request) throws OpenSearchException {
     try {
-      JsonNode root = imOpenSearchQuery(request);
+      JsonNode root = OSQueryAsJsonNode(request);
       if (root == null)
         return null;
       if (root.has("entities")) {
@@ -347,7 +340,7 @@ public class OSQuery {
     }
   }
 
-  public JsonNode imOpenSearchQuery(QueryRequest request) throws OpenSearchException {
+  public JsonNode OSQueryAsJsonNode(QueryRequest request) throws OpenSearchException {
     try {
       JsonNode root = getOSResults(request);
       if (root == null)

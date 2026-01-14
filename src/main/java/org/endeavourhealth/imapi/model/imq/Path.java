@@ -66,8 +66,8 @@ public class Path extends Element implements HasPaths {
 
   public Path path(Consumer<Path> path) {
     Path p = new Path();
+    this.addPath(p);
     path.accept(p);
-    this.path.add(p);
     return this;
   }
 

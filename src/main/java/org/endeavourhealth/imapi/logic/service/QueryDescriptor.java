@@ -77,19 +77,13 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeReturn(Return ret) {
-
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
-        if (prop.getReturn() != null) {
-          describeReturn(prop.getReturn());
-        }
-        if (prop.getMatch()!=null) {
-          describeMatch(prop.getMatch());
+  private void describeReturn(Return prop) {
+    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
+    if (prop.getReturn() != null) {
+      for (Return subProp : prop.getReturn()) {
+          describeReturn(subProp);
         }
       }
-    }
   }
 
   private void setIriNames(Match match) throws QueryException {
@@ -161,16 +155,7 @@ public class QueryDescriptor {
     return display;
   }
 
-  private void flattenReturns(Return ret, Match parenMatch) {
-    if (ret.getProperty()!=null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getReturn()!=null){
 
-        }
-        flattenReturns(prop.getReturn(), parenMatch);
-      }
-    }
-  }
 
   private void nestReturns(Match match) {
     if (match.getReturn()==null) return;
@@ -182,7 +167,9 @@ public class QueryDescriptor {
 
 
     if (match.getReturn() != null) {
-      describeReturn(match.getReturn());
+      for (Return prop : match.getReturn()) {
+        describeReturn(prop);
+      }
     }
     if (match.getOrderBy() != null) {
       String orderDisplay= describeOrderBy(match.getOrderBy());
@@ -262,8 +249,8 @@ public class QueryDescriptor {
       if (match.getOrderBy() != null) {
         preface.append(match.getOrderBy().getDescription()).append(" ");
     }
-    if (match.getReturn().getProperty() != null)
-      preface.append(match.getReturn().getProperty()
+    if (match.getReturn() != null)
+      preface.append(match.getReturn()
         .stream().map(prop -> getTermInContext(prop.getIri(), Context.PLURAL).split(" \\(")[0])
         .collect(Collectors.joining(", ")));
   }

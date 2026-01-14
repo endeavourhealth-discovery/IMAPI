@@ -88,40 +88,30 @@ public class QueryValidator {
 
   private void processReturn(Match query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
-      Return aReturn = query.getReturn();
-      if (aReturn.getNodeRef() == null && aReturn.getAs() == null)
-        aReturn.setNodeRef(mainEntity);
-      validateReturn(aReturn);
-    }
-  }
-
-  private void validateReturn(Return aReturn) throws QueryException {
-    if (aReturn.getNodeRef() != null && variables.get(aReturn.getNodeRef()) == null)
-      throw new QueryException("return_ clause uses an unbound node reference variable (" + aReturn.getNodeRef() + ") Should it be a propertyRef?");
-
-    if (aReturn.getValueRef() != null && variables.get(aReturn.getValueRef()) == null)
-      throw new QueryException("return_ clause uses an unbound value reference variable (" + aReturn.getValueRef() + ") should it be a node ref?");
-
-    if (aReturn.getPropertyRef() != null && variables.get(aReturn.getPropertyRef()) == null)
-      throw new QueryException("return_ clause uses an unbound property reference variable (" + aReturn.getPropertyRef() + ") should it be a node ref?");
-
-
-    if (aReturn.getProperty() != null) {
-      for (ReturnProperty property : aReturn.getProperty()) {
-        validateReturnProperty(property);
-
+      for (Return path : query.getReturn()) {
+        validateReturn(path, mainEntity);
       }
     }
   }
 
 
-  private void validateReturnProperty(ReturnProperty path) throws QueryException {
+
+  private void validateReturn(Return path, String subject) throws QueryException {
+    if (path.getNodeRef()==null&&path.getPropertyRef()==null)
+      path.setNodeRef(subject);
+    if (path.getAs()==null) {
+      o++;
+      path.setAs("o" + o);
+      variables.put(path.getAs(), VarType.NODE);
+    }
+    if (variables.get(path.getNodeRef()) != null && variables.get(path.getNodeRef()) == null)
+      throw new QueryException("return_ clause uses an unbound node reference variable (" + path.getNodeRef() + ") should it be a property ref?");
     if (path.getPropertyRef() != null && variables.get(path.getPropertyRef()) == null)
       throw new QueryException("return_ clause uses an unbound where reference variable (" + path.getPropertyRef() + ") should it be a node ref?");
-    if (path.getValueRef() != null && variables.get(path.getValueRef()) == null)
-      throw new QueryException("return_ clause uses an unbound value reference variable (" + path.getValueRef() + ") should it be a property  ref?");
     if (path.getReturn() != null) {
-      validateReturn(path.getReturn());
+      for (Return pathReturn : path.getReturn()) {
+        validateReturn(pathReturn, path.getAs());
+      }
     }
   }
 
@@ -170,18 +160,20 @@ public class QueryValidator {
   private void validateWhere(Where where, String subject) throws QueryException {
     if (where.getNode() != null)
       variables.put(where.getNode(), VarType.PATH);
-    if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null)
+    if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null&&where.getPropertyVariable()==null)
       throw new QueryException("Where clause has no where iri  (set iri to where iri) ir a parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))
       throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
 
-    if (where.getValueVariable() != null)
-      variables.put(where.getValueVariable(), VarType.NODE);
-    String object = where.getValueVariable();
+    if (where.getNode() != null)
+      variables.put(where.getNode(), VarType.NODE);
+    if (where.getPropertyVariable()!=null)
+      variables.put(where.getPropertyVariable(), VarType.PATH);
+    String object = where.getNode();
     if (object == null) {
       o++;
       object = "o" + o;
-      where.setValueVariable(object);
+      where.setNode(object);
     }
     propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
       .put(where.getIri(), object);

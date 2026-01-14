@@ -29,6 +29,7 @@ public enum IM implements VocabEnum {
     ENTAILMENT(Namespace.IM + "entailment"),
     EXCLUDE(Namespace.IM + "exclude"),
     IRI("iri"),
+    IM_IRI(Namespace.IM + "iri"),
     VALUE("value"),
     TYPE("type"),
     ID(Namespace.IM + "id"),

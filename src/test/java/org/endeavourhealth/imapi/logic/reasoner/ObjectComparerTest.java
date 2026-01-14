@@ -20,7 +20,7 @@ class ObjectComparerTest {
       .setIri(Namespace.IM + "124")
       .setName("match")
       .where(w1 -> w1.setIri(Namespace.IM + "abc")
-        .setValueVariable("1234")
+        .setNode("1234")
         .relativeTo(r -> r.setNodeRef("ttt").setIri(Namespace.IM + "y")));
 
     System.out.println(LogicComparer.compareMatches(match1, match2));

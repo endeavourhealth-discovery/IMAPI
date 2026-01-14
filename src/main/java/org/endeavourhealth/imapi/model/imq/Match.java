@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +22,6 @@ public class Match extends IriLD implements HasPaths {
   @Getter
   private Node typeOf;
   @Getter
-  private String variable;
-  @Getter
   String parameter;
   @Getter
   private String name;
@@ -34,7 +31,7 @@ public class Match extends IriLD implements HasPaths {
   private FunctionClause function;
   @Getter
   private Entail entailment;
-  private Return returx;
+  private List<Return> returx;
   @Getter
   private RuleAction ifTrue;
   @Getter
@@ -68,7 +65,7 @@ public class Match extends IriLD implements HasPaths {
   private List<Node> is;
   private List<GroupBy> groupBy;
   @Getter
-  private String keepAs;
+  private String node;
   private OrderLimit orderBy;
   @Getter
   private String asDescription;
@@ -99,8 +96,8 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setKeepAs(String keepAs) {
-    this.keepAs = keepAs;
+  public Match setNode(String node) {
+    this.node = node;
     return this;
   }
 
@@ -231,9 +228,6 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
-
-
-
   public Match setBaseRule(boolean baseRule) {
     this.baseRule = baseRule;
     return this;
@@ -250,10 +244,6 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
-  public Match setReturx(Return returx) {
-    this.returx = returx;
-    return this;
-  }
 
 
   public Match setIsUnion(boolean union) {
@@ -274,19 +264,27 @@ public class Match extends IriLD implements HasPaths {
 
 
   @JsonGetter
-  public Return getReturn() {
+  public List<Return> getReturn() {
     return returx;
   }
 
   @JsonSetter
-  public Match setReturn(Return returx) {
-    this.returx = returx;
+  public Match setReturn(List<Return> returns) {
+    this.returx = returns;
+    return this;
+  }
+  public Match addReturn(Return returnx) {
+    if (this.returx == null) {
+      this.returx = new ArrayList<>();
+    }
+    this.returx.add(returnx);
     return this;
   }
 
   public Match return_(Consumer<Return> builder) {
-    this.returx = new Return();
-    builder.accept(this.returx);
+    Return returx = new Return();
+    addReturn(returx);
+    builder.accept(returx);
     return this;
   }
 
@@ -335,10 +333,6 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setVariable(String variable) {
-    this.variable = variable;
-    return this;
-  }
 
   public Match addIs(Node is){
     if (this.is == null) {

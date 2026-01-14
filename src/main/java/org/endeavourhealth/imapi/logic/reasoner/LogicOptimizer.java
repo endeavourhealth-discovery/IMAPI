@@ -65,8 +65,6 @@ public class LogicOptimizer {
             }
             matches.remove(i);
             i--;
-          } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
-            criteriaNodeRef.put(libraryIri, match.getReturn().getAs());
           }
         }
       }
@@ -77,9 +75,6 @@ public class LogicOptimizer {
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson = mapper.writeValueAsString(match);
     Match logicalMatch = mapper.readValue(matchJson, Match.class);
-    if (logicalMatch.getReturn() != null) {
-      logicalMatch.getReturn().setAs(null);
-    }
     if (logicalMatch.getPath() != null) {
       for (Path path : logicalMatch.getPath()) {
         logicalPath(path);
@@ -114,7 +109,7 @@ public class LogicOptimizer {
 
   private static void logicalPath(Path path) {
     if (path == null) return;
-    path.setVariable(null);
+    path.setNode(null);
     if (path.getPath() != null)
       for (Path subPath : path.getPath()) {
         logicalPath(subPath);

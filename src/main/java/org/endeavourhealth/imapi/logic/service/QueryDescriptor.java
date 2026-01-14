@@ -33,7 +33,7 @@ public class QueryDescriptor {
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-
+  private DisplayMode displayMode;
 
 
 
@@ -55,6 +55,7 @@ public class QueryDescriptor {
   }
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    this.displayMode = displayMode;
     setIriNames(query);
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
@@ -76,16 +77,13 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeReturn(Return ret) {
-
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
-        if (prop.getReturn() != null) {
-          describeReturn(prop.getReturn());
+  private void describeReturn(Return prop) {
+    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
+    if (prop.getReturn() != null) {
+      for (Return subProp : prop.getReturn()) {
+          describeReturn(subProp);
         }
       }
-    }
   }
 
   private void setIriNames(Match match) throws QueryException {
@@ -138,8 +136,8 @@ public class QueryDescriptor {
     }
     if (node.getIri() != null) {
       return getTermInContext(node.getIri(), context);
-    } else if (node.getVariable() != null) {
-      return node.getVariable();
+    } else if (node.getNode() != null) {
+      return node.getNode();
     } else if (node.getNodeRef() != null) {
       return node.getNodeRef();
     } else return "";
@@ -158,12 +156,20 @@ public class QueryDescriptor {
   }
 
 
+
+  private void nestReturns(Match match) {
+    if (match.getReturn()==null) return;
+  }
+
+
   public void describeMatch(Match match) {
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
 
 
     if (match.getReturn() != null) {
-      describeReturn(match.getReturn());
+      for (Return prop : match.getReturn()) {
+        describeReturn(prop);
+      }
     }
     if (match.getOrderBy() != null) {
       String orderDisplay= describeOrderBy(match.getOrderBy());
@@ -216,8 +222,8 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere());
     }
-    if (match.getKeepAs() != null && match.getAsDescription() != null) {
-        nodeRefToLabel.put(match.getKeepAs(), match.getAsDescription());
+    if (match.getNode() != null && match.getAsDescription() != null) {
+        nodeRefToLabel.put(match.getNode(), match.getAsDescription());
     }
   }
 
@@ -243,8 +249,8 @@ public class QueryDescriptor {
       if (match.getOrderBy() != null) {
         preface.append(match.getOrderBy().getDescription()).append(" ");
     }
-    if (match.getReturn().getProperty() != null)
-      preface.append(match.getReturn().getProperty()
+    if (match.getReturn() != null)
+      preface.append(match.getReturn()
         .stream().map(prop -> getTermInContext(prop.getIri(), Context.PLURAL).split(" \\(")[0])
         .collect(Collectors.joining(", ")));
   }

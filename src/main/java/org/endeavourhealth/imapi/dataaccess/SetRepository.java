@@ -61,7 +61,7 @@ public class SetRepository {
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     if (null != page && null != page.getPageNumber() && null != page.getPageSize()) newRequest.setPage(page);
     String sql = new SparqlConverter(newRequest).getSelectSparql(statusFilter,false,false);
-    String entityVariable= imQuery.getKeepAs()!=null ? imQuery.getKeepAs(): "entity";
+    String entityVariable= imQuery.getNode()!=null ? imQuery.getNode(): "entity";
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       return expand(qry, false,false, schemeFilter,entityVariable);
@@ -71,67 +71,71 @@ public class SetRepository {
 
 
   private void setReturn(Query imQuery, boolean includeLegacy) {
-    Return aReturn = new Return();
-    imQuery.setReturn(aReturn);
-    aReturn
-      .property(s -> s
+    imQuery
+      .return_(s->s
         .setIri(RDFS.LABEL).as("term"))
-      .property(s -> s
+      .return_(s -> s
         .setIri(IM.CODE).as("code"))
-      .property(s -> s
+      .return_(s -> s
         .setIri(IM.HAS_SCHEME)
+        .as("scheme")
         .return_(n -> n
-          .as("scheme")
-          .property(s2 -> s2
-            .setIri(RDFS.LABEL).as("schemeName"))))
-      .property(s -> s
-        .setIri(IM.USAGE_TOTAL).as("usage"))
-      .property(s -> s
-        .setIri(IM.IM_1_ID).as(IM_1_ID))
-      .property(s -> s
+          .setIri(RDFS.LABEL)
+          .as("schemeName")))
+      .return_(s -> s
+        .setIri(IM.USAGE_TOTAL)
+        .as("usage"))
+      .return_(s -> s
+        .setIri(IM.IM_1_ID)
+        .as(IM_1_ID))
+      .return_(s -> s
         .setIri(IM.HAS_STATUS)
-        .return_(s2 -> s2
-          .as("status")
-          .property(p -> p
-            .setIri(RDFS.LABEL).as("statusName"))))
-      .property(s -> s
+        .as("status")
+          .return_(p -> p
+            .setIri(RDFS.LABEL)
+            .as("statusName")))
+      .return_(s -> s
         .setIri(RDF.TYPE)
-        .return_(s2 -> s2
-          .as(ENTITY_TYPE)
-          .property(p -> p
-            .setIri(RDFS.LABEL).as(TYPE_NAME))))
-      .property(s -> s
+         .as(ENTITY_TYPE)
+          .return_(p -> p
+            .setIri(RDFS.LABEL)
+            .as(TYPE_NAME)))
+      .return_(s -> s
         .setIri(IM.CODE_ID)
         .as("codeId"))
-      .property(s -> s
+      .return_(s -> s
         .setIri(IM.ALTERNATIVE_CODE)
         .as("alternativeCode"));
 
     if (includeLegacy) {
-      aReturn.property(p -> p
-        .setIri(IM.MATCHED_TO)
-        .setInverse(true)
-        .return_(n -> n.as("legacy")
-          .property(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
-          .property(s -> s.setIri(IM.CODE).as("legacyCode"))
-          .property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName"))))
-          .property(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
-          .property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
-          .property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))
-        )
-      );
-      aReturn.property(p -> p
+      imQuery
+        .return_(p -> p
+          .setIri(IM.MATCHED_TO)
+          .as("legacy")
+          .setInverse(true)
+          .return_(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
+          .return_(s -> s.setIri(IM.CODE).as("legacyCode"))
+          .return_(s -> s
+            .setIri(IM.HAS_SCHEME)
+            .as(LEGACY_SCHEME)
+              .return_(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName")))
+          .return_(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
+          .return_(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
+          .return_(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id")));
+      imQuery
+        .return_(p -> p
         .setIri(IM.LOCAL_SUBCLASS_OF)
         .setInverse(true)
-        .return_(n -> n.as("legacy")
-          .property(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
-          .property(s -> s.setIri(IM.CODE).as("legacyCode"))
-          .property(s -> s.setIri(IM.HAS_SCHEME).return_(n1 -> n1.as(LEGACY_SCHEME).property(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName"))))
-          .property(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
-          .property(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
-          .property(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id"))
-        )
-      );
+        .as("legacy")
+          .return_(s -> s.setIri(RDFS.LABEL).as("legacyTerm"))
+          .return_(s -> s.setIri(IM.CODE).as("legacyCode"))
+          .return_(s -> s
+            .setIri(IM.HAS_SCHEME)
+            .as(LEGACY_SCHEME)
+            .return_(p1 -> p1.setIri(RDFS.LABEL).as("legacySchemeName")))
+          .return_(s -> s.setIri(IM.USAGE_TOTAL).as("legacyUse"))
+          .return_(s -> s.setIri(IM.CODE_ID).as("legacyCodeId"))
+          .return_(s -> s.setIri(IM.IM_1_ID).as("legacyIm1Id")));
     }
   }
 

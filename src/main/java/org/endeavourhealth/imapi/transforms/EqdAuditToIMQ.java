@@ -22,13 +22,13 @@ public class EqdAuditToIMQ {
       query.addColumnGroup(popQuery);
       String finalPopId = popId;
       popQuery
-        .setVariable(POPULATION)
+        .setNode(POPULATION)
         .addIs(Node.iri(resources.getNamespace() + finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + finalPopId));
       Return populationReturn = new Return();
-      popQuery.setReturn(populationReturn);
+      popQuery.addReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);
       if (eqReport.getAuditReport().getStandard() != null) {
         if (eqReport.getAuditReport().getStandard() == VocStandardAuditReportType.COUNTS) {
@@ -44,13 +44,13 @@ public class EqdAuditToIMQ {
             String pathString = resources.getIMPath(eqURL);
             String[] pathMap = pathString.split(" ");
             for (int i = 0; i < pathMap.length - 1; i++) {
-              ReturnProperty property = new ReturnProperty();
+              Return property = new Return();
               property.setIri(Namespace.IM + pathMap[i]);
               Return ret = new Return();
-              property.setReturn(ret);
+              property.addReturn(ret);
               populationReturn = ret;
             }
-            populationReturn.addProperty(new ReturnProperty()
+            populationReturn.addReturn(new Return()
               .as(eqColumn)
               .setIri(pathMap[pathMap.length - 1]));
             popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));

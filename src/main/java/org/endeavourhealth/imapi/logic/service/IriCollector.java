@@ -27,13 +27,13 @@ public class IriCollector {
     }
     collectMatchIris(query, iris);
   }
-  private static void collectReturnIris(Return ret, Set<String> iriSet) {
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) iriSet.add(prop.getIri());
-        if (prop.getReturn() != null) {
-          collectReturnIris(prop.getReturn(), iriSet);
-        }
+
+
+  private static void collectReturnIris(Return prop, Set<String> iriSet) {
+    if (prop.getIri() != null) iriSet.add(prop.getIri());
+    if (prop.getReturn() != null) {
+      for (Return subProp : prop.getReturn()) {
+        collectReturnIris(subProp, iriSet);
       }
     }
   }
@@ -98,7 +98,9 @@ public class IriCollector {
       collectWhereIris(match.getWhere(), iriSet);
     }
     if (match.getReturn() != null) {
-       collectReturnIris(match.getReturn(), iriSet);
+      for (Return prop : match.getReturn()) {
+        collectReturnIris(prop, iriSet);
+      }
     }
     if (match.getOrderBy()!=null){
       collectOrderByIris(match.getOrderBy(),iriSet);

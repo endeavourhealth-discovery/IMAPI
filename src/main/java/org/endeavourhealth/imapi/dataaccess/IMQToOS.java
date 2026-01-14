@@ -15,10 +15,7 @@ import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OpenSearch;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
@@ -249,9 +246,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.getReturn() != null) {
-      Return ret = query.getReturn();
-      if (ret.getProperty() != null) {
-        for (ReturnProperty prop : ret.getProperty()) {
+        for (Return prop : query.getReturn()) {
           if (prop.getIri() != null) {
             switch (OpenSearch.from(prop.getIri())) {
               case OpenSearch.DESCRIPTION:
@@ -291,7 +286,6 @@ public class IMQToOS {
             }
           }
         }
-      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
@@ -299,7 +293,7 @@ public class IMQToOS {
   }
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
-    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".iri", values);
+    TermsQueryBuilder tqr = new TermsQueryBuilder(property.equals("iri") ?property : (property + ".iri"), values);
     if (Bool.and == bool) boolBldr.filter(tqr);
     else if (Bool.or == bool) boolBldr.should(tqr);
   }
@@ -367,8 +361,9 @@ public class IMQToOS {
       return addIsFilter("isA", where, bool, boolBldr);
     } else if (IM.CONTENT_TYPE.toString().equals(w)) {
       return addIsFilter("contentType", where, bool, boolBldr);
-    }
-    return false;
+    } else if (IM.IM_IRI.toString().equals(w)) {
+      return addIsFilter("iri", where, bool, boolBldr);
+    } else return RDFS.DOMAIN.toString().equals(w);
   }
 
   private boolean isBooleanWhere(Where where) {

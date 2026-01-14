@@ -26,8 +26,8 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public Path setVariable(String variable) {
-    super.setVariable(variable);
+  public Path setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -66,8 +66,8 @@ public class Path extends Element implements HasPaths {
 
   public Path path(Consumer<Path> path) {
     Path p = new Path();
+    this.addPath(p);
     path.accept(p);
-    this.path.add(p);
     return this;
   }
 

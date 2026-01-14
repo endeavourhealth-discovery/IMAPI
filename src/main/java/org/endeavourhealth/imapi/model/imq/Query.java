@@ -20,7 +20,7 @@ public class Query extends Match {
   private List<Match> columnGroup;
   private String iri;
   private String name;
-  private boolean imQuery;
+  private String imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
@@ -170,18 +170,18 @@ public class Query extends Match {
     return this;
   }
 
-  public boolean isImQuery() {
+  public String getImQuery() {
     return imQuery;
   }
 
-  public Query setImQuery(boolean imQuery) {
+  public Query setImQuery(String imQuery) {
     this.imQuery = imQuery;
     return this;
   }
 
   @Override
-  public Query setVariable(String variable) {
-    super.setVariable(variable);
+  public Query setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -216,8 +216,8 @@ public class Query extends Match {
   }
 
 
-  public Query setReturn(Return returx) {
-    super.setReturn(returx);
+  public Query setReturn(List<Return> returns) {
+    super.setReturn(returns);
     return this;
   }
 

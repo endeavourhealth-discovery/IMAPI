@@ -130,6 +130,10 @@
         "value": "\"iri\""
       },
       {
+        "name": "IM_IRI",
+        "value": "Namespace.IM + \"iri\""
+      },
+      {
         "name": "VALUE",
         "value": "\"value\""
       },
@@ -212,6 +216,10 @@
       {
         "name": "CONCEPT",
         "value": "Namespace.IM + \"Concept\""
+      },
+      {
+        "name": "CODEABLE",
+        "value": "Namespace.IM + \"Codeable\""
       },
       {
         "name": "CONCEPT_PROPERTY",
@@ -2106,6 +2114,10 @@
       {
         "name": "SUBSET_BUILDER",
         "value": "Namespace.IM_COMPONENT + \"subsetBuilder\""
+      },
+      {
+        "name": "CHECKBOX_DISPLAY",
+        "value": "Namespace.IM_COMPONENT + \"checkboxDisplay\""
       }
     ]
   },

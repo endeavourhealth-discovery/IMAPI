@@ -32,6 +32,7 @@ public class EqdResources {
   private final Properties dataMap;
   private final Map<Integer, String> baseMatchMap = new HashMap<>();
   private final QueryDescriptor descriptor = new QueryDescriptor();
+  private final Set<String> acronyms = new HashSet<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Getter
@@ -169,6 +170,7 @@ public class EqdResources {
   }
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
+    acronyms.clear();
     if (eqCriteria.getPopulationCriterion() != null) {
       return this.getPopulationQuery(eqCriteria);
     } else {
@@ -227,7 +229,7 @@ public class EqdResources {
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
         setAndGetReturnAs(standardMatch);
-        testMatch.setNodeRef(standardMatch.getKeepAs());
+        testMatch.setNodeRef(standardMatch.getNode());
         outerMatch.addAnd(testMatch);
         lastMatch= testMatch;
       }
@@ -269,31 +271,33 @@ public class EqdResources {
   }
 
   private void setAndGetReturnAs(Match match) {
-    if (match.getKeepAs() == null) {
+    if (match.getNode() == null) {
       matchCounter++;
       String as="Match_"+matchCounter;
       if (match.getPath()!=null)
-        as = match.getPath().getFirst().getVariable()+"_" + matchCounter;
+        as = match.getPath().getFirst().getNode()+"_" + matchCounter;
       if (match.getOr() != null) {
         int orIndex = 0;
         for (Match subQuery : match.getOr()) {
           orIndex++;
-          if (subQuery.getKeepAs() == null) {
-            subQuery.setKeepAs(as+"_"+orIndex);
+          if (subQuery.getNode() == null) {
+            subQuery.setNode(as+"_"+orIndex);
           }
           if (subQuery.getReturn() == null) {
-            subQuery.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(subQuery)).setIri(Namespace.IM + "effectiveDate")));
+            subQuery.addReturn((new Return())
+              .setNodeRef(getNodeRef(subQuery))
+              .setIri(Namespace.IM + "effectiveDate"));
           }
         }
       }
-      match.setKeepAs(as);
-      match.setReturn((new Return())
-        .property(p -> p
+      match.setNode(as);
+      match
+        .return_(p -> p
           .setNodeRef(getNodeRef(match))
           .setIri(Namespace.IM + "effectiveDate"))
-        .property(p->p
+        .return_(p->p
           .setNodeRef(getNodeRef(match))
-          .setIri(Namespace.IM+"concept")));
+          .setIri(Namespace.IM+"concept"));
     }
   }
 
@@ -321,7 +325,7 @@ public class EqdResources {
     } else {
       if (nodeRef != null) {
         match.setNodeRef(nodeRef);
-        match.setPath(null);
+        match.setPath((List<Path>) null);
       }
 
       return match;
@@ -376,7 +380,7 @@ public class EqdResources {
       relationProperty.setOperator(Operator.eq);
     }
 
-    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getKeepAs()).setIri(parentProperty));
+    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getNode()).setIri(parentProperty));
     ClauseUtils.assignFunction(relationProperty);
     if (match.getDescription()!=null){
       match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
@@ -419,16 +423,11 @@ public class EqdResources {
     }
     addMatchWhere(match, where,null);
     where.setIri(fullPath[fullPath.length - 1]);
-    if ((Namespace.IM + "value").equals(where.getIri())) {
-      if (match.getPath() != null) {
-        match.getPath().getFirst().setIri(Namespace.IM+"observation").setTypeOf((new Node()).setIri(Namespace.IM + "Observation"));
-      }
-    }
 
     this.convertColumnValue(cv, where);
   }
 
-  private String setMatchPath(Match match, String[] paths) {
+  public String setMatchPath(Match match, String[] paths) {
     if (paths.length == 1) {
       return null;
     } else {
@@ -436,14 +435,12 @@ public class EqdResources {
       boolean inverse = path.startsWith("^");
       String pathIri = path.replaceFirst("^", "");
       if (match.getPath() != null) {
-        for (Path pathMatch : match.getPath()) {
-          if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
+        Path pathMatch = match.getPath().getFirst();
+        if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
             if (paths.length == 3) {
-              return pathMatch.getVariable();
+              return pathMatch.getNode();
             }
-
             return this.getPathFromPath(pathMatch, paths, 2);
-          }
         }
       }
 
@@ -451,20 +448,28 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setVariable(paths[1].substring(paths[1].lastIndexOf("#") + 1));
+      pathMatch.setNode(getAcronym(paths[1]));;
       pathMatch.setTypeOf((new Node()).setIri(paths[1]));
-      return paths.length == 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, 2);
+      return paths.length == 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 2);
     }
   }
 
-  public String getNodeRef(HasPaths path) {
+  public String getNodeRef(Path path) {
     if (path.getPath() != null) {
-      for (Path pathMatch : path.getPath()) {
-        if (pathMatch.getVariable() != null && pathMatch.getPath() == null) {
-          return pathMatch.getVariable();
-        } else return getNodeRef(pathMatch);
-      }
-      return "";
+      Path pathMatch = path.getPath().getFirst();
+      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
+          return pathMatch.getNode();
+      } else return getNodeRef(pathMatch);
+    }
+    return "";
+  }
+
+  public String getNodeRef(Match match) {
+    if (match.getPath() != null) {
+      Path pathMatch = match.getPath().getFirst();
+      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
+        return pathMatch.getNode();
+      } else return getNodeRef(pathMatch);
     }
     return "";
   }
@@ -477,24 +482,22 @@ public class EqdResources {
     boolean inverse = path.startsWith("^");
     String pathIri = path.replaceFirst("^", "");
     if (pathMatch.getPath() != null) {
-      for (Path subPathMatch : pathMatch.getPath()) {
+        Path subPathMatch = pathMatch.getPath().getFirst();
         if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
           if (paths.length == offset + 3) {
-            return subPathMatch.getVariable();
+            return subPathMatch.getNode();
           }
-
           return this.getPathFromPath(subPathMatch, paths, offset + 2);
         }
-      }
     }
 
     Path subPathMatch = new Path();
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    subPathMatch.setVariable(paths[offset + 1].substring(paths[offset + 1].lastIndexOf("#") + 1));
+    subPathMatch.setNode(getAcronym(paths[offset + 1]));
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
-    return paths.length == offset + 3 ? pathMatch.getVariable() : this.getPathFromPath(pathMatch, paths, offset + 2);
+    return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
 
   private void convertColumnValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
@@ -594,7 +597,7 @@ public class EqdResources {
     if (restrict.getColumnOrder().getRecordCount() != 1000) {
       matchCounter++;
       String asLabel = "Match_" + matchCounter;
-      restricted.setKeepAs(asLabel);
+      restricted.setNode(asLabel);
       String nodeRef = getNodeRef(restricted);
       restricted.orderBy((o) -> o
         .addProperty(new OrderDirection()
@@ -1321,6 +1324,27 @@ public class EqdResources {
       return name.contains("resolved") ? previous + " or resolved" : previous + " or " + name;
     }
   }
+
+  public String getAcronym(String iri) {
+    if (iri == null || iri.isBlank()) return "";
+    String local = iri.substring(iri.lastIndexOf("#")+1);
+    String[] parts = local.split("(?<!^)(?=[A-Z0-9])");
+    StringBuilder sb = new StringBuilder();
+    for (String part : parts) {
+      if (part.isBlank()) continue;
+      sb.append(Character.toUpperCase(part.charAt(0)));
+    }
+    String acronym= sb.toString().toLowerCase();
+    if (acronyms.contains(acronym)){
+      int i=1;
+      while(acronyms.contains(acronym+i))
+        i++;
+      acronym=acronym+i;
+    }
+    acronyms.add(acronym);
+    return acronym;
+  }
+
 
 
 }

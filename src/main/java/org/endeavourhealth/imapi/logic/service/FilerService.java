@@ -36,7 +36,6 @@ public class FilerService {
   private final ProvService provService;
   private final EntityService entityService;
   private final OpenSearchService openSearchService;
-  private final UserService userService;
   private final TTEntityFiler entityProvFiler;
   private final Graph insertGraph = Graph.IM;
   private TTTransactionFiler documentFiler;
@@ -49,7 +48,6 @@ public class FilerService {
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
-    userService = new UserService();
   }
 
   private static boolean isValidIri(TTEntity entity) {

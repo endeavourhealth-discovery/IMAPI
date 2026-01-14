@@ -579,7 +579,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
-        where.value ?: where.relativeTo.parameter ?: getValueFromRelativeTo(where)
+        where.value ?: where.relativeTo.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
         ?: throw SQLConversionException("No value provided for where $where"),
         not = where.isNot,
         args = args
@@ -588,13 +588,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return where
   }
 
-  private fun getValueFromRelativeTo(where: Where): String? {
+  private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String? {
     val nodeRef =
       where.relativeTo?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.relativeTo}")
     var property = ""
-    val with = mySQLQueries.last().withs.find { it.alias == nodeRef }
-    if (with != null) {
-      property = getPropertyNameByTableAndPropertyIri(with.table, where.relativeTo.iri).field
+    val nodeRefTable = nodeToTableMap[nodeRef]
+    if (nodeRefTable != null) {
+      property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.relativeTo.iri).field
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
         property =

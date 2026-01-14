@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -23,6 +24,7 @@ import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
@@ -165,7 +167,7 @@ public class QueryRepository {
     Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
     ObjectNode lastEntity = null;
-    ObjectNode entity;
+    ObjectNode entity=null;
     Map<String, ObjectNode> nodeMap = new HashMap<>();
     Integer start = null;
     Integer end = null;
@@ -179,8 +181,19 @@ public class QueryRepository {
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        Return aReturn = query.getReturn();
-        entity = bindReturn(bs, aReturn, entities, nodeMap);
+        entity= nodeMap.get(bs.getValue(query.getNode()).stringValue());
+        if (entity == null){
+          entity = mapper.createObjectNode();
+          entities.add(entity);
+          entity.put("iri", bs.getValue(query.getNode()).stringValue());
+        }
+        if (query.getReturn()!=null){
+          for (Return returnProperty: query.getReturn()){
+            bindReturn(bs, entity, returnProperty);
+          }
+        } else {
+          entity= mapper.createObjectNode();
+        }
         if (queryRequest.getTextSearch() != null) {
           if (lastEntity == null) lastEntity = entity;
           if (entity.get("iri") != null && (!entity.get("iri").textValue().equals(lastEntity.get("iri").textValue()))) {
@@ -247,103 +260,50 @@ public class QueryRepository {
   }
 
 
-  private ObjectNode bindReturn(BindingSet bs, Return aReturn, ArrayNode entities,
-                                Map<String, ObjectNode> nodeMap) {
-    String subject = aReturn.getNodeRef();
-    ObjectNode entity = null;
-    if (subject == null) subject = aReturn.getPropertyRef();
-    if (subject == null) subject = aReturn.getValueRef();
-    Value value = bs.getValue(subject);
-    ObjectNode node;
-    if (value != null) {
-      node = nodeMap.get(value.stringValue());
-      if (node == null) {
-        node = mapper.createObjectNode();
-        entities.add(node);
-        entity = node;
-        nodeMap.put(value.stringValue(), node);
-        if (value.isIRI())
-          node.put("iri", value.stringValue());
-        else
-          node.put("bn", value.stringValue());
-      } else entity = node;
-      bindNode(bs, aReturn, node);
-    }
-    return entity;
-  }
 
-  private void bindNode(BindingSet bs, Return aReturn, ObjectNode node) {
-
-    if (aReturn.getProperty() != null) {
-      for (ReturnProperty path : aReturn.getProperty()) {
-        bindPath(bs, path, node);
-      }
-    }
-
-  }
-
-  private void bindProperty(BindingSet bs, ObjectNode node, ReturnProperty property) {
+  private void bindReturn(BindingSet bs, ObjectNode node, Return property) {
     String predicate = property.getIri();
-    if (property.getAs() != null)
-      predicate = property.getAs();
-    String objectVariable = property.getValueRef();
+    if (property.getPropertyRef()!=null){
+      predicate= bs.getValue(property.getPropertyRef()).stringValue();
+    }
+    String objectVariable = property.getAs();
     Value object = bs.getValue(objectVariable);
     if (object != null) {
       String nodeValue = object.stringValue();
-      if (object.isIRI()) {
-        ObjectNode iriNode = mapper.createObjectNode();
-        node.set(predicate, iriNode);
-        iriNode.put("iri", nodeValue);
-      } else if (object.isBNode()) {
-        node.put(predicate, nodeValue);
-      } else
-        node.put(predicate, nodeValue);
-    }
-  }
-
-  private void bindPath(BindingSet bs, ReturnProperty path, ObjectNode node) {
-    if (path.getReturn() == null) {
-      bindProperty(bs, node, path);
-      return;
-    }
-    String iri = null;
-    if (path.getIri() != null)
-      iri = path.getIri();
-    else if (path.getPropertyRef() != null) {
-      Value pathVariable = bs.getValue(path.getPropertyRef());
-      if (pathVariable != null)
-        iri = pathVariable.stringValue();
-    } else
-      iri = path.getAs();
-    if (iri != null) {
-      Return returnNode = path.getReturn();
-      String nodeVariable;
-      if (returnNode.getNodeRef() != null)
-        nodeVariable = returnNode.getNodeRef();
-      else nodeVariable = returnNode.getAs();
-      Value nodeValue = bs.getValue(nodeVariable);
-      if (nodeValue != null) {
-        if (node.get(iri) == null) {
-          node.putArray(iri);
+      if (property.getReturn() == null) {
+        if (object.isIRI()) {
+          ObjectNode iriNode = mapper.createObjectNode();
+          node.set(predicate, iriNode);
+          iriNode.put("iri", nodeValue);
+        } else if (object.isBNode()) {
+          node.put(predicate, nodeValue);
+        } else
+          node.put(predicate, nodeValue);
+      } else {
+        if (node.path(predicate).isMissingNode()){
+          ArrayNode arrayNode = new ObjectMapper().createArrayNode();
+          node.set(predicate, arrayNode);
         }
-        ArrayNode arrayNode = (ArrayNode) node.path(iri);
-        if (arrayNode.isMissingNode()) {
-          arrayNode = new ObjectMapper().createArrayNode();
-          node.set(iri, arrayNode);
-        }
-        ObjectNode valueNode = getValueNode(arrayNode, nodeValue.stringValue());
+        ArrayNode arrayNode = (ArrayNode) node.path(predicate);
+        ObjectNode valueNode = getValueNode(arrayNode, nodeValue);
         if (valueNode == null) {
           valueNode = mapper.createObjectNode();
           arrayNode.add(valueNode);
-          if (nodeValue.isIRI())
-            valueNode.put("iri", nodeValue.stringValue());
-          else
-            valueNode.put("bn", nodeValue.stringValue());
         }
-        bindNode(bs, returnNode, valueNode);
+        if (object.isIRI()) {
+          valueNode.put("iri", nodeValue);
+        }
+        else {
+          valueNode.put("bn", nodeValue);
+        }
+        for (Return returnProperty : property.getReturn()) {
+          bindReturn(bs, valueNode, returnProperty);
+        }
       }
     }
   }
+
+
 
   private ObjectNode getValueNode(ArrayNode arrayNode, String nodeId) {
     for (JsonNode entry : arrayNode) {
@@ -397,5 +357,30 @@ public class QueryRepository {
       }
       return null;
     }
+  }
+
+  public List<String> getSubtypeProperties(Set<TTIriRef> iris) {
+    List<String> properties = new ArrayList<>();
+    String iriList= "<"+iris.stream().map(TTIriRef::getIri).collect(Collectors.joining("> <"))+">";
+    String spq= """
+      SELECT distinct ?property
+      WHERE {
+        Values ?parentConcept {%s}
+         ?concept im:isA ?parentConcept.
+         ?concept im:roleGroup ?group.
+         ?group ?property ?value.
+         filter (?property!=im:groupNumber)
+         ?property rdf:type rdf:Property.}
+      """.formatted(iriList);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          properties.add(bs.getValue("property").stringValue());
+        }
+      }
+    }
+    return properties;
   }
 }

@@ -23,8 +23,8 @@ public class Match extends IriLD implements HasPaths {
   private List<Path> path;
   private FunctionClause function;
   private Entail entailment;
-  @JsonIgnore
-  private Return returx;
+  private List<Return> returx;
+  @Getter
   private RuleAction ifTrue;
   private RuleAction ifFalse;
   private boolean baseRule;
@@ -319,6 +319,8 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
+
+
   public Match setIsUnion(boolean union) {
     this.union = union;
     return this;
@@ -337,19 +339,27 @@ public class Match extends IriLD implements HasPaths {
 
 
   @JsonGetter
-  public Return getReturn() {
+  public List<Return> getReturn() {
     return returx;
   }
 
   @JsonSetter
-  public Match setReturn(Return returx) {
-    this.returx = returx;
+  public Match setReturn(List<Return> returns) {
+    this.returx = returns;
+    return this;
+  }
+  public Match addReturn(Return returnx) {
+    if (this.returx == null) {
+      this.returx = new ArrayList<>();
+    }
+    this.returx.add(returnx);
     return this;
   }
 
   public Match return_(Consumer<Return> builder) {
-    this.returx = new Return();
-    builder.accept(this.returx);
+    Return returx = new Return();
+    addReturn(returx);
+    builder.accept(returx);
     return this;
   }
 

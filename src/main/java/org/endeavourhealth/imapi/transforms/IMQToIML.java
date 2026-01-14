@@ -119,7 +119,9 @@ public class IMQToIML extends QueryDescriptor{
     }
     if (query.getReturn()!=null) {
       clause.append("Get ");
-      clause.append(convertReturn(query.getReturn()));
+      for (Return ret:query.getReturn()) {
+        clause.append(convertReturn(ret));
+      }
       clause.append("\n");
     }
     if (query.getIs()!=null){
@@ -145,7 +147,9 @@ public class IMQToIML extends QueryDescriptor{
     StringBuilder clause= new StringBuilder();
     if (group.getReturn()!=null) {
       clause.append("columns ");
-      clause.append(convertReturn(group.getReturn()));
+      for (Return property : group.getReturn()) {
+        clause.append(convertReturn(property));
+      }
     }
     if (group.getOrderBy()!=null||group.getAnd()!=null||group.getOr()!=null||group.getNot()!=null||group.getWhere()!=null) {
       clause.append("\n").append("filter ");
@@ -154,19 +158,12 @@ public class IMQToIML extends QueryDescriptor{
     return clause.toString();
   }
 
-  private String convertReturn(Return aReturn) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-    boolean first = true;
-    for (ReturnProperty property : aReturn.getProperty()) {
-      if (!first) clause.append(", ");
-      first= false;
-      clause.append(convertReturnProperty(property));
-    }
-    return clause.toString();
-  }
 
-  private String convertReturnProperty(ReturnProperty property) throws QueryException {
+  private String convertReturn(Return property) throws QueryException {
     StringBuilder clause= new StringBuilder();
+    if (property.getReturn()!=null) {
+      clause.append("-> {");
+    }
     if (property.getIri()!=null) {
       clause.append(getVariableFromIri(property.getIri(),Context.PROPERTY));
       if (property.getFunction()!=null) {
@@ -179,8 +176,12 @@ public class IMQToIML extends QueryDescriptor{
       }
     }
     if (property.getReturn()!=null) {
-      clause.append("->");
-      clause.append(convertReturn(property.getReturn()));
+      boolean first= true;
+      for (Return ret:property.getReturn()) {
+        if (!first) clause.append(",\n ");
+        clause.append(convertReturn(ret));
+      }
+      clause.append("}\n");
     }
     return clause.toString();
   }

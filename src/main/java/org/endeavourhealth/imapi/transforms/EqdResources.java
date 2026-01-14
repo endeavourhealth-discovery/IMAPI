@@ -284,18 +284,20 @@ public class EqdResources {
             subQuery.setNode(as+"_"+orIndex);
           }
           if (subQuery.getReturn() == null) {
-            subQuery.setReturn((new Return()).property((p) -> p.setNodeRef(getNodeRef(subQuery)).setIri(Namespace.IM + "effectiveDate")));
+            subQuery.addReturn((new Return())
+              .setNodeRef(getNodeRef(subQuery))
+              .setIri(Namespace.IM + "effectiveDate"));
           }
         }
       }
       match.setNode(as);
-      match.setReturn((new Return())
-        .property(p -> p
+      match
+        .return_(p -> p
           .setNodeRef(getNodeRef(match))
           .setIri(Namespace.IM + "effectiveDate"))
-        .property(p->p
+        .return_(p->p
           .setNodeRef(getNodeRef(match))
-          .setIri(Namespace.IM+"concept")));
+          .setIri(Namespace.IM+"concept"));
     }
   }
 

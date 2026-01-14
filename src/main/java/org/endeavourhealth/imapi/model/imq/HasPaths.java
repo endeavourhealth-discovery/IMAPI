@@ -10,4 +10,5 @@ public interface HasPaths {
   String getIri();
   HasPaths setIri(String iri);
   HasPaths addPath(Path path);
+  String getNode();
 }

@@ -97,8 +97,7 @@ public class Where extends Element implements Assignable {
   private boolean isNotNull;
 
   private TTIriRef units;
-  private String valueVariable;
-
+  @Getter
   private boolean inverse;
 
   private List<Where> or;
@@ -110,6 +109,19 @@ public class Where extends Element implements Assignable {
   private TTIriRef qualifier;
   @Getter
   private List<Node> propertyList;
+  @Getter
+  private String propertyVariable;
+
+  public Where setPropertyVariable(String propertyVariable) {
+    this.propertyVariable = propertyVariable;
+    return this;
+  }
+
+  public Where setPropertyVariable(Node propertyVariable) {
+    this.propertyVariable = propertyVariable.getNodeRef();
+    return this;
+  }
+
 
 
   public Where setPropertyList(List<Node> propertyList) {
@@ -239,15 +251,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-
-  public String getValueVariable() {
-    return valueVariable;
-  }
-
-  public Where setValueVariable(String valueVariable) {
-    this.valueVariable = valueVariable;
-    return this;
-  }
 
   @Override
   public Where setNodeRef(String nodeRef) {

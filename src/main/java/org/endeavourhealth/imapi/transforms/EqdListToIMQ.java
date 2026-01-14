@@ -97,16 +97,16 @@ public class EqdListToIMQ {
     else {
       subQuery = new Match();
     }
-    Return aReturn = new Return();
-    subQuery.setReturn(aReturn);
     if (eqColGroup.getColumnar() == null) {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
+          Return aReturn = new Return();
+          subQuery.addReturn(aReturn);
           aReturn.function(f -> f
             .setIri(IM.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
-          aReturn
-            .property(p -> p
+          subQuery
+            .return_(p -> p
               .as("Y-N")
               .case_(c -> c
                 .when(w -> w
@@ -123,22 +123,22 @@ public class EqdListToIMQ {
         String eqURL = eqTable + "/" + eqColumn;
         String columnPath = resources.getIMPath(eqURL);
         if (columnPath.contains("$concat(")){
-          convertReturnConcatenate(aReturn,subQuery,eqTable,tablePath,columnPath,eqCol.getDisplayName());
+          convertReturnConcatenate(subQuery,eqTable,tablePath,columnPath,eqCol.getDisplayName());
           continue;
         }
         else {
           String[] subPath = (tablePath+" "+ columnPath).trim().split(" ");
           String nodeRef = getNodeRef(subQuery, subPath, 0);
-          convertColumn(aReturn, subPath[subPath.length - 1], eqCol.getDisplayName(), nodeRef);
+          convertColumn(subQuery, subPath[subPath.length - 1], eqCol.getDisplayName(), nodeRef);
         }
       }
     }
     return subQuery;
   }
 
-  private void convertColumn(Return aReturn, String propertyIri,String as,String nodeRef) throws EQDException {
-      ReturnProperty property = new ReturnProperty();
-      aReturn.addProperty(property);
+  private void convertColumn(Match subQuery, String propertyIri,String as,String nodeRef) throws EQDException {
+      Return property = new Return();
+      subQuery.addReturn(property);;
       property
         .setIri(propertyIri)
         .setNodeRef(nodeRef);
@@ -146,10 +146,10 @@ public class EqdListToIMQ {
         property.setAs(as);
   }
 
-  private void convertReturnConcatenate(Return aReturn, Match match,String eqTable, String tablePath,String eqPaths,String as) throws EQDException {
+  private void convertReturnConcatenate(Match subQuery, String eqTable, String tablePath,String eqPaths,String as) throws EQDException {
     FunctionClause function = new FunctionClause();
-    ReturnProperty property = new ReturnProperty();
-    aReturn.addProperty(property);
+    Return property = new Return();
+    subQuery.addReturn(property);
     property.setFunction(function);
     if (as!=null)
       property.setAs(as);
@@ -159,7 +159,7 @@ public class EqdListToIMQ {
       String eqURL = eqTable + "/" + eqPath;
       String columnPath = resources.getIMPath(eqURL);
       String[] subPath= (tablePath+" "+ columnPath).trim().split(" ");
-      String nodeRef = getNodeRef(match, subPath, 0);
+      String nodeRef = getNodeRef(subQuery, subPath, 0);
         Argument arg = new Argument();
         function.addArgument(arg);
         Path argPath = new Path();

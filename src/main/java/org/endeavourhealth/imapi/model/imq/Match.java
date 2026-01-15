@@ -8,68 +8,143 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue","ifFalse","name", "description", "nodeRef", "header","typeOf", "is","path","and","or","not","where","return","then",""})
+@JsonPropertyOrder({"ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements HasPaths {
   private Element graph;
-  @Getter
   private Where where;
-  @Getter
   private String description;
   private String nodeRef;
   private boolean optional;
   private FunctionClause aggregate;
-  @Getter
   private Node typeOf;
-  @Getter
-  String parameter;
-  @Getter
+  private String parameter;
   private String name;
-  @Getter
   private List<Path> path;
-  @Getter
   private FunctionClause function;
-  @Getter
   private Entail entailment;
   private List<Return> returx;
-  @Getter
   private RuleAction ifTrue;
-  @Getter
   private RuleAction ifFalse;
-  @Getter
   private boolean baseRule;
-  @Getter
   private boolean union;
-  @Getter
-  @Setter
   private Integer ruleNumber;
-  @Getter
   private boolean inverse;
-  @Getter
   private boolean activeOnly;
-
-  @Getter
   private List<Match> not;
-  @Getter
   private List<Match> or;
-  @Getter
   private List<Match> and;
-  @Getter
   private List<Match> rule;
-  @Getter
   private String libraryItem;
-  @Getter
-  @Setter
   private boolean invalid;
-  @Getter
   private List<Node> is;
   private List<GroupBy> groupBy;
-  @Getter
   private String node;
   private OrderLimit orderBy;
-  @Getter
   private String asDescription;
 
+  public Node getTypeOf() {
+    return typeOf;
+  }
+
+  public Where getWhere() {
+    return where;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+  public String getParameter() {
+    return parameter;
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
+
+  @Override
+  public List<Path> getPath() {
+    return path;
+  }
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Entail getEntailment() {
+    return entailment;
+  }
+
+  public RuleAction getIfTrue() {
+    return ifTrue;
+  }
+
+  public RuleAction getIfFalse() {
+    return ifFalse;
+  }
+
+  public boolean isBaseRule() {
+    return baseRule;
+  }
+
+  public boolean isUnion() {
+    return union;
+  }
+
+  public void setUnion(boolean union) {
+    this.union = union;
+  }
+
+  public Integer getRuleNumber() {
+    return ruleNumber;
+  }
+
+  public void setRuleNumber(Integer ruleNumber) {
+    this.ruleNumber = ruleNumber;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public List<Match> getNot() {
+    return not;
+  }
+
+  public List<Match> getOr() {
+    return or;
+  }
+
+  public List<Match> getAnd() {
+    return and;
+  }
+
+  public List<Match> getRule() {
+    return rule;
+  }
+
+  public String getLibraryItem() {
+    return libraryItem;
+  }
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+
+  public void setInvalid(boolean invalid) {
+    this.invalid = invalid;
+  }
+
+  public List<Node> getIs() {
+    return is;
+  }
+
+  public String getAsDescription() {
+    return asDescription;
+  }
 
   public Match setActiveOnly(boolean activeOnly) {
     this.activeOnly = activeOnly;
@@ -131,7 +206,6 @@ public class Match extends IriLD implements HasPaths {
     this.is = is;
     return this;
   }
-
 
 
   public Match setLibraryItem(String libraryItem) {
@@ -334,7 +408,7 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
-  public Match addIs(Node is){
+  public Match addIs(Node is) {
     if (this.is == null) {
       this.is = new ArrayList<>();
     }
@@ -344,15 +418,12 @@ public class Match extends IriLD implements HasPaths {
 
 
   @JsonIgnore
-  public Match is(Consumer<Node> builder){
+  public Match is(Consumer<Node> builder) {
     Node is = new Node();
     addIs(is);
     builder.accept(is);
     return this;
   }
-
-
-
 
 
   @JsonSetter
@@ -424,4 +495,11 @@ public class Match extends IriLD implements HasPaths {
   }
 
 
+  public String getNode() {
+    return node;
+  }
+
+  public boolean isActiveOnly() {
+    return activeOnly;
+  }
 }

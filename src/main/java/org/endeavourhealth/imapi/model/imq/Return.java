@@ -15,38 +15,24 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Return {
-  @Getter
   private String iri;
-  @Getter
   private String nodeRef;
-  @Getter
   private String name;
-  @Getter
   private String propertyRef;
-  @Getter
-  private String value;
-  @Getter
   private boolean inverse;
-  @Getter
   private FunctionClause function;
-  @Getter
   private String unit;
-  @Getter
   private String as;
   private List<Return> returx;
   private TTIriRef dataType;
   @JsonProperty("case")
   private Case case_;
-  @Getter
   private String description;
-
-
 
   public Return setName(String name) {
     this.name = name;
     return this;
   }
-
 
   @JsonProperty("case")
   public Case getCase() {
@@ -88,6 +74,7 @@ public class Return {
     this.returx = returns;
     return this;
   }
+
   public Return addReturn(Return return_) {
     if (this.returx == null)
       this.returx = new ArrayList<>();
@@ -135,7 +122,6 @@ public class Return {
 
 
   public Return setValue(String value) {
-    this.value = value;
     return this;
   }
 
@@ -158,5 +144,41 @@ public class Return {
   public Return setDescription(String description) {
     this.description = description;
     return this;
+  }
+
+  public String getIri() {
+    return iri;
+  }
+
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
+
+  public String getAs() {
+    return as;
+  }
+
+  public String getDescription() {
+    return description;
   }
 }

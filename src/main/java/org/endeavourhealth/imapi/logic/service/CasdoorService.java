@@ -11,31 +11,37 @@ import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.config.CasdoorConfiguration;
 import org.casbin.casdoor.exception.AuthException;
 import org.casbin.casdoor.service.AuthService;
+import org.casbin.casdoor.service.TokenService;
 import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.excel.ExcelReader;
+import org.endeavourhealth.imapi.model.casdoor.OAuthTokens;
 import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.primevue.FontSize;
 import org.endeavourhealth.imapi.model.primevue.PrimeVueColors;
 import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
 @Slf4j
 public class CasdoorService {
+  private static Set<OAuthTokens> activeSessions = new HashSet<>();
   private CasdoorConfiguration casdoorConfiguration;
   private AuthService casdoorAuthService;
   private UserService casdoorUserService;
+  private TokenService casdoorTokenService;
   private ExcelReader excelReader = new ExcelReader();
   private ObjectMapper om = new ObjectMapper();
   private EntityService entityService = new EntityService();
@@ -64,6 +70,7 @@ public class CasdoorService {
     casdoorConfiguration.setOrganizationName(organisationName);
     casdoorAuthService = new AuthService(casdoorConfiguration);
     casdoorUserService = new UserService(casdoorConfiguration);
+    casdoorTokenService = new TokenService(casdoorConfiguration);
   }
 
   public boolean validateToken(String token) {
@@ -170,11 +177,20 @@ public class CasdoorService {
   }
 
   public void loginUser(String code, String state, HttpServletResponse response) {
-    String token = casdoorAuthService.getOAuthToken(code, state);
-    Cookie cookie = new Cookie("access_token", token);
-    cookie.setPath("/");
-    cookie.setHttpOnly(true);
-    response.addCookie(cookie);
+    Map<String, Object> params = new HashMap<>();
+    params.put("code", code);
+    params.put("grant_type", "authorization_code");
+    params.put("client_id", clientId);
+    params.put("client_secret", clientSecret);
+    RestClient restClient = RestClient.create();
+    ResponseEntity<OAuthTokens> result = restClient.post().uri(endpoint + "/api/login/oauth/access_token").contentType(MediaType.APPLICATION_JSON).body(params).retrieve().toEntity(OAuthTokens.class);
+    if (result.getStatusCode().value() == 200) {
+      activeSessions.add(result.getBody());
+      Cookie cookie = new Cookie("access_token", result.getBody().getAccess_token());
+      cookie.setPath("/");
+      cookie.setHttpOnly(true);
+      response.addCookie(cookie);
+    }
   }
 
   public void loginWithBearerToken(HttpServletRequest request, HttpServletResponse response) {
@@ -192,25 +208,52 @@ public class CasdoorService {
     response.addCookie(cookie);
   }
 
-  public void logout(HttpServletResponse response) {
-    clearAccessToken(response);
-    clearSessionId(response);
+  public void httpPost(String url, Map<String, Object> body) {
+    RestClient restClient = RestClient.create();
+    ResponseEntity<Void> response = restClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).body(body).retrieve().toBodilessEntity();
+    if (response.getStatusCode() != HttpStatus.OK) {
+      throw new UnauthorizedException("Failed to delete token");
+    }
   }
 
-  public void clearAccessToken(HttpServletResponse response) {
-    Cookie cookie = new Cookie("access_token", "");
-    cookie.setPath("/");
-    cookie.setHttpOnly(true);
-    cookie.setMaxAge(0);
-    response.addCookie(cookie);
+  public String httpGet(String url, Map<String, String> params) {
+    RestClient restClient = RestClient.create();
+    return restClient
+      .get()
+      .uri(uriBuilder -> {
+        uriBuilder
+          .path(url);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+          uriBuilder.queryParam(entry.getKey(), entry.getValue());
+        }
+        return uriBuilder.build();
+      }).retrieve().body(String.class);
   }
 
-  public void clearSessionId(HttpServletResponse response) {
-    Cookie sessionCookie = new Cookie("casdoor_session_id", "");
-    sessionCookie.setPath("/");
-    sessionCookie.setHttpOnly(true);
-    sessionCookie.setMaxAge(0);
-    response.addCookie(sessionCookie);
+  public void logout(HttpServletRequest request, HttpServletResponse response) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals("access_token")) {
+          String token = cookie.getValue();
+          Map<String, Object> idBody = new HashMap<>();
+          OAuthTokens session = activeSessions.stream().filter(s -> s.getAccess_token().equals(token)).findFirst().orElse(null);
+          if (session != null) {
+            idBody.put("id_token_hint", session.getId_token());
+            httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/logout", idBody);
+            Map<String, Object> accessBody = new HashMap<>();
+            accessBody.put("accessToken", token);
+            httpPost(System.getenv("CASDOOR_ENDPOINT") + "/api/delete-token", accessBody);
+            activeSessions.remove(session);
+          }
+        }
+      }
+    }
+    Cookie accessCookie = new Cookie("access_token", "");
+    accessCookie.setPath("/");
+    accessCookie.setHttpOnly(true);
+    accessCookie.setMaxAge(0);
+    response.addCookie(accessCookie);
   }
 
   public boolean userExists(String userId) throws IOException {

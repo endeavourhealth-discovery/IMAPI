@@ -60,10 +60,10 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/logout")
-  public void logout(HttpServletResponse response) {
+  public void logout(HttpServletRequest request, HttpServletResponse response) throws UserNotFoundException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGOUT.GET")) {
       log.debug("logout");
-      casdoorService.logout(response);
+      casdoorService.logout(request, response);
     }
   }
 

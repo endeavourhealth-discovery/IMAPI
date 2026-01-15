@@ -284,7 +284,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getSelects(
     table: Table,
-    returx: Return,
+    returx: MutableList<Return>,
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
     currentWithTable: Table,
@@ -295,24 +295,25 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val selects = mutableListOf(defaultSelect)
     val joins = mutableListOf<MySQLJoin>()
     var ynWith: MySQLWith? = null
-    if (returx.property != null)
-      for (p in returx.property) {
-        if (p.case != null) ynWith = getYNCaseSelect(p, mySqlQuery, currentWithAlias, currentWithTable)
-        else if (p.function != null) selects.add(getFunctionSelect(table, p))
-        else addSelectFromProperty(p, selects, nodeToTableMap, currentWithTable)
-      }
-    else if (returx.function != null) {
-      if (returx.function.iri == IM.COUNT.toString()) selects.add(
-        MySQLSelect(
-          "COUNT(*)",
-          if (returx.`as` != null) "`${returx.`as`}`" else null
+    for (ret in returx) {
+      if (ret.iri != null)
+          if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, currentWithTable)
+          else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
+          else addSelectFromProperty(ret, selects, nodeToTableMap, currentWithTable)
+
+      else if (ret.function != null) {
+        if (ret.function.iri == IM.COUNT.toString()) selects.add(
+          MySQLSelect(
+            "COUNT(*)",
+            if (ret.`as` != null) "`${ret.`as`}`" else null
+          )
         )
-      )
-    } else throw SQLConversionException("Unsupported return $returx")
+      } else throw SQLConversionException("Unsupported return $returx")
+    }
     return Triple(selects, joins, ynWith)
   }
 
-  private fun getFunctionSelect(table: Table, returnProperty: ReturnProperty): MySQLSelect {
+  private fun getFunctionSelect(table: Table, returnProperty: Return): MySQLSelect {
     if (returnProperty.function.iri != IM.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     val concatenateFields = mutableListOf<String>()
     for (arg in returnProperty.function.argument) {
@@ -346,7 +347,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getYNCaseSelect(
-    returnProperty: ReturnProperty,
+    returnProperty: Return,
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
     currentWithTable: Table
@@ -381,7 +382,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun addSelectFromProperty(
-    returnProperty: ReturnProperty,
+    returnProperty: Return,
     selects: MutableList<MySQLSelect>,
     nodeToTableMap: HashMap<String, Table>,
     currentWithTable: Table
@@ -405,7 +406,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun findToTable(
-    paths: MutableList<ReturnProperty>,
+    paths: MutableList<Return>,
     startIndex: Int,
     tableMap: TableMap,
     currentIri: String = paths[startIndex].iri
@@ -429,12 +430,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
 
-  private fun walkPropertyPath(property: ReturnProperty, propertyPath: MutableList<ReturnProperty>) {
-    propertyPath.add(property)
-    if (null != property.getReturn() && null != property.getReturn().property && !property.getReturn()
-        .property.isEmpty()
-    ) walkPropertyPath(property.getReturn().property.first(), propertyPath)
-  }
+//  private fun walkPropertyPath(property: Return, propertyPath: MutableList<Return>) {
+//    propertyPath.add(property)
+//    if (null != property.getReturn() && null != property.getReturn().property && !property.getReturn()
+//        .property.isEmpty()
+//    ) walkPropertyPath(property.getReturn().property.first(), propertyPath)
+//  }
 
   private fun getMySQLOrderBy(
     table: Table, orderBy: OrderLimit, nodeToTableMap: HashMap<String, Table>,

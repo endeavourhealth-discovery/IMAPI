@@ -79,21 +79,21 @@ public class IMQtoSQLConverter {
       convertIs(qry, definition.getIs(), null, Bool.and);
 
     if (definition.getReturn() != null)
-      addSelectFromRootReturn(qry, definition.getReturn());
+//      addSelectFromRootReturn(qry, definition.getReturn());
 
-    sql.append(qry.toSql(2));
+      sql.append(qry.toSql(2));
     return sql.toString();
   }
 
   private void addSelectFromRootReturn(SQLQuery qry, Return aReturn) throws SQLConversionException, JsonProcessingException {
-    boolean hasOneProperty = aReturn.getProperty().size() == 1;
-    boolean singlePropertyIsFlat = aReturn.getProperty().getFirst().getReturn() == null;
-    boolean singlePropEqualsTable = qry.getModel().equalsIgnoreCase(aReturn.getProperty().getFirst().getIri());
-    if (hasOneProperty && singlePropertyIsFlat && singlePropEqualsTable)
-      qry.getSelects().add(qry.getPrimaryKey());
-    else for (ReturnProperty property : aReturn.getProperty()) {
-      addSelectFromReturnRecursively(qry, aReturn, property, null, null, true);
-    }
+//    boolean hasOneProperty = aReturn.getProperty().size() == 1;
+//    boolean singlePropertyIsFlat = aReturn.getProperty().getFirst().getReturn() == null;
+//    boolean singlePropEqualsTable = qry.getModel().equalsIgnoreCase(aReturn.getProperty().getFirst().getIri());
+//    if (hasOneProperty && singlePropertyIsFlat && singlePropEqualsTable)
+//      qry.getSelects().add(qry.getPrimaryKey());
+//    else for (ReturnProperty property : aReturn.getProperty()) {
+//      addSelectFromReturnRecursively(qry, aReturn, property, null, null, true);
+//    }
   }
 
   private String processDataset(Match dataset, Query definition) throws SQLConversionException, JsonProcessingException {
@@ -137,7 +137,6 @@ public class IMQtoSQLConverter {
       addIMQueryToSQLQueryRecursively(qry, dataset, Bool.and);
     }
   }
-
 
 
   private String processSingleQuery(Query definition) throws SQLConversionException, JsonProcessingException {
@@ -207,16 +206,16 @@ public class IMQtoSQLConverter {
   }
 
   private void processReturnProperty(SQLQuery qry, Return property,
-                                       Return parentProperty, String gParentTypeOf,
-                                       String tableAlias, boolean isNested)
+                                     Return parentProperty, String gParentTypeOf,
+                                     String tableAlias, boolean isNested)
     throws SQLConversionException, JsonProcessingException {
 
-     processReturnPropertyAs(qry, property, parentProperty, gParentTypeOf, tableAlias, isNested);
-     if (property.getReturn() != null) {
-       for (Return subProp : property.getReturn()) {
-         addNestedProperty(qry, subProp, property, gParentTypeOf);
-       }
-     }
+    processReturnPropertyAs(qry, property, parentProperty, gParentTypeOf, tableAlias, isNested);
+    if (property.getReturn() != null) {
+      for (Return subProp : property.getReturn()) {
+        addNestedProperty(qry, subProp, property, gParentTypeOf);
+      }
+    }
   }
 
   private void processReturnPropertyAs(SQLQuery qry, Return property,
@@ -416,7 +415,6 @@ public class IMQtoSQLConverter {
   }
 
 
-
   private void addYNCase(SQLQuery qry, Return parentProperty, String gParentTypeOf, String tableAlias) throws SQLConversionException {
     Table parentTable = tableMap.getTableFromProperty(List.of(parentProperty.getIri()));
     Table gParentTable = tableMap.getTableFromProperty(List.of(gParentTypeOf));
@@ -489,7 +487,7 @@ public class IMQtoSQLConverter {
   }
 
   private String getVariableFromMatch(Match match) {
-   if (match.getNode() != null) {
+    if (match.getNode() != null) {
       return match.getNode();
     } else return null;
   }

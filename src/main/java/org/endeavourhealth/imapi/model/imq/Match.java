@@ -24,7 +24,6 @@ public class Match extends IriLD implements HasPaths {
   private FunctionClause function;
   private Entail entailment;
   private List<Return> returx;
-  @Getter
   private RuleAction ifTrue;
   private RuleAction ifFalse;
   private boolean baseRule;

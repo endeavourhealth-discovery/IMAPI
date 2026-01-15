@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.casbin.casdoor.entity.User
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
 import org.endeavourhealth.imapi.model.primevue.FontSize
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component
 class UserService {
   private val entityService = EntityService()
   private val casdoorService = CasdoorService()
+  private val objectMapper = ObjectMapper()
 
   fun updateUserTheme(user: User, theme: String): Unit {
     require(PrimeVuePresetThemes.isTheme(theme))
@@ -46,12 +48,12 @@ class UserService {
 
   fun updateUserRecentActivity(user: User, recentActivity: List<RecentActivityItemDto>) {
     if (recentActivity.isEmpty()) {
-      user.properties["recentActivity"] = listOf<RecentActivityItemDto>().joinToString()
+      user.properties["recentActivity"] = "[]"
       casdoorService.updateUser(user)
       return
     }
     if (recentActivity.all { isValidRecentActivityItem(it) }) {
-      user.properties["recentActivity"] = recentActivity.joinToString(",")
+      user.properties["recentActivity"] = objectMapper.writeValueAsString(recentActivity)
       casdoorService.updateUser(user)
     } else {
       throw IllegalArgumentException("One or more activity items are invalid")
@@ -63,13 +65,13 @@ class UserService {
   }
 
   fun updateUserFavourites(user: User, favourites: List<String>) {
-    user.properties["favourites"] = favourites.joinToString(",")
+    user.properties["favourites"] = objectMapper.writeValueAsString(favourites)
     casdoorService.updateUser(user)
   }
 
   fun updateUserOrganisations(userId: String, organisations: List<String>) {
     val user = casdoorService.adminGetCasdoorUser(userId)
-    user.properties["organisations"] = organisations.joinToString(",")
+    user.properties["organisations"] = objectMapper.writeValueAsString(organisations)
     casdoorService.updateUser(user)
   }
 

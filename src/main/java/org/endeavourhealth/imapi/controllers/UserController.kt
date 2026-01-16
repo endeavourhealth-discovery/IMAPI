@@ -44,7 +44,7 @@ open class UserController(
       log.debug("updateUserPreset")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserTheme(user, preset)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -66,7 +66,7 @@ open class UserController(
       log.debug("updateUserPrimaryColor")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserPrimaryColor(user, color)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -86,7 +86,7 @@ open class UserController(
       log.debug("updateUserSurfaceColor")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserSurfaceColor(user, color)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -106,7 +106,7 @@ open class UserController(
       log.debug("updateUserDarkMode")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserDarkMode(user, darkMode.getBool())
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -128,7 +128,7 @@ open class UserController(
       log.debug("updateUserFontSize")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserFontSize(user, fontSize)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -148,7 +148,7 @@ open class UserController(
       log.debug("updateUserRecentActivity")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserRecentActivity(user, recentActivity)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 
@@ -168,7 +168,7 @@ open class UserController(
       log.debug("updateUserFavourites")
       val user = casdoorService.getCasdoorUser(request)
       userService.updateUserFavourites(user, favourites)
-      casdoorService.clearAccessToken(response)
+      casdoorService.refreshToken(request, response)
     }
   }
 

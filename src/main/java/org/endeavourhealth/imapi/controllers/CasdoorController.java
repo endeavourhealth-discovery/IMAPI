@@ -5,6 +5,7 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
@@ -44,23 +45,15 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/login")
-  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletResponse response) {
+  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
       log.debug("login");
       casdoorService.loginUser(code, state, response);
     }
   }
 
-  @GetMapping("/public/loginWithBearerToken")
-  public void loginWithToken(HttpServletRequest request, HttpServletResponse response) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGINWITHBEARERTOKEN.GET")) {
-      log.debug("loginWithBearerToken");
-      casdoorService.loginWithBearerToken(request, response);
-    }
-  }
-
   @GetMapping("/public/logout")
-  public void logout(HttpServletRequest request, HttpServletResponse response) throws UserNotFoundException, IOException {
+  public void logout(HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGOUT.GET")) {
       log.debug("logout");
       casdoorService.logout(request, response);

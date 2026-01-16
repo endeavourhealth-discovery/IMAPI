@@ -249,8 +249,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
 
     if (mySQLQuery.withs.isNotEmpty()) {
-      joins.add(
-        (with.table.getJoinCondition(
+      if (match.`return` == null)
+        joins.add(
+          (with.table.getJoinCondition(
+            tableTo = mySQLQuery.withs.last().table,
+            tableToAlias = mySQLQuery.withs.last().alias,
+            reference = true
+          ))
+        )
+      else joins.add(
+        (queryTypeOfTable.getJoinCondition(
           tableTo = mySQLQuery.withs.last().table,
           tableToAlias = mySQLQuery.withs.last().alias,
           reference = true
@@ -266,11 +274,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
-        with.table,
+        if (match.nodeRef != null) with.table else queryTypeOfTable,
         match.`return`,
         mySQLQuery,
         isAlias,
-        with.table,
         mySQLQuery.nodeToTableMap
       )
       else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
@@ -287,7 +294,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returx: MutableList<Return>,
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
-    currentWithTable: Table,
     nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
     val defaultSelect =
@@ -297,10 +303,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var ynWith: MySQLWith? = null
     for (ret in returx) {
       if (ret.iri != null)
-          if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, currentWithTable)
-          else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
-          else addSelectFromProperty(ret, selects, nodeToTableMap, currentWithTable)
-
+        if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, table)
+        else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
+        else addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
         if (ret.function.iri == IM.COUNT.toString()) selects.add(
           MySQLSelect(
@@ -741,7 +746,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
 
       tableMap[path.node] = table
-      joins.add(join)
 
       lastTable =
         if (path.path != null) {
@@ -749,7 +753,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         } else {
           table
         }
+
+      joins.add(join)
     }
+
     return lastTable
   }
 

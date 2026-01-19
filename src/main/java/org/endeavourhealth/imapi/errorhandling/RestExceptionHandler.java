@@ -18,6 +18,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.security.sasl.AuthenticationException;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
@@ -164,6 +165,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(UserNotFoundException.class)
   protected ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
     ApiError error = new ApiError(HttpStatus.FORBIDDEN, ex.getMessage(), ex, ErrorCodes.USER_NOT_FOUND_EXCEPTION);
+    return buildResponseEntity(error);
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  protected ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex) {
+    ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex, ErrorCodes.AUTHENTICATION_EXCEPTION);
     return buildResponseEntity(error);
   }
 

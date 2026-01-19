@@ -11,8 +11,10 @@ class Table(
   var condition: String? = "",
   var dataModel: String = "",
   var fields: HashMap<String, Field> = HashMap(),
-  var relationships: HashMap<String, Relationship> = HashMap()
-) {
+  var relationships: HashMap<String, Relationship> = HashMap(),
+  ) {
+  var alias: String? = null
+
   fun getJoinCondition(
     joinType: String = "JOIN",
     tableFrom: Table? = null,
@@ -31,9 +33,10 @@ class Table(
     val outerField = relationships[tableTo.dataModel]?.toField
       ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     return MySQLJoin(
-      joinType,
-      tableFromAlias ?: tableFrom?.table ?: table,
-      tableToAlias ?: tableTo.table,
+      join = joinType,
+      tableFrom = tableFromAlias ?: tableFrom?.table ?: table,
+      tableTo = tableTo.table,
+      tableToAlias = tableToAlias,
       toProperty = toField ?: outerField,
       fromProperty = fromField ?: innerField
     )

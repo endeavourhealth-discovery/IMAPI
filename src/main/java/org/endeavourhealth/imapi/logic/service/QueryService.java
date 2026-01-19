@@ -67,7 +67,7 @@ public class QueryService {
   public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-    return new IMQtoSQLConverter(queryRequestForSql).getSql();
+    return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
 
   public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {

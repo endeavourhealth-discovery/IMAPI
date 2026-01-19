@@ -249,8 +249,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
 
     if (mySQLQuery.withs.isNotEmpty()) {
-      joins.add(
-        (with.table.getJoinCondition(
+      if (match.`return` == null)
+        joins.add(
+          (with.table.getJoinCondition(
+            tableTo = mySQLQuery.withs.last().table,
+            tableToAlias = mySQLQuery.withs.last().alias,
+            reference = true
+          ))
+        )
+      else joins.add(
+        (queryTypeOfTable.getJoinCondition(
           tableTo = mySQLQuery.withs.last().table,
           tableToAlias = mySQLQuery.withs.last().alias,
           reference = true
@@ -266,11 +274,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "${queryTypeOfTable.table}_id")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
-        with.table,
+        if (match.nodeRef != null) with.table else queryTypeOfTable,
         match.`return`,
         mySQLQuery,
         isAlias,
-        with.table,
         mySQLQuery.nodeToTableMap
       )
       else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
@@ -287,7 +294,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returx: MutableList<Return>,
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
-    currentWithTable: Table,
     nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
     val defaultSelect =
@@ -297,10 +303,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var ynWith: MySQLWith? = null
     for (ret in returx) {
       if (ret.iri != null)
-          if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, currentWithTable)
-          else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
-          else addSelectFromProperty(ret, selects, nodeToTableMap, currentWithTable)
-
+        if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, table)
+        else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
+        else addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
         if (ret.function.iri == IM.COUNT.toString()) selects.add(
           MySQLSelect(
@@ -400,7 +405,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         currentTable,
         returnProperty.iri
       )
-      field = "${currentTable.table}.${property.field}"
+      field = "${currentTable.alias ?: currentTable.table}.${property.field}"
     }
     selects.add(MySQLSelect(field, if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null))
   }
@@ -552,7 +557,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      with.joins?.addAll(addWhereConceptJoin(currentTable))
+      for (join in addWhereConceptJoin(currentTable)) {
+        if (with.joins?.contains(join) == false)
+          with.joins?.add(join)
+      }
       MySQLPropertyIsWhere(
         field,
         where.`is`,
@@ -609,12 +617,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(table.getJoinCondition(tableTo = conceptTable))
+    joins.add(table.getJoinCondition(tableTo = conceptTable, tableToAlias = "concept_property"))
 
     val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
     joins.add(
       conceptTable.getJoinCondition(
         tableFrom = conceptTable,
+        tableFromAlias = "concept_property",
         tableTo = conceptMemberTable,
       )
     )
@@ -733,23 +742,37 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var lastTable = parentTable
 
     for (path in paths) {
-      val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
-      val join = table.getJoinCondition(
-        joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
-        tableTo = parentTable,
-        tableFromAlias = table.table,
-      )
+      try {
+        val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
+        table.alias = path.node
+        val join = table.getJoinCondition(
+          joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
+          tableTo = parentTable,
+          tableToAlias = parentTable.alias,
+          tableFromAlias = table.alias,
+        )
+        tableMap[path.node] = table
 
-      tableMap[path.node] = table
-      joins.add(join)
+        lastTable =
+          if (path.path != null) {
+            addPathTablesAndJoins(path.path, table, tableMap, joins)
+          } else {
+            table
+          }
 
-      lastTable =
-        if (path.path != null) {
-          addPathTablesAndJoins(path.path, table, tableMap, joins)
-        } else {
-          table
-        }
+        if (!joins.contains(join))
+          joins.add(join)
+      } catch (exception: SQLConversionException) {
+        tableMap[path.node] = lastTable
+        lastTable =
+          if (path.path != null) {
+            addPathTablesAndJoins(path.path, lastTable, tableMap, joins)
+          } else {
+            lastTable
+          }
+      }
     }
+
     return lastTable
   }
 

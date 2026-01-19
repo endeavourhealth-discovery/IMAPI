@@ -215,7 +215,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val joins = mutableListOf<MySQLJoin>()
     var currentTable = queryTypeOfTable
     if (match.path != null)
-      currentTable = addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
+      addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
     if (match.nodeRef != null) currentTable =
       mySQLQuery.nodeToTableMap[match.nodeRef] ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
     if (match.node != null) {
@@ -617,7 +617,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(table.getJoinCondition(tableTo = conceptTable, tableToAlias = "concept_property"))
+    joins.add(
+      table.getJoinCondition(
+        tableFromAlias = table.alias,
+        tableTo = conceptTable,
+        tableToAlias = "concept_property"
+      )
+    )
 
     val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
     joins.add(
@@ -739,41 +745,43 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     tableMap: HashMap<String, Table>,
     joins: MutableList<MySQLJoin>,
   ): Table {
-    var lastTable = parentTable
+    var firstTable: Table? = null
 
     for (path in paths) {
       try {
         val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
         table.alias = path.node
-        val join = table.getJoinCondition(
+
+        if (firstTable == null) {
+          firstTable = table
+        }
+
+        val join = parentTable.getJoinCondition(
           joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
-          tableTo = parentTable,
-          tableToAlias = parentTable.alias,
-          tableFromAlias = table.alias,
+          tableTo = table,
+          tableToAlias = table.alias,
+          tableFromAlias = parentTable.alias,
         )
+
         tableMap[path.node] = table
-
-        lastTable =
-          if (path.path != null) {
-            addPathTablesAndJoins(path.path, table, tableMap, joins)
-          } else {
-            table
-          }
-
-        if (!joins.contains(join))
+        if (!joins.contains(join)) {
           joins.add(join)
+        }
+        if (path.path != null) {
+          addPathTablesAndJoins(path.path, table, tableMap, joins)
+        }
+
+
       } catch (exception: SQLConversionException) {
-        tableMap[path.node] = lastTable
-        lastTable =
-          if (path.path != null) {
-            addPathTablesAndJoins(path.path, lastTable, tableMap, joins)
-          } else {
-            lastTable
-          }
+        tableMap[path.node] = parentTable
+        if (path.path != null) {
+          addPathTablesAndJoins(path.path, parentTable, tableMap, joins)
+        }
       }
     }
 
-    return lastTable
+    return firstTable ?: parentTable
   }
+
 
 }

@@ -405,7 +405,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         currentTable,
         returnProperty.iri
       )
-      field = "${currentTable.table}.${property.field}"
+      field = "${currentTable.alias ?: currentTable.table}.${property.field}"
     }
     selects.add(MySQLSelect(field, if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null))
   }
@@ -557,7 +557,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      with.joins?.addAll(addWhereConceptJoin(currentTable))
+      for (join in addWhereConceptJoin(currentTable)) {
+        if (with.joins?.contains(join) == false)
+          with.joins?.add(join)
+      }
       MySQLPropertyIsWhere(
         field,
         where.`is`,
@@ -614,12 +617,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(table.getJoinCondition(tableTo = conceptTable))
+    joins.add(table.getJoinCondition(tableTo = conceptTable, tableToAlias = "concept_property"))
 
     val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
     joins.add(
       conceptTable.getJoinCondition(
         tableFrom = conceptTable,
+        tableFromAlias = "concept_property",
         tableTo = conceptMemberTable,
       )
     )
@@ -738,23 +742,35 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var lastTable = parentTable
 
     for (path in paths) {
-      val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
-      val join = table.getJoinCondition(
-        joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
-        tableTo = parentTable,
-        tableFromAlias = table.table,
-      )
+      try {
+        val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
+        table.alias = path.node
+        val join = table.getJoinCondition(
+          joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
+          tableTo = parentTable,
+          tableToAlias = parentTable.alias,
+          tableFromAlias = table.alias,
+        )
+        tableMap[path.node] = table
 
-      tableMap[path.node] = table
+        lastTable =
+          if (path.path != null) {
+            addPathTablesAndJoins(path.path, table, tableMap, joins)
+          } else {
+            table
+          }
 
-      lastTable =
-        if (path.path != null) {
-          addPathTablesAndJoins(path.path, table, tableMap, joins)
-        } else {
-          table
-        }
-
-      joins.add(join)
+        if (!joins.contains(join))
+          joins.add(join)
+      } catch (exception: SQLConversionException) {
+        tableMap[path.node] = lastTable
+        lastTable =
+          if (path.path != null) {
+            addPathTablesAndJoins(path.path, lastTable, tableMap, joins)
+          } else {
+            lastTable
+          }
+      }
     }
 
     return lastTable

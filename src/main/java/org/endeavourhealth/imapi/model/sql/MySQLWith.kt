@@ -33,7 +33,10 @@ data class MySQLWith(
     return buildString {
       appendLine("$alias AS (")
       appendLine("  SELECT $selectSql")
-      appendLine("  FROM ${fromAlias ?: table.table}")
+      appendLine(
+        "  FROM ${fromAlias ?: table.table}" +
+          (table.alias?.let { " $it" } ?: "")
+      )
 
       if (joinSql != null) {
         appendLine(joinSql)

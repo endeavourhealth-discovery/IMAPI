@@ -214,12 +214,17 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ): MutableList<MySQLWith> {
     val joins = mutableListOf<MySQLJoin>()
     var currentTable = queryTypeOfTable
+    var referenceTable = queryTypeOfTable
     if (match.path != null)
-      addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
+      referenceTable = addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
     if (match.nodeRef != null) currentTable =
       mySQLQuery.nodeToTableMap[match.nodeRef] ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
     if (match.node != null) {
-      mySQLQuery.nodeToTableMap[match.node] = currentTable
+      if (match.nodeRef != null) {
+        val nodeRefTable = mySQLQuery.nodeToTableMap[match.nodeRef]
+        mySQLQuery.nodeToTableMap[match.node] =
+          nodeRefTable ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
+      } else mySQLQuery.nodeToTableMap[match.node] = referenceTable ?: currentTable
     }
     val isAlias = match.name?.replace(" ", "")
       ?: match.node
@@ -578,7 +583,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         not = where.isNot,
         args = args
       )
-    } else if (where.getIsNull()) {
+    } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
         args = args,

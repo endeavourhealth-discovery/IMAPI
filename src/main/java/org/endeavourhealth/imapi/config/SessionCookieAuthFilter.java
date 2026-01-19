@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.casdoor.Session;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
@@ -28,24 +29,20 @@ public class SessionCookieAuthFilter extends OncePerRequestFilter {
           authentication.setAuthenticated(true);
           SecurityContextHolder.getContext().setAuthentication(authentication);
         } else {
-          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-          response.getWriter().write("Invalid or expired token");
-          return;
+          throw new AuthenticationException("Invalid or expired token");
         }
       }
+      filterChain.doFilter(request, response);
     } catch (NoSuchElementException e) {
       Cookie sessionIdCookie = new Cookie("session_id", "");
       sessionIdCookie.setPath("/");
       sessionIdCookie.setHttpOnly(true);
       sessionIdCookie.setMaxAge(0);
       response.addCookie(sessionIdCookie);
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      response.getWriter().write("Session validation failed: " + e.getMessage());
+      throw new AuthenticationException("Invalid or expired session");
     } catch (Exception e) {
-      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-      response.getWriter().write("Token validation failed: " + e.getMessage());
+      throw new AuthenticationException("Authentication failed");
     }
-    filterChain.doFilter(request, response);
   }
 
   private String extractValueFromCookie(HttpServletRequest request, String cookieName) {

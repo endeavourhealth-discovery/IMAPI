@@ -68,7 +68,7 @@ public class CasbinEnforcer {
     }
   }
 
-  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException, UserNotFoundException {
+  public void enforceWithError(HttpServletRequest request, Resource resource, Action action) throws UserAuthorisationException, UserNotFoundException, JsonProcessingException {
     User user = casdoorService.getUser(request);
     enforceWithError(user, resource, action);
   }
@@ -81,7 +81,7 @@ public class CasbinEnforcer {
     //return enforcer.enforce(user, resource.name(), action.name());
   }
 
-  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException {
+  public void enforceOr(HttpServletRequest request, Resource resource, List<Action> accessRights) throws UserAuthorisationException, UserNotFoundException, JsonProcessingException {
     User user = casdoorService.getUser(request);
     List<Boolean> results = new ArrayList<>();
     for (Action accessRight : accessRights) {

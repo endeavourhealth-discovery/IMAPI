@@ -10,10 +10,10 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OAuthTokens {
-  String access_token;
-  String id_token;
-  String refresh_token;
-  String token_type;
-  String scope;
-  String expires_in;
+  private String access_token;
+  private String id_token;
+  private String refresh_token;
+  private String token_type;
+  private String scope;
+  private String expires_in;
 }

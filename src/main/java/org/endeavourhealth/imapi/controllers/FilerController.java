@@ -74,7 +74,7 @@ public class FilerController {
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
-      if (!filerService.userCanFile(user.getId(), Graph.IM))
+      if (!filerService.userCanFile(user, Graph.IM))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
@@ -116,7 +116,7 @@ public class FilerController {
 
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
 
-      if (!filerService.userCanFile(user.getId(), filingGraph))
+      if (!filerService.userCanFile(user, filingGraph))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       filerService.fileEntity(entity, user.getUsername(), usedEntity);

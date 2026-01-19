@@ -20,7 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
@@ -37,7 +36,7 @@ public class SecurityConfig {
         .authenticationEntryPoint(authenticationEntryPoint())
       )
       .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .addFilterBefore(new JwtCookieAuthFilter(), BasicAuthenticationFilter.class);
+      .addFilterBefore(new SessionCookieAuthFilter(), BasicAuthenticationFilter.class);
     return http.build();
   }
 

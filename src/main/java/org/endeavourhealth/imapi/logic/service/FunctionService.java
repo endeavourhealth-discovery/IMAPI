@@ -130,8 +130,7 @@ public class FunctionService {
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
     User user = casdoorService.getUser(request);
-    List<String> organisations = userService.getUserOrganisations(user.getId());
-    List<TTIriRef> resultsAsIri = results.stream().filter(r -> organisations.stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
+    List<TTIriRef> resultsAsIri = results.stream().filter(r -> user.getOrganisations().stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
     }

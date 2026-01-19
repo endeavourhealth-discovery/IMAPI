@@ -7,17 +7,18 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 
 public class ConfigDB extends BaseDB {
   private static final Repository repository = BaseDB.getRepository("config");
+
+  private ConfigDB() {
+    super(Graph.CONFIG);
+    conn = repository.getConnection();
+  }
+
   public static ConfigDB getConnection() {
     try {
       return new ConfigDB();
     } catch (Exception e) {
       throw new DALException(e.getMessage(), e);
     }
-  }
-
-  private ConfigDB() {
-    super(Graph.CONFIG);
-    conn = repository.getConnection();
   }
 
   public Update prepareInsertSparql(String sparql) {

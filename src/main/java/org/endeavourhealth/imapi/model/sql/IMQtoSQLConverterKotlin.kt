@@ -309,7 +309,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     for (ret in returx) {
       if (ret.iri != null)
         if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, table)
-        else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
         else addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
         if (ret.function.iri == IM.COUNT.toString()) selects.add(
@@ -318,34 +317,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
             if (ret.`as` != null) "`${ret.`as`}`" else null
           )
         )
+        else if (ret.function != null) selects.add(getFunctionSelect(table, ret, nodeToTableMap))
       } else throw SQLConversionException("Unsupported return $returx")
     }
     return Triple(selects, joins, ynWith)
   }
 
-  private fun getFunctionSelect(table: Table, returnProperty: Return): MySQLSelect {
+  private fun getFunctionSelect(
+    table: Table,
+    returnProperty: Return,
+    nodeToTableMap: HashMap<String, Table>
+  ): MySQLSelect {
     if (returnProperty.function.iri != IM.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     val concatenateFields = mutableListOf<String>()
     for (arg in returnProperty.function.argument) {
-      if (arg.parameter != "text") throw SQLConversionException("Unsupported function argument ${arg.parameter}")
       if (arg.valuePath == null) throw SQLConversionException("Missing valuePath for concatenate function argument")
       var field = ""
-      if (arg.valuePath.path != null) {
-        try {
-          val typeOfTable = getTableFromTypeAndProperty(arg.valuePath.typeOf.iri, null)
-          field = "${typeOfTable.table}.${
-            getPropertyNameByTableAndPropertyIri(
-              typeOfTable,
-              arg.valuePath.path.first().iri
-            ).field
-          }"
-        } catch (e: SQLConversionException) {
-          field =
-            getPropertyNameByTableAndPropertyIri(
-              table,
-              arg.valuePath.path.first().iri
-            ).field
-        }
+      if (arg.valuePath.nodeRef != null) {
+        val currentTable = nodeToTableMap[arg.valuePath.nodeRef]
+          ?: throw SQLConversionException("Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}")
+        field = getPropertyNameByTableAndPropertyIri(
+          currentTable,
+          arg.valuePath.iri
+        ).field
+        field = "${currentTable.alias}.$field"
       } else field = getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
       if (field.isEmpty()) throw SQLConversionException("No field found for concatenate function argument ${arg.valuePath}")
       concatenateFields.add(field)

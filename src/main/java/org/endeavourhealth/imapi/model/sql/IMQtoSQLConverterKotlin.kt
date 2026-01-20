@@ -214,12 +214,17 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ): MutableList<MySQLWith> {
     val joins = mutableListOf<MySQLJoin>()
     var currentTable = queryTypeOfTable
+    var referenceTable = queryTypeOfTable
     if (match.path != null)
-      currentTable = addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
+      referenceTable = addPathTablesAndJoins(match.path, queryTypeOfTable, mySQLQuery.nodeToTableMap, joins)
     if (match.nodeRef != null) currentTable =
       mySQLQuery.nodeToTableMap[match.nodeRef] ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
     if (match.node != null) {
-      mySQLQuery.nodeToTableMap[match.node] = currentTable
+      if (match.nodeRef != null) {
+        val nodeRefTable = mySQLQuery.nodeToTableMap[match.nodeRef]
+        mySQLQuery.nodeToTableMap[match.node] =
+          nodeRefTable ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
+      } else mySQLQuery.nodeToTableMap[match.node] = referenceTable ?: currentTable
     }
     val isAlias = match.name?.replace(" ", "")
       ?: match.node
@@ -304,7 +309,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     for (ret in returx) {
       if (ret.iri != null)
         if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, table)
-        else if (ret.function != null) selects.add(getFunctionSelect(table, ret))
         else addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
         if (ret.function.iri == IM.COUNT.toString()) selects.add(
@@ -313,34 +317,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
             if (ret.`as` != null) "`${ret.`as`}`" else null
           )
         )
+        else if (ret.function != null) selects.add(getFunctionSelect(table, ret, nodeToTableMap))
       } else throw SQLConversionException("Unsupported return $returx")
     }
     return Triple(selects, joins, ynWith)
   }
 
-  private fun getFunctionSelect(table: Table, returnProperty: Return): MySQLSelect {
+  private fun getFunctionSelect(
+    table: Table,
+    returnProperty: Return,
+    nodeToTableMap: HashMap<String, Table>
+  ): MySQLSelect {
     if (returnProperty.function.iri != IM.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     val concatenateFields = mutableListOf<String>()
     for (arg in returnProperty.function.argument) {
-      if (arg.parameter != "text") throw SQLConversionException("Unsupported function argument ${arg.parameter}")
       if (arg.valuePath == null) throw SQLConversionException("Missing valuePath for concatenate function argument")
       var field = ""
-      if (arg.valuePath.path != null) {
-        try {
-          val typeOfTable = getTableFromTypeAndProperty(arg.valuePath.typeOf.iri, null)
-          field = "${typeOfTable.table}.${
-            getPropertyNameByTableAndPropertyIri(
-              typeOfTable,
-              arg.valuePath.path.first().iri
-            ).field
-          }"
-        } catch (e: SQLConversionException) {
-          field =
-            getPropertyNameByTableAndPropertyIri(
-              table,
-              arg.valuePath.path.first().iri
-            ).field
-        }
+      if (arg.valuePath.nodeRef != null) {
+        val currentTable = nodeToTableMap[arg.valuePath.nodeRef]
+          ?: throw SQLConversionException("Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}")
+        field = getPropertyNameByTableAndPropertyIri(
+          currentTable,
+          arg.valuePath.iri
+        ).field
+        field = "${currentTable.alias}.$field"
       } else field = getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
       if (field.isEmpty()) throw SQLConversionException("No field found for concatenate function argument ${arg.valuePath}")
       concatenateFields.add(field)
@@ -578,7 +578,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         not = where.isNot,
         args = args
       )
-    } else if (where.getIsNull()) {
+    } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
         args = args,
@@ -617,7 +617,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(table.getJoinCondition(tableTo = conceptTable, tableToAlias = "concept_property"))
+    joins.add(
+      table.getJoinCondition(
+        tableFromAlias = table.alias,
+        tableTo = conceptTable,
+        tableToAlias = "concept_property"
+      )
+    )
 
     val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
     joins.add(
@@ -739,41 +745,43 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     tableMap: HashMap<String, Table>,
     joins: MutableList<MySQLJoin>,
   ): Table {
-    var lastTable = parentTable
+    var firstTable: Table? = null
 
     for (path in paths) {
       try {
         val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
         table.alias = path.node
-        val join = table.getJoinCondition(
+
+        if (firstTable == null) {
+          firstTable = table
+        }
+
+        val join = parentTable.getJoinCondition(
           joinType = if (path.isOptional) "LEFT JOIN" else "JOIN",
-          tableTo = parentTable,
-          tableToAlias = parentTable.alias,
-          tableFromAlias = table.alias,
+          tableTo = table,
+          tableToAlias = table.alias,
+          tableFromAlias = parentTable.alias,
         )
+
         tableMap[path.node] = table
-
-        lastTable =
-          if (path.path != null) {
-            addPathTablesAndJoins(path.path, table, tableMap, joins)
-          } else {
-            table
-          }
-
-        if (!joins.contains(join))
+        if (!joins.contains(join)) {
           joins.add(join)
+        }
+        if (path.path != null) {
+          addPathTablesAndJoins(path.path, table, tableMap, joins)
+        }
+
+
       } catch (exception: SQLConversionException) {
-        tableMap[path.node] = lastTable
-        lastTable =
-          if (path.path != null) {
-            addPathTablesAndJoins(path.path, lastTable, tableMap, joins)
-          } else {
-            lastTable
-          }
+        tableMap[path.node] = parentTable
+        if (path.path != null) {
+          addPathTablesAndJoins(path.path, parentTable, tableMap, joins)
+        }
       }
     }
 
-    return lastTable
+    return firstTable ?: parentTable
   }
+
 
 }

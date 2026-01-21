@@ -161,9 +161,6 @@ public class IMQToIML extends QueryDescriptor{
 
   private String convertReturn(Return property) throws QueryException {
     StringBuilder clause= new StringBuilder();
-    if (property.getReturn()!=null) {
-      clause.append("-> {");
-    }
     if (property.getIri()!=null) {
       clause.append(getVariableFromIri(property.getIri(),Context.PROPERTY));
       if (property.getFunction()!=null) {
@@ -174,14 +171,6 @@ public class IMQToIML extends QueryDescriptor{
         }
         clause.append(")");
       }
-    }
-    if (property.getReturn()!=null) {
-      boolean first= true;
-      for (Return ret:property.getReturn()) {
-        if (!first) clause.append(",\n ");
-        clause.append(convertReturn(ret));
-      }
-      clause.append("}\n");
     }
     return clause.toString();
   }

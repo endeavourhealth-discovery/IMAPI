@@ -78,12 +78,29 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return prop) {
-    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri()));
-    if (prop.getReturn() != null) {
-      for (Return subProp : prop.getReturn()) {
-          describeReturn(subProp);
+    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(),Context.PATH));
+    if (prop.getFunction()!=null){
+      describeFunction(prop.getFunction());
+    }
+  }
+
+  private void describeFunction(FunctionClause function) {
+    if (function.getIri()!=null) function.setName(getTermInContext(function.getIri(),Context.PATH));
+    if (function.getArgument() != null) {
+      for (Argument argument : function.getArgument()) {
+        if (argument.getValuePath()!=null){
+          describePath(argument.getValuePath());
+        }
+        if (argument.getValueIri() != null)
+          argument.getValueIri().setName(getTermInContext(argument.getValueIri().getIri(),Context.PATH));
+        if (argument.getValueIriList() != null) {
+          for (TTIriRef valueIri : argument.getValueIriList()) {
+            valueIri.setName(getTermInContext(valueIri.getIri(),Context.PATH));
+          }
         }
       }
+    }
+
   }
 
   private void setIriNames(Match match) throws QueryException {
@@ -210,6 +227,11 @@ public class QueryDescriptor {
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
+        describeMatch(subMatch);
+      }
+    }
+    if (match.getUnion() != null) {
+      for (Match subMatch : match.getUnion()) {
         describeMatch(subMatch);
       }
     }

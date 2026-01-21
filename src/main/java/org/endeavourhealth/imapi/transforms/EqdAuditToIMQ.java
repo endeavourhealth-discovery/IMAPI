@@ -43,17 +43,26 @@ public class EqdAuditToIMQ {
             String eqURL = eqTable + "/" + eqColumn;
             String pathString = resources.getIMPath(eqURL);
             String[] pathMap = pathString.split(" ");
-            for (int i = 0; i < pathMap.length - 1; i++) {
-              Return property = new Return();
-              property.setIri(Namespace.IM + pathMap[i]);
-              Return ret = new Return();
-              property.addReturn(ret);
-              populationReturn = ret;
+            if (pathMap.length > 1) {
+              Path path = new Path();
+              popQuery.addPath(path);
+              path.setIri(Namespace.IM + pathMap[1]);
+              path.setNode(resources.getAcronym(path.getIri()));
+              path.setTypeOf(new Node().setIri(Namespace.IM + pathMap[1]));
+              for (int i = 2; i < pathMap.length - 1; i++) {
+                Path subPath = new Path();
+                path.addPath(subPath);
+                subPath.setIri(Namespace.IM + pathMap[i]);
+                subPath.setNode(resources.getAcronym(path.getIri()));
+                subPath.setTypeOf(new Node().setIri(Namespace.IM + pathMap[i + 1]));
+                path = subPath;
+              }
+              popQuery.addReturn(new Return()
+                .setNodeRef(path.getNode())
+                .as(eqColumn)
+                .setIri(pathMap[pathMap.length - 1]));
+              popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));
             }
-            populationReturn.addReturn(new Return()
-              .as(eqColumn)
-              .setIri(pathMap[pathMap.length - 1]));
-            popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));
           }
         }
       }

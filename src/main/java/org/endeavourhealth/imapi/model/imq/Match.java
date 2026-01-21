@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,6 @@ public class Match extends IriLD implements HasPaths {
   private RuleAction ifTrue;
   private RuleAction ifFalse;
   private boolean baseRule;
-  private boolean union;
   private Integer ruleNumber;
   private boolean inverse;
   private boolean activeOnly;
@@ -42,6 +39,31 @@ public class Match extends IriLD implements HasPaths {
   private String node;
   private OrderLimit orderBy;
   private String asDescription;
+  private List<Match> union;
+
+  public List<Match> getUnion() {
+    return union;
+  }
+
+  public Match setUnion(List<Match> union) {
+    this.union = union;
+    return this;
+  }
+
+  public Match addUnion(Match union) {
+    if (this.union == null) {
+      this.union = new ArrayList<>();
+    }
+    this.union.add(union);
+    return this;
+  }
+  public Match union(Consumer<Match> builder) {
+    Match union = new Match();
+    addUnion(union);
+    builder.accept(union);
+    return this;
+  }
+
 
   public Node getTypeOf() {
     return typeOf;
@@ -88,14 +110,6 @@ public class Match extends IriLD implements HasPaths {
 
   public boolean isBaseRule() {
     return baseRule;
-  }
-
-  public boolean isUnion() {
-    return union;
-  }
-
-  public void setUnion(boolean union) {
-    this.union = union;
   }
 
   public Integer getRuleNumber() {
@@ -320,10 +334,6 @@ public class Match extends IriLD implements HasPaths {
 
 
 
-  public Match setIsUnion(boolean union) {
-    this.union = union;
-    return this;
-  }
 
 
   public Match setIfTrue(RuleAction ifTrue) {

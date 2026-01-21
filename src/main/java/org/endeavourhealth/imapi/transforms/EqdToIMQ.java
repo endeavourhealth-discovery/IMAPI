@@ -88,7 +88,6 @@ public class EqdToIMQ {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
-    this.resources.setBaseCounter(0);
     if (singleEntity==null){
       this.addReportNames(eqd);
       this.convertFolders(eqd);
@@ -100,10 +99,13 @@ public class EqdToIMQ {
     else {
       this.addReportNames(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
-        if (eqReport.getId() != null && eqReport.getId().equals(this.singleEntity)) {
-          TTEntity qry = this.convertReport(eqReport);
-          if (qry != null) {
-            this.document.addEntity(qry);
+        if (eqReport.getId()!=null){
+          if (eqReport.getId().equals(this.singleEntity)){
+            log.info(eqReport.getName()+" found");
+            TTEntity qry = this.convertReport(eqReport);
+            if (qry != null) {
+              this.document.addEntity(qry);
+            }
           }
         }
       }
@@ -235,17 +237,13 @@ public class EqdToIMQ {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
       }
-
-      if (this.singleEntity == null || eqReport.getId().equals(this.singleEntity)) {
-        if (eqReport.getName() == null) {
+      if (eqReport.getName() == null) {
           throw new EQDException("No report name");
-        }
-
-        log.info(eqReport.getName());
-        TTEntity qry = this.convertReport(eqReport);
-        if (qry != null) {
+      }
+      log.info(eqReport.getName());
+      TTEntity qry = this.convertReport(eqReport);
+      if (qry != null) {
           this.document.addEntity(qry);
-        }
       }
     }
 
@@ -314,6 +312,7 @@ public class EqdToIMQ {
   public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
+    this.resources.setMatchCounter(0);
     String id = getId(eqReport);
     if (versionMap.containsKey(id)) {
       id = versionMap.get(id);

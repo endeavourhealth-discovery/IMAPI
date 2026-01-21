@@ -28,7 +28,21 @@ public class Query extends Match {
   @Getter
   private String bindAs;
 
+  public Query setUnion(List<Match> union){
+    super.setUnion(union);
+    return this;
+  }
+  public Query union(Consumer<Match> builder){
+    Match match = new Match();
+    addUnion(match);
+    builder.accept(match);
+    return this;
+  }
 
+  public Query addUnion(Match union){
+    super.addUnion(union);
+    return this;
+  }
 
   public Query setParameter(String parameter) {
     super.setParameter(parameter);

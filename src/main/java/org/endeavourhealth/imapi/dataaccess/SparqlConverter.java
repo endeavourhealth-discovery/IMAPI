@@ -152,7 +152,7 @@ public class SparqlConverter {
     if (queryRequest.getAskIri() != null) {
       whereQl.append(" VALUES ").append("?").append(mainEntity).append("{").append(iriFromString(queryRequest.getAskIri())).append("}\n");
     }
-    processMatch(whereQl, mainEntity, match);
+    processMatch(sparql,whereQl, mainEntity, match);
 
     if ((includeReturns) && null != match.getReturn()) {
       for (Return returnProperty : match.getReturn()) {
@@ -192,7 +192,7 @@ public class SparqlConverter {
   }
 
 
-  private void processMatch(StringBuilder whereQl, String parent, Match match) throws QueryException {
+  private void processMatch(StringBuilder selectQl,StringBuilder whereQl, String parent, Match match) throws QueryException {
     StringBuilder subselects=new StringBuilder();
     String subject;
     if (match.getNodeRef() != null)
@@ -222,7 +222,7 @@ public class SparqlConverter {
     String pathVariable = null;
     if (match.getPath() != null) {
       for (Path pathMatch : match.getPath()) {
-        pathVariable = processPath(whereQl, subject, pathMatch);
+        pathVariable = processPath(selectQl,whereQl, subject, pathMatch);
 
       }
     }
@@ -233,7 +233,7 @@ public class SparqlConverter {
           subselects.append("{").append(getSelectSparql(subMatch,false)).append("}\n");
         }
         else
-          processMatch(whereQl, subject, subMatch);
+          processMatch(selectQl,whereQl, subject, subMatch);
       }
     }
     if (match.getOr() != null) {
@@ -243,7 +243,7 @@ public class SparqlConverter {
         else
           whereQl.append("UNION {\n");
         Match subMatch = match.getOr().get(i);
-        processMatch(whereQl, subject, subMatch);
+        processMatch(selectQl,whereQl, subject, subMatch);
         whereQl.append("}\n");
       }
     }
@@ -255,7 +255,7 @@ public class SparqlConverter {
         else
           whereQl.append("UNION {\n");
         Match subMatch = match.getNot().get(i);
-        processMatch(whereQl, mainSubject, subMatch);
+        processMatch(selectQl,whereQl, mainSubject, subMatch);
         whereQl.append("}\n");
       }
       whereQl.append("}\n");
@@ -279,19 +279,28 @@ public class SparqlConverter {
       whereQl.append(subselects);
   }
 
-  private String processPath(StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {
+  private String processPath(StringBuilder selectQl,StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {
+    if (pathMatch.isOptional()){
+      whereQl.append(tabs).append("OPTIONAL {\n");
+    }
     String pathVariable = null;
     String inverse = pathMatch.isInverse() ? "^" : "";
+    if (pathMatch.getNode()!=null){
+      selectQl.append(" ?").append(pathMatch.getNode());
+    }
     String predicate = getIriFromAlias(pathMatch.getIri(), pathMatch.getParameter(), pathMatch.getNode(), null);
     if (inverse.equals("^") && predicate.startsWith("?"))
       throw new QueryException("Inverse processPath processMatch cannot have a variable as predicate");
     whereQl.append("?").append(subject).append(" ").append(inverse).append(predicate).append(" ?").append(pathMatch.getNode()).append(".\n");
     if (pathMatch.getPath() != null) {
       for (Path path : pathMatch.getPath()) {
-        pathVariable = processPath(whereQl, pathMatch.getNode(), path);
+        pathVariable = processPath(selectQl,whereQl, pathMatch.getNode(), path);
       }
     } else
       pathVariable = pathMatch.getNode();
+    if (pathMatch.isOptional()){
+      whereQl.append("}\n");
+    }
     return pathVariable;
   }
 
@@ -653,11 +662,6 @@ public class SparqlConverter {
     whereQl.append(" ").append(inverse).append(iriFromString(property.getIri()));
     whereQl.append(" ?").append(as).append(".\n");
     selectQl.append(" ?").append(as);
-    if (property.getReturn() != null) {
-      for (Return returnProperty : property.getReturn()) {
-        convertReturn(selectQl, whereQl, returnProperty,property.getAs());
-      }
-    }
     whereQl.append("}\n");
   }
 
@@ -742,7 +746,7 @@ public class SparqlConverter {
     StringBuilder whereQl = new StringBuilder();
     whereQl.append("WHERE { ");
     for (Match match : update.getMatch()) {
-      processMatch(whereQl, "entity", match);
+      processMatch(updateQl,whereQl, "entity", match);
     }
     if (update.getDelete() != null) {
       updateQl.append("DELETE { ");

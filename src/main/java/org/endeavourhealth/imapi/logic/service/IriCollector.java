@@ -31,10 +31,8 @@ public class IriCollector {
 
   private static void collectReturnIris(Return prop, Set<String> iriSet) {
     if (prop.getIri() != null) iriSet.add(prop.getIri());
-    if (prop.getReturn() != null) {
-      for (Return subProp : prop.getReturn()) {
-        collectReturnIris(subProp, iriSet);
-      }
+    if (prop.getFunction()!=null){
+      collectFunctionIris(prop.getFunction(),iriSet);
     }
   }
 
@@ -90,6 +88,11 @@ public class IriCollector {
     }
     if (match.getNot() != null) {
       for (Match subMatch : match.getNot()) {
+        collectMatchIris(subMatch, iriSet);
+      }
+    }
+    if (match.getUnion() != null) {
+      for (Match subMatch : match.getUnion()) {
         collectMatchIris(subMatch, iriSet);
       }
     }

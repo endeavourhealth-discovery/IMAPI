@@ -12,13 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends Element implements Assignable {
 
   private String description;
   private Range range;
+  private boolean inverse;
 
   @Override
   public String getDescription() {
@@ -97,9 +98,6 @@ public class Where extends Element implements Assignable {
   private boolean isNotNull;
 
   private TTIriRef units;
-  @Getter
-  private boolean inverse;
-
   private List<Where> or;
 
   private List<Where> and;

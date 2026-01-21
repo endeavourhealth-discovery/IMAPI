@@ -29,29 +29,11 @@ class SearchServiceTest {
     output(TestQueries.subtypesParameterised());
     output(TestQueries.dataModelPropertyRange());
     output(TestQueries.getAllowableSubtypes());
-    output(TestQueries.getMembers());
-
     ask(TestQueries.isValidProperty());
-
-    output(TestQueries.shapesWithDateOFBirth());
-
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getAllowableProperties());
-
-
-    output(TestQueries.getMembers());
-
-    output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
-
-
-    //output(TestQueries.pathQueryAtenolol3());
-
-
     output(TestQueries.rangeSuggestion());
-
-
-    output(TestQueries.query1());
     output(TestQueries.getShaclProperty());
     output(TestQueries.deleteSets());
     output(TestQueries.substanceTextSearch());

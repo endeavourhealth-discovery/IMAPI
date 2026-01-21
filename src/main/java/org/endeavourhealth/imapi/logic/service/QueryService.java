@@ -401,8 +401,5 @@ public class QueryService {
     return entityRepository.getOrderedSubqueries(queryIri);
   }
 
-  public List<Return> getNestedReturns(Match match) {
-    return new IMQFormatter().getNestedReturns(match);
-  }
 
 }

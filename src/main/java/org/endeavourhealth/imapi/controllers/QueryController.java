@@ -191,24 +191,6 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/private/nestedReturns")
-  @Operation(
-    summary = "Reorganises match column group return clause",
-    description = "Returns a match with returns that are nested."
-  )
-  public List<Return> getNestedReturns(
-    HttpServletRequest request,
-    @RequestBody JsonNode body
-  ) throws IOException, QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetColumnGroup.GET");
-         CachedObjectMapper mapper = new CachedObjectMapper()) {
-      log.debug("getNestedReturns from Match");
-      Match match = mapper.treeToValue(body.get("match"), Match.class);
-      return queryService.getNestedReturns(match);
-    }
-  }
-
-
 
   @PostMapping("/private/flattenBooleans")
   @Operation(

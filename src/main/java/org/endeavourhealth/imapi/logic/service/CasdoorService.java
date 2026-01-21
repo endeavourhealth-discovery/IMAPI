@@ -27,6 +27,7 @@ import org.endeavourhealth.imapi.model.primevue.PrimeVueColors;
 import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.HttpRequestService;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -319,6 +320,11 @@ public class CasdoorService {
         """.formatted(user.getUsername(), user.getPassword());
       emailService.sendMail(emailSubject, contentTemplate, user.getEmail());
     }
+  }
+
+  @Scheduled(cron = "0 0 0 * * *")
+  public void tidySessions() {
+    activeSessions.removeIf(Session::isExpired);
   }
 
 }

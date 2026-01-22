@@ -22,13 +22,13 @@ public class Path extends Element implements HasPaths {
 
 
 
-  @JsonIgnore
   public Path setIri(VocabEnum iri){
     super.setIri(iri.toString());
     return this;
   }
 
-  @JsonIgnore
+
+
   public Path setTypeOf(VocabEnum iri){
     this.setTypeOf(iri.toString());
     return this;
@@ -106,12 +106,14 @@ public class Path extends Element implements HasPaths {
   }
 
   @Override
+  @JsonSetter
   public Path setIri(String iri) {
     super.setIri(iri);
     return this;
   }
 
   @Override
+  @JsonSetter
   public Path setName(String name) {
     super.setName(name);
     return this;

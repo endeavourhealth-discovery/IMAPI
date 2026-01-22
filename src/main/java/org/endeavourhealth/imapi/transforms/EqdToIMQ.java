@@ -98,11 +98,15 @@ public class EqdToIMQ {
     }
     else {
       this.addReportNames(eqd);
+      this.setVersionMap(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
         if (eqReport.getId()!=null){
           if (eqReport.getId().equals(this.singleEntity)){
             log.info(eqReport.getName()+" found");
             TTEntity qry = this.convertReport(eqReport);
+            if (eqReport.getVersionIndependentGUID()!=null){
+              qry.setIri(this.namespace+eqReport.getVersionIndependentGUID());
+            }
             if (qry != null) {
               this.document.addEntity(qry);
             }
@@ -353,8 +357,8 @@ public class EqdToIMQ {
         eqReport.setName(eqReport.getName() + " -report");
       }
 
-      this.flattenRules(qry);
-      (new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
+      //this.flattenRules(qry);
+      //(new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
       queryEntity.set(iri(IM.DEFINITION), TTLiteral.literal(qry));
       return queryEntity;
     }

@@ -16,7 +16,7 @@ public class LogicOptimizer {
 
 
   public static void optimizeQuery(Query query) {
-    flattenMatch(query);
+    //flattenMatch(query);
     cleanBooleans(query);
   }
 
@@ -40,7 +40,7 @@ public class LogicOptimizer {
 
   private void deduplicateRule(Match rule, Namespace namespace) throws JsonProcessingException {
     Map<String, String> criteriaNodeRef = new HashMap<>();
-    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot(),rule.getStep())) {
       if (matches != null) {
         for (int i = 0; i < matches.size(); i++) {
           Match match = matches.get(i);
@@ -162,6 +162,7 @@ public class LogicOptimizer {
   private static  void cleanBoolGroup(Match group, Match parent, Bool parentOp, Integer parentIndex) {
     clean(group, parent, parentOp, parentIndex, Bool.and);
     clean(group, parent, parentOp, parentIndex, Bool.or);
+    clean(group, parent, parentOp, parentIndex, Bool.step);
   }
 
   private static void clean(Match group, Match parent, Bool parentOp, Integer parentIndex, Bool op) {

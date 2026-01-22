@@ -32,6 +32,7 @@ public class Match extends IriLD implements HasPaths {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
+  private List<Match> step;
   private String libraryItem;
   private boolean invalid;
   private List<Node> is;
@@ -40,6 +41,30 @@ public class Match extends IriLD implements HasPaths {
   private OrderLimit orderBy;
   private String asDescription;
   private List<Match> union;
+
+  public List<Match> getStep() {
+    return step;
+  }
+
+  public Match setStep(List<Match> step) {
+    this.step = step;
+    return this;
+  }
+
+  public Match addStep(Match step) {
+    if (this.step == null) {
+      this.step = new ArrayList<>();
+    }
+    this.step.add(step);
+    return this;
+  }
+
+  public Match step(Consumer<Match> builder) {
+    Match step = new Match();
+    addStep(step);
+    builder.accept(step);
+    return this;
+  }
 
   public List<Match> getUnion() {
     return union;

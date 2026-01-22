@@ -74,19 +74,19 @@ public class SetRepository {
     imQuery
       .path(p->p
         .setOptional(true)
-        .setIri(IM.HAS_SCHEME)
-        .setTypeOf(IM.CONCEPT)
+        .setIri(IM.HAS_SCHEME.toString())
+        .setTypeOf(IM.CONCEPT.toString())
           .setNode("scheme"))
       .path(p->p
         .setOptional(true)
         .setIri(IM.HAS_STATUS.toString())
-        .setTypeOf(IM.CONCEPT)
+        .setTypeOf(IM.CONCEPT.toString())
         .setNode("status"))
       .path(p->p
         .setOptional(true)
         .setIri(RDF.TYPE.toString())
-        .setTypeOf(IM.CONCEPT)
-        .setNode(ENTITY_TYPE))
+        .setTypeOf(IM.CONCEPT.toString())
+        .setNode(ENTITY_TYPE.toString()))
       .return_(s->s
         .setIri(RDFS.LABEL).as("term"))
       .return_(s -> s
@@ -124,11 +124,11 @@ public class SetRepository {
           .setIri(IM.MATCHED_TO.toString())
           .setNode("legacy")
           .setInverse(true)
-        .setTypeOf(IM.CONCEPT))
+        .setTypeOf(IM.CONCEPT.toString()))
         .path(p->p
           .setOptional(true)
-          .setIri(IM.HAS_SCHEME)
-          .setTypeOf(IM.CONCEPT)
+          .setIri(IM.HAS_SCHEME.toString())
+          .setTypeOf(IM.CONCEPT.toString())
           .setNode("legacyScheme"))
           .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
           .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))
@@ -145,11 +145,11 @@ public class SetRepository {
           .setIri(IM.LOCAL_SUBCLASS_OF.toString())
           .setNode("legacy")
           .setInverse(true)
-          .setTypeOf(IM.CONCEPT))
+          .setTypeOf(IM.CONCEPT.toString()))
           .path(p->p
             .setOptional(true)
-            .setIri(IM.HAS_SCHEME)
-            .setTypeOf(IM.CONCEPT)
+            .setIri(IM.HAS_SCHEME.toString())
+            .setTypeOf(IM.CONCEPT.toString())
             .setNode("legacyScheme"))
         .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
           .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))

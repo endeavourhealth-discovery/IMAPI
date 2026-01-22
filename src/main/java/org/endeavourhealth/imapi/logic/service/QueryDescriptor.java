@@ -235,6 +235,11 @@ public class QueryDescriptor {
         describeMatch(subMatch);
       }
     }
+    if (match.getStep() != null) {
+      for (Match subMatch : match.getStep()) {
+        describeMatch(subMatch);
+      }
+    }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         describePath(path);
@@ -318,11 +323,11 @@ public class QueryDescriptor {
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
       if (field.toLowerCase().contains("date")) {
-        if (property.getDirection() == Order.descending) orderDisplay = "latest ";
-        else orderDisplay = "earliest ";
+        if (property.getDirection() == Order.descending) orderDisplay = "get latest ";
+        else orderDisplay = "get earliest ";
       } else {
-        if (property.getDirection() == Order.descending) orderDisplay = "maximum ";
-        else orderDisplay = "minimum ";
+        if (property.getDirection() == Order.descending) orderDisplay = "get maximum ";
+        else orderDisplay = "get minimum ";
       }
     }
     if (orderBy.getLimit() > 1)
@@ -677,21 +682,6 @@ public class QueryDescriptor {
     else shortDescription.append(where.getValueLabel()).append(" ");
   }
 
-  public void generateUUIDs(Match match) {
-    if (match.getUuid() == null) {
-      match.setUuid(UUID.randomUUID().toString());
-    }
-    if (match.getWhere() != null) {
-      generateUUIDs(match.getWhere());
-    }
-    for (List<Match> matches : Arrays.asList(match.getRule(), match.getOr(), match.getAnd(), match.getNot())) {
-      if (matches != null) {
-        for (Match subMatch : matches) {
-          generateUUIDs(subMatch);
-        }
-      }
-    }
-  }
 
   public static String getShortName(String name) {
     if (name == null) return null;

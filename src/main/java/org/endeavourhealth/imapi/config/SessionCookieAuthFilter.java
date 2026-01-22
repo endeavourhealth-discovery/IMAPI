@@ -14,6 +14,8 @@ import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
+
 public class SessionCookieAuthFilter extends OncePerRequestFilter {
   CasdoorService casdoorService = new CasdoorService();
 
@@ -22,7 +24,7 @@ public class SessionCookieAuthFilter extends OncePerRequestFilter {
     try {
       String sessionId = extractValueFromCookie(request, "session_id");
       if (sessionId != null) {
-        Session session = casdoorService.getSession(sessionId);
+        Session session = casdoorService.getSession(sessionId, getIpAddress(request));
         boolean isValid = casdoorService.validateToken(session.getAccess_token());
         if (isValid) {
           TokenAuthenticated authentication = new TokenAuthenticated();

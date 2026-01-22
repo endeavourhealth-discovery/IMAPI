@@ -45,10 +45,10 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/login")
-  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletResponse response) throws HttpException {
+  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
       log.debug("login");
-      casdoorService.loginUser(code, state, response);
+      casdoorService.loginUser(code, state, request, response);
     }
   }
 

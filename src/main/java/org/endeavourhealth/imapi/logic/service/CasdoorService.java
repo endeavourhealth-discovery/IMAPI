@@ -35,6 +35,8 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
+
 @Component
 @Slf4j
 public class CasdoorService {
@@ -159,14 +161,14 @@ public class CasdoorService {
     return user;
   }
 
-  public void loginUser(String code, String state, HttpServletResponse response) throws HttpException {
+  public void loginUser(String code, String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     Map<String, Object> params = new HashMap<>();
     params.put("code", code);
     params.put("grant_type", "authorization_code");
     params.put("client_id", clientId);
     params.put("client_secret", clientSecret);
     OAuthTokens oAuthTokens = httpRequestService.post(endpoint + "/api/login/oauth/access_token", params, OAuthTokens.class);
-    Session session = new Session(oAuthTokens);
+    Session session = new Session(oAuthTokens, getIpAddress(request));
     activeSessions.add(session);
     Cookie cookie = new Cookie("session_id", session.getId());
     cookie.setPath("/");
@@ -209,17 +211,17 @@ public class CasdoorService {
     body.put("client_secret", clientSecret);
     body.put("scope", session.getScope());
     OAuthTokens oAuthTokens = httpRequestService.post(System.getenv("CASDOOR_ENDPOINT") + "/api/login/oauth/refresh_token", body, OAuthTokens.class);
-    Session refershedSession = new Session(oAuthTokens);
+    Session refreshedSession = new Session(oAuthTokens, getIpAddress(request));
     activeSessions.remove(session);
-    activeSessions.add(refershedSession);
-    Cookie accessCookie = new Cookie("session_id", refershedSession.getId());
+    activeSessions.add(refreshedSession);
+    Cookie accessCookie = new Cookie("session_id", refreshedSession.getId());
     accessCookie.setPath("/");
     accessCookie.setHttpOnly(true);
     response.addCookie(accessCookie);
   }
 
-  public Session getSession(String sessionId) {
-    return activeSessions.stream().filter(s -> s.getId().equals(sessionId)).findFirst().orElseThrow();
+  public Session getSession(String sessionId, String ipAddress) {
+    return activeSessions.stream().filter(s -> s.getId().equals(sessionId) && s.getIpAddress().equals(ipAddress)).findFirst().orElseThrow();
   }
 
   public Session getSession(HttpServletRequest request) {
@@ -228,7 +230,7 @@ public class CasdoorService {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("session_id")) {
           String sessionId = cookie.getValue();
-          return getSession(sessionId);
+          return getSession(sessionId, getIpAddress(request));
         }
       }
     }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
+@JsonPropertyOrder({"notExists","ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements HasPaths {
   private Element graph;
@@ -28,7 +28,6 @@ public class Match extends IriLD implements HasPaths {
   private Integer ruleNumber;
   private boolean inverse;
   private boolean activeOnly;
-  private List<Match> not;
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
@@ -41,6 +40,19 @@ public class Match extends IriLD implements HasPaths {
   private OrderLimit orderBy;
   private String asDescription;
   private List<Match> union;
+  private boolean notExists;
+  public boolean isNotExists() {
+    return notExists;
+  }
+
+  public Match setNotExists(boolean notExists) {
+    this.notExists = notExists;
+    return this;
+  }
+  @JsonGetter
+  public boolean notExists() {
+    return notExists;
+  }
 
   public List<Match> getStep() {
     return step;
@@ -149,9 +161,7 @@ public class Match extends IriLD implements HasPaths {
     return inverse;
   }
 
-  public List<Match> getNot() {
-    return not;
-  }
+
 
   public List<Match> getOr() {
     return or;
@@ -320,25 +330,7 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public Match setNot(List<Match> not) {
-    this.not = not;
-    return this;
-  }
 
-  public Match addNot(Match not) {
-    if (this.not == null) {
-      this.not = new ArrayList<>();
-    }
-    this.not.add(not);
-    return this;
-  }
-
-  public Match not(Consumer<Match> builder) {
-    Match not = new Match();
-    addNot(not);
-    builder.accept(not);
-    return this;
-  }
 
 
   public Match setBaseRule(boolean baseRule) {

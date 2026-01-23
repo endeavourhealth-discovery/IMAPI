@@ -194,6 +194,9 @@ public class SparqlConverter {
 
   private void processMatch(StringBuilder selectQl,StringBuilder whereQl, String parent, Match match) throws QueryException {
     StringBuilder subselects=new StringBuilder();
+    if (match.notExists()) {
+      whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
+    }
     String subject;
     if (match.getNodeRef() != null)
       subject = match.getNodeRef();
@@ -247,19 +250,6 @@ public class SparqlConverter {
         whereQl.append("}\n");
       }
     }
-    if (match.getNot() != null) {
-      whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
-      for (int i = 0; i < match.getNot().size(); i++) {
-        if (i == 0)
-          whereQl.append("{ \n");
-        else
-          whereQl.append("UNION {\n");
-        Match subMatch = match.getNot().get(i);
-        processMatch(selectQl,whereQl, mainSubject, subMatch);
-        whereQl.append("}\n");
-      }
-      whereQl.append("}\n");
-    }
 
     o++;
     String object = "object" + o;
@@ -277,6 +267,9 @@ public class SparqlConverter {
     }
     if (!subselects.toString().isEmpty())
       whereQl.append(subselects);
+    if (match.notExists()) {
+      whereQl.append("}\n");
+    }
   }
 
   private String processPath(StringBuilder selectQl,StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {

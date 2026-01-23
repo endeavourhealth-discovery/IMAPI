@@ -1106,8 +1106,8 @@
         "value": "Namespace.IM + \"hasIncrementalFrom\""
       },
       {
-        "name": "CORE_SCHEMES",
-        "value": "Namespace.IM + \"coreSchemes\""
+        "name": "ECL_BUILDER_SCHEMES",
+        "value": "Namespace.IM + \"ECLBuilderSchemes\""
       },
       {
         "name": "INFERRED_PREDICATES",

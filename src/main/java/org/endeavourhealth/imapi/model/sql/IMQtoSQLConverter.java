@@ -72,7 +72,7 @@ public class IMQtoSQLConverter {
       for (Match dataset : definition.getColumnGroup()) {
         sql.append(processDataset(dataset, definition)).append(";\n\n");
       }
-    if (definition.getAnd() != null || definition.getOr() != null || definition.getNot() != null)
+    if (definition.getAnd() != null || definition.getOr() != null)
       addBooleanMatchesToSQL(qry, definition);
 
     if (definition.getIs() != null)
@@ -130,7 +130,7 @@ public class IMQtoSQLConverter {
     if (definition.getIs() != null) {
       addDatasetInstanceOf(qry, definition.getIs());
     }
-    if (dataset.getAnd() != null || dataset.getOr() != null || dataset.getNot() != null) {
+    if (dataset.getAnd() != null || dataset.getOr() != null) {
       addDatasetSubQuery(qry, dataset, getDatasetTypeOf(dataset, definition));
     }
     if (null != dataset.getWhere()) {
@@ -186,11 +186,6 @@ public class IMQtoSQLConverter {
     if (definition.getOr() != null) {
       for (Match match : definition.getOr()) {
         addIMQueryToSQLQueryRecursively(qry, match, Bool.or);
-      }
-    }
-    if (definition.getNot() != null) {
-      for (Match match : definition.getNot()) {
-        addIMQueryToSQLQueryRecursively(qry, match, Bool.not);
       }
     }
   }
@@ -495,7 +490,7 @@ public class IMQtoSQLConverter {
   private void convertMatch(Match match, SQLQuery qry, Bool bool) throws SQLConversionException, JsonProcessingException {
     if (match.getIs() != null) {
       convertIs(qry, match.getIs(), null, bool);
-    } else if (null != match.getAnd() || null != match.getOr() || null != match.getNot()) {
+    } else if (null != match.getAnd() || null != match.getOr()) {
       convertMatchBoolSubMatch(qry, match, Bool.and);
     }
     if (match.getWhere() != null) convertMatchProperties(qry, match);
@@ -574,11 +569,6 @@ public class IMQtoSQLConverter {
       }
       if (!orConditions.isEmpty()) {
         qry.getWheres().add("(" + String.join(" OR ", orConditions) + ")");
-      }
-    }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
-        convertSubQuery(qry, subMatch, Bool.not, "LEFT JOIN ");
       }
     }
   }
@@ -1032,13 +1022,6 @@ public class IMQtoSQLConverter {
 
     if (match.getOr() != null) {
       for (Match child : match.getOr()) {
-        Match result = findMatchByKeepAs(child, keepAs);
-        if (result != null) return result;
-      }
-    }
-
-    if (match.getNot() != null) {
-      for (Match child : match.getNot()) {
         Match result = findMatchByKeepAs(child, keepAs);
         if (result != null) return result;
       }

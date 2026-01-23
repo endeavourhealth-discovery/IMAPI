@@ -225,11 +225,6 @@ public class QueryDescriptor {
         describeMatch(subMatch);
       }
     }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
-        describeMatch(subMatch);
-      }
-    }
     if (match.getUnion() != null) {
       for (Match subMatch : match.getUnion()) {
         describeMatch(subMatch);
@@ -720,7 +715,7 @@ public class QueryDescriptor {
     StringBuilder description = new StringBuilder();
     String operators = "or,and,not";
     int opIndex = -1;
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       opIndex++;
       if (matches != null) {
         for (Match subMatch : matches) {

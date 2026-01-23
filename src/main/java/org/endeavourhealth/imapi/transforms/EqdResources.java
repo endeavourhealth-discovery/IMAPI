@@ -141,8 +141,8 @@ public class EqdResources {
     if (groupCriteria.size() <= 1) {
       EQDOCCriteria eqCriteria = groupCriteria.getFirst();
       if (isNegatedCriteria(eqCriteria)) {
-        Match match = new Match();
-        match.addNot(convertCriteria(eqCriteria));
+        Match match = convertCriteria(eqCriteria);
+        match.setNotExists(true);
         return match;
       } else return convertCriteria(groupCriteria.getFirst());
     } else {
@@ -153,11 +153,13 @@ public class EqdResources {
 
 
       for (EQDOCCriteria eqCriteria : groupCriteria) {
+        Match match= this.convertCriteria(eqCriteria);
         if (isNegatedCriteria(eqCriteria)) {
-          boolMatch.addNot(this.convertCriteria(eqCriteria));
-        } else if (memberOp == VocMemberOperator.AND) {
-          boolMatch.addAnd(this.convertCriteria(eqCriteria));
-        } else boolMatch.addOr(this.convertCriteria(eqCriteria));
+          match.setNotExists(true);
+        }
+        if (memberOp == VocMemberOperator.AND) {
+          boolMatch.addAnd(match);
+        } else boolMatch.addOr(match);
       }
       return boolMatch;
     }
@@ -224,14 +226,22 @@ public class EqdResources {
 
     if (hasStandard) {
       standardMatch = this.convertStandardCriterion(eqCriterion);
-      if (baseMatch != null) {
-        setMatchNode(baseMatch);
-        standardMatch.setNodeRef(baseMatch.getNode());
-      }
       lastMatch= standardMatch;
+      if (baseMatch != null) {
+        if (standardMatch.getAnd()==null&&standardMatch.getWhere()==null){
+          baseMatch.setOrderBy(standardMatch.getOrderBy());
+          standardMatch=null;
+          setMatchNode(baseMatch);
+          lastMatch= baseMatch;
+        }else {
+          setMatchNode(baseMatch);
+          standardMatch.setNodeRef(baseMatch.getNode());
+        }
+      }
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion,lastMatch);
-        testMatch.setNodeRef(standardMatch.getNode());
+        setMatchNode(lastMatch);
+        testMatch.setNodeRef(lastMatch.getNode());
         lastMatch= testMatch;
       }
     }
@@ -371,10 +381,9 @@ public class EqdResources {
       match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
     }
     if (eqLinkedCriterion.isNegation()){
-      Match linkedMatch= new Match();
-      linkedMatch.addNot(match);
-      return linkedMatch;
-    } else return match;
+      match.setNotExists(true);
+    }
+    return match;
   }
 
 
@@ -995,7 +1004,7 @@ public class EqdResources {
         TTEntity valueSet = this.createValueSet(vs, eclQuery, setContent);
         pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
         if (!in) pv.setNot(true);
-        pv.setValueLabel(valueSet.getName() + (eclQuery.getNot() != null ? " (+exclusions)" : ""));
+        pv.setValueLabel(valueSet.getName() + (eclQuery.notExists() ? " (+exclusions)" : ""));
       } else {
         String name = null;
         String exclusions = "";
@@ -1072,7 +1081,8 @@ public class EqdResources {
         addMatchWhere(inMatch, where,null);
         eclQuery.addAnd(inMatch);
         Match notMatch = new Match();
-        eclQuery.addNot(notMatch);
+        notMatch.setNotExists(true);
+        eclQuery.addAnd(notMatch);
         addMatchWhere(notMatch, notWhere,null);
       } else {
         addMatchWhere(eclQuery, where,null);

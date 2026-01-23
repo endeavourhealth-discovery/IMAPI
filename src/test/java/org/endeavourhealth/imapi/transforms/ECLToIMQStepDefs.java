@@ -17,9 +17,11 @@ public class ECLToIMQStepDefs {
     ECLQueryRequest eclQuery = new ECLQueryRequest();
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
-    assertEquals(ecl, eclQuery.getEcl().replaceAll("\n", "")
+    String eclResult = eclQuery.getEcl()
+    .replaceAll("\n", "")
       .replaceAll("\t", "")
-      .replaceAll("or ", "OR "));
+      .replaceAll("or ", "OR ");
+    assertEquals(ecl, eclResult);
   }
 
   @When("getQueryFromEcl is called with ecl {string}")

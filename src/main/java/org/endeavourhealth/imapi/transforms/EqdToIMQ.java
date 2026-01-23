@@ -147,7 +147,7 @@ public class EqdToIMQ {
   }
 
   private void assignLibraryClausesToRule(Match rule) throws JsonProcessingException {
-    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
       if (matches != null) {
         for (Match match : matches) {
           if (match.getIs() == null) {
@@ -200,7 +200,7 @@ public class EqdToIMQ {
     if (query.getRule() == null) return;
     for (Match rule : query.getRule()) {
       if (rule.getIs() == null) {
-        for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+        for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
           if (matches != null) {
             for (Match subMatch : matches) {
               if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {

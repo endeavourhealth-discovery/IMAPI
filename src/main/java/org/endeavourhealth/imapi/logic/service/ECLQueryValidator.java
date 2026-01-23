@@ -44,7 +44,7 @@ public class ECLQueryValidator {
         invalid = true;
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match m : matches) {
           if (isInvalidMatchWheres(m)) {
@@ -112,7 +112,7 @@ public class ECLQueryValidator {
         }
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match m : matches) {
           getFocusConcepts(m, focusConcepts);

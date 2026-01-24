@@ -467,9 +467,8 @@ public class EqdResources {
     if (!alreadyIn) {
       matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri));
       if (matchToTest.getUnion()!=null){
-        for (Match union : matchToTest.getUnion()) {
-          setUnionReturns(union,iri);
-        }
+          setUnionReturns(matchToTest,iri);
+
       }
     }
   }

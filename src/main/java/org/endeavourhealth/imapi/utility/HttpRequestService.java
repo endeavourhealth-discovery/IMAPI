@@ -12,29 +12,41 @@ import java.util.Map;
 
 public class HttpRequestService {
 
-  public <T> T post(String url, Map<String, Object> body, Class<T> responseType) throws HttpException {
+  public <T> T post(String url, Map<String, Object> body, String ipAddress, Class<T> responseType) throws HttpException {
     RestClient restClient = RestClient.create();
-    ResponseEntity<T> response = restClient.post().uri(url).contentType(MediaType.APPLICATION_JSON).body(body).retrieve().toEntity(responseType);
+    ResponseEntity<T> response = restClient
+      .post()
+      .uri(url)
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(body)
+      .header("X-CLIENT-IP", ipAddress)
+      .retrieve().toEntity(responseType);
     if (response.getStatusCode() != HttpStatus.OK) {
       throw new HttpException("Http post failed to: " + url + " with status " + response.getStatusCode());
     }
     return response.getBody();
   }
 
-  public <T> T postForm(String url, Map<String, Object> body, Class<T> responseType) throws HttpException {
+  public <T> T postForm(String url, Map<String, Object> body, String ipAddress, Class<T> responseType) throws HttpException {
     MultiValueMap<String, String> formData = new LinkedMultiValueMap<String, String>();
     for (Map.Entry<String, Object> entry : body.entrySet()) {
       formData.add(entry.getKey(), entry.getValue().toString());
     }
     RestClient restClient = RestClient.create();
-    ResponseEntity<T> response = restClient.post().uri(url).contentType(MediaType.APPLICATION_FORM_URLENCODED).body(formData).retrieve().toEntity(responseType);
+    ResponseEntity<T> response = restClient
+      .post()
+      .uri(url)
+      .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+      .body(formData)
+      .header("X-CLIENT-IP", ipAddress)
+      .retrieve().toEntity(responseType);
     if (response.getStatusCode() != HttpStatus.OK) {
       throw new HttpException("Http post failed to: " + url + " with status " + response.getStatusCode());
     }
     return response.getBody();
   }
 
-  public <T> T get(String url, Map<String, String> params, Class<T> responseType) throws HttpException {
+  public <T> T get(String url, Map<String, String> params, String ipAddress, Class<T> responseType) throws HttpException {
     RestClient restClient = RestClient.create();
     return restClient
       .get()
@@ -45,6 +57,8 @@ public class HttpRequestService {
           uriBuilder.queryParam(entry.getKey(), entry.getValue());
         }
         return uriBuilder.build();
-      }).retrieve().body(responseType);
+      })
+      .header("X-CLIENT-IP", ipAddress)
+      .retrieve().body(responseType);
   }
 }

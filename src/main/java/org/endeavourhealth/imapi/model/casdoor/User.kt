@@ -22,7 +22,7 @@ class User {
   var groups: List<String> = mutableListOf()
   var theme: PrimeVuePresetThemes = PrimeVuePresetThemes.AURA
   var primaryColor: PrimeVueColors = PrimeVueColors.EMERALD
-  var secondaryColor: PrimeVueColors = PrimeVueColors.SLATE
+  var surfaceColor: PrimeVueColors = PrimeVueColors.SLATE
   var darkMode: Boolean = false
   var fontSize: FontSize = FontSize.MEDIUM
   var favourites: List<String> = mutableListOf()

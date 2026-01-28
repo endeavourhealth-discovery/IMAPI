@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.casbin.CasbinEnforcer
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
 import org.endeavourhealth.imapi.logic.service.CasdoorService
-import org.endeavourhealth.imapi.logic.service.UserService
 import org.endeavourhealth.imapi.model.casdoor.User
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
@@ -31,7 +30,6 @@ import org.springframework.web.context.annotation.RequestScope
 )
 @CrossOrigin(origins = ["*"])
 open class UserController(
-  private val userService: UserService,
   private val casbinEnforcer: CasbinEnforcer,
   private val casdoorService: CasdoorService
 ) {
@@ -199,27 +197,17 @@ open class UserController(
   )
   @Throws(Exception::class)
   open fun updateUserOrganisations(
+    request: HttpServletRequest,
     @RequestParam("UserId") userId: String,
     @RequestBody organisations: List<String>
   ) {
     MetricsHelper.recordTime("API.User.Organisations.POST").use {
       log.debug("updateUserOrganisations")
-      if (!casdoorService.userExists(userId)) throw GeneralCustomException("user not found", HttpStatus.BAD_REQUEST)
-      userService.updateUserOrganisations(userId, organisations)
-    }
-  }
-
-  @Operation(
-    summary = "User has edit access",
-    description = "Checks if the user has edit access."
-  )
-  @GetMapping(value = ["/editAccess"], produces = ["application/json"])
-  @Throws(UserNotFoundException::class)
-  open fun getEditAccess(request: HttpServletRequest, @RequestParam("iri") iri: String): Boolean {
-    MetricsHelper.recordTime("API.User.EditAccess.GET").use {
-      log.debug(("getEditAccess"))
-      val user = casdoorService.getUser(request)
-      return userService.getEditAccess(user, iri)
+      if (!casdoorService.userExists(userId, request)) throw GeneralCustomException(
+        "user not found",
+        HttpStatus.BAD_REQUEST
+      )
+      casdoorService.updateUserOrganisations(userId, organisations, request)
     }
   }
 

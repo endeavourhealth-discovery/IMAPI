@@ -167,8 +167,10 @@ public class CasdoorService {
     throw new UnauthorizedException("No session id found");
   }
 
-  public boolean userExists(String userId) throws IOException {
-    return casdoorUserService.getUsers().stream().anyMatch(user -> user.id.equals(userId));
+  public boolean userExists(String userId, HttpServletRequest request) throws IOException {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+    return endeavourSecurityService.isUser(ipAddress, sessionId, userId);
   }
 
   public org.casbin.casdoor.entity.User adminGetCasdoorUser(String userId) throws UserNotFoundException {
@@ -179,23 +181,22 @@ public class CasdoorService {
     }
   }
 
-  public List<User> adminGetUsersInGroup(UserRole group) throws UserNotFoundException {
-    try {
-      List<org.casbin.casdoor.entity.User> casdoorUsers = casdoorUserService.getUsers();
-      return casdoorUsers.stream().filter(user -> user.roles.contains(group)).map(user -> {
-        try {
-          return casdoorUserToIMUser(user);
-        } catch (JsonProcessingException e) {
-          throw new RuntimeException(e);
-        }
-      }).collect(Collectors.toList());
-    } catch (IOException e) {
-      throw new UserNotFoundException("Failed to get all users");
-    }
+  public List<User> adminGetUsersInGroup(UserRole role, HttpServletRequest request) throws UserNotFoundException {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+    return endeavourSecurityService.adminGetUsersWithRole(ipAddress, sessionId, role);
   }
 
   public List<UserRole> adminGetGroups() {
     return Arrays.stream(UserRole.values()).toList();
+  }
+
+  public User updateUserOrganisations(String userId, List<String> organisations, HttpServletRequest request) throws UserNotFoundException {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+    User user = endeavourSecurityService.adminGetUser(ipAddress, sessionId, userId);
+    user.setOrganisations(organisations);
+    return endeavourSecurityService.adminUpdateUser(ipAddress, sessionId, user);
   }
 
   public void emailTemporaryPasswords(String path) throws IOException, MessagingException {

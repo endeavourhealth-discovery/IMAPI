@@ -35,8 +35,6 @@ public class SessionCookieAuthFilter extends OncePerRequestFilter {
         response.addCookie(sessionIdCookie);
         throw new AuthenticationException("Invalid or expired token");
       }
-    } else {
-      throw new AuthenticationException("Missing session ID");
     }
     filterChain.doFilter(request, response);
   }

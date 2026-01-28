@@ -26,7 +26,6 @@ public class FunctionService {
   public static final String ENTITY_IRI = "entityIri";
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
   private final EntityService entityService = new EntityService();
-  private final UserService userService = new UserService();
   private final CasdoorService casdoorService = new CasdoorService();
 
   public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {

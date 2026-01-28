@@ -45,10 +45,10 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/login")
-  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
       log.debug("login");
-      casdoorService.loginUser(code, state, request, response);
+      casdoorService.loginUser(code, state, redirectUrl, request, response);
     }
   }
 
@@ -65,7 +65,7 @@ public class CasdoorController {
   public List<User> getUsersInGroup(HttpServletRequest request, @RequestParam(name = "group") UserRole group) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.GETUSERSINGROUP.GET")) {
       log.debug("getUsersInGroup");
-      return casdoorService.adminGetUsersInGroup(group);
+      return casdoorService.adminGetUsersInGroup(group, request);
     }
   }
 

@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service
 
 import org.endeavourhealth.imapi.model.casdoor.User
 import org.endeavourhealth.imapi.model.responses.LoginResponse
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService
 import org.springframework.stereotype.Component
 
@@ -102,6 +103,55 @@ class EndeavourSecurityService {
       params,
       ipAddress,
       Boolean::class.java
+    )
+  }
+
+  fun isUser(ipAddress: String, sessionId: String, userId: String): Boolean {
+    val params = HashMap<String, String>()
+    params["sessionId"] = sessionId
+    params["userId"] = userId
+    return httpRequestService.get(
+      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/isUser",
+      params,
+      ipAddress,
+      Boolean::class.java
+    )
+  }
+
+  fun adminGetUsersWithRole(ipAddress: String, sessionId: String, role: UserRole): List<User> {
+    val params = HashMap<String, String>()
+    params["sessionId"] = sessionId
+    params["role"] = role.toString()
+    val response: Array<User> = httpRequestService.get(
+      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminGetUsersWithRole",
+      params,
+      ipAddress,
+      Array<User>::class.java
+    )
+    return response.toMutableList()
+  }
+
+  fun adminGetUser(ipAddress: String, sessionId: String, userId: String): User {
+    val params = HashMap<String, String>()
+    params["sessionId"] = sessionId
+    params["userId"] = userId
+    return httpRequestService.get(
+      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminGetUser",
+      params,
+      ipAddress,
+      User::class.java
+    )
+  }
+
+  fun adminUpdateUser(ipAddress: String, sessionId: String, user: User): User {
+    val params = HashMap<String, Any>()
+    params["sessionId"] = sessionId
+    params["user"] = user
+    return httpRequestService.post(
+      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminUpdateUser",
+      params,
+      ipAddress,
+      User::class.java
     )
   }
 }

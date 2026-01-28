@@ -8,6 +8,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class HttpRequestService {
@@ -48,17 +51,27 @@ public class HttpRequestService {
 
   public <T> T get(String url, Map<String, String> params, String ipAddress, Class<T> responseType) throws HttpException {
     RestClient restClient = RestClient.create();
+    URI uri = URI.create(url);
     return restClient
       .get()
       .uri(uriBuilder -> {
         uriBuilder
-          .path(url);
+          .scheme(uri.getScheme())
+          .host(uri.getHost())
+          .port(uri.getPort())
+          .path(uri.getPath());
         for (Map.Entry<String, String> entry : params.entrySet()) {
-          uriBuilder.queryParam(entry.getKey(), entry.getValue());
+          uriBuilder.queryParam(entry.getKey(), urlStringToUri(entry.getValue()));
         }
         return uriBuilder.build();
       })
       .header("X-CLIENT-IP", ipAddress)
       .retrieve().body(responseType);
+  }
+
+  private String urlStringToUri(String url) {
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return URLEncoder.encode(url, StandardCharsets.UTF_8);
+    } else return url;
   }
 }

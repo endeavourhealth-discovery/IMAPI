@@ -12,37 +12,51 @@ class EndeavourSecurityService {
   private val endeavourSecurityUrl = System.getenv("ENDEAVOUR_SECURITY_HOST")
   private val endeavourSecurityApplication = System.getenv("ENDEAVOUR_SECURITY_APPLICATION")
 
-  fun getLoginUrl(ipAddress: String, state: String, redirectUrl: String): String {
+  fun getLoginUrl(ipAddress: String, redirectUrl: String): String {
     val params = HashMap<String, String>()
     params["redirectUri"] = redirectUrl
-    params["state"] = state
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/getLoginUrl",
+      String::class.java,
       params,
-      ipAddress,
-      String::class.java
+      headers
+    )
+  }
+
+  fun getRegisterUrl(ipAddress: String, redirectUrl: String): String {
+    val params = HashMap<String, String>()
+    params["redirectUri"] = redirectUrl
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
+      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/getRegisterUrl",
+      String::class.java,
+      params,
+      headers
     )
   }
 
   fun getProfileUrl(ipAddress: String, sessionId: String): String {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/getProfileUrl",
+      String::class.java,
       params,
-      ipAddress,
-      String::class.java
+      headers
     )
   }
 
   fun getUser(ipAddress: String, sessionId: String): User {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/getUser",
+      User::class.java,
       params,
-      ipAddress,
-      User::class.java
+      headers
     )
   }
 
@@ -50,22 +64,24 @@ class EndeavourSecurityService {
     val params = HashMap<String, Any>()
     params["sessionId"] = sessionId
     params["user"] = user
-    return httpRequestService.post(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress, "content-type" to "application/json")
+    return httpRequestService.httpPost(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/updateUser",
+      User::class.java,
       params,
-      ipAddress,
-      User::class.java
+      headers
     )
   }
 
   fun introspect(ipAddress: String, sessionId: String): Boolean {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/introspect",
+      Boolean::class.java,
       params,
-      ipAddress,
-      Boolean::class.java
+      headers
     )
   }
 
@@ -74,22 +90,24 @@ class EndeavourSecurityService {
     params["code"] = code
     params["state"] = state
     params["redirectUri"] = redirectUrl
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/login",
+      LoginResponse::class.java,
       params,
-      ipAddress,
-      LoginResponse::class.java
+      headers
     )
   }
 
-  fun logout(ipAddress: String, sessionId: String): Void {
+  fun logout(ipAddress: String, sessionId: String): Unit {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/logout",
+      Void::class.java,
       params,
-      ipAddress,
-      Void::class.java
+      headers
     )
   }
 
@@ -98,11 +116,12 @@ class EndeavourSecurityService {
     params["sessionId"] = sessionId
     params["object"] = obj
     params["action"] = action
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authz/hasPermission",
+      Boolean::class.java,
       params,
-      ipAddress,
-      Boolean::class.java
+      headers
     )
   }
 
@@ -110,11 +129,12 @@ class EndeavourSecurityService {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     params["userId"] = userId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/isUser",
+      Boolean::class.java,
       params,
-      ipAddress,
-      Boolean::class.java
+      headers
     )
   }
 
@@ -122,11 +142,12 @@ class EndeavourSecurityService {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     params["role"] = role.toString()
-    val response: Array<User> = httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    val response: Array<User> = httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminGetUsersWithRole",
+      Array<User>::class.java,
       params,
-      ipAddress,
-      Array<User>::class.java
+      headers
     )
     return response.toMutableList()
   }
@@ -135,11 +156,12 @@ class EndeavourSecurityService {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     params["userId"] = userId
-    return httpRequestService.get(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+    return httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminGetUser",
+      User::class.java,
       params,
-      ipAddress,
-      User::class.java
+      headers
     )
   }
 
@@ -147,11 +169,12 @@ class EndeavourSecurityService {
     val params = HashMap<String, Any>()
     params["sessionId"] = sessionId
     params["user"] = user
-    return httpRequestService.post(
+    val headers = hashMapOf("X-CLIENT-IP" to ipAddress, "content-type" to "application/json")
+    return httpRequestService.httpPost(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/adminUpdateUser",
+      User::class.java,
       params,
-      ipAddress,
-      User::class.java
+      headers
     )
   }
 }

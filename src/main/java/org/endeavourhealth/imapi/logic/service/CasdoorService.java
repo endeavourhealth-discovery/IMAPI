@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
@@ -18,20 +17,17 @@ import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.excel.ExcelReader;
 import org.endeavourhealth.imapi.model.casdoor.Session;
 import org.endeavourhealth.imapi.model.casdoor.User;
-import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
-import org.endeavourhealth.imapi.model.primevue.FontSize;
-import org.endeavourhealth.imapi.model.primevue.PrimeVueColors;
-import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
-import org.endeavourhealth.imapi.utility.HttpRequestService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 
@@ -46,7 +42,6 @@ public class CasdoorService {
   private ExcelReader excelReader = new ExcelReader();
   private ObjectMapper om = new ObjectMapper();
   private EntityService entityService = new EntityService();
-  private HttpRequestService httpRequestService = new HttpRequestService();
   private EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
 
   private String clientId = System.getenv("CASDOOR_CLIENT_ID");
@@ -94,46 +89,6 @@ public class CasdoorService {
     return endeavourSecurityService.updateUser(ipAddress, sessionId, user);
   }
 
-  private User casdoorUserToIMUser(org.casbin.casdoor.entity.User casdoorUser) throws JsonProcessingException {
-    User user = new User();
-    user.setId(casdoorUser.id);
-    user.setFirstName(casdoorUser.firstName);
-    user.setLastName(casdoorUser.lastName);
-    user.setEmail(casdoorUser.email);
-    user.setUsername(casdoorUser.name);
-    user.setAvatar(casdoorUser.avatar);
-    user.setRoles(casdoorUser.roles.stream().map(role -> UserRole.valueOf(role.name)).collect(Collectors.toList()));
-    user.setGroups(casdoorUser.groups);
-    if (casdoorUser.properties.containsKey("theme"))
-      user.setTheme(PrimeVuePresetThemes.valueOf(casdoorUser.properties.get("theme")));
-    if (casdoorUser.properties.containsKey("primaryColor"))
-      user.setPrimaryColor(Objects.requireNonNull(PrimeVueColors.Companion.fromValue(casdoorUser.properties.get("primaryColor"))));
-    if (casdoorUser.properties.containsKey("surfaceColor"))
-      user.setSurfaceColor(Objects.requireNonNull(PrimeVueColors.Companion.fromValue(casdoorUser.properties.get("secondaryColor"))));
-    if (casdoorUser.properties.containsKey("darkMode"))
-      user.setDarkMode(casdoorUser.properties.get("darkMode").equals("true"));
-    if (casdoorUser.properties.containsKey("fontSize"))
-      user.setFontSize(Objects.requireNonNull(FontSize.Companion.fromValue(casdoorUser.properties.get("fontSize"))));
-    if (casdoorUser.properties.containsKey("favourites"))
-      user.setFavourites(om.readValue(casdoorUser.properties.get("favourites"), new TypeReference<List<String>>() {
-      }));
-    if (casdoorUser.properties.containsKey("recentActivity")) {
-      List<RecentActivityItemDto> recentActivity = om.readValue(casdoorUser.properties.get("recentActivity"), new TypeReference<List<RecentActivityItemDto>>() {
-      });
-      boolean hasNoneExistingIris = recentActivity.stream().anyMatch(ra -> !entityService.iriExists(ra.getIri()));
-      if (hasNoneExistingIris) {
-        List<RecentActivityItemDto> updatedRecentActivity = recentActivity.stream().filter(ra -> entityService.iriExists(ra.getIri())).collect(Collectors.toList());
-        user.setRecentActivity(updatedRecentActivity);
-      } else {
-        user.setRecentActivity(recentActivity);
-      }
-    }
-    if (casdoorUser.properties.containsKey("organisations"))
-      user.setOrganisations(om.readValue(casdoorUser.properties.get("organisations"), new TypeReference<List<String>>() {
-      }));
-    return user;
-  }
-
   public User loginUser(String code, String state, String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     String ipAddress = getIpAddress(request);
     LoginResponse loginResponse = endeavourSecurityService.login(ipAddress, code, state, redirectUrl);
@@ -142,6 +97,16 @@ public class CasdoorService {
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
     return loginResponse.getUser();
+  }
+
+  public String getLoginUrl(String redirectUrl, HttpServletRequest request) throws HttpException {
+    String ipAddress = getIpAddress(request);
+    return endeavourSecurityService.getLoginUrl(ipAddress, redirectUrl);
+  }
+
+  public String getRegisterUrl(HttpServletRequest request, String redirectUrl) {
+    String ipAddress = getIpAddress(request);
+    return endeavourSecurityService.getRegisterUrl(ipAddress, redirectUrl);
   }
 
   public void logout(HttpServletRequest request, HttpServletResponse response) throws HttpException {

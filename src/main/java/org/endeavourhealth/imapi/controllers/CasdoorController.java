@@ -45,10 +45,26 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/login")
-  public void callback(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public User login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
       log.debug("login");
-      casdoorService.loginUser(code, state, redirectUrl, request, response);
+      return casdoorService.loginUser(code, state, redirectUrl, request, response);
+    }
+  }
+
+  @GetMapping("/public/loginUrl")
+  public String getLoginUrl(@RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request) throws HttpException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGINURL.GET")) {
+      log.debug("loginUrl");
+      return casdoorService.getLoginUrl(redirectUrl, request);
+    }
+  }
+
+  @GetMapping("/public/registerUrl")
+  public String getRegisterUrl(HttpServletRequest request, @RequestParam(name = "redirectUrl") String redirectUrl) throws UserNotFoundException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.GETREGISTERURL.GET")) {
+      log.debug("getRegisterUrl");
+      return casdoorService.getRegisterUrl(request, redirectUrl);
     }
   }
 

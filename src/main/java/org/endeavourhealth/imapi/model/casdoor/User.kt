@@ -11,8 +11,7 @@ class User {
   var id: String = ""
   var username: String = ""
   var email: String = ""
-  var firstName: String = ""
-  var lastName: String = ""
+  var displayName: String = ""
   var password: String = ""
     set(value) {
       field = ""

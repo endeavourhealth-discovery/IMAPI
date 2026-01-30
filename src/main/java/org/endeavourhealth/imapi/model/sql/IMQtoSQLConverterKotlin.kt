@@ -64,6 +64,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`return` == null) {
           newMySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
           newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+          newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = buildString {
             append("JSON_OBJECT(\n")

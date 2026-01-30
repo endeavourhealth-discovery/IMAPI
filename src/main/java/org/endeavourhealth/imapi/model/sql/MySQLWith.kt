@@ -11,11 +11,13 @@ data class MySQLWith(
   val whereBool: Bool,
   val exclude: Boolean = false,
   var orderBy: MySQLOrderBy? = null,
-  val fromAlias: String? = null
+  val fromAlias: String? = null,
+  val unionWiths: MutableList<MySQLWith>? = null,
+  val unionAll: Boolean = false
 ) {
   val tableMap: HashMap<String, Table> = hashMapOf()
 
-  fun toSql(): String {
+  private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->
       sel.alias?.let { "${sel.name} AS $it" } ?: sel.name
     }
@@ -31,12 +33,12 @@ data class MySQLWith(
     val orderBySql = orderBy?.toSql()
 
     return buildString {
-      appendLine("$alias AS (")
-      appendLine("  SELECT $selectSql")
       appendLine(
-        "  FROM ${fromAlias ?: table.table}" +
-          (table.alias?.let { " $it" } ?: "")
+        "SELECT $selectSql"
       )
+      val fromBase = fromAlias ?: table.table
+      val aliasSql = if (fromAlias == null) (table.alias?.let { " $it" } ?: "") else ""
+      appendLine("FROM $fromBase$aliasSql")
 
       if (joinSql != null) {
         appendLine(joinSql)
@@ -47,9 +49,30 @@ data class MySQLWith(
       }
 
       if (orderBySql != null) {
-        appendLine("  $orderBySql")
+        append(orderBySql)
       }
+    }
+  }
 
+  private fun toUnionSqlBody(): String {
+    val unions = unionWiths ?: return toSqlBody()
+    val unionKeyword = if (unionAll) "UNION ALL" else "UNION"
+    val unionSql = unions.joinToString("\n$unionKeyword\n") { unionWith ->
+      "(${unionWith.toSqlBody()})"
+    }
+    val orderBySql = orderBy?.toSql()
+    return if (orderBySql != null) {
+      "$unionSql\n$orderBySql"
+    } else {
+      unionSql
+    }
+  }
+
+  fun toSql(): String {
+    val body = if (unionWiths != null) toUnionSqlBody() else toSqlBody()
+    return buildString {
+      appendLine("$alias AS (")
+      appendLine(body.prependIndent("  "))
       append(")")
     }
   }

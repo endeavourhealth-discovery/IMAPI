@@ -12,43 +12,127 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
 public class Where extends Element implements Assignable {
-  @Getter
+
   private String description;
   private Range range;
-  @Getter
+  private boolean inverse;
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+  public Node getTypeOf() {
+    return typeOf;
+  }
+
+  public List<Node> getIs() {
+    return is;
+  }
+
+  @Override
+  public Operator getOperator() {
+    return operator;
+  }
+
+  public boolean isNot() {
+    return not;
+  }
+
+  public boolean isAnyRoleGroup() {
+    return anyRoleGroup;
+  }
+
+  public boolean isRoleGroup() {
+    return roleGroup;
+  }
+
+  public boolean isNotNull() {
+    return isNotNull;
+  }
+
+  public void setNotNull(boolean notNull) {
+    isNotNull = notNull;
+  }
+
+  @Override
+  public TTIriRef getUnits() {
+    return units;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public List<Where> getOr() {
+    return or;
+  }
+
+  public List<Where> getAnd() {
+    return and;
+  }
+
+  public String getShortLabel() {
+    return shortLabel;
+  }
+
   private Node typeOf;
-  @Getter
+
   private List<Node> is;
-  @Getter
+
   private Operator operator;
   private String value;
   private String valueLabel;
-  @Getter
+
   private boolean not;
-  @Getter
+
   private boolean anyRoleGroup;
   private boolean isNull;
-  @Getter
+
   private boolean roleGroup;
   private RelativeTo relativeTo;
   private boolean isNotNull;
-  @Getter
+
   private TTIriRef units;
-  private String valueVariable;
-  @Getter
-  private boolean inverse;
-  @Getter
   private List<Where> or;
-  @Getter
+
   private List<Where> and;
-  @Getter
+
   private String shortLabel;
   private FunctionClause function;
   private TTIriRef qualifier;
+  @Getter
+  private List<Node> propertyList;
+  @Getter
+  private String propertyVariable;
+
+  public Where setPropertyVariable(String propertyVariable) {
+    this.propertyVariable = propertyVariable;
+    return this;
+  }
+
+  public Where setPropertyVariable(Node propertyVariable) {
+    this.propertyVariable = propertyVariable.getNodeRef();
+    return this;
+  }
+
+
+
+  public Where setPropertyList(List<Node> propertyList) {
+    this.propertyList = propertyList;
+    return this;
+  }
+
+  public Where addToPropertyList(Node property) {
+    if (this.propertyList == null) this.propertyList = new ArrayList<>();
+    this.propertyList.add(property);
+    return this;
+  }
+
 
   public Where setNot(boolean not) {
     this.not = not;
@@ -136,16 +220,9 @@ public class Where extends Element implements Assignable {
   }
 
 
-
-
-
-
-
-
   public static Where iri(String iri) {
     return new Where(iri);
   }
-
 
 
   @Override
@@ -173,15 +250,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public String getValueVariable() {
-    return valueVariable;
-  }
-
-  public Where setValueVariable(String valueVariable) {
-    this.valueVariable = valueVariable;
-    return this;
-  }
-
   @Override
   public Where setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
@@ -189,8 +257,8 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Where setVariable(String variable) {
-    super.setVariable(variable);
+  public Where setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -294,7 +362,7 @@ public class Where extends Element implements Assignable {
 
   @Override
   public Assignable setQualifier(TTIriRef qualifier) {
-    this.qualifier= qualifier;
+    this.qualifier = qualifier;
     return this;
   }
 
@@ -335,6 +403,7 @@ public class Where extends Element implements Assignable {
     this.function = function;
     return this;
   }
+
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();
     builder.accept(this.function);

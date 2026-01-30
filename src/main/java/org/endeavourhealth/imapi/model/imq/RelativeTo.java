@@ -8,30 +8,29 @@ public class RelativeTo extends IriLD {
   private String valueVariable;
   private String propertyRef;
   private String targetLabel;
-  @Getter
   private String parameterName;
-  @Getter
   private String nodeRef;
-  @Getter
   private String parameter;
   private TTIriRef qualifier;
 
-public TTIriRef getQualifier() {
-  return qualifier;
-}
-public RelativeTo setQualifier(TTIriRef qualifier) {
-  this.qualifier = qualifier;
-  return this;
-}
+  public TTIriRef getQualifier() {
+    return qualifier;
+  }
 
-public RelativeTo setParameterName(String name) {
-  this.parameterName = name;
-  return this;
-}
+  public RelativeTo setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
+  public RelativeTo setParameterName(String name) {
+    this.parameterName = name;
+    return this;
+  }
 
   public String getTargetLabel() {
     return targetLabel;
   }
+
   public RelativeTo setTargetLabel(String targetLabel) {
     this.targetLabel = targetLabel;
     return this;
@@ -46,13 +45,13 @@ public RelativeTo setParameterName(String name) {
     return this;
   }
 
-  public RelativeTo setIri(String iri){
+  public RelativeTo setIri(String iri) {
     super.setIri(iri);
     return this;
   }
 
   public RelativeTo setNodeRef(String nodeRef) {
-    this.nodeRef=nodeRef;
+    this.nodeRef = nodeRef;
     return this;
   }
 
@@ -67,10 +66,20 @@ public RelativeTo setParameterName(String name) {
 
 
   public RelativeTo setParameter(String parameter) {
-    this.parameter= parameter;
+    this.parameter = parameter;
     return this;
   }
 
 
+  public String getParameterName() {
+    return parameterName;
+  }
 
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public String getParameter() {
+    return parameter;
+  }
 }

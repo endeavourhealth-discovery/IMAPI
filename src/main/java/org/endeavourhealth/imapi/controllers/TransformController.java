@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
 import org.endeavourhealth.imapi.logic.service.TransformService;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
@@ -25,9 +24,8 @@ import java.util.Set;
 @Slf4j
 public class TransformController {
   private final TransformService transformService = new TransformService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
 
-  @GetMapping("/public/transformeqd")
+  @GetMapping("/private/transformeqd")
   @Operation(
     summary = "Run transform of eqd to imq",
     description = "Runs a transform from an xml eqd query document to a set of target objects"
@@ -42,7 +40,7 @@ public class TransformController {
     }
   }
 
-  @PostMapping("/public/run")
+  @PostMapping("/private/run")
   @Operation(
     summary = "Run transform",
     description = "Runs a transform from a set of typed sources to a set of target objects defined by a transform map"

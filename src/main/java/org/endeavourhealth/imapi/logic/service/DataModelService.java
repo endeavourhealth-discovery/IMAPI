@@ -244,4 +244,8 @@ public class DataModelService {
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
     return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
   }
+
+  public List<TTIriRef> getDataTypes() {
+    return dataModelRepository.getDataTypes();
+  }
 }

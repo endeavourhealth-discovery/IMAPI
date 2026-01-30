@@ -7,9 +7,9 @@ import java.util.List;
 public class ThreadContext {
   public static final ThreadLocal<List<Graph>> userGraphs = new ThreadLocal<>();
 
-  public static void setUserGraphs(List<Graph> graphs) {
-    userGraphs.set(graphs);
+  private ThreadContext() {
   }
+
   public static List<Graph> getUserGraphs() {
     if (userGraphs.get() == null)
       userGraphs.set(List.of(Graph.IM));
@@ -17,5 +17,7 @@ public class ThreadContext {
     return userGraphs.get();
   }
 
-  private ThreadContext() { }
+  public static void setUserGraphs(List<Graph> graphs) {
+    userGraphs.set(graphs);
+  }
 }

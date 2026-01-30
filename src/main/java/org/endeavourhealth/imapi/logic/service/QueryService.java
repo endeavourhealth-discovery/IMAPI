@@ -1,23 +1,21 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import org.endeavourhealth.imapi.logic.reasoner.IMQFormatter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
+import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -41,7 +39,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 @Slf4j
 public class QueryService {
-  public static final String ENTITIES = "entities";
+
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
   private final PostgresService postgresService = new PostgresService();
@@ -60,44 +58,16 @@ public class QueryService {
     return new QueryDescriptor().describeQuery(queryIri, displayMode);
   }
 
-  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
-    SearchResponse searchResponse = new SearchResponse();
-
-    if (queryResults.has(ENTITIES)) {
-      JsonNode entities = queryResults.get(ENTITIES);
-      if (entities.isArray()) {
-        Set<String> iris = new HashSet<>();
-        for (JsonNode entity : queryResults.get(ENTITIES)) {
-          iris.add(entity.get("iri").asText());
-        }
-        List<SearchResultSummary> summaries = entityRepository.getEntitySummariesByIris(iris);
-        searchResponse.setEntities(summaries);
-      }
-    }
-    if (queryResults.has("totalCount")) searchResponse.setTotalCount(queryResults.get("totalCount").asInt());
-    if (queryResults.has("count")) searchResponse.setCount(queryResults.get("count").asInt());
-    if (queryResults.has("page")) searchResponse.setPage(queryResults.get("page").asInt());
-    if (queryResults.has("term")) searchResponse.setTerm(queryResults.get("term").asText());
-
-    if (highestUsageResults.has(ENTITIES)) {
-      JsonNode entities = queryResults.get(ENTITIES);
-      if (entities.isArray() && !entities.isEmpty() && entities.get(0).has("usageTotal")) {
-        searchResponse.setHighestUsage(Integer.parseInt(entities.get(0).get("usageTotal").asText()));
-      } else searchResponse.setHighestUsage(0);
-    }
-    return searchResponse;
-  }
-
 
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-    return new IMQtoSQLConverter(queryRequestForSql).getSql();
+    return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
 
   public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-    return new IMQtoSQLConverter(queryRequestForSql).getSql();
+    return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
 
   public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
@@ -284,7 +254,7 @@ public class QueryService {
 
   public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
-    Query query= queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    Query query = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
     return query;
   }
@@ -305,15 +275,10 @@ public class QueryService {
   }
 
   private void recursivelyCheckQueryArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
-    recursivelyCheckMatchArguments(query, missingArguments, arguments);
-    if (null != query.getQuery()) {
-      for (Query subquery : query.getQuery()) {
-        recursivelyCheckQueryArguments(subquery, missingArguments, arguments);
-      }
-    }
+    checkMatchArguments(query, missingArguments, arguments);
   }
 
-  private void recursivelyCheckMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
+  private void checkMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
@@ -327,15 +292,11 @@ public class QueryService {
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
-      matches.forEach(andMatch -> recursivelyCheckMatchArguments(andMatch, missingArguments, arguments));
+      matches.forEach(andMatch -> checkMatchArguments(andMatch, missingArguments, arguments));
     }
     if (null != match.getOr()) {
       List<Match> matches = match.getOr();
-      matches.forEach(orMatch -> recursivelyCheckMatchArguments(orMatch, missingArguments, arguments));
-    }
-    if (null != match.getNot()) {
-      List<Match> matches = match.getNot();
-      matches.forEach(notMatch -> recursivelyCheckMatchArguments(notMatch, missingArguments, arguments));
+      matches.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
     }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
@@ -385,35 +346,6 @@ public class QueryService {
   }
 
 
-  private NodeShape getTypeFromPath(Path path, Set<String> nodeRefs) {
-    if (path.getVariable() != null) {
-      if (nodeRefs.contains(path.getVariable())) {
-        return dataModelRepository.getDataModelDisplayProperties(path.getTypeOf().getIri(), false);
-      }
-      if (path.getPath() != null) {
-        for (Path subPath : path.getPath()) {
-          NodeShape nodeShape = getTypeFromPath(subPath, nodeRefs);
-          if (nodeShape != null) return nodeShape;
-        }
-      }
-    }
-    return null;
-  }
-
-  private void getNodeRefs(Match match, Set<String> nodeRefs) {
-    Where where = match.getWhere();
-    if (where != null) {
-      if (where.getNodeRef() != null) {
-        nodeRefs.add(where.getNodeRef());
-      }
-      for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
-        if (whereList != null) {
-          for (Where subWhere : whereList)
-            getNodeRefs(subWhere, nodeRefs);
-        }
-      }
-    }
-  }
 
   private void getNodeRefs(Where where, Set<String> nodeRefs) {
     if (where.getNodeRef() != null) {
@@ -434,7 +366,7 @@ public class QueryService {
   }
 
   public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
-    return new IMQToIML().getIML(queryIri,true);
+    return new IMQToIML().getIML(queryIri);
   }
 
 
@@ -452,9 +384,7 @@ public class QueryService {
       indicator.setnumerator(entity.get(IM.NUMERATOR).asIriRef());
     }
     if (entity.get(IM.HAS_DATASET) != null) {
-      Query dataset = entity.get(IM.HAS_DATASET).asLiteral().objectValue(Query.class);
-      new QueryDescriptor().describeQuery(dataset, DisplayMode.ORIGINAL);
-      indicator.setDataset(dataset);
+      indicator.setDataset(entity.get(IM.HAS_DATASET).asIriRef());;
     }
     if (entity.get(IM.IS_SUBINDICATOR_OF) != null) {
       indicator.setIsSubIndicatorOf(entity.get(IM.IS_SUBINDICATOR_OF).getElements()
@@ -466,4 +396,6 @@ public class QueryService {
   public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri) {
     return entityRepository.getOrderedSubqueries(queryIri);
   }
+
+
 }

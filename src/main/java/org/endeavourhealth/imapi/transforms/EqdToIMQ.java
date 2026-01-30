@@ -39,12 +39,17 @@ public class EqdToIMQ {
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
+  @Getter
+  private static Map<String,TTEntity> inlineSets= new HashMap<>();
   private final boolean versionIndependent;
   private Namespace namespace;
   private EqdResources resources;
   private TTDocument document;
   @Getter
   private String singleEntity;
+  @Getter
+  private static final Map<String,String> autoNamedSets = new HashMap<>();
+
 
   public EqdToIMQ(boolean versionIndependent) {
     this.versionIndependent = versionIndependent;
@@ -53,6 +58,12 @@ public class EqdToIMQ {
     gmsPatients.add("DA05DBF2-72AB-41A3-968F-E4A061F411A4");
     gmsPatients.add("591C5738-2F6B-4A6F-A2B3-05FA538A1B3B");
   }
+
+
+  public static void addInlineSets(String setIri,TTEntity entity) {
+    inlineSets.put(setIri,entity);
+  }
+
 
   public static void incrementSetNumber() {
     if (setNumber == null) {
@@ -77,7 +88,6 @@ public class EqdToIMQ {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
-    this.resources.setBaseCounter(0);
     if (singleEntity==null){
       this.addReportNames(eqd);
       this.convertFolders(eqd);
@@ -88,11 +98,18 @@ public class EqdToIMQ {
     }
     else {
       this.addReportNames(eqd);
+      this.setVersionMap(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
-        if (eqReport.getId() != null && eqReport.getId().equals(this.singleEntity)) {
-          TTEntity qry = this.convertReport(eqReport);
-          if (qry != null) {
-            this.document.addEntity(qry);
+        if (eqReport.getId()!=null){
+          if (eqReport.getId().equals(this.singleEntity)){
+            log.info(eqReport.getName()+" found");
+            TTEntity qry = this.convertReport(eqReport);
+            if (eqReport.getVersionIndependentGUID()!=null){
+              qry.setIri(this.namespace+eqReport.getVersionIndependentGUID());
+            }
+            if (qry != null) {
+              this.document.addEntity(qry);
+            }
           }
         }
       }
@@ -130,7 +147,7 @@ public class EqdToIMQ {
   }
 
   private void assignLibraryClausesToRule(Match rule) throws JsonProcessingException {
-    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
       if (matches != null) {
         for (Match match : matches) {
           if (match.getIs() == null) {
@@ -183,7 +200,7 @@ public class EqdToIMQ {
     if (query.getRule() == null) return;
     for (Match rule : query.getRule()) {
       if (rule.getIs() == null) {
-        for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
+        for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
           if (matches != null) {
             for (Match subMatch : matches) {
               if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
@@ -224,17 +241,13 @@ public class EqdToIMQ {
       if (eqReport.getId() == null) {
         throw new EQDException("No report id");
       }
-
-      if (this.singleEntity == null || eqReport.getId().equals(this.singleEntity)) {
-        if (eqReport.getName() == null) {
+      if (eqReport.getName() == null) {
           throw new EQDException("No report name");
-        }
-
-        log.info(eqReport.getName());
-        TTEntity qry = this.convertReport(eqReport);
-        if (qry != null) {
+      }
+      log.info(eqReport.getName());
+      TTEntity qry = this.convertReport(eqReport);
+      if (qry != null) {
           this.document.addEntity(qry);
-        }
       }
     }
 
@@ -303,6 +316,7 @@ public class EqdToIMQ {
   public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
+    this.resources.setMatchCounter(0);
     String id = getId(eqReport);
     if (versionMap.containsKey(id)) {
       id = versionMap.get(id);
@@ -343,8 +357,8 @@ public class EqdToIMQ {
         eqReport.setName(eqReport.getName() + " -report");
       }
 
-      this.flattenRules(qry);
-      (new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
+      //this.flattenRules(qry);
+      //(new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
       queryEntity.set(iri(IM.DEFINITION), TTLiteral.literal(qry));
       return queryEntity;
     }

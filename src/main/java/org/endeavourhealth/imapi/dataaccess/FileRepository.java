@@ -72,6 +72,8 @@ public class FileRepository {
           relationship = RDFS.SUBCLASS_OF.toString();
         if (relationship.equals(IM.LOCAL_SUBCLASS_OF.toString()))
           relationship = RDFS.SUBCLASS_OF.toString();
+        if (relationship.equals(IM.PREVIOUS_ENTITY_OF.toString()))
+          relationship = RDFS.SUBCLASS_OF.toString();
         if (!blockingIris.contains(parent)) {
           relationshipMap.computeIfAbsent(relationship, r -> new HashMap<>());
           Map<String, Set<String>> parentMap = relationshipMap.get(relationship);

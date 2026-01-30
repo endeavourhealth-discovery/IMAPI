@@ -8,13 +8,12 @@ import java.util.Set;
 public interface TTEntityFiler {
   void fileEntity(TTEntity entity) throws TTFilerException;
 
-  void updateIsAs(TTEntity entity);
+  void updateIsAs(String iri);
 
   Set<String> getIsAs(String iri);
 
   void fileIsAs(Map<String, Set<String>> isAs);
 
-  Set<TTEntity> getDescendants(Set<String> entities);
 
   void deleteIsAs(Set<String> entities);
 }

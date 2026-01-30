@@ -18,7 +18,7 @@ public class Indicator extends TTIriRef {
   @Getter
   private TTIriRef numerator;
   @Getter
-  private Query dataset;
+  private TTIriRef dataset;
   @Getter
   @Setter
   private List<TTIriRef> actionIfFalse;
@@ -28,7 +28,7 @@ public class Indicator extends TTIriRef {
   @Getter
   private TTIriRef denominator;
 
-  public Indicator setDataset(Query dataset) {
+  public Indicator setDataset(TTIriRef dataset) {
     this.dataset = dataset;
     return this;
   }

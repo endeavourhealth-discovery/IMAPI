@@ -58,6 +58,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   public static void disableIm1Deltas() {
     generateIm1Deltas = false;
   }
+  public static void enableIm1Deltas() {
+    generateIm1Deltas = true;
+  }
 
   /**
    * Destination folder for transaction log files must be set.
@@ -325,39 +328,13 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     done = new HashSet<>();
     manager = new TTManager();
     manager.setDocument(document).createIndex();
-    log.info("Generating isas.... ");
-    log.info("Collecting known descendants");
-    Set<TTEntity> descendants = conceptFiler.getDescendants(entitiesFiled);
-    Set<TTEntity> toClose = new HashSet<>(document.getEntities());
-    toClose.addAll(descendants);
-    //set external isas first i.e. top of the tree
-    setExternalIsas(toClose);
-    //Now get next levels from top to bottom
-    for (TTEntity entity : toClose) {
-      getInternalIsAs(entity);
+    log.info("Deleting and Generating isas.... ");
+    for (TTEntity entity:document.getEntities()){
+      conceptFiler.updateIsAs(entity.getIri());
     }
-    conceptFiler.deleteIsAs(isAs.keySet());
-    conceptFiler.fileIsAs(isAs);
   }
 
-  private void setExternalIsas(Set<TTEntity> toClose) {
-    for (TTEntity entity : toClose) {
-      for (String iriRef : asArrayList(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
-        String subclass = entity.getIri();
-        if (entity.get(iri(iriRef)) != null) {
-          for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
-            String iri = superClass.asIriRef().getIri();
-            if (!entitiesFiled.contains(iri)) {
-              Set<String> ancestors = conceptFiler.getIsAs(iri);
-              ancestors.add(subclass);
-              isAs.put(subclass, ancestors);
-              done.add(iri);
-            }
-          }
-        }
-      }
-    }
-  }
+
 
   private Set<String> getInternalIsAs(TTEntity entity) {
     String subclass = entity.getIri();

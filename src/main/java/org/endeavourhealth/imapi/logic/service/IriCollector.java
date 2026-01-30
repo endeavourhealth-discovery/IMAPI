@@ -27,14 +27,12 @@ public class IriCollector {
     }
     collectMatchIris(query, iris);
   }
-  private static void collectReturnIris(Return ret, Set<String> iriSet) {
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) iriSet.add(prop.getIri());
-        if (prop.getReturn() != null) {
-          collectReturnIris(prop.getReturn(), iriSet);
-        }
-      }
+
+
+  private static void collectReturnIris(Return prop, Set<String> iriSet) {
+    if (prop.getIri() != null) iriSet.add(prop.getIri());
+    if (prop.getFunction()!=null){
+      collectFunctionIris(prop.getFunction(),iriSet);
     }
   }
 
@@ -53,15 +51,12 @@ public class IriCollector {
 
 
   private static void collectMatchIris(Match match, Set<String> iriSet) {
+
     if (match.getIri() != null) {
       iriSet.add(match.getIri());
     }
     if (match.getTypeOf() != null) {
       iriSet.add(match.getTypeOf().getIri());
-    }
-    if (match.getIs() != null) {
-      for (Node node : match.getIs())
-        iriSet.add(node.getIri());
     }
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
@@ -69,7 +64,12 @@ public class IriCollector {
       }
     }
     if (match.getIs() != null) {
-      match.getIs().forEach(i -> iriSet.add(i.getIri()));
+      for (Node node : match.getIs()) {
+        if (node.getMatch()!=null)
+          collectMatchIris(node.getMatch(),iriSet);
+        else if (node.getIri()!=null)
+          iriSet.add(node.getIri());
+      }
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
@@ -86,8 +86,14 @@ public class IriCollector {
         collectMatchIris(subMatch, iriSet);
       }
     }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
+
+    if (match.getUnion() != null) {
+      for (Match subMatch : match.getUnion()) {
+        collectMatchIris(subMatch, iriSet);
+      }
+    }
+    if (match.getStep() != null) {
+      for (Match subMatch : match.getStep()) {
         collectMatchIris(subMatch, iriSet);
       }
     }
@@ -96,7 +102,9 @@ public class IriCollector {
       collectWhereIris(match.getWhere(), iriSet);
     }
     if (match.getReturn() != null) {
-       collectReturnIris(match.getReturn(), iriSet);
+      for (Return prop : match.getReturn()) {
+        collectReturnIris(prop, iriSet);
+      }
     }
     if (match.getOrderBy()!=null){
       collectOrderByIris(match.getOrderBy(),iriSet);

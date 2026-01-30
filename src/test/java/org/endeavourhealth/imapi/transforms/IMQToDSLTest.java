@@ -20,7 +20,7 @@ public class IMQToDSLTest {
       		 "path": [
       			{
       				 "iri": "http://endhealth.info/im#prescription",
-      				 "variable": "MedicationRequest",
+      				 "node": "MedicationRequest",
       				 "name": "prescriptions",
       				 "typeOf": {
       					 "iri": "http://endhealth.info/im#MedicationRequest"
@@ -102,7 +102,7 @@ public class IMQToDSLTest {
       			]
       		},
       		 "uuid": "65b8fd88-c890-498b-8fa5-08273e6c3e1c",
-      		 "keepAs": "Match_598",
+      		 "node": "Match_598",
       		 "orderBy": {
       			 "property": [
       				{

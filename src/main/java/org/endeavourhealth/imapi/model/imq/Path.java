@@ -1,21 +1,38 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 public class Path extends Element implements HasPaths {
-  @Getter
   private boolean inverse;
-  @Getter
   private boolean optional;
   private List<Path> path;
   private Node typeOf;
   private TTIriRef qualifier;
+
+
+
+
+
+
+  public Path setIri(VocabEnum iri){
+    super.setIri(iri.toString());
+    return this;
+  }
+
+
+
+  public Path setTypeOf(VocabEnum iri){
+    this.setTypeOf(iri.toString());
+    return this;
+  }
 
   public TTIriRef getQualifier() {
     return qualifier;
@@ -26,8 +43,8 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public Path setVariable(String variable) {
-    super.setVariable(variable);
+  public Path setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -66,8 +83,8 @@ public class Path extends Element implements HasPaths {
 
   public Path path(Consumer<Path> path) {
     Path p = new Path();
+    this.addPath(p);
     path.accept(p);
-    this.path.add(p);
     return this;
   }
 
@@ -89,14 +106,24 @@ public class Path extends Element implements HasPaths {
   }
 
   @Override
+  @JsonSetter
   public Path setIri(String iri) {
     super.setIri(iri);
     return this;
   }
 
   @Override
+  @JsonSetter
   public Path setName(String name) {
     super.setName(name);
     return this;
+  }
+
+  public boolean isOptional() {
+    return optional;
+  }
+
+  public boolean isInverse() {
+    return inverse;
   }
 }

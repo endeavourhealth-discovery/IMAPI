@@ -9,9 +9,11 @@ phases:
     commands:
       - IP=$(curl http://checkip.amazonaws.com)/32
       - echo $IP of CodeBuild Instance
+      - export CERT_FILE="s3://endeavour-deployment/InformationModel(v2)/casdoor-cert-${ENV}.txt"
   build:
     commands:
       - echo Build started on `date`
+      - aws s3 cp $CERT_FILE ./src/main/resources/casdoor-cert.txt
       - chmod +x aws_scripts/build.sh
       - aws_scripts/build.sh IMAPI 1.0.0
   post_build:

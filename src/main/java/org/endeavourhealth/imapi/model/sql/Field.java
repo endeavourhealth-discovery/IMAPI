@@ -6,8 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
-@Getter
-@Setter
 public class Field {
   private String field;
   private String type;
@@ -17,5 +15,29 @@ public class Field {
     this.field = field;
     this.type = type;
     this.isFunction = isFunction;
+  }
+
+  public String getField() {
+    return field;
+  }
+
+  public void setField(String field) {
+    this.field = field;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public boolean isFunction() {
+    return isFunction;
+  }
+
+  public void setFunction(boolean function) {
+    isFunction = function;
   }
 }

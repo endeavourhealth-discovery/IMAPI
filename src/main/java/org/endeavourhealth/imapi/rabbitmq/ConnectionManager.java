@@ -5,14 +5,13 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.Getter;
+import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.QueryService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.postgres.PostgresService;
-import org.endeavourhealth.imapi.utility.ThreadContext;
-import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpAdmin;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -40,9 +38,10 @@ public class ConnectionManager {
   @Getter
   private final Connection connection;
   private final ObjectMapper om = new ObjectMapper();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
   private final CachingConnectionFactory connectionFactory;
   private final PostgresService postgresService = new PostgresService();
+  private final UserService userService = new UserService();
+  private final CasdoorService casdoorService = new CasdoorService();
   private QueryService queryService = new QueryService();
   private boolean createdChannel = false;
 
@@ -88,7 +87,7 @@ public class ConnectionManager {
         DBEntry entry;
         try {
           entry = postgresService.getById(uuid);
-  //        Skip if cancelled. RabbitMQ has no remove functionality while queued
+          //        Skip if cancelled. RabbitMQ has no remove functionality while queued
           if (null != entry && entry.getStatus().equals(QueryExecutorStatus.CANCELLED)) {
             channel.basicReject(delivery.getEnvelope().getDeliveryTag(), false);
             return;
@@ -99,15 +98,13 @@ public class ConnectionManager {
         if (null == entry) {
           throw new RuntimeException("Could not find entry with id " + id);
         }
-      entry.setStartedAt(LocalDateTime.now());
+        entry.setStartedAt(LocalDateTime.now());
         entry.setStatus(QueryExecutorStatus.RUNNING);
         try {
           postgresService.update(entry);
         } catch (SQLException e) {
           throw new RuntimeException(e);
         }
-        List<Graph> userGraphs = requestObjectService.getUserGraphs(String.valueOf(entry.getUserId()));
-        ThreadContext.setUserGraphs(userGraphs);
         try {
           QueryRequest queryRequest = om.readValue(message, QueryRequest.class);
           if (null == queryService) {
@@ -115,7 +112,7 @@ public class ConnectionManager {
           }
           queryService.executeQuery(queryRequest);
           entry.setStatus(QueryExecutorStatus.COMPLETED);
-        entry.setFinishedAt(LocalDateTime.now());
+          entry.setFinishedAt(LocalDateTime.now());
           postgresService.update(entry);
         } catch (Exception e) {
           entry.setStatus(QueryExecutorStatus.ERRORED);

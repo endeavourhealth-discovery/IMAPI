@@ -97,8 +97,8 @@ public class EntityValidator {
     if (entity.getIri() == null || entity.getIri().isEmpty()) {
       response.setMessage("Entity is missing iri");
       return response;
-    } else if (!entity.getIri().contains("#")) {
-      response.setMessage("Entity IRI must contain #");
+    } else if (!entity.getIri().contains("#")&&!entity.getIri().contains(":")) {
+      response.setMessage("Entity IRI must contain : or #");
       return response;
     }
     String[] splits = entity.getIri().split("#");

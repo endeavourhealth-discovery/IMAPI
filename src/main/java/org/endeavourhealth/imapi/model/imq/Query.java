@@ -17,15 +17,10 @@ import java.util.function.Consumer;
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
-  @Getter
-  private boolean activeOnly;
   private List<Match> columnGroup;
-  @Getter
-  private List<Query> query;
-
   private String iri;
   private String name;
-  private boolean imQuery;
+  private String imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
@@ -33,15 +28,35 @@ public class Query extends Match {
   @Getter
   private String bindAs;
 
-  public Query setQuery(List<Query> query) {
-    this.query = query;
+  public Query setStep(List<Match> step){
+    super.setStep(step);
+    return this;
+  }
+  public Query step(Consumer<Match> builder){
+    Match match = new Match();
+    addStep(match);
+    builder.accept(match);
     return this;
   }
 
-  public Query addQuery(Query query) {
-    if (this.query == null)
-      this.query = new ArrayList<>();
-    this.query.add(query);
+  public Query addStep(Match step){
+    super.addStep(step);
+    return this;
+  }
+
+  public Query setUnion(List<Match> union){
+    super.setUnion(union);
+    return this;
+  }
+  public Query union(Consumer<Match> builder){
+    Match match = new Match();
+    addUnion(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query addUnion(Match union){
+    super.addUnion(union);
     return this;
   }
 
@@ -49,6 +64,8 @@ public class Query extends Match {
     super.setParameter(parameter);
     return this;
   }
+
+
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
@@ -83,22 +100,7 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setNot(List<Match> not) {
-    super.setNot(not);
-    return this;
-  }
 
-  public Query addNot(Match not) {
-    super.addNot(not);
-    return this;
-  }
-
-  public Query not(Consumer<Match> builder) {
-    Match match = new Match();
-    addNot(match);
-    builder.accept(match);
-    return this;
-  }
 
   public Query addIs(Node is) {
     super.addIs(is);
@@ -183,18 +185,18 @@ public class Query extends Match {
     return this;
   }
 
-  public boolean isImQuery() {
+  public String getImQuery() {
     return imQuery;
   }
 
-  public Query setImQuery(boolean imQuery) {
+  public Query setImQuery(String imQuery) {
     this.imQuery = imQuery;
     return this;
   }
 
   @Override
-  public Query setVariable(String variable) {
-    super.setVariable(variable);
+  public Query setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -229,8 +231,8 @@ public class Query extends Match {
   }
 
 
-  public Query setReturn(Return returx) {
-    super.setReturn(returx);
+  public Query setReturn(List<Return> returns) {
+    super.setReturn(returns);
     return this;
   }
 
@@ -315,7 +317,7 @@ public class Query extends Match {
 
 
   public Query setActiveOnly(boolean activeOnly) {
-    this.activeOnly = activeOnly;
+    super.setActiveOnly(activeOnly);
     return this;
   }
 

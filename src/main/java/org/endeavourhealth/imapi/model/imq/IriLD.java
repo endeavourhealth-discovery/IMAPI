@@ -17,11 +17,7 @@ public class IriLD {
   private String iri;
   private String name;
   private String description;
-  @Getter
-  @Setter
   private String uuid;
-
-
 
   public String getDescription() {
     return description;
@@ -31,8 +27,6 @@ public class IriLD {
     this.description = description;
     return this;
   }
-
-
 
   public String getIri() {
     return iri;
@@ -73,5 +67,13 @@ public class IriLD {
       }
     }
     return iri;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 }

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import lombok.Getter;
+import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
@@ -16,19 +17,10 @@ public class Concept extends Entity {
   private Integer usage;
   private String codeId;
   private String alternativeCode;
-  private Set<TTIriRef> subsumedBy;
+  @Getter
+  @Setter
+  private boolean subsumed;
 
-  public Concept setSubsumedBy(Set<TTIriRef> subsumedBy) {
-    this.subsumedBy = subsumedBy;
-    return this;
-  }
-
-  public Concept addSubsumedBy(TTIriRef subsumedBy) {
-    if (this.subsumedBy == null)
-      this.subsumedBy = new HashSet<>();
-    this.subsumedBy.add(subsumedBy);
-    return this;
-  }
 
   public Concept setAlternativeCode(String alternativeCode) {
     this.alternativeCode = alternativeCode;

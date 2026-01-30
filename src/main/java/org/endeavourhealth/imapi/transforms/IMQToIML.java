@@ -151,7 +151,7 @@ public class IMQToIML extends QueryDescriptor{
         clause.append(convertReturn(property));
       }
     }
-    if (group.getOrderBy()!=null||group.getAnd()!=null||group.getOr()!=null||group.getNot()!=null||group.getWhere()!=null) {
+    if (group.getOrderBy()!=null||group.getAnd()!=null||group.getOr()!=null||group.getWhere()!=null) {
       clause.append("\n").append("filter ");
       clause.append(convertMatchContent(group, null));
     }
@@ -190,7 +190,7 @@ public class IMQToIML extends QueryDescriptor{
   private String convertBooleans(Match match) throws QueryException {
     StringBuilder clause= new StringBuilder();
     int boolIndex=0;
-    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
       boolIndex++;
       if (matches != null) {
         clause.append(convertMatches(matches, boolIndex == 1 ? Bool.and : boolIndex == 2 ? Bool.or : Bool.not));
@@ -227,6 +227,9 @@ public class IMQToIML extends QueryDescriptor{
 
   private String convertMatch(Match match,String from) throws QueryException {
     StringBuilder clause = new StringBuilder();
+    if (match.notExists()){
+      clause.append("Exclude if (");
+    }
     if (match.getOrderBy() != null) {
       clause.append(describeOrderBy(match.getOrderBy())).append(" ");
     }
@@ -235,12 +238,15 @@ public class IMQToIML extends QueryDescriptor{
       return clause.toString();
     }
     clause.append(convertMatchContent(match, from));
+    if (match.notExists()){
+      clause.append(") ");
+    }
     return clause.toString();
   }
 
   private String convertMatchContent(Match match,String from) throws QueryException {
     StringBuilder clause = new StringBuilder();
-    if (match.getAnd()!=null||match.getOr()!=null||match.getNot()!=null) {
+    if (match.getAnd()!=null||match.getOr()!=null) {
       clause.append(convertBooleans(match));
       return clause.toString();
     }

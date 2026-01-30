@@ -33,7 +33,7 @@ public class QueryValidator {
   private void processMatches(Match boolMatch) throws QueryException {
     processMatch(boolMatch);
     validateMatch(boolMatch);
-    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr(), boolMatch.getNot())) {
+    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr(),boolMatch.getStep())) {
       if (matches != null) {
         for (Match match : matches) {
           processMatch(match);

@@ -15,5 +15,5 @@ public class OAuthTokens {
   private String refresh_token;
   private String token_type;
   private String scope;
-  private String expires_in;
+  private int expires_in;
 }

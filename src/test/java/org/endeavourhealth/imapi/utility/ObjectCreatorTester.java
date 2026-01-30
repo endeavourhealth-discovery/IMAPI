@@ -43,6 +43,7 @@ public class ObjectCreatorTester {
     String testJson= """
       {
         path : [ {
+        iri : im:scheme,
           node : scheme,
           optional : true,
           typeOf : {

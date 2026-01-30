@@ -62,8 +62,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (match.getIs() != null) {
       query.setIs(match.getIs());
     }
-    if (match.getNot() != null)
-      query.setNot(match.getNot());
+    query.setNotExists(match.notExists());
     if (match.getAnd() != null)
       query.setAnd(match.getAnd());
     if (match.getOr() != null)
@@ -197,7 +196,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           if (match.getAnd() == null)
             match.addAnd(asMatch);
           else {
-            match.addNot(asMatch);
+            asMatch.setNotExists(true);
+            match.addAnd(asMatch);
           }
         }
       }

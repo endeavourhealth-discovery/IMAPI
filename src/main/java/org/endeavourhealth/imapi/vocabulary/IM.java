@@ -273,7 +273,7 @@ public enum IM implements VocabEnum {
     NUMERIC_VALUE(Namespace.IM + "NumericValue"),
     HEALTH_RECORDS(Namespace.IM + "HealthRecords"),
     HAS_INCREMENTAL_FROM(Namespace.IM + "hasIncrementalFrom"),
-    CORE_SCHEMES(Namespace.IM + "coreSchemes"),
+    ECL_BUILDER_SCHEMES(Namespace.IM + "ECLBuilderSchemes"),
     INFERRED_PREDICATES(Namespace.IM + "inferredPredicates"),
     INFERRED_EXCLUDE_PREDICATES(Namespace.IM + "inferredExcludePredicates"),
     GRAPH_EXCLUDE_PREDICATES(Namespace.IM + "graphExcludePredicates"),

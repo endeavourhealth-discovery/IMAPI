@@ -28,6 +28,22 @@ public class Query extends Match {
   @Getter
   private String bindAs;
 
+  public Query setStep(List<Match> step){
+    super.setStep(step);
+    return this;
+  }
+  public Query step(Consumer<Match> builder){
+    Match match = new Match();
+    addStep(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query addStep(Match step){
+    super.addStep(step);
+    return this;
+  }
+
   public Query setUnion(List<Match> union){
     super.setUnion(union);
     return this;
@@ -84,22 +100,7 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setNot(List<Match> not) {
-    super.setNot(not);
-    return this;
-  }
 
-  public Query addNot(Match not) {
-    super.addNot(not);
-    return this;
-  }
-
-  public Query not(Consumer<Match> builder) {
-    Match match = new Match();
-    addNot(match);
-    builder.accept(match);
-    return this;
-  }
 
   public Query addIs(Node is) {
     super.addIs(is);

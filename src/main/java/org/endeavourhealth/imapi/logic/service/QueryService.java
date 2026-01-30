@@ -298,10 +298,6 @@ public class QueryService {
       List<Match> matches = match.getOr();
       matches.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
     }
-    if (null != match.getNot()) {
-      List<Match> matches = match.getNot();
-      matches.forEach(notMatch -> checkMatchArguments(notMatch, missingArguments, arguments));
-    }
     if (null != match.getWhere()) {
       recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
     }

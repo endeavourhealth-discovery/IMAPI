@@ -86,13 +86,14 @@ public class IriCollector {
         collectMatchIris(subMatch, iriSet);
       }
     }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
+
+    if (match.getUnion() != null) {
+      for (Match subMatch : match.getUnion()) {
         collectMatchIris(subMatch, iriSet);
       }
     }
-    if (match.getUnion() != null) {
-      for (Match subMatch : match.getUnion()) {
+    if (match.getStep() != null) {
+      for (Match subMatch : match.getStep()) {
         collectMatchIris(subMatch, iriSet);
       }
     }

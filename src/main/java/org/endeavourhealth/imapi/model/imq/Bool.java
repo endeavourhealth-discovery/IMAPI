@@ -5,5 +5,6 @@ public enum Bool {
   or,
   not,
   rule,
-  union
+  union,
+  step
 }

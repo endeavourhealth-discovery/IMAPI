@@ -55,10 +55,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
     }
 
-    if (definition.not != null) {
-      addMatchWiths(definition.not, definition, mySqlQuery, Bool.not)
-    }
-
     if (definition.columnGroup != null) {
       for (columnGroup in definition.columnGroup) {
         val newMySqlQuery = MySQLQuery()
@@ -208,8 +204,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return
     }
 
-    if (currentMatch.and == null && currentMatch.or == null && currentMatch.not == null) {
-      if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, if (bool == Bool.not) true else null)
+    if (currentMatch.and == null && currentMatch.or == null) {
+      if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, currentMatch.notExists())
       else mySqlQuery.withs.addAll(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }
@@ -862,6 +858,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (result != null) return result
       }
     }
+
     if (match.step != null) {
       for (child in match.step) {
         val result = findMatchByKeepAs(child, keepAs)
@@ -874,6 +871,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (result != null) return result
       }
     }
+
     return null
   }
 

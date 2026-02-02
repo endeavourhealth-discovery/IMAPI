@@ -5,15 +5,18 @@ import org.endeavourhealth.imapi.model.casdoor.User
 import org.endeavourhealth.imapi.model.responses.LoginResponse
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
 @Component
 class EndeavourSecurityService {
+  private val log = LoggerFactory.getLogger(EndeavourSecurityService::class.java)
   private val httpRequestService = HttpRequestService()
   private val endeavourSecurityUrl = System.getenv("ENDEAVOUR_SECURITY_HOST")
   private val endeavourSecurityApplication = System.getenv("ENDEAVOUR_SECURITY_APPLICATION")
 
   fun getLoginUrl(ipAddress: String, redirectUrl: String): String {
+    log.debug("getLoginUrl")
     val params = HashMap<String, String>()
     params["redirectUri"] = redirectUrl
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
@@ -23,11 +26,13 @@ class EndeavourSecurityService {
       params,
       headers
     )
+    log.debug(response)
     if (null != response) return response
     else throw UserAuthorisationException("Failed to get login url")
   }
 
   fun getRegisterUrl(ipAddress: String, redirectUrl: String): String {
+    log.debug("getRegisterUrl")
     val params = HashMap<String, String>()
     params["redirectUri"] = redirectUrl
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
@@ -42,6 +47,7 @@ class EndeavourSecurityService {
   }
 
   fun getProfileUrl(ipAddress: String, sessionId: String): String {
+    log.debug("getProfileUrl")
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
@@ -56,6 +62,7 @@ class EndeavourSecurityService {
   }
 
   fun getUser(ipAddress: String, sessionId: String): User {
+    log.debug("getUser")
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
@@ -70,6 +77,7 @@ class EndeavourSecurityService {
   }
 
   fun updateUser(ipAddress: String, sessionId: String, user: User): User {
+    log.debug("updateUser")
     val params = HashMap<String, Any>()
     params["sessionId"] = sessionId
     params["user"] = user
@@ -85,6 +93,7 @@ class EndeavourSecurityService {
   }
 
   fun introspect(ipAddress: String, sessionId: String): Boolean {
+    log.debug("introspect")
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
@@ -99,6 +108,7 @@ class EndeavourSecurityService {
   }
 
   fun login(ipAddress: String, code: String, state: String, redirectUrl: String): LoginResponse {
+    log.debug("login")
     val params = HashMap<String, String>()
     params["code"] = code
     params["state"] = state
@@ -115,6 +125,7 @@ class EndeavourSecurityService {
   }
 
   fun logout(ipAddress: String, sessionId: String): Unit {
+    log.debug("logout")
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)

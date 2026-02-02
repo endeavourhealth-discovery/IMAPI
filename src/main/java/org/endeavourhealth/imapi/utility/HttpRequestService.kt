@@ -4,34 +4,18 @@ import org.apache.http.HttpException
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 
 class HttpRequestService {
-  companion object {
-    @JvmStatic
-    fun <T : Any, K> Map<T, K>.toMultiValueMap(): MultiValueMap<T, K> {
-      val mvm: MultiValueMap<T, K> = LinkedMultiValueMap()
-      if (this.isNotEmpty()) {
-        for (entry in this.entries) {
-          mvm.add(entry.key, entry.value)
-        }
-      }
-      return mvm
-    }
-  }
-
   @Throws(HttpException::class)
-  fun <T> httpPost(
+  fun <T : Any> httpPost(
     path: String,
     responseType: Class<T>,
     body: MutableMap<String, Any>?,
     headers: Map<String, String>?
   ): T? {
-    var reqHeaders = HttpHeaders()
-    if (!headers.isNullOrEmpty())
-      reqHeaders.addAll(headers.toMultiValueMap())
+    val reqHeaders = HttpHeaders()
+    headers?.forEach { (k, v) -> reqHeaders.add(k, v) }
 
     val requestEntity = HttpEntity(body, reqHeaders)
 
@@ -41,17 +25,16 @@ class HttpRequestService {
     else throw HttpException("Post request failed to: ${path} with status code ${response.statusCode}")
   }
 
-  fun <T> httpGet(
+  fun <T : Any> httpGet(
     path: String,
     responseType: Class<T>,
     params: Map<String, String>? = HashMap(),
     headers: Map<String, String>? = null
   ): T? {
-    var reqHeaders = HttpHeaders()
-    if (!headers.isNullOrEmpty())
-      reqHeaders.addAll(headers.toMultiValueMap())
+    val reqHeaders = HttpHeaders()
+    headers?.forEach { (k, v) -> reqHeaders.add(k, v) }
 
-    var url = path;
+    var url = path
     if (!params.isNullOrEmpty()) {
       url += "?" + (params.keys.map { k -> "$k={$k}" }).joinToString("&")
     }

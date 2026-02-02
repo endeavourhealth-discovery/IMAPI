@@ -97,14 +97,20 @@ class EndeavourSecurityService {
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
-    val response = httpRequestService.httpGet(
-      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/introspect",
-      Boolean::class.java,
-      params,
-      headers
-    )
-    if (null != response) return response
-    else throw UserAuthorisationException("Failed to introspect user")
+    try {
+      val response = httpRequestService.httpGet(
+        endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/introspect",
+        Boolean::class.java,
+        params,
+        headers
+      )
+      if (null != response) return response
+      else throw UserAuthorisationException("Failed to introspect user")
+
+    } catch (e: Exception) {
+      log.warn("Failed to introspect.", e)
+      return false
+    }
   }
 
   fun login(ipAddress: String, code: String, state: String): LoginResponseES {
@@ -130,7 +136,7 @@ class EndeavourSecurityService {
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
     httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/logout",
-      Void::class.java,
+      String::class.java,
       params,
       headers
     )

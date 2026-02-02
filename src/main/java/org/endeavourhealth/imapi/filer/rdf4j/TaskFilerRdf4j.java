@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.filer.rdf4j;
 
 import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
-import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
 import org.eclipse.rdf4j.query.Update;
@@ -30,8 +29,7 @@ import static org.eclipse.rdf4j.model.util.Values.*;
 @Component
 public class TaskFilerRdf4j {
   private final WorkflowDB conn;
-  @Resource
-  private UserService casdoorUserService;
+
   private EmailService emailService;
 
   public TaskFilerRdf4j() {
@@ -209,18 +207,22 @@ public class TaskFilerRdf4j {
   private void replaceUsernameWithId(Task task) throws UserNotFoundException {
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
     if (null != task.getCreatedBy() && !task.getCreatedBy().matches(cognitoIdRegex)) {
+/*
       try {
         task.setCreatedBy(casdoorUserService.getUser(task.getCreatedBy()).id);
       } catch (IOException e) {
         throw new UserNotFoundException(task.getCreatedBy());
       }
+*/
     }
     if (null != task.getAssignedTo() && !(task.getAssignedTo().matches(cognitoIdRegex) || task.getAssignedTo().equals("UNASSIGNED"))) {
+/*
       try {
         task.setAssignedTo(casdoorUserService.getUser(task.getAssignedTo()).id);
       } catch (IOException e) {
         throw new UserNotFoundException(task.getAssignedTo());
       }
+*/
     }
   }
 
@@ -228,11 +230,13 @@ public class TaskFilerRdf4j {
     if (username.equals("UNASSIGNED")) return username;
     String cognitoIdRegex = "[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}-[a-zA-Z0-9]{4,}";
     if (!username.matches(cognitoIdRegex)) {
+/*
       try {
         return casdoorUserService.getUser(username).id;
       } catch (IOException e) {
         throw new UserNotFoundException(username);
       }
+*/
     }
     return username;
   }

@@ -1,17 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
-import org.casbin.casdoor.config.CasdoorConfiguration;
-import org.casbin.casdoor.service.AuthService;
-import org.casbin.casdoor.service.TokenService;
-import org.casbin.casdoor.service.UserService;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.excel.ExcelReader;
@@ -24,7 +19,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -36,41 +30,8 @@ import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 @Slf4j
 public class CasdoorService {
   private static Set<Session> activeSessions = new HashSet<>();
-  private CasdoorConfiguration casdoorConfiguration;
-  private AuthService casdoorAuthService;
-  private UserService casdoorUserService;
-  private TokenService casdoorTokenService;
-  private ExcelReader excelReader = new ExcelReader();
-  private ObjectMapper om = new ObjectMapper();
-  private EntityService entityService = new EntityService();
+  // private ExcelReader excelReader = new ExcelReader();
   private EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
-
-  private String clientId = System.getenv("CASDOOR_CLIENT_ID");
-  private String endpoint = System.getenv("CASDOOR_ENDPOINT");
-  private String certificate;
-  private String applicationName = System.getenv("CASDOOR_APPLICATION_NAME");
-  private String clientSecret = System.getenv("CASDOOR_CLIENT_SECRET");
-  private String organisationName = System.getenv("CASDOOR_ORGANISATION_NAME");
-
-  public CasdoorService() {
-    casdoorConfiguration = new CasdoorConfiguration();
-    casdoorConfiguration.setApplicationName(applicationName);
-    casdoorConfiguration.setClientId(clientId);
-    casdoorConfiguration.setEndpoint(endpoint);
-    try {
-      ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-      InputStream is = classloader.getResourceAsStream("casdoor-cert.txt");
-      this.certificate = new String(is.readAllBytes());
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    casdoorConfiguration.setCertificate(certificate);
-    casdoorConfiguration.setClientSecret(clientSecret);
-    casdoorConfiguration.setOrganizationName(organisationName);
-    casdoorAuthService = new AuthService(casdoorConfiguration);
-    casdoorUserService = new UserService(casdoorConfiguration);
-    casdoorTokenService = new TokenService(casdoorConfiguration);
-  }
 
   public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
     String sessionId = getSessionId(request);
@@ -142,14 +103,6 @@ public class CasdoorService {
     return endeavourSecurityService.isUser(ipAddress, sessionId, userId);
   }
 
-  public org.casbin.casdoor.entity.User adminGetCasdoorUser(String userId) throws UserNotFoundException {
-    try {
-      return casdoorUserService.getUser(userId);
-    } catch (IOException e) {
-      throw new UserNotFoundException(userId);
-    }
-  }
-
   public List<User> adminGetUsersInGroup(UserRole role, HttpServletRequest request) throws UserNotFoundException {
     String ipAddress = getIpAddress(request);
     String sessionId = getSessionId(request);
@@ -168,7 +121,7 @@ public class CasdoorService {
     return endeavourSecurityService.adminUpdateUser(ipAddress, sessionId, user);
   }
 
-  public void emailTemporaryPasswords(String path) throws IOException, MessagingException {
+/*  public void emailTemporaryPasswords(String path) throws IOException, MessagingException {
     List<User> users = excelReader.readUserImportFile(path);
     EmailService emailService = new EmailService(
       System.getenv("EMAILER_NOREPLY_HOST"),
@@ -213,7 +166,7 @@ public class CasdoorService {
         """.formatted(user.getUsername(), user.getPassword());
       emailService.sendMail(emailSubject, contentTemplate, user.getEmail());
     }
-  }
+  }*/
 
   @Scheduled(cron = "0 0 0 * * *")
   public void tidySessions() {

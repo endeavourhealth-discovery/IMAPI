@@ -95,12 +95,12 @@ public class CasdoorController {
     }
   }
 
-  @GetMapping(value = "/emailTemporaryPasswords")
+/*  @GetMapping(value = "/emailTemporaryPasswords")
   @PreAuthorize("@guard.hasPermission('ADMIN','WRITE')")
   public void emailTemporaryPasswords(@RequestParam(name = "filePath") String path) throws MessagingException, IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.emailTemporaryPasswords.POST")) {
       log.debug("emailTemporaryPasswords");
       casdoorService.emailTemporaryPasswords(path);
     }
-  }
+  }*/
 }

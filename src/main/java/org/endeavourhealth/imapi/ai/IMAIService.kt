@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.imq.QueryException
 import org.endeavourhealth.imapi.model.imq.Where
 import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef
 import org.endeavourhealth.imapi.vocabulary.EntityType
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.Namespace
@@ -36,6 +37,14 @@ class IMAIService {
     log.debug("Getting name for $iri")
     return entityService.getName(iri.toString())
   }
+
+  @Tool(description = "Gets the list of known logical data models, their IRI, name and description")
+  fun getDataModels(): List<TTIriRef> {
+    log.debug("Getting model list")
+    return entityService.getChildren("http://endhealth.info/im#HealthRecords",
+      listOf(Namespace.IM.toString()), 1, 99, false)
+  }
+
   @Tool(description = "Get the properties (and their types) of a data model given its IRI")
   fun getHealthDataModelProperties(iri: URI): List<DataModelProperty> {
     log.debug("Getting properties for model $iri")
@@ -77,14 +86,17 @@ class IMAIService {
 
     val qr = QueryRequest()
     qr.setTextSearch(text)
-    qr.setPage(Page().setPageNumber(1).setPageSize(1))
+    qr.setPage(Page().setPageNumber(1).setPageSize(10))
     qr.setQuery(qry)
     val searchResponse = searchService.queryIMSearch(qr)
 
     if (searchResponse != null) {
       val entities = searchResponse.getEntities()
-      if (entities != null && !entities.isEmpty())
-        return om.writeValueAsString(entities.first())
+      if (entities != null && !entities.isEmpty()) {
+        val response = om.writerWithDefaultPrettyPrinter().writeValueAsString(entities)
+        log.debug(response)
+        return response
+      }
     }
     return ""
   }

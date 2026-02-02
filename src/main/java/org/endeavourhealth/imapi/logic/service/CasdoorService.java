@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.logic.excel.ExcelReader;
 import org.endeavourhealth.imapi.model.casdoor.Session;
 import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
+import org.endeavourhealth.imapi.model.responses.LoginResponseES;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -89,14 +90,17 @@ public class CasdoorService {
     return endeavourSecurityService.updateUser(ipAddress, sessionId, user);
   }
 
-  public User loginUser(String code, String state, String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public LoginResponse loginUser(String code, String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     String ipAddress = getIpAddress(request);
-    LoginResponse loginResponse = endeavourSecurityService.login(ipAddress, code, state, redirectUrl);
-    Cookie cookie = new Cookie("session_id", loginResponse.getSessionId());
+    LoginResponseES loginResponseES = endeavourSecurityService.login(ipAddress, code, state);
+    Cookie cookie = new Cookie("session_id", loginResponseES.getSessionId());
     cookie.setPath("/");
     cookie.setHttpOnly(true);
     response.addCookie(cookie);
-    return loginResponse.getUser();
+    LoginResponse loginResponse = new LoginResponse();
+    loginResponse.setUser(loginResponseES.getUser());
+    loginResponse.setState(loginResponseES.getState());
+    return loginResponse;
   }
 
   public String getLoginUrl(String redirectUrl, HttpServletRequest request) throws HttpException {

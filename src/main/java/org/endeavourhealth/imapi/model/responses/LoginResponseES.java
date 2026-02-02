@@ -10,7 +10,8 @@ import org.endeavourhealth.imapi.model.casdoor.User;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginResponse {
+public class LoginResponseES {
+  private String sessionId;
   private User user;
   private String state;
 }

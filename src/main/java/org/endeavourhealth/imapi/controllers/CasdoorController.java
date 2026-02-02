@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -45,10 +46,10 @@ public class CasdoorController {
   }
 
   @GetMapping("/public/login")
-  public User login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, @RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
       log.debug("login");
-      return casdoorService.loginUser(code, state, redirectUrl, request, response);
+      return casdoorService.loginUser(code, state, request, response);
     }
   }
 

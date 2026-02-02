@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service
 
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
 import org.endeavourhealth.imapi.model.casdoor.User
-import org.endeavourhealth.imapi.model.responses.LoginResponse
+import org.endeavourhealth.imapi.model.responses.LoginResponseES
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService
 import org.slf4j.LoggerFactory
@@ -107,16 +107,15 @@ class EndeavourSecurityService {
     else throw UserAuthorisationException("Failed to introspect user")
   }
 
-  fun login(ipAddress: String, code: String, state: String, redirectUrl: String): LoginResponse {
+  fun login(ipAddress: String, code: String, state: String): LoginResponseES {
     log.debug("login")
     val params = HashMap<String, String>()
     params["code"] = code
     params["state"] = state
-    params["redirectUri"] = redirectUrl
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
     val response = httpRequestService.httpGet(
       endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/login",
-      LoginResponse::class.java,
+      LoginResponseES::class.java,
       params,
       headers
     )

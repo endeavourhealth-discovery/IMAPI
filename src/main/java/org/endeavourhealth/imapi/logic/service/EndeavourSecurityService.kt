@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.service
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
 import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.responses.LoginResponseES
+import org.endeavourhealth.imapi.model.security.Action
+import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService
 import org.slf4j.LoggerFactory
@@ -216,5 +218,25 @@ class EndeavourSecurityService {
     )
     if (null != response) return response
     else throw UserAuthorisationException("Failed to admin update user")
+  }
+
+  fun enforce(ipAddress: String, sessionId: String, resource: Resource, action: Action): Boolean {
+    try {
+      val params = HashMap<String, String>()
+      params["sessionId"] = sessionId
+      params["object"] = resource.toString()
+      params["action"] = action.toString();
+      val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
+      val response = httpRequestService.httpGet(
+        endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authz/hasPermission",
+        Boolean::class.java,
+        params,
+        headers
+      )
+      return response == true
+    } catch (e: Exception) {
+      log.warn("Failed to enforce user permissions", e)
+      return false
+    }
   }
 }

@@ -265,8 +265,8 @@ public class EntityController {
   public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
+      securityService.enforceWithError(Resource.ENTITY, Action.WRITE, request);
       User user = securityService.getUser(request);
-      securityService.enforceWithError(user, Resource.ENTITY, Action.WRITE);
       return filerService.createEntity(editRequest, user.getUsername());
     }
   }

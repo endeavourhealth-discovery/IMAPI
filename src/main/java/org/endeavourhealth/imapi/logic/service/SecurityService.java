@@ -164,23 +164,22 @@ public class SecurityService {
     }
   }*/
 
-  public void enforceWithError(User user, Resource resource, Action action) throws UserAuthorisationException {
+  public void enforceWithError(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException {
     try {
-      boolean result = enforce(user, resource, action);
+      boolean result = enforce(resource, action, request);
       if (!result) {
-        throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, action));
+        throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
       }
     } catch (Exception e) {
-      throw new UserAuthorisationException(String.format("User %s not authorised to access resource %s with rights %s", user, resource, action));
+      throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
     }
   }
 
-  public boolean enforce(User user, Resource resource, Action action) throws UserAuthorisationException, JsonProcessingException {
-//    if (null == this.enforcer) {
-//      setupEnforcer();
-//    }
-    return true;
-    //return enforcer.enforce(user, resource.name(), action.name());
+  public boolean enforce(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException, JsonProcessingException {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+
+    return endeavourSecurityService.enforce(ipAddress, sessionId, resource, action);
   }
 
 

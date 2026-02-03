@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.utility
 
 import org.apache.http.HttpException
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
@@ -9,6 +10,8 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.client.RestTemplate
 
 class HttpRequestService {
+  private val log = LoggerFactory.getLogger(HttpRequestService::class.java)
+
   companion object {
     @JvmStatic
     fun <T : Any, K> Map<T, K>.toMultiValueMap(): MultiValueMap<T, K> {

@@ -28,7 +28,6 @@ public class CasbinController {
 
   @GetMapping("public/hasPermission")
   public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
-    User user = securityService.getUser(request);
-    return securityService.enforce(user, resource, action);
+    return securityService.enforce(resource, action, request);
   }
 }

@@ -646,7 +646,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      for (join in addWhereConceptJoin(currentTable)) {
+      for (join in addWhereConceptJoin(currentTable, where.iri)) {
         if (with.joins?.contains(join) == false)
           with.joins?.add(join)
       }
@@ -703,14 +703,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "${nodeRef}.${property}"
   }
 
-  private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
+  private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
         tableTo = conceptTable,
-        tableToAlias = "concept_property"
+        tableToAlias = "concept_property",
+        fromField = fromField,
+        toField = "dbid"
       )
     )
 

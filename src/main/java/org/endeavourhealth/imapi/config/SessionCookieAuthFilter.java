@@ -33,7 +33,7 @@ public class SessionCookieAuthFilter extends OncePerRequestFilter {
         sessionIdCookie.setHttpOnly(true);
         sessionIdCookie.setMaxAge(0);
         response.addCookie(sessionIdCookie);
-        throw new AuthenticationException("Invalid or expired token");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       }
     }
     filterChain.doFilter(request, response);

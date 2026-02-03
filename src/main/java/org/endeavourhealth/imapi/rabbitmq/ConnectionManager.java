@@ -5,9 +5,7 @@ import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DeliverCallback;
 import lombok.Getter;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
 import org.endeavourhealth.imapi.logic.service.QueryService;
-import org.endeavourhealth.imapi.logic.service.UserService;
 import org.endeavourhealth.imapi.model.postgres.DBEntry;
 import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -40,8 +38,6 @@ public class ConnectionManager {
   private final ObjectMapper om = new ObjectMapper();
   private final CachingConnectionFactory connectionFactory;
   private final PostgresService postgresService = new PostgresService();
-  private final UserService userService = new UserService();
-  private final CasdoorService casdoorService = new CasdoorService();
   private QueryService queryService = new QueryService();
   private boolean createdChannel = false;
 

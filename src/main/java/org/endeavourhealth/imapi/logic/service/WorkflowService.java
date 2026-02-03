@@ -1,9 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.casbin.casdoor.service.UserService;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
@@ -11,25 +9,22 @@ import org.endeavourhealth.imapi.model.casdoor.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.*;
+import org.endeavourhealth.imapi.model.workflow.BugReport;
+import org.endeavourhealth.imapi.model.workflow.EntityApproval;
+import org.endeavourhealth.imapi.model.workflow.RoleRequest;
+import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Objects;
 
 @Component
 public class WorkflowService {
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final CasdoorService casdoorService = new CasdoorService();
-  @Resource
-  private UserService casdoorUserService;
-  @Autowired
-  private org.endeavourhealth.imapi.logic.service.UserService userService;
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -124,40 +119,41 @@ public class WorkflowService {
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
-  public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
-    graphRequest.setId(generateId());
-    workflowRepository.createGraphRequest(graphRequest);
-  }
-
-  public GraphRequest getGraphRequest(String id) throws UserNotFoundException {
-    return workflowRepository.getGraphRequest(id);
-  }
-
-  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
-    if (!user.getUsername().equals(graphRequest.getCreatedBy()))
-      throw new TaskFilerException("User does not have permission to update graph request");
-    GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
-    if (!originalGraphRequest.getGraph().equals(graphRequest.getGraph()))
-      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), user.getId());
-    updateTask(graphRequest, user.getId());
-  }
-
-  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
-    List<String> graphs = user.getOrganisations();
-    if (!graphs.contains(graphRequest.getGraph().toString())) {
-      graphs.add(graphRequest.getGraph().toString());
-      userService.updateUserOrganisations(user.getId(), graphs);
-    }
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
-  }
-
-  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
-    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
-  }
+  // TODO needs changed to organisation request once organisation flow is finalised
+//  public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
+//    graphRequest.setId(generateId());
+//    workflowRepository.createGraphRequest(graphRequest);
+//  }
+//
+//  public GraphRequest getGraphRequest(String id) throws UserNotFoundException {
+//    return workflowRepository.getGraphRequest(id);
+//  }
+//
+//  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+//    User user = casdoorService.getUser(request);
+//    if (!user.getUsername().equals(graphRequest.getCreatedBy()))
+//      throw new TaskFilerException("User does not have permission to update graph request");
+//    GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
+//    if (!originalGraphRequest.getGraph().equals(graphRequest.getGraph()))
+//      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), user.getId());
+//    updateTask(graphRequest, user.getId());
+//  }
+//
+//  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+//    User user = casdoorService.getUser(request);
+//    List<String> graphs = user.getOrganisations();
+//    if (!graphs.contains(graphRequest.getGraph().toString())) {
+//      graphs.add(graphRequest.getGraph().toString());
+//      userService.updateUserOrganisations(user.getId(), graphs);
+//    }
+//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
+//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
+//  }
+//
+//  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+//    User user = casdoorService.getUser(request);
+//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
+//  }
 
   public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
     entityApproval.setId(generateId());

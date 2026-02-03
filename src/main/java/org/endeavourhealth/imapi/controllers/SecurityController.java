@@ -1,15 +1,14 @@
 package org.endeavourhealth.imapi.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -18,89 +17,88 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/casdoor")
+@RequestMapping("api/security")
 @CrossOrigin(origins = "*")
 @RequestScope
 @Slf4j
-public class CasdoorController {
-  private CasdoorService casdoorService = new CasdoorService();
+public class SecurityController {
+  private SecurityService securityService = new SecurityService();
 
   @GetMapping("/user")
   public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.USER.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.GET")) {
       log.debug("getUser");
-      return casdoorService.getUser(request);
+      return securityService.getUser(request);
     }
   }
 
   @GetMapping("/user/profileUrl")
   public String getUserProfileUrl(HttpServletRequest request) throws UserNotFoundException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.USER.PROFILEURL.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.PROFILEURL.GET")) {
       log.debug("getUserProfileUrl");
-      return casdoorService.getUserUrl(request);
+      return securityService.getUserUrl(request);
     }
   }
 
   @GetMapping("/public/login")
   public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGIN.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGIN.GET")) {
       log.debug("login");
-      return casdoorService.loginUser(code, state, request, response);
+      return securityService.loginUser(code, state, request, response);
     }
   }
 
   @GetMapping("/public/loginUrl")
   public String getLoginUrl(@RequestParam(name = "redirectUrl") String redirectUrl, HttpServletRequest request) throws HttpException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGINURL.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGINURL.GET")) {
       log.debug("loginUrl");
-      return casdoorService.getLoginUrl(redirectUrl, request);
+      return securityService.getLoginUrl(redirectUrl, request);
     }
   }
 
   @GetMapping("/public/registerUrl")
   public String getRegisterUrl(HttpServletRequest request, @RequestParam(name = "redirectUrl") String redirectUrl) throws UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.GETREGISTERURL.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.GETREGISTERURL.GET")) {
       log.debug("getRegisterUrl");
-      return casdoorService.getRegisterUrl(request, redirectUrl);
+      return securityService.getRegisterUrl(request, redirectUrl);
     }
   }
 
   @GetMapping("/public/logout")
   public void logout(HttpServletRequest request, HttpServletResponse response) throws HttpException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.PUBLIC.LOGOUT.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGOUT.GET")) {
       log.debug("logout");
-      casdoorService.logout(request, response);
+      securityService.logout(request, response);
     }
   }
 
   @GetMapping("/getUsersInGroup")
-  @PreAuthorize("@guard.hasPermission('CASDOOR_USER','READ')")
+  @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<User> getUsersInGroup(HttpServletRequest request, @RequestParam(name = "group") UserRole group) throws UserNotFoundException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.GETUSERSINGROUP.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETUSERSINGROUP.GET")) {
       log.debug("getUsersInGroup");
-      return casdoorService.adminGetUsersInGroup(group, request);
+      return securityService.adminGetUsersInGroup(group, request);
     }
   }
 
   @GetMapping("/getGroups")
-  @PreAuthorize("@guard.hasPermission('CASDOR_USER','READ')")
+  @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<UserRole> getGroups(HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.GETGROUPS.GET")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETGROUPS.GET")) {
       log.debug("getGroups");
-      return casdoorService.adminGetGroups();
+      return securityService.adminGetGroups();
     }
   }
 
 /*  @GetMapping(value = "/emailTemporaryPasswords")
   @PreAuthorize("@guard.hasPermission('ADMIN','WRITE')")
   public void emailTemporaryPasswords(@RequestParam(name = "filePath") String path) throws MessagingException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.CASDOOR.emailTemporaryPasswords.POST")) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.emailTemporaryPasswords.POST")) {
       log.debug("emailTemporaryPasswords");
-      casdoorService.emailTemporaryPasswords(path);
+      securityService.emailTemporaryPasswords(path);
     }
   }*/
 }

@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.workflow.BugReport;
@@ -32,14 +32,14 @@ import org.springframework.web.context.annotation.RequestScope;
 public class WorkflowController {
 
   private final WorkflowService workflowService = new WorkflowService();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   @Operation(summary = "Create Bug Report", description = "Endpoint to create a new bug report.")
   @PostMapping(value = "/createBugReport")
   public void createBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST")) {
       log.debug("createBugReport");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(user.getId());
       workflowService.createBugReport(bugReport);
     }
@@ -126,7 +126,7 @@ public class WorkflowController {
   @PostMapping(value = "/createRoleRequest")
   public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST")) {
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(user.getId());
       workflowService.createRoleRequest(roleRequest);
     }
@@ -229,7 +229,7 @@ public class WorkflowController {
   public void createEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST")) {
       log.debug("createEntityApproval");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(user.getId());
       workflowService.createEntityApproval(entityApproval);
     }
@@ -281,7 +281,7 @@ public class WorkflowController {
   public void updateTask(HttpServletRequest request, @RequestBody Task task) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateTask.POST")) {
       log.debug("updateTask");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       workflowService.updateTask(task, user.getId());
     }
   }

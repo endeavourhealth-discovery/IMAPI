@@ -63,7 +63,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
           newMySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
-          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "patient_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = buildString {
@@ -72,7 +72,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
               newMySqlQuery.withs.last().selects
                 .filterNot { it.name.contains("DISTINCT") }
                 .joinToString(",\n") { select ->
-                  val key = (select.alias ?: select.name).replace("`", "'")
+                  val key = (select.alias ?: select.name).replace("`", "\"")
                   val value = select.alias ?: select.name
                   "  $key, $value"
                 }
@@ -646,7 +646,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      for (join in addWhereConceptJoin(currentTable, where.iri)) {
+      for (join in addWhereConceptJoin(currentTable, field)) {
         if (with.joins?.contains(join) == false)
           with.joins?.add(join)
       }

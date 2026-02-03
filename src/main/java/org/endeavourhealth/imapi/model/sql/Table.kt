@@ -28,8 +28,7 @@ class Table(
       if (fromField == null && toField == null)
         throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     }
-    if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
-    val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.fromField
+    val innerField = fromField ?: relationships[tableTo.dataModel]?.fromField
     ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     val outerField = relationships[tableTo.dataModel]?.toField
       ?: toField

@@ -293,6 +293,21 @@
     },
     {
       "dataModels": [
+        "http://endhealth.info/im#TelephoneNumber"
+      ],
+      "table": "patient_contact",
+      "fields": {
+        "http://endhealth.info/im#value": {
+          "field": "value",
+          "type": "string"
+        }
+      },
+      "relationships": {
+        "http://endhealth.info/im#Patient": {"fromField": "id", "toField": "id"}
+      }
+    },
+    {
+      "dataModels": [
         "http://endhealth.info/im#MedicationAuthorisation"
       ],
       "table": "medication_statement",

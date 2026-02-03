@@ -12,7 +12,7 @@ class Table(
   var dataModel: String = "",
   var fields: HashMap<String, Field> = HashMap(),
   var relationships: HashMap<String, Relationship> = HashMap(),
-  ) {
+) {
   var alias: String? = null
 
   fun getJoinCondition(
@@ -25,12 +25,13 @@ class Table(
     toField: String? = null,
   ): MySQLJoin {
     if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) {
-      throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
+      if (fromField == null && toField == null)
+        throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     }
-    if (fromField != null && fields[fromField] == null) throw SQLConversionException("Field $fromField not found in table $table")
-    val innerField = fields[fromField]?.field ?: relationships[tableTo.dataModel]?.fromField
+    val innerField = fromField ?: relationships[tableTo.dataModel]?.fromField
     ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     val outerField = relationships[tableTo.dataModel]?.toField
+      ?: toField
       ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     return MySQLJoin(
       join = joinType,

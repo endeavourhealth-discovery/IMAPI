@@ -63,7 +63,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
           newMySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
-          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "patient_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = buildString {
@@ -72,7 +72,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
               newMySqlQuery.withs.last().selects
                 .filterNot { it.name.contains("DISTINCT") }
                 .joinToString(",\n") { select ->
-                  val key = (select.alias ?: select.name).replace("`", "'")
+                  val key = (select.alias ?: select.name).replace("`", "\"")
                   val value = select.alias ?: select.name
                   "  $key, $value"
                 }
@@ -646,7 +646,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      for (join in addWhereConceptJoin(currentTable)) {
+      for (join in addWhereConceptJoin(currentTable, field)) {
         if (with.joins?.contains(join) == false)
           with.joins?.add(join)
       }
@@ -703,14 +703,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "${nodeRef}.${property}"
   }
 
-  private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
+  private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
         tableTo = conceptTable,
-        tableToAlias = "concept_property"
+        tableToAlias = "concept_property",
+        fromField = fromField,
+        toField = "dbid"
       )
     )
 

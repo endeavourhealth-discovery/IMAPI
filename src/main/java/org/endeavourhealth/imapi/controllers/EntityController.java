@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -18,9 +17,9 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
-import org.endeavourhealth.imapi.model.casbin.Action;
-import org.endeavourhealth.imapi.model.casbin.Resource;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.Action;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
@@ -71,8 +70,7 @@ public class EntityController {
   private final GraphDtoService graphDtoService = new GraphDtoService();
   private final ProvService provService = new ProvService();
   private final FilerService filerService = new FilerService();
-  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   @GetMapping(value = "/private/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
@@ -267,8 +265,8 @@ public class EntityController {
   public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      User user = casdoorService.getUser(request);
-      casbinEnforcer.enforceWithError(user, Resource.ENTITY, Action.WRITE);
+      User user = securityService.getUser(request);
+      securityService.enforceWithError(user, Resource.ENTITY, Action.WRITE);
       return filerService.createEntity(editRequest, user.getUsername());
     }
   }
@@ -290,7 +288,7 @@ public class EntityController {
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
     }
   }

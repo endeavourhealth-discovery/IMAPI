@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
@@ -20,7 +19,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.postgres.PostgresService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,8 +41,6 @@ public class QueryController {
 
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
-  private final PostgresService postgresService = new PostgresService();
-  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
 
   @PostMapping("/private/queryIM")
   @Operation(
@@ -286,15 +282,6 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
       log.debug("getDefaultCohort");
       return queryService.getDefaultQuery();
-    }
-  }
-
-  @PostMapping("/private/testRunQuery")
-  @Operation(summary = "Run a query with results limited results to test query")
-  public Set<String> testRunQuery(HttpServletRequest request, @RequestBody QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.TestRunQuery.POST")) {
-      log.debug("testRunQuery");
-      return queryService.testRunQuery(queryRequest);
     }
   }
 

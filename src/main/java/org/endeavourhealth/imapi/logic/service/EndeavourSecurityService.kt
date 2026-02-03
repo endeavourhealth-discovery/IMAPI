@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service
 
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
-import org.endeavourhealth.imapi.model.casdoor.User
+import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.responses.LoginResponseES
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService

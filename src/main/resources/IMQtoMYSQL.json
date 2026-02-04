@@ -303,7 +303,7 @@
         }
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "id", "toField": "id"}
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"}
       }
     },
     {

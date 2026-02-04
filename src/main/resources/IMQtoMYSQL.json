@@ -14,13 +14,6 @@
     },
     {
       "path": [
-        "http://endhealth.info/im#homeAddress",
-        "http://endhealth.info/im#place"
-      ],
-      "dataModel": "http://endhealth.info/im#Address"
-    },
-    {
-      "path": [
         "http://endhealth.info/im#quantity"
       ],
       "dataModel": "http://endhealth.info/im#MedicationRequest"
@@ -172,7 +165,8 @@
       "path": [
         "http://endhealth.info/im#homeAddress"
       ],
-      "dataModel": "http://endhealth.info/im#Address"
+      "dataModel": "http://endhealth.info/im#Address",
+      "condition": {"field": "use_concept_id", "value": "1335358"}
     }
   ],
   "tables": [

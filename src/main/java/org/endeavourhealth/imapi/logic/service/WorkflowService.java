@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -24,7 +24,7 @@ import java.util.Objects;
 @Component
 public class WorkflowService {
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -36,7 +36,7 @@ public class WorkflowService {
   }
 
   public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     if (!user.getUsername().equals(bugReport.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update bug report");
     BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
@@ -97,7 +97,7 @@ public class WorkflowService {
   }
 
   public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     if (!user.getUsername().equals(roleRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update role request");
     RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
@@ -107,7 +107,7 @@ public class WorkflowService {
   }
 
   public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
@@ -115,7 +115,7 @@ public class WorkflowService {
   }
 
   public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
@@ -165,7 +165,7 @@ public class WorkflowService {
   }
 
   public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     if (!user.getUsername().equals(entityApproval.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update entity approval");
     EntityApproval originalEntityApproval = getEntityApproval(entityApproval.getId().getIri());
@@ -175,14 +175,14 @@ public class WorkflowService {
   }
 
   public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     //TODO entity draft replace active
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
   public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 

@@ -6,29 +6,20 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.logic.reasoner.IMQFormatter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.postgres.DBEntry;
-import org.endeavourhealth.imapi.model.postgres.QueryExecutorStatus;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverter;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.mysql.MYSQLConnectionManager;
-import org.endeavourhealth.imapi.postgres.PostgresService;
-import org.endeavourhealth.imapi.rabbitmq.ConnectionManager;
 import org.endeavourhealth.imapi.transforms.IMQToIML;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,9 +33,6 @@ public class QueryService {
 
   private final EntityRepository entityRepository = new EntityRepository();
   private final DataModelRepository dataModelRepository = new DataModelRepository();
-  private final PostgresService postgresService = new PostgresService();
-  private final Map<Integer, Set<String>> queryResultsMap = new HashMap<>();
-  private ConnectionManager connectionManager;
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     return new QueryDescriptor().describeQuery(query, displayMode);
@@ -58,12 +46,10 @@ public class QueryService {
     return new QueryDescriptor().describeQuery(queryIri, displayMode);
   }
 
-
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
-
   public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
@@ -91,116 +77,6 @@ public class QueryService {
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
     return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
-
-  public void handleSQLConversionException(UUID userId, String userName, QueryRequest queryRequest, String error) throws SQLException {
-    DBEntry entry = new DBEntry().setId(UUID.randomUUID()).setQueryRequest(queryRequest).setQueryIri(queryRequest.getQuery().getIri()).setQueryName(queryRequest.getQuery().getName()).setStatus(QueryExecutorStatus.ERRORED).setUserId(userId).setUserName(userName).setQueuedAt(LocalDateTime.now()).setKilledAt(LocalDateTime.now()).setError(error);
-    postgresService.create(entry);
-  }
-
-  public void reAddToExecutionQueue(UUID userId, String userName, RequeueQueryRequest requeueQueryRequest) throws Exception {
-    DBEntry entry = postgresService.getById(requeueQueryRequest.getQueueId());
-    if (!QueryExecutorStatus.QUEUED.equals(entry.getStatus()) && !QueryExecutorStatus.RUNNING.equals(entry.getStatus())) {
-      postgresService.delete(userId, requeueQueryRequest.getQueueId());
-      QueryRequest queryRequest = requeueQueryRequest.getQueryRequest();
-      addToExecutionQueue(userId, userName, queryRequest);
-    }
-  }
-
-  public UUID addToExecutionQueue(UUID userId, String userName, QueryRequest queryRequest) throws Exception {
-    QueryRequest queryRequestForSql = null;
-    try {
-      if (queryRequest.getLanguage() == null) queryRequest.setLanguage(DatabaseOption.MYSQL);
-      queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-      new IMQtoSQLConverter(queryRequestForSql);
-      if (null == connectionManager) connectionManager = new ConnectionManager();
-      return connectionManager.publishToQueue(userId, userName, queryRequestForSql);
-    } catch (SQLConversionException e) {
-      handleSQLConversionException(userId, userName, queryRequest, e.getMessage());
-      throw new QueryException("Unable to convert query to SQL", e);
-    }
-  }
-
-  public Set<String> executeQuery(QueryRequest queryRequest) throws SQLConversionException, SQLException, QueryException, JsonProcessingException {
-    int qrHashCode = queryRequest.hashCode();
-    log.info("Received query to execute: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
-    try {
-      Set<String> results = getQueryResults(queryRequest);
-      if (results != null) return results;
-      Map<String, Integer> queryIrisToHashCodes = runSubQueries(queryRequest);
-      String resolvedSql = new IMQtoSQLConverter(queryRequest).getResolvedSql(queryIrisToHashCodes);
-      log.info("Executing query: {} with a hash code: {}", queryRequest.getQuery().getIri(), qrHashCode);
-      results = MYSQLConnectionManager.executeQuery(resolvedSql);
-      storeQueryResultsAndCache(queryRequest, results);
-      return results;
-    } catch (SQLConversionException e) {
-      log.error("Error converting query: {}", e.getMessage());
-      throw e;
-    } catch (SQLException e) {
-      log.error("Error executing query: {}", e.getMessage());
-      throw e;
-    } catch (QueryException e) {
-      log.error("Error getting query definition: {}", e.getMessage());
-      throw e;
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private Map<String, Integer> runSubQueries(QueryRequest queryRequest) throws QueryException, JsonProcessingException, SQLConversionException, SQLException {
-    List<SubQueryDependency> subQueries = entityRepository.getOrderedSubqueries(queryRequest.getQuery().getIri());
-    List<String> subQueryIris = subQueries.stream().map(SubQueryDependency::getIri)
-      .toList();
-    Map<String, Integer> queryIrisToHashCodes = getQueryIrisToHashCodes(subQueryIris, queryRequest.getArgument());
-    if (!subQueries.isEmpty())
-      for (SubQueryDependency subQuery : subQueries) {
-        QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQuery.getIri())).setArgument(queryRequest.getArgument()));
-        int hashCode = subqueryRequest.hashCode();
-        log.debug("Subquery found: {} with hash: {}", subQuery.getIri(), hashCode);
-        if (!queryResultsMap.containsKey(hashCode) && !MYSQLConnectionManager.tableExists(hashCode)) {
-          log.debug("Executing subquery: {} with hash: {}", subQuery.getIri(), hashCode);
-          String resolvedSql = new IMQtoSQLConverter(subqueryRequest).getResolvedSql(queryIrisToHashCodes);
-          Set<String> results = MYSQLConnectionManager.executeQuery(resolvedSql);
-          storeQueryResultsAndCache(subqueryRequest, results);
-        } else {
-          log.debug("Query results already exist for subquery: {} with hash: {}", subQuery.getIri(), hashCode);
-        }
-      }
-    return queryIrisToHashCodes;
-  }
-
-  private Map<String, Integer> getQueryIrisToHashCodes(List<String> subQueries, Set<Argument> argument) throws JsonProcessingException, SQLConversionException {
-    Map<String, Integer> queryIrisToHashCodes = new HashMap<>();
-    for (String subQueryIri : subQueries) {
-      QueryRequest subqueryRequest = getQueryRequestForSqlConversion(new QueryRequest().setQuery(new Query().setIri(subQueryIri)).setArgument(argument));
-      int hashCode = subqueryRequest.hashCode();
-      queryIrisToHashCodes.put(subQueryIri, hashCode);
-    }
-    return queryIrisToHashCodes;
-  }
-
-  public void storeQueryResultsAndCache(QueryRequest queryRequest, Set<String> results) throws SQLException {
-    queryResultsMap.put(queryRequest.hashCode(), results);
-    MYSQLConnectionManager.saveResults(queryRequest.hashCode(), results);
-  }
-
-  public Set<String> getQueryResults(QueryRequest queryRequest) throws SQLException {
-    int hashCode = queryRequest.hashCode();
-    Set<String> queryResults = queryResultsMap.get(hashCode);
-    if (queryResults != null) {
-      log.debug("Query Results for hashcode {} found in local cache", hashCode);
-      return queryResults;
-    }
-    if (!MYSQLConnectionManager.tableExists(hashCode)) return null;
-
-    queryResults = MYSQLConnectionManager.getResults(queryRequest);
-    log.debug("Query Results for hashcode {} found in db cache", hashCode);
-    return queryResults;
-  }
-
-  public void killActiveQuery() throws SQLException {
-    MYSQLConnectionManager.killCurrentQuery();
-  }
-
   public Query getDefaultQuery() throws JsonProcessingException {
     List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
     if (children.isEmpty()) {
@@ -235,13 +111,6 @@ public class QueryService {
     }
     return null;
   }
-
-  public Set<String> testRunQuery(QueryRequest queryRequest) throws SQLException, SQLConversionException, QueryException, JsonProcessingException {
-//    should connect to test data database (current one)
-    getSQLFromIMQIri(queryRequest.getQuery().getIri(), DatabaseOption.MYSQL);
-    return executeQuery(getQueryRequestForSqlConversion(queryRequest));
-  }
-
   public Query flattenQuery(Query query) {
     LogicOptimizer.optimizeQuery(query);
     return query;

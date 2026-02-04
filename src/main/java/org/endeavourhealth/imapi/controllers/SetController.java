@@ -5,18 +5,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -58,8 +57,7 @@ public class SetController {
   private final EntityService entityService = new EntityService();
   private final SetService setService = new SetService();
   private final SetExporter setExporter = new SetExporter();
-  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   @GetMapping(value = "/publish")
   @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
@@ -194,7 +192,7 @@ public class SetController {
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getGraph());
     }
   }

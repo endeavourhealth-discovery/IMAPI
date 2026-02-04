@@ -1,35 +1,31 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.logic.excel.ExcelReader;
-import org.endeavourhealth.imapi.model.casdoor.Session;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.Action;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.responses.LoginResponseES;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 
 @Component
 @Slf4j
-public class CasdoorService {
-  private static Set<Session> activeSessions = new HashSet<>();
+public class SecurityService {
   // private ExcelReader excelReader = new ExcelReader();
   private EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
 
@@ -168,9 +164,26 @@ public class CasdoorService {
     }
   }*/
 
-  @Scheduled(cron = "0 0 0 * * *")
-  public void tidySessions() {
-    activeSessions.removeIf(Session::isExpired);
+  public void enforceWithError(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException {
+    try {
+      boolean result = enforce(resource, action, request);
+      if (!result) {
+        throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
+      }
+    } catch (Exception e) {
+      throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
+    }
   }
 
+  public boolean enforce(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException, JsonProcessingException {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+
+    return endeavourSecurityService.enforce(ipAddress, sessionId, resource, action);
+  }
+
+
+  public void addPolicy(UserRole userRole, Resource resource, Action action) {
+    // TODO
+  }
 }

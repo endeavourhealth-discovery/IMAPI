@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.casdoor
+package org.endeavourhealth.imapi.model.security
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto

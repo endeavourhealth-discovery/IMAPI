@@ -4,11 +4,10 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
-import org.endeavourhealth.imapi.logic.service.CasdoorService
-import org.endeavourhealth.imapi.model.casdoor.User
+import org.endeavourhealth.imapi.logic.service.SecurityService
+import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
 import org.endeavourhealth.imapi.model.primevue.FontSize
@@ -30,8 +29,7 @@ import org.springframework.web.context.annotation.RequestScope
 )
 @CrossOrigin(origins = ["*"])
 open class UserController(
-  private val casbinEnforcer: CasbinEnforcer,
-  private val casdoorService: CasdoorService
+  private val securityService: SecurityService
 ) {
   private val log = LoggerFactory.getLogger(UserController::class.java)
 
@@ -50,9 +48,9 @@ open class UserController(
       log.debug("updateUserPreset")
       val theme = PrimeVuePresetThemes.fromValue(preset)
       requireNotNull(theme)
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.theme = theme
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -74,9 +72,9 @@ open class UserController(
       log.debug("updateUserPrimaryColor")
       val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.primaryColor = colorEnum
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -96,9 +94,9 @@ open class UserController(
       log.debug("updateUserSurfaceColor")
       val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.surfaceColor = colorEnum
-      return casdoorService.updateUser(request, user);
+      return securityService.updateUser(request, user);
     }
   }
 
@@ -116,9 +114,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.DarkMode.POST").use {
       log.debug("updateUserDarkMode")
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.darkMode = darkMode.bool
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -140,9 +138,9 @@ open class UserController(
       log.debug("updateUserFontSize")
       val fontSizeEnum = FontSize.fromValue(fontSize)
       requireNotNull(fontSizeEnum)
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.fontSize = fontSizeEnum
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -160,9 +158,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.RecentActivity.POST").use {
       log.debug("updateUserRecentActivity")
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.recentActivity = recentActivity
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -180,9 +178,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Favourites.POST").use {
       log.debug("updateUserFavourites")
-      val user = casdoorService.getUser(request)
+      val user = securityService.getUser(request)
       user.favourites = favourites
-      return casdoorService.updateUser(request, user)
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -203,11 +201,11 @@ open class UserController(
   ) {
     MetricsHelper.recordTime("API.User.Organisations.POST").use {
       log.debug("updateUserOrganisations")
-      if (!casdoorService.userExists(userId, request)) throw GeneralCustomException(
+      if (!securityService.userExists(userId, request)) throw GeneralCustomException(
         "user not found",
         HttpStatus.BAD_REQUEST
       )
-      casdoorService.updateUserOrganisations(userId, organisations, request)
+      securityService.updateUserOrganisations(userId, organisations, request)
     }
   }
 

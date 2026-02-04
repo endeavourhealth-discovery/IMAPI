@@ -65,7 +65,8 @@
       "path": [
         "http://endhealth.info/im#mobileTelephoneNumber"
       ],
-      "dataModel": "http://endhealth.info/im#MobileTelephoneNumber"
+      "dataModel": "http://endhealth.info/im#TelephoneNumber",
+      "condition": {"field": "use_concept_id", "value": "1335367"}
     },
     {
       "path": [
@@ -177,18 +178,14 @@
   "tables": [
     {
       "dataModels": [
-        "http://endhealth.info/im#MobileTelephoneNumber"
+        "http://endhealth.info/im#TelephoneNumber"
       ],
       "table": "patient_contact",
-      "condition": "type_concept_id = 1335362",
       "fields": {
         "http://endhealth.info/im#value": {"field": "value", "type": "string"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {
-          "fromField": "patient_id",
-          "toField": "id"
-        }
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"}
       }
     },
     {
@@ -289,21 +286,6 @@
           "field": "last_name",
           "type": "string"
         }
-      }
-    },
-    {
-      "dataModels": [
-        "http://endhealth.info/im#TelephoneNumber"
-      ],
-      "table": "patient_contact",
-      "fields": {
-        "http://endhealth.info/im#value": {
-          "field": "value",
-          "type": "string"
-        }
-      },
-      "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"}
       }
     },
     {

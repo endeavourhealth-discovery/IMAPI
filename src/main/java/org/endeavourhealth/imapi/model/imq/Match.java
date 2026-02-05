@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"notExists","ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Match extends IriLD implements HasPaths,Clause<Match> {
-  private Element graph;
+  private Node graph;
   private Where where;
   private String description;
   private String nodeRef;
@@ -502,11 +502,11 @@ public class Match extends IriLD implements HasPaths,Clause<Match> {
   }
 
 
-  public Element getGraph() {
+  public Node getGraph() {
     return graph;
   }
 
-  public Match setGraph(Element graph) {
+  public Match setGraph(Node graph) {
     this.graph = graph;
     return this;
   }

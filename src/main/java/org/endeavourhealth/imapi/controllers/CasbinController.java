@@ -6,11 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
-import org.endeavourhealth.imapi.model.security.Action;
-import org.endeavourhealth.imapi.model.security.PolicyRequest;
-import org.endeavourhealth.imapi.model.security.Resource;
-import org.endeavourhealth.imapi.model.security.User;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.endeavourhealth.imapi.model.security.Permission;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,14 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class CasbinController {
   private SecurityService securityService = new SecurityService();
 
-  @PostMapping("addPolicy")
-  @PreAuthorize("@guard.hasPermission('POLICY','WRITE')")
-  public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
-    securityService.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
-  }
-
-  @GetMapping("public/hasPermission")
-  public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
-    return securityService.enforce(resource, action, request);
+  @PostMapping("public/hasPermission")
+  public boolean hasPermission(HttpServletRequest request, @RequestBody Permission permission) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
+    return securityService.hasPermission(permission, request);
   }
 }

@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
@@ -17,19 +18,19 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("api/query")
@@ -41,6 +42,7 @@ public class QueryController {
 
   private final SearchService searchService = new SearchService();
   private final QueryService queryService = new QueryService();
+  private final SecurityService securityService = new SecurityService();
 
   @PostMapping("/private/queryIM")
   @Operation(
@@ -100,7 +102,6 @@ public class QueryController {
       return searchService.pathQuery(pathQuery);
     }
   }
-
 
 
   @GetMapping(value = "/private/queryDisplay", produces = "application/json")
@@ -287,26 +288,26 @@ public class QueryController {
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
-  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
   ) throws QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
+      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
       return queryService.findMissingArguments(queryRequest);
     }
   }
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
-  @PreAuthorize("@guard.hasPermission('QUERY','EXECUTE')")
   public TTIriRef getArgumentType(
     HttpServletRequest request,
     @RequestParam String referenceIri
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
+      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
       return queryService.getArgumentType(referenceIri);
     }
   }

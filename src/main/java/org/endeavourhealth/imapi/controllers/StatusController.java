@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
-@RequestMapping("api/status")
+@RequestMapping("api/status/public")
 @CrossOrigin(origins = "*")
 @Tag(name = "StatusController")
 @RequestScope
@@ -22,7 +22,7 @@ import org.springframework.web.context.annotation.RequestScope;
 public class StatusController {
 
   @Operation(summary = "Check the health status of the application")
-  @GetMapping("/public/healthCheck")
+  @GetMapping("/healthCheck")
   public ResponseEntity<String> healthCheck() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.HealthCheck.GET")) {
       log.debug("healthCheck");
@@ -31,7 +31,7 @@ public class StatusController {
   }
 
   @Operation(summary = "Check if the application is running in public mode")
-  @GetMapping("/public/isPublicMode")
+  @GetMapping("/isPublicMode")
   public ResponseEntity<Boolean> isPublicMode() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.isPublicMode.GET")) {
       log.debug("isPublicMode");
@@ -40,7 +40,7 @@ public class StatusController {
   }
 
   @Operation(summary = "Check if the application is running in development mode")
-  @GetMapping("/public/isDevMode")
+  @GetMapping("/isDevMode")
   public ResponseEntity<Boolean> isDevMode() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Status.isDevMode.GET")) {
       log.debug("isDevMode");

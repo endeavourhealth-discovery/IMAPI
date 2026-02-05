@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
 @RestController
-@RequestMapping("api/function")
+@RequestMapping("api/function/protected")
 @CrossOrigin(origins = "*")
 @Tag(name = "FunctionController")
 @RequestScope
 @Slf4j
 public class FunctionController {
 
-  @PostMapping("/private/callFunction")
+  @PostMapping("/callFunction")
   @Operation(
     summary = "function",
     description = "Runs a function IM passing in the iri of the function and a list (map) parameter name/ value arguments"

@@ -21,7 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/config")
+@RequestMapping("api/config/public")
 @CrossOrigin(origins = "*")
 @Tag(name = "ConfigController")
 @RequestScope
@@ -31,7 +31,7 @@ public class ConfigController {
   @Autowired
   ConfigManager configManager;
 
-  @GetMapping(value = "public/monitoring")
+  @GetMapping(value = "/monitoring")
   @Operation(
     summary = "Retrieve monitoring configuration",
     description = "Fetches monitoring configuration details from the config manager"
@@ -44,7 +44,7 @@ public class ConfigController {
     }
   }
 
-  @GetMapping(value = "public/graphs")
+  @GetMapping(value = "/graphs")
   @Operation(summary = "Get the list of available graphs")
   public List<Graph> getGraphs() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {

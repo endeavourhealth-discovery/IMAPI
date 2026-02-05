@@ -59,20 +59,7 @@ public class SetController {
   private final SetExporter setExporter = new SetExporter();
   private final SecurityService securityService = new SecurityService();
 
-  @GetMapping(value = "/publish")
-  @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
-  @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  public void publish(
-    HttpServletRequest request,
-    @RequestParam(name = "iri") String iri
-  ) throws IOException, QueryException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
-      log.debug("publish {}", iri);
-      setService.publishSetToIM1(iri);
-    }
-  }
-
-  @GetMapping(value = "/private/members")
+  @GetMapping(value = "/protected/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
     HttpServletRequest request,
@@ -91,7 +78,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/private/membersFromQuery")
+  @PostMapping(value = "/protected/membersFromQuery")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembersFromQuery(
     HttpServletRequest request,
@@ -103,7 +90,7 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/private/export")
+  @GetMapping(value = "/protected/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
   public HttpEntity<Object> exportSet(
     HttpServletRequest request,
@@ -127,7 +114,7 @@ public class SetController {
   }
 
 
-  @GetMapping("/private/subsets")
+  @GetMapping("/protected/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
   public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
@@ -136,7 +123,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "private/distillation")
+  @PostMapping(value = "/protected/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
   public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
@@ -145,7 +132,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/private/setExport")
+  @PostMapping(value = "/protected/setExport")
   @Operation(
     summary = "Export a set in the specified format",
     description = "Exports a set of data according to the provided options, including various flags such as definition, core, legacy, subsets, etc."
@@ -173,7 +160,7 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/private/setDiff")
+  @GetMapping(value = "/protected/setDiff")
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
   public SetDiffObject getSetComparison(
     HttpServletRequest request,
@@ -186,7 +173,19 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/updateSubsetsFromSuper")
+  @GetMapping(value = "/private/publish")
+  @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
+  @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
+  public void publish(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri
+  ) throws IOException, QueryException, UserAuthorisationException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
+      log.debug("publish {}", iri);
+      setService.publishSetToIM1(iri);
+    }
+  }
+  @PostMapping(value = "/private/updateSubsetsFromSuper")
   @PreAuthorize("@guard.hasPermission('SET','WRITE')")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {

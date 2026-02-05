@@ -30,22 +30,6 @@ import java.util.List;
 public class SecurityController {
   private SecurityService securityService = new SecurityService();
 
-  @GetMapping("/user")
-  public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.GET")) {
-      log.debug("getUser");
-      return securityService.getUser(request);
-    }
-  }
-
-  @GetMapping("/user/profileUrl")
-  public String getUserProfileUrl(HttpServletRequest request) throws UserNotFoundException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.PROFILEURL.GET")) {
-      log.debug("getUserProfileUrl");
-      return securityService.getUserUrl(request);
-    }
-  }
-
   @GetMapping("/public/login")
   public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGIN.GET")) {
@@ -70,7 +54,7 @@ public class SecurityController {
     }
   }
 
-  @GetMapping("/public/logout")
+  @GetMapping("/private/logout")
   public void logout(HttpServletRequest request, HttpServletResponse response) throws HttpException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGOUT.GET")) {
       log.debug("logout");
@@ -78,7 +62,7 @@ public class SecurityController {
     }
   }
 
-  @GetMapping("/getUsersInGroup")
+  @GetMapping("/private/getUsersInGroup")
   @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<User> getUsersInGroup(HttpServletRequest request, @RequestParam(name = "group") UserRole group) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETUSERSINGROUP.GET")) {
@@ -87,7 +71,7 @@ public class SecurityController {
     }
   }
 
-  @GetMapping("/getGroups")
+  @GetMapping("/private/getGroups")
   @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<UserRole> getGroups(HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETGROUPS.GET")) {
@@ -105,14 +89,30 @@ public class SecurityController {
     }
   }*/
 
-  @PostMapping("addPolicy")
+  @PostMapping("/private/addPolicy")
   @PreAuthorize("@guard.hasPermission('POLICY','WRITE')")
   public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
     securityService.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
   }
 
-  @GetMapping("public/hasPermission")
+  @GetMapping("/private/hasPermission")
   public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
     return securityService.enforce(resource, action, request);
+  }
+
+  @GetMapping("/private/user")
+  public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.GET")) {
+      log.debug("getUser");
+      return securityService.getUser(request);
+    }
+  }
+
+  @GetMapping("/private/user/profileUrl")
+  public String getUserProfileUrl(HttpServletRequest request) throws UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.PROFILEURL.GET")) {
+      log.debug("getUserProfileUrl");
+      return securityService.getUserUrl(request);
+    }
   }
 }

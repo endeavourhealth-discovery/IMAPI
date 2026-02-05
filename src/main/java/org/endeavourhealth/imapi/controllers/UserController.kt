@@ -22,7 +22,7 @@ import org.springframework.web.context.annotation.RequestScope
 
 @RestController
 @RequestScope
-@RequestMapping(value = ["api/user"])
+@RequestMapping(value = ["api/user/private"])
 @Tag(
   name = "UserController",
   description = "Controller for managing user preferences, accessibility features, and other user details."

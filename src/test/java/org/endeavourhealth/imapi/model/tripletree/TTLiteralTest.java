@@ -61,9 +61,11 @@ class TTLiteralTest {
 
   @Test
   void serializeTest() throws JsonProcessingException {
-    ObjectMapper om = new ObjectMapper();
-    om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(testObject);
+    String actual = new ObjectMapper()
+      .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(testObject);
+
     assertEquals(json, actual);
   }
 

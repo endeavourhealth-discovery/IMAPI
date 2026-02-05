@@ -17,6 +17,11 @@ import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 public class SessionCookieAuthFilter extends OncePerRequestFilter {
   EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
 
+  public SessionCookieAuthFilter setEndeavourSecurityService(EndeavourSecurityService endeavourSecurityService) {
+    this.endeavourSecurityService = endeavourSecurityService;
+    return this;
+  }
+
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
     String ip = getIpAddress(request);

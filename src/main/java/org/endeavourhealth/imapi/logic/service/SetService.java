@@ -20,7 +20,6 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
@@ -136,7 +135,7 @@ public class SetService {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
 
-  public Pageable<Node> getMembersFromQuery(EclSearchRequest request) throws QueryException {
+  public Pageable<Node> getMembersFromQuery(ECLQueryRequest request) throws QueryException {
     EclService eclService = new EclService();
     SearchResponse response= eclService.eclSearch(request);
     Pageable<Node> result = new Pageable<>();

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"notExists","ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements HasPaths {
+public class Match extends IriLD implements HasPaths,Clause<Match> {
   private Element graph;
   private Where where;
   private String description;
@@ -41,8 +41,16 @@ public class Match extends IriLD implements HasPaths {
   private String asDescription;
   private List<Match> union;
   private boolean notExists;
+
   public boolean isNotExists() {
     return notExists;
+  }
+
+  public Match rule(Consumer<Match> builder) {
+    Match rule = new Match();
+    addRule(rule);
+    builder.accept(rule);
+    return this;
   }
 
   public Match setNotExists(boolean notExists) {

@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -35,7 +34,7 @@ public class EclController {
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(HttpServletRequest request, @RequestBody EclSearchRequest inferred) throws QueryException {
+  public String getEcl(HttpServletRequest request, @RequestBody ECLQueryRequest inferred) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
       return eclService.getEcl(inferred);
@@ -49,7 +48,7 @@ public class EclController {
   )
   public SearchResponse eclSearch(
     HttpServletRequest request,
-    @RequestBody EclSearchRequest eclSearchRequest
+    @RequestBody ECLQueryRequest eclSearchRequest
   ) throws EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.EclSearch.POST")) {
       log.debug("eclSearch");
@@ -143,6 +142,8 @@ public class EclController {
       return conceptService.getPropertiesForDomains(iris);
     }
   }
+
+
 
   @GetMapping(value = "/private/isValidPropertyForDomains")
   @Operation(summary = "Check if a property is valid for a list of domains")

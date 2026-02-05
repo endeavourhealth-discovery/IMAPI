@@ -181,15 +181,19 @@ public class QueryRepository {
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        entity= nodeMap.get(bs.getValue(query.getNode()).stringValue());
-        if (entity == null){
-          entity = mapper.createObjectNode();
-          entities.add(entity);
-          entity.put("iri", bs.getValue(query.getNode()).stringValue());
+        if (bs.getValue(query.getNode()) != null) {
+          entity = nodeMap.get(bs.getValue(query.getNode()).stringValue());
+          if (entity == null) {
+            entity = mapper.createObjectNode();
+            entities.add(entity);
+            entity.put("iri", bs.getValue(query.getNode()).stringValue());
+          }
+        } else {
+          entity=null;
         }
         if (query.getReturn()!=null){
           for (Return returnProperty: query.getReturn()){
-            bindReturn(bs, entity, returnProperty);
+           entity=bindReturn(bs, entity, returnProperty,nodeMap,entities);
           }
         } else {
           entity= mapper.createObjectNode();
@@ -261,11 +265,31 @@ public class QueryRepository {
 
 
 
-  private void bindReturn(BindingSet bs, ObjectNode node, Return property) {
+  private ObjectNode bindReturn(BindingSet bs, ObjectNode node, Return property, Map<String, ObjectNode> nodeMap, ArrayNode entities) {
+    if (node==null) {
+      String ref;
+      if (property.getPropertyRef() != null)
+        ref = property.getPropertyRef();
+      else ref = property.getNodeRef();
+      String refIri = bs.getValue(ref).stringValue();
+      node = nodeMap.get(refIri);
+      if (node == null) {
+        node = mapper.createObjectNode();
+        entities.add(node);
+        node.put("iri", refIri);
+      }
+      if (property.getReturn() != null) {
+        for (Return returnProperty : property.getReturn()) {
+          bindReturn(bs, node, returnProperty, nodeMap, entities);
+        }
+      }
+      return node;
+    }
     String predicate = property.getIri();
     if (property.getPropertyRef()!=null){
       predicate= bs.getValue(property.getPropertyRef()).stringValue();
     }
+
     String objectVariable = property.getAs();
     Value object = bs.getValue(objectVariable);
     if (object != null) {
@@ -297,10 +321,11 @@ public class QueryRepository {
           valueNode.put("bn", nodeValue);
         }
         for (Return returnProperty : property.getReturn()) {
-          bindReturn(bs, valueNode, returnProperty);
+          bindReturn(bs, valueNode, returnProperty,nodeMap,entities);
         }
       }
     }
+    return node;
   }
 
 

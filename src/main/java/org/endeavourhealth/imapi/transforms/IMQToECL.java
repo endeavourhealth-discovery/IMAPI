@@ -43,6 +43,7 @@ public class IMQToECL {
     } catch (Exception ex) {
       eclStatus.setValid(false);
       query.setInvalid(true);
+      eclStatus.setMessage(ex.getMessage());
     }
   }
 
@@ -157,8 +158,10 @@ public class IMQToECL {
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    if (match.getIs() == null && match.getOr() == null && match.getAnd() == null) {
-      ecl.append("*");
+    if ((match.getIs() == null ||(match.getIs().getFirst().getIri()==null&&match.getIs().getFirst().getMatch()==null)) && match.getOr() == null && match.getAnd() == null) {
+      if (match.getWhere() != null)
+        ecl.append("*");
+      else throw new QueryException("Must have concept if no refinement");
     } else if (match.getIs() != null) {
       if (match.getIs().size() > 1) {
         ecl.append("(");
@@ -270,6 +273,8 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (match.getIs().size() == 1) {
+      if (match.getIs().getFirst().getIri() == null&&match.getIs().getFirst().getMatch()==null && match.getWhere()==null)
+        throw new QueryException("Must have concept if no refinement");
       if (match.getIs().getFirst().isInvalid())
         setErrorStatus(ecl, "unknown concept");
       if (match.getIs().getFirst().getMatch() != null){
@@ -330,37 +335,36 @@ public class IMQToECL {
 
   private void addRefined(Where where, StringBuilder ecl, Boolean includeNames, boolean nested) throws QueryException {
     if (where.isInvalid()) setErrorStatus(ecl, "unknown property concept : ");
-    try {
-      if (where.isRoleGroup()) ecl.append("{");
-      if (where.getAnd() == null && where.getOr() == null) {
-        if (null == where.getIs())
-          throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
-        addProperty(where, ecl, includeNames);
-        ecl.append(where.getIs() != null ? " = " : " != ");
-        boolean first = true;
-        for (List<Node> nodes : Arrays.asList(where.getIs())) {
-          if (nodes != null) {
-            if (nodes.size() > 1)
-              ecl.append(" (");
-            for (Node value : nodes) {
-              if (!first)
-                ecl.append("\n or ");
-              first = false;
-              if (value.isInvalid()) setErrorStatus(ecl, "unknown value concept : ");
-              addClass(value, ecl, includeNames);
-            }
-            if (nodes.size() > 1)
-              ecl.append(")");
+    if (where.isRoleGroup()) ecl.append("{");
+    if (where.getAnd() == null && where.getOr() == null) {
+      if (null == where.getIs() || where.getIs().getFirst().getIri() == null)
+        throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+      addProperty(where, ecl, includeNames);
+      if (where.getIs() != null && where.getIs().get(0) == null)
+        throw new QueryException("Where clause must contain a value or sub expressionMatch clause");
+      ecl.append(where.getIs() != null ? " = " : " != ");
+      boolean first = true;
+      for (List<Node> nodes : Arrays.asList(where.getIs())) {
+        if (nodes != null) {
+          if (nodes.size() > 1)
+            ecl.append(" (");
+          for (Node value : nodes) {
+            if (!first)
+              ecl.append("\n or ");
+            first = false;
+            if (value.isInvalid()) setErrorStatus(ecl, "unknown value concept : ");
+            addClass(value, ecl, includeNames);
           }
+          if (nodes.size() > 1)
+            ecl.append(")");
         }
-      } else {
-        addRefinementsToWhere(where, ecl, includeNames, nested);
       }
-      if (where.isRoleGroup()) ecl.append("}");
-    } catch (Exception e) {
-      throw new QueryException("Where clause inside a role group clause must contain a where");
+    } else {
+      addRefinementsToWhere(where, ecl, includeNames, nested);
     }
+    if (where.isRoleGroup()) ecl.append("}");
   }
+
 
 
   private void addProperty(Where exp, StringBuilder ecl, boolean includeName) {
@@ -390,6 +394,8 @@ public class IMQToECL {
       subsumption = "< ";
     else if (exp.isMemberOf())
       subsumption = "^";
+    else if (exp.isAncestorsOf())
+      subsumption = ">>";
     return subsumption;
   }
 

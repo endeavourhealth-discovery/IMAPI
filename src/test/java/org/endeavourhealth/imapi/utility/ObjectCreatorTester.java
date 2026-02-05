@@ -4,11 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
-
-import java.util.regex.Pattern;
 
 import static org.endeavourhealth.imapi.dataaccess.SetRepository.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;

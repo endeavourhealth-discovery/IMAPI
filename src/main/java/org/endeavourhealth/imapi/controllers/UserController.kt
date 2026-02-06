@@ -7,16 +7,20 @@ import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
 import org.endeavourhealth.imapi.logic.service.SecurityService
-import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
 import org.endeavourhealth.imapi.model.primevue.FontSize
 import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
 import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
+import org.endeavourhealth.imapi.model.security.NamespacePermission
+import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Resource
+import org.endeavourhealth.imapi.model.security.User
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.utility.APIGuard
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.context.annotation.RequestScope
 
@@ -32,6 +36,7 @@ open class UserController(
   private val securityService: SecurityService
 ) {
   private val log = LoggerFactory.getLogger(UserController::class.java)
+  private val apiGuard = APIGuard()
 
   @Operation(summary = "Update user preset", description = "Updates the user preset configuration.")
   @PostMapping(value = ["/preset"], consumes = ["text/plain"])
@@ -185,27 +190,27 @@ open class UserController(
   }
 
   @Operation(
-    summary = "Update user organisations",
-    description = "Updates the list of organisations for a user. Requires admin authority."
+    summary = "Update user namespaces",
+    description = "Updates the list of namespaces for a user. Requires admin authority."
   )
-  @PostMapping(value = ["/organisations"], produces = ["application/json"])
-  @PreAuthorize("@guard.hasPermission('USER','WRITE')")
+  @PostMapping(value = ["/namespaces"], produces = ["application/json"])
   @ResponseStatus(
     HttpStatus.ACCEPTED
   )
   @Throws(Exception::class)
-  open fun updateUserOrganisations(
+  open fun updateUserNamespaces(
     request: HttpServletRequest,
     @RequestParam("UserId") userId: String,
-    @RequestBody organisations: List<String>
+    @RequestBody namespaces: List<NamespacePermission>
   ) {
     MetricsHelper.recordTime("API.User.Organisations.POST").use {
       log.debug("updateUserOrganisations")
+      securityService.requiresPermission(Permission(Resource.USER, mutableListOf(UserRole.ADMIN), emptyList()), request)
       if (!securityService.userExists(userId, request)) throw GeneralCustomException(
         "user not found",
         HttpStatus.BAD_REQUEST
       )
-      securityService.updateUserOrganisations(userId, organisations, request)
+      securityService.updateUserNamespaces(userId, namespaces, request)
     }
   }
 

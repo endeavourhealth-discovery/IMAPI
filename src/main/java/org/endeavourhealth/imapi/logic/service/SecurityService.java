@@ -7,13 +7,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
-import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.model.security.Action;
-import org.endeavourhealth.imapi.model.security.Resource;
-import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.responses.LoginResponseES;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.stereotype.Component;
 
@@ -109,11 +108,11 @@ public class SecurityService {
     return Arrays.stream(UserRole.values()).toList();
   }
 
-  public User updateUserOrganisations(String userId, List<String> organisations, HttpServletRequest request) throws UserNotFoundException {
+  public User updateUserNamespaces(String userId, List<NamespacePermission> namespaces, HttpServletRequest request) throws UserNotFoundException {
     String ipAddress = getIpAddress(request);
     String sessionId = getSessionId(request);
     User user = endeavourSecurityService.adminGetUser(ipAddress, sessionId, userId);
-    user.setOrganisations(organisations);
+    user.setNamespaces(namespaces);
     return endeavourSecurityService.adminUpdateUser(ipAddress, sessionId, user);
   }
 
@@ -164,26 +163,15 @@ public class SecurityService {
     }
   }*/
 
-  public void enforceWithError(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException {
-    try {
-      boolean result = enforce(resource, action, request);
-      if (!result) {
-        throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
-      }
-    } catch (Exception e) {
-      throw new UserAuthorisationException(String.format("User not authorised to access resource %s with rights %s", resource, action));
-    }
-  }
-
-  public boolean enforce(Resource resource, Action action, HttpServletRequest request) throws UserAuthorisationException, JsonProcessingException {
+  public void requiresPermission(Permission permission, HttpServletRequest request) {
     String ipAddress = getIpAddress(request);
     String sessionId = getSessionId(request);
-
-    return endeavourSecurityService.enforce(ipAddress, sessionId, resource, action);
+    endeavourSecurityService.requiresPermission(ipAddress, sessionId, permission);
   }
 
-
-  public void addPolicy(UserRole userRole, Resource resource, Action action) {
-    // TODO
+  public boolean hasPermission(Permission permission, HttpServletRequest request) {
+    String ipAddress = getIpAddress(request);
+    String sessionId = getSessionId(request);
+    return endeavourSecurityService.hasPermission(ipAddress, sessionId, permission);
   }
 }

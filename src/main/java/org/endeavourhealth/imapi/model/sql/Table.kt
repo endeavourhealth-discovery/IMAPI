@@ -8,7 +8,7 @@ class Table(
   var dataModels: List<String>? = ArrayList(),
   var table: String = "",
   var primaryKey: String = "",
-  var condition: String? = "",
+  var condition: Condition? = null,
   var dataModel: String = "",
   var fields: HashMap<String, Field> = HashMap(),
   var relationships: HashMap<String, Relationship> = HashMap(),

@@ -324,7 +324,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/private/queryRequestForSQL")
+  @PostMapping("/private/queryRequestForSQL")
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public QueryRequest getQueryRequestForSql(
     HttpServletRequest request,

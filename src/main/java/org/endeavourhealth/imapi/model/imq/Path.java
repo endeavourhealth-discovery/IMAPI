@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
@@ -14,12 +12,29 @@ public class Path extends Element implements HasPaths {
   private boolean inverse;
   private boolean optional;
   private List<Path> path;
+  private String pathVariable;
   private Node typeOf;
   private TTIriRef qualifier;
+  private String node;
+
+  public String getNode() {
+    return node;
+  }
+
+  public Path setNode(String node) {
+    this.node=node;
+    return this;
+  }
 
 
+  public Path setPathVariable(String variable) {
+    this.pathVariable = variable;
+    return this;
+  }
 
-
+  public String getPathVariable() {
+    return pathVariable;
+  }
 
 
   public Path setIri(VocabEnum iri){
@@ -43,10 +58,6 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public Path setNode(String node) {
-    super.setNode(node);
-    return this;
-  }
 
   public Node getTypeOf() {
     return typeOf;

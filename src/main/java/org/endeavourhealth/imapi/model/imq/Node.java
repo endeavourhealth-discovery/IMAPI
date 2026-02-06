@@ -15,6 +15,10 @@ public class Node extends Element{
   private String type;
   private boolean inverse;
   private Match match;
+  private String node;
+
+
+
 
   public Match getMatch() {
     return match;
@@ -130,10 +134,12 @@ public class Node extends Element{
   }
 
   public Node setNode(String node) {
-    super.setNode(node);
+    this.node=node;
     return this;
   }
-
+  public String getNode() {
+    return node;
+  }
 
 }
 

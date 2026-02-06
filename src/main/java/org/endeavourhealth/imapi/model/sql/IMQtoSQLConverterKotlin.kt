@@ -806,9 +806,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    val table = IMtoMySQLMap.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
-      "Type $typeIri not found in table map"
-    )
+    val table =
+      IMtoMySQLMap.getTableFromProperty(listOf(propertyIri))
+        ?: IMtoMySQLMap.getTableFromDataModel(
+          typeIri
+        ) ?: throw SQLConversionException(
+          "Type $typeIri not found in table map"
+        )
     return table
   }
 
@@ -888,7 +892,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     for (path in paths) {
       try {
-        val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
+        val table = getTableFromTypeAndProperty(path.typeOf.iri, path.iri)
         table.alias = path.node
 
         if (firstTable == null) {
@@ -901,6 +905,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableToAlias = table.alias,
           tableFromAlias = parentTable.alias,
         )
+        if (table.condition != null) {
+          join.wheres.add(
+            MySQLPropertyValueWhere(
+              property = table.condition!!.field,
+              operator = "=",
+              value = table.condition!!.value
+            )
+          )
+        }
 
         tableMap[path.node] = table
         if (!joins.contains(join)) {

@@ -14,6 +14,12 @@ public class ECLQueryValidator {
   public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
+    if (iris.isEmpty()){
+      ECLStatus status = new ECLStatus();
+      status.setValid(false);
+      status.setMessage("No concepts in query");
+      return status;
+    }
     validConcepts = setRepository.getValidConcepts(iris);
     query.setInvalid(isInvalidMatchWheres(query));
     ECLStatus status = new ECLStatus();

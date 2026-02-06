@@ -142,7 +142,8 @@ public class IriCollector {
     }
     if (where.getIs() != null) {
       for (Node node : where.getIs())
-        iriSet.add(node.getIri());
+        if (node.getIri() != null)
+          iriSet.add(node.getIri());
     }
     collectAssignableIris(where, iriSet);
     if (where.getUnits()!=null){

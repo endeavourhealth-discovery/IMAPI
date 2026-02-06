@@ -231,7 +231,7 @@ public class EqdResources {
         if (standardMatch.getAnd()==null&&standardMatch.getWhere()==null){
           baseMatch.setOrderBy(standardMatch.getOrderBy());
           standardMatch=null;
-          setMatchNode(baseMatch);
+          setNamedMatchNode(baseMatch);
           lastMatch= baseMatch;
         }else {
           setMatchNode(baseMatch);
@@ -240,7 +240,7 @@ public class EqdResources {
       }
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion,lastMatch);
-        setMatchNode(lastMatch);
+        setNamedMatchNode(lastMatch);
         testMatch.setNodeRef(lastMatch.getNode());
         lastMatch= testMatch;
       }
@@ -250,7 +250,7 @@ public class EqdResources {
     }
 
     if (hasLinked) {
-      setMatchNode(lastMatch);
+      setNamedMatchNode(lastMatch);
       linkedMatch = this.convertLinkedCriterion(eqCriterion, lastMatch);
     }
     List<Match> steps = new ArrayList<>();
@@ -1387,6 +1387,50 @@ public class EqdResources {
     }
     acronyms.add(acronym);
     return acronym;
+  }
+
+  private void setNamedMatchNode(Match match) {
+    StringBuilder node = new StringBuilder();
+    if (match.getOrderBy()!=null){
+      OrderLimit orderBy= match.getOrderBy();
+      for (OrderDirection property : orderBy.getProperty()) {
+        String field = property.getIri();
+        if (field.toLowerCase().contains("date")) {
+          if (property.getDirection() == Order.descending) node.append("Latest_");
+          else node.append("Earliest_");
+        } else {
+          if (property.getDirection() == Order.descending) node.append("Max_");
+          else node.append("Min_");
+        }
+      }
+    }
+    boolean conceptFound= false;
+    if (match.getWhere()!=null){
+      Where where= match.getWhere();
+      if (where.getAnd()!=null){
+        for (Where and:where.getAnd()){
+          if (and.getShortLabel()!=null){
+            node.append(and.getShortLabel());
+            conceptFound=true;
+          } else if (and.getValueLabel()!=null) {
+            String valueLabel= and.getValueLabel();
+            node.append(valueLabel, 0, Math.min(valueLabel.length(), 10));
+            conceptFound=true;
+          }
+          else if (and.getIs()!=null){
+            String isName= and.getIs().getFirst().getName().replace(" ","");
+            node.append(isName,0,Math.min(isName.length(),10));
+          }
+        }
+      }
+    } else {
+      if (match.getUnion()!=null){
+        node.append("combined_dates");
+        conceptFound=true;
+      }
+    }
+    if (conceptFound) match.setNode(node.toString());
+    else setMatchNode(match);
   }
 
 

@@ -8,17 +8,13 @@ import lombok.Setter;
 
 @JsonPropertyOrder({"parameter", "iri", "parameter", "name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Element extends IriLD implements Entailment {
-  private String node;
+public abstract class Element extends IriLD implements Entailment {
   private String parameter;
   private boolean ancestorsOf;
-  private boolean ancestorsOrSelfOf;
   private boolean descendantsOrSelfOf;
   private boolean descendantsOf;
   private boolean childOrSelfOf;
   private boolean childOf;
-  private boolean parentOrSelfOf;
-  private boolean parentOf;
   private boolean memberOf;
   @Getter
   private boolean cohort;
@@ -40,32 +36,6 @@ public class Element extends IriLD implements Entailment {
     return this;
   }
 
-  public boolean isAncestorsOrSelfOf() {
-    return ancestorsOrSelfOf;
-  }
-
-  public Element setAncestorsOrSelfOf(boolean ancestorsOrSelfOf) {
-    this.ancestorsOrSelfOf = ancestorsOrSelfOf;
-    return this;
-  }
-
-  public boolean isParentOrSelfOf() {
-    return parentOrSelfOf;
-  }
-
-  public Element setParentOrSelfOf(boolean parentOrSelfOf) {
-    this.parentOrSelfOf = parentOrSelfOf;
-    return this;
-  }
-
-  public boolean isParentOf() {
-    return parentOf;
-  }
-
-  public Element setParentOf(boolean parentOf) {
-    this.parentOf = parentOf;
-    return this;
-  }
 
   public String getNodeRef() {
     return nodeRef;
@@ -94,13 +64,6 @@ public class Element extends IriLD implements Entailment {
     return this;
   }
 
-  public static Element iri(String iri) {
-    return new Element(iri);
-  }
-
-  public static Element iri(String iri, String name) {
-    return new Element(iri, name);
-  }
 
   public Element() {
   }
@@ -133,10 +96,6 @@ public class Element extends IriLD implements Entailment {
   public Element setParameter(String parameter) {
     this.parameter = parameter;
     return this;
-  }
-
-  public String getNode() {
-    return node;
   }
 
 
@@ -172,10 +131,7 @@ public class Element extends IriLD implements Entailment {
   }
 
 
-  public Element setNode(String node) {
-    this.node = node;
-    return this;
-  }
+
 
 
 }

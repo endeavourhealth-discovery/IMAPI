@@ -885,12 +885,12 @@ public class EntityRepository {
       where {
         %s
         {
-          ?concept rdfs:label ?term;
+          ?concept rdfs:label ?label;
                    im:scheme ?scheme.
           filter(isIri(?concept))
         }
         union {
-          ?tc rdfs:label ?term.
+          ?tc rdfs:label ?label.
           ?concept im:hasTermCode ?tc;
                    im:scheme ?scheme.
         }
@@ -898,7 +898,7 @@ public class EntityRepository {
       """.formatted(SparqlHelper.valueList("scheme", schemes));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("term", Values.literal(term));
+      qry.setBinding("label", Values.literal(term));
       return getConceptRefFromResult(qry);
     }
   }

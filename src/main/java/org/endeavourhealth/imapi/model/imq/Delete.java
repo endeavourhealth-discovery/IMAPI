@@ -10,10 +10,10 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Delete {
   private Where property;
-  private Element subject;
+  private Node subject;
   private boolean inverse;
-  private Element predicate;
-  private Element object;
+  private Node predicate;
+  private Node object;
   private List<Delete> delete;
 
 
@@ -26,11 +26,11 @@ public class Delete {
     return this;
   }
 
-  public Element getSubject() {
+  public Node getSubject() {
     return subject;
   }
 
-  public Delete setSubject(Element subject) {
+  public Delete setSubject(Node subject) {
     this.subject = subject;
     return this;
   }
@@ -44,20 +44,20 @@ public class Delete {
     return this;
   }
 
-  public Element getPredicate() {
+  public Node getPredicate() {
     return predicate;
   }
 
-  public Delete setPredicate(Element predicate) {
+  public Delete setPredicate(Node predicate) {
     this.predicate = predicate;
     return this;
   }
 
-  public Element getObject() {
+  public Node getObject() {
     return object;
   }
 
-  public Delete setObject(Element object) {
+  public Delete setObject(Node object) {
     this.object = object;
     return this;
   }

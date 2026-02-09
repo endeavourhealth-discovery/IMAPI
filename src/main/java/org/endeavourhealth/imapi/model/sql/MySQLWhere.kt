@@ -134,8 +134,8 @@ class MySQLPropertyIsWhere(
       val iri = node.iri
       val selfValue = if (node.isDescendantsOf) 0 else 1
       val base = """(
-        concept_set_member.set $operator '$iri'
-        AND concept_set_member.self = $selfValue
+        concept_tct.parent $operator '$iri'
+        AND concept_tct.self = $selfValue
       )
       """.trimIndent()
       if (not == true) "NOT ($base)" else base

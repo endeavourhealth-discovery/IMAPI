@@ -206,30 +206,30 @@
       ],
       "table": "cohort",
       "fields": {
-        "http://endhealth.info/im#hashCode": {
-          "field": "hashCode",
+        "http://endhealth.info/im#hash": {
+          "field": "hash",
           "type": "string"
         },
-        "http://endhealth.info/im#id": {
+        "http://endhealth.info/im#cohort_id": {
           "field": "id",
           "type": "string"
         }
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {
-          "fromField": "id",
+          "fromField": "cohort_id",
           "toField": "id"
         },
         "http://endhealth.info/im#Observation": {
-          "fromField": "id",
+          "fromField": "cohort_id",
           "toField": "patient_id"
         },
         "http://endhealth.info/im#MedicationRequest": {
-          "fromField": "id",
+          "fromField": "cohort_id",
           "toField": "patient_id"
         },
         "http://endhealth.info/im#MedicationOrder": {
-          "fromField": "id",
+          "fromField": "cohort_id",
           "toField": "patient_id"
         }
       }
@@ -447,9 +447,9 @@
     },
     {
       "dataModels": [
-        "http://endhealth.info/im#ConceptMember"
+        "http://endhealth.info/im#ConceptTCT"
       ],
-      "table": "concept_set_member",
+      "table": "concept_tct",
       "primaryKey": "im1id",
       "relationships": {
         "http://endhealth.info/im#Concept": {"fromField": "im1id", "toField": "id"}

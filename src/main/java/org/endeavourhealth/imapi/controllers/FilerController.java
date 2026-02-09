@@ -5,16 +5,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;
@@ -61,8 +60,7 @@ public class FilerController {
   private final FilerService filerService = new FilerService();
   private final EntityService entityService = new EntityService();
   private final SearchService searchService = new SearchService();
-  private final CasbinEnforcer casbinEnforcer = new CasbinEnforcer();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   @PostMapping("file/document")
   @PreAuthorize("@guard.hasPermission('DOCUMENT','WRITE')")
@@ -70,7 +68,7 @@ public class FilerController {
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
@@ -104,7 +102,7 @@ public class FilerController {
   public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
       Graph filingGraph = editRequest.getGraph();
@@ -170,7 +168,7 @@ public class FilerController {
       folders.add(iri(newFolderIri));
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
 
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
       return ResponseEntity.ok().build();
@@ -203,7 +201,7 @@ public class FilerController {
       if (folders == null) folders = new TTArray();
       folders.add(iri(folderIri));
 
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
@@ -267,7 +265,7 @@ public class FilerController {
       }
       entity.set(iri(IM.CONTENT_TYPE), contentTypes);
 
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), null);
       return iri;
     }

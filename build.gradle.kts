@@ -151,12 +151,7 @@ dependencies {
   implementation(libs.dropwizard)
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
-  implementation(libs.casbin)
-  implementation(libs.casdoor)
-  implementation(libs.casbin.jdbc.adapter)
-  implementation(libs.casdoor.spring.boot.starter)
   implementation(libs.fact.plus.plus)
-  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
@@ -164,10 +159,8 @@ dependencies {
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
-  implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -177,7 +170,6 @@ dependencies {
   implementation(libs.rdf4j.repo.sail)
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
-  implementation(libs.spring.amqp)
   implementation(libs.spring.context)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
@@ -188,7 +180,6 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
 
   testImplementation(libs.cucumber)
@@ -202,8 +193,6 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
-  compileOnly(libs.mysqlConncector)
-  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 

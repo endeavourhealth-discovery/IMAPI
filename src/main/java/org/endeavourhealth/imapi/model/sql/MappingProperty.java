@@ -12,4 +12,5 @@ import java.util.List;
 public class MappingProperty {
   private List<String> path;
   private String dataModel;
+  private Condition condition;
 }

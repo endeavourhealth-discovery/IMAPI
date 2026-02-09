@@ -72,7 +72,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
               newMySqlQuery.withs.last().selects
                 .filterNot { it.name.contains("DISTINCT") }
                 .joinToString(",\n") { select ->
-                  val key = (select.alias ?: select.name).replace("`", "'")
+                  val key = (select.alias ?: select.name).replace("`", "\"")
                   val value = select.alias ?: select.name
                   "  $key, $value"
                 }
@@ -646,7 +646,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
-      for (join in addWhereConceptJoin(currentTable)) {
+      for (join in addWhereConceptJoin(currentTable, field)) {
         if (with.joins?.contains(join) == false)
           with.joins?.add(join)
       }
@@ -703,14 +703,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "${nodeRef}.${property}"
   }
 
-  private fun addWhereConceptJoin(table: Table): MutableList<MySQLJoin> {
+  private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
     val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
         tableTo = conceptTable,
-        tableToAlias = "concept_property"
+        tableToAlias = "concept_property",
+        fromField = fromField,
+        toField = "dbid"
       )
     )
 
@@ -804,9 +806,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    val table = IMtoMySQLMap.getTableFromDataModel(typeIri) ?: throw SQLConversionException(
-      "Type $typeIri not found in table map"
-    )
+    val table =
+      IMtoMySQLMap.getTableFromProperty(listOf(propertyIri))
+        ?: IMtoMySQLMap.getTableFromDataModel(
+          typeIri
+        ) ?: throw SQLConversionException(
+          "Type $typeIri not found in table map"
+        )
     return table
   }
 
@@ -886,7 +892,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     for (path in paths) {
       try {
-        val table = getTableFromTypeAndProperty(path.typeOf.iri, null)
+        val table = getTableFromTypeAndProperty(path.typeOf.iri, path.iri)
         table.alias = path.node
 
         if (firstTable == null) {
@@ -899,6 +905,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableToAlias = table.alias,
           tableFromAlias = parentTable.alias,
         )
+        if (table.condition != null) {
+          join.wheres.add(
+            MySQLPropertyValueWhere(
+              property = table.condition!!.field,
+              operator = "=",
+              value = table.condition!!.value
+            )
+          )
+        }
 
         tableMap[path.node] = table
         if (!joins.contains(join)) {

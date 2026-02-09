@@ -4,13 +4,15 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.endeavourhealth.imapi.casbin.CasbinEnforcer
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
-import org.endeavourhealth.imapi.logic.service.CasdoorService
-import org.endeavourhealth.imapi.logic.service.UserService
+import org.endeavourhealth.imapi.logic.service.SecurityService
+import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
+import org.endeavourhealth.imapi.model.primevue.FontSize
+import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
+import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -27,9 +29,7 @@ import org.springframework.web.context.annotation.RequestScope
 )
 @CrossOrigin(origins = ["*"])
 open class UserController(
-  private val userService: UserService,
-  private val casbinEnforcer: CasbinEnforcer,
-  private val casdoorService: CasdoorService
+  private val securityService: SecurityService
 ) {
   private val log = LoggerFactory.getLogger(UserController::class.java)
 
@@ -39,12 +39,18 @@ open class UserController(
     HttpStatus.ACCEPTED
   )
   @Throws(UserNotFoundException::class)
-  open fun updateUserPreset(request: HttpServletRequest, response: HttpServletResponse, @RequestBody preset: String) {
+  open fun updateUserPreset(
+    request: HttpServletRequest,
+    response: HttpServletResponse,
+    @RequestBody preset: String
+  ): User {
     MetricsHelper.recordTime("API.User.Preset.POST").use {
       log.debug("updateUserPreset")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserTheme(user, preset)
-      casdoorService.refreshToken(request, response)
+      val theme = PrimeVuePresetThemes.fromValue(preset)
+      requireNotNull(theme)
+      val user = securityService.getUser(request)
+      user.theme = theme
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -61,12 +67,14 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody color: String
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.PrimaryColor.POST").use {
       log.debug("updateUserPrimaryColor")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserPrimaryColor(user, color)
-      casdoorService.refreshToken(request, response)
+      val colorEnum = PrimeVueColors.fromValue(color)
+      requireNotNull(colorEnum)
+      val user = securityService.getUser(request)
+      user.primaryColor = colorEnum
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -81,12 +89,14 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody color: String
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.Surface.POST").use {
       log.debug("updateUserSurfaceColor")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserSurfaceColor(user, color)
-      casdoorService.refreshToken(request, response)
+      val colorEnum = PrimeVueColors.fromValue(color)
+      requireNotNull(colorEnum)
+      val user = securityService.getUser(request)
+      user.surfaceColor = colorEnum
+      return securityService.updateUser(request, user);
     }
   }
 
@@ -101,12 +111,12 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody darkMode: BooleanBody
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.DarkMode.POST").use {
       log.debug("updateUserDarkMode")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserDarkMode(user, darkMode.getBool())
-      casdoorService.refreshToken(request, response)
+      val user = securityService.getUser(request)
+      user.darkMode = darkMode.bool
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -123,12 +133,14 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody fontSize: String
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.FontSize.POST").use {
       log.debug("updateUserFontSize")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserFontSize(user, fontSize)
-      casdoorService.refreshToken(request, response)
+      val fontSizeEnum = FontSize.fromValue(fontSize)
+      requireNotNull(fontSizeEnum)
+      val user = securityService.getUser(request)
+      user.fontSize = fontSizeEnum
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -143,12 +155,12 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody recentActivity: List<RecentActivityItemDto>
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.RecentActivity.POST").use {
       log.debug("updateUserRecentActivity")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserRecentActivity(user, recentActivity)
-      casdoorService.refreshToken(request, response)
+      val user = securityService.getUser(request)
+      user.recentActivity = recentActivity
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -163,12 +175,12 @@ open class UserController(
     request: HttpServletRequest,
     response: HttpServletResponse,
     @RequestBody favourites: List<String>
-  ) {
+  ): User {
     MetricsHelper.recordTime("API.User.Favourites.POST").use {
       log.debug("updateUserFavourites")
-      val user = casdoorService.getCasdoorUser(request)
-      userService.updateUserFavourites(user, favourites)
-      casdoorService.refreshToken(request, response)
+      val user = securityService.getUser(request)
+      user.favourites = favourites
+      return securityService.updateUser(request, user)
     }
   }
 
@@ -183,27 +195,17 @@ open class UserController(
   )
   @Throws(Exception::class)
   open fun updateUserOrganisations(
+    request: HttpServletRequest,
     @RequestParam("UserId") userId: String,
     @RequestBody organisations: List<String>
   ) {
     MetricsHelper.recordTime("API.User.Organisations.POST").use {
       log.debug("updateUserOrganisations")
-      if (!casdoorService.userExists(userId)) throw GeneralCustomException("user not found", HttpStatus.BAD_REQUEST)
-      userService.updateUserOrganisations(userId, organisations)
-    }
-  }
-
-  @Operation(
-    summary = "User has edit access",
-    description = "Checks if the user has edit access."
-  )
-  @GetMapping(value = ["/editAccess"], produces = ["application/json"])
-  @Throws(UserNotFoundException::class)
-  open fun getEditAccess(request: HttpServletRequest, @RequestParam("iri") iri: String): Boolean {
-    MetricsHelper.recordTime("API.User.EditAccess.GET").use {
-      log.debug(("getEditAccess"))
-      val user = casdoorService.getUser(request)
-      return userService.getEditAccess(user, iri)
+      if (!securityService.userExists(userId, request)) throw GeneralCustomException(
+        "user not found",
+        HttpStatus.BAD_REQUEST
+      )
+      securityService.updateUserOrganisations(userId, organisations, request)
     }
   }
 

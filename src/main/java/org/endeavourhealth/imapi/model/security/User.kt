@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.casdoor
+package org.endeavourhealth.imapi.model.security
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
@@ -11,8 +11,7 @@ class User {
   var id: String = ""
   var username: String = ""
   var email: String = ""
-  var firstName: String = ""
-  var lastName: String = ""
+  var displayName: String = ""
   var password: String = ""
     set(value) {
       field = ""
@@ -22,7 +21,7 @@ class User {
   var groups: List<String> = mutableListOf()
   var theme: PrimeVuePresetThemes = PrimeVuePresetThemes.AURA
   var primaryColor: PrimeVueColors = PrimeVueColors.EMERALD
-  var secondaryColor: PrimeVueColors = PrimeVueColors.SLATE
+  var surfaceColor: PrimeVueColors = PrimeVueColors.SLATE
   var darkMode: Boolean = false
   var fontSize: FontSize = FontSize.MEDIUM
   var favourites: List<String> = mutableListOf()
@@ -32,10 +31,5 @@ class User {
   @JsonIgnore
   fun adminSetPassword(password: String) {
     this.password = password
-  }
-
-  // required for casbin
-  fun getRoleNames(): List<String> {
-    return this.roles.map { it.name }
   }
 }

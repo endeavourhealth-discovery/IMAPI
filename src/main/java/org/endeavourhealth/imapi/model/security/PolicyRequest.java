@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.casbin;
+package org.endeavourhealth.imapi.model.security;
 
 import lombok.Getter;
 import lombok.Setter;

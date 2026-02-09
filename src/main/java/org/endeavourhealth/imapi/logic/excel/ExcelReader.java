@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.excel;
 
 import org.apache.poi.ss.usermodel.*;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.springframework.stereotype.Component;
 
 import java.io.FileInputStream;

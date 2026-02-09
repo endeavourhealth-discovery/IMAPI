@@ -8,12 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.logic.service.CasdoorService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
-import org.endeavourhealth.imapi.model.workflow.*;
+import org.endeavourhealth.imapi.model.workflow.BugReport;
+import org.endeavourhealth.imapi.model.workflow.EntityApproval;
+import org.endeavourhealth.imapi.model.workflow.RoleRequest;
+import org.endeavourhealth.imapi.model.workflow.Task;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,14 +32,14 @@ import org.springframework.web.context.annotation.RequestScope;
 public class WorkflowController {
 
   private final WorkflowService workflowService = new WorkflowService();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   @Operation(summary = "Create Bug Report", description = "Endpoint to create a new bug report.")
   @PostMapping(value = "/createBugReport")
   public void createBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST")) {
       log.debug("createBugReport");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(user.getId());
       workflowService.createBugReport(bugReport);
     }
@@ -123,7 +126,7 @@ public class WorkflowController {
   @PostMapping(value = "/createRoleRequest")
   public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST")) {
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(user.getId());
       workflowService.createRoleRequest(roleRequest);
     }
@@ -169,55 +172,56 @@ public class WorkflowController {
     }
   }
 
-  @Operation(summary = "Create Graph Request", description = "Submit a graph request created by the user.")
-  @PostMapping(value = "/createGraphRequest")
-  public void createGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createGraphRequest.POST")) {
-      User user = casdoorService.getUser(request);
-      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(user.getId());
-      workflowService.createGraphRequest(graphRequest);
-    }
-  }
-
-  @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
-  @GetMapping(value = "/graphRequest", produces = "application/json")
-  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','READ')")
-  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
-      log.debug("getGraphRequest");
-      return workflowService.getGraphRequest(id);
-    }
-  }
-
-  @Operation(summary = "Update graph request", description = "Update a graph request workflow task")
-  @PostMapping(value = "/updateGraphRequest")
-  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','WRITE')")
-  public void updateGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateGraphRequest.POST")) {
-      log.debug("updateGraphRequest");
-      workflowService.updateGraphRequest(graphRequest, request);
-    }
-  }
-
-  @Operation(summary = "Approve graph request")
-  @PostMapping(value = "/approveGraphRequest")
-  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
-  public void approveGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveGraphRequest.POST")) {
-      log.debug("approveGraphRequest");
-      workflowService.approveGraphRequest(request, graphRequest);
-    }
-  }
-
-  @Operation(summary = "Reject graph request")
-  @PostMapping(value = "/rejectGraphRequest")
-  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
-  public void rejectGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectGraphRequest.POST")) {
-      log.debug("rejectGraphRequest");
-      workflowService.rejectGraphRequest(request, graphRequest);
-    }
-  }
+  // TODO update to organisations once organisation flow is confirmed
+//  @Operation(summary = "Create Graph Request", description = "Submit a graph request created by the user.")
+//  @PostMapping(value = "/createGraphRequest")
+//  public void createGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createGraphRequest.POST")) {
+//      User user = casdoorService.getUser(request);
+//      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(user.getId());
+//      workflowService.createGraphRequest(graphRequest);
+//    }
+//  }
+//
+//  @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
+//  @GetMapping(value = "/graphRequest", produces = "application/json")
+//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','READ')")
+//  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
+//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
+//      log.debug("getGraphRequest");
+//      return workflowService.getGraphRequest(id);
+//    }
+//  }
+//
+//  @Operation(summary = "Update graph request", description = "Update a graph request workflow task")
+//  @PostMapping(value = "/updateGraphRequest")
+//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','WRITE')")
+//  public void updateGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateGraphRequest.POST")) {
+//      log.debug("updateGraphRequest");
+//      workflowService.updateGraphRequest(graphRequest, request);
+//    }
+//  }
+//
+//  @Operation(summary = "Approve graph request")
+//  @PostMapping(value = "/approveGraphRequest")
+//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
+//  public void approveGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveGraphRequest.POST")) {
+//      log.debug("approveGraphRequest");
+//      workflowService.approveGraphRequest(request, graphRequest);
+//    }
+//  }
+//
+//  @Operation(summary = "Reject graph request")
+//  @PostMapping(value = "/rejectGraphRequest")
+//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
+//  public void rejectGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectGraphRequest.POST")) {
+//      log.debug("rejectGraphRequest");
+//      workflowService.rejectGraphRequest(request, graphRequest);
+//    }
+//  }
 
   @Operation(summary = "Create Entity Approval", description = "Submit an approval request for an entity.")
   @PostMapping(value = "/createEntityApproval")
@@ -225,7 +229,7 @@ public class WorkflowController {
   public void createEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST")) {
       log.debug("createEntityApproval");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(user.getId());
       workflowService.createEntityApproval(entityApproval);
     }
@@ -277,7 +281,7 @@ public class WorkflowController {
   public void updateTask(HttpServletRequest request, @RequestBody Task task) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateTask.POST")) {
       log.debug("updateTask");
-      User user = casdoorService.getUser(request);
+      User user = securityService.getUser(request);
       workflowService.updateTask(task, user.getId());
     }
   }

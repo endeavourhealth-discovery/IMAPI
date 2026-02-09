@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.casdoor.User;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -26,8 +26,7 @@ public class FunctionService {
   public static final String ENTITY_IRI = "entityIri";
   public static final String NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY = "No entity iri where in request body";
   private final EntityService entityService = new EntityService();
-  private final UserService userService = new UserService();
-  private final CasdoorService casdoorService = new CasdoorService();
+  private final SecurityService securityService = new SecurityService();
 
   public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
     return switch (IM_FUNCTION.from(iri)) {
@@ -129,7 +128,7 @@ public class FunctionService {
 
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
-    User user = casdoorService.getUser(request);
+    User user = securityService.getUser(request);
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> user.getOrganisations().stream().anyMatch(o -> o.equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);

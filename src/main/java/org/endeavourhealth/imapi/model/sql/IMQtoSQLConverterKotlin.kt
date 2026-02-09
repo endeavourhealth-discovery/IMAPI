@@ -62,8 +62,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) addIsWiths(definition, newMySqlQuery)
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
-          newMySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
-          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
+          newMySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
+          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "patient_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = buildString {
@@ -85,7 +85,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        mySqlQuery.selects.add(MySQLSelect($$"$hashcode", "hashcode"))
+        mySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
         mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "id"))
         mySqlQuery.insert = MySQLInsert("cohort")
       }
@@ -96,7 +96,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
     val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
-      val isAlias = match.node ?: getCteAliasFromTypeAndProperty(isA.iri, null)
+      val isAlias = match.node ?: "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
       val with = getIsWith(isA, isAlias, mySQLQuery)
       if (isA.isExclude || not == true) {
         val (with, join) = getIsExcludeWith(isA, isAlias, mySQLQuery)
@@ -120,15 +120,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
           fromProperty = "id",
           toProperty = "id",
-          wheres = mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null))
+          wheres = mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null))
         )
       )
     }
     return MySQLWith(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
-      if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)) else null,
-      mutableListOf(MySQLSelect("id"), MySQLSelect("hashCode")),
+      if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)) else null,
+      mutableListOf(MySQLSelect("id"), MySQLSelect("hash")),
       withJoins.ifEmpty { null },
       Bool.and,
     )
@@ -138,8 +138,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val with = MySQLWith(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
-      mutableListOf(MySQLPropertyValueWhere("hashCode", "=", isA.iri, null, null)),
-      mutableListOf(MySQLSelect("id"), MySQLSelect("hashCode")),
+      mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)),
+      mutableListOf(MySQLSelect("id"), MySQLSelect("hash")),
       null,
       Bool.and,
       exclude = true
@@ -714,12 +714,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
 
-    val conceptMemberTable = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "Member", null)
+    val conceptTCT = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "TCT", null)
     joins.add(
       conceptTable.getJoinCondition(
         tableFrom = conceptTable,
         tableFromAlias = "concept_property",
-        tableTo = conceptMemberTable,
+        tableTo = conceptTCT,
       )
     )
     return joins

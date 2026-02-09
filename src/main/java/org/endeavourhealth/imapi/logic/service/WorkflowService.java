@@ -1,30 +1,31 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
-import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Objects;
 
 @Component
 public class WorkflowService {
   private final WorkflowRepository workflowRepository = new WorkflowRepository();
   private final SecurityService securityService = new SecurityService();
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     bugReport.setId(generateId());
@@ -119,41 +120,40 @@ public class WorkflowService {
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
-  // TODO needs changed to organisation request once organisation flow is finalised
-//  public void createGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
-//    graphRequest.setId(generateId());
-//    workflowRepository.createGraphRequest(graphRequest);
-//  }
-//
-//  public GraphRequest getGraphRequest(String id) throws UserNotFoundException {
-//    return workflowRepository.getGraphRequest(id);
-//  }
-//
-//  public void updateGraphRequest(GraphRequest graphRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-//    User user = casdoorService.getUser(request);
-//    if (!user.getUsername().equals(graphRequest.getCreatedBy()))
-//      throw new TaskFilerException("User does not have permission to update graph request");
-//    GraphRequest originalGraphRequest = getGraphRequest(graphRequest.getId().getIri());
-//    if (!originalGraphRequest.getGraph().equals(graphRequest.getGraph()))
-//      workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.REQUESTED_GRAPH, originalGraphRequest.getGraph().toString(), graphRequest.getGraph().toString(), user.getId());
-//    updateTask(graphRequest, user.getId());
-//  }
-//
-//  public void approveGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-//    User user = casdoorService.getUser(request);
-//    List<String> graphs = user.getOrganisations();
-//    if (!graphs.contains(graphRequest.getGraph().toString())) {
-//      graphs.add(graphRequest.getGraph().toString());
-//      userService.updateUserOrganisations(user.getId(), graphs);
-//    }
-//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
-//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
-//  }
-//
-//  public void rejectGraphRequest(HttpServletRequest request, GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-//    User user = casdoorService.getUser(request);
-//    workflowRepository.update(graphRequest.getId().getIri(), WORKFLOW.STATE, graphRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
-//  }
+  public void createNamespaceRequest(NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException {
+    namespaceRequest.setId(generateId());
+    workflowRepository.createNamespaceRequest(namespaceRequest);
+  }
+
+  public NamespaceRequest getNamespaceRequest(String id) throws UserNotFoundException, JsonProcessingException {
+    return workflowRepository.getNamespaceRequest(id);
+  }
+
+  public void updateNamespaceRequest(NamespaceRequest namespaceRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = securityService.getUser(request);
+    if (!user.getUsername().equals(namespaceRequest.getCreatedBy()))
+      throw new TaskFilerException("User does not have permission to update namespace request");
+    NamespaceRequest originalNamespaceRequest = getNamespaceRequest(namespaceRequest.getId().getIri());
+    if (!originalNamespaceRequest.getNamespacePermission().getIri().equals(namespaceRequest.getNamespacePermission().getIri()) || !originalNamespaceRequest.getNamespacePermission().isRead() == namespaceRequest.getNamespacePermission().isRead() || !originalNamespaceRequest.getNamespacePermission().isWrite() == namespaceRequest.getNamespacePermission().isWrite())
+      workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.REQUESTED_NAMESPACE, objectMapper.writeValueAsString(originalNamespaceRequest.getNamespacePermission()), objectMapper.writeValueAsString(namespaceRequest.getNamespacePermission()), user.getId());
+    updateTask(namespaceRequest, user.getId());
+  }
+
+  public void approveNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = securityService.getUser(request);
+    List<NamespacePermission> namespaces = user.getNamespaces();
+    if (!namespaces.contains(namespaceRequest.getNamespacePermission())) {
+      namespaces.add(namespaceRequest.getNamespacePermission());
+      securityService.updateUserNamespaces(user.getId(), namespaces, request);
+    }
+    workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, namespaceRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
+    workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
+  }
+
+  public void rejectNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    User user = securityService.getUser(request);
+    workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, namespaceRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
+  }
 
   public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
     entityApproval.setId(generateId());

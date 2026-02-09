@@ -1904,8 +1904,8 @@
         "value": "Namespace.WORKFLOW + \"requestedRole\""
       },
       {
-        "name": "REQUESTED_GRAPH",
-        "value": "Namespace.WORKFLOW + \"requestedGraph\""
+        "name": "REQUESTED_NAMESPACE",
+        "value": "Namespace.WORKFLOW + \"requestedNamespace\""
       },
       {
         "name": "APPROVAL_TYPE",

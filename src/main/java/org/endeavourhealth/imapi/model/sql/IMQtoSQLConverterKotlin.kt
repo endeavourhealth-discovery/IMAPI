@@ -118,8 +118,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           "JOIN",
           tableFrom = "cohort",
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
-          fromProperty = "id",
-          toProperty = "id",
+          fromProperty = "cohort_id",
+          toProperty = "cohort_id",
           wheres = mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null))
         )
       )
@@ -128,7 +128,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
       if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)) else null,
-      mutableListOf(MySQLSelect("id"), MySQLSelect("hash")),
+      mutableListOf(MySQLSelect("cohort_id"), MySQLSelect("hash")),
       withJoins.ifEmpty { null },
       Bool.and,
     )
@@ -149,10 +149,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       "LEFT JOIN",
       tableFrom = mySqlQuery.withs.last().alias,
       tableTo = with.alias,
-      fromProperty = "id",
-      toProperty = "id",
+      fromProperty = "cohort_id",
+      toProperty = "cohort_id",
       wheres = mutableListOf(
-        MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL", null, null)
+        MySQLPropertyValueWhere("${with.alias}.cohort_id", "IS", "NULL", null, null)
       )
     )
     return Pair(with, join)

@@ -193,7 +193,7 @@ public class IMQToIML extends QueryDescriptor{
     for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
       boolIndex++;
       if (matches != null) {
-        clause.append(convertMatches(matches, boolIndex == 1 ? Bool.and : boolIndex == 2 ? Bool.or : Bool.not));
+        clause.append(convertMatches(matches, boolIndex == 1 ? Bool.and : Bool.or));
       }
     }
     return clause.toString();
@@ -208,11 +208,13 @@ public class IMQToIML extends QueryDescriptor{
       if (match.getAnd()!=null||match.getOr()!=null)
         hasNested= true;
       if (index==0){
-        clause.append(operator==Bool.or ? "Either ": operator==Bool.not ? "Exclude ": "and ");
+        clause.append(operator== Bool.or ? "Either ": "and ");
       }
       else {
-        clause.append(operator== Bool.not ?"Exclude ":operator==Bool.and ?" and ":"or ").append(" ");
+        clause.append(operator== Bool.and ?" and ":"or ").append(" ");
       }
+      if (match.isNotExists())
+        clause.append("Exclude if ");
       if (hasNested) {
         clause.append("(\n>>\n");
       }
@@ -413,14 +415,14 @@ public class IMQToIML extends QueryDescriptor{
     return clause.toString();
   }
 
-  private String convertWheres(List<Where> wheres, Bool operator,String nodeRef,String from) throws QueryException {
+  private String convertWheres(List<Where> wheres, Bool operator, String nodeRef, String from) throws QueryException {
     StringBuilder clause= new StringBuilder();
     for (int index = 0; index < wheres.size(); index++) {
       Where where = wheres.get(index);
       if (index==0)
-        clause.append(operator==Bool.or ? "either " : "");
+        clause.append(operator== Bool.or ? "either " : "");
       else
-        clause.append(operator==Bool.or ? "or " : "and ");
+        clause.append(operator== Bool.or ? "or " : "and ");
       if (where.getAnd()!=null||where.getOr()!=null){
         clause.append("( ");
       }

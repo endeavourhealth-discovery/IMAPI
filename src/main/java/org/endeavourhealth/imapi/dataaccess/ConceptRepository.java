@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
@@ -74,13 +75,15 @@ public class ConceptRepository {
 
   public Set<String> getPropertiesForDomains(Set<String> iris) {
     Set<String> properties = new HashSet<>();
-    String sql = """
-      select distinct ?property
-      where {
-        VALUES ?domains {%s}
-        ?domains im:isA ?superDomains.
-        ?property rdfs:domain ?superDomains
-      }
+    String sql= """
+      SELECT distinct ?property
+            WHERE {
+              Values ?parentConcept {%s}
+               ?concept im:isA ?parentConcept.
+               ?concept im:roleGroup ?group.
+               ?group ?property ?value.
+               filter (?property!=im:groupNumber)
+               ?property rdf:type rdf:Property.}
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -211,4 +214,5 @@ public class ConceptRepository {
     }
     return null;
   }
+
 }

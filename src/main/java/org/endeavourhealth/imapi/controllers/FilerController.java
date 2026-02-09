@@ -8,19 +8,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.FilerService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
-import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.FileDocumentRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -28,7 +32,6 @@ import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.http.*;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,10 +42,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -63,11 +63,11 @@ public class FilerController {
   private final SecurityService securityService = new SecurityService();
 
   @PostMapping("file/document")
-  @PreAuthorize("@guard.hasPermission('DOCUMENT','WRITE')")
   @Operation(summary = "Files a document and returns the task ID.")
   public ResponseEntity<Map<String, String>> fileDocument(@RequestBody FileDocumentRequest fileDocumentRequest, HttpServletRequest request) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Document.POST")) {
       log.debug("fileDocument");
+      securityService.requiresPermission(new Permission(Resource.DOCUMENT, List.of(UserRole.EDITOR), List.of(new NamespacePermission(fileDocumentRequest.getInsertNamespace(), true, true))), request);
       User user = securityService.getUser(request);
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
@@ -87,9 +87,10 @@ public class FilerController {
   }
 
   @GetMapping("file/document/{taskId}")
-  @PreAuthorize("@guard.hasPermission('DOCUMENT','WRITE')")
   @Operation(summary = "Retrieves the progress of a document file operation.")
   public ResponseEntity<Map<String, Integer>> getProgress(@PathVariable("taskId") String taskId, HttpServletRequest request) throws UserAuthorisationException {
+    log.debug("getProgress");
+    securityService.requiresPermission(new Permission(Resource.DOCUMENT, List.of(UserRole.EDITOR), List.of()), request);
     Integer progress = filerService.getTaskProgress(taskId);
     Map<String, Integer> response = new HashMap<>();
     response.put("progress", progress);
@@ -97,15 +98,14 @@ public class FilerController {
   }
 
   @PostMapping("file/entity")
-  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
   @Operation(summary = "Files an entity with specified graph and CRUD operation.")
   public ResponseEntity<Void> fileEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.File.Entity.POST")) {
       log.debug("fileEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
       User user = securityService.getUser(request);
       TTEntity usedEntity = null;
       TTEntity entity = editRequest.getEntity();
-      Graph filingGraph = editRequest.getGraph();
       String crud = editRequest.getCrud();
       if (entityService.iriExists(entity.getIri())) {
         usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
@@ -113,29 +113,23 @@ public class FilerController {
       }
 
       if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
-
-      if (!filerService.userCanFile(user, filingGraph))
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
       return ResponseEntity.ok().build();
     }
   }
 
   @PostMapping("folder/move")
-  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Moves an entity from one folder to another.")
   public ResponseEntity<ProblemDetailResponse> moveFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "oldFolder") String oldFolderIri,
     @RequestParam(name = "newFolder") String newFolderIri,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
     HttpServletRequest request
   ) throws Exception {
-    Graph filingGraph = Graph.from(graphString);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
-
+      securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.EDITOR), List.of(new NamespacePermission(namespace, true, true))), request);
 
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "One of the IRIs does not exist");
@@ -176,18 +170,16 @@ public class FilerController {
   }
 
   @PostMapping("folder/add")
-  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Adds an entity to a specified folder.")
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
-      Graph filingGraph = Graph.from(graphString);
-
+      securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.EDITOR), List.of(new NamespacePermission(namespace, true, true))), request);
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
       }
@@ -211,16 +203,14 @@ public class FilerController {
   }
 
   @PostMapping("folder/create")
-  @PreAuthorize("@guard.hasPermission('FOLDER','WRITE')")
   @Operation(summary = "Creates a new folder within a specified container.")
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graphString,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
     HttpServletRequest request
   ) throws Exception {
-    Graph filingGraph = Graph.from(graphString);
-
+    securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.CREATOR), List.of(new NamespacePermission(namespace, true, true))), request);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");
       if (name.isBlank()) {
@@ -272,11 +262,11 @@ public class FilerController {
   }
 
   @GetMapping("deltas/download")
-  @PreAuthorize("@guard.hasPermission('DELTA','READ')")
   @Operation(summary = "Downloads deltas as a zip file.")
   public HttpEntity<Object> downloadDeltas(HttpServletRequest request) throws NullPointerException, IOException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Deltas.Download.GET")) {
       log.debug("downloadDeltas");
+      securityService.requiresPermission(new Permission(Resource.DELTA, List.of(UserRole.ADMIN), List.of()), request);
       HttpHeaders headers = new HttpHeaders();
 
       // Collect files into Zip

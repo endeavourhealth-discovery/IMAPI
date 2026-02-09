@@ -10,28 +10,31 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
-import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
-import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -60,6 +63,19 @@ public class SetController {
   private final SecurityService securityService = new SecurityService();
 
   @GetMapping(value = "/protected/members")
+  @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
+  public void publish(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri
+  ) throws IOException, QueryException, UserAuthorisationException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
+      log.debug("publish {}", iri);
+      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.PUBLISHER), List.of()), request);
+      setService.publishSetToIM1(iri);
+    }
+  }
+
+  @GetMapping(value = "/private/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
     HttpServletRequest request,
@@ -82,7 +98,7 @@ public class SetController {
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembersFromQuery(
     HttpServletRequest request,
-    @RequestBody EclSearchRequest eclRequest
+    @RequestBody ECLQueryRequest eclRequest
   ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
       log.debug("getMembersFromQuery");
@@ -186,13 +202,13 @@ public class SetController {
     }
   }
   @PostMapping(value = "/private/updateSubsetsFromSuper")
-  @PreAuthorize("@guard.hasPermission('SET','WRITE')")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
+      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
       User user = securityService.getUser(request);
-      setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getGraph());
+      setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getNamespace());
     }
   }
 }

@@ -19,6 +19,7 @@ public class Return {
   private String nodeRef;
   private String name;
   private String propertyRef;
+  private String pathRef;
   private boolean inverse;
   private FunctionClause function;
   private String unit;
@@ -28,6 +29,15 @@ public class Return {
   @JsonProperty("case")
   private Case case_;
   private String description;
+
+  public String getPathRef() {
+    return pathRef;
+  }
+
+  public Return setPathRef(String pathRef) {
+    this.pathRef = pathRef;
+    return this;
+  }
 
   public Return setName(String name) {
     this.name = name;

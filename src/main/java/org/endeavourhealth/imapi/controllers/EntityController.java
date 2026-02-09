@@ -17,9 +17,6 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
-import org.endeavourhealth.imapi.model.security.Action;
-import org.endeavourhealth.imapi.model.security.Resource;
-import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
@@ -32,10 +29,15 @@ import org.endeavourhealth.imapi.model.requests.ValidatedEntitiesRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.IriExtractor;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -44,7 +46,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -98,7 +99,6 @@ public class EntityController {
 
   @GetMapping(value = "/protected/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
@@ -108,7 +108,6 @@ public class EntityController {
 
   @GetMapping(value = "/protected/entityTypes", produces = "application/json")
   @Operation(summary = "Get entity type", description = "Fetches entity types using IRI")
-  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public Set<String> getEntityType(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getEntityTypes");
@@ -261,11 +260,10 @@ public class EntityController {
 
   @PostMapping(value = "/protected/create")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
   public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      securityService.enforceWithError(Resource.ENTITY, Action.WRITE, request);
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
       User user = securityService.getUser(request);
       return filerService.createEntity(editRequest, user.getUsername());
     }
@@ -274,20 +272,21 @@ public class EntityController {
 
   @GetMapping(value = "/protected/checkExists")
   @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  @PreAuthorize("@guard.hasPermission('ENTITY','READ')")
   public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
+      org.endeavourhealth.imapi.vocabulary.Namespace namespace = org.endeavourhealth.imapi.vocabulary.Namespace.from(iri.substring(0, iri.indexOf("#") + 1));
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
       return entityService.checkEntityExists(iri);
     }
   }
 
   @PostMapping(value = "/protected/update")
-  @PreAuthorize("@guard.hasPermission('ENTITY','WRITE')")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
       User user = securityService.getUser(request);
       return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
     }

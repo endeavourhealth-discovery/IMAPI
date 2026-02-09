@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.QUERY;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -147,19 +148,28 @@ public class SearchService {
   }
 
 
-  private List<String> getIMResults(QueryRepository repo,QueryRequest queryRequest) {
+  private List<String> getIMResults(QueryRepository repo,QueryRequest queryRequest) throws QueryException {
     Query query= queryRequest.getQuery();
     String imQuery= query.getImQuery();
-    if (imQuery.equals(QUERY.ALLOWABLE_PROPERTIES.toString())){
-      return repo.getSubtypeProperties(queryRequest.getArgument().stream().findFirst().get().getValueIriList());
+    if (imQuery!=null) {
+      QueryRequest request= new QueryRequest();
+      request.setQuery(new Query().setIri(imQuery));
+      request.setArgument(queryRequest.getArgument());
+      ObjectMapper om = new ObjectMapper();
+      repo.unpackQueryRequest(request, om.createObjectNode());
+      JsonNode results=repo.queryIM(request,false);
+      if (results!=null& results.get(ENTITIES)!=null){
+        List<String> iriResults= new ArrayList<>();
+        for (JsonNode entity : results.get(ENTITIES)) {
+          if (entity.has("iri")) iriResults.add(entity.get("iri").asText());
+        }
+        return iriResults;
+      }
+      return null;
     }
     else return null;
   }
 
-  public void validateQueryRequest(QueryRequest queryRequest) throws QueryException {
-    if (queryRequest.getQuery() == null && queryRequest.getPathQuery() == null)
-      throw new QueryException("Query request must have a Query or an Query object with an iri or a pathQuery");
-  }
 
   /**
    * Performs a search on a submitted term looking for name, synonyms, or code, with filters applied

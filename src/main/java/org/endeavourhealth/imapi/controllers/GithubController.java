@@ -2,13 +2,17 @@ package org.endeavourhealth.imapi.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.GithubService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -23,7 +27,8 @@ import java.util.List;
 @Slf4j
 public class GithubController {
 
-  final GithubService githubService = new GithubService();
+  private final GithubService githubService = new GithubService();
+  private final SecurityService securityService = new SecurityService();
 
   @Operation(summary = "Retrieve the latest GitHub release", description = "Gets the latest release information from the GitHub repository.")
   @GetMapping(value = "/public/githubLatest")
@@ -45,10 +50,10 @@ public class GithubController {
 
   @Operation(summary = "Update GitHub configuration", description = "Triggers an update to the GitHub repository configuration.")
   @PostMapping(value = "/private/updateGithubConfig")
-  @PreAuthorize("@guard.hasPermission('GITHUB','WRITE')")
-  public void updateGithubConfig() throws IOException, InterruptedException {
+  public void updateGithubConfig(HttpServletRequest request) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");
+      securityService.requiresPermission(new Permission(Resource.GITHUB, List.of(UserRole.ADMIN), List.of()), request);
       githubService.updateGithubConfig();
     }
   }

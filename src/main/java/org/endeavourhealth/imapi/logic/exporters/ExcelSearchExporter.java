@@ -8,8 +8,8 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
@@ -49,7 +49,7 @@ public class ExcelSearchExporter {
       queryRequest.setPage(new Page().setPageNumber(1).setPageSize(downloadByQueryOptions.getTotalCount()));
       searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest());
     } else if (null != downloadByQueryOptions.getEclSearchRequest()) {
-      EclSearchRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
+      ECLQueryRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
       eclSearchRequest.setPage(1);
       eclSearchRequest.setSize(downloadByQueryOptions.getTotalCount());
       searchResponse = eclService.eclSearch(eclSearchRequest);

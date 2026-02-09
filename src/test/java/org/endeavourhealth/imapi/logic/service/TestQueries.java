@@ -6,7 +6,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -263,6 +265,19 @@ public class TestQueries {
       );
   }
 
+
+  public static QueryRequest entityFilter(Set<String> entities) {
+    return new QueryRequest()
+      .setTextSearch("has active")
+    .addArgument(new Argument()
+        .setParameter("entities")
+        .setValueIriList(entities.stream().map(TTIriRef::iri).collect(Collectors.toSet())))
+      .setQuery(new Query()
+        .setName("Allowable Properties for medications")
+        .setIri(QUERY.ENTITY_FILTER.toString())
+      );
+  }
+
   public static QueryRequest isValidProperty() {
     return new QueryRequest().
       addArgument(new Argument()
@@ -275,6 +290,8 @@ public class TestQueries {
         .setName("Allowable Properties for medications")
         .setIri(QUERY.IS_VALID_PROPERTY.toString()));
   }
+
+
 
 
   public static QueryRequest getConcepts() {

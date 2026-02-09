@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,7 @@ public class EclModelServiceTest {
   @Test
   @Disabled
   void getEcl_NotNullInferred() throws QueryException {
-    String actual = eclService.getEcl(new EclSearchRequest());
+    String actual = eclService.getEcl(new ECLQueryRequest());
     assertNotNull(actual);
   }
 

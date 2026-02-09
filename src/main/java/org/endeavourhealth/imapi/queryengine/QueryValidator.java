@@ -7,7 +7,6 @@ import java.util.*;
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
   private final Map<String, Map<String, Set<String>>> pathMap = new HashMap<>();
-  private final Map<String, Map<String, String>> propertyMap = new HashMap<>();
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
@@ -68,6 +67,8 @@ public class QueryValidator {
     }
     else {
       Node first= is.getFirst();
+      if (first.getNode()!=null)
+        variables.put(first.getNode(), VarType.NODE);
       if
       (first.getMatch()!=null){
         processMatch(first.getMatch());
@@ -76,8 +77,11 @@ public class QueryValidator {
   }
 
   private void processPath(Path pathMatch) {
-    if (pathMatch.getNode() != null) {
-      variables.put(pathMatch.getNode(), VarType.PATH);
+    if (pathMatch.getPathVariable() != null) {
+      variables.put(pathMatch.getPathVariable(), VarType.PATH);
+    }
+    if (pathMatch.getNode()!=null){
+      variables.put(pathMatch.getNode(), VarType.NODE);
     }
     if (pathMatch.getPath() != null) {
       for (Path subPath : pathMatch.getPath()) {
@@ -144,11 +148,11 @@ public class QueryValidator {
   }
 
   private void validatePath(Path path) {
-    if (path.getNode() == null) {
-      o++;
-      path.setNode("path" + o);
+    if (path.getPathVariable() != null) {
+      variables.put(path.getPathVariable(), VarType.PATH);
     }
-    variables.put(path.getNode(), VarType.PATH);
+    if (path.getNode()!=null)
+      variables.put(path.getNode(), VarType.NODE);
     if (path.getPath() != null) {
       for (Path subPath : path.getPath()) {
         validatePath(subPath);
@@ -158,32 +162,23 @@ public class QueryValidator {
 
 
   private void validateWhere(Where where, String subject) throws QueryException {
-    if (where.getNode() != null)
-      variables.put(where.getNode(), VarType.PATH);
+    if (where.getAnd() != null||where.getOr()!=null){
+      for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+        if (wheres != null) {
+          for (Where property : wheres) {
+            validateWhere(property, subject);
+          }
+        }
+      }
+      return;
+    }
+    if (where.getPropertyVariable() != null)
+      variables.put(where.getPropertyVariable(), VarType.PATH);
     if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null&&where.getPropertyVariable()==null)
       throw new QueryException("Where clause has no where iri  (set iri to where iri) ir a parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))
       throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
 
-    if (where.getNode() != null)
-      variables.put(where.getNode(), VarType.NODE);
-    if (where.getPropertyVariable()!=null)
-      variables.put(where.getPropertyVariable(), VarType.PATH);
-    String object = where.getNode();
-    if (object == null) {
-      o++;
-      object = "o" + o;
-      where.setNode(object);
-    }
-    propertyMap.computeIfAbsent(subject, s -> new HashMap<>())
-      .put(where.getIri(), object);
-    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
-      if (wheres != null) {
-        for (Where property : wheres) {
-          validateWhere(property, subject);
-        }
-      }
-    }
   }
 
 }

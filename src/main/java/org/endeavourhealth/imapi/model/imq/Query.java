@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -27,35 +28,47 @@ public class Query extends Match {
 
   @Getter
   private String bindAs;
+  private IMQType queryType;
 
-  public Query setStep(List<Match> step){
+  public Query setQueryType() {
+    this.queryType = this.columnGroup == null ? IMQType.COHORT : IMQType.DATASET;
+    return this;
+  }
+
+  public IMQType getQueryType() {
+    return queryType;
+  }
+
+  public Query setStep(List<Match> step) {
     super.setStep(step);
     return this;
   }
-  public Query step(Consumer<Match> builder){
+
+  public Query step(Consumer<Match> builder) {
     Match match = new Match();
     addStep(match);
     builder.accept(match);
     return this;
   }
 
-  public Query addStep(Match step){
+  public Query addStep(Match step) {
     super.addStep(step);
     return this;
   }
 
-  public Query setUnion(List<Match> union){
+  public Query setUnion(List<Match> union) {
     super.setUnion(union);
     return this;
   }
-  public Query union(Consumer<Match> builder){
+
+  public Query union(Consumer<Match> builder) {
     Match match = new Match();
     addUnion(match);
     builder.accept(match);
     return this;
   }
 
-  public Query addUnion(Match union){
+  public Query addUnion(Match union) {
     super.addUnion(union);
     return this;
   }
@@ -64,7 +77,6 @@ public class Query extends Match {
     super.setParameter(parameter);
     return this;
   }
-
 
 
   public Query setBindAs(String bindAs) {
@@ -99,7 +111,6 @@ public class Query extends Match {
     builder.accept(match);
     return this;
   }
-
 
 
   public Query addIs(Node is) {

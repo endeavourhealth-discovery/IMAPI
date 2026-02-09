@@ -50,6 +50,7 @@ public class QueryService {
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
+
   public String getSQLFromIMQIri(String queryIri, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
@@ -75,8 +76,10 @@ public class QueryService {
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     if (query == null) return null;
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
-    return new QueryRequest().setQuery(query).setLanguage(queryRequest.getLanguage()).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
+    query.setQueryType();
+    return new QueryRequest().setQuery(query).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
+
   public Query getDefaultQuery() throws JsonProcessingException {
     List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
     if (children.isEmpty()) {
@@ -111,6 +114,7 @@ public class QueryService {
     }
     return null;
   }
+
   public Query flattenQuery(Query query) {
     LogicOptimizer.optimizeQuery(query);
     return query;
@@ -215,7 +219,6 @@ public class QueryService {
   }
 
 
-
   private void getNodeRefs(Where where, Set<String> nodeRefs) {
     if (where.getNodeRef() != null) {
       nodeRefs.add(where.getNodeRef());
@@ -253,7 +256,7 @@ public class QueryService {
       indicator.setnumerator(entity.get(IM.NUMERATOR).asIriRef());
     }
     if (entity.get(IM.HAS_DATASET) != null) {
-      indicator.setDataset(entity.get(IM.HAS_DATASET).asIriRef());;
+      indicator.setDataset(entity.get(IM.HAS_DATASET).asIriRef());
     }
     if (entity.get(IM.IS_SUBINDICATOR_OF) != null) {
       indicator.setIsSubIndicatorOf(entity.get(IM.IS_SUBINDICATOR_OF).getElements()

@@ -9,27 +9,44 @@ import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.Set;
 
 class SearchServiceTest {
 
   EntityService entityService = new EntityService();
   private String succinctDefinitions;
+//@Test
+  void os() throws QueryException, OpenSearchException {
+  Set<String> entities= getResults(TestQueries.getAllowableProperties());
+  QueryRequest osSearch= TestQueries.entityFilter(entities);
+  SearchResponse results= new SearchService().queryIMSearch(osSearch);
+  System.out.println(results.getEntities().size());
 
+
+}
   //@Test
   void imq() throws Exception {
+    output(TestQueries.getAllowableProperties());
+    /*
+    ask(TestQueries.isValidProperty());
+
+
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.subtypesParameterised());
     output(TestQueries.dataModelPropertyRange());
     output(TestQueries.getAllowableSubtypes());
-    ask(TestQueries.isValidProperty());
+
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getAllowableProperties());
     output(TestQueries.pathQuery());
@@ -38,12 +55,30 @@ class SearchServiceTest {
     output(TestQueries.deleteSets());
     output(TestQueries.substanceTextSearch());
     output(TestQueries.oralNsaids());
-    output(TestQueries.getAllowableProperties());
+
     output(TestQueries.getIsas());
     output(TestQueries.getConcepts());
     output(TestQueries.query4());
 
+     */
 
+
+  }
+  private Set<String> getResults(QueryRequest request) throws OpenSearchException, QueryException {
+    SearchService searchService = new SearchService();
+    JsonNode results = searchService.queryIM(request);
+    Set<String> iris = new HashSet<>();
+    JsonNode entities = results.get("entities");
+
+    if (entities != null && entities.isArray()) {
+      for (JsonNode entity : entities) {
+        JsonNode iriNode = entity.get("iri");
+        if (iriNode != null && iriNode.isTextual()) {
+          iris.add(iriNode.asText());
+        }
+      }
+    }
+    return iris;
   }
 
   private void output(QueryRequest dataSet) throws IOException, OpenSearchException, QueryException {

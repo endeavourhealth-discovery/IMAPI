@@ -393,18 +393,18 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitAncestororselfof(IMECLParser.AncestororselfofContext ctx) {
-    return new Node().setAncestorsOrSelfOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
   @Override
   public Object visitParentof(IMECLParser.ParentofContext ctx) {
-    return new Node().setParentOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
 
   @Override
   public Object visitParentorselfof(IMECLParser.ParentorselfofContext ctx) {
-    return new Node().setParentOrSelfOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
   @Override
@@ -549,8 +549,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             where.setDescendantsOrSelfOf(node.isDescendantsOrSelfOf());
             where.setChildOf(node.isChildOf());
             where.setChildOrSelfOf(node.isChildOrSelfOf());
-            where.setParentOf(node.isParentOf());
-            where.setParentOrSelfOf(node.isParentOrSelfOf());
+            where.setAncestorsOf(node.isAncestorsOf());
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {

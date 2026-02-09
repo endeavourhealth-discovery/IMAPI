@@ -18,7 +18,7 @@ class User {
     }
   var avatar: String = ""
   var roles: List<UserRole> = mutableListOf()
-  var groups: List<String> = mutableListOf()
+  var organisations: List<String> = mutableListOf()
   var theme: PrimeVuePresetThemes = PrimeVuePresetThemes.AURA
   var primaryColor: PrimeVueColors = PrimeVueColors.EMERALD
   var surfaceColor: PrimeVueColors = PrimeVueColors.SLATE
@@ -26,7 +26,7 @@ class User {
   var fontSize: FontSize = FontSize.MEDIUM
   var favourites: List<String> = mutableListOf()
   var recentActivity: List<RecentActivityItemDto> = mutableListOf()
-  var organisations: List<String> = mutableListOf()
+  var namespaces: List<NamespacePermission> = mutableListOf()
 
   @JsonIgnore
   fun adminSetPassword(password: String) {

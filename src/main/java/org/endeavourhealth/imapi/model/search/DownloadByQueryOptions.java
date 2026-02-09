@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.model.search;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 @Getter
 public class DownloadByQueryOptions {
   private QueryRequest queryRequest;
-  private EclSearchRequest eclSearchRequest;
+  private ECLQueryRequest eclSearchRequest;
   private int totalCount;
   private String format;
   private boolean includeDefinition;
@@ -22,7 +22,7 @@ public class DownloadByQueryOptions {
     return this;
   }
 
-  public DownloadByQueryOptions setEclSearchRequest(EclSearchRequest eclSearchRequest) {
+  public DownloadByQueryOptions setEclSearchRequest(ECLQueryRequest eclSearchRequest) {
     this.eclSearchRequest = eclSearchRequest;
     return this;
   }

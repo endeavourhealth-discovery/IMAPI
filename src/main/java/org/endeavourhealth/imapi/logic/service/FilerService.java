@@ -236,7 +236,7 @@ public class FilerService {
   }
 
   public boolean userCanFile(User user, Graph graph) throws JsonProcessingException {
-    return graph != null && user.getOrganisations().contains(graph.toString());
+    return graph != null && user.getNamespaces().stream().anyMatch(o -> o.getIri().equals(graph.toString()));
   }
 
 }

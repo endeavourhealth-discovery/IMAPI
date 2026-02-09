@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
@@ -15,11 +14,50 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable {
+public class Where extends Element implements Assignable,Clause<Where> {
 
   private String description;
   private Range range;
   private boolean inverse;
+  private Node typeOf;
+  private List<Node> is;
+  private Operator operator;
+  private String value;
+  private String valueLabel;
+  private String subjectVariable;
+  private boolean not;
+  private boolean anyRoleGroup;
+  private boolean isNull;
+  private boolean roleGroup;
+  private RelativeTo relativeTo;
+  private boolean isNotNull;
+  private TTIriRef units;
+  private List<Where> or;
+  private List<Where> and;
+  private String propertyRef;
+  private String shortLabel;
+  private FunctionClause function;
+  private TTIriRef qualifier;
+  private List<Node> propertyList;
+  private String propertyVariable;
+  private String node;
+  private List<IriLD> excludeProperty;
+  private boolean exists;
+
+  public List<Node> getPropertyList() {
+    return propertyList;
+  }
+  public String getSubjectVariable() {
+    return subjectVariable;
+  }
+  public Where setSubjectVariable(String subject) {
+    this.subjectVariable = subject;
+    return this;
+  }
+  public Where setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
 
   @Override
   public String getDescription() {
@@ -80,44 +118,65 @@ public class Where extends Element implements Assignable {
     return shortLabel;
   }
 
-  private Node typeOf;
 
-  private List<Node> is;
+  public boolean isExists() {
+    return exists;
+  }
 
-  private Operator operator;
-  private String value;
-  private String valueLabel;
-
-  private boolean not;
-
-  private boolean anyRoleGroup;
-  private boolean isNull;
-
-  private boolean roleGroup;
-  private RelativeTo relativeTo;
-  private boolean isNotNull;
-
-  private TTIriRef units;
-  private List<Where> or;
-
-  private List<Where> and;
-
-  private String shortLabel;
-  private FunctionClause function;
-  private TTIriRef qualifier;
-  @Getter
-  private List<Node> propertyList;
-  @Getter
-  private String propertyVariable;
-
-  public Where setPropertyVariable(String propertyVariable) {
-    this.propertyVariable = propertyVariable;
+  public Where setExists(boolean exists) {
+    this.exists = exists;
     return this;
   }
 
-  public Where setPropertyVariable(Node propertyVariable) {
-    this.propertyVariable = propertyVariable.getNodeRef();
+
+  public List<IriLD> getExcludeProperty() {
+    return excludeProperty;
+  }
+
+  public Where setExcludeProperty(List<IriLD> properties){
+    this.excludeProperty = properties;
     return this;
+  }
+
+  public Where addExcludeProperty(IriLD property){
+    if(this.excludeProperty == null) this.excludeProperty = new ArrayList<>();
+    this.excludeProperty.add(property);
+    return this;
+  }
+
+  public Where excludeProperty(Consumer<IriLD> builder){
+    IriLD property = new IriLD();
+    addExcludeProperty(property);
+    builder.accept(property);
+    return this;
+  }
+
+
+  public String getNode() {
+    return node;
+  }
+
+  public Where setNode(String node) {
+    this.node = node;
+    return this;
+  }
+
+  public Where setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public Where setPropertyVariable(String variable) {
+    this.propertyVariable=variable;
+    return this;
+  }
+
+  public String getPropertyVariable() {
+    return propertyVariable;
   }
 
 
@@ -257,10 +316,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Where setNode(String node) {
-    super.setNode(node);
-    return this;
-  }
 
   public Where setIri(String iri) {
     super.setIri(iri);

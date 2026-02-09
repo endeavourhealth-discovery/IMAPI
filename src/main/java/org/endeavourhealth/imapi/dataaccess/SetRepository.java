@@ -86,13 +86,15 @@ public class SetRepository {
         .setOptional(true)
         .setIri(RDF.TYPE.toString())
         .setTypeOf(IM.CONCEPT.toString())
-        .setNode(ENTITY_TYPE.toString()))
+        .setNode(ENTITY_TYPE))
+      .return_(r->r.setNodeRef("entity"))
+      .return_(r->r.setNodeRef(ENTITY_TYPE))
       .return_(s->s
         .setIri(RDFS.LABEL).as("term"))
       .return_(s -> s
         .setIri(IM.CODE).as("code"))
+      .return_(r->r.setNodeRef("scheme"))
       .return_(s -> s
-        .setIri(IM.HAS_SCHEME)
         .setNodeRef("scheme")
         .setIri(RDFS.LABEL)
         .as("schemeName"))
@@ -102,6 +104,7 @@ public class SetRepository {
       .return_(s -> s
         .setIri(IM.IM_1_ID)
         .as(IM_1_ID))
+      .return_(r->r.setNodeRef("status"))
       .return_(s -> s
           .setNodeRef("status")
             .setIri(RDFS.LABEL)
@@ -130,6 +133,8 @@ public class SetRepository {
           .setIri(IM.HAS_SCHEME.toString())
           .setTypeOf(IM.CONCEPT.toString())
           .setNode("legacyScheme"))
+        .return_(r->r.setNodeRef("legacy"))
+        .return_(r->r.setNodeRef("legacyScheme"))
           .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
           .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))
           .return_(p1 -> p1
@@ -151,6 +156,8 @@ public class SetRepository {
             .setIri(IM.HAS_SCHEME.toString())
             .setTypeOf(IM.CONCEPT.toString())
             .setNode("legacyScheme"))
+        .return_(r->r.setNodeRef("legacy"))
+        .return_(r->r.setNodeRef("legacyScheme"))
         .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
           .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))
          .return_(p1 -> p1.setNodeRef("legacyScheme").setIri(RDFS.LABEL).as("legacySchemeName"))
@@ -217,7 +224,7 @@ public class SetRepository {
         Concept cl = conceptMap.get(concept);
         Value scheme = bs.getValue("scheme");
         if (cl == null) {
-          cl = buildConcept(concept, conceptMap, result, bs, scheme);
+          cl = buildConcept(concept, conceptMap, result, bs);
           if (subsumedBy)
             cl.setSubsumed(bs.getValue("subsumed").stringValue().equals("Y"));
         } else {
@@ -248,13 +255,14 @@ public class SetRepository {
     return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  private Concept buildConcept(String concept, Map<String, Concept> conceptMap, Set<Concept> result, BindingSet bs, Value scheme) {
+  private Concept buildConcept(String concept, Map<String, Concept> conceptMap, Set<Concept> result, BindingSet bs) {
     Concept cl = new Concept();
     conceptMap.put(concept, cl);
     result.add(cl);
     Value name = bs.getValue("term");
     Value code = bs.getValue("code");
     Value alternativeCode = bs.getValue("alternativeCode");
+    Value scheme = bs.getValue("scheme");
     Value schemeName = bs.getValue("schemeName");
     Value usage = bs.getValue("usage");
     Value status = bs.getValue("status");

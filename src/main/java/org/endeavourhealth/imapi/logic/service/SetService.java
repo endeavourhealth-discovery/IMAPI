@@ -20,7 +20,6 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
@@ -31,11 +30,11 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.ValueSet;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -131,22 +130,21 @@ public class SetService {
   }
 
 
-
   public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
 
-  public Pageable<Node> getMembersFromQuery(EclSearchRequest request) throws QueryException {
+  public Pageable<Node> getMembersFromQuery(ECLQueryRequest request) throws QueryException {
     EclService eclService = new EclService();
-    SearchResponse response= eclService.eclSearch(request);
+    SearchResponse response = eclService.eclSearch(request);
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(response.getTotalCount());
     result.setCurrentPage(response.getPage());
     result.setPageSize(response.getCount());
     result.setResult(new ArrayList<>());
-    if (response.getEntities()!=null) {
+    if (response.getEntities() != null) {
       for (SearchResultSummary entity : response.getEntities()) {
-        Node node= new Node();
+        Node node = new Node();
         node.setIri(entity.getIri());
         node.setName(entity.getName());
         node.setCode(entity.getCode());
@@ -267,10 +265,10 @@ public class SetService {
       throw new IllegalArgumentException("File type format needs to be set.");
 
     TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    String ecl= null;
+    String ecl = null;
 
     if (options.includeDefinition()) {
-       ecl = getEcl(setEntity);
+      ecl = getEcl(setEntity);
     }
 
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
@@ -288,7 +286,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(),options.getSubsumptions(),ecl);
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(), options.getSubsumptions(), ecl);
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -315,7 +313,7 @@ public class SetService {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
     if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
-        new SetMemberGenerator().generateMembers(iri, Graph.IM);
+      new SetMemberGenerator().generateMembers(iri, Graph.IM);
     }
 
     Set<Concept> result = null;
@@ -353,7 +351,7 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Graph updateGraph) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Namespace updateNamespace) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
     Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);

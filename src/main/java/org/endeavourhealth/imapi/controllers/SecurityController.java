@@ -8,15 +8,13 @@ import org.apache.http.HttpException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
-import org.endeavourhealth.imapi.model.security.Action;
-import org.endeavourhealth.imapi.model.security.PolicyRequest;
+import org.endeavourhealth.imapi.model.responses.LoginResponse;
+import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -79,19 +77,19 @@ public class SecurityController {
   }
 
   @GetMapping("/getUsersInGroup")
-  @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<User> getUsersInGroup(HttpServletRequest request, @RequestParam(name = "group") UserRole group) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETUSERSINGROUP.GET")) {
       log.debug("getUsersInGroup");
+      securityService.requiresPermission(new Permission(Resource.USER, List.of(UserRole.TASK_MANAGER, UserRole.DEVELOPER), List.of()), request);
       return securityService.adminGetUsersInGroup(group, request);
     }
   }
 
   @GetMapping("/getGroups")
-  @PreAuthorize("@guard.hasPermission('USER','READ')")
   public List<UserRole> getGroups(HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.GETGROUPS.GET")) {
       log.debug("getGroups");
+      securityService.requiresPermission(new Permission(Resource.USER, List.of(UserRole.TASK_MANAGER, UserRole.DEVELOPER), List.of()), request);
       return securityService.adminGetGroups();
     }
   }
@@ -104,15 +102,4 @@ public class SecurityController {
       securityService.emailTemporaryPasswords(path);
     }
   }*/
-
-  @PostMapping("addPolicy")
-  @PreAuthorize("@guard.hasPermission('POLICY','WRITE')")
-  public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
-    securityService.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
-  }
-
-  @GetMapping("public/hasPermission")
-  public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
-    return securityService.enforce(resource, action, request);
-  }
 }

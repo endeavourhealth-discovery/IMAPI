@@ -47,8 +47,8 @@ public class EqdAuditToIMQ {
               Path path = new Path();
               popQuery.addPath(path);
               path.setIri(Namespace.IM + pathMap[1]);
-              path.setNode(resources.getAcronym(path.getIri()));
               path.setTypeOf(new Node().setIri(Namespace.IM + pathMap[1]));
+              path.setNode(resources.getAcronym(path.getIri()) + "_" + eqColumn);
               for (int i = 2; i < pathMap.length - 1; i++) {
                 Path subPath = new Path();
                 path.addPath(subPath);

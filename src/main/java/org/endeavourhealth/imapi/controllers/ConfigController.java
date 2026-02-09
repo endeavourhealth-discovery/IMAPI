@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,17 +44,13 @@ public class ConfigController {
     }
   }
 
-  @GetMapping(value = "public/graphs")
-  @Operation(summary = "Get the list of available graphs")
-  public List<Graph> getGraphs() {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
-      log.debug("getGraphs");
-      List<Graph> graphs = new ArrayList<>(EnumSet.allOf(Graph.class));
-      graphs.remove(Graph.CONFIG);
-      graphs.remove(Graph.WORKFLOW);
-      graphs.remove(Graph.USER);
-      graphs.remove(Graph.PROV);
-      return graphs;
+  @GetMapping(value = "public/namespaces")
+  @Operation(summary = "Get the list of available namespaces")
+  public List<Namespace> getNamespaces() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Namespaces.GET")) {
+      log.debug("getNamespaces");
+      List<Namespace> namespaces = new ArrayList<>(EnumSet.allOf(Namespace.class));
+      return namespaces;
     }
   }
 }

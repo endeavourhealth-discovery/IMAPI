@@ -34,7 +34,7 @@ public enum WORKFLOW implements VocabEnum {
     ACTUAL_RESULT(Namespace.WORKFLOW + "actualResult"),
     RELATED_VERSION(Namespace.WORKFLOW + "relatedVersion"),
     REQUESTED_ROLE(Namespace.WORKFLOW + "requestedRole"),
-    REQUESTED_GRAPH(Namespace.WORKFLOW + "requestedGraph"),
+    REQUESTED_NAMESPACE(Namespace.WORKFLOW + "requestedNamespace"),
     APPROVAL_TYPE(Namespace.WORKFLOW + "approvalType"),
     HISTORY(Namespace.WORKFLOW + "history"),
     HISTORY_PREDICATE(Namespace.WORKFLOW + "historyPredicate"),

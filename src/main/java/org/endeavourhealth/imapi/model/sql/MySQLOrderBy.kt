@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.model.sql
 
-class MySQLOrderByItem(val property: String, val direction: String) {
+class MySQLOrderByItem(val property: String, val direction: String, val table: Table? = null) {
   fun toSql(): String {
+    if (table?.alias != null) return "${table.alias}.$property $direction"
     return "$property $direction"
   }
 }

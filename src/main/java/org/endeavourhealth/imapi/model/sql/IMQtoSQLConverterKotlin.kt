@@ -87,7 +87,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       if (definition.`return` == null) {
         mySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
-        mySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "id"))
+        mySqlQuery.selects.add(MySQLSelect("${ mySqlQuery.withs.last { !it.exclude }.alias }.${mySqlQuery.withs.last { !it.exclude }.selects.first().name.split(".").last()}" , "cohort_id"))
         mySqlQuery.insert = MySQLInsert("cohort")
         mySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id);"""
       }
@@ -122,7 +122,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableFrom = "cohort",
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
           fromProperty = "cohort_id",
-          toProperty = "cohort_id",
+          toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
           wheres = mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null))
         )
       )
@@ -131,7 +131,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
       if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)) else null,
-      mutableListOf(MySQLSelect("cohort_id"), MySQLSelect("hash")),
+      mutableListOf(MySQLSelect("cohort.cohort_id"), MySQLSelect("cohort.hash")),
       withJoins.ifEmpty { null },
       Bool.and,
     )
@@ -353,7 +353,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     val defaultSelect =
-      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "id")
+      MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "id")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
         with.table,
@@ -389,7 +389,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
     val defaultSelect =
-      MySQLSelect("DISTINCT ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", queryTypeOfTable.primaryKey)
+      MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", queryTypeOfTable.primaryKey)
     val selects = mutableListOf(defaultSelect)
     val joins = mutableListOf<MySQLJoin>()
     var ynWith: MySQLWith? = null
@@ -543,7 +543,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         currentTable,
         p.iri
       ).field ?: throw SQLConversionException("No field found for property ${p.iri}")
-      items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC"))
+      items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC", table = currentTable))
     }
     return MySQLOrderBy(items, orderBy.limit)
   }

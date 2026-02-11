@@ -62,7 +62,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) addIsWiths(definition, newMySqlQuery)
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
-          newMySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
+          newMySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
           newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
@@ -87,7 +87,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        mySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
+        mySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
         mySqlQuery.selects.add(
           MySQLSelect(
             "${mySqlQuery.withs.last { !it.exclude }.alias}.${

@@ -153,8 +153,10 @@ class MySQLPropertyIsWhere(
   override fun baseSql(): String {
     val blocks = values.map { node ->
       val iri = node.iri
-      val selfValue = if (node.isDescendantsOf) 0 else 1
-      val base = """(
+      val selfValue =
+        if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
+      val base = if (selfValue == 0) "concept_tct.parent $operator '$iri'"
+      else """(
         concept_tct.parent $operator '$iri'
         AND concept_tct.self = $selfValue
       )

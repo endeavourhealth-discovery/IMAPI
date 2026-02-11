@@ -159,31 +159,40 @@ public class LogicOptimizer {
   }
 
 
-  private static  void cleanBoolGroup(Match group, Match parent, Bool parentOp, Integer parentIndex) {
-    clean(group, parent, parentOp, parentIndex, Bool.and);
-    clean(group, parent, parentOp, parentIndex, Bool.or);
-    clean(group, parent, parentOp, parentIndex, Bool.step);
+  private static  void cleanBoolGroup(Match group, Match parent, Integer parentIndex) {
+    clean(group, parent, parentIndex);
   }
 
-  private static void clean(Match group, Match parent, Bool parentOp, Integer parentIndex, Bool op) {
-    List<Match> list = (op == Bool.and) ? group.getAnd() : group.getOr();
-    if (list == null) return;
-    for (int i = 0; i < list.size(); i++) {
-      cleanBoolGroup(list.get(i), group, op, i);
+  private static void clean(Match group, Match parent,Integer parentIndex) {
+    for (List<Match> list: Arrays.asList(group.getAnd(), group.getOr(),group.getUnion())) {
+      if (list != null) {
+        for (int i = 0; i < list.size(); i++) {
+          cleanBoolGroup(list.get(i), group, i);
+        }
+        Bool op=getBoolOp(group);
+        if (list.isEmpty()) {
+          if (op == Bool.and) group.setAnd(null);
+          else group.setOr(null);
+        } else if (list.size() == 1 &&parent!=null) {
+          Bool parentOp=getBoolOp(parent);
+          Match only = list.getFirst();
+          if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
+          else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
+        }
+      }
     }
-    if (list.isEmpty()) {
-      if (op == Bool.and) group.setAnd(null);
-      else group.setOr(null);
-    } else if (list.size() == 1 && parent != null) {
-      Match only = list.getFirst();
-      if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
-      else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
-    }
+  }
+
+  private static Bool getBoolOp(Match group) {
+    if (group.getAnd() != null) return Bool.and;
+    if (group.getOr() != null) return Bool.or;
+    if (group.getUnion() != null) return Bool.union;
+    else return null;
   }
 
 
   private static void cleanBooleans(Match match) {
-    cleanBoolGroup(match, null, null, null);
+    cleanBoolGroup(match, null, null);
   }
 
 

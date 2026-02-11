@@ -123,7 +123,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
           fromProperty = "cohort_id",
           toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
-          wheres = mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null))
+          wheres = mutableListOf(MySQLPropertyValueWhere("cohort.hash", "=", isA.iri, null, null))
         )
       )
     }

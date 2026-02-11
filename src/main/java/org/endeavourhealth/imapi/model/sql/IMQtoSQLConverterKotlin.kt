@@ -63,7 +63,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
           newMySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
-          newMySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}_id", "patient_id"))
+          newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = buildString {
@@ -80,6 +80,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
             append("\n)")
           }
           newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
+          newMySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id), group = VALUES(group), results = VALUES(results);"""
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
@@ -88,6 +89,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect($$"$hash", "hash"))
         mySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "id"))
         mySqlQuery.insert = MySQLInsert("cohort")
+        mySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id);"""
       }
       return mySqlQuery.toSql()
     }

@@ -15,8 +15,8 @@ class MySQLOrderBy(val items: MutableList<MySQLOrderByItem>, val limit: Int? = n
       ""
     }
 
-    val limitClause = limit?.let { " LIMIT $it" } ?: ""
+//    val limitClause = limit?.let { " LIMIT $it" } ?: ""
 
-    return orderBy + limitClause
+    return orderBy
   }
 }

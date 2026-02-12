@@ -203,8 +203,8 @@ open class UserController(
     @RequestParam("UserId") userId: String,
     @RequestBody namespaces: List<NamespacePermission>
   ) {
-    MetricsHelper.recordTime("API.User.Organisations.POST").use {
-      log.debug("updateUserOrganisations")
+    MetricsHelper.recordTime("API.User.Namespaces.POST").use {
+      log.debug("updateUserNamespaces")
       securityService.requiresPermission(Permission(Resource.USER, mutableListOf(UserRole.ADMIN), emptyList()), request)
       if (!securityService.userExists(userId, request)) throw GeneralCustomException(
         "user not found",

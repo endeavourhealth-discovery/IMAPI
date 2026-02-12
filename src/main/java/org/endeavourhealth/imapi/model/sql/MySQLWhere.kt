@@ -9,6 +9,7 @@ interface MySQLWhere {
   var and: MutableList<MySQLWhere>?
   var or: MutableList<MySQLWhere>?
   val not: Boolean?
+  val table: Table?
   fun baseSql(): String {
     if (args == null) return sqlTemplate
     var resolved = sqlTemplate
@@ -62,7 +63,8 @@ class MySQLBoolWhere(
   override var or: MutableList<MySQLWhere>? = null,
   override val property: String? = null,
   override val args: Map<String, String>? = null,
-  override val not: Boolean? = false
+  override val not: Boolean? = false,
+  override val table: Table? = null,
 ) : MySQLWhere {
   override val sqlTemplate = ""
 }
@@ -74,11 +76,17 @@ class MySQLPropertyValueWhere(
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
-  override val not: Boolean? = false
+  override val not: Boolean? = false,
+  override val table: Table? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val base = "$property $operator $value"
+      var base = ""
+      if (table != null && !property.contains(".") && !property.contains("(")) {
+        base = "${table.alias}.$property $operator $value"
+      } else {
+        base = "$property $operator $value"
+      }
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -88,11 +96,17 @@ class MySQLPropertyIsNullWhere(
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
-  override val not: Boolean? = false
+  override val not: Boolean? = false,
+  override val table: Table? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val base = "$property IS NULL"
+      var base = ""
+      if (table != null && !property.contains(".") && !property.contains("(")) {
+        base = "${table.alias}.$property IS NULL"
+      } else {
+        base = "$property IS NULL"
+      }
       return if (not == true) "$property IS NOT NULL" else base
     }
 }
@@ -107,11 +121,17 @@ class MySQLPropertyRangeWhere(
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
-  override val not: Boolean? = false
+  override val not: Boolean? = false,
+  override val table: Table? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val base = "$property $operator $value AND $property $operator2 $value2"
+      var base = ""
+      if (table != null && !property.contains(".") && !property.contains("(")) {
+        base = "${table.alias}.$property $operator $value AND ${table.alias}.$property $operator2 $value2"
+      } else {
+        base = "$property $operator $value AND $property $operator2 $value2"
+      }
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -123,7 +143,8 @@ class MySQLPropertyIsWhere(
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
-  override val not: Boolean? = false
+  override val not: Boolean? = false,
+  override val table: Table? = null,
 ) : MySQLWhere {
 
   override val sqlTemplate: String
@@ -132,10 +153,12 @@ class MySQLPropertyIsWhere(
   override fun baseSql(): String {
     val blocks = values.map { node ->
       val iri = node.iri
-      val selfValue = if (node.isDescendantsOf) 0 else 1
-      val base = """(
-        concept_set_member.set $operator '$iri'
-        AND concept_set_member.self = $selfValue
+      val selfValue =
+        if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
+      val base = if (selfValue == 0) "concept_tct.parent $operator '$iri'"
+      else """(
+        concept_tct.parent $operator '$iri'
+        AND concept_tct.self = $selfValue
       )
       """.trimIndent()
       if (not == true) "NOT ($base)" else base

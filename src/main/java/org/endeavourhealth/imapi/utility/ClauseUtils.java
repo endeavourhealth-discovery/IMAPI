@@ -9,6 +9,12 @@ public class ClauseUtils {
   public static void assignFunction(Where where){
     String iri = where.getIri();
     TTIriRef units= where.getUnits();
+    if (units==null)
+      if (where.getRange()!=null){
+        units= where.getRange().getFrom().getUnits();
+        if (units==null)
+          units= where.getRange().getTo().getUnits();
+      }
     RelativeTo relativeTo = where.getRelativeTo();
     if (iri.contains("age")) {
       if (relativeTo == null) {

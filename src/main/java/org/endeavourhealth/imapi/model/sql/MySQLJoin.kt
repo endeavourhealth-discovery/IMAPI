@@ -14,9 +14,8 @@ data class MySQLJoin(
     val joinString =
       if (tableToAlias != null) {
         if (reference == true) {
-          return "  $join $tableToAlias ON $tableFrom.$fromProperty = $tableToAlias.$toProperty"
-        }
-        "  $join $tableTo $tableToAlias ON $tableFrom.$fromProperty = $tableToAlias.$toProperty"
+          "  $join $tableToAlias ON $tableFrom.$fromProperty = $tableToAlias.$toProperty"
+        } else "  $join $tableTo $tableToAlias ON $tableFrom.$fromProperty = $tableToAlias.$toProperty"
       } else "  $join $tableTo ON $tableFrom.$fromProperty = $tableTo.$toProperty"
     if (wheres.isEmpty())
       return joinString

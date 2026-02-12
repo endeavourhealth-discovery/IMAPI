@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.filer.rdf4j;
 
-import jakarta.annotation.Resource;
 import jakarta.mail.MessagingException;
 import org.eclipse.rdf4j.model.BNode;
 import org.eclipse.rdf4j.model.util.ModelBuilder;
@@ -105,17 +104,17 @@ public class TaskFilerRdf4j {
     }
   }
 
-  public void fileGraphRequest(GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException {
-    replaceUsernameWithId(graphRequest);
+  public void fileNamespaceRequest(NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException {
+    replaceUsernameWithId(namespaceRequest);
     try {
       ModelBuilder builder = new ModelBuilder();
-      buildTask(builder, graphRequest);
+      buildTask(builder, namespaceRequest);
       builder.namedGraph(Graph.IM.toString())
-        .add(iri(graphRequest.getId().getIri()), WORKFLOW.REQUESTED_GRAPH.asDbIri(), literal(graphRequest.getGraph()));
+        .add(iri(namespaceRequest.getId().getIri()), WORKFLOW.REQUESTED_NAMESPACE.asDbIri(), literal(namespaceRequest.getNamespacePermission()));
       conn.add(builder.build());
-      String emailSubject = "New graph request added: [" + graphRequest.getId().getIri() + "]";
-      String emailContent = "Click <a href=\"" + graphRequest.getHostUrl() + "/#/workflow/graphRequest/" + graphRequest.getId().getIri() + "\">here</a>";
-      getEmailService().sendMail(emailSubject, emailContent, "graphrequest@endeavourhealth.net");
+      String emailSubject = "New namespace request added: [" + namespaceRequest.getId().getIri() + "]";
+      String emailContent = "Click <a href=\"" + namespaceRequest.getHostUrl() + "/#/workflow/namespaceRequest/" + namespaceRequest.getId().getIri() + "\">here</a>";
+      getEmailService().sendMail(emailSubject, emailContent, "namespacerequest@endeavourhealth.net");
     } catch (RepositoryException e) {
       throw new TaskFilerException("Failed to file task", e);
     } catch (MessagingException e) {

@@ -15,10 +15,7 @@ import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.workflow.BugReport;
-import org.endeavourhealth.imapi.model.workflow.EntityApproval;
-import org.endeavourhealth.imapi.model.workflow.RoleRequest;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -177,56 +174,55 @@ public class WorkflowController {
     }
   }
 
-  // TODO update to organisations once organisation flow is confirmed
-//  @Operation(summary = "Create Graph Request", description = "Submit a graph request created by the user.")
-//  @PostMapping(value = "/createGraphRequest")
-//  public void createGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createGraphRequest.POST")) {
-//      User user = casdoorService.getUser(request);
-//      if (null == graphRequest.getCreatedBy()) graphRequest.setCreatedBy(user.getId());
-//      workflowService.createGraphRequest(graphRequest);
-//    }
-//  }
-//
-//  @Operation(summary = "Get Graph Request", description = "Retrieve a graph request using its unique ID.")
-//  @GetMapping(value = "/graphRequest", produces = "application/json")
-//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','READ')")
-//  public GraphRequest getGraphRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.graphRequest.GET")) {
-//      log.debug("getGraphRequest");
-//      return workflowService.getGraphRequest(id);
-//    }
-//  }
-//
-//  @Operation(summary = "Update graph request", description = "Update a graph request workflow task")
-//  @PostMapping(value = "/updateGraphRequest")
-//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','WRITE')")
-//  public void updateGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateGraphRequest.POST")) {
-//      log.debug("updateGraphRequest");
-//      workflowService.updateGraphRequest(graphRequest, request);
-//    }
-//  }
-//
-//  @Operation(summary = "Approve graph request")
-//  @PostMapping(value = "/approveGraphRequest")
-//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
-//  public void approveGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveGraphRequest.POST")) {
-//      log.debug("approveGraphRequest");
-//      workflowService.approveGraphRequest(request, graphRequest);
-//    }
-//  }
-//
-//  @Operation(summary = "Reject graph request")
-//  @PostMapping(value = "/rejectGraphRequest")
-//  @PreAuthorize("@guard.hasPermission('GRAPH_REQUEST','APPROVE')")
-//  public void rejectGraphRequest(HttpServletRequest request, @RequestBody GraphRequest graphRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
-//    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectGraphRequest.POST")) {
-//      log.debug("rejectGraphRequest");
-//      workflowService.rejectGraphRequest(request, graphRequest);
-//    }
-//  }
+  @Operation(summary = "Create Namespace Request", description = "Submit a namespace request created by the user.")
+  @PostMapping(value = "/createNamespaceRequest")
+  public void createGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createNamespaceRequest.POST")) {
+      User user = securityService.getUser(request);
+      if (null == namespaceRequest.getCreatedBy()) namespaceRequest.setCreatedBy(user.getId());
+      workflowService.createNamespaceRequest(namespaceRequest);
+    }
+  }
+
+  @Operation(summary = "Get Namespace Request", description = "Retrieve a namespace request using its unique ID.")
+  @GetMapping(value = "/namespaceRequest", produces = "application/json")
+  public NamespaceRequest getNamespaceRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.namespaceRequest.GET")) {
+      log.debug("getNamespaceRequest");
+      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      return workflowService.getNamespaceRequest(id);
+    }
+  }
+
+  @Operation(summary = "Update namespace request", description = "Update a graph request workflow task")
+  @PostMapping(value = "/updateNamespaceRequest")
+  public void updateGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateNamespaceRequest.POST")) {
+      log.debug("updateNamespaceRequest");
+      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      workflowService.updateNamespaceRequest(namespaceRequest, request);
+    }
+  }
+
+  @Operation(summary = "Approve namespace request")
+  @PostMapping(value = "/approveNamespaceRequest")
+  public void approveNamespaceRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveNamespaceRequest.POST")) {
+      log.debug("approveNamespaceRequest");
+      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.APPROVER), List.of()), request);
+      workflowService.approveNamespaceRequest(request, namespaceRequest);
+    }
+  }
+
+  @Operation(summary = "Reject namespace request")
+  @PostMapping(value = "/rejectNamespaceRequest")
+  public void rejectGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectNamespaceRequest.POST")) {
+      log.debug("rejectGraphRequest");
+      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.APPROVER), List.of()), request);
+      workflowService.rejectNamespaceRequest(request, namespaceRequest);
+    }
+  }
 
   @Operation(summary = "Create Entity Approval", description = "Submit an approval request for an entity.")
   @PostMapping(value = "/createEntityApproval")

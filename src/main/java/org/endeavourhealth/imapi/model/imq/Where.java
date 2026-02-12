@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable,Clause<Where> {
+public class Where extends Element implements Assignable{
 
   private String description;
   private Range range;

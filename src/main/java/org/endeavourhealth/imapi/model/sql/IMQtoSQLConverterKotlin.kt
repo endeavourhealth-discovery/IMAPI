@@ -66,19 +66,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.insert = MySQLInsert("dataset")
-          val jsonObject = buildString {
-            append("JSON_OBJECT(\n")
-            append(
-              newMySqlQuery.withs.last().selects
-                .filterNot { it.alias == "id" }
-                .joinToString(",\n") { select ->
-                  val key = (select.alias ?: select.name).replace("`", "\"")
-                  val value = select.alias ?: select.name
-                  "  $key, $value"
-                }
-            )
-            append("\n)")
-          }
+          val jsonObject = getJSONObject(newMySqlQuery)
           newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
           newMySqlQuery.update =
             """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id), `group` = VALUES(`group`), results = VALUES(results);"""
@@ -102,6 +90,40 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       return mySqlQuery.toSql()
     }
+  }
+
+
+  private fun getJSONObject(newMySqlQuery: MySQLQuery): String {
+    val lastWith = newMySqlQuery.withs.last()
+
+    val selects = if (
+      lastWith.selects.size == 1 &&
+      lastWith.selects.first().name == "*"
+    ) {
+      // Fallback to previous WITH and exclude rn
+      newMySqlQuery.withs
+        .dropLast(1)
+        .last()
+        .selects
+        .filterNot { it.alias == "rn" }
+    } else {
+      lastWith.selects
+    }
+
+    val jsonObject = buildString {
+      append("JSON_OBJECT(\n")
+      append(
+        selects
+          .filterNot { it.alias == "id" }
+          .joinToString(",\n") { select ->
+            val key = (select.alias ?: select.name).replace("`", "\"")
+            val value = select.alias ?: select.name
+            "  $key, $value"
+          }
+      )
+      append("\n)")
+    }
+    return jsonObject
   }
 
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
@@ -256,7 +278,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (unionWiths.isEmpty()) return
 
-    val baseAlias = currentMatch.name?.replace(" ", "")
+    val baseAlias = currentMatch.name?.replace(" ", "")?.replace(".", "")
       ?: currentMatch.node
       ?: getCteAliasFromTypeAndProperty(
         queryTypeOf,
@@ -313,7 +335,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           nodeRefTable ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
       } else mySQLQuery.nodeToTableMap[match.node] = referenceTable ?: currentTable
     }
-    val baseAlias = match.name?.replace(" ", "")
+    val baseAlias = match.name?.replace(" ", "")?.replace(".", "")
       ?: if (match.node != null) "`${match.node}_cte`" else
         if (mySQLQuery.nodeToTableMap.keys.isNotEmpty()) "`${mySQLQuery.nodeToTableMap.keys.joinToString("_")}_cte`" else
           getCteAliasFromTypeAndProperty(
@@ -381,7 +403,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
               match.orderBy,
               mySQLQuery.nodeToTableMap
             ).toSql()
-          }) as rn"
+          })", "rn"
         )
       )
     }

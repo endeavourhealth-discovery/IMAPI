@@ -25,7 +25,6 @@ import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 @Component
 @Slf4j
 public class SecurityService {
-  // private ExcelReader excelReader = new ExcelReader();
   private EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
 
   public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
@@ -167,11 +166,5 @@ public class SecurityService {
     String ipAddress = getIpAddress(request);
     String sessionId = getSessionId(request);
     endeavourSecurityService.requiresPermission(ipAddress, sessionId, permission);
-  }
-
-  public boolean hasPermission(Permission permission, HttpServletRequest request) {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    return endeavourSecurityService.hasPermission(ipAddress, sessionId, permission);
   }
 }

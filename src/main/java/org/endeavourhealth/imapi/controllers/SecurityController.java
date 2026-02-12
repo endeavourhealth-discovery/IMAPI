@@ -9,9 +9,7 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
-import org.endeavourhealth.imapi.model.security.Permission;
-import org.endeavourhealth.imapi.model.security.Resource;
-import org.endeavourhealth.imapi.model.security.User;
+import org.endeavourhealth.imapi.model.security.*;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -87,16 +85,10 @@ public class SecurityController {
     }
   }*/
 
-  @PostMapping("/private/addPolicy")
-  @PreAuthorize("@guard.hasPermission('POLICY','WRITE')")
+/*  @PostMapping("/private/addPolicy")
   public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
     securityService.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
-  }
-
-  @GetMapping("/private/hasPermission")
-  public boolean hasPermission(HttpServletRequest request, @RequestParam(name = "resource") Resource resource, @RequestParam(name = "action") Action action) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
-    return securityService.enforce(resource, action, request);
-  }
+  }*/
 
   @GetMapping("/private/user")
   public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {

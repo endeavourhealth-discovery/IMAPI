@@ -189,18 +189,6 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/private/publish")
-  @PreAuthorize("@guard.hasPermission('SET','PUBLISH')")
-  @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  public void publish(
-    HttpServletRequest request,
-    @RequestParam(name = "iri") String iri
-  ) throws IOException, QueryException, UserAuthorisationException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
-      log.debug("publish {}", iri);
-      setService.publishSetToIM1(iri);
-    }
-  }
   @PostMapping(value = "/private/updateSubsetsFromSuper")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {

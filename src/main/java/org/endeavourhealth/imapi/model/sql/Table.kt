@@ -23,6 +23,7 @@ class Table(
     tableToAlias: String? = null,
     fromField: String? = null,
     toField: String? = null,
+    reference: Boolean? = false
   ): MySQLJoin {
     if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) {
       if (fromField == null && toField == null)
@@ -39,7 +40,8 @@ class Table(
       tableTo = tableTo.table,
       tableToAlias = tableToAlias,
       toProperty = toField ?: outerField,
-      fromProperty = fromField ?: innerField
+      fromProperty = fromField ?: innerField,
+      reference = reference
     )
   }
 

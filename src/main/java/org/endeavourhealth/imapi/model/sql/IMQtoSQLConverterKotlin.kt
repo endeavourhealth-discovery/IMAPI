@@ -69,7 +69,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           val jsonObject = getJSONObject(newMySqlQuery)
           newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
           newMySqlQuery.update =
-            """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id), group = VALUES(group), results = VALUES(results);"""
+            """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id), `group` = VALUES(`group`), results = VALUES(results);"""
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
@@ -208,7 +208,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     bool: Bool,
   ) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, mySqlQuery, bool)
+      addMatchWithsRecursively(m, definition, mySqlQuery, bool, false, definition.step)
     }
   }
 
@@ -218,21 +218,22 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
     bool: Bool,
     isStep: Boolean = false,
+    steps: MutableList<Match>? = null
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, isStep, currentMatch.step)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or, isStep, currentMatch.step)
       }
     }
 
     if (currentMatch.step != null) {
       for (m in currentMatch.step) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, true)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, isStep, currentMatch.step)
       }
     }
 
@@ -243,7 +244,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (currentMatch.and == null && currentMatch.or == null) {
       if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, currentMatch.notExists())
-      else mySqlQuery.withs.addAll(getMySQLWithFromMatch(currentMatch, mySqlQuery, true))
+      else mySqlQuery.withs.addAll(getMySQLWithFromMatch(currentMatch, mySqlQuery, isStep, currentMatch.step))
     }
   }
 
@@ -265,7 +266,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
       branchQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
 
-      addMatchWithsRecursively(unionMatch, currentMatch, branchQuery, Bool.and)
+      addMatchWithsRecursively(unionMatch, currentMatch, branchQuery, Bool.and, false)
 
       val newWiths = if (baseWith != null) branchQuery.withs.drop(1) else branchQuery.withs
       if (newWiths.isEmpty()) continue
@@ -308,7 +309,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getMySQLWithFromMatch(
     match: Match,
     mySQLQuery: MySQLQuery,
-    isStep: Boolean = false
+    isStep: Boolean = false,
+    steps: MutableList<Match>?
   ): MutableList<MySQLWith> {
     val joins = mutableListOf<MySQLJoin>()
     var currentTable = queryTypeOfTable
@@ -417,17 +419,37 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
     if (selects.isNotEmpty()) with.selects.addAll(selects)
+
     if (selectJoins.isNotEmpty()) with.joins?.addAll(selectJoins)
     var rnWith: MySQLWith? = null
-    if (match.orderBy != null)
+    if (match.orderBy != null) {
       rnWith = MySQLWith(
         table = currentTable,
         alias = isAlias,
-        selects = mutableListOf(MySQLSelect("*")),
-        wheres = mutableListOf(MySQLPropertyValueWhere("rn", "=", match.orderBy.limit.toString())),
+        selects = mutableListOf(MySQLSelect(if (match.notExists()) "${mySQLQuery.withs.last().alias}.*" else "*")),
+        wheres = mutableListOf(),
         whereBool = Bool.and,
         fromAlias = "`${(isAlias + "_partition").replace("`", "")}`"
       )
+
+      if (match.notExists()) {
+        val notExistJoinCondition = currentTable.getJoinCondition(
+          joinType = "RIGHT JOIN",
+          tableFrom = with.table,
+          tableFromAlias = with.alias,
+          tableTo = mySQLQuery.withs.last().table,
+          tableToAlias = mySQLQuery.withs.last().alias,
+          reference = true
+        )
+        rnWith.joins?.add(notExistJoinCondition)
+        val or = mutableListOf<MySQLWhere>()
+        or.add(MySQLPropertyValueWhere("${with.alias}.rn", "!=", match.orderBy.limit.toString()))
+        or.add(MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL"))
+        rnWith.wheres?.add(MySQLBoolWhere(or = or))
+      } else {
+        rnWith.wheres?.add(MySQLPropertyValueWhere("${with.alias}.rn", "=", match.orderBy.limit.toString()))
+      }
+    }
 
     return if (ynWith != null) {
       ynWith.selects.addAll(0, with.selects.mapNotNull { it.alias?.let { alias -> MySQLSelect(alias) } })

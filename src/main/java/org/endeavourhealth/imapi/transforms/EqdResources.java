@@ -6,7 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
-import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -30,8 +31,6 @@ public class EqdResources {
   private final Map<Object, Object> vocabMap = new HashMap<>();
   private final Map<String, Set<Node>> valueMap = new HashMap<>();
   private final Properties dataMap;
-  private final Map<Integer, String> baseMatchMap = new HashMap<>();
-  private final QueryDescriptor descriptor = new QueryDescriptor();
   private final Set<String> acronyms = new HashSet<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
@@ -220,7 +219,14 @@ public class EqdResources {
     boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
     boolean hasStandard = (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      baseMatch = this.convertBaseCriteriaGroups(eqCriterion);
+      Match baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
+      baseQuery.setTypeOf(new Node().setIri(Namespace.IM+"Patient"));
+      Match logicalMatch= new LogicOptimizer().getLogicalMatch(baseQuery);
+      String json= new ObjectMapper().writeValueAsString(logicalMatch);
+      int hash= json.hashCode();
+      EqdToIMQ.getBaseQueries().put(String.valueOf(hash),baseQuery);
+      baseMatch= new Match();
+      baseMatch.addIs(new Node().setIri(namespace.toString()+hash).setIsResultSet(true));
       lastMatch = baseMatch;
     }
 
@@ -237,6 +243,7 @@ public class EqdResources {
           setMatchNode(baseMatch);
           standardMatch.setNodeRef(baseMatch.getNode());
         }
+        lastMatch.setPath(null);
       }
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion,lastMatch);
@@ -1359,6 +1366,7 @@ public class EqdResources {
     }
     return name;
   }
+
 
   private String getShortName(String name, String previous) {
     name = name.split(" \\(")[0];

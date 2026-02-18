@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.service;
+package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -48,7 +49,7 @@ public class QueryDescriptor {
     return query;
   }
 
-  public Match describeSingleMatch(Match match, String typeOf) throws QueryException {
+  public Match describeSingleMatch(Match match) throws QueryException {
     setIriNames(match);
     describeMatch(match);
     return match;
@@ -269,7 +270,10 @@ public class QueryDescriptor {
 
   private void describePath(Path path) {
     if (path.getIri() != null) {
-      path.setName(getTermInContext(path.getIri(), Context.PLURAL));
+      path.setName(getTermInContext(path.getIri(), Context.PROPERTY));
+    }
+    if (path.getTypeOf() != null) {
+      path.getTypeOf().setName(getTermInContext(path.getTypeOf(), Context.SINGLE));
     }
     if (path.getPath() != null) {
       for (Path subPath : path.getPath()) {
@@ -336,11 +340,11 @@ public class QueryDescriptor {
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
       if (field.toLowerCase().contains("date")) {
-        if (property.getDirection() == Order.descending) orderDisplay = "get latest ";
-        else orderDisplay = "get earliest ";
+        if (property.getDirection() == Order.descending) orderDisplay = "latest ";
+        else orderDisplay = "earliest ";
       } else {
-        if (property.getDirection() == Order.descending) orderDisplay = "get maximum ";
-        else orderDisplay = "get minimum ";
+        if (property.getDirection() == Order.descending) orderDisplay = "maximum ";
+        else orderDisplay = "minimum ";
       }
     }
     if (orderBy.getLimit() > 1) {
@@ -441,7 +445,8 @@ public class QueryDescriptor {
                 if (!past && relativeTo) relativity = " of the ";
               }
             } else qualifier = "on or after";
-            relativity = " the ";
+            if (relativeTo)
+              relativity = " the ";
           }
           if (past && relativeTo) relativity = " before ";
         } else {
@@ -673,7 +678,8 @@ public class QueryDescriptor {
           TTEntity nodeEntity = (iriContext.get(set.getIri()));
           set.setCode(nodeEntity.getCode());
           String modifier = set.isExclude() ? " but not: " : " ";
-          set.setDescription(modifier);
+          set.setDescription(nodeEntity.getName() + modifier);
+          set.setQualifier(modifier);
         }
       }
       if (set.getName() == null) {

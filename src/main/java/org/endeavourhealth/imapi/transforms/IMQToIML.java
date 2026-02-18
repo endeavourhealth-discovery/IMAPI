@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.logic.service.QueryDescriptor;
+import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;

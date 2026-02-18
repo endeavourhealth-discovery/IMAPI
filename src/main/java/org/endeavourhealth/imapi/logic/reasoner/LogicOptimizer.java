@@ -78,6 +78,7 @@ public class LogicOptimizer {
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson = mapper.writeValueAsString(match);
     Match logicalMatch = mapper.readValue(matchJson, Match.class);
+    logicalMatch.setUuid(null);
     if (logicalMatch.getPath() != null) {
       for (Path path : logicalMatch.getPath()) {
         logicalPath(path);
@@ -86,7 +87,10 @@ public class LogicOptimizer {
     if (logicalMatch.getWhere() != null) {
       logicalWhere(logicalMatch.getWhere());
     }
-    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr())) {
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(),
+      logicalMatch.getOr(),
+      logicalMatch.getStep(),
+      logicalMatch.getUnion())) {
       if (matches != null) {
         for (int i = 0; i < matches.size(); i++) {
           Match subMatch = matches.get(i);
@@ -100,6 +104,7 @@ public class LogicOptimizer {
   }
 
   private void logicalWhere(Where where) {
+    where.setUuid(null);
     where.setNodeRef(null);
     for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
       if (wheres != null) {

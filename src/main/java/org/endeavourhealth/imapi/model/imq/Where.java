@@ -43,6 +43,16 @@ public class Where extends Element implements Assignable{
   private String node;
   private List<IriLD> excludeProperty;
   private boolean exists;
+  private boolean invalid;
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+
+  public Where setIsInvalid(boolean invalid) {
+    this.invalid = invalid;
+    return this;
+  }
 
   public List<Node> getPropertyList() {
     return propertyList;

@@ -16,6 +16,16 @@ public class Node extends Element{
   private boolean inverse;
   private Match match;
   private String node;
+  private String qualifier;
+
+  public String getQualifier() {
+    return qualifier;
+  }
+  public Node setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
 
 
 
@@ -33,6 +43,11 @@ public class Node extends Element{
     Match m = new Match();
     match.accept(m);
     this.match = m;
+    return this;
+  }
+
+  public Node setIsResultSet(boolean resultSet) {
+    super.setIsResultSet(resultSet);
     return this;
   }
 

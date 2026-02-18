@@ -44,6 +44,16 @@ public class Where extends Element implements Assignable{
   private List<IriLD> excludeProperty;
   private boolean exists;
   private boolean invalid;
+  private boolean linked;
+
+  public boolean isLinked(){
+    return linked;
+  }
+
+  public Where setLinked(boolean is){
+    this.linked = true;
+    return this;
+  }
 
   public boolean isInvalid() {
     return invalid;

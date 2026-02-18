@@ -160,8 +160,13 @@ public class IriCollector {
     if (where.getValue() != null) {
       collectAssignableIris(where, iriSet);
     }
-    if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
-      iriSet.add(where.getRelativeTo().getQualifier().getIri());
+    if (where.getRelativeTo()!=null){
+      if (where.getRelativeTo().getQualifier()!=null) {
+        iriSet.add(where.getRelativeTo().getQualifier().getIri());
+      }
+      if (where.getRelativeTo().getIri()!=null){
+        iriSet.add(where.getRelativeTo().getIri());
+      }
     }
   }
 

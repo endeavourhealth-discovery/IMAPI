@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.model.security;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@JsonFormat(shape = JsonFormat.Shape.STRING)
 public enum Resource {
   ENTITY,
   QUERY,

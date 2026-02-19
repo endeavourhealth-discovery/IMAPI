@@ -204,7 +204,8 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addIs(new Node().setIri(namespace + searchId).setName((String) this.reportNames.get(search.getReportGuid())));
+    match.addIs(new Node().setIri(namespace + searchId)
+      .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
     queryEntity.addObject(iri(IM.DEPENDENT_ON),iri(namespace+searchId));
     return match;
   }

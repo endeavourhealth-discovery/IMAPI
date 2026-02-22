@@ -503,6 +503,10 @@ public class SparqlConverter {
       } else if (where.getNode() != null) {
         whereQl.append(" ?").append(where.getNode()).append(".\n");
       }
+      else {
+        o++;
+        whereQl.append(" ?").append(subject).append("o").append(o);
+      }
       if (where.getIsNull()) {
         whereQl.append("}\n");
       }

@@ -7,7 +7,7 @@ tasks.register("typescriptConstEnumToEnum") {
   description = "Changes typescript generated const enums to standard enums for functionality"
   dependsOn("generateTypeScript")
   doLast {
-    def file = new File(rootDir, "../IMDirectory/src/interfaces/AutoGen.ts")
+    def file = new File(rootDir, "../VueLibrary/src/interfaces/AutoGen.ts")
     if (!file.exists()) {
       throw new GradleException("Autogen file not found. Run generateTypescript to create it.")
     }

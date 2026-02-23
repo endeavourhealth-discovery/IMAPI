@@ -125,7 +125,7 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.casbin.*",
     "org.endeavourhealth.imapi.model.casdoor.*",
   )
-  outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
+  outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
   customTypeNaming = listOf("org.endeavourhealth.imapi.model.Namespace:NamespaceDTO")
@@ -135,7 +135,7 @@ tasks {
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../IMDirectory/src/vocabulary/"
+    typeScriptOutputFolder = "../VueLibrary/src/vocabulary/"
   }
 }
 

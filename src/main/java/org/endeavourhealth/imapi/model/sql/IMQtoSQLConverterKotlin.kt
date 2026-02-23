@@ -17,6 +17,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
   var queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+  private val MAX_ALIAS_LENGTH = 64  // DB limit for MySQL
+  private var longAliasCounter = 1
 
 
   init {
@@ -53,6 +55,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (definition.or != null) {
       addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
+    }
+
+    if (definition.union != null) {
+      addMatchWiths(definition.union, definition, mySqlQuery, Bool.union)
     }
 
     if (definition.columnGroup != null) {
@@ -169,7 +175,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getIsExcludeWith(isA: Node, isAlias: String, mySqlQuery: MySQLQuery): Pair<MySQLWith, MySQLJoin> {
-
+//    check if resultSet
     val with = MySQLWith(
       getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
       isAlias,
@@ -286,7 +292,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           ?: currentMatch.where?.and?.firstOrNull()?.iri
           ?: currentMatch.where?.or?.firstOrNull()?.iri
       )
-    val alias = if (currentMatch.node == null) ensureUniqueAlias(baseAlias, mySqlQuery) else baseAlias
+    val alias = ensureUniqueAlias(baseAlias, mySqlQuery)
     val orderByTable = unionWiths.first().table
     val unionWith = MySQLWith(
       table = orderByTable,
@@ -344,7 +350,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
               ?: match.where?.and?.firstOrNull()?.iri
               ?: match.where?.or?.firstOrNull()?.iri
           )
-    val isAlias = if (match.node == null) ensureUniqueAlias(baseAlias, mySQLQuery) else baseAlias
+    val isAlias = ensureUniqueAlias(baseAlias, mySQLQuery)
     val with = MySQLWith(
       table = currentTable,
       alias = if (match.orderBy != null) "`${(isAlias + "_partition").replace("`", "")}`" else isAlias,
@@ -447,7 +453,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         or.add(MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL"))
         rnWith.wheres?.add(MySQLBoolWhere(or = or))
       } else {
-        rnWith.wheres?.add(MySQLPropertyValueWhere("${with.alias}.rn", "=", match.orderBy.limit.toString()))
+        rnWith.wheres?.add(MySQLPropertyValueWhere("${with.alias}.rn", "<=", match.orderBy.limit.toString()))
       }
     }
 
@@ -464,8 +470,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     currentWithAlias: String,
     nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
-    val defaultSelect =
-      MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", queryTypeOfTable.primaryKey)
+    val defaultSelect = getDefaultSelect(table)
     val selects = mutableListOf(defaultSelect)
     val joins = mutableListOf<MySQLJoin>()
     var ynWith: MySQLWith? = null
@@ -484,6 +489,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       } else throw SQLConversionException("Unsupported return $returx")
     }
     return Triple(selects, joins, ynWith)
+  }
+
+  private fun getDefaultSelect(table: Table): MySQLSelect {
+    if (table.dataModel == queryTypeOfTable.dataModel)
+      return MySQLSelect("${table.table}.${queryTypeOfTable.primaryKey}", table.primaryKey)
+    val (fk, pk) = table.foreignKeyTo(queryTypeOfTable)
+    return MySQLSelect("${table.table}.$fk", pk)
   }
 
   private fun getFunctionSelect(
@@ -784,8 +796,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo ${where.relativeTo.nodeRef}")
-    if (nodeToTableMap[nodeRef] != null) return "${nodeRef}_cte.$property"
-    return "${nodeRef}.${property}"
+    if (nodeToTableMap[nodeRef] != null) return "`${nodeRef}_cte`.$property"
+    return "`${nodeRef}`.${property}"
   }
 
   private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
@@ -907,16 +919,34 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun ensureUniqueAlias(baseAlias: String, mySqlQuery: MySQLQuery): String {
+    fun normalize(a: String) =
+      a.replace("`", "").lowercase()
+
+    val existing = mySqlQuery.withs
+      .map { normalize(it.alias) }
+      .toHashSet()
+
+    if (baseAlias.length > MAX_ALIAS_LENGTH) {
+      var alias: String
+      do {
+        alias = "cte_${longAliasCounter++}"
+      } while (existing.contains(normalize(alias)))
+      return "`$alias`"
+    }
+
     var alias = baseAlias
     var index = 2
-    val existing = mySqlQuery.withs.map { it.alias }.toHashSet()
-    while (existing.contains(alias)) {
+
+    while (
+      existing.contains(normalize(alias)) ||
+      alias.length > MAX_ALIAS_LENGTH
+    ) {
       alias = "${baseAlias}_$index"
-      alias = alias.replace("`", "")
-      alias = "`$alias`"
       index++
     }
-    return alias
+
+    alias = alias.replace("`", "")
+    return "`$alias`"
   }
 
   fun getDataModelFromKeepAs(keepAs: String?): String? {

@@ -15,8 +15,6 @@ data class MySQLWith(
   val unionWiths: MutableList<MySQLWith>? = null,
   val unionAll: Boolean = false
 ) {
-  val tableMap: HashMap<String, Table> = hashMapOf()
-
   private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->
       sel.alias?.let { "${sel.name} AS $it" } ?: sel.name

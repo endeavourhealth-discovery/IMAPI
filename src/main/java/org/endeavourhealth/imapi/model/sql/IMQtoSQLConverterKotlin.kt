@@ -111,9 +111,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         .dropLast(1)
         .last()
         .selects
-        .filterNot { it.alias == "rn" }
+        .filterNot { it.alias == "rn" || it.name == "patient.id" }
     } else {
-      lastWith.selects
+      lastWith.selects.filterNot { it.name == "patient.id" }
     }
 
     val jsonObject = buildString {
@@ -381,7 +381,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           ))
         )
       else joins.add(
-        (queryTypeOfTable.getJoinCondition(
+        (currentTable.getJoinCondition(
+          tableFromAlias = currentTable.alias ?: currentTable.table,
           tableTo = mySQLQuery.withs.last().table,
           tableToAlias = mySQLQuery.withs.last().alias,
           reference = true
@@ -389,7 +390,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     }
 
-    val defaultSelect = MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}", "id")
+    val defaultSelect = MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}")
     val (selects, selectJoins, ynWith) =
       if (match.`return` != null) getSelects(
         with.table,
@@ -493,9 +494,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getDefaultSelect(table: Table): MySQLSelect {
     if (table.dataModel == queryTypeOfTable.dataModel)
-      return MySQLSelect("${table.table}.${queryTypeOfTable.primaryKey}", table.primaryKey)
+      return MySQLSelect("${table.table}.${queryTypeOfTable.primaryKey}")
     val (fk, pk) = table.foreignKeyTo(queryTypeOfTable)
-    return MySQLSelect("${table.table}.$fk", pk)
+    return MySQLSelect("${table.alias ?: table.table}.$fk")
   }
 
   private fun getFunctionSelect(

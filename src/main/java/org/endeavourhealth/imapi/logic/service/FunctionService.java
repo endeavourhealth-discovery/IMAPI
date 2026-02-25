@@ -9,10 +9,7 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.IM_FUNCTION;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +71,7 @@ public class FunctionService {
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
-      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.NAMESPACE.toString(), new ArrayList<>(), 1, 1000, false);
+      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(NAMESPACE.IM.toString(), new ArrayList<>(), 1, 1000, false);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
       List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
@@ -119,7 +116,7 @@ public class FunctionService {
   }
 
   private JsonNode getSetEditorIriSchemes() {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM.toString(), null, 1, 200, false);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
@@ -127,7 +124,7 @@ public class FunctionService {
   }
 
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.NAMESPACE.toString(), null, 1, 200, false);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM.toString(), null, 1, 200, false);
     User user = securityService.getUser(request);
     List<TTIriRef> resultsAsIri = results.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().toString().equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {

@@ -1,23 +1,23 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class TTToNQuad {
-  private List<String> quads;
   private static int blank;
+  private List<String> quads;
 
-  public List<String> transformEntity(TTEntity entity, Graph graph) {
+  public List<String> transformEntity(TTEntity entity, GRAPH graph) {
     quads = new ArrayList<>();
     appendEntity(entity, graph);
     return quads;
   }
 
-  private void appendEntity(TTEntity entity, Graph graph) {
+  private void appendEntity(TTEntity entity, GRAPH graph) {
     String subject = "<" + entity.getIri() + "> ";
     if (entity.getPredicateMap() != null) {
       setPredicateObjects(subject, entity, graph);
@@ -25,7 +25,7 @@ public class TTToNQuad {
 
   }
 
-  private void setPredicateObjects(String subject, TTNode node, Graph graph) {
+  private void setPredicateObjects(String subject, TTNode node, GRAPH graph) {
     Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
       for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
@@ -40,7 +40,7 @@ public class TTToNQuad {
     }
   }
 
-  private void setObject(String subject, String predicate, TTValue value, Graph graph) {
+  private void setObject(String subject, String predicate, TTValue value, GRAPH graph) {
     if (value.isIriRef())
       quads.add(subject + predicate + "<" + value.asIriRef().getIri() + "> <" + graph + ">.");
     else if (value.isLiteral()) {
@@ -56,7 +56,7 @@ public class TTToNQuad {
       blank++;
       String blankNode = "_:b" + blank;
       quads.add(subject + predicate + blankNode + " <" + graph + ">.");
-      setPredicateObjects(blankNode, value.asNode(),  graph);
+      setPredicateObjects(blankNode, value.asNode(), graph);
 
     }
   }

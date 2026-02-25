@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.QUERY;
 
@@ -84,20 +84,20 @@ public class SearchService {
   public SearchResponse queryIMSearch(QueryRequest queryRequest) throws OpenSearchException, QueryException {
     ObjectMapper om = new ObjectMapper();
 
-     QueryRepository repo = new QueryRepository();
+    QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
 
     if (null != queryRequest.getTextSearch()) {
       if (queryRequest.getQuery() != null && queryRequest.getQuery().getImQuery() != null) {
         List<String> imResults = getIMResults(repo, queryRequest);
-        if (imResults!=null &&!imResults.isEmpty()) {
-          Query query= queryRequest.getQuery();
+        if (imResults != null && !imResults.isEmpty()) {
+          Query query = queryRequest.getQuery();
           Where where = new Where();
           where.setIri(IM.IM_IRI.toString());
           for (String iri : imResults) {
             where.addIs(new Node().setIri(iri));
           }
-          if (query.getWhere()!=null){
+          if (query.getWhere() != null) {
             query.getWhere().addAnd(where);
           } else
             query.setWhere(where);
@@ -119,6 +119,7 @@ public class SearchService {
     JsonNode queryResults = repo.queryIM(queryRequest, false);
     return convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);
   }
+
   public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
     SearchResponse searchResponse = new SearchResponse();
 
@@ -148,26 +149,25 @@ public class SearchService {
   }
 
 
-  private List<String> getIMResults(QueryRepository repo,QueryRequest queryRequest) throws QueryException {
-    Query query= queryRequest.getQuery();
-    String imQuery= query.getImQuery();
-    if (imQuery!=null) {
-      QueryRequest request= new QueryRequest();
+  private List<String> getIMResults(QueryRepository repo, QueryRequest queryRequest) throws QueryException {
+    Query query = queryRequest.getQuery();
+    String imQuery = query.getImQuery();
+    if (imQuery != null) {
+      QueryRequest request = new QueryRequest();
       request.setQuery(new Query().setIri(imQuery));
       request.setArgument(queryRequest.getArgument());
       ObjectMapper om = new ObjectMapper();
       repo.unpackQueryRequest(request, om.createObjectNode());
-      JsonNode results=repo.queryIM(request,false);
-      if (results!=null& results.get(ENTITIES)!=null){
-        List<String> iriResults= new ArrayList<>();
+      JsonNode results = repo.queryIM(request, false);
+      if (results != null & results.get(ENTITIES) != null) {
+        List<String> iriResults = new ArrayList<>();
         for (JsonNode entity : results.get(ENTITIES)) {
           if (entity.has("iri")) iriResults.add(entity.get("iri").asText());
         }
         return iriResults;
       }
       return null;
-    }
-    else return null;
+    } else return null;
   }
 
 
@@ -197,7 +197,7 @@ public class SearchService {
    * @param queryRequest Query inside a request with parameters
    * @throws QueryException if query format is invalid
    */
-  public void updateIM(QueryRequest queryRequest, Graph insertGraph) throws JsonProcessingException, QueryException {
+  public void updateIM(QueryRequest queryRequest, GRAPH insertGraph) throws JsonProcessingException, QueryException {
     new QueryRepository().updateIM(queryRequest, insertGraph);
   }
 

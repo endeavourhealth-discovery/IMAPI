@@ -2,7 +2,7 @@
   {
     "name": "CONFIG",
     "imports": [
-      "Namespace",
+      "NAMESPACE",
       "IM",
       "RDFS"
     ],
@@ -29,15 +29,15 @@
       },
       {
         "name": "IMDIRECTORY_LATEST_RELEASE",
-        "value": "Namespace.CONFIG + \"IMDirectoryLatestRelease\""
+        "value": "NAMESPACE.CONFIG + \"IMDirectoryLatestRelease\""
       },
       {
         "name": "IMDIRECTORY_ALL_RELEASES",
-        "value": "Namespace.CONFIG + \"IMDirectoryAllReleases\""
+        "value": "NAMESPACE.CONFIG + \"IMDirectoryAllReleases\""
       },
       {
         "name": "MONITORING",
-        "value": "Namespace.CONFIG + \"monitoring\""
+        "value": "NAMESPACE.CONFIG + \"monitoring\""
       }
     ]
   },
@@ -66,7 +66,7 @@
   {
     "name": "IM",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -79,51 +79,51 @@
       },
       {
         "name": "DISPLAY_LABEL",
-        "value": "Namespace.IM + \"displayLabel\""
+        "value": "NAMESPACE.IM + \"displayLabel\""
       },
       {
         "name": "HAS_SUBTYPES",
-        "value": "Namespace.IM + \"hasSubtypes\""
+        "value": "NAMESPACE.IM + \"hasSubtypes\""
       },
       {
         "name": "HAS_VALUESET",
-        "value": "Namespace.IM + \"hasValueSet\""
+        "value": "NAMESPACE.IM + \"hasValueSet\""
       },
       {
         "name": "VALUE_SET",
-        "value": "Namespace.IM + \"ValueSet\""
+        "value": "NAMESPACE.IM + \"ValueSet\""
       },
       {
         "name": "DESCENDANTS_OR_SELF_OF",
-        "value": "Namespace.IM + \"DescendantsOrSelfOf\""
+        "value": "NAMESPACE.IM + \"DescendantsOrSelfOf\""
       },
       {
         "name": "DESCENDANTS_OF",
-        "value": "Namespace.IM + \"DescendantsOf\""
+        "value": "NAMESPACE.IM + \"DescendantsOf\""
       },
       {
         "name": "IS_RELATIVE_VALUE",
-        "value": "Namespace.IM + \"isRelativeValue\""
+        "value": "NAMESPACE.IM + \"isRelativeValue\""
       },
       {
         "name": "FULLY_SPECIFIED_NAME",
-        "value": "Namespace.IM + \"fullySpecifiedName\""
+        "value": "NAMESPACE.IM + \"fullySpecifiedName\""
       },
       {
         "name": "ANCESTORS_OF",
-        "value": "Namespace.IM + \"AncestorsOf\""
+        "value": "NAMESPACE.IM + \"AncestorsOf\""
       },
       {
         "name": "ENTAILED_MEMBER",
-        "value": "Namespace.IM + \"entailedMember\""
+        "value": "NAMESPACE.IM + \"entailedMember\""
       },
       {
         "name": "ENTAILMENT",
-        "value": "Namespace.IM + \"entailment\""
+        "value": "NAMESPACE.IM + \"entailment\""
       },
       {
         "name": "EXCLUDE",
-        "value": "Namespace.IM + \"exclude\""
+        "value": "NAMESPACE.IM + \"exclude\""
       },
       {
         "name": "IRI",
@@ -131,7 +131,7 @@
       },
       {
         "name": "IM_IRI",
-        "value": "Namespace.IM + \"iri\""
+        "value": "NAMESPACE.IM + \"iri\""
       },
       {
         "name": "VALUE",
@@ -143,1078 +143,1074 @@
       },
       {
         "name": "ID",
-        "value": "Namespace.IM + \"id\""
+        "value": "NAMESPACE.IM + \"id\""
       },
       {
         "name": "RELATIONSHIP_TYPE",
-        "value": "Namespace.IM + \"relationshipType\""
+        "value": "NAMESPACE.IM + \"relationshipType\""
       },
       {
         "name": "CODE",
-        "value": "Namespace.IM + \"code\""
+        "value": "NAMESPACE.IM + \"code\""
       },
       {
         "name": "KEY_TERM",
-        "value": "Namespace.IM + \"keyTerm\""
+        "value": "NAMESPACE.IM + \"keyTerm\""
       },
       {
         "name": "PREFERRED_NAME",
-        "value": "Namespace.IM + \"preferredName\""
+        "value": "NAMESPACE.IM + \"preferredName\""
       },
       {
         "name": "HAS_SCHEME",
-        "value": "Namespace.IM + \"scheme\""
+        "value": "NAMESPACE.IM + \"scheme\""
       },
       {
         "name": "DEFAULT_SCHEME",
-        "value": "Namespace.IM + \"defaultScheme\""
+        "value": "NAMESPACE.IM + \"defaultScheme\""
       },
       {
         "name": "BINDING",
-        "value": "Namespace.IM + \"binding\""
+        "value": "NAMESPACE.IM + \"binding\""
       },
       {
         "name": "HAS_STATUS",
-        "value": "Namespace.IM + \"status\""
+        "value": "NAMESPACE.IM + \"status\""
       },
       {
         "name": "STATUS",
-        "value": "Namespace.IM + \"Status\""
+        "value": "NAMESPACE.IM + \"Status\""
       },
       {
         "name": "CONTENT_TYPE",
-        "value": "Namespace.IM + \"contentType\""
+        "value": "NAMESPACE.IM + \"contentType\""
       },
       {
         "name": "USAGE_STATS",
-        "value": "Namespace.IM + \"usageStats\""
+        "value": "NAMESPACE.IM + \"usageStats\""
       },
       {
         "name": "IN_TASK",
-        "value": "Namespace.IM + \"inTask\""
+        "value": "NAMESPACE.IM + \"inTask\""
       },
       {
         "name": "DEFINITION",
-        "value": "Namespace.IM + \"definition\""
+        "value": "NAMESPACE.IM + \"definition\""
       },
       {
         "name": "IS",
-        "value": "Namespace.IM + \"is\""
+        "value": "NAMESPACE.IM + \"is\""
       },
       {
         "name": "RETURN_TYPE",
-        "value": "Namespace.IM + \"returnType\""
+        "value": "NAMESPACE.IM + \"returnType\""
       },
       {
         "name": "UPDATE_PROCEDURE",
-        "value": "Namespace.IM + \"updateProcedure\""
+        "value": "NAMESPACE.IM + \"updateProcedure\""
       },
       {
         "name": "INVERSE_PATH",
-        "value": "Namespace.IM + \"inversePath\""
+        "value": "NAMESPACE.IM + \"inversePath\""
       },
       {
         "name": "CONCEPT",
-        "value": "Namespace.IM + \"Concept\""
+        "value": "NAMESPACE.IM + \"Concept\""
       },
       {
         "name": "CODEABLE",
-        "value": "Namespace.IM + \"Codeable\""
+        "value": "NAMESPACE.IM + \"Codeable\""
       },
       {
         "name": "CONCEPT_PROPERTY",
-        "value": "Namespace.IM + \"concept\""
+        "value": "NAMESPACE.IM + \"concept\""
       },
       {
         "name": "CONCEPT_SET",
-        "value": "Namespace.IM + \"ConceptSet\""
+        "value": "NAMESPACE.IM + \"ConceptSet\""
       },
       {
         "name": "FOLDER",
-        "value": "Namespace.IM + \"Folder\""
+        "value": "NAMESPACE.IM + \"Folder\""
       },
       {
         "name": "VALUESET",
-        "value": "Namespace.IM + \"ValueSet\""
+        "value": "NAMESPACE.IM + \"ValueSet\""
       },
       {
         "name": "TEXT_MAPS",
-        "value": "Namespace.IM + \"TextMaps\""
+        "value": "NAMESPACE.IM + \"TextMaps\""
       },
       {
         "name": "CONFIG",
-        "value": "Namespace.IM + \"Config\""
-      },
-      {
-        "name": "NAMESPACE",
-        "value": "Namespace.IM + \"Namespace\""
+        "value": "NAMESPACE.IM + \"Config\""
       },
       {
         "name": "FUNCTION",
-        "value": "Namespace.IM + \"FunctionClause\""
+        "value": "NAMESPACE.IM + \"FunctionClause\""
       },
       {
         "name": "QUERY",
-        "value": "Namespace.IM + \"Query\""
+        "value": "NAMESPACE.IM + \"Query\""
       },
       {
         "name": "DEFAULT_COHORTS",
-        "value": "Namespace.IM + \"Q_DefaultCohorts\""
+        "value": "NAMESPACE.IM + \"Q_DefaultCohorts\""
       },
       {
         "name": "DATA_UPDATE",
-        "value": "Namespace.IM + \"DataUpdate\""
+        "value": "NAMESPACE.IM + \"DataUpdate\""
       },
       {
         "name": "PATH_QUERY",
-        "value": "Namespace.IM + \"PathQuery\""
+        "value": "NAMESPACE.IM + \"PathQuery\""
       },
       {
         "name": "PATH_TO",
-        "value": "Namespace.IM + \"pathTo\""
+        "value": "NAMESPACE.IM + \"pathTo\""
       },
       {
         "name": "OPENSEARCH_QUERY",
-        "value": "Namespace.IM + \"OpenSearchQuery\""
+        "value": "NAMESPACE.IM + \"OpenSearchQuery\""
       },
       {
         "name": "DATAMODEL_PROPERTY",
-        "value": "Namespace.IM + \"dataModelProperty\""
+        "value": "NAMESPACE.IM + \"dataModelProperty\""
       },
       {
         "name": "ONTOLOGY_PARENT_FOLDER",
-        "value": "Namespace.IM + \"HealthModelOntology\""
+        "value": "NAMESPACE.IM + \"HealthModelOntology\""
       },
       {
         "name": "CONCEPT_SET_PARENT_FOLDER",
-        "value": "Namespace.IM + \"QueryConceptSets\""
+        "value": "NAMESPACE.IM + \"QueryConceptSets\""
       },
       {
         "name": "PROPERTIES_FOLDER",
-        "value": "Namespace.IM + \"Properties\""
+        "value": "NAMESPACE.IM + \"Properties\""
       },
       {
         "name": "TASK",
-        "value": "Namespace.IM + \"Task\""
+        "value": "NAMESPACE.IM + \"Task\""
       },
       {
         "name": "FIELD_GROUP",
-        "value": "Namespace.IM + \"FieldGroup\""
+        "value": "NAMESPACE.IM + \"FieldGroup\""
       },
       {
         "name": "MATCH_CLAUSE",
-        "value": "Namespace.IM + \"MatchClause\""
+        "value": "NAMESPACE.IM + \"MatchClause\""
       },
       {
         "name": "FORM_GENERATOR",
-        "value": "Namespace.IM + \"FormGenerator\""
+        "value": "NAMESPACE.IM + \"FormGenerator\""
       },
       {
         "name": "FUNCTION_PROPERTY",
-        "value": "Namespace.IM + \"functionProperty\""
+        "value": "NAMESPACE.IM + \"functionProperty\""
       },
       {
         "name": "MAP_GRAPH",
-        "value": "Namespace.IM + \"GraphMap\""
+        "value": "NAMESPACE.IM + \"GraphMap\""
       },
       {
         "name": "MAP_ENTITY",
-        "value": "Namespace.IM + \"EntityMap\""
+        "value": "NAMESPACE.IM + \"EntityMap\""
       },
       {
         "name": "SET",
-        "value": "Namespace.IM + \"Set\""
+        "value": "NAMESPACE.IM + \"Set\""
       },
       {
         "name": "IS_CONTAINED_IN",
-        "value": "Namespace.IM + \"isContainedIn\""
+        "value": "NAMESPACE.IM + \"isContainedIn\""
       },
       {
         "name": "HAS_MEMBER_PARENT",
-        "value": "Namespace.IM + \"hasMemberParent\""
+        "value": "NAMESPACE.IM + \"hasMemberParent\""
       },
       {
         "name": "FUNCTION_TEMPLATE",
-        "value": "Namespace.IM + \"functionTemplate\""
+        "value": "NAMESPACE.IM + \"functionTemplate\""
       },
       {
         "name": "ONE_OF",
-        "value": "Namespace.IM + \"oneOf\""
+        "value": "NAMESPACE.IM + \"oneOf\""
       },
       {
         "name": "COMBINATION_OF",
-        "value": "Namespace.IM + \"combinationOf\""
+        "value": "NAMESPACE.IM + \"combinationOf\""
       },
       {
         "name": "USE_PREDICATES",
-        "value": "Namespace.IM + \"usePredicates\""
+        "value": "NAMESPACE.IM + \"usePredicates\""
       },
       {
         "name": "SOME_OF",
-        "value": "Namespace.IM + \"someOf\""
+        "value": "NAMESPACE.IM + \"someOf\""
       },
       {
         "name": "HAS_CHILDREN",
-        "value": "Namespace.IM + \"hasChildren\""
+        "value": "NAMESPACE.IM + \"hasChildren\""
       },
       {
         "name": "IS_A",
-        "value": "Namespace.IM + \"isA\""
+        "value": "NAMESPACE.IM + \"isA\""
       },
       {
         "name": "CONTEXT_ORDER",
-        "value": "Namespace.IM+ \"contextOrder\""
+        "value": "NAMESPACE.IM+ \"contextOrder\""
       },
       {
         "name": "CONTEXT",
-        "value": "Namespace.IM + \"context\""
+        "value": "NAMESPACE.IM + \"context\""
       },
       {
         "name": "IS_CHILD_OF",
-        "value": "Namespace.IM + \"isChildOf\""
+        "value": "NAMESPACE.IM + \"isChildOf\""
       },
       {
         "name": "PREVIOUS_ENTITY_OF",
-        "value": "Namespace.IM + \"previousEntityOf\""
+        "value": "NAMESPACE.IM + \"previousEntityOf\""
       },
       {
         "name": "SUBSUMED_BY",
-        "value": "Namespace.IM + \"subsumedBy\""
+        "value": "NAMESPACE.IM + \"subsumedBy\""
       },
       {
         "name": "MAY_BE_SUBSUMED_BY",
-        "value": "Namespace.IM + \"mayBeSubsumedBy\""
+        "value": "NAMESPACE.IM + \"mayBeSubsumedBy\""
       },
       {
         "name": "APPROXIMATE_SUBSUMED_BY",
-        "value": "Namespace.IM + \"approximateSubsumedBy\""
+        "value": "NAMESPACE.IM + \"approximateSubsumedBy\""
       },
       {
         "name": "LOCAL_SUBCLASS_OF",
-        "value": "Namespace.IM + \"localSubClassOf\""
+        "value": "NAMESPACE.IM + \"localSubClassOf\""
       },
       {
         "name": "HAS_CONFIG",
-        "value": "Namespace.IM + \"hasConfig\""
+        "value": "NAMESPACE.IM + \"hasConfig\""
       },
       {
         "name": "PROPERTY_GROUP",
-        "value": "Namespace.IM + \"propertyGroup\""
+        "value": "NAMESPACE.IM + \"propertyGroup\""
       },
       {
         "name": "INHERITED_FROM",
-        "value": "Namespace.IM + \"inheritedFrom\""
+        "value": "NAMESPACE.IM + \"inheritedFrom\""
       },
       {
         "name": "GROUP_NUMBER",
-        "value": "Namespace.IM + \"groupNumber\""
+        "value": "NAMESPACE.IM + \"groupNumber\""
       },
       {
         "name": "ROLE_GROUP",
-        "value": "Namespace.IM + \"roleGroup\""
+        "value": "NAMESPACE.IM + \"roleGroup\""
       },
       {
         "name": "ROLE",
-        "value": "Namespace.IM + \"role\""
+        "value": "NAMESPACE.IM + \"role\""
       },
       {
         "name": "HAS_INHERITED_PROPERTIES",
-        "value": "Namespace.IM + \"hasInheritedProperties\""
+        "value": "NAMESPACE.IM + \"hasInheritedProperties\""
       },
       {
         "name": "DRAFT",
-        "value": "Namespace.IM + \"Draft\""
+        "value": "NAMESPACE.IM + \"Draft\""
       },
       {
         "name": "ACTIVE",
-        "value": "Namespace.IM + \"Active\""
+        "value": "NAMESPACE.IM + \"Active\""
       },
       {
         "name": "INACTIVE",
-        "value": "Namespace.IM + \"Inactive\""
+        "value": "NAMESPACE.IM + \"Inactive\""
       },
       {
         "name": "DEFINITIONAL_STATUS",
-        "value": "Namespace.IM + \"definitionalStatus\""
+        "value": "NAMESPACE.IM + \"definitionalStatus\""
       },
       {
         "name": "SUFFICIENTLY_DEFINED",
-        "value": "Namespace.IM + \"1251000252106\""
+        "value": "NAMESPACE.IM + \"1251000252106\""
       },
       {
         "name": "NECESSARY_NOT_SUFFICIENT",
-        "value": "Namespace.IM + \"2771000252102\""
+        "value": "NAMESPACE.IM + \"2771000252102\""
       },
       {
         "name": "UNASSIGNED",
-        "value": "Namespace.IM + \"Unassigned\""
+        "value": "NAMESPACE.IM + \"Unassigned\""
       },
       {
         "name": "HAS_MAP",
-        "value": "Namespace.IM + \"hasMap\""
+        "value": "NAMESPACE.IM + \"hasMap\""
       },
       {
         "name": "ENTITY_MAP",
-        "value": "Namespace.IM + \"entityMap\""
+        "value": "NAMESPACE.IM + \"entityMap\""
       },
       {
         "name": "MAPPED_TO",
-        "value": "Namespace.IM + \"mappedTo\""
+        "value": "NAMESPACE.IM + \"mappedTo\""
       },
       {
         "name": "HAS_NUMERIC",
-        "value": "Namespace.IM + \"hasNumericValue\""
+        "value": "NAMESPACE.IM + \"hasNumericValue\""
       },
       {
         "name": "SOURCE_TEXT",
-        "value": "Namespace.IM + \"sourceText\""
+        "value": "NAMESPACE.IM + \"sourceText\""
       },
       {
         "name": "TARGET_TEXT",
-        "value": "Namespace.IM + \"targetText\""
+        "value": "NAMESPACE.IM + \"targetText\""
       },
       {
         "name": "HAS_TERM_CODE",
-        "value": "Namespace.IM + \"hasTermCode\""
+        "value": "NAMESPACE.IM + \"hasTermCode\""
       },
       {
         "name": "ALTERNATIVE_CODE",
-        "value": "Namespace.IM + \"alternativeCode\""
+        "value": "NAMESPACE.IM + \"alternativeCode\""
       },
       {
         "name": "DESCRIPTION_ID",
-        "value": "Namespace.IM + \"descriptionId\""
+        "value": "NAMESPACE.IM + \"descriptionId\""
       },
       {
         "name": "CODE_ID",
-        "value": "Namespace.IM + \"codeId\""
+        "value": "NAMESPACE.IM + \"codeId\""
       },
       {
         "name": "MATCHED_TO",
-        "value": "Namespace.IM + \"matchedTo\""
+        "value": "NAMESPACE.IM + \"matchedTo\""
       },
       {
         "name": "MAP_PRIORITY",
-        "value": "Namespace.IM + \"mapPriority\""
+        "value": "NAMESPACE.IM + \"mapPriority\""
       },
       {
         "name": "ASSURANCE_LEVEL",
-        "value": "Namespace.IM + \"assuranceLevel\""
+        "value": "NAMESPACE.IM + \"assuranceLevel\""
       },
       {
         "name": "MAP_ADVICE",
-        "value": "Namespace.IM + \"mapAdvice\""
+        "value": "NAMESPACE.IM + \"mapAdvice\""
       },
       {
         "name": "NATIONALLY_ASSURED",
-        "value": "Namespace.IM + \"NationallyAssuredUK\""
+        "value": "NAMESPACE.IM + \"NationallyAssuredUK\""
       },
       {
         "name": "SUPPLIER_ASSURED",
-        "value": "Namespace.IM + \"SupplierAssured\""
+        "value": "NAMESPACE.IM + \"SupplierAssured\""
       },
       {
         "name": "COHORT",
-        "value": "Namespace.IM +\"Cohort\""
+        "value": "NAMESPACE.IM +\"Cohort\""
       },
       {
         "name": "HAS_MEMBER",
-        "value": "Namespace.IM + \"hasMember\""
+        "value": "NAMESPACE.IM + \"hasMember\""
       },
       {
         "name": "IS_MEMBER_OF",
-        "value": "Namespace.IM + \"isMemberOf\""
+        "value": "NAMESPACE.IM + \"isMemberOf\""
       },
       {
         "name": "AVOID_REPLACED_BY",
-        "value": "Namespace.IM + \"avoidReplacedBy\""
+        "value": "NAMESPACE.IM + \"avoidReplacedBy\""
       },
       {
         "name": "IS_SUBSET_OF",
-        "value": "Namespace.IM + \"isSubsetOf\""
+        "value": "NAMESPACE.IM + \"isSubsetOf\""
       },
       {
         "name": "HAS_SUBSET",
-        "value": "Namespace.IM + \"hasSubset\""
+        "value": "NAMESPACE.IM + \"hasSubset\""
       },
       {
         "name": "SOURCE_CONTEXT",
-        "value": "Namespace.IM + \"sourceContext\""
+        "value": "NAMESPACE.IM + \"sourceContext\""
       },
       {
         "name": "SOURCE_CONTEXT_TYPE",
-        "value": "Namespace.IM + \"SourceContext\""
+        "value": "NAMESPACE.IM + \"SourceContext\""
       },
       {
         "name": "SOURCE_PUBLISHER",
-        "value": "Namespace.IM + \"sourcePublisher\""
+        "value": "NAMESPACE.IM + \"sourcePublisher\""
       },
       {
         "name": "SOURCE_SYSTEM",
-        "value": "Namespace.IM + \"sourceSystem\""
+        "value": "NAMESPACE.IM + \"sourceSystem\""
       },
       {
         "name": "SOURCE_SCHEMA",
-        "value": "Namespace.IM + \"sourceSchema\""
+        "value": "NAMESPACE.IM + \"sourceSchema\""
       },
       {
         "name": "SOURCE_TABLE",
-        "value": "Namespace.IM + \"sourceTable\""
+        "value": "NAMESPACE.IM + \"sourceTable\""
       },
       {
         "name": "SOURCE_FIELD",
-        "value": "Namespace.IM + \"sourceField\""
+        "value": "NAMESPACE.IM + \"sourceField\""
       },
       {
         "name": "TIME_DIFFERENCE",
-        "value": "Namespace.IM + \"TimeDifference\""
+        "value": "NAMESPACE.IM + \"TimeDifference\""
       },
       {
         "name": "SOURCE_CODE_SCHEME",
-        "value": "Namespace.IM + \"sourceCodeScheme\""
+        "value": "NAMESPACE.IM + \"sourceCodeScheme\""
       },
       {
         "name": "SOURCE_VALUE",
-        "value": "Namespace.IM + \"sourceValue\""
+        "value": "NAMESPACE.IM + \"sourceValue\""
       },
       {
         "name": "SOURCE_REGEX",
-        "value": "Namespace.IM + \"sourceRegex\""
+        "value": "NAMESPACE.IM + \"sourceRegex\""
       },
       {
         "name": "SOURCE_HEADING",
-        "value": "Namespace.IM + \"sourceHeading\""
+        "value": "NAMESPACE.IM + \"sourceHeading\""
       },
       {
         "name": "TARGET_PROPERTY",
-        "value": "Namespace.IM + \"targetProperty\""
+        "value": "NAMESPACE.IM + \"targetProperty\""
       },
       {
         "name": "CONTEXT_NODE",
-        "value": "Namespace.IM + \"contextNode\""
+        "value": "NAMESPACE.IM + \"contextNode\""
       },
       {
         "name": "REPLACE_ALL_PREDICATES",
-        "value": "Namespace.IM + \"ReplaceAllPredicates\""
+        "value": "NAMESPACE.IM + \"ReplaceAllPredicates\""
       },
       {
         "name": "ADD_QUADS",
-        "value": "Namespace.IM + \"AddQuads\""
+        "value": "NAMESPACE.IM + \"AddQuads\""
       },
       {
         "name": "UPDATE_PREDICATES",
-        "value": "Namespace.IM + \"UpdatePredicates\""
+        "value": "NAMESPACE.IM + \"UpdatePredicates\""
       },
       {
         "name": "DELETE_ALL",
-        "value": "Namespace.IM + \"DeleteAll\""
+        "value": "NAMESPACE.IM + \"DeleteAll\""
       },
       {
         "name": "PROV_CREATION",
-        "value": "Namespace.IM + \"2001000252109\""
+        "value": "NAMESPACE.IM + \"2001000252109\""
       },
       {
         "name": "PROV_UPDATE",
-        "value": "Namespace.IM + \"1661000252106\""
+        "value": "NAMESPACE.IM + \"1661000252106\""
       },
       {
         "name": "USES",
-        "value": "Namespace.IM + \"uses\""
+        "value": "NAMESPACE.IM + \"uses\""
       },
       {
         "name": "COUNT",
-        "value": "Namespace.IM + \"Count\""
+        "value": "NAMESPACE.IM + \"Count\""
       },
       {
         "name": "SUM",
-        "value": "Namespace.IM + \"Sum\""
+        "value": "NAMESPACE.IM + \"Sum\""
       },
       {
         "name": "AVERAGE",
-        "value": "Namespace.IM + \"Average\""
+        "value": "NAMESPACE.IM + \"Average\""
       },
       {
         "name": "MIN",
-        "value": "Namespace.IM + \"Min\""
+        "value": "NAMESPACE.IM + \"Min\""
       },
       {
         "name": "MAX",
-        "value": "Namespace.IM + \"Max\""
+        "value": "NAMESPACE.IM + \"Max\""
       },
       {
         "name": "CONCATENATE",
-        "value": "Namespace.IM + \"Concatenate\""
+        "value": "NAMESPACE.IM + \"Concatenate\""
       },
       {
         "name": "IN_RESULT_SET",
-        "value": "Namespace.IM + \"inResultSet\""
+        "value": "NAMESPACE.IM + \"inResultSet\""
       },
       {
         "name": "HAS_PROFILE",
-        "value": "Namespace.IM + \"inResultSet\""
+        "value": "NAMESPACE.IM + \"inResultSet\""
       },
       {
         "name": "PROVENANCE_ACTIVITY",
-        "value": "Namespace.IM + \"ProvenanceActivity\""
+        "value": "NAMESPACE.IM + \"ProvenanceActivity\""
       },
       {
         "name": "PROVENANCE_TARGET",
-        "value": "Namespace.IM + \"provenanceTarget\""
+        "value": "NAMESPACE.IM + \"provenanceTarget\""
       },
       {
         "name": "PROVENANCE_ACTIVITY_TYPE",
-        "value": "Namespace.IM + \"provenanceActivityType\""
+        "value": "NAMESPACE.IM + \"provenanceActivityType\""
       },
       {
         "name": "PROVENANCE_AGENT",
-        "value": "Namespace.IM + \"provenanceAgent\""
+        "value": "NAMESPACE.IM + \"provenanceAgent\""
       },
       {
         "name": "INDICATOR",
-        "value": "Namespace.IM + \"Indicator\""
+        "value": "NAMESPACE.IM + \"Indicator\""
       },
       {
         "name": "START_TIME",
-        "value": "Namespace.IM + \"startTime\""
+        "value": "NAMESPACE.IM + \"startTime\""
       },
       {
         "name": "EFFECTIVE_DATE",
-        "value": "Namespace.IM + \"effectiveDate\""
+        "value": "NAMESPACE.IM + \"effectiveDate\""
       },
       {
         "name": "END_DATE",
-        "value": "Namespace.IM + \"endDate\""
+        "value": "NAMESPACE.IM + \"endDate\""
       },
       {
         "name": "PROVENANCE_USED",
-        "value": "Namespace.IM + \"usedEntity\""
+        "value": "NAMESPACE.IM + \"usedEntity\""
       },
       {
         "name": "AUTHOR_ROLE",
-        "value": "Namespace.IM + \"1001911000252102\""
+        "value": "NAMESPACE.IM + \"1001911000252102\""
       },
       {
         "name": "VERSION",
-        "value": "Namespace.IM + \"version\""
+        "value": "NAMESPACE.IM + \"version\""
       },
       {
         "name": "HAS_ROLE_IN",
-        "value": "Namespace.IM + \"hasRoleInOrganisation\""
+        "value": "NAMESPACE.IM + \"hasRoleInOrganisation\""
       },
       {
         "name": "IS_PERSON",
-        "value": "Namespace.IM + \"isPerson\""
+        "value": "NAMESPACE.IM + \"isPerson\""
       },
       {
         "name": "HAS_CONTEXT",
-        "value": "Namespace.IM + \"hasContext\""
+        "value": "NAMESPACE.IM + \"hasContext\""
       },
       {
         "name": "DISPLAY_ORDER",
-        "value": "Namespace.IM + \"displayOrder\""
+        "value": "NAMESPACE.IM + \"displayOrder\""
       },
       {
         "name": "USAGE_TOTAL",
-        "value": "Namespace.IM + \"usageTotal\""
+        "value": "NAMESPACE.IM + \"usageTotal\""
       },
       {
         "name": "DESCENDING",
-        "value": "Namespace.IM + \"Descending\""
+        "value": "NAMESPACE.IM + \"Descending\""
       },
       {
         "name": "ASCENDING",
-        "value": "Namespace.IM + \"Ascending\""
+        "value": "NAMESPACE.IM + \"Ascending\""
       },
       {
         "name": "PLABEL",
-        "value": "Namespace.IM + \"pLabel\""
+        "value": "NAMESPACE.IM + \"pLabel\""
       },
       {
         "name": "OLABEL",
-        "value": "Namespace.IM + \"oLabel\""
+        "value": "NAMESPACE.IM + \"oLabel\""
       },
       {
         "name": "EXAMPLE",
-        "value": "Namespace.IM + \"example\""
+        "value": "NAMESPACE.IM + \"example\""
       },
       {
         "name": "PRIVACY_LEVEL",
-        "value": "Namespace.IM + \"privacyLevel\""
+        "value": "NAMESPACE.IM + \"privacyLevel\""
       },
       {
         "name": "VALUE_SELECT",
-        "value": "Namespace.IM + \"valueSelect\""
+        "value": "NAMESPACE.IM + \"valueSelect\""
       },
       {
         "name": "VALUE_VARIABLE",
-        "value": "Namespace.IM + \"valueVariable\""
+        "value": "NAMESPACE.IM + \"valueVariable\""
       },
       {
         "name": "PLACEHOLDER",
-        "value": "Namespace.IM + \"placeHolder\""
+        "value": "NAMESPACE.IM + \"placeHolder\""
       },
       {
         "name": "FUNCTION_DEFINITION",
-        "value": "Namespace.IM + \"function\""
+        "value": "NAMESPACE.IM + \"function\""
       },
       {
         "name": "ADDRESS_CLASS",
-        "value": "Namespace.IM + \"Address\""
+        "value": "NAMESPACE.IM + \"Address\""
       },
       {
         "name": "ADDRESS",
-        "value": "Namespace.IM + \"address\""
+        "value": "NAMESPACE.IM + \"address\""
       },
       {
         "name": "ADDRESS_LINE_1",
-        "value": "Namespace.IM + \"addressLine1\""
+        "value": "NAMESPACE.IM + \"addressLine1\""
       },
       {
         "name": "ADDRESS_LINE_2",
-        "value": "Namespace.IM + \"addressLine2\""
+        "value": "NAMESPACE.IM + \"addressLine2\""
       },
       {
         "name": "ADDRESS_LINE_3",
-        "value": "Namespace.IM + \"addressLine3\""
+        "value": "NAMESPACE.IM + \"addressLine3\""
       },
       {
         "name": "LOCALITY",
-        "value": "Namespace.IM + \"locality\""
+        "value": "NAMESPACE.IM + \"locality\""
       },
       {
         "name": "REGION",
-        "value": "Namespace.IM + \"region\""
+        "value": "NAMESPACE.IM + \"region\""
       },
       {
         "name": "POST_CODE",
-        "value": "Namespace.IM + \"postCode\""
+        "value": "NAMESPACE.IM + \"postCode\""
       },
       {
         "name": "COUNTRY",
-        "value": "Namespace.IM + \"country\""
+        "value": "NAMESPACE.IM + \"country\""
       },
       {
         "name": "UPRN",
-        "value": "Namespace.IM + \"uprn\""
+        "value": "NAMESPACE.IM + \"uprn\""
       },
       {
         "name": "ENTITY_TYPES",
-        "value": "Namespace.IM + \"EntityTypes\""
+        "value": "NAMESPACE.IM + \"EntityTypes\""
       },
       {
         "name": "CONCEPT_SET_GROUP",
-        "value": "Namespace.IM + \"ConceptSetGroup\""
+        "value": "NAMESPACE.IM + \"ConceptSetGroup\""
       },
       {
         "name": "OLD_CODE",
-        "value": "Namespace.IM + \"oldCode\""
+        "value": "NAMESPACE.IM + \"oldCode\""
       },
       {
         "name": "ORDER",
-        "value": "Namespace.IM + \"order\""
+        "value": "NAMESPACE.IM + \"order\""
       },
       {
         "name": "MAPPING_TASK",
-        "value": "Namespace.IM + \"MappingTask\""
+        "value": "NAMESPACE.IM + \"MappingTask\""
       },
       {
         "name": "UPDATE_TASK",
-        "value": "Namespace.IM + \"UpdateTask\""
+        "value": "NAMESPACE.IM + \"UpdateTask\""
       },
       {
         "name": "MATCHED_FROM",
-        "value": "Namespace.IM + \"matchedFrom\""
+        "value": "NAMESPACE.IM + \"matchedFrom\""
       },
       {
         "name": "MAPPED_FROM",
-        "value": "Namespace.IM + \"mappedFrom\""
+        "value": "NAMESPACE.IM + \"mappedFrom\""
       },
       {
         "name": "SELECT",
-        "value": "Namespace.IM + \"select\""
+        "value": "NAMESPACE.IM + \"select\""
       },
       {
         "name": "NATIONALLY_ASSURED_UK",
-        "value": "Namespace.IM + \"NationallyAssuredUK\""
+        "value": "NAMESPACE.IM + \"NationallyAssuredUK\""
       },
       {
         "name": "ENTITY",
-        "value": "Namespace.IM + \"Entity\""
+        "value": "NAMESPACE.IM + \"Entity\""
       },
       {
         "name": "IS_SUBINDICATOR_OF",
-        "value": "Namespace.IM + \"isSubIndicatorOf\""
+        "value": "NAMESPACE.IM + \"isSubIndicatorOf\""
       },
       {
         "name": "QUERY_SET",
-        "value": "Namespace.IM + \"QuerySet\""
+        "value": "NAMESPACE.IM + \"QuerySet\""
       },
       {
         "name": "DEPENDENT_ON",
-        "value": "Namespace.IM + \"dependentOn\""
+        "value": "NAMESPACE.IM + \"dependentOn\""
       },
       {
         "name": "CARE_ACTIVITY",
-        "value": "Namespace.IM + \"CareActivity\""
+        "value": "NAMESPACE.IM + \"CareActivity\""
       },
       {
         "name": "CARE_TARGET",
-        "value": "Namespace.IM + \"CareTarget\""
+        "value": "NAMESPACE.IM + \"CareTarget\""
       },
       {
         "name": "QUERY_TEMPLATE",
-        "value": "Namespace.IM + \"QueryTemplate\""
+        "value": "NAMESPACE.IM + \"QueryTemplate\""
       },
       {
         "name": "NUMERATOR",
-        "value": "Namespace.IM + \"numerator\""
+        "value": "NAMESPACE.IM + \"numerator\""
       },
       {
         "name": "DENOMINATOR",
-        "value": "Namespace.IM + \"denominator\""
+        "value": "NAMESPACE.IM + \"denominator\""
       },
       {
         "name": "HAS_DATASET",
-        "value": "Namespace.IM + \"dataset\""
+        "value": "NAMESPACE.IM + \"dataset\""
       },
       {
         "name": "RECORD_TYPE",
-        "value": "Namespace.IM + \"RecordType\""
+        "value": "NAMESPACE.IM + \"RecordType\""
       },
       {
         "name": "FEATURE",
-        "value": "Namespace.IM + \"MatchClause\""
+        "value": "NAMESPACE.IM + \"MatchClause\""
       },
       {
         "name": "DATA_PROPERTY",
-        "value": "Namespace.IM + \"DataProperty\""
+        "value": "NAMESPACE.IM + \"DataProperty\""
       },
       {
         "name": "ORGANISATION",
-        "value": "Namespace.IM + \"Organisation\""
+        "value": "NAMESPACE.IM + \"Organisation\""
       },
       {
         "name": "MODELLING_ENTITY_TYPE",
-        "value": "Namespace.IM + \"ModellingEntityType\""
+        "value": "NAMESPACE.IM + \"ModellingEntityType\""
       },
       {
         "name": "PROFILE",
-        "value": "Namespace.IM + \"Profile\""
+        "value": "NAMESPACE.IM + \"Profile\""
       },
       {
         "name": "STATS_REPORT_ENTRY",
-        "value": "Namespace.IM + \"hasStatsReportEntry\""
+        "value": "NAMESPACE.IM + \"hasStatsReportEntry\""
       },
       {
         "name": "FAVOURITES",
-        "value": "Namespace.IM + \"Favourites\""
+        "value": "NAMESPACE.IM + \"Favourites\""
       },
       {
         "name": "MODULE_ONTOLOGY",
-        "value": "Namespace.IM + \"DiscoveryOntology\""
+        "value": "NAMESPACE.IM + \"DiscoveryOntology\""
       },
       {
         "name": "MODULE_SETS",
-        "value": "Namespace.IM + \"Sets\""
+        "value": "NAMESPACE.IM + \"Sets\""
       },
       {
         "name": "MODULE_DATA_MODEL",
-        "value": "Namespace.IM + \"DiscoveryCommonDataModel\""
+        "value": "NAMESPACE.IM + \"DiscoveryCommonDataModel\""
       },
       {
         "name": "MODULE_CATALOGUE",
-        "value": "Namespace.IM + \"Catalogue\""
+        "value": "NAMESPACE.IM + \"Catalogue\""
       },
       {
         "name": "MODULE_QUERIES",
-        "value": "Namespace.IM + \"Q_Queries\""
+        "value": "NAMESPACE.IM + \"Q_Queries\""
       },
       {
         "name": "MODULE_IM",
-        "value": "Namespace.IM + \"InformationModel\""
+        "value": "NAMESPACE.IM + \"InformationModel\""
       },
       {
         "name": "MODULE_TASKS",
-        "value": "Namespace.IM + \"Tasks\""
+        "value": "NAMESPACE.IM + \"Tasks\""
       },
       {
         "name": "MODULE_FEATURES",
-        "value": "Namespace.IM + \"M_MatchClauses\""
+        "value": "NAMESPACE.IM + \"M_MatchClauses\""
       },
       {
         "name": "CONCEPT_CATEGORY",
-        "value": "Namespace.IM + \"ontologyOverview\""
+        "value": "NAMESPACE.IM + \"ontologyOverview\""
       },
       {
         "name": "CONCEPT_TYPES",
-        "value": "Namespace.IM + \"ontologyConceptTypes\""
+        "value": "NAMESPACE.IM + \"ontologyConceptTypes\""
       },
       {
         "name": "CONCEPT_SCHEMES",
-        "value": "Namespace.IM + \"ontologyConceptSchemes\""
+        "value": "NAMESPACE.IM + \"ontologyConceptSchemes\""
       },
       {
         "name": "CONCEPT_STATUS",
-        "value": "Namespace.IM + \"ontologyConceptStatus\""
+        "value": "NAMESPACE.IM + \"ontologyConceptStatus\""
       },
       {
         "name": "HAS_VALUE",
-        "value": "Namespace.IM + \"hasValue\""
+        "value": "NAMESPACE.IM + \"hasValue\""
       },
       {
         "name": "DATAMODEL_ENTITY",
-        "value": "Namespace.IM + \"DataModelEntity\""
+        "value": "NAMESPACE.IM + \"DataModelEntity\""
       },
       {
         "name": "DATAMODEL_OBJECTPROPERTY",
-        "value": "Namespace.IM + \"dataModelObjectProperty\""
+        "value": "NAMESPACE.IM + \"dataModelObjectProperty\""
       },
       {
         "name": "DATAMODEL_DATAPROPERTY",
-        "value": "Namespace.IM + \"dataModelDataProperty\""
+        "value": "NAMESPACE.IM + \"dataModelDataProperty\""
       },
       {
         "name": "DATAMODEL_FUNCTIONPROPERTY",
-        "value": "Namespace.IM + \"functionProperty\""
+        "value": "NAMESPACE.IM + \"functionProperty\""
       },
       {
         "name": "BEST_MATCH",
-        "value": "Namespace.IM + \"bestMatch\""
+        "value": "NAMESPACE.IM + \"bestMatch\""
       },
       {
         "name": "ENTITY_TYPE",
-        "value": "Namespace.IM + \"entityType\""
+        "value": "NAMESPACE.IM + \"entityType\""
       },
       {
         "name": "VALUE_DATA",
-        "value": "Namespace.IM + \"valueData\""
+        "value": "NAMESPACE.IM + \"valueData\""
       },
       {
         "name": "VALUE_OBJECT",
-        "value": "Namespace.IM + \"valueObject\""
+        "value": "NAMESPACE.IM + \"valueObject\""
       },
       {
         "name": "PREPOSITION",
-        "value": "Namespace.IM + \"preposition\""
+        "value": "NAMESPACE.IM + \"preposition\""
       },
       {
         "name": "VALUE_IRI",
-        "value": "Namespace.IM + \"valueIri\""
+        "value": "NAMESPACE.IM + \"valueIri\""
       },
       {
         "name": "VALUE_IRI_LIST",
-        "value": "Namespace.IM + \"valueIriList\""
+        "value": "NAMESPACE.IM + \"valueIriList\""
       },
       {
         "name": "VALUE_DATA_LIST",
-        "value": "Namespace.IM + \"valueDataList\""
+        "value": "NAMESPACE.IM + \"valueDataList\""
       },
       {
         "name": "IM_1_ID",
-        "value": "Namespace.IM + \"im1Id\""
+        "value": "NAMESPACE.IM + \"im1Id\""
       },
       {
         "name": "PROV_ACTIVITY_TYPE",
-        "value": "Namespace.IM + \"provenanceActivityType\""
+        "value": "NAMESPACE.IM + \"provenanceActivityType\""
       },
       {
         "name": "FOLDER_VALUESETS",
-        "value": "Namespace.IM + \"ValueSets\""
+        "value": "NAMESPACE.IM + \"ValueSets\""
       },
       {
         "name": "FOLDER_SETS",
-        "value": "Namespace.IM + \"Sets\""
+        "value": "NAMESPACE.IM + \"Sets\""
       },
       {
         "name": "FOLDER_QUERY_CONCEPT_SETS",
-        "value": "Namespace.IM + \"QueryConceptSets\""
+        "value": "NAMESPACE.IM + \"QueryConceptSets\""
       },
       {
         "name": "DATE_OF_ENTRY",
-        "value": "Namespace.IM + \"dateOfEntry\""
+        "value": "NAMESPACE.IM + \"dateOfEntry\""
       },
       {
         "name": "PARTICIPATION_TYPE",
-        "value": "Namespace.IM + \"participationType\""
+        "value": "NAMESPACE.IM + \"participationType\""
       },
       {
         "name": "PERSON_IN_ROLE",
-        "value": "Namespace.IM + \"personInRole\""
+        "value": "NAMESPACE.IM + \"personInRole\""
       },
       {
         "name": "PROVENANCE_SOURCE_ENTITY",
-        "value": "Namespace.IM + \"ProvenanceSourceEntity\""
+        "value": "NAMESPACE.IM + \"ProvenanceSourceEntity\""
       },
       {
         "name": "DERIVATION_TYPE",
-        "value": "Namespace.IM + \"derivationType\""
+        "value": "NAMESPACE.IM + \"derivationType\""
       },
       {
         "name": "ENTITY_IDENTIFIER",
-        "value": "Namespace.IM + \"entityIdentifier\""
+        "value": "NAMESPACE.IM + \"entityIdentifier\""
       },
       {
         "name": "CODE_TEMPLATE",
-        "value": "Namespace.IM + \"codeTemplate\""
+        "value": "NAMESPACE.IM + \"codeTemplate\""
       },
       {
         "name": "DATAMODEL_CLASSES",
-        "value": "Namespace.IM + \"DataModelClasses\""
+        "value": "NAMESPACE.IM + \"DataModelClasses\""
       },
       {
         "name": "DATE_TIME",
-        "value": "Namespace.IM + \"DateTime\""
+        "value": "NAMESPACE.IM + \"DateTime\""
       },
       {
         "name": "TEMPLATE_NUMERIC_EVENT_ORDER",
-        "value": "Namespace.IM + \"TEMPLATE_NumericEventOrder\""
+        "value": "NAMESPACE.IM + \"TEMPLATE_NumericEventOrder\""
       },
       {
         "name": "ORDER_BY",
-        "value": "Namespace.IM + \"OrderBy\""
+        "value": "NAMESPACE.IM + \"OrderBy\""
       },
       {
         "name": "PARAMETER_TEMPLATE",
-        "value": "Namespace.IM + \"parameterTemplate\""
+        "value": "NAMESPACE.IM + \"parameterTemplate\""
       },
       {
         "name": "VALUE_TEMPLATE",
-        "value": "Namespace.IM + \"valueTemplate\""
+        "value": "NAMESPACE.IM + \"valueTemplate\""
       },
       {
         "name": "DEFAULT_VALUE",
-        "value": "Namespace.IM + \"defaultValue\""
+        "value": "NAMESPACE.IM + \"defaultValue\""
       },
       {
         "name": "LOAD_MORE",
-        "value": "Namespace.IM + \"loadMore\""
+        "value": "NAMESPACE.IM + \"loadMore\""
       },
       {
         "name": "DATA_MODEL_PROPERTY_CONCEPT",
-        "value": "Namespace.IM + \"concept\""
+        "value": "NAMESPACE.IM + \"concept\""
       },
       {
         "name": "NUMERIC_VALUE",
-        "value": "Namespace.IM + \"NumericValue\""
+        "value": "NAMESPACE.IM + \"NumericValue\""
       },
       {
         "name": "HEALTH_RECORDS",
-        "value": "Namespace.IM + \"HealthRecords\""
+        "value": "NAMESPACE.IM + \"HealthRecords\""
       },
       {
         "name": "HAS_INCREMENTAL_FROM",
-        "value": "Namespace.IM + \"hasIncrementalFrom\""
+        "value": "NAMESPACE.IM + \"hasIncrementalFrom\""
       },
       {
         "name": "ECL_BUILDER_SCHEMES",
-        "value": "Namespace.IM + \"ECLBuilderSchemes\""
+        "value": "NAMESPACE.IM + \"ECLBuilderSchemes\""
       },
       {
         "name": "INFERRED_PREDICATES",
-        "value": "Namespace.IM + \"inferredPredicates\""
+        "value": "NAMESPACE.IM + \"inferredPredicates\""
       },
       {
         "name": "INFERRED_EXCLUDE_PREDICATES",
-        "value": "Namespace.IM + \"inferredExcludePredicates\""
+        "value": "NAMESPACE.IM + \"inferredExcludePredicates\""
       },
       {
         "name": "GRAPH_EXCLUDE_PREDICATES",
-        "value": "Namespace.IM + \"graphExcludePredicates\""
+        "value": "NAMESPACE.IM + \"graphExcludePredicates\""
       },
       {
         "name": "AGE",
-        "value": "Namespace.IM + \"Age\""
+        "value": "NAMESPACE.IM + \"Age\""
       },
       {
         "name": "DATE",
-        "value": "Namespace.IM + \"Date\""
+        "value": "NAMESPACE.IM + \"Date\""
       },
       {
         "name": "TIME",
-        "value": "Namespace.IM + \"Time\""
+        "value": "NAMESPACE.IM + \"Time\""
       },
       {
         "name": "INTERVAL_UNIT",
-        "value": "Namespace.IM + \"intervalUnit\""
+        "value": "NAMESPACE.IM + \"intervalUnit\""
       },
       {
         "name": "PARAMETER",
-        "value": "Namespace.IM + \"parameter\""
+        "value": "NAMESPACE.IM + \"parameter\""
       },
       {
         "name": "NUMERIC_DIFFERENCE",
-        "value": "Namespace.IM + \"NumericDifference\""
+        "value": "NAMESPACE.IM + \"NumericDifference\""
       },
       {
         "name": "FISCAL_YEAR",
-        "value": "Namespace.IM + \"fiscalYear\""
+        "value": "NAMESPACE.IM + \"fiscalYear\""
       },
       {
         "name": "YEARS",
-        "value": "Namespace.IM + \"Years\""
+        "value": "NAMESPACE.IM + \"Years\""
       },
       {
         "name": "MONTH",
-        "value": "Namespace.IM + \"month\""
+        "value": "NAMESPACE.IM + \"month\""
       },
       {
         "name": "MONTHS",
-        "value": "Namespace.IM + \"Months\""
+        "value": "NAMESPACE.IM + \"Months\""
       },
       {
         "name": "DAYS",
-        "value": "Namespace.IM + \"Days\""
+        "value": "NAMESPACE.IM + \"Days\""
       },
       {
         "name": "HOURS",
-        "value": "Namespace.IM + \"Hours\""
+        "value": "NAMESPACE.IM + \"Hours\""
       },
       {
         "name": "MINUTES",
-        "value": "Namespace.IM + \"Minutes\""
+        "value": "NAMESPACE.IM + \"Minutes\""
       },
       {
         "name": "SECONDS",
-        "value": "Namespace.IM + \"Seconds\""
+        "value": "NAMESPACE.IM + \"Seconds\""
       },
       {
         "name": "DATATYPE_QUALIFIER",
-        "value": "Namespace.IM + \"datatypeQualifier\""
+        "value": "NAMESPACE.IM + \"datatypeQualifier\""
       },
       {
         "name": "TYPE_FILTER_OPTIONS",
-        "value": "Namespace.IM + \"TypeFilterOptions\""
+        "value": "NAMESPACE.IM + \"TypeFilterOptions\""
       },
       {
         "name": "SORT_FIELD_FILTER_OPTIONS",
-        "value": "Namespace.IM + \"SortFieldFilterOptions\""
+        "value": "NAMESPACE.IM + \"SortFieldFilterOptions\""
       },
       {
         "name": "SORT_DIRECTION_FILTER_OPTIONS",
-        "value": "Namespace.IM + \"SortDirectionFilterOptions\""
+        "value": "NAMESPACE.IM + \"SortDirectionFilterOptions\""
       },
       {
         "name": "STATUS_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"StatusFilterDefaultOptions\""
+        "value": "NAMESPACE.IM + \"StatusFilterDefaultOptions\""
       },
       {
         "name": "TYPE_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"TypeFilterDefaultOptions\""
+        "value": "NAMESPACE.IM + \"TypeFilterDefaultOptions\""
       },
       {
         "name": "SORT_FIELD_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"SortFieldFilterDefaultOptions\""
+        "value": "NAMESPACE.IM + \"SortFieldFilterDefaultOptions\""
       },
       {
         "name": "SORT_DIRECTION_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"SortDirectionFilterDefaultOptions\""
+        "value": "NAMESPACE.IM + \"SortDirectionFilterDefaultOptions\""
       }
     ]
   },
   {
     "name": "IM_FUNCTION",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1223,51 +1219,51 @@
       },
       {
         "name": "SNOMED_CONCEPT_GENERATOR",
-        "value": "Namespace.FUNCTION + \"SnomedConceptGenerator\""
+        "value": "NAMESPACE.FUNCTION + \"SnomedConceptGenerator\""
       },
       {
         "name": "LOCAL_NAME_RETRIEVER",
-        "value": "Namespace.FUNCTION + \"LocalNameRetriever\""
+        "value": "NAMESPACE.FUNCTION + \"LocalNameRetriever\""
       },
       {
         "name": "GET_ADDITIONAL_ALLOWABLE_TYPES",
-        "value": "Namespace.FUNCTION + \"GetAdditionalAllowableTypes\""
+        "value": "NAMESPACE.FUNCTION + \"GetAdditionalAllowableTypes\""
       },
       {
         "name": "GET_LOGIC_OPTIONS",
-        "value": "Namespace.FUNCTION + \"GetLogicOptions\""
+        "value": "NAMESPACE.FUNCTION + \"GetLogicOptions\""
       },
       {
         "name": "GET_SET_EDITOR_IRI_SCHEMES",
-        "value": "Namespace.FUNCTION + \"GetSetEditorIriSchemes\""
+        "value": "NAMESPACE.FUNCTION + \"GetSetEditorIriSchemes\""
       },
       {
         "name": "IM1_SCHEME_OPTIONS",
-        "value": "Namespace.FUNCTION + \"IM1SchemeOptions\""
+        "value": "NAMESPACE.FUNCTION + \"IM1SchemeOptions\""
       },
       {
         "name": "SCHEME_FROM_IRI",
-        "value": "Namespace.FUNCTION + \"SchemeFromIri\""
+        "value": "NAMESPACE.FUNCTION + \"SchemeFromIri\""
       },
       {
         "name": "GET_USER_EDITABLE_SCHEMES",
-        "value": "Namespace.FUNCTION + \"GetUserEditableSchemes\""
+        "value": "NAMESPACE.FUNCTION + \"GetUserEditableSchemes\""
       },
       {
         "name": "IS_TYPE",
-        "value": "Namespace.FUNCTION + \"IsType\""
+        "value": "NAMESPACE.FUNCTION + \"IsType\""
       },
       {
         "name": "ALLOWABLE_PROPERTIES",
-        "value": "Namespace.FUNCTION + \"AllowableProperties\""
+        "value": "NAMESPACE.FUNCTION + \"AllowableProperties\""
       },
       {
         "name": "ALLOWABLE_RANGES",
-        "value": "Namespace.FUNCTION + \"AllowableRanges\""
+        "value": "NAMESPACE.FUNCTION + \"AllowableRanges\""
       },
       {
         "name": "ALLOWABLE_PROPERTY_VALUES",
-        "value": "Namespace.FUNCTION + \"AllowablePropertyValues\""
+        "value": "NAMESPACE.FUNCTION + \"AllowablePropertyValues\""
       }
     ]
   },
@@ -1333,7 +1329,7 @@
   {
     "name": "OWL",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1342,119 +1338,119 @@
       },
       {
         "name": "THING",
-        "value": "Namespace.OWL + \"Thing\""
+        "value": "NAMESPACE.OWL + \"Thing\""
       },
       {
         "name": "CLASS",
-        "value": "Namespace.OWL + \"Class\""
+        "value": "NAMESPACE.OWL + \"Class\""
       },
       {
         "name": "EQUIVALENT_CLASS",
-        "value": "Namespace.OWL + \"equivalentClass\""
+        "value": "NAMESPACE.OWL + \"equivalentClass\""
       },
       {
         "name": "INTERSECTION_OF",
-        "value": "Namespace.OWL + \"intersectionOf\""
+        "value": "NAMESPACE.OWL + \"intersectionOf\""
       },
       {
         "name": "UNION_OF",
-        "value": "Namespace.OWL + \"unionOf\""
+        "value": "NAMESPACE.OWL + \"unionOf\""
       },
       {
         "name": "RESTRICTION",
-        "value": "Namespace.OWL + \"Restriction\""
+        "value": "NAMESPACE.OWL + \"Restriction\""
       },
       {
         "name": "ON_PROPERTY",
-        "value": "Namespace.OWL + \"onProperty\""
+        "value": "NAMESPACE.OWL + \"onProperty\""
       },
       {
         "name": "ON_CLASS",
-        "value": "Namespace.OWL + \"onClass\""
+        "value": "NAMESPACE.OWL + \"onClass\""
       },
       {
         "name": "SOME_VALUES_FROM",
-        "value": "Namespace.OWL + \"someValuesFrom\""
+        "value": "NAMESPACE.OWL + \"someValuesFrom\""
       },
       {
         "name": "ALL_VALUES_FROM",
-        "value": "Namespace.OWL + \"allValuesFrom\""
+        "value": "NAMESPACE.OWL + \"allValuesFrom\""
       },
       {
         "name": "OBJECT_PROPERTY",
-        "value": "Namespace.OWL + \"ObjectProperty\""
+        "value": "NAMESPACE.OWL + \"ObjectProperty\""
       },
       {
         "name": "DATATYPE_PROPERTY",
-        "value": "Namespace.OWL + \"DatatypeProperty\""
+        "value": "NAMESPACE.OWL + \"DatatypeProperty\""
       },
       {
         "name": "ANNOTATION_PROPERTY",
-        "value": "Namespace.OWL + \"AnnotationProperty\""
+        "value": "NAMESPACE.OWL + \"AnnotationProperty\""
       },
       {
         "name": "INVERSE_OF",
-        "value": "Namespace.OWL + \"inverseOf\""
+        "value": "NAMESPACE.OWL + \"inverseOf\""
       },
       {
         "name": "INVERSE_OBJECT_PROPERTY",
-        "value": "Namespace.OWL + \"inverseOf\""
+        "value": "NAMESPACE.OWL + \"inverseOf\""
       },
       {
         "name": "PROPERTY_CHAIN",
-        "value": "Namespace.OWL + \"propertyChainAxiom\""
+        "value": "NAMESPACE.OWL + \"propertyChainAxiom\""
       },
       {
         "name": "TRANSITIVE",
-        "value": "Namespace.OWL + \"TransitiveProperty\""
+        "value": "NAMESPACE.OWL + \"TransitiveProperty\""
       },
       {
         "name": "FUNCTIONAL",
-        "value": "Namespace.OWL + \"FunctionalProperty\""
+        "value": "NAMESPACE.OWL + \"FunctionalProperty\""
       },
       {
         "name": "SYMMETRIC",
-        "value": "Namespace.OWL + \"SymmetricProperty\""
+        "value": "NAMESPACE.OWL + \"SymmetricProperty\""
       },
       {
         "name": "REFLEXIVE",
-        "value": "Namespace.OWL + \"ReflexiveProperty\""
+        "value": "NAMESPACE.OWL + \"ReflexiveProperty\""
       },
       {
         "name": "ON_DATATYPE",
-        "value": "Namespace.OWL + \"onDatatype\""
+        "value": "NAMESPACE.OWL + \"onDatatype\""
       },
       {
         "name": "WITH_RESTRICTIONS",
-        "value": "Namespace.OWL + \"withRestrictions\""
+        "value": "NAMESPACE.OWL + \"withRestrictions\""
       },
       {
         "name": "MAX_CARDINALITY",
-        "value": "Namespace.OWL + \"maxCardinality\""
+        "value": "NAMESPACE.OWL + \"maxCardinality\""
       },
       {
         "name": "MIN_CARDINALITY",
-        "value": "Namespace.OWL + \"minCardinality\""
+        "value": "NAMESPACE.OWL + \"minCardinality\""
       },
       {
         "name": "ON_DATA_RANGE",
-        "value": "Namespace.OWL + \"onDataRange\""
+        "value": "NAMESPACE.OWL + \"onDataRange\""
       },
       {
         "name": "HAS_VALUE",
-        "value": "Namespace.OWL + \"hasValue\""
+        "value": "NAMESPACE.OWL + \"hasValue\""
       },
       {
         "name": "COMPLEMENT_OF",
-        "value": "Namespace.OWL + \"complementOf\""
+        "value": "NAMESPACE.OWL + \"complementOf\""
       },
       {
         "name": "ONE_OF",
-        "value": "Namespace.OWL + \"oneOf\""
+        "value": "NAMESPACE.OWL + \"oneOf\""
       },
       {
         "name": "NAMED_INDIVIDUAL",
-        "value": "Namespace.OWL + \"NamedIndividual\""
+        "value": "NAMESPACE.OWL + \"NamedIndividual\""
       }
     ]
   },
@@ -1492,7 +1488,7 @@
   {
     "name": "RDF",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1501,34 +1497,34 @@
       },
       {
         "name": "TYPE",
-        "value": "Namespace.RDF + \"type\""
+        "value": "NAMESPACE.RDF + \"type\""
       },
       {
         "name": "PROPERTY",
-        "value": "Namespace.RDF + \"Property\""
+        "value": "NAMESPACE.RDF + \"Property\""
       },
       {
         "name": "LIST",
-        "value": "Namespace.RDF + \"List\""
+        "value": "NAMESPACE.RDF + \"List\""
       },
       {
         "name": "PREDICATE",
-        "value": "Namespace.RDF + \"predicate\""
+        "value": "NAMESPACE.RDF + \"predicate\""
       },
       {
         "name": "SUBJECT",
-        "value": "Namespace.RDF + \"subject\""
+        "value": "NAMESPACE.RDF + \"subject\""
       },
       {
         "name": "OBJECT",
-        "value": "Namespace.RDF + \"object\""
+        "value": "NAMESPACE.RDF + \"object\""
       }
     ]
   },
   {
     "name": "RDFS",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1537,50 +1533,50 @@
       },
       {
         "name": "LABEL",
-        "value": "Namespace.RDFS + \"label\""
+        "value": "NAMESPACE.RDFS + \"label\""
       },
       {
         "name": "COMMENT",
-        "value": "Namespace.RDFS + \"comment\""
+        "value": "NAMESPACE.RDFS + \"comment\""
       },
       {
         "name": "SUBCLASS_OF",
-        "value": "Namespace.RDFS + \"subClassOf\""
+        "value": "NAMESPACE.RDFS + \"subClassOf\""
       },
       {
         "name": "SUB_PROPERTY_OF",
-        "value": "Namespace.RDFS + \"subPropertyOf\""
+        "value": "NAMESPACE.RDFS + \"subPropertyOf\""
       },
       {
         "name": "DOMAIN",
-        "value": "Namespace.RDFS + \"domain\""
+        "value": "NAMESPACE.RDFS + \"domain\""
       },
       {
         "name": "RANGE",
-        "value": "Namespace.RDFS + \"range\""
+        "value": "NAMESPACE.RDFS + \"range\""
       },
       {
         "name": "RESOURCE",
-        "value": "Namespace.RDFS + \"Resource\""
+        "value": "NAMESPACE.RDFS + \"Resource\""
       },
       {
         "name": "CLASS",
-        "value": "Namespace.RDFS + \"Class\""
+        "value": "NAMESPACE.RDFS + \"Class\""
       },
       {
         "name": "DATATYPE",
-        "value": "Namespace.RDFS + \"Datatype\""
+        "value": "NAMESPACE.RDFS + \"Datatype\""
       },
       {
         "name": "IS_DEFINED_BY",
-        "value": "Namespace.RDFS + \"isDefinedBy\""
+        "value": "NAMESPACE.RDFS + \"isDefinedBy\""
       }
     ]
   },
   {
     "name": "SHACL",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1589,162 +1585,162 @@
       },
       {
         "name": "PATH",
-        "value": "Namespace.SHACL + \"path\""
+        "value": "NAMESPACE.SHACL + \"path\""
       },
       {
         "name": "MININCLUSIVE",
-        "value": "Namespace.SHACL + \"minInclusive\""
+        "value": "NAMESPACE.SHACL + \"minInclusive\""
       },
       {
         "name": "MINEXCLUSIVE",
-        "value": "Namespace.SHACL + \"minExclusive\""
+        "value": "NAMESPACE.SHACL + \"minExclusive\""
       },
       {
         "name": "MAXINCLUSIVE",
-        "value": "Namespace.SHACL + \"maxInclusive\""
+        "value": "NAMESPACE.SHACL + \"maxInclusive\""
       },
       {
         "name": "MAXEXCLUSIVE",
-        "value": "Namespace.SHACL + \"maxExclusive\""
+        "value": "NAMESPACE.SHACL + \"maxExclusive\""
       },
       {
         "name": "PROPERTY",
-        "value": "Namespace.SHACL + \"property\""
+        "value": "NAMESPACE.SHACL + \"property\""
       },
       {
         "name": "PROPERTY_GROUP",
-        "value": "Namespace.SHACL + \"PropertyGroup\""
+        "value": "NAMESPACE.SHACL + \"PropertyGroup\""
       },
       {
         "name": "MINCOUNT",
-        "value": "Namespace.SHACL + \"minCount\""
+        "value": "NAMESPACE.SHACL + \"minCount\""
       },
       {
         "name": "MAXCOUNT",
-        "value": "Namespace.SHACL + \"maxCount\""
+        "value": "NAMESPACE.SHACL + \"maxCount\""
       },
       {
         "name": "VALUE",
-        "value": "Namespace.SHACL + \"value\""
+        "value": "NAMESPACE.SHACL + \"value\""
       },
       {
         "name": "PATTERN",
-        "value": "Namespace.SHACL + \"pattern\""
+        "value": "NAMESPACE.SHACL + \"pattern\""
       },
       {
         "name": "INVERSEPATH",
-        "value": "Namespace.SHACL + \"inversePath\""
+        "value": "NAMESPACE.SHACL + \"inversePath\""
       },
       {
         "name": "CLASS",
-        "value": "Namespace.SHACL + \"class\""
+        "value": "NAMESPACE.SHACL + \"class\""
       },
       {
         "name": "DATATYPE",
-        "value": "Namespace.SHACL + \"datatype\""
+        "value": "NAMESPACE.SHACL + \"datatype\""
       },
       {
         "name": "SPARQL",
-        "value": "Namespace.SHACL + \"sparql\""
+        "value": "NAMESPACE.SHACL + \"sparql\""
       },
       {
         "name": "SELECT",
-        "value": "Namespace.SHACL + \"select\""
+        "value": "NAMESPACE.SHACL + \"select\""
       },
       {
         "name": "PARAMETER",
-        "value": "Namespace.SHACL + \"parameter\""
+        "value": "NAMESPACE.SHACL + \"parameter\""
       },
       {
         "name": "IRI",
-        "value": "Namespace.SHACL + \"IRI\""
+        "value": "NAMESPACE.SHACL + \"IRI\""
       },
       {
         "name": "OPTIONAL",
-        "value": "Namespace.SHACL + \"optional\""
+        "value": "NAMESPACE.SHACL + \"optional\""
       },
       {
         "name": "NODESHAPE",
-        "value": "Namespace.SHACL + \"NodeShape\""
+        "value": "NAMESPACE.SHACL + \"NodeShape\""
       },
       {
         "name": "TARGETCLASS",
-        "value": "Namespace.SHACL + \"targetClass\""
+        "value": "NAMESPACE.SHACL + \"targetClass\""
       },
       {
         "name": "NODE",
-        "value": "Namespace.SHACL + \"node\""
+        "value": "NAMESPACE.SHACL + \"node\""
       },
       {
         "name": "ORDER",
-        "value": "Namespace.SHACL + \"order\""
+        "value": "NAMESPACE.SHACL + \"order\""
       },
       {
         "name": "OR",
-        "value": "Namespace.SHACL + \"or\""
+        "value": "NAMESPACE.SHACL + \"or\""
       },
       {
         "name": "NOT",
-        "value": "Namespace.SHACL + \"not\""
+        "value": "NAMESPACE.SHACL + \"not\""
       },
       {
         "name": "NODE_KIND",
-        "value": "Namespace.SHACL + \"nodeKind\""
+        "value": "NAMESPACE.SHACL + \"nodeKind\""
       },
       {
         "name": "PROPERTYSHAPE",
-        "value": "Namespace.SHACL + \"PropertyShape\""
+        "value": "NAMESPACE.SHACL + \"PropertyShape\""
       },
       {
         "name": "AND",
-        "value": "Namespace.SHACL + \"and\""
+        "value": "NAMESPACE.SHACL + \"and\""
       },
       {
         "name": "NODES",
-        "value": "Namespace.SHACL + \"nodes\""
+        "value": "NAMESPACE.SHACL + \"nodes\""
       },
       {
         "name": "TARGET_TYPE",
-        "value": "Namespace.SHACL + \"targetType\""
+        "value": "NAMESPACE.SHACL + \"targetType\""
       },
       {
         "name": "TARGET",
-        "value": "Namespace.SHACL + \"target\""
+        "value": "NAMESPACE.SHACL + \"target\""
       },
       {
         "name": "SPARQL_TARGET",
-        "value": "Namespace.SHACL + \"SPARQLTarget\""
+        "value": "NAMESPACE.SHACL + \"SPARQLTarget\""
       },
       {
         "name": "FUNCTION",
-        "value": "Namespace.SHACL + \"Function\""
+        "value": "NAMESPACE.SHACL + \"Function\""
       },
       {
         "name": "RETURN_TYPE",
-        "value": "Namespace.SHACL + \"returnType\""
+        "value": "NAMESPACE.SHACL + \"returnType\""
       },
       {
         "name": "GROUP",
-        "value": "Namespace.SHACL + \"group\""
+        "value": "NAMESPACE.SHACL + \"group\""
       },
       {
         "name": "NAME",
-        "value": "Namespace.SHACL + \"name\""
+        "value": "NAMESPACE.SHACL + \"name\""
       },
       {
         "name": "EXPRESSION",
-        "value": "Namespace.SHACL + \"expression\""
+        "value": "NAMESPACE.SHACL + \"expression\""
       },
       {
         "name": "HAS_VALUE",
-        "value": "Namespace.SHACL + \"hasValue\""
+        "value": "NAMESPACE.SHACL + \"hasValue\""
       }
     ]
   },
   {
     "name": "SNOMED",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1757,18 +1753,18 @@
       },
       {
         "name": "ATTRIBUTE",
-        "value": "Namespace.SNOMED + \"246061005\""
+        "value": "NAMESPACE.SNOMED + \"246061005\""
       },
       {
         "name": "ANY",
-        "value": "Namespace.SNOMED + \"*\""
+        "value": "NAMESPACE.SNOMED + \"*\""
       }
     ]
   },
   {
     "name": "USER",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1781,46 +1777,46 @@
       },
       {
         "name": "USER_PRESET",
-        "value": "Namespace.USER + \"UserPreset\""
+        "value": "NAMESPACE.USER + \"UserPreset\""
       },
       {
         "name": "USER_PRIMARY_COLOR",
-        "value": "Namespace.USER + \"UserPrimaryColor\""
+        "value": "NAMESPACE.USER + \"UserPrimaryColor\""
       },
       {
         "name": "USER_SURFACE_COLOR",
-        "value": "Namespace.USER + \"UserSurfaceColor\""
+        "value": "NAMESPACE.USER + \"UserSurfaceColor\""
       },
       {
         "name": "USER_DARK_MODE",
-        "value": "Namespace.USER + \"UserDarkMode\""
+        "value": "NAMESPACE.USER + \"UserDarkMode\""
       },
       {
         "name": "USER_FONT_SIZE",
-        "value": "Namespace.USER + \"UserFontSize\""
+        "value": "NAMESPACE.USER + \"UserFontSize\""
       },
       {
         "name": "USER_MRU",
-        "value": "Namespace.USER + \"UserMRU\""
+        "value": "NAMESPACE.USER + \"UserMRU\""
       },
       {
         "name": "USER_FAVOURITES",
-        "value": "Namespace.USER + \"UserFavourites\""
+        "value": "NAMESPACE.USER + \"UserFavourites\""
       },
       {
         "name": "ORGANISATIONS",
-        "value": "Namespace.USER + \"Organisations\""
+        "value": "NAMESPACE.USER + \"Organisations\""
       },
       {
         "name": "GRAPHS",
-        "value": "Namespace.USER + \"Graphs\""
+        "value": "NAMESPACE.USER + \"Graphs\""
       }
     ]
   },
   {
     "name": "WORKFLOW",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1829,118 +1825,118 @@
       },
       {
         "name": "BUG_REPORT",
-        "value": "Namespace.WORKFLOW + \"bugReport\""
+        "value": "NAMESPACE.WORKFLOW + \"bugReport\""
       },
       {
         "name": "DATE_CREATED",
-        "value": "Namespace.WORKFLOW + \"dateCreated\""
+        "value": "NAMESPACE.WORKFLOW + \"dateCreated\""
       },
       {
         "name": "CREATED_BY",
-        "value": "Namespace.WORKFLOW + \"createdBy\""
+        "value": "NAMESPACE.WORKFLOW + \"createdBy\""
       },
       {
         "name": "ASSIGNED_TO",
-        "value": "Namespace.WORKFLOW + \"assignedTo\""
+        "value": "NAMESPACE.WORKFLOW + \"assignedTo\""
       },
       {
         "name": "STATE",
-        "value": "Namespace.WORKFLOW + \"state\""
+        "value": "NAMESPACE.WORKFLOW + \"state\""
       },
       {
         "name": "HOST_URL",
-        "value": "Namespace.WORKFLOW + \"hostUrl\""
+        "value": "NAMESPACE.WORKFLOW + \"hostUrl\""
       },
       {
         "name": "RELATED_PRODUCT",
-        "value": "Namespace.WORKFLOW + \"relatedProduct\""
+        "value": "NAMESPACE.WORKFLOW + \"relatedProduct\""
       },
       {
         "name": "RELATED_MODULE",
-        "value": "Namespace.WORKFLOW + \"relatedModule\""
+        "value": "NAMESPACE.WORKFLOW + \"relatedModule\""
       },
       {
         "name": "OPERATING_SYSTEM",
-        "value": "Namespace.WORKFLOW + \"operatingSystem\""
+        "value": "NAMESPACE.WORKFLOW + \"operatingSystem\""
       },
       {
         "name": "OPERATING_SYSTEM_OTHER",
-        "value": "Namespace.WORKFLOW + \"operatingSystemOther\""
+        "value": "NAMESPACE.WORKFLOW + \"operatingSystemOther\""
       },
       {
         "name": "BROWSER",
-        "value": "Namespace.WORKFLOW + \"browser\""
+        "value": "NAMESPACE.WORKFLOW + \"browser\""
       },
       {
         "name": "BROWSER_OTHER",
-        "value": "Namespace.WORKFLOW + \"browserOther\""
+        "value": "NAMESPACE.WORKFLOW + \"browserOther\""
       },
       {
         "name": "SEVERITY",
-        "value": "Namespace.WORKFLOW + \"severity\""
+        "value": "NAMESPACE.WORKFLOW + \"severity\""
       },
       {
         "name": "ERROR",
-        "value": "Namespace.WORKFLOW + \"errorDetails\""
+        "value": "NAMESPACE.WORKFLOW + \"errorDetails\""
       },
       {
         "name": "REPRODUCE_STEPS",
-        "value": "Namespace.WORKFLOW + \"reproduceSteps\""
+        "value": "NAMESPACE.WORKFLOW + \"reproduceSteps\""
       },
       {
         "name": "EXPECTED_RESULT",
-        "value": "Namespace.WORKFLOW + \"expectedResult\""
+        "value": "NAMESPACE.WORKFLOW + \"expectedResult\""
       },
       {
         "name": "ACTUAL_RESULT",
-        "value": "Namespace.WORKFLOW + \"actualResult\""
+        "value": "NAMESPACE.WORKFLOW + \"actualResult\""
       },
       {
         "name": "RELATED_VERSION",
-        "value": "Namespace.WORKFLOW + \"relatedVersion\""
+        "value": "NAMESPACE.WORKFLOW + \"relatedVersion\""
       },
       {
         "name": "REQUESTED_ROLE",
-        "value": "Namespace.WORKFLOW + \"requestedRole\""
+        "value": "NAMESPACE.WORKFLOW + \"requestedRole\""
       },
       {
         "name": "REQUESTED_NAMESPACE",
-        "value": "Namespace.WORKFLOW + \"requestedNamespace\""
+        "value": "NAMESPACE.WORKFLOW + \"requestedNAMESPACE\""
       },
       {
         "name": "APPROVAL_TYPE",
-        "value": "Namespace.WORKFLOW + \"approvalType\""
+        "value": "NAMESPACE.WORKFLOW + \"approvalType\""
       },
       {
         "name": "HISTORY",
-        "value": "Namespace.WORKFLOW + \"history\""
+        "value": "NAMESPACE.WORKFLOW + \"history\""
       },
       {
         "name": "HISTORY_PREDICATE",
-        "value": "Namespace.WORKFLOW + \"historyPredicate\""
+        "value": "NAMESPACE.WORKFLOW + \"historyPredicate\""
       },
       {
         "name": "HISTORY_ORIGINAL_OBJECT",
-        "value": "Namespace.WORKFLOW + \"historyOriginalObject\""
+        "value": "NAMESPACE.WORKFLOW + \"historyOriginalObject\""
       },
       {
         "name": "HISTORY_NEW_OBJECT",
-        "value": "Namespace.WORKFLOW + \"historyNewObject\""
+        "value": "NAMESPACE.WORKFLOW + \"historyNewObject\""
       },
       {
         "name": "HISTORY_CHANGE_DATE",
-        "value": "Namespace.WORKFLOW + \"historyChangeDate\""
+        "value": "NAMESPACE.WORKFLOW + \"historyChangeDate\""
       },
       {
         "name": "MODIFIED_BY",
-        "value": "Namespace.WORKFLOW + \"modifiedBy\""
+        "value": "NAMESPACE.WORKFLOW + \"modifiedBy\""
       }
     ]
   },
   {
     "name": "XSD",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -1949,62 +1945,62 @@
       },
       {
         "name": "PATTERN",
-        "value": "Namespace.XSD + \"pattern\""
+        "value": "NAMESPACE.XSD + \"pattern\""
       },
       {
         "name": "MIN_INCLUSIVE",
-        "value": "Namespace.XSD + \"minInclusive\""
+        "value": "NAMESPACE.XSD + \"minInclusive\""
       },
       {
         "name": "MIN_EXCLUSIVE",
-        "value": "Namespace.XSD + \"minExclusive\""
+        "value": "NAMESPACE.XSD + \"minExclusive\""
       },
       {
         "name": "MAX_INCLUSIVE",
-        "value": "Namespace.XSD + \"maxInclusive\""
+        "value": "NAMESPACE.XSD + \"maxInclusive\""
       },
       {
         "name": "MAX_EXCLUSIVE",
-        "value": "Namespace.XSD + \"maxExclusive\""
+        "value": "NAMESPACE.XSD + \"maxExclusive\""
       },
       {
         "name": "INTEGER",
-        "value": "Namespace.XSD + \"integer\""
+        "value": "NAMESPACE.XSD + \"integer\""
       },
       {
         "name": "STRING",
-        "value": "Namespace.XSD + \"string\""
+        "value": "NAMESPACE.XSD + \"string\""
       },
       {
         "name": "BOOLEAN",
-        "value": "Namespace.XSD + \"boolean\""
+        "value": "NAMESPACE.XSD + \"boolean\""
       },
       {
         "name": "LONG",
-        "value": "Namespace.XSD + \"long\""
+        "value": "NAMESPACE.XSD + \"long\""
       },
       {
         "name": "DOUBLE",
-        "value": "Namespace.XSD + \"double\""
+        "value": "NAMESPACE.XSD + \"double\""
       },
       {
         "name": "DATE_TIME",
-        "value": "Namespace.XSD + \"dateTime\""
+        "value": "NAMESPACE.XSD + \"dateTime\""
       },
       {
         "name": "NUMBER",
-        "value": "Namespace.XSD + \"number\""
+        "value": "NAMESPACE.XSD + \"number\""
       },
       {
         "name": "DECIMAL",
-        "value": "Namespace.XSD + \"decimal\""
+        "value": "NAMESPACE.XSD + \"decimal\""
       }
     ]
   },
   {
     "name": "COMPONENT",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -2013,118 +2009,118 @@
       },
       {
         "name": "TAB_LAYOUT",
-        "value": "Namespace.IM_COMPONENT + \"TabLayout\""
+        "value": "NAMESPACE.IM_COMPONENT + \"TabLayout\""
       },
       {
         "name": "TEXT_DISPLAY",
-        "value": "Namespace.IM_COMPONENT + \"textDisplay\""
+        "value": "NAMESPACE.IM_COMPONENT + \"textDisplay\""
       },
       {
         "name": "TEXT_INPUT",
-        "value": "Namespace.IM_COMPONENT + \"textInput\""
+        "value": "NAMESPACE.IM_COMPONENT + \"textInput\""
       },
       {
         "name": "HTML_INPUT",
-        "value": "Namespace.IM_COMPONENT + \"htmlInput\""
+        "value": "NAMESPACE.IM_COMPONENT + \"htmlInput\""
       },
       {
         "name": "ENTITY_MULTI_SEARCH",
-        "value": "Namespace.IM_COMPONENT + \"entityMultiSearch\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entityMultiSearch\""
       },
       {
         "name": "ENTITY_SEARCH",
-        "value": "Namespace.IM_COMPONENT + \"entitySearch\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entitySearch\""
       },
       {
         "name": "ENTITY_COMBOBOX",
-        "value": "Namespace.IM_COMPONENT + \"entityComboBox\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entityComboBox\""
       },
       {
         "name": "ENTITY_DROPDOWN",
-        "value": "Namespace.IM_COMPONENT + \"entityDropdown\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entityDropdown\""
       },
       {
         "name": "ARRAY_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"arrayBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"arrayBuilder\""
       },
       {
         "name": "ENTITY_AUTO_COMPLETE",
-        "value": "Namespace.IM_COMPONENT + \"entityAutoComplete\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entityAutoComplete\""
       },
       {
         "name": "MEMBERS_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"membersBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"membersBuilder\""
       },
       {
         "name": "COMPONENT_GROUP",
-        "value": "Namespace.IM_COMPONENT + \"componentGroup\""
+        "value": "NAMESPACE.IM_COMPONENT + \"componentGroup\""
       },
       {
         "name": "PROPERTY_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"propertyBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"propertyBuilder\""
       },
       {
         "name": "SET_DEFINITION_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"SetDefinitionBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"SetDefinitionBuilder\""
       },
       {
         "name": "QUERY_DEFINITION_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"QueryDefinitionBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"QueryDefinitionBuilder\""
       },
       {
         "name": "TOGGLEABLE",
-        "value": "Namespace.IM_COMPONENT + \"ToggleableComponent\""
+        "value": "NAMESPACE.IM_COMPONENT + \"ToggleableComponent\""
       },
       {
         "name": "HORIZONTAL_LAYOUT",
-        "value": "Namespace.IM_COMPONENT + \"HorizontalLayout\""
+        "value": "NAMESPACE.IM_COMPONENT + \"HorizontalLayout\""
       },
       {
         "name": "VERTICAL_LAYOUT",
-        "value": "Namespace.IM_COMPONENT + \"VerticalLayout\""
+        "value": "NAMESPACE.IM_COMPONENT + \"VerticalLayout\""
       },
       {
         "name": "DROPDOWN_TEXT_INPUT_CONCATENATOR",
-        "value": "Namespace.IM_COMPONENT + \"dropdownTextInputConcatenator\""
+        "value": "NAMESPACE.IM_COMPONENT + \"dropdownTextInputConcatenator\""
       },
       {
         "name": "ROLE_GROUP_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"roleGroupBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"roleGroupBuilder\""
       },
       {
         "name": "TERM_CODE_EDITOR",
-        "value": "Namespace.IM_COMPONENT + \"termCodeEditor\""
+        "value": "NAMESPACE.IM_COMPONENT + \"termCodeEditor\""
       },
       {
         "name": "TEXT_DROPDOWN",
-        "value": "Namespace.IM_COMPONENT + \"textDropdown\""
+        "value": "NAMESPACE.IM_COMPONENT + \"textDropdown\""
       },
       {
         "name": "ENTITY_DISPLAY",
-        "value": "Namespace.IM_COMPONENT + \"entityDisplay\""
+        "value": "NAMESPACE.IM_COMPONENT + \"entityDisplay\""
       },
       {
         "name": "IRI_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"iriBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"iriBuilder\""
       },
       {
         "name": "AUTOCOMPLETE_SEARCH_BAR_WRAPPER",
-        "value": "Namespace.IM_COMPONENT + \"autocompleteSearchBarWrapper\""
+        "value": "NAMESPACE.IM_COMPONENT + \"autocompleteSearchBarWrapper\""
       },
       {
         "name": "SUBSET_BUILDER",
-        "value": "Namespace.IM_COMPONENT + \"subsetBuilder\""
+        "value": "NAMESPACE.IM_COMPONENT + \"subsetBuilder\""
       },
       {
         "name": "CHECKBOX_DISPLAY",
-        "value": "Namespace.IM_COMPONENT + \"checkboxDisplay\""
+        "value": "NAMESPACE.IM_COMPONENT + \"checkboxDisplay\""
       }
     ]
   },
   {
     "name": "EDITOR",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -2133,42 +2129,42 @@
       },
       {
         "name": "CONCEPT_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"ConceptShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"ConceptShape\""
       },
       {
         "name": "CONCEPT_SET_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"ConceptSetShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"ConceptSetShape\""
       },
       {
         "name": "VALUE_SET_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"ValueSetShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"ValueSetShape\""
       },
       {
         "name": "FOLDER_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"FolderShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"FolderShape\""
       },
       {
         "name": "DATA_MODEL_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"DataModelShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"DataModelShape\""
       },
       {
         "name": "COHORT_QUERY_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"CohortQueryShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"CohortQueryShape\""
       },
       {
         "name": "PROPERTY_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"PropertyShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"PropertyShape\""
       },
       {
         "name": "INDICATOR_SHAPE",
-        "value": "Namespace.IM_EDITOR + \"IndicatorShape\""
+        "value": "NAMESPACE.IM_EDITOR + \"IndicatorShape\""
       }
     ]
   },
   {
     "name": "QUERY",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -2177,102 +2173,102 @@
       },
       {
         "name": "IS_ALLOWABLE_RANGE",
-        "value": "Namespace.IM_QUERY + \"IsAllowableRange\""
+        "value": "NAMESPACE.IM_QUERY + \"IsAllowableRange\""
       },
       {
         "name": "ALLOWABLE_RANGE_SUGGESTIONS",
-        "value": "Namespace.IM_QUERY + \"AllowableRangeSuggestions\""
+        "value": "NAMESPACE.IM_QUERY + \"AllowableRangeSuggestions\""
       },
       {
         "name": "GET_SUBCLASSES",
-        "value": "Namespace.IM_QUERY + \"GetSubClasses\""
+        "value": "NAMESPACE.IM_QUERY + \"GetSubClasses\""
       },
       {
         "name": "GET_DESCENDANTS",
-        "value": "Namespace.IM_QUERY + \"GetDescendants\""
+        "value": "NAMESPACE.IM_QUERY + \"GetDescendants\""
       },
       {
         "name": "IS_VALID_DESCENDANT",
-        "value": "Namespace.IM_QUERY + \"IsValidDescendant\""
+        "value": "NAMESPACE.IM_QUERY + \"IsValidDescendant\""
       },
       {
         "name": "GET_ANCESTORS",
-        "value": "Namespace.IM_QUERY + \"GetAncestors\""
+        "value": "NAMESPACE.IM_QUERY + \"GetAncestors\""
       },
       {
         "name": "SEARCH_CONTAINED_IN",
-        "value": "Namespace.IM_QUERY + \"SearchContainedIn\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchContainedIn\""
       },
       {
         "name": "ALLOWABLE_CHILD_TYPES",
-        "value": "Namespace.IM_QUERY + \"AllowableChildTypes\""
+        "value": "NAMESPACE.IM_QUERY + \"AllowableChildTypes\""
       },
       {
         "name": "PROPERTY_RANGE",
-        "value": "Namespace.IM_QUERY + \"PropertyRange\""
+        "value": "NAMESPACE.IM_QUERY + \"PropertyRange\""
       },
       {
         "name": "OBJECT_PROPERTY_RANGE_SUGGESTIONS",
-        "value": "Namespace.IM_QUERY + \"ObjectPropertyRangeSuggestions\""
+        "value": "NAMESPACE.IM_QUERY + \"ObjectPropertyRangeSuggestions\""
       },
       {
         "name": "DATA_PROPERTY_RANGE_SUGGESTIONS",
-        "value": "Namespace.IM_QUERY + \"DataPropertyRangeSuggestions\""
+        "value": "NAMESPACE.IM_QUERY + \"DataPropertyRangeSuggestions\""
       },
       {
         "name": "ALLOWABLE_PROPERTIES",
-        "value": "Namespace.IM_QUERY + \"AllowableProperties\""
+        "value": "NAMESPACE.IM_QUERY + \"AllowableProperties\""
       },
       {
         "name": "ALLOWABLE_PROPERTY_ANCESTORS",
-        "value": "Namespace.IM_QUERY + \"AllowablePropertyAncestors\""
+        "value": "NAMESPACE.IM_QUERY + \"AllowablePropertyAncestors\""
       },
       {
         "name": "IS_VALID_PROPERTY",
-        "value": "Namespace.IM_QUERY + \"IsValidProperty\""
+        "value": "NAMESPACE.IM_QUERY + \"IsValidProperty\""
       },
       {
         "name": "ENTITY_FILTER",
-        "value": "Namespace.IM_QUERY + \"EntityFilter\""
+        "value": "NAMESPACE.IM_QUERY + \"EntityFilter\""
       },
       {
         "name": "SEARCH_ENTITIES",
-        "value": "Namespace.IM_QUERY + \"SearchEntities\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchEntities\""
       },
       {
         "name": "SEARCH_FOLDERS",
-        "value": "Namespace.IM_QUERY + \"SearchFolders\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchFolders\""
       },
       {
         "name": "SEARCH_ALLOWABLE_CONTAINED_IN",
-        "value": "Namespace.IM_QUERY + \"SearchAllowableContainedIn\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchAllowableContainedIn\""
       },
       {
         "name": "SEARCH_MAIN_TYPES",
-        "value": "Namespace.IM_QUERY + \"SearchmainTypes\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchmainTypes\""
       },
       {
         "name": "DM_PROPERTY",
-        "value": "Namespace.IM_QUERY + \"DataModelPropertyByShape\""
+        "value": "NAMESPACE.IM_QUERY + \"DataModelPropertyByShape\""
       },
       {
         "name": "SEARCH_ALLOWABLE_SUBCLASS",
-        "value": "Namespace.IM_QUERY + \"SearchAllowableSubclass\""
+        "value": "NAMESPACE.IM_QUERY + \"SearchAllowableSubclass\""
       },
       {
         "name": "GET_VALUES_FROM_PROPERTY_RANGE",
-        "value": "Namespace.IM_QUERY + \"GetValuesFromPropertyRange\""
+        "value": "NAMESPACE.IM_QUERY + \"GetValuesFromPropertyRange\""
       },
       {
         "name": "GET_SUBSETS",
-        "value": "Namespace.IM_QUERY + \"GetSubsets\""
+        "value": "NAMESPACE.IM_QUERY + \"GetSubsets\""
       }
     ]
   },
   {
     "name": "VALIDATION",
     "imports": [
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -2281,40 +2277,40 @@
       },
       {
         "name": "IS_DEFINITION",
-        "value": "Namespace.IM_VALIDATION + \"isDefinition\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isDefinition\""
       },
       {
         "name": "HAS_PARENT",
-        "value": "Namespace.IM_VALIDATION + \"hasParent\""
+        "value": "NAMESPACE.IM_VALIDATION + \"hasParent\""
       },
       {
         "name": "IS_IRI",
-        "value": "Namespace.IM_VALIDATION + \"isIri\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isIri\""
       },
       {
         "name": "IS_TERMCODE",
-        "value": "Namespace.IM_VALIDATION + \"isTermcode\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isTermcode\""
       },
       {
         "name": "IS_PROPERTY",
-        "value": "Namespace.IM_VALIDATION + \"isProperty\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isProperty\""
       },
       {
         "name": "IS_SCHEME",
-        "value": "Namespace.IM_VALIDATION + \"isScheme\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isScheme\""
       },
       {
         "name": "IS_STATUS",
-        "value": "Namespace.IM_VALIDATION + \"isStatus\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isStatus\""
       },
       {
         "name": "IS_ROLE_GROUP",
-        "value": "Namespace.IM_VALIDATION + \"isRoleGroup\""
+        "value": "NAMESPACE.IM_VALIDATION + \"isRoleGroup\""
       }
     ]
   },
   {
-    "name": "Graph",
+    "name": "GRAPH",
     "entries": [
       {
         "name": "IM",
@@ -2343,7 +2339,7 @@
     ]
   },
   {
-    "name": "ImportType",
+    "name": "IMPORT_TYPE",
     "entries": [
       {
         "name": "SNOMED",
@@ -2460,12 +2456,12 @@
     ]
   },
   {
-    "name": "CodeTemplate",
+    "name": "CODE_TEMPLATE",
     "imports": [
       "IM",
       "RDF",
       "RDFS",
-      "Namespace"
+      "NAMESPACE"
     ],
     "entries": [
       {
@@ -2478,7 +2474,7 @@
       },
       {
         "name": "WRAPPER",
-        "value": "Namespace.IM_CODE_TEMPLATE + \"wrapper\""
+        "value": "NAMESPACE.IM_CODE_TEMPLATE + \"wrapper\""
       },
       {
         "name": "LABEL",
@@ -2494,20 +2490,20 @@
       },
       {
         "name": "DATATYPE_MAP",
-        "value": "Namespace.IM_CODE_TEMPLATE + \"datatypeMap\""
+        "value": "NAMESPACE.IM_CODE_TEMPLATE + \"datatypeMap\""
       },
       {
         "name": "EXTENSION",
-        "value": "Namespace.IM_CODE_TEMPLATE + \"extension\""
+        "value": "NAMESPACE.IM_CODE_TEMPLATE + \"extension\""
       },
       {
         "name": "INCLUDE_COMPLEX_TYPES",
-        "value": "Namespace.IM_CODE_TEMPLATE + \"includeComplexTypes\""
+        "value": "NAMESPACE.IM_CODE_TEMPLATE + \"includeComplexTypes\""
       }
     ]
   },
   {
-    "name": "OpenSearch",
+    "name": "OPEN_SEARCH",
     "imports": [
       "IM",
       "RDF",
@@ -2561,28 +2557,28 @@
     ]
   },
   {
-    "name": "TransformFunction",
+    "name": "TRANSFORM_FUNCTION",
     "imports": [
-      "Namespace",
+      "NAMESPACE",
       "IM"
     ],
     "entries": [
       {
         "name": "CONCATENATE",
-        "value": "Namespace.IM + \"Concatenate\""
+        "value": "NAMESPACE.IM + \"Concatenate\""
       },
       {
         "name": "STRING_JOIN",
-        "value": "Namespace.IM + \"StringJoin\""
+        "value": "NAMESPACE.IM + \"StringJoin\""
       },
       {
         "name": "SNOMED_CODE_CONCEPT_MAP",
-        "value": "Namespace.IM + \"SchemedCodeConceptMap\""
+        "value": "NAMESPACE.IM + \"SchemedCodeConceptMap\""
       }
     ]
   },
   {
-    "name": "EntityType",
+    "name": "ENTITY_TYPE",
     "imports": [
       "IM",
       "SHACL"
@@ -2599,7 +2595,7 @@
     ]
   },
   {
-    "name": "Namespace",
+    "name": "NAMESPACE",
     "entries": [
       {
         "name": "LNWH_SY",

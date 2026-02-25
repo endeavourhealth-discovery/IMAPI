@@ -13,7 +13,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
@@ -28,15 +28,72 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
+  private final Map<String, String> nodeRefToLabel = new HashMap<>();
   @Getter
   private EntityRepository repo = new EntityRepository();
-  private final Map<String, String> nodeRefToLabel = new HashMap<>();
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
   private DisplayMode displayMode;
 
+  public static String describeOrderBy(OrderLimit orderBy) {
+    String orderDisplay = "";
+    for (OrderDirection property : orderBy.getProperty()) {
+      String field = property.getIri();
+      if (field.toLowerCase().contains("date")) {
+        if (property.getDirection() == Order.descending) orderDisplay = "latest ";
+        else orderDisplay = "earliest ";
+      } else {
+        if (property.getDirection() == Order.descending) orderDisplay = "maximum ";
+        else orderDisplay = "minimum ";
+      }
+    }
+    if (orderBy.getLimit() > 1) {
+      if (orderBy.getLimit() < 100)
+        orderDisplay = orderDisplay + " " + orderBy.getLimit();
+      else orderDisplay = orderDisplay + " several ";
+    }
+    orderBy.setDescription(orderDisplay);
 
+    return orderDisplay;
+  }
+
+  private static boolean isValidDate(String dateStr) {
+    String[] patterns = {
+      "yyyy-MM-dd",
+      "dd/MM/yyyy",
+      "MM/dd/yyyy",
+      "yyyyMMdd"
+    };
+    for (String pattern : patterns) {
+      try {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        LocalDate.parse(dateStr, formatter);
+        return true;
+      } catch (DateTimeParseException ignored) {
+      }
+    }
+    return false;
+  }
+
+  public static String getShortName(String name) {
+    if (name == null) return null;
+    int length = name.length();
+    StringBuilder startShort = new StringBuilder(name.substring(0, Math.min(length, 50)));
+    if (length > 50) {
+      boolean bracket = false;
+      for (int i = 50; i < Math.min(length, 70); i++) {
+        Character c = name.charAt(i);
+        if (c == '(') bracket = true;
+        if (c == ')') bracket = false;
+        if (c == ' ') {
+          if (!bracket) return startShort + "...";
+          else startShort.append(c);
+        } else startShort.append(c);
+      }
+      return startShort.toString() + "...";
+    } else return startShort.toString();
+  }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -58,7 +115,7 @@ public class QueryDescriptor {
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     this.displayMode = displayMode;
     setIriNames(query);
-    if (iriContext==null || iriContext.isEmpty())
+    if (iriContext == null || iriContext.isEmpty())
       return query;
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
     if (displayMode == DisplayMode.RULES && query.getRule() == null) {
@@ -81,24 +138,24 @@ public class QueryDescriptor {
   }
 
   private void describeReturn(Return prop) {
-    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(),Context.PATH));
-    if (prop.getFunction()!=null){
+    if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(), Context.PATH));
+    if (prop.getFunction() != null) {
       describeFunction(prop.getFunction());
     }
   }
 
   private void describeFunction(FunctionClause function) {
-    if (function.getIri()!=null) function.setName(getTermInContext(function.getIri(),Context.PATH));
+    if (function.getIri() != null) function.setName(getTermInContext(function.getIri(), Context.PATH));
     if (function.getArgument() != null) {
       for (Argument argument : function.getArgument()) {
-        if (argument.getValuePath()!=null){
+        if (argument.getValuePath() != null) {
           describePath(argument.getValuePath());
         }
         if (argument.getValueIri() != null)
-          argument.getValueIri().setName(getTermInContext(argument.getValueIri().getIri(),Context.PATH));
+          argument.getValueIri().setName(getTermInContext(argument.getValueIri().getIri(), Context.PATH));
         if (argument.getValueIriList() != null) {
           for (TTIriRef valueIri : argument.getValueIriList()) {
-            valueIri.setName(getTermInContext(valueIri.getIri(),Context.PATH));
+            valueIri.setName(getTermInContext(valueIri.getIri(), Context.PATH));
           }
         }
       }
@@ -126,21 +183,20 @@ public class QueryDescriptor {
     }
   }
 
-
   public String getTermInContext(String source, Context... contexts) {
     if (source.isEmpty()) return "";
     StringBuilder term = new StringBuilder(source);
     TTEntity entity = iriContext.get(source);
     if (entity != null) {
-        term = new StringBuilder(entity.getName());
+      term = new StringBuilder(entity.getName());
     }
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if (entity.get(iri(Namespace.IM + "plural")) == null) {
+          if (entity.get(iri(NAMESPACE.IM + "plural")) == null) {
             term = new StringBuilder(Pluraliser.pluralise(term.toString()));
           } else {
-            term = new StringBuilder(entity.get(iri(Namespace.IM + "plural")).asLiteral().getValue());
+            term = new StringBuilder(entity.get(iri(NAMESPACE.IM + "plural")).asLiteral().getValue());
           }
         } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }
@@ -164,13 +220,14 @@ public class QueryDescriptor {
       return node.getNodeRef();
     } else return "";
   }
+
   public String getTermInContext(Where node, Context... context) {
     if (node.getParameter() != null) {
       return node.getParameter();
     }
     if (node.getIri() != null) {
       return getTermInContext(node.getIri(), context);
-    } else if (node.getPropertyVariable() != null){
+    } else if (node.getPropertyVariable() != null) {
       return node.getPropertyVariable();
     } else if (node.getNode() != null) {
       return node.getNode();
@@ -191,12 +248,9 @@ public class QueryDescriptor {
     return display;
   }
 
-
-
   private void nestReturns(Match match) {
-    if (match.getReturn()==null) return;
+    if (match.getReturn() == null) return;
   }
-
 
   public void describeMatch(Match match) {
     if (match.getUuid() == null) match.setUuid(UUID.randomUUID().toString());
@@ -208,7 +262,7 @@ public class QueryDescriptor {
       }
     }
     if (match.getOrderBy() != null) {
-      String orderDisplay= describeOrderBy(match.getOrderBy());
+      String orderDisplay = describeOrderBy(match.getOrderBy());
       if (!orderDisplay.equals("")) shortDescription.append(orderDisplay);
     }
     if (match.getName() == null && match.getDescription() != null) {
@@ -261,10 +315,10 @@ public class QueryDescriptor {
     }
 
     if (match.getWhere() != null) {
-      describeWhere(match.getWhere(),match);
+      describeWhere(match.getWhere(), match);
     }
     if (match.getNode() != null && match.getAsDescription() != null) {
-        nodeRefToLabel.put(match.getNode(), match.getAsDescription());
+      nodeRefToLabel.put(match.getNode(), match.getAsDescription());
     }
   }
 
@@ -290,15 +344,14 @@ public class QueryDescriptor {
   }
 
   private void addReturnText(Match match, StringBuilder preface) {
-      if (match.getOrderBy() != null) {
-        preface.append(match.getOrderBy().getDescription()).append(" ");
+    if (match.getOrderBy() != null) {
+      preface.append(match.getOrderBy().getDescription()).append(" ");
     }
     if (match.getReturn() != null)
       preface.append(match.getReturn()
         .stream().map(prop -> getTermInContext(prop.getIri(), Context.PLURAL).split(" \\(")[0])
         .collect(Collectors.joining(", ")));
   }
-
 
   private String getUnionHeader(Match match) {
     StringBuilder header = new StringBuilder();
@@ -309,12 +362,11 @@ public class QueryDescriptor {
     return header.toString();
   }
 
-  private void describeWheres(List<Where> wheres,Match match) {
+  private void describeWheres(List<Where> wheres, Match match) {
     for (Where where : wheres) {
-      describeWhere(where,match);
+      describeWhere(where, match);
     }
   }
-
 
   private void describeIs(List<Node> inSets) {
     for (Node set : inSets) {
@@ -328,49 +380,26 @@ public class QueryDescriptor {
       String label = getTermInContext(set);
       set.setName(label);
       set.setDescription(qualifier);
-      if (set.getMatch()!=null) {
+      if (set.getMatch() != null) {
         describeMatch(set.getMatch());
       }
     }
   }
 
-
-  public static String describeOrderBy(OrderLimit orderBy) {
-    String orderDisplay = "";
-    for (OrderDirection property : orderBy.getProperty()) {
-      String field = property.getIri();
-      if (field.toLowerCase().contains("date")) {
-        if (property.getDirection() == Order.descending) orderDisplay = "latest ";
-        else orderDisplay = "earliest ";
-      } else {
-        if (property.getDirection() == Order.descending) orderDisplay = "maximum ";
-        else orderDisplay = "minimum ";
-      }
-    }
-    if (orderBy.getLimit() > 1) {
-      if (orderBy.getLimit()<100)
-        orderDisplay = orderDisplay + " " + orderBy.getLimit();
-      else orderDisplay = orderDisplay + " several ";
-    }
-    orderBy.setDescription(orderDisplay);
-
-    return orderDisplay;
-  }
-
-  private void describeWhere(Where where,Match match) {
+  private void describeWhere(Where where, Match match) {
     if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
     if (where.getAnd() != null) {
-      describeWheres(where.getAnd(),match);
+      describeWheres(where.getAnd(), match);
     }
     if (where.getOr() != null) {
-      describeWheres(where.getOr(),match);
+      describeWheres(where.getOr(), match);
     } else if (where.getAnd() == null) {
       where.setName(getTermInContext(where, Context.PROPERTY));
       if (where.getRange() != null) {
-        describeRangeWhere(where,match);
+        describeRangeWhere(where, match);
       }
       if (where.getValue() != null || where.getOperator() != null) {
-        describeValueWhere(where,match);
+        describeValueWhere(where, match);
       }
       if (where.getIs() != null) {
         describeWhereIs(where);
@@ -382,23 +411,6 @@ public class QueryDescriptor {
         where.setValueLabel("is recorded");
       }
     }
-  }
-
-  private static boolean isValidDate(String dateStr) {
-    String[] patterns = {
-      "yyyy-MM-dd",
-      "dd/MM/yyyy",
-      "MM/dd/yyyy",
-      "yyyyMMdd"
-    };
-    for (String pattern : patterns) {
-      try {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        LocalDate.parse(dateStr, formatter);
-        return true;
-      } catch (DateTimeParseException ignored) {}
-    }
-    return false;
   }
 
   private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
@@ -417,7 +429,7 @@ public class QueryDescriptor {
                 qualifier = "after ";
               } else {
                 if (isValidDate(value))
-                  qualifier=" after";
+                  qualifier = " after";
                 else qualifier = "is within ";
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
@@ -439,7 +451,7 @@ public class QueryDescriptor {
                 qualifier = " on or after ";
               } else {
                 if (isValidDate(value))
-                  qualifier=" on or after";
+                  qualifier = " on or after";
                 else qualifier = "is within ";
                 if (past && relativeTo) relativity = " before the ";
                 if (!past && relativeTo) relativity = " of the ";
@@ -518,15 +530,14 @@ public class QueryDescriptor {
       case eq:
         if (date) {
           if (!isRange) {
-            if (assignable.getQualifier()==null) {
+            if (assignable.getQualifier() == null) {
               qualifier = " same as ";
               if (relativeTo) relativity = " the date of ";
             } else {
               qualifier = " is ";
             }
           }
-        }
-        else  qualifier=" =";
+        } else qualifier = " =";
         break;
     }
     if (qualifier != null) {
@@ -534,12 +545,11 @@ public class QueryDescriptor {
     }
     if (value != null) {
       if (!date || !value.equals("0")) {
-        if (assignable.getQualifier()!=null){
+        if (assignable.getQualifier() != null) {
           if (value.startsWith("-"))
-            assignable.setValueLabel(value.replace("-", "")+ " before ");
-          else assignable.setValueLabel(value+ (value.equals("0") ?"": "after "));
-        }
-        else {
+            assignable.setValueLabel(value.replace("-", "") + " before ");
+          else assignable.setValueLabel(value + (value.equals("0") ? "" : "after "));
+        } else {
           assignable.setValueLabel(value.replace("-", ""));
         }
         if (unit != null) {
@@ -554,7 +564,6 @@ public class QueryDescriptor {
     }
     if (relativity != null) assignable.setValueLabel(assignable.getValueLabel() + relativity);
   }
-
 
   private void describeFrom(Where where, Value from) {
     String qualifier;
@@ -635,34 +644,33 @@ public class QueryDescriptor {
     where.setDescription(where.getDescription() + " and " + qualifier);
   }
 
-
-  private void describeValueWhere(Where where,Match match) {
+  private void describeValueWhere(Where where, Match match) {
     boolean date = false;
     if (where.getIri() != null) date = where.getIri().toLowerCase().contains("date");
     Operator operator = where.getOperator();
     describeValue(where, operator, date, where.getValue(), where.getUnits(), where.getRelativeTo() != null, false);
-    describeRelativeTo(where,match);
+    describeRelativeTo(where, match);
   }
 
-  private void describeRangeWhere(Where where,Match match) {
+  private void describeRangeWhere(Where where, Match match) {
     describeFrom(where, where.getRange().getFrom());
     describeTo(where, where.getRange().getTo());
-    describeRelativeTo(where,match);
+    describeRelativeTo(where, match);
   }
 
-  private void describeRelativeTo(Where where,Match match) {
+  private void describeRelativeTo(Where where, Match match) {
     if (where.getRelativeTo() == null) return;
-    describeRelation(where.getRelativeTo(),match);
-    if (where.getRelativeTo().getName()!=null) {
-      match.setRelationMessage("the following " + where.getName() +" "+
-        where.getDescription() +  " this " +
+    describeRelation(where.getRelativeTo(), match);
+    if (where.getRelativeTo().getName() != null) {
+      match.setRelationMessage("the following " + where.getName() + " " +
+        where.getDescription() + " this " +
         where.getRelativeTo().getName());
       where.setLinked(true);
     }
   }
 
-  private void describeRelation(RelativeTo relativeTo,Match match) {
-    if (relativeTo.getIri()!=null){
+  private void describeRelation(RelativeTo relativeTo, Match match) {
+    if (relativeTo.getIri() != null) {
       relativeTo.setName(getTermInContext(relativeTo.getIri(), Context.PROPERTY));
     }
     if (relativeTo.getNodeRef() != null) {
@@ -679,10 +687,9 @@ public class QueryDescriptor {
     }
   }
 
-
   private void describeWhereIs(Where where) {
     for (Node set : where.getIs()) {
-      if (set.getIri()!=null) {
+      if (set.getIri() != null) {
         if (iriContext.get(set.getIri()) != null) {
           TTEntity nodeEntity = (iriContext.get(set.getIri()));
           set.setCode(nodeEntity.getCode());
@@ -711,26 +718,6 @@ public class QueryDescriptor {
     if (where.getShortLabel() != null)
       shortDescription.append(where.getShortLabel()).append(" ");
     else shortDescription.append(where.getValueLabel()).append(" ");
-  }
-
-
-  public static String getShortName(String name) {
-    if (name == null) return null;
-    int length = name.length();
-    StringBuilder startShort = new StringBuilder(name.substring(0, Math.min(length, 50)));
-    if (length > 50) {
-      boolean bracket = false;
-      for (int i = 50; i < Math.min(length, 70); i++) {
-        Character c = name.charAt(i);
-        if (c == '(') bracket = true;
-        if (c == ')') bracket = false;
-        if (c == ' ') {
-          if (!bracket) return startShort + "...";
-          else startShort.append(c);
-        } else startShort.append(c);
-      }
-      return startShort.toString() + "...";
-    } else return startShort.toString();
   }
 
   public void generateUUIDs(Where where) {
@@ -774,7 +761,7 @@ public class QueryDescriptor {
       if (!orderDisplay.isEmpty()) shortDescription.append(orderDisplay).append(" ");
     }
     if (match.getWhere() != null) {
-      describeWhere(match.getWhere(),match);
+      describeWhere(match.getWhere(), match);
     }
     return shortDescription.toString();
   }

@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 import org.springframework.context.annotation.Configuration;
 
@@ -83,7 +83,7 @@ public class ConfigManager {
         ? "WHERE {}"
         : "WHERE { ?s ?p ?oAny }";
 
-      Update qry = conn.prepareUpdateSparql(query, Graph.CONFIG);
+      Update qry = conn.prepareUpdateSparql(query, GRAPH.CONFIG);
       qry.setBinding("s", subject.asDbIri());
       qry.setBinding("p", predicate.asDbIri());
       qry.setBinding("o", literal(object));

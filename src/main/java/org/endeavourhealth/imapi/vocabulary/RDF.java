@@ -15,12 +15,12 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum RDF implements VocabEnum {
 
     PREFIX("rdf"),
-    TYPE(Namespace.RDF + "type"),
-    PROPERTY(Namespace.RDF + "Property"),
-    LIST(Namespace.RDF + "List"),
-    PREDICATE(Namespace.RDF + "predicate"),
-    SUBJECT(Namespace.RDF + "subject"),
-    OBJECT(Namespace.RDF + "object"),
+    TYPE(NAMESPACE.RDF + "type"),
+    PROPERTY(NAMESPACE.RDF + "Property"),
+    LIST(NAMESPACE.RDF + "List"),
+    PREDICATE(NAMESPACE.RDF + "predicate"),
+    SUBJECT(NAMESPACE.RDF + "subject"),
+    OBJECT(NAMESPACE.RDF + "object"),
     ;
 
     private final String value;

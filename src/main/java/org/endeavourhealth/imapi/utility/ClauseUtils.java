@@ -2,18 +2,18 @@ package org.endeavourhealth.imapi.utility;
 
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 public class ClauseUtils {
 
-  public static void assignFunction(Where where){
+  public static void assignFunction(Where where) {
     String iri = where.getIri();
-    TTIriRef units= where.getUnits();
-    if (units==null)
-      if (where.getRange()!=null){
-        units= where.getRange().getFrom().getUnits();
-        if (units==null)
-          units= where.getRange().getTo().getUnits();
+    TTIriRef units = where.getUnits();
+    if (units == null)
+      if (where.getRange() != null) {
+        units = where.getRange().getFrom().getUnits();
+        if (units == null)
+          units = where.getRange().getTo().getUnits();
       }
     RelativeTo relativeTo = where.getRelativeTo();
     if (iri.contains("age")) {
@@ -21,23 +21,23 @@ public class ClauseUtils {
         relativeTo = new RelativeTo().setParameter("$searchDate");
       }
       where.setFunction(buildFunction(
-        Namespace.IM + "age",
+        NAMESPACE.IM + "age",
         argUnits(units)
       ));
-    } else if (iri.toLowerCase().contains("date")&&relativeTo!=null&&(where.getQualifier()==null)&&(where.getValue()!=null||where.getRange()!=null)) {
-      if ("0".equals(where.getValue())){
+    } else if (iri.toLowerCase().contains("date") && relativeTo != null && (where.getQualifier() == null) && (where.getValue() != null || where.getRange() != null)) {
+      if ("0".equals(where.getValue())) {
         where.setValue(null);
         return;
       }
       where.setFunction(buildFunction(
-        Namespace.IM + "TimeDifference",
+        NAMESPACE.IM + "TimeDifference",
         argPath("firstDateTime", new Path().setIri(iri)),
         argRelativeTo(relativeTo),
         argUnits(units)
       ));
-    } else if ((iri.toLowerCase().contains("value")||where.getQualifier()!=null)&&relativeTo!=null) {
+    } else if ((iri.toLowerCase().contains("value") || where.getQualifier() != null) && relativeTo != null) {
       where.setFunction(buildFunction(
-        Namespace.IM + "NumericDifference",
+        NAMESPACE.IM + "NumericDifference",
         argPath("firstValue", new Path().setIri(iri).setQualifier(where.getQualifier())),
         buildValueArgument(relativeTo)
       ));
@@ -48,7 +48,7 @@ public class ClauseUtils {
     FunctionClause clause = new FunctionClause();
     clause.setIri(iri);
     for (Argument a : args) {
-      if (a!=null) {
+      if (a != null) {
         clause.addArgument(a);
       }
     }
@@ -80,7 +80,7 @@ public class ClauseUtils {
 
   private static Argument buildValueArgument(RelativeTo relativeTo) {
     Argument arg = new Argument().setParameter("secondValue");
-    if (relativeTo.getQualifier()!=null)
+    if (relativeTo.getQualifier() != null)
       arg.setQualifier(relativeTo.getQualifier());
     if (relativeTo.getNodeRef() != null) {
       arg.setValueParameter(relativeTo.getNodeRef());
@@ -95,7 +95,6 @@ public class ClauseUtils {
     }
     return arg;
   }
-
 
 
 }

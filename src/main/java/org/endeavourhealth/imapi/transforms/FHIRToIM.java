@@ -12,7 +12,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class FHIRToIM {
     TTEntity set = new TTEntity()
       .addType(setType)
       .setIri(valueSet.getURL())
-      .setScheme(iri(Namespace.FHIR))
+      .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(valueSet.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
       .setName("FHIR " + valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
@@ -62,7 +62,7 @@ public class FHIRToIM {
       .addType(iri(IM.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
-      .setScheme(iri(Namespace.FHIR))
+      .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
       .setName(codeSystem.getTitle() + "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
@@ -74,7 +74,7 @@ public class FHIRToIM {
         .setName(fhirConcept.getDisplay() + " (" + parent.getName() + ")")
         .setDescription(fhirConcept.getDefinition())
         .setIri(parent.getIri() + "/" + fhirConcept.getCode())
-        .setScheme(iri(Namespace.FHIR))
+        .setScheme(iri(NAMESPACE.FHIR))
         .setCode(fhirConcept.getCode());
       concept.addObject(iri(RDFS.SUBCLASS_OF), iri(parent.getIri()));
       concepts.add(concept);

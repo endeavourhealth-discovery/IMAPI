@@ -6,12 +6,9 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
-
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.io.IOException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdListToIMQ {
   private EqdResources resources;
@@ -19,13 +16,13 @@ public class EqdListToIMQ {
   public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
-    query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
+    query.setTypeOf(new Node().setIri(NAMESPACE.IM + "Patient"));
     String id;
     if (eqReport.getParent().getSearchIdentifier() != null) {
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      id = Namespace.IM + "Q_RegisteredGMS";
+      id = NAMESPACE.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
     query.addIs(Node.iri(id)
       .setIsCohort(true)
@@ -42,47 +39,46 @@ public class EqdListToIMQ {
   private Match convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
     Match subQuery;
-    subQuery= convertColumns(eqColGroup,eqTable);
+    subQuery = convertColumns(eqColGroup, eqTable);
     subQuery.setName(eqColGroup.getDisplayName());
     return subQuery;
   }
 
 
   private HasPaths getLeafPath(HasPaths hasPaths) {
-    if (hasPaths.getPath()!=null){
-      if (hasPaths.getPath().getFirst().getPath()!=null){
+    if (hasPaths.getPath() != null) {
+      if (hasPaths.getPath().getFirst().getPath() != null) {
         return getLeafPath(hasPaths.getPath().getFirst());
-      }
-      else return hasPaths.getPath().getFirst();
+      } else return hasPaths.getPath().getFirst();
     }
     return hasPaths;
   }
 
-  private String getNodeRef(HasPaths hasPaths,String[] propertyPath,int startIndex){
-    String nodeRef=null;
-    for (int i=startIndex;i<propertyPath.length-2;i++){
-      if (hasPaths.getPath()!=null) {
+  private String getNodeRef(HasPaths hasPaths, String[] propertyPath, int startIndex) {
+    String nodeRef = null;
+    for (int i = startIndex; i < propertyPath.length - 2; i++) {
+      if (hasPaths.getPath() != null) {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
             if (i == propertyPath.length - 3) {
               return path.getNode();
             } else {
-              nodeRef=getNodeRef(path, propertyPath, i + 2);
-              if (nodeRef!=null)
+              nodeRef = getNodeRef(path, propertyPath, i + 2);
+              if (nodeRef != null)
                 return nodeRef;
             }
           }
         }
       }
-        Path path=new Path();
-        hasPaths.addPath(path);
-        path.setIri(propertyPath[i]);
-        path.setOptional(true);
-        path.setNode(resources.getAcronym(propertyPath[i+1]));
-        path.setTypeOf(new Node().setIri(propertyPath[i+1]));
-        if (i == propertyPath.length - 3)
-          return path.getNode();
-        else return getNodeRef(path, propertyPath, i + 2);
+      Path path = new Path();
+      hasPaths.addPath(path);
+      path.setIri(propertyPath[i]);
+      path.setOptional(true);
+      path.setNode(resources.getAcronym(propertyPath[i + 1]));
+      path.setTypeOf(new Node().setIri(propertyPath[i + 1]));
+      if (i == propertyPath.length - 3)
+        return path.getNode();
+      else return getNodeRef(path, propertyPath, i + 2);
     }
     return null;
   }
@@ -92,7 +88,7 @@ public class EqdListToIMQ {
     resources.setSubRule(1);
     String tablePath = resources.getIMPath(eqTable);
     Match subQuery;
-    if (eqColGroup.getCriteria()!=null)
+    if (eqColGroup.getCriteria() != null)
       subQuery = resources.convertCriteria(eqColGroup.getCriteria());
     else {
       subQuery = new Match();
@@ -122,12 +118,11 @@ public class EqdListToIMQ {
         String eqColumn = String.join("/", eqCol.getColumn());
         String eqURL = eqTable + "/" + eqColumn;
         String columnPath = resources.getIMPath(eqURL);
-        if (columnPath.contains("$concat(")){
-          convertReturnConcatenate(subQuery,eqTable,tablePath,columnPath,eqCol.getDisplayName());
+        if (columnPath.contains("$concat(")) {
+          convertReturnConcatenate(subQuery, eqTable, tablePath, columnPath, eqCol.getDisplayName());
           continue;
-        }
-        else {
-          String[] subPath = (tablePath+" "+ columnPath).trim().split(" ");
+        } else {
+          String[] subPath = (tablePath + " " + columnPath).trim().split(" ");
           String nodeRef = getNodeRef(subQuery, subPath, 0);
           convertColumn(subQuery, subPath[subPath.length - 1], eqCol.getDisplayName(), nodeRef);
         }
@@ -136,36 +131,37 @@ public class EqdListToIMQ {
     return subQuery;
   }
 
-  private void convertColumn(Match subQuery, String propertyIri,String as,String nodeRef) throws EQDException {
-      Return property = new Return();
-      subQuery.addReturn(property);;
-      property
-        .setIri(propertyIri)
-        .setNodeRef(nodeRef);
-      if (as != null)
-        property.setAs(as);
+  private void convertColumn(Match subQuery, String propertyIri, String as, String nodeRef) throws EQDException {
+    Return property = new Return();
+    subQuery.addReturn(property);
+    ;
+    property
+      .setIri(propertyIri)
+      .setNodeRef(nodeRef);
+    if (as != null)
+      property.setAs(as);
   }
 
-  private void convertReturnConcatenate(Match subQuery, String eqTable, String tablePath,String eqPaths,String as) throws EQDException {
+  private void convertReturnConcatenate(Match subQuery, String eqTable, String tablePath, String eqPaths, String as) throws EQDException {
     FunctionClause function = new FunctionClause();
     Return property = new Return();
     subQuery.addReturn(property);
     property.setFunction(function);
-    if (as!=null)
+    if (as != null)
       property.setAs(as);
     function.setIri(IM.CONCATENATE.toString());
-    String concats= eqPaths.substring(eqPaths.indexOf("$concat(") + 8, eqPaths.length() - 1);
+    String concats = eqPaths.substring(eqPaths.indexOf("$concat(") + 8, eqPaths.length() - 1);
     for (String eqPath : concats.split(" ")) {
       String eqURL = eqTable + "/" + eqPath;
       String columnPath = resources.getIMPath(eqURL);
-      String[] subPath= (tablePath+" "+ columnPath).trim().split(" ");
+      String[] subPath = (tablePath + " " + columnPath).trim().split(" ");
       String nodeRef = getNodeRef(subQuery, subPath, 0);
-        Argument arg = new Argument();
-        function.addArgument(arg);
-        Path argPath = new Path();
-        argPath.setNodeRef(nodeRef);
-        argPath.setIri(subPath[subPath.length-1]);
-        arg.setValuePath(argPath);
-      }
+      Argument arg = new Argument();
+      function.addArgument(arg);
+      Path argPath = new Path();
+      argPath.setNodeRef(nodeRef);
+      argPath.setIri(subPath[subPath.length - 1]);
+      arg.setValuePath(argPath);
     }
+  }
 }

@@ -17,7 +17,7 @@ import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeCoreMap(Namespace.EMIS);
+      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
     return importEmisToSnomedRdf4j();
   }
 
@@ -84,7 +84,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Map<String, String> getCodesToIri(Namespace scheme) throws IOException {
+  public Map<String, String> getCodesToIri(NAMESPACE scheme) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
       codeToIri = fileRepo.getCodeToIri();
@@ -100,7 +100,7 @@ public class ImportMaps implements AutoCloseable {
     return map;
   }
 
-  public Set<String> getCodes(Namespace scheme) throws IOException {
+  public Set<String> getCodes(NAMESPACE scheme) throws IOException {
     Map<String, String> codeToIri = getCodeToIri();
     Set<String> codes = new HashSet<>();
     codeToIri.forEach((entry, value) -> {
@@ -112,7 +112,7 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<Entity> getCoreFromCode(String code, List<Namespace> schemes) {
+  public Set<Entity> getCoreFromCode(String code, List<NAMESPACE> schemes) {
     return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
@@ -123,7 +123,7 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getAllMatchedLegacy();
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace scheme) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, NAMESPACE scheme) {
     return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
 
   }
@@ -171,7 +171,7 @@ public class ImportMaps implements AutoCloseable {
   public Map<String, Set<String>> importReadToSnomed() throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCodeCoreMap(Namespace.EMIS);
+      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
     }
     return importReadToSnomedRdf4j(readToSnomed);
   }
@@ -203,7 +203,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("concept", valueFactory.createIRI(concept));
-      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
       qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -260,7 +260,7 @@ public class ImportMaps implements AutoCloseable {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
       qry.setBinding("code", IM.CODE.asDbIri());
-      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -289,8 +289,8 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
-      qry.setBinding("vision", Namespace.VISION.asDbIri());
+      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
+      qry.setBinding("vision", NAMESPACE.VISION.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -310,7 +310,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
     if (TTFilerFactory.isBulk()) {
-      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(Namespace.EMIS);
+      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();
@@ -318,8 +318,8 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(TTIriRef.iri(Namespace.VISION));
-          entity.setIri(Namespace.VISION + code.replace(".", ""));
+          entity.setScheme(TTIriRef.iri(NAMESPACE.VISION));
+          entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomed));
           }
@@ -348,7 +348,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("emis", Namespace.EMIS.asDbIri());
+      qry.setBinding("emis", NAMESPACE.EMIS.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       qry.setBinding("hasTermCode", IM.HAS_TERM_CODE.asDbIri());
@@ -364,7 +364,7 @@ public class ImportMaps implements AutoCloseable {
             TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
             entity.setName(name);
             entity.setCode(code);
-            entity.setIri(Namespace.VISION + code.replace(".", ""));
+            entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
             entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomedIri));
           }
         }
@@ -397,8 +397,8 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
-      qry.setBinding("emis", Namespace.EMIS.asDbIri());
+      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
+      qry.setBinding("emis", NAMESPACE.EMIS.asDbIri());
       qry.setBinding("imCode", IM.CODE.asDbIri());
       qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
       qry.setBinding("label", RDFS.LABEL.asDbIri());
@@ -437,7 +437,7 @@ public class ImportMaps implements AutoCloseable {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", Namespace.SNOMED.asDbIri());
+      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -451,7 +451,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, Namespace scheme) {
+  public Set<Entity> getLegacyFromTermCode(String originalCode, NAMESPACE scheme) {
     return new EntityRepository().getReferenceFromTermCode(originalCode, scheme);
   }
 

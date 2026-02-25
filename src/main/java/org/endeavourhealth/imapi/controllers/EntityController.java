@@ -138,7 +138,7 @@ public class EntityController {
 
   @GetMapping(value = "/private/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) Graph graph) {
+  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) GRAPH graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -275,7 +275,7 @@ public class EntityController {
   public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
       log.debug("checkEntityExists");
-      org.endeavourhealth.imapi.vocabulary.Namespace namespace = org.endeavourhealth.imapi.vocabulary.Namespace.from(iri.substring(0, iri.indexOf("#") + 1));
+      org.endeavourhealth.imapi.vocabulary.NAMESPACE namespace = org.endeavourhealth.imapi.vocabulary.NAMESPACE.from(iri.substring(0, iri.indexOf("#") + 1));
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
       return entityService.checkEntityExists(iri);
     }

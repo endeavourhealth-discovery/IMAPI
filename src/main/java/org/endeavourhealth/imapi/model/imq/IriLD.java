@@ -2,13 +2,9 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Getter;
-import lombok.Setter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -63,7 +59,7 @@ public class IriLD {
   public String assignIri(String iri) {
     if (iri != null && !iri.isEmpty()) {
       if (!iri.matches("([a-z]+)?[:].*")) {
-        return Namespace.IM + iri;
+        return NAMESPACE.IM + iri;
       }
     }
     return iri;

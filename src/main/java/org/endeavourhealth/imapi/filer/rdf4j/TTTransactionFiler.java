@@ -20,9 +20,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.File;
@@ -44,28 +44,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static final String TTLOG = "TTLog-";
   private static Integer filingProgress = null;
   private static boolean generateIm1Deltas = true;
-  private final IMDB conn;
-  private final Graph insertGraph;
   protected final TTEntityFiler conceptFiler;
   protected final TTEntityFiler instanceFiler;
   protected final Map<String, String> prefixMap = new HashMap<>();
+  private final IMDB conn;
+  private final GRAPH insertGraph;
   private Set<String> entitiesFiled;
   private String logPath;
   private Map<String, Set<String>> isAs;
   private TTManager manager;
   private Set<String> done;
 
-  public static void disableIm1Deltas() {
-    generateIm1Deltas = false;
-  }
-  public static void enableIm1Deltas() {
-    generateIm1Deltas = true;
-  }
-
   /**
    * Destination folder for transaction log files must be set.
    */
-  public TTTransactionFiler(Graph insertGraph) {
+  public TTTransactionFiler(GRAPH insertGraph) {
     this.insertGraph = insertGraph;
     logPath = System.getenv("DELTA_PATH");
     log.info("Connecting");
@@ -77,15 +70,23 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     log.info("Done");
   }
 
-  private static Map<Graph, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) {
-    Map<Graph, Set<String>> toCheck = new HashMap<>();
+  public static void disableIm1Deltas() {
+    generateIm1Deltas = false;
+  }
+
+  public static void enableIm1Deltas() {
+    generateIm1Deltas = true;
+  }
+
+  private static Map<GRAPH, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) {
+    Map<GRAPH, Set<String>> toCheck = new HashMap<>();
     for (TTEntity entity : transaction.getEntities()) {
 
       setEntityCrudOperation(transaction, entity);
 
       if (Objects.equals(entity.getCrud(), iri(IM.REPLACE_ALL_PREDICATES))) {
         if (entity.getPredicateMap().isEmpty())
-          toCheck.computeIfAbsent(Graph.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
+          toCheck.computeIfAbsent(GRAPH.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
 
     }
@@ -101,9 +102,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  private static void checkIfEntitiesCurrentlyInUse(Map<Graph, Set<String>> toCheck) throws TTFilerException {
-    for (Map.Entry<Graph, Set<String>> entry : toCheck.entrySet()) {
-      Graph graph = entry.getKey();
+  private static void checkIfEntitiesCurrentlyInUse(Map<GRAPH, Set<String>> toCheck) throws TTFilerException {
+    for (Map.Entry<GRAPH, Set<String>> entry : toCheck.entrySet()) {
+      GRAPH graph = entry.getKey();
       try (IMDB conn = IMDB.getConnection()) {
         Set<String> entities = entry.getValue();
         String sql = "select * where {" +
@@ -198,7 +199,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void checkDeletes(TTDocument transaction) throws TTFilerException {
-    Map<Graph, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
+    Map<GRAPH, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
     if (!toCheck.isEmpty()) {
       checkIfEntitiesCurrentlyInUse(toCheck);
     }
@@ -284,7 +285,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       updateTct(document);
 
       log.info("Updating range inheritances");
-      new RangeInheritor().inheritRanges(conn, Graph.IM);
+      new RangeInheritor().inheritRanges(conn, GRAPH.IM);
       commit();
     } catch (TTFilerException e) {
       rollback();
@@ -306,7 +307,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(Namespace.ODS.toString()))
+    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(NAMESPACE.ODS.toString()))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);
@@ -329,11 +330,10 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     manager = new TTManager();
     manager.setDocument(document).createIndex();
     log.info("Deleting and Generating isas.... ");
-    for (TTEntity entity:document.getEntities()){
+    for (TTEntity entity : document.getEntities()) {
       conceptFiler.updateIsAs(entity.getIri());
     }
   }
-
 
 
   private Set<String> getInternalIsAs(TTEntity entity) {
@@ -403,7 +403,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
           fileEntity(entity);
           i++;
           if (i % 10000 == 0) {
-            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), Graph.IM);
+            log.info("Filed {} entities from {} in graph {}", i, document.getEntities().size(), GRAPH.IM);
             commit();
             startTransaction();
           }

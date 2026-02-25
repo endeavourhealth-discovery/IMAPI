@@ -27,9 +27,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
@@ -72,7 +72,7 @@ public class FilerController {
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
-      if (!filerService.userCanFile(user, Graph.IM))
+      if (!filerService.userCanFile(user, GRAPH.IM))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
@@ -124,7 +124,7 @@ public class FilerController {
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "oldFolder") String oldFolderIri,
     @RequestParam(name = "newFolder") String newFolderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
@@ -174,7 +174,7 @@ public class FilerController {
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
@@ -207,7 +207,7 @@ public class FilerController {
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") Namespace namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
     HttpServletRequest request
   ) throws Exception {
     securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.CREATOR), List.of(new NamespacePermission(namespace, true, true))), request);
@@ -222,7 +222,7 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
-      String iri = Namespace.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
+      String iri = NAMESPACE.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
       if (entityService.iriExists(iri)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
@@ -230,7 +230,7 @@ public class FilerController {
 
       Query query = new Query()
         .setName("Allowable child types for a folder")
-        .setIri(Namespace.IM + "Query_AllowableChildTypes");
+        .setIri(NAMESPACE.IM + "Query_AllowableChildTypes");
       QueryRequest queryRequest = new QueryRequest()
         .setQuery(query)
         .argument(a -> a
@@ -240,7 +240,7 @@ public class FilerController {
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
-        .setScheme(iri(Graph.IM))
+        .setScheme(iri(GRAPH.IM))
         .addType(iri(IM.FOLDER))
         .set(iri(IM.IS_CONTAINED_IN), iri(container))
         .setVersion(1)

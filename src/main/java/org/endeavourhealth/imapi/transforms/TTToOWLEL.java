@@ -49,7 +49,7 @@ public class TTToOWLEL {
    * @throws OWLOntologyCreationException if the owl ontology cannot be created
    */
 
-  public OWLOntologyManager transform(TTDocument document, TTManager dmanager, Graph graph) throws OWLOntologyCreationException {
+  public OWLOntologyManager transform(TTDocument document, TTManager dmanager, GRAPH graph) throws OWLOntologyCreationException {
 
     ttManager = dmanager;
     //if the dmanager is null create it

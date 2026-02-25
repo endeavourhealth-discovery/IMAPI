@@ -2,35 +2,35 @@ package org.endeavourhealth.imapi.transforms;
 
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.*;
 
 
 @Slf4j
-public class IMQToIML extends QueryDescriptor{
-  private Map<String,Set<String>> iriVariables= new HashMap<>();
-  private final Map<String,String> prefixes= new HashMap<>();
-  private final IMLLanguage language= new IMLLanguage();
-  private final List<String> definitions= new ArrayList<>();
+public class IMQToIML extends QueryDescriptor {
+  private final Map<String, String> prefixes = new HashMap<>();
+  private final IMLLanguage language = new IMLLanguage();
+  private final List<String> definitions = new ArrayList<>();
+  private final Map<String, String> variables = new HashMap<>();
+  private Map<String, Set<String>> iriVariables = new HashMap<>();
   private String defaultDataModel;
-  private final Map<String,String> variables= new HashMap<>();
   private String entityType;
-  private Set<String> impliedProperties= Set.of(Namespace.IM+"concept");
+  private Set<String> impliedProperties = Set.of(NAMESPACE.IM + "concept");
 
 
   public IMLLanguage getIML(String entityIri) throws QueryException {
-    return getIML(entityIri,Namespace.IM.toString());
+    return getIML(entityIri, NAMESPACE.IM.toString());
   }
 
-  public IMLLanguage getIML(String entityIri,String defaultDataModel) throws QueryException {
-    this.defaultDataModel= defaultDataModel;
+  public IMLLanguage getIML(String entityIri, String defaultDataModel) throws QueryException {
+    this.defaultDataModel = defaultDataModel;
     try {
       TTEntity entity = getRepo().getEntityPredicates(entityIri, Set.of(IM.ALTERNATIVE_CODE.toString(),
         IM.DEFINITION.toString(),
@@ -42,8 +42,8 @@ public class IMQToIML extends QueryDescriptor{
       describeQuery(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimizeQuery(query);
       dsl.append("Define ");
-      String prefix= getAndAddPrefixes(entityIri);
-      dsl.append(prefix).append(":").append(entityIri.substring(entityIri.lastIndexOf("#")+1)).append(" as {\n");
+      String prefix = getAndAddPrefixes(entityIri);
+      dsl.append(prefix).append(":").append(entityIri.substring(entityIri.lastIndexOf("#") + 1)).append(" as {\n");
       dsl.append(convertQuery(query));
       dsl.append("}\n");
       dsl.append(addDefinitions());
@@ -52,14 +52,13 @@ public class IMQToIML extends QueryDescriptor{
       language.setText(dsl.toString());
       return language;
     } catch (Exception ex) {
-      throw new QueryException(ex.getMessage(),ex);
+      throw new QueryException(ex.getMessage(), ex);
     }
   }
 
 
-
   private String addPrefixes() {
-    StringBuilder prefixDsl= new StringBuilder();
+    StringBuilder prefixDsl = new StringBuilder();
     if (!prefixes.isEmpty()) {
       prefixDsl.append("Prefix {\n");
       for (Map.Entry<String, String> entry : prefixes.entrySet()) {
@@ -73,9 +72,8 @@ public class IMQToIML extends QueryDescriptor{
   }
 
 
-
   private String addDefinitions() {
-    StringBuilder definitionDsl= new StringBuilder();
+    StringBuilder definitionDsl = new StringBuilder();
     if (!definitions.isEmpty()) {
       for (String definition : definitions) {
         definitionDsl.append(definition).append("\n");
@@ -101,7 +99,7 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private String getAndAddPrefixes(String value) {
-    if (value.contains("#")&&value.split("#")[0].contains("/")) {
+    if (value.contains("#") && value.split("#")[0].contains("/")) {
       String prefix = value.substring(value.lastIndexOf("/") + 1).split("#")[0];
       prefixes.put(prefix, value.substring(0, value.lastIndexOf("#") + 1));
       return prefix;
@@ -112,30 +110,30 @@ public class IMQToIML extends QueryDescriptor{
 
   private String convertQuery(Query query) throws QueryException {
     variables.clear();
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     clause.append("Match ");
-    if (query.getTypeOf()!=null) {
+    if (query.getTypeOf() != null) {
       clause.append(getVariableFromIri(query.getTypeOf().getIri(), Context.TYPE)).append("\n");
     }
-    if (query.getReturn()!=null) {
+    if (query.getReturn() != null) {
       clause.append("Get ");
-      for (Return ret:query.getReturn()) {
+      for (Return ret : query.getReturn()) {
         clause.append(convertReturn(ret));
       }
       clause.append("\n");
     }
-    if (query.getIs()!=null){
-      StringBuilder cohort= new StringBuilder();
-      for (Node node:query.getIs()) {
+    if (query.getIs() != null) {
+      StringBuilder cohort = new StringBuilder();
+      for (Node node : query.getIs()) {
         cohort.append(!cohort.toString().isEmpty() ? ", " : "").append(getVariableFromIri(node.getIri(), Context.SINGLE));
       }
       clause.append("in ");
       clause.append(cohort).append("\n");
     }
-    clause.append(convertMatch(query,null));
-    if (query.getColumnGroup()!=null){
+    clause.append(convertMatch(query, null));
+    if (query.getColumnGroup() != null) {
       clause.append("\n");
-      for (Match columnGroup:query.getColumnGroup()) {
+      for (Match columnGroup : query.getColumnGroup()) {
         clause.append(convertColumnGroup(columnGroup));
         clause.append("\n");
       }
@@ -144,14 +142,14 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private String convertColumnGroup(Match group) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-    if (group.getReturn()!=null) {
+    StringBuilder clause = new StringBuilder();
+    if (group.getReturn() != null) {
       clause.append("columns ");
       for (Return property : group.getReturn()) {
         clause.append(convertReturn(property));
       }
     }
-    if (group.getOrderBy()!=null||group.getAnd()!=null||group.getOr()!=null||group.getWhere()!=null) {
+    if (group.getOrderBy() != null || group.getAnd() != null || group.getOr() != null || group.getWhere() != null) {
       clause.append("\n").append("filter ");
       clause.append(convertMatchContent(group, null));
     }
@@ -160,11 +158,11 @@ public class IMQToIML extends QueryDescriptor{
 
 
   private String convertReturn(Return property) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-    if (property.getIri()!=null) {
-      clause.append(getVariableFromIri(property.getIri(),Context.PROPERTY));
-      if (property.getFunction()!=null) {
-        clause.append(getVariableFromIri(property.getFunction().getIri(),Context.PROPERTY));
+    StringBuilder clause = new StringBuilder();
+    if (property.getIri() != null) {
+      clause.append(getVariableFromIri(property.getIri(), Context.PROPERTY));
+      if (property.getFunction() != null) {
+        clause.append(getVariableFromIri(property.getFunction().getIri(), Context.PROPERTY));
         clause.append("(");
         for (Argument arg : property.getFunction().getArgument()) {
           convertArguments(clause, arg);
@@ -188,8 +186,8 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private String convertBooleans(Match match) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-    int boolIndex=0;
+    StringBuilder clause = new StringBuilder();
+    int boolIndex = 0;
     for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
       boolIndex++;
       if (matches != null) {
@@ -201,24 +199,23 @@ public class IMQToIML extends QueryDescriptor{
 
 
   private String convertMatches(List<Match> matches, Bool operator) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     for (int index = 0; index < matches.size(); index++) {
       Match match = matches.get(index);
-      boolean hasNested= false;
-      if (match.getAnd()!=null||match.getOr()!=null)
-        hasNested= true;
-      if (index==0){
-        clause.append(operator== Bool.or ? "Either ": "and ");
-      }
-      else {
-        clause.append(operator== Bool.and ?" and ":"or ").append(" ");
+      boolean hasNested = false;
+      if (match.getAnd() != null || match.getOr() != null)
+        hasNested = true;
+      if (index == 0) {
+        clause.append(operator == Bool.or ? "Either " : "and ");
+      } else {
+        clause.append(operator == Bool.and ? " and " : "or ").append(" ");
       }
       if (match.isNotExists())
         clause.append("Exclude if ");
       if (hasNested) {
         clause.append("(\n>>\n");
       }
-      clause.append(convertMatch(matches.get(index),null));
+      clause.append(convertMatch(matches.get(index), null));
       if (hasNested) {
         clause.append(")\n<<\n");
       }
@@ -227,9 +224,9 @@ public class IMQToIML extends QueryDescriptor{
   }
 
 
-  private String convertMatch(Match match,String from) throws QueryException {
+  private String convertMatch(Match match, String from) throws QueryException {
     StringBuilder clause = new StringBuilder();
-    if (match.notExists()){
+    if (match.notExists()) {
       clause.append("Exclude if (");
     }
     if (match.getOrderBy() != null) {
@@ -240,34 +237,33 @@ public class IMQToIML extends QueryDescriptor{
       return clause.toString();
     }
     clause.append(convertMatchContent(match, from));
-    if (match.notExists()){
+    if (match.notExists()) {
       clause.append(") ");
     }
     return clause.toString();
   }
 
-  private String convertMatchContent(Match match,String from) throws QueryException {
+  private String convertMatchContent(Match match, String from) throws QueryException {
     StringBuilder clause = new StringBuilder();
-    if (match.getAnd()!=null||match.getOr()!=null) {
+    if (match.getAnd() != null || match.getOr() != null) {
       clause.append(convertBooleans(match));
       return clause.toString();
     }
-    if (match.getNodeRef()!=null){
+    if (match.getNodeRef() != null) {
       clause.append("from ");
       clause.append(match.getNodeRef()).append(" ");
     }
     if (match.getIs() != null) {
       clause.append("in ");
-      StringBuilder cohort= new StringBuilder();
-      for (Node node:match.getIs()) {
+      StringBuilder cohort = new StringBuilder();
+      for (Node node : match.getIs()) {
         cohort.append(!cohort.toString().isEmpty() ? "," : "").append(getVariableFromIri(node.getIri(), Context.SINGLE));
       }
       clause.append(cohort).append(" ");
     }
-    if (match.getWhere()==null &&match.getNode()==null){
+    if (match.getWhere() == null && match.getNode() == null) {
       clause.append("\n");
-    }
-    else {
+    } else {
       clause.append("\n>>\n");
       if (match.getWhere() != null) {
         clause.append("Where ");
@@ -281,33 +277,30 @@ public class IMQToIML extends QueryDescriptor{
     return clause.toString();
   }
 
-  private String convertPath(Match match,Path path,String from) throws QueryException {
-    StringBuilder clause= new StringBuilder();
-      if (path.isInverse()){
-        clause.append("<-");
+  private String convertPath(Match match, Path path, String from) throws QueryException {
+    StringBuilder clause = new StringBuilder();
+    if (path.isInverse()) {
+      clause.append("<-");
+    } else clause.append("->");
+    if (path.getIri() != null) {
+      clause.append(getVariableFromIri(path.getIri(), Context.PROPERTY));
+      if (path.getNode() != null) {
+        clause.append("/").append(path.getNode());
       }
-      else clause.append("->");
-      if (path.getIri() != null) {
-        clause.append(getVariableFromIri(path.getIri(), Context.PROPERTY));
-        if (path.getNode()!=null){
-          clause.append("/").append(path.getNode());
-        }
-        clause.append(" ");
-        clause.append(convertMatchContent(match,from));
-        if (path.getPath() != null) {
-          clause.append(convertPath(match, path.getPath().getFirst(), from));
-        }
+      clause.append(" ");
+      clause.append(convertMatchContent(match, from));
+      if (path.getPath() != null) {
+        clause.append(convertPath(match, path.getPath().getFirst(), from));
       }
+    }
     return clause.toString();
   }
 
 
-
-
   private String convertValuePath(Path path) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     clause.append(getVariableFromIri(path.getIri(), Context.SINGLE));
-    if (path.getPath()!=null){
+    if (path.getPath() != null) {
       clause.append(convertValuePath(path.getPath().getFirst()));
     }
     return clause.toString();
@@ -315,28 +308,27 @@ public class IMQToIML extends QueryDescriptor{
   }
 
 
-
-  private String convertWhere(Where where,String nodeRef,String from) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+  private String convertWhere(Where where, String nodeRef, String from) throws QueryException {
+    StringBuilder clause = new StringBuilder();
     if (where.getAnd() != null) {
-      clause.append(convertWheres(where.getAnd(), Bool.and, nodeRef,from));
+      clause.append(convertWheres(where.getAnd(), Bool.and, nodeRef, from));
       return clause.toString();
     } else if (where.getOr() != null) {
-      clause.append(convertWheres(where.getOr(), Bool.or, nodeRef,from));
+      clause.append(convertWheres(where.getOr(), Bool.or, nodeRef, from));
       return clause.toString();
     }
-    if (nodeRef!=null){
-      if (where.getNodeRef()==null||(!where.getNodeRef().equals(nodeRef))) {
+    if (nodeRef != null) {
+      if (where.getNodeRef() == null || (!where.getNodeRef().equals(nodeRef))) {
         return "";
       }
     }
     if (where.getIri() != null) {
-      if (where.getNodeRef()!=null){
+      if (where.getNodeRef() != null) {
         clause.append(where.getNodeRef()).append(".");
       }
       clause.append(getVariableFromIri(where.getIri(), Context.PROPERTY)).append(" ");
 
-      if (from!=null){
+      if (from != null) {
         clause.append("of ").append(from).append(" ");
       }
       if (where.getOperator() != null) {
@@ -358,76 +350,77 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private String convertWhereIs(Where where) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     clause.append("is ");
-    List<String> nodes= new ArrayList<>();
-    for (Node node:where.getIs()) {
+    List<String> nodes = new ArrayList<>();
+    for (Node node : where.getIs()) {
       nodes.add(getVariableFromIri(node.getIri(), Context.VALUE));
     }
-    clause.append(String.join(", ",nodes));
+    clause.append(String.join(", ", nodes));
     return clause.toString();
   }
 
   private String convertFunctionWhere(Where where) throws QueryException {
     StringBuilder clause = new StringBuilder();
-      boolean first = true;
-      clause.append(getVariableFromIri(where.getFunction().getIri(), Context.PROPERTY)).append("(");
-      for (Argument arg : where.getFunction().getArgument()) {
-        if (!first) clause.append(", ");
-        first= false;
-        convertArguments(clause, arg);
-        if (arg.getValueIri() != null) {
-          clause.append(getVariableFromIri(arg.getValueIri().getIri(), Context.PROPERTY));
-        }
+    boolean first = true;
+    clause.append(getVariableFromIri(where.getFunction().getIri(), Context.PROPERTY)).append("(");
+    for (Argument arg : where.getFunction().getArgument()) {
+      if (!first) clause.append(", ");
+      first = false;
+      convertArguments(clause, arg);
+      if (arg.getValueIri() != null) {
+        clause.append(getVariableFromIri(arg.getValueIri().getIri(), Context.PROPERTY));
       }
-      clause.append(") ");
-      return clause.toString();
     }
+    clause.append(") ");
+    return clause.toString();
+  }
+
   private String convertRelativeWhere(Where where) throws QueryException {
     StringBuilder clause = new StringBuilder();
-    if (where.getValue()!=null){
+    if (where.getValue() != null) {
       clause.append("relative to ");
     }
-    RelativeTo relativeTo= where.getRelativeTo();
-    if (relativeTo.getIri()!=null){
+    RelativeTo relativeTo = where.getRelativeTo();
+    if (relativeTo.getIri() != null) {
       clause.append(getVariableFromIri(relativeTo.getIri(), Context.PROPERTY)).append(" of  ");
     }
-    if (relativeTo.getParameter()!=null){
+    if (relativeTo.getParameter() != null) {
       clause.append(relativeTo.getParameter()).append(" ");
     }
-    if (relativeTo.getNodeRef()!=null){
+    if (relativeTo.getNodeRef() != null) {
       clause.append(relativeTo.getNodeRef()).append(" ");
     }
     return clause.toString();
   }
 
   private String getVariableFromRelativeTo(RelativeTo relativeTo) throws QueryException {
-    if (relativeTo.getParameter()!=null){
+    if (relativeTo.getParameter() != null) {
       return relativeTo.getParameter();
     }
-    StringBuilder clause= new StringBuilder();
-    if (relativeTo.getNodeRef()!=null){
+    StringBuilder clause = new StringBuilder();
+    if (relativeTo.getNodeRef() != null) {
       clause.append(relativeTo.getNodeRef()).append("->");
     }
-    if (relativeTo.getIri()!=null){
-      clause.append(getVariableFromIri(relativeTo.getIri(),Context.PROPERTY));
+    if (relativeTo.getIri() != null) {
+      clause.append(getVariableFromIri(relativeTo.getIri(), Context.PROPERTY));
     }
     return clause.toString();
   }
 
   private String convertWheres(List<Where> wheres, Bool operator, String nodeRef, String from) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     for (int index = 0; index < wheres.size(); index++) {
       Where where = wheres.get(index);
-      if (index==0)
-        clause.append(operator== Bool.or ? "either " : "");
+      if (index == 0)
+        clause.append(operator == Bool.or ? "either " : "");
       else
-        clause.append(operator== Bool.or ? "or " : "and ");
-      if (where.getAnd()!=null||where.getOr()!=null){
+        clause.append(operator == Bool.or ? "or " : "and ");
+      if (where.getAnd() != null || where.getOr() != null) {
         clause.append("( ");
       }
-      clause.append(convertWhere(where,nodeRef,from));
-      if (where.getAnd()!=null||where.getOr()!=null){
+      clause.append(convertWhere(where, nodeRef, from));
+      if (where.getAnd() != null || where.getOr() != null) {
         clause.append(") ");
       }
     }
@@ -435,76 +428,72 @@ public class IMQToIML extends QueryDescriptor{
   }
 
   private String convertRangeWhere(Where where) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
     if (where.isNot())
       clause.append("not ");
-    if (where.getRange().getFrom()!=null) {
+    if (where.getRange().getFrom() != null) {
       clause.append("between ");
       clause.append(convertValueWhere(where.getRange().getFrom()));
     }
-    if (where.getRange().getTo()!=null) {
+    if (where.getRange().getTo() != null) {
       clause.append("and ");
       clause.append(convertValueWhere(where.getRange().getTo()));
     }
-    if (where.getUnits()!=null)
-      clause.append(getVariableFromIri(where.getUnits().getIri(),Context.PLURAL)).append(" ");
+    if (where.getUnits() != null)
+      clause.append(getVariableFromIri(where.getUnits().getIri(), Context.PLURAL)).append(" ");
     return clause.toString();
   }
 
   private String convertValueWhere(Assignable where) throws QueryException {
-    StringBuilder clause= new StringBuilder();
+    StringBuilder clause = new StringBuilder();
 
-    if (where.getOperator()!=null){
+    if (where.getOperator() != null) {
       clause.append(where.getOperator().getValue()).append(" ");
     }
-    if (where.getValue()!=null){
+    if (where.getValue() != null) {
       clause.append(where.getValue()).append(" ");
     }
-    if (where.getUnits()!=null){
-      clause.append(getVariableFromIri(where.getUnits().getIri(),Context.VALUE)).append(" ");
+    if (where.getUnits() != null) {
+      clause.append(getVariableFromIri(where.getUnits().getIri(), Context.VALUE)).append(" ");
     }
     return clause.toString();
 
   }
 
 
-
-  private String getVariableFromIri(List<Node> nodes,Context context){
-    Set<String> variableNames= new HashSet<>();
+  private String getVariableFromIri(List<Node> nodes, Context context) {
+    Set<String> variableNames = new HashSet<>();
     for (Node node : nodes) {
       String variableName = getTermInContext(node, context);
       String shortName = getIdentifier(variableName);
       if (node.getIri() != null) {
-        TTEntity entity= getIriContext().get(node.getIri());
+        TTEntity entity = getIriContext().get(node.getIri());
         iriVariables.computeIfAbsent(shortName, c -> new HashSet<>()).add(node.getIri());
         variableNames.add(shortName);
-        language.getInfo().put(shortName,entity.getDescription()!=null ?entity.getDescription(): entity.getName());
+        language.getInfo().put(shortName, entity.getDescription() != null ? entity.getDescription() : entity.getName());
       }
     }
-    return String.join(",",variableNames);
+    return String.join(",", variableNames);
   }
 
-  private String getIdentifier(String text){
+  private String getIdentifier(String text) {
     return text
       .replaceAll("[^A-Za-z0-9_]", "_")
       .replaceAll("_+", "_");
   }
 
 
-  private String getVariableFromIri(String iri,Context context) throws QueryException {
-    TTEntity entity= getIriContext().get(iri);
-    if (entity==null)
-      throw new QueryException("Entity for iri: "+ iri+" does not exist");
+  private String getVariableFromIri(String iri, Context context) throws QueryException {
+    TTEntity entity = getIriContext().get(iri);
+    if (entity == null)
+      throw new QueryException("Entity for iri: " + iri + " does not exist");
     entity.setName(entity.getName().split(" \\(")[0]);
     String variable = getIdentifier(entity.getName());
-    if (context!=Context.PROPERTY&&context!=Context.TYPE) {
+    if (context != Context.PROPERTY && context != Context.TYPE) {
       iriVariables.computeIfAbsent(variable, v -> new HashSet<>()).add(iri);
     }
     return variable;
   }
-
-
-
 
 
 }

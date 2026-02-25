@@ -12,28 +12,45 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum RDFS implements VocabEnum {
+public enum IMPORT_TYPE implements VocabEnum {
 
-    PREFIX("rdfs"),
-    LABEL(NAMESPACE.RDFS + "label"),
-    COMMENT(NAMESPACE.RDFS + "comment"),
-    SUBCLASS_OF(NAMESPACE.RDFS + "subClassOf"),
-    SUB_PROPERTY_OF(NAMESPACE.RDFS + "subPropertyOf"),
-    DOMAIN(NAMESPACE.RDFS + "domain"),
-    RANGE(NAMESPACE.RDFS + "range"),
-    RESOURCE(NAMESPACE.RDFS + "Resource"),
-    CLASS(NAMESPACE.RDFS + "Class"),
-    DATATYPE(NAMESPACE.RDFS + "Datatype"),
-    IS_DEFINED_BY(NAMESPACE.RDFS + "isDefinedBy"),
+    SNOMED("snomed"),
+    SKIP_TCT("tct"),
+    SKIP_SEARCH("search"),
+    FHIR("fhir"),
+    SMARTLIFE("smartlifequery"),
+    QOF("qof"),
+    CORE("core"),
+    SINGLE_FILE("singlefile"),
+    BNF("bnf"),
+    ICD10("icd10"),
+    EMIS("emis"),
+    CPRD_MED("cprd"),
+    OPCS4("opcs4"),
+    TPP("tpp"),
+    ODS("ods"),
+    PRSB("prsb"),
+    KINGS_APEX("kingsapex"),
+    KINGS_WINPATH("kingswinpath"),
+    VISION("vision"),
+    BARTS_CERNER("barts"),
+    IM1("imv1"),
+    ENCOUNTERS("encounters"),
+    CONFIG("config"),
+    CEG("ceg"),
+    NHS_TFC("nhstfc"),
+    DELTAS("deltas"),
+    QUERY("corequery"),
+    QR("qcodegroups"),
     ;
 
     private final String value;
 
-    RDFS(final String value) {
+    IMPORT_TYPE(final String value) {
         this.value = value;
     }
 
-    RDFS(final VocabEnum value) {
+    IMPORT_TYPE(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -56,11 +73,11 @@ public enum RDFS implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static RDFS from(String text) {
+    public static IMPORT_TYPE from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (RDFS b : RDFS.values()) {
+      for (IMPORT_TYPE b : IMPORT_TYPE.values()) {
         if (b.value.equals(text)) {
           return b;
         }

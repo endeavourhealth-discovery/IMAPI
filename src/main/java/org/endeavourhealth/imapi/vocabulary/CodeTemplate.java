@@ -14,56 +14,56 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum CodeTemplate implements VocabEnum {
 
-    DOMAIN("http://endhealth.info/"),
-    PREFIX("cTemp"),
-    WRAPPER(Namespace.IM_CODE_TEMPLATE + "wrapper"),
-    LABEL(RDFS.LABEL),
-    DEFINITION(IM.DEFINITION),
-    TYPE(RDF.TYPE),
-    DATATYPE_MAP(Namespace.IM_CODE_TEMPLATE + "datatypeMap"),
-    EXTENSION(Namespace.IM_CODE_TEMPLATE + "extension"),
-    INCLUDE_COMPLEX_TYPES(Namespace.IM_CODE_TEMPLATE + "includeComplexTypes"),
-    ;
+  DOMAIN("http://endhealth.info/"),
+  PREFIX("cTemp"),
+  WRAPPER(NAMESPACE.IM_CODE_TEMPLATE + "wrapper"),
+  LABEL(RDFS.LABEL),
+  DEFINITION(IM.DEFINITION),
+  TYPE(RDF.TYPE),
+  DATATYPE_MAP(NAMESPACE.IM_CODE_TEMPLATE + "datatypeMap"),
+  EXTENSION(NAMESPACE.IM_CODE_TEMPLATE + "extension"),
+  INCLUDE_COMPLEX_TYPES(NAMESPACE.IM_CODE_TEMPLATE + "includeComplexTypes"),
+  ;
 
-    private final String value;
+  private final String value;
 
-    CodeTemplate(final String value) {
-        this.value = value;
-    }
+  CodeTemplate(final String value) {
+    this.value = value;
+  }
 
-    CodeTemplate(final VocabEnum value) {
-        this.value = value.toString();
-    }
+  CodeTemplate(final VocabEnum value) {
+    this.value = value.toString();
+  }
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return value;
-    }
+  public static CodeTemplate from(String text) {
+    if (text == null)
+      throw new IllegalArgumentException("no text specified");
 
-    public TTIriRef asIri() {
-      return iri(
-        value,
-        Arrays.stream(this.name().split("_"))
-          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
-          .collect(Collectors.joining(" "))
-      );
-    }
-
-    public IRI asDbIri() {
-      return Values.iri(value);
-    }
-
-    public static CodeTemplate from(String text) {
-      if (text == null)
-        throw new IllegalArgumentException("no text specified");
-
-      for (CodeTemplate b : CodeTemplate.values()) {
-        if (b.value.equals(text)) {
-          return b;
-        }
+    for (CodeTemplate b : CodeTemplate.values()) {
+      if (b.value.equals(text)) {
+        return b;
       }
-      throw new IllegalArgumentException("no enums match text specified");
     }
+    throw new IllegalArgumentException("no enums match text specified");
+  }
+
+  @JsonValue
+  @Override
+  public String toString() {
+    return value;
+  }
+
+  public TTIriRef asIri() {
+    return iri(
+      value,
+      Arrays.stream(this.name().split("_"))
+        .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "))
+    );
+  }
+
+  public IRI asDbIri() {
+    return Values.iri(value);
+  }
 
 }

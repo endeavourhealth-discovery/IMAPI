@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -16,7 +19,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,34 +29,34 @@ import java.util.*;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
-  private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
   protected static final Set<String> gmsPatients = new HashSet<>();
   protected static final Map<String, TTEntity> definitionToEntity = new HashMap<>();
   protected static final Map<String, TTEntity> setIriToEntity = new HashMap<>();
   protected static final Map<String, String> versionMap = new HashMap<>();
+  private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
+  @Getter
+  private static final Map<String, String> autoNamedSets = new HashMap<>();
+  @Getter
+  private static final Map<String, String> autoNamedClauses = new HashMap<>();
+  @Getter
+  private static final Map<String, Match> baseQueries = new HashMap<>();
   @Getter
   private static Integer setNumber;
   @Setter
   @Getter
   private static Map<String, EQDOCCriterion> libraryItems;
+  @Getter
+  private static Map<String, TTEntity> inlineSets = new HashMap<>();
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
-  @Getter
-  private static Map<String,TTEntity> inlineSets= new HashMap<>();
   private final boolean versionIndependent;
-  private Namespace namespace;
+  private NAMESPACE namespace;
   private EqdResources resources;
   private TTDocument document;
   @Getter
   private String singleEntity;
-  @Getter
-  private static final Map<String,String> autoNamedSets = new HashMap<>();
-  @Getter
-  private static final Map<String,String> autoNamedClauses = new HashMap<>();
-  @Getter
-  private static final Map<String,Match> baseQueries= new HashMap<>();
 
 
   public EqdToIMQ(boolean versionIndependent) {
@@ -65,8 +68,8 @@ public class EqdToIMQ {
   }
 
 
-  public static void addInlineSets(String setIri,TTEntity entity) {
-    inlineSets.put(setIri,entity);
+  public static void addInlineSets(String setIri, TTEntity entity) {
+    inlineSets.put(setIri, entity);
   }
 
 
@@ -89,11 +92,11 @@ public class EqdToIMQ {
   }
 
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, Namespace namespace) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, NAMESPACE namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
-    if (singleEntity==null){
+    if (singleEntity == null) {
       this.addReportNames(eqd);
       this.convertFolders(eqd);
       this.setVersionMap(eqd);
@@ -101,17 +104,16 @@ public class EqdToIMQ {
       createLibrary();
       deduplicate();
       createBaseQueries();
-    }
-    else {
+    } else {
       this.addReportNames(eqd);
       this.setVersionMap(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
-        if (eqReport.getId()!=null){
-          if (eqReport.getId().equals(this.singleEntity)){
-            log.info(eqReport.getName()+" found");
+        if (eqReport.getId() != null) {
+          if (eqReport.getId().equals(this.singleEntity)) {
+            log.info(eqReport.getName() + " found");
             TTEntity qry = this.convertReport(eqReport);
-            if (eqReport.getVersionIndependentGUID()!=null){
-              qry.setIri(this.namespace+eqReport.getVersionIndependentGUID());
+            if (eqReport.getVersionIndependentGUID() != null) {
+              qry.setIri(this.namespace + eqReport.getVersionIndependentGUID());
             }
             if (qry != null) {
               this.document.addEntity(qry);
@@ -169,7 +171,6 @@ public class EqdToIMQ {
   }
 
 
-
   private void deduplicate() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
       if (entity.isType(iri(IM.QUERY))) {
@@ -184,26 +185,25 @@ public class EqdToIMQ {
     for (Map.Entry<String, Match> entry : baseQueries.entrySet()) {
       String hash = entry.getKey();
       Match match = entry.getValue();
-      String name= autoNamedClauses.get(hash);
-      if (name==null)
-        name="Base query";
+      String name = autoNamedClauses.get(hash);
+      if (name == null)
+        name = "Base query";
       match.setName(name);
-        TTEntity entity = new TTEntity()
-          .setIri(namespace+hash)
-          .addType(iri(IM.QUERY))
-          .setScheme(iri(namespace))
-          .setName(name)
-          .set(iri(IM.DEFINITION), TTLiteral.literal(match));
-        document.addEntity(entity);
+      TTEntity entity = new TTEntity()
+        .setIri(namespace + hash)
+        .addType(iri(IM.QUERY))
+        .setScheme(iri(namespace))
+        .setName(name)
+        .set(iri(IM.DEFINITION), TTLiteral.literal(match));
+      document.addEntity(entity);
     }
   }
-
 
 
   private void createLibrary() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
       if (entity.isType(iri(IM.QUERY))) {
-        createLibrary(entity.getIri(),entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
+        createLibrary(entity.getIri(), entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
       }
     }
     for (Map.Entry<String, Match> entry : criteriaLibrary.entrySet()) {
@@ -231,7 +231,7 @@ public class EqdToIMQ {
               if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
                 if (subMatch.getDescription() != null) {
                   Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
-                  addLibraryItem(queryIri,subMatch, logicalMatch);
+                  addLibraryItem(queryIri, subMatch, logicalMatch);
                 }
               }
             }
@@ -241,11 +241,11 @@ public class EqdToIMQ {
     }
   }
 
-  private void addLibraryItem(String queryIri,Match match, Match logicalMatch) throws JsonProcessingException {
+  private void addLibraryItem(String queryIri, Match match, Match logicalMatch) throws JsonProcessingException {
     String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
     criteriaLibrary.putIfAbsent(libraryIri, match);
     criteriaLibraryCount.putIfAbsent(libraryIri, 1);
-    libraryUsedIn.computeIfAbsent(libraryIri, r->new HashSet<>()).add(queryIri);
+    libraryUsedIn.computeIfAbsent(libraryIri, r -> new HashSet<>()).add(queryIri);
     criteriaLibraryCount.put(libraryIri, criteriaLibraryCount.get(libraryIri) + 1);
   }
 
@@ -255,7 +255,7 @@ public class EqdToIMQ {
       if (eqReport.getId() != null) {
         this.resources.reportNames.put(eqReport.getId(), eqReport.getName());
       }
-      if (eqReport.getName()!=null &&eqReport.getName().equals("All currently registered patients")) {
+      if (eqReport.getName() != null && eqReport.getName().equals("All currently registered patients")) {
         gmsPatients.add(eqReport.getId());
       }
     }
@@ -268,12 +268,12 @@ public class EqdToIMQ {
         throw new EQDException("No report id");
       }
       if (eqReport.getName() == null) {
-          throw new EQDException("No report name");
+        throw new EQDException("No report name");
       }
       log.info(eqReport.getName());
       TTEntity qry = this.convertReport(eqReport);
       if (qry != null) {
-          this.document.addEntity(qry);
+        this.document.addEntity(qry);
       }
     }
 
@@ -306,9 +306,9 @@ public class EqdToIMQ {
 
   private void checkGms(Match match) {
     if (match.getIs() != null) {
-      for (Node node:match.getIs()){
+      for (Node node : match.getIs()) {
         if (gmsPatients.contains(node.getIri())) {
-          node.setIri(Namespace.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+          node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
       }
     }

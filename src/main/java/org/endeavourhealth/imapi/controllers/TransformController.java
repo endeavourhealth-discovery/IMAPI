@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -36,7 +36,7 @@ public class TransformController {
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Transform.TransformEqd.GET")) {
       log.debug("transformEqd");
-      return new TransformService().transformEqd(eqd, Namespace.IM);
+      return new TransformService().transformEqd(eqd, NAMESPACE.IM);
     }
   }
 

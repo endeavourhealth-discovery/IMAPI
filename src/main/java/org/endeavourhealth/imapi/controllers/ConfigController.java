@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,10 +46,10 @@ public class ConfigController {
 
   @GetMapping(value = "public/namespaces")
   @Operation(summary = "Get the list of available namespaces")
-  public List<Namespace> getNamespaces() {
+  public List<NAMESPACE> getNamespaces() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Namespaces.GET")) {
       log.debug("getNamespaces");
-      List<Namespace> namespaces = new ArrayList<>(EnumSet.allOf(Namespace.class));
+      List<NAMESPACE> namespaces = new ArrayList<>(EnumSet.allOf(NAMESPACE.class));
       return namespaces;
     }
   }

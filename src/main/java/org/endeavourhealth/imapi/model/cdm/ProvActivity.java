@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class ProvActivity extends Entry {
 
   public ProvActivity() {
     this.addType(iri(IM.PROVENANCE_ACTIVITY));
-    this.setScheme(TTIriRef.iri(Namespace.IM));
+    this.setScheme(TTIriRef.iri(NAMESPACE.IM));
   }
 
   @Override

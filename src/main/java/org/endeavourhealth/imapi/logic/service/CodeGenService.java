@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
@@ -55,7 +55,7 @@ public class CodeGenService {
   private List<TTIriRef> getIMModels() {
     List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE);
     return models.stream()
-      .filter(m -> m.getIri().startsWith(Namespace.IM.toString()))
+      .filter(m -> m.getIri().startsWith(NAMESPACE.IM.toString()))
       .toList();
   }
 

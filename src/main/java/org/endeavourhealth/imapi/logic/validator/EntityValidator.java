@@ -9,10 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.VALIDATION;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -97,7 +94,7 @@ public class EntityValidator {
     if (entity.getIri() == null || entity.getIri().isEmpty()) {
       response.setMessage("Entity is missing iri");
       return response;
-    } else if (!entity.getIri().contains("#")&&!entity.getIri().contains(":")) {
+    } else if (!entity.getIri().contains("#") && !entity.getIri().contains(":")) {
       response.setMessage("Entity IRI must contain : or #");
       return response;
     }
@@ -190,7 +187,7 @@ public class EntityValidator {
   private EntityValidationResponse isValidScheme(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(IM.NAMESPACE.toString(), null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(NAMESPACE.IM.toString(), null, null, null, false);
     if (entity.has(iri(IM.HAS_SCHEME)) && !entity.get(iri(IM.HAS_SCHEME)).isEmpty() && entity.get(iri(IM.HAS_SCHEME)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
         response.setValid(true);

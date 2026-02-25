@@ -26,11 +26,11 @@ import java.util.List;
 public class SecurityController {
   private SecurityService securityService = new SecurityService();
 
-  @GetMapping("/public/login")
-  public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGIN.GET")) {
-      log.debug("login");
-      return securityService.loginUser(code, state, request, response);
+  @GetMapping("/public/registerUrl")
+  public String getRegisterUrl(HttpServletRequest request, @RequestParam(name = "redirectUrl") String redirectUrl) throws UserNotFoundException, JsonProcessingException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.GETREGISTERURL.GET")) {
+      log.debug("getRegisterUrl");
+      return securityService.getRegisterUrl(request, redirectUrl);
     }
   }
 
@@ -41,12 +41,11 @@ public class SecurityController {
       return securityService.getLoginUrl(redirectUrl, request);
     }
   }
-
-  @GetMapping("/public/registerUrl")
-  public String getRegisterUrl(HttpServletRequest request, @RequestParam(name = "redirectUrl") String redirectUrl) throws UserNotFoundException, JsonProcessingException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.GETREGISTERURL.GET")) {
-      log.debug("getRegisterUrl");
-      return securityService.getRegisterUrl(request, redirectUrl);
+  @GetMapping("/public/login")
+  public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGIN.GET")) {
+      log.debug("login");
+      return securityService.loginUser(code, state, request, response);
     }
   }
 

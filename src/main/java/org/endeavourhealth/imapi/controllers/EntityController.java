@@ -73,6 +73,8 @@ public class EntityController {
   private final FilerService filerService = new FilerService();
   private final SecurityService securityService = new SecurityService();
 
+  // ============================ PUBLIC ============================
+
   @GetMapping(value = "/public/schemes")
   @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
   public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
@@ -118,6 +120,8 @@ public class EntityController {
       return entityService.getFilterDefaults();
     }
   }
+
+  // ============================ PROTECTED ============================
 
   @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
@@ -304,37 +308,23 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/protected/create")
-  @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
-      log.debug("createEntity");
-      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
-      User user = securityService.getUser(request);
-      return filerService.createEntity(editRequest, user.getUsername());
-    }
-  }
-
-
-  @GetMapping(value = "/protected/checkExists")
-  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
-      log.debug("checkEntityExists");
+  @GetMapping(value = "/protected/entityExists")
+  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists (iri with RDF.TYPE). ")
+  public boolean entityExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
+      log.debug("entityExists");
       org.endeavourhealth.imapi.vocabulary.Namespace namespace = org.endeavourhealth.imapi.vocabulary.Namespace.from(iri.substring(0, iri.indexOf("#") + 1));
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
-      return entityService.checkEntityExists(iri);
+      return entityService.entityExists(iri);
     }
   }
 
-  @PostMapping(value = "/protected/update")
-  @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
-      log.debug("updateEntity");
-      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
-      User user = securityService.getUser(request);
-      return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
+  @GetMapping("/protected/iriExists")
+  @Operation(summary = "Check if IRI exists", description = "Checks if a specified IRI exists in the system")
+  public Boolean iriExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
+      log.debug("iriExists");
+      return entityService.iriExists(iri);
     }
   }
 
@@ -404,14 +394,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/protected/iriExists")
-  @Operation(summary = "Check if IRI exists", description = "Checks if a specified IRI exists in the system")
-  public Boolean iriExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
-      log.debug("iriExists");
-      return entityService.iriExists(iri);
-    }
-  }
+
 
   @GetMapping("/protected/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
@@ -540,4 +523,29 @@ public class EntityController {
       return entityService.getIriDetails(iris);
     }
   }
+
+  // ============================ PRIVATE ============================
+
+  @PostMapping(value = "/private/create")
+  @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
+      log.debug("createEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
+      User user = securityService.getUser(request);
+      return filerService.createEntity(editRequest, user.getUsername());
+    }
+  }
+
+  @PostMapping(value = "/private/update")
+  @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
+  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
+      log.debug("updateEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
+      User user = securityService.getUser(request);
+      return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
+    }
+  }
+
 }

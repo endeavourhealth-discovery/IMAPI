@@ -62,7 +62,7 @@ public class SetController {
   private final SetExporter setExporter = new SetExporter();
   private final SecurityService securityService = new SecurityService();
 
-  @GetMapping(value = "/private/members")
+  @GetMapping(value = "/private/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   public void publish(
     HttpServletRequest request,

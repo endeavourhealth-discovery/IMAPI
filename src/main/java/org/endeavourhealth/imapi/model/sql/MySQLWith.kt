@@ -3,17 +3,19 @@ package org.endeavourhealth.imapi.model.sql
 import org.endeavourhealth.imapi.model.imq.Bool
 
 data class MySQLWith(
-  val table: Table,
-  val alias: String,
+  var table: Table = Table(),
+  var alias: String = "",
   val wheres: MutableList<MySQLWhere>? = mutableListOf(),
   val selects: MutableList<MySQLSelect> = mutableListOf(),
-  var joins: MutableList<MySQLJoin>? = mutableListOf(),
-  val whereBool: Bool,
+  var joins: MutableList<MySQLJoin> = mutableListOf(),
+  val whereBool: Bool = Bool.and,
   val exclude: Boolean = false,
   var orderBy: MySQLOrderBy? = null,
   val fromAlias: String? = null,
   val unionWiths: MutableList<MySQLWith>? = null,
-  val unionAll: Boolean = false
+  val unionAll: Boolean = false,
+  var subQuery: MySQLWith? = null,
+  var isStep: Boolean = false
 ) {
   private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->
@@ -34,9 +36,15 @@ data class MySQLWith(
       appendLine(
         "SELECT $selectSql"
       )
-      val fromBase = fromAlias ?: table.table
-      val aliasSql = if (fromAlias == null) (table.alias?.let { " $it" } ?: "") else ""
-      appendLine("FROM $fromBase$aliasSql")
+      if (subQuery != null) {
+        appendLine("FROM (")
+        appendLine(subQuery!!.toSqlBody().prependIndent("  "))
+        appendLine(") ${fromAlias ?: "sq"}")
+      } else {
+        val fromBase = fromAlias ?: table.table
+        val aliasSql = if (fromAlias == null) (table.alias?.let { " $it" } ?: "") else ""
+        appendLine("FROM $fromBase$aliasSql")
+      }
 
       if (joinSql != null) {
         appendLine(joinSql)

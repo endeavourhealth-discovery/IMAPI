@@ -84,18 +84,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       if (definition.`return` == null) {
         mySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
-        mySqlQuery.selects.add(
-          MySQLSelect(
-            "${mySqlQuery.withs.last { !it.exclude }.alias}.${
-              mySqlQuery.withs.last { !it.exclude }.selects.first().name.split(
-                "."
-              ).last()
-            }", "cohort_id"
-          )
-        )
+        val (fk, pk) = mySqlQuery.withs.last{ !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
+        mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
         mySqlQuery.insert = MySQLInsert("cohort")
         mySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id);"""
       }
+      mySqlQuery.joinWiths()
       return mySqlQuery.toSql()
     }
   }
@@ -320,9 +314,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with.table = if (match.nodeRef != null)
       mySQLQuery.nodeToTableMap[match.nodeRef]
         ?: throw SQLConversionException("Table not found: ${match.nodeRef}") else queryTypeOfTable
-    if (match.node != null) mySQLQuery.nodeToTableMap[match.node] = with.table
     if (match.path != null)
-      addPathTablesAndJoins(match.path, mySQLQuery.nodeToTableMap, with)
+      addPathTableAndJoins(match.path, mySQLQuery.nodeToTableMap, with, false)
+    if (match.node != null) mySQLQuery.nodeToTableMap[match.node] = with.table
     with.alias = getWithAlias(match, mySQLQuery)
 
     if (match.where != null) {
@@ -338,8 +332,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     addSelects(match, mySQLQuery, with)
 
     if (match.orderBy != null) {
-//      create wrapper with
-      with = with // wrapper with
+      with = getOrderByWith(with, match, mySQLQuery)
     }
 
 
@@ -353,17 +346,63 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return with;
   }
 
-  private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
-    val defaultSelect = MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}")
-    val (selects, selectJoins, ynWith) =
-      if (match.`return` != null) getSelects(
-        with.table,
-        match.`return`,
-        mySQLQuery,
-        with.alias,
-        mySQLQuery.nodeToTableMap,
+  private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+    val (fk, pk) = with.table.foreignKeyTo(queryTypeOfTable)
+    val partitionByField =
+      if (fk != null) "${with.table.alias}.$fk" else "${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"
+    with.selects.add(
+      MySQLSelect(
+        "ROW_NUMBER() OVER(PARTITION BY $partitionByField ${
+          getMySQLOrderBy(
+            with.table,
+            match.orderBy,
+            mySQLQuery.nodeToTableMap
+          ).toSql()
+        })", "rn"
       )
-      else Triple(mutableListOf(defaultSelect), mutableListOf(), null)
+    )
+
+    val rnWith = MySQLWith(
+      table = with.table,
+      alias = with.alias,
+      selects = mutableListOf(MySQLSelect("*")),
+      wheres = mutableListOf(),
+      whereBool = Bool.and,
+      subQuery = with
+    )
+
+    if (match.notExists()) {
+      val notExistJoinCondition = rnWith.table.getJoinCondition(
+        joinType = "RIGHT JOIN",
+        tableFrom = with.table,
+        tableFromAlias = with.alias,
+        tableTo = mySQLQuery.withs.last().table,
+        tableToAlias = mySQLQuery.withs.last().alias,
+        reference = true
+      )
+      rnWith.joins.add(notExistJoinCondition)
+      val or = mutableListOf<MySQLWhere>()
+      or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString()))
+      or.add(MySQLPropertyValueWhere("id", "IS", "NULL"))
+      rnWith.wheres?.add(MySQLBoolWhere(or = or))
+    } else {
+      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString()))
+    }
+    return rnWith
+  }
+
+  private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
+    if (match.`return` != null) {
+      val (selects, selectJoins, ynWith) =
+        getSelects(
+          with.table,
+          match.`return`,
+          mySQLQuery,
+          with.alias,
+          mySQLQuery.nodeToTableMap,
+        )
+      with.selects.addAll(selects)
+    } else with.selects.add(MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"))
   }
 
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {
@@ -390,64 +429,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun sanitiseAlias(alias: String): String {
     return alias.replace(" ", "_").replace(".", "_").lowercase(getDefault())
   }
-
-//  private fun getMySQLWithFromMatch(
-//    match: Match,
-//    mySQLQuery: MySQLQuery,
-//  ): MySQLWith {
-//
-//
-//
-//
-//    if (match.orderBy != null) {
-//      selects.add(
-//        MySQLSelect(
-//          "ROW_NUMBER() OVER(PARTITION BY ${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey} ${
-//            getMySQLOrderBy(
-//              currentTable,
-//              match.orderBy,
-//              mySQLQuery.nodeToTableMap
-//            ).toSql()
-//          })", "rn"
-//        )
-//      )
-//    }
-//
-//
-//
-//
-//    var rnWith: MySQLWith? = null
-//    if (match.orderBy != null) {
-//      rnWith = MySQLWith(
-//        table = currentTable,
-//        alias = isAlias,
-//        selects = mutableListOf(MySQLSelect("*")),
-//        wheres = mutableListOf(),
-//        whereBool = Bool.and,
-//        subQuery = with
-//      )
-//
-//      if (match.notExists()) {
-//        val notExistJoinCondition = currentTable.getJoinCondition(
-//          joinType = "RIGHT JOIN",
-//          tableFrom = with.table,
-//          tableFromAlias = with.alias,
-//          tableTo = mySQLQuery.withs.last().table,
-//          tableToAlias = mySQLQuery.withs.last().alias,
-//          reference = true
-//        )
-//        rnWith.joins?.add(notExistJoinCondition)
-//        val or = mutableListOf<MySQLWhere>()
-//        or.add(MySQLPropertyValueWhere("${with.alias}.rn", "!=", match.orderBy.limit.toString()))
-//        or.add(MySQLPropertyValueWhere("${with.alias}.id", "IS", "NULL"))
-//        rnWith.wheres?.add(MySQLBoolWhere(or = or))
-//      } else {
-//        rnWith.wheres?.add(MySQLPropertyValueWhere("${with.alias}.rn", "<=", match.orderBy.limit.toString()))
-//      }
-//    }
-//
-//    return rnWith ?: with
-//  }
 
   private fun getSelects(
     table: Table,
@@ -990,11 +971,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return null
   }
 
-  private fun addPathTablesAndJoins(
+  private fun addPathTableAndJoins(
     paths: MutableList<Path>,
     tableMap: HashMap<String, Table>,
-    with: MySQLWith
-  ): Table {
+    with: MySQLWith,
+    addJoins: Boolean = false
+  ) {
     var firstTable: Table? = null
 
     for (path in paths) {
@@ -1023,22 +1005,23 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
 
         tableMap[path.node] = table
-        if (!with.joins!!.contains(join)) {
-          with.joins!!.add(join)
+        if (!with.joins.contains(join) && addJoins) {
+          with.joins.add(join)
         }
         if (path.path != null) {
-          addPathTablesAndJoins(path.path, tableMap, with)
+          addPathTableAndJoins(path.path, tableMap, with)
         }
 
 
       } catch (exception: SQLConversionException) {
         tableMap[path.node] = with.table
         if (path.path != null) {
-          addPathTablesAndJoins(path.path, tableMap, with)
+          addPathTableAndJoins(path.path, tableMap, with)
         }
       }
     }
 
-    return firstTable ?: with.table
+    if (firstTable != null)
+      with.table = firstTable
   }
 }

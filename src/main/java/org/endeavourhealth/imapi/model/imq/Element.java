@@ -22,6 +22,17 @@ public abstract class Element extends IriLD implements Entailment {
   @Getter
   @Setter
   private boolean invalid;
+  private boolean resultSet;
+
+  public boolean getResultSet(){
+    return resultSet;
+  }
+
+  public Element setIsResultSet(boolean resultSet){
+    this.resultSet = resultSet;
+    return this;
+  }
+
 
   public Element setIsCohort(boolean cohort) {
     this.cohort= cohort;

@@ -286,7 +286,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/findRequestMissingArguments")
+  @PostMapping("/public/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
   public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,

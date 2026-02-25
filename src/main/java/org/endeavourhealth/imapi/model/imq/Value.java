@@ -21,6 +21,15 @@ public class Value implements Assignable {
   private String description;
   @Getter
   private TTIriRef units;
+  private boolean invalid;
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+  public Value setIsInvalid(boolean invalid) {
+    this.invalid = invalid;
+    return this;
+  }
 
   public Value setUnits(TTIriRef units) {
     this.units = units;

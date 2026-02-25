@@ -38,6 +38,7 @@ public class EqdToIMQ {
   private static Map<String, EQDOCCriterion> libraryItems;
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
+  private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
   @Getter
   private static Map<String,TTEntity> inlineSets= new HashMap<>();
@@ -49,6 +50,10 @@ public class EqdToIMQ {
   private String singleEntity;
   @Getter
   private static final Map<String,String> autoNamedSets = new HashMap<>();
+  @Getter
+  private static final Map<String,String> autoNamedClauses = new HashMap<>();
+  @Getter
+  private static final Map<String,Match> baseQueries= new HashMap<>();
 
 
   public EqdToIMQ(boolean versionIndependent) {
@@ -95,6 +100,7 @@ public class EqdToIMQ {
       this.convertReports(eqd);
       createLibrary();
       deduplicate();
+      createBaseQueries();
     }
     else {
       this.addReportNames(eqd);
@@ -174,11 +180,30 @@ public class EqdToIMQ {
     }
   }
 
+  private void createBaseQueries() throws JsonProcessingException {
+    for (Map.Entry<String, Match> entry : baseQueries.entrySet()) {
+      String hash = entry.getKey();
+      Match match = entry.getValue();
+      String name= autoNamedClauses.get(hash);
+      if (name==null)
+        name="Base query";
+      match.setName(name);
+        TTEntity entity = new TTEntity()
+          .setIri(namespace+hash)
+          .addType(iri(IM.QUERY))
+          .setScheme(iri(namespace))
+          .setName(name)
+          .set(iri(IM.DEFINITION), TTLiteral.literal(match));
+        document.addEntity(entity);
+    }
+  }
+
+
 
   private void createLibrary() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
       if (entity.isType(iri(IM.QUERY))) {
-        createLibrary(entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
+        createLibrary(entity.getIri(),entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
       }
     }
     for (Map.Entry<String, Match> entry : criteriaLibrary.entrySet()) {
@@ -196,7 +221,7 @@ public class EqdToIMQ {
     }
   }
 
-  private void createLibrary(Query query) throws JsonProcessingException {
+  private void createLibrary(String queryIri, Query query) throws JsonProcessingException {
     if (query.getRule() == null) return;
     for (Match rule : query.getRule()) {
       if (rule.getIs() == null) {
@@ -206,7 +231,7 @@ public class EqdToIMQ {
               if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
                 if (subMatch.getDescription() != null) {
                   Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
-                  addLibraryItem(subMatch, logicalMatch);
+                  addLibraryItem(queryIri,subMatch, logicalMatch);
                 }
               }
             }
@@ -216,10 +241,11 @@ public class EqdToIMQ {
     }
   }
 
-  private void addLibraryItem(Match match, Match logicalMatch) throws JsonProcessingException {
+  private void addLibraryItem(String queryIri,Match match, Match logicalMatch) throws JsonProcessingException {
     String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
     criteriaLibrary.putIfAbsent(libraryIri, match);
     criteriaLibraryCount.putIfAbsent(libraryIri, 1);
+    libraryUsedIn.computeIfAbsent(libraryIri, r->new HashSet<>()).add(queryIri);
     criteriaLibraryCount.put(libraryIri, criteriaLibraryCount.get(libraryIri) + 1);
   }
 

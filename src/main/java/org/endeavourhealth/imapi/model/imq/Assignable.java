@@ -24,7 +24,8 @@ public interface Assignable {
   Assignable setFunction(FunctionClause function);
   TTIriRef getUnits();
   Assignable setUnits(TTIriRef unit);
-
+  boolean isInvalid();
+  Assignable setIsInvalid(boolean invalid);
 
 
 }

@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.transforms.IMQToIML;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class QueryService {
   }
 
   public Match describeMatch(Match match) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match, null);
+    return new QueryDescriptor().describeSingleMatch(match);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {

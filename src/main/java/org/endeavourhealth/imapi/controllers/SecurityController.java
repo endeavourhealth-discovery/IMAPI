@@ -76,20 +76,6 @@ public class SecurityController {
     }
   }
 
-/*  @GetMapping(value = "/emailTemporaryPasswords")
-  @PreAuthorize("@guard.hasPermission('ADMIN','WRITE')")
-  public void emailTemporaryPasswords(@RequestParam(name = "filePath") String path) throws MessagingException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.emailTemporaryPasswords.POST")) {
-      log.debug("emailTemporaryPasswords");
-      securityService.emailTemporaryPasswords(path);
-    }
-  }*/
-
-/*  @PostMapping("/private/addPolicy")
-  public void addPolicy(HttpServletRequest request, PolicyRequest policyRequest) throws UserNotFoundException {
-    securityService.addPolicy(policyRequest.getUserRole(), policyRequest.getResource(), policyRequest.getAction());
-  }*/
-
   @GetMapping("/private/user")
   public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.USER.GET")) {

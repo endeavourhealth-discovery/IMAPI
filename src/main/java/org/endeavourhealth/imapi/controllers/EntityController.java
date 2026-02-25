@@ -73,6 +73,52 @@ public class EntityController {
   private final FilerService filerService = new FilerService();
   private final SecurityService securityService = new SecurityService();
 
+  @GetMapping(value = "/public/schemes")
+  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
+  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
+      log.debug("getNamespacesWithPrefixes (getSchemes)");
+      List<Namespace> namespaces = entityService.getNamespaces();
+      Map<String, Namespace> result = new HashMap<>();
+      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
+      return result;
+    }
+  }
+
+  @GetMapping(value = "/public/namespaces")
+  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
+  public List<Namespace> getNamespaces(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
+      log.debug("getNamespaces");
+      return entityService.getNamespaces();
+    }
+  }
+
+  @GetMapping(value = "/public/xmlSchemaDataTypes")
+  @Operation(summary = "Get XML schema data types", description = "Fetches the XML schema data types supported by the system")
+  public Set<String> getXmlSchemaDataTypes(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
+      log.debug("getXmlSchemaDataTypes");
+      return entityService.getXmlSchemaDataTypes();
+    }
+  }
+
+  @GetMapping("/public/filterOptions")
+  public FilterOptionsDto getFilterOptions() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FilterOptions.GET")) {
+      log.debug("getFilterOptions");
+      return entityService.getFilterOptions();
+    }
+  }
+
+  @GetMapping("/public/filterDefaults")
+  public FilterOptionsDto getFilterDefaults() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FilterDefaults.GET")) {
+      log.debug("getFilterDefaults");
+      return entityService.getFilterDefaults();
+    }
+  }
+
   @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
   public TTEntity getPartialEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
@@ -448,36 +494,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/schemes")
-  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
-      log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Namespace> namespaces = entityService.getNamespaces();
-      Map<String, Namespace> result = new HashMap<>();
-      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
-      return result;
-    }
-  }
-
-  @GetMapping(value = "/public/namespaces")
-  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public List<Namespace> getNamespaces(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
-      log.debug("getNamespaces");
-      return entityService.getNamespaces();
-    }
-  }
-
-  @GetMapping(value = "/public/xmlSchemaDataTypes")
-  @Operation(summary = "Get XML schema data types", description = "Fetches the XML schema data types supported by the system")
-  public Set<String> getXmlSchemaDataTypes(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
-      log.debug("getXmlSchemaDataTypes");
-      return entityService.getXmlSchemaDataTypes();
-    }
-  }
-
   @GetMapping(value = "/protected/graph")
   @Operation(summary = "Get graph data", description = "Fetches graph data for an entity specified by its IRI")
   public GraphDto getGraphData(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
@@ -496,22 +512,6 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/filterOptions")
-  public FilterOptionsDto getFilterOptions() {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
-      log.debug("getFilterOptions");
-      return entityService.getFilterOptions();
-    }
-  }
-
-  @GetMapping("/public/filterDefaults")
-  public FilterOptionsDto getFilterDefaults() {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
-      log.debug("getFilterDefaults");
-      return entityService.getFilterDefaults();
-    }
-  }
-
   @GetMapping("/protected/allowableChildTypes")
   @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
   public List<TTEntity> getAllowableChildTypes(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
@@ -520,7 +520,6 @@ public class EntityController {
       return entityService.getAllowableChildTypes(iri);
     }
   }
-
 
   @GetMapping(value = "/protected/childIris")
   @Operation(summary = "Get entity children not paged", description = "Fetches immediate child iris of the specified entity by IRI")

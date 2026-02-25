@@ -62,7 +62,7 @@ public class SetController {
   private final SetExporter setExporter = new SetExporter();
   private final SecurityService securityService = new SecurityService();
 
-  @GetMapping(value = "/protected/members")
+  @GetMapping(value = "/private/members")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
   public void publish(
     HttpServletRequest request,
@@ -75,7 +75,7 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/private/members")
+  @GetMapping(value = "/protected/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
     HttpServletRequest request,

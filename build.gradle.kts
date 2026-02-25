@@ -105,8 +105,6 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.set.SetExportRequest",
     "org.endeavourhealth.imapi.model.imq.*",
     "org.endeavourhealth.imapi.model.eclBuilder.*",
-    "org.endeavourhealth.imapi.vocabulary.*",
-    "org.endeavourhealth.imapi.vocabulary.**.*",
     "org.endeavourhealth.imapi.model.github.*",
     "org.endeavourhealth.imapi.model.workflow.*",
     "org.endeavourhealth.imapi.model.workflow.**.*",
@@ -122,13 +120,16 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*",
-    "org.endeavourhealth.imapi.model.casbin.*",
-    "org.endeavourhealth.imapi.model.casdoor.*",
+    "org.endeavourhealth.imapi.model.Namespace"
   )
   outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
-  customTypeNaming = listOf("org.endeavourhealth.imapi.model.Namespace:NamespaceDTO")
+  customTypeNaming = listOf(
+    "org.endeavourhealth.imapi.model.security.NamespacePermission:NamespacePermissionJava",
+    "org.endeavourhealth.imapi.model.security.User:UserJava"
+  )
+
 }
 
 tasks {

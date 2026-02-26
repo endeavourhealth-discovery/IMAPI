@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("api/dataModel")
+@RequestMapping("api/dataModel/protected")
 @CrossOrigin(origins = "*")
 @Tag(name = "Data model Controller")
 @RequestScope
@@ -33,7 +33,7 @@ public class DataModelController {
     summary = "Retrieve a node shape with data model properties",
     description = "Fetches the data model properties for the given IRI."
   )
-  @GetMapping("/private/dataModelProperties")
+  @GetMapping("/dataModelProperties")
   public NodeShape getDataModelProperties(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
@@ -49,7 +49,7 @@ public class DataModelController {
     summary = "Fetches the property display information",
     description = "Returns a list of properties displayed for the given IRI."
   )
-  @GetMapping(value = "/private/propertiesDisplay")
+  @GetMapping(value = "/propertiesDisplay")
   public List<PropertyDisplay> getPropertiesDisplay(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
@@ -65,7 +65,7 @@ public class DataModelController {
     summary = "Retrieve UI property for query builder",
     description = "Returns the UI property metadata for a given data model IRI and property IRI."
   )
-  @GetMapping(value = "private/UIPropertyForQB")
+  @GetMapping(value = "/UIPropertyForQB")
   public UIProperty getUIPropertyForQB(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "dmIri") String dmIri,
@@ -81,7 +81,7 @@ public class DataModelController {
     summary = "Retrieve data models from a property",
     description = "Returns a list of data models that reference the given property IRI."
   )
-  @GetMapping(value = "/private/dataModels")
+  @GetMapping(value = "/dataModels")
   public List<TTIriRef> getDataModelsFromProperty(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property")
@@ -95,7 +95,7 @@ public class DataModelController {
     summary = "Check the type of a property",
     description = "Determines the type of the property for the given IRI."
   )
-  @GetMapping(value = "private/checkPropertyType")
+  @GetMapping(value = "/checkPropertyType")
   public String checkPropertyType(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property") @RequestParam(name = "propertyIri") String iri
@@ -106,7 +106,7 @@ public class DataModelController {
     }
   }
 
-  @GetMapping(value = "/private/dataModelPropertiesWithValueType", produces = "application/json")
+  @GetMapping(value = "/dataModelPropertiesWithValueType", produces = "application/json")
   @Operation(
     summary = "gets a property shape for the defining property of a type",
     description = "Returns a property needed to define a type , typically im:concept, together with its value set"
@@ -120,18 +120,4 @@ public class DataModelController {
       return dataModelService.getDataModelPropertiesWithValueType(iris, valueType);
     }
   }
-
-  @Operation(
-    summary = "Get all simple and complex data types in IM "
-  )
-  @GetMapping(value = "public/datatypes")
-  public List<TTIriRef> getDataTypes(
-    HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Get datatypes.GET")) {
-      log.debug("getDatatypes");
-      return dataModelService.getDataTypes();
-    }
-  }
-
-
 }

@@ -17,7 +17,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/codeGen")
+@RequestMapping("api/codeGen/public")
 @CrossOrigin(origins = "*")
 @Tag(name = "CodeGenController")
 @RequestScope
@@ -26,7 +26,7 @@ public class CodeGenController {
   private final CodeGenService codeGenService = new CodeGenService();
 
   @Operation(summary = "Get a list of code templates", description = "Retrieve a list of available code templates.")
-  @GetMapping(value = "/private/codeTemplates", produces = "application/json")
+  @GetMapping(value = "/codeTemplates", produces = "application/json")
   public List<String> getCodeTemplateList(HttpServletRequest request) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplates.GET")) {
       log.debug("getCodeTemplateList");
@@ -35,7 +35,7 @@ public class CodeGenController {
   }
 
   @Operation(summary = "Get a specific code template", description = "Retrieve a specific code template by its name.")
-  @GetMapping(value = "/private/codeTemplate", produces = "application/json")
+  @GetMapping(value = "/codeTemplate", produces = "application/json")
   public CodeGenDto getCodeTemplate(HttpServletRequest request,
                                     @Parameter(description = "The name of the code template to retrieve") @RequestParam("templateName") String templateName) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.GET")) {
@@ -45,7 +45,7 @@ public class CodeGenController {
   }
 
   @Operation(summary = "Update a code template", description = "Update an existing code template.")
-  @PostMapping(value = "/private/codeTemplate", produces = "application/json")
+  @PostMapping(value = "/codeTemplate", produces = "application/json")
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateCodeTemplate(
     HttpServletRequest request,
@@ -58,7 +58,7 @@ public class CodeGenController {
   }
 
   @Operation(summary = "Generate code", description = "Generate code based on the provided IRI, template name, and namespace.")
-  @GetMapping(value = "/private/generateCode", produces = "application/json")
+  @GetMapping(value = "/generateCode", produces = "application/json")
   public HttpEntity<Object> generateCode(
     HttpServletRequest request,
     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
@@ -72,7 +72,7 @@ public class CodeGenController {
   }
 
   @Operation(summary = "Generate code preview", description = "Generate code based on the provided IRI, template name, and namespace.")
-  @PostMapping(value = "/private/generateCodePreview", produces = "text/plain")
+  @PostMapping(value = "/generateCodePreview", produces = "text/plain")
   public String generateCodePreview(HttpServletRequest request,
                                     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
                                     @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,

@@ -24,10 +24,16 @@ import java.util.StringJoiner;
 public class ExcelSearchExporter {
   private final XSSFWorkbook workbook;
   private final CellStyle headerStyle;
-  private final SearchService searchService = new SearchService();
-  private final EclService eclService = new EclService();
+  private final SearchService searchService;
+  private final EclService eclService;
 
   public ExcelSearchExporter() {
+    this(new SearchService(), new EclService());
+  }
+
+  public ExcelSearchExporter(SearchService searchService, EclService eclService) {
+    this.searchService = searchService;
+    this.eclService = eclService;
     workbook = new XSSFWorkbook();
     XSSFFont font = workbook.createFont();
     headerStyle = workbook.createCellStyle();

@@ -160,7 +160,7 @@ public class CodeGenJava {
     zs.flush();
   }
 
-  private String capitalizeFirstCharacter(String input) {
+  String capitalizeFirstCharacter(String input) {
     return input.substring(0, 1).toUpperCase() + separate(input).substring(1);
   }
 
@@ -330,7 +330,7 @@ public class CodeGenJava {
     return output.toString();
   }
 
-  private String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
+  String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
     String dataTypeName;
     if (dataType.getIri().startsWith(Namespace.XSD.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));

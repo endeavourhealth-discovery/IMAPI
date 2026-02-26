@@ -29,6 +29,7 @@ public enum QUERY implements VocabEnum {
     ALLOWABLE_PROPERTIES(Namespace.IM_QUERY + "AllowableProperties"),
     ALLOWABLE_PROPERTY_ANCESTORS(Namespace.IM_QUERY + "AllowablePropertyAncestors"),
     IS_VALID_PROPERTY(Namespace.IM_QUERY + "IsValidProperty"),
+    IS_VALID_TYPE(Namespace.IM_QUERY + "IsValidType"),
     ENTITY_FILTER(Namespace.IM_QUERY + "EntityFilter"),
     SEARCH_ENTITIES(Namespace.IM_QUERY + "SearchEntities"),
     SEARCH_FOLDERS(Namespace.IM_QUERY + "SearchFolders"),
@@ -36,6 +37,7 @@ public enum QUERY implements VocabEnum {
     SEARCH_MAIN_TYPES(Namespace.IM_QUERY + "SearchmainTypes"),
     DM_PROPERTY(Namespace.IM_QUERY + "DataModelPropertyByShape"),
     SEARCH_ALLOWABLE_SUBCLASS(Namespace.IM_QUERY + "SearchAllowableSubclass"),
+    SEARCH_ALLOWABLE_CHILD_OF(Namespace.IM_QUERY + "SearchAllowableChildOf"),
     GET_VALUES_FROM_PROPERTY_RANGE(Namespace.IM_QUERY + "GetValuesFromPropertyRange"),
     GET_SUBSETS(Namespace.IM_QUERY + "GetSubsets"),
     ;

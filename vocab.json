@@ -2232,6 +2232,10 @@
         "value": "Namespace.IM_QUERY + \"IsValidProperty\""
       },
       {
+        "name": "IS_VALID_TYPE",
+        "value": "Namespace.IM_QUERY + \"IsValidType\""
+      },
+      {
         "name": "ENTITY_FILTER",
         "value": "Namespace.IM_QUERY + \"EntityFilter\""
       },
@@ -2258,6 +2262,10 @@
       {
         "name": "SEARCH_ALLOWABLE_SUBCLASS",
         "value": "Namespace.IM_QUERY + \"SearchAllowableSubclass\""
+      },
+      {
+        "name": "SEARCH_ALLOWABLE_CHILD_OF",
+        "value": "Namespace.IM_QUERY + \"SearchAllowableChildOf\""
       },
       {
         "name": "GET_VALUES_FROM_PROPERTY_RANGE",

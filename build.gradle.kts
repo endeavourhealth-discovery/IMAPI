@@ -1,8 +1,7 @@
 import cz.habarta.typescript.generator.*
 
 apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
-apply(from = "$rootDir/gradle/copyAutoGenToQueryRunner.gradle")
-apply(from = "$rootDir/gradle/copyAutoGenToEndeavourSecurity.gradle")
+apply(from = "$rootDir/gradle/extractEnumsFromAutoGen.gradle.kts")
 
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
@@ -120,7 +119,8 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*",
-    "org.endeavourhealth.imapi.model.Namespace"
+    "org.endeavourhealth.imapi.model.Namespace",
+    "org.endeavourhealth.imapi.vocabulary.*"
   )
   outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
@@ -136,7 +136,6 @@ tasks {
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../VueLibrary/src/vocabulary/"
   }
 }
 

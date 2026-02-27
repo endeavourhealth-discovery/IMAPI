@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.springframework.stereotype.Component;
 import org.springframework.http.*;
 
 import java.io.ByteArrayOutputStream;
@@ -20,10 +21,23 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Component
 public class CodeGenService {
-  private final EntityService entityService = new EntityService();
-  private final DataModelService dataModelService = new DataModelService();
-  private final CodeGenRepository codeGenRepository = new CodeGenRepository();
+  private final EntityService entityService;
+  private final DataModelService dataModelService;
+  private final CodeGenRepository codeGenRepository;
+
+  public CodeGenService() {
+    this.entityService = new EntityService();
+    this.dataModelService = new DataModelService();
+    this.codeGenRepository = new CodeGenRepository();
+  }
+
+  public CodeGenService(EntityService entityService, DataModelService dataModelService, CodeGenRepository codeGenRepository) {
+    this.entityService = entityService;
+    this.dataModelService = dataModelService;
+    this.codeGenRepository = codeGenRepository;
+  }
 
   public List<String> getCodeTemplateList() {
     return codeGenRepository.getCodeTemplateList();

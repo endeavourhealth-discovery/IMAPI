@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -562,7 +561,7 @@ public class EntityService {
     return entityRepository.getAllowableChildTypes(iri);
   }
 
-  public boolean checkEntityExists(String iri) {
+  public boolean entityExists(String iri) {
     return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
   }
 

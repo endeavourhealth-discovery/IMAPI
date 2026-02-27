@@ -60,26 +60,24 @@ public class SecurityConfig {
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
     req.requestMatchers(HttpMethod.OPTIONS).permitAll();
-    if (EnvHelper.isPublicMode()) {
-      req.requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/api/*/private/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/*/private/**").permitAll()
-//        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
-    }
 
     req.requestMatchers(HttpMethod.GET, "/").permitAll()
       .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
       .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
-      .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll()
-      // Temporary for testing Smartlife API
       .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-      // -----------------------------------
-      .anyRequest().authenticated();
+
+      .requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
+      .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll();
+
+
+    if (EnvHelper.isPublicMode()) {
+        req.requestMatchers(HttpMethod.GET, "/api/*/protected/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/protected/**").permitAll();
+    }
+
+    req.anyRequest().authenticated();
   }
 
   private HttpFirewall allowUrlEncodedSlashHttpFirewall() {

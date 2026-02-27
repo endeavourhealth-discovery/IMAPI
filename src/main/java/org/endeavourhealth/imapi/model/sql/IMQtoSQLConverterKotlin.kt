@@ -84,12 +84,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       if (definition.`return` == null) {
         mySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
-        val (fk, pk) = mySqlQuery.withs.last{ !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
+        val (fk, pk) = mySqlQuery.withs.last { !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
         mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
         mySqlQuery.insert = MySQLInsert("cohort")
         mySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id);"""
       }
-      mySqlQuery.joinWiths()
       return mySqlQuery.toSql()
     }
   }
@@ -336,14 +335,52 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
 
-    if (isStep) {
-      with.isStep = true
-      if (mySQLQuery.withs.last().isStep) {
-        //      join with the last step
-      }
+    if (mySQLQuery.withs.isNotEmpty()) {
+      with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
 
     return with;
+  }
+
+  private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
+    val (fk, pk) =
+      if (fromWith.table.table == toWith.table.table)
+        fromWith.table.primaryKey to toWith.table.primaryKey
+      else
+        fromWith.table.foreignKeyTo(toWith.table)
+
+    if (fk == null || pk == null) {
+      throw SQLConversionException(
+        "No relationship between ${fromWith.table.table} and ${toWith.table}"
+      )
+    }
+
+    val join =
+      if (toWith.exclude) {
+        MySQLJoin(
+          join = "LEFT JOIN",
+          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableTo = toWith.table.table,
+          tableToAlias = toWith.alias,
+          fromProperty = fk,
+          toProperty = pk,
+          reference = true
+        ).apply {
+          wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$pk", "IS", "NULL"))
+        }
+      } else {
+        MySQLJoin(
+          join = "JOIN",
+          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableTo = toWith.table.table,
+          tableToAlias = toWith.alias,
+          fromProperty = fk,
+          toProperty = pk,
+          reference = true
+        )
+      }
+
+    return join
   }
 
   private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
@@ -706,8 +743,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val args = getFunctionArgumentMap(currentTable, where)
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
-        if (with.joins?.contains(join) == false)
-          with.joins?.add(join)
+        if (with.joins.contains(join) == false)
+          with.joins.add(join)
       }
       MySQLPropertyIsWhere(
         field,
@@ -763,7 +800,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo ${where.relativeTo.nodeRef}")
-    if (nodeToTableMap[nodeRef] != null) return "`${nodeRef}_cte`.$property"
+    if (nodeToTableMap[nodeRef] != null) return "${sanitiseAlias(nodeRef)}.$property"
     return "`${nodeRef}`.${property}"
   }
 

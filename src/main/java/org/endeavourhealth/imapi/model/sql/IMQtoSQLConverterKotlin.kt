@@ -76,8 +76,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.insert = MySQLInsert("dataset")
           val jsonObject = getJSONObject(newMySqlQuery)
           newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
-          newMySqlQuery.update =
-            """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id), `group` = VALUES(`group`), results = VALUES(results);"""
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
@@ -87,7 +85,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val (fk, pk) = mySqlQuery.withs.last { !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
         mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
         mySqlQuery.insert = MySQLInsert("cohort")
-        mySqlQuery.update = """ON DUPLICATE KEY UPDATE hash = VALUES(hash), cohort_id = VALUES(cohort_id);"""
       }
       return mySqlQuery.toSql()
     }
@@ -243,7 +240,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return
     }
 
-    if (currentMatch.and == null && currentMatch.or == null) {
+    if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null && currentMatch.union == null) {
       if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, currentMatch.notExists())
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery, isStep))
     }
@@ -335,7 +332,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
 
-    if (mySQLQuery.withs.isNotEmpty()) {
+    if (match.orderBy == null && mySQLQuery.withs.isNotEmpty()) {
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
 
@@ -409,18 +406,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
 
     if (match.notExists()) {
-      val notExistJoinCondition = rnWith.table.getJoinCondition(
-        joinType = "RIGHT JOIN",
-        tableFrom = with.table,
-        tableFromAlias = with.alias,
-        tableTo = mySQLQuery.withs.last().table,
+      val (fk, pk) = with.table.foreignKeyTo(queryTypeOfTable)
+      val (fkLast, pkLast) = mySQLQuery.withs.last().table.foreignKeyTo(queryTypeOfTable)
+      if (fk == null || pk == null) {
+        throw SQLConversionException(
+          "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table}"
+        )
+      }
+      val notExistJoinCondition = MySQLJoin(
+        join = "RIGHT JOIN",
+        tableFrom = with.table.alias ?: with.alias,
+        tableTo = mySQLQuery.withs.last().alias,
         tableToAlias = mySQLQuery.withs.last().alias,
+        fromProperty = fk,
+        toProperty = fkLast,
         reference = true
       )
-      rnWith.joins.add(notExistJoinCondition)
+      with.joins.add(notExistJoinCondition)
       val or = mutableListOf<MySQLWhere>()
       or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString()))
-      or.add(MySQLPropertyValueWhere("id", "IS", "NULL"))
+      or.add(MySQLPropertyValueWhere(fk, "IS", "NULL"))
       rnWith.wheres?.add(MySQLBoolWhere(or = or))
     } else {
       rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString()))
@@ -439,7 +444,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           mySQLQuery.nodeToTableMap,
         )
       with.selects.addAll(selects)
-    } else with.selects.add(MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}"))
+    } else with.selects.add(getDefaultSelect(with.table))
   }
 
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {

@@ -28,5 +28,6 @@ data class MySQLQuery(
       append("\n")
       append(it)
     }
+    append(";")
   }
 }

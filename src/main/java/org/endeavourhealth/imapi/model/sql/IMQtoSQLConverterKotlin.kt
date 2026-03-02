@@ -70,10 +70,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) addIsWiths(definition, newMySqlQuery)
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
-          newMySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
           newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
-          newMySqlQuery.insert = MySQLInsert("dataset")
+          newMySqlQuery.create = MySQLCreate(definition.iri)
           val jsonObject = getJSONObject(newMySqlQuery)
           newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
         }
@@ -81,10 +80,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        mySqlQuery.selects.add(MySQLSelect(definition.iri ?: $$"$hash", "hash"))
         val (fk, pk) = mySqlQuery.withs.last { !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
         mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
-        mySqlQuery.insert = MySQLInsert("cohort")
+        mySqlQuery.create = MySQLCreate(definition.iri)
       }
       return mySqlQuery.toSql()
     }
@@ -125,70 +123,37 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
-    val mySQLQueryJoins = mutableListOf<MySQLJoin>()
     for (isA in match.`is`) {
       val isAlias =
         if (match.node != null) "`${match.node}_cte`" else "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
-      val with = getIsWith(isA, isAlias, mySQLQuery)
-      if (isA.isExclude || not == true) {
-        val (with, join) = getIsExcludeWith(isA, isAlias, mySQLQuery)
-        mySQLQuery.withs.add(with)
-        mySQLQueryJoins.add(join)
-      } else mySQLQuery.withs.add(with)
-    }
-    for (join in mySQLQueryJoins) {
-      join.tableFrom = mySQLQuery.withs.last().alias
-      mySQLQuery.joins.add(join)
+      val with = getIsWith(isA, isAlias, mySQLQuery, isA.isExclude)
+      mySQLQuery.withs.add(with)
     }
   }
 
-  private fun getIsWith(isA: Node, isAlias: String, mySqlQuery: MySQLQuery): MySQLWith {
+  private fun getIsWith(isA: Node, isAlias: String, mySqlQuery: MySQLQuery, isExclude: Boolean): MySQLWith {
     val withJoins = mutableListOf<MySQLJoin>()
     if (mySqlQuery.withs.isNotEmpty()) {
       withJoins.add(
         MySQLJoin(
           "JOIN",
-          tableFrom = "cohort",
+          tableFrom = isA.iri,
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
           fromProperty = "cohort_id",
           toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
-          wheres = mutableListOf(MySQLPropertyValueWhere("cohort.hash", "=", isA.iri, null, null))
+          wheres = if (isExclude) mutableListOf(
+            MySQLPropertyValueWhere("cohort_id", "IS", "NULL", null, null)
+          ) else mutableListOf()
         )
       )
     }
     return MySQLWith(
-      getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
-      isAlias,
-      if (withJoins.isEmpty()) mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)) else null,
-      mutableListOf(MySQLSelect("cohort.cohort_id"), MySQLSelect("cohort.hash")),
-      withJoins.ifEmpty { mutableListOf() },
-      Bool.and,
+      table = Table(table = isA.iri),
+      alias = isAlias,
+      selects = mutableListOf(MySQLSelect("cohort_id")),
+      joins = withJoins.ifEmpty { mutableListOf() },
+      exclude = isExclude
     )
-  }
-
-  private fun getIsExcludeWith(isA: Node, isAlias: String, mySqlQuery: MySQLQuery): Pair<MySQLWith, MySQLJoin> {
-//    check if resultSet
-    val with = MySQLWith(
-      getTableFromTypeAndProperty(IM.COHORT.toString(), IM.ID.toString()),
-      isAlias,
-      mutableListOf(MySQLPropertyValueWhere("hash", "=", isA.iri, null, null)),
-      mutableListOf(MySQLSelect("id"), MySQLSelect("hash")),
-      mutableListOf(),
-      Bool.and,
-      exclude = true
-    )
-
-    val join = MySQLJoin(
-      "LEFT JOIN",
-      tableFrom = mySqlQuery.withs.last().alias,
-      tableTo = with.alias,
-      fromProperty = "cohort_id",
-      toProperty = "cohort_id",
-      wheres = mutableListOf(
-        MySQLPropertyValueWhere("${with.alias}.cohort_id", "IS", "NULL", null, null)
-      )
-    )
-    return Pair(with, join)
   }
 
   private fun getCteAliasFromTypeAndProperty(typeIri: String?, propertyIri: String?): String {

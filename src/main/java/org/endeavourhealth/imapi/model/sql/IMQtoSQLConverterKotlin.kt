@@ -137,7 +137,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       withJoins.add(
         MySQLJoin(
           "JOIN",
-          tableFrom = isA.iri,
+          tableFrom = "`${isA.iri}`",
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
           fromProperty = "cohort_id",
           toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
@@ -148,11 +148,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     }
     val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
-    cohortTable.table = isA.iri
+    cohortTable.table = "`${isA.iri}`"
     return MySQLWith(
       table = cohortTable,
       alias = isAlias,
-      selects = mutableListOf(MySQLSelect("cohort_id")),
+      selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
       joins = withJoins.ifEmpty { mutableListOf() },
       exclude = isExclude
     )

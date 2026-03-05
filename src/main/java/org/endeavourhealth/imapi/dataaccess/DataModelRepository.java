@@ -360,18 +360,27 @@ public class DataModelRepository {
           optional {
             ?path sh:parameter ?parameter.
             ?parameter rdfs:label ?parameterName.
-            optional {?parameter sh:class ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.
-            ?parameterSubtype im:isA ?parameterType.
-              ?parameterSubtype rdfs:label ?parameterSubtypeName}
+            optional {
+              ?parameter sh:class ?parameterType.
+              ?parameterType rdfs:label ?parameterTypeName.
+               optional { ?parameterSubtype im:isA ?parameterType.
+                  ?parameterSubtype rdfs:label ?parameterSubtypeName
+                  }
+               }
             optional {?parameter sh:datatype ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.
-            ?parameterSubtype im:isA ?parameterType.
-              ?parameterSubtype rdfs:label ?parameterSubtypeName}
+              ?parameterType rdfs:label ?parameterTypeName.
+              optional {
+               ?parameterSubtype im:isA ?parameterType.
+                ?parameterSubtype rdfs:label ?parameterSubtypeName
+                }
+              }
             optional {?parameter sh:node ?parameterType.
             ?parameterType rdfs:label ?parameterTypeName.
+            optional {
             ?parameterSubtype im:isA ?parameterType.
-              ?parameterSubtype rdfs:label ?parameterSubtypeName}
+              ?parameterSubtype rdfs:label ?parameterSubtypeName
+              }
+            }
           }
         }
         optional {

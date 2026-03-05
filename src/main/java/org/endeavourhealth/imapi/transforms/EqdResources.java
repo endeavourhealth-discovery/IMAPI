@@ -896,6 +896,7 @@ public class EqdResources {
     String property=where.getIri();
     if (where.getIri().contains("age")) {
       property=Namespace.IM+"dateOfBirth";
+      relation=VocRelation.RELATIVE;
     }
     assignable.setOperator(comp);
     if (value!=null && value.equals("This")) {
@@ -910,6 +911,9 @@ public class EqdResources {
       assignable.setValue(value);
     }
     if (relation==VocRelation.RELATIVE) {
+      if (relativeTo==null) {
+        relativeTo= "$searchDate";
+      }
       ValueSource relationLeft = new ValueSource();
       relationLeft.setPath(new Path().setIri(property));
       ValueSource relationRight = new ValueSource();

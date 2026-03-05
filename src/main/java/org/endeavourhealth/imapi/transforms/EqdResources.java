@@ -7,13 +7,11 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.utility.ClauseUtils;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.slf4j.Logger;
@@ -210,6 +208,17 @@ public class EqdResources {
     return match;
   }
 
+  private void injectPatientReturn(Match match) {
+    if (match.getReturn()==null){
+      match.addReturn(new Return()
+        .setNodeRef(match.getNode())
+        .setIri(Namespace.IM+"patient"));
+    }
+    else {
+      match.getReturn().add(0, new Return().setNodeRef(match.getNode()).setIri(Namespace.IM+"patient"));
+    }
+  }
+
   private Match convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
     Match baseMatch = null;
     Match standardMatch = null;
@@ -222,17 +231,20 @@ public class EqdResources {
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
       Match baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
       baseQuery.setTypeOf(new Node().setIri(Namespace.IM+"Patient"));
+      injectPatientReturn(baseQuery);
       Match logicalMatch= new LogicOptimizer().getLogicalMatch(baseQuery);
       String json= new ObjectMapper().writeValueAsString(logicalMatch);
       int hash= json.hashCode();
       EqdToIMQ.getBaseQueries().put(String.valueOf(hash),baseQuery);
       baseMatch= new Match();
       baseMatch.addIs(new Node().setIri(namespace.toString()+hash).setIsResultSet(true));
+      injectPatientReturn(baseMatch);
       lastMatch = baseMatch;
     }
 
     if (hasStandard) {
       standardMatch = this.convertStandardCriterion(eqCriterion);
+      injectPatientReturn(standardMatch);
       lastMatch= standardMatch;
       if (baseMatch != null) {
         if (standardMatch.getAnd()==null&&standardMatch.getWhere()==null){
@@ -250,6 +262,7 @@ public class EqdResources {
         testMatch = this.convertTestCriterion(eqCriterion,lastMatch);
         setNamedMatchNode(lastMatch);
         testMatch.setNodeRef(lastMatch.getNode());
+        injectPatientReturn(testMatch);
         lastMatch= testMatch;
       }
     }
@@ -260,6 +273,7 @@ public class EqdResources {
     if (hasLinked) {
       setNamedMatchNode(lastMatch);
       linkedMatch = this.convertLinkedCriterion(eqCriterion, lastMatch);
+      injectPatientReturn(linkedMatch);
     }
     List<Match> steps = new ArrayList<>();
 
@@ -279,10 +293,10 @@ public class EqdResources {
     if (steps.size() > 1) {
       Match outerMatch = new Match();
       outerMatch.setStep(steps);
+      injectPatientReturn(outerMatch);
       return outerMatch;
     }
     else return lastMatch;
-
   }
 
   private Match convertBaseCriteriaGroups(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
@@ -335,73 +349,95 @@ public class EqdResources {
   }
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion, Match parentMatch) throws IOException, QueryException, EQDException {
     EQDOCCriterion eqLinkedCriterion = eqCriterion.getLinkedCriterion().getCriterion();
-    Match match = this.convertCriterion(eqLinkedCriterion);
-    if (eqLinkedCriterion.getDescription()!=null) match.setDescription(eqLinkedCriterion.getDescription());
-    Where relationProperty = new Where();
-    Match linkTarget= match;
-    if (match.getAnd() != null) {
-      linkTarget = match.getAnd().getFirst();
+    Match linkedMatch = this.convertCriterion(eqLinkedCriterion);
+    if (eqLinkedCriterion.getDescription()!=null) linkedMatch.setDescription(eqLinkedCriterion.getDescription());
+    Where relationWhere = new Where();
+    if (linkedMatch.getAnd() != null) {
+      linkedMatch = linkedMatch.getAnd().getFirst();
     }
-    addMatchWhere(linkTarget, relationProperty,null);
+    addMatchWhere(linkedMatch, relationWhere,null);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
-    relationProperty.setNodeRef(getNodeRef(linkTarget));
-    relationProperty.setIri(child.substring(child.lastIndexOf(" ") + 1));
-    injectTestReturn(parentMatch,relationProperty.getIri());
-    String parentProperty;
+    ValueSource relationLeft= new ValueSource();
+    relationLeft.setNodeRef(getNodeRef(linkedMatch));
+    relationLeft.setPath(new Path().setIri(child.substring(child.lastIndexOf(" ") + 1)));
+    injectTestReturn(parentMatch,relationLeft.getPath().getIri());
+    ValueSource relationRight= new ValueSource();
+    relationRight.setNodeRef(getNodeRef(parentMatch));
     if (eqRelationship.getParentColumn().contains("DATE")) {
-      parentProperty = Namespace.IM + "effectiveDate";
+      relationRight.setPath(new Path().setIri(Namespace.IM + "effectiveDate"));
     } else {
       if (!eqRelationship.getParentColumn().contains("DOB")) {
         throw new QueryException("Non date linked criteria not managed yet");
       }
-      parentProperty = Namespace.IM + "dateOfBirth";
+      relationRight.setPath(new Path().setIri(Namespace.IM + "dateOfBirth"));
     }
 
     if (eqRelationship.getRangeValue() != null) {
       EQDOCRangeValue eqRange = eqRelationship.getRangeValue();
       if (eqRange.getRangeFrom() != null && eqRange.getRangeTo() != null) {
         Range range = new Range();
-        relationProperty.setRange(range);
+        relationWhere.setRange(range);
+        String fromValue= eqRange.getRangeFrom().getValue().getValue();
+        String fromUnits= eqRange.getRangeFrom().getValue().getUnit().value();
+        Operator fromOperator= ((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator()));
         Value from = new Value();
         range.setFrom(from);
-        from.setOperator((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator())).setValue(eqRange.getRangeFrom().getValue().getValue());
-
-
+        buildCompare(from,fromOperator,fromValue,fromUnits,relationLeft,relationRight);
         Value to = new Value();
         range.setTo(to);
-        to.setOperator((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator())).setValue(eqRange.getRangeTo().getValue().getValue());
+        String toValue= eqRange.getRangeTo().getValue().getValue();
+        Operator toOperator= ((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator()));
+        String toUnits= eqRange.getRangeTo().getValue().getUnit().value();
+        buildCompare(to,toOperator,toValue,toUnits,relationLeft,relationRight);
 
       } else if (eqRelationship.getRangeValue().getRangeFrom() != null) {
-        relationProperty.setOperator((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator())).setValue(eqRange.getRangeFrom().getValue().getValue());
+        String fromValue= eqRange.getRangeFrom().getValue().getValue();
+        String fromUnits= eqRange.getRangeFrom().getValue().getUnit().value();
+        Operator fromOperator= ((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator()));
+        buildCompare(relationWhere,fromOperator,fromValue,fromUnits,relationLeft,relationRight);
 
       } else {
-        relationProperty.setOperator((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator())).setValue(eqRange.getRangeTo().getValue().getValue());
+        String toValue= eqRange.getRangeTo().getValue().getValue();
+        Operator toOperator= ((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator()));
+        String toUnits= eqRange.getRangeTo().getValue().getUnit().value();
+        buildCompare(relationWhere,toOperator,toValue,toUnits,relationLeft,relationRight);
       }
     } else {
-      relationProperty.setOperator(Operator.eq);
+      relationWhere.setCompare(new Compare());
+      relationWhere.getCompare().setLeft(relationLeft);
+      relationWhere.getCompare().setRight(relationRight);
+      relationWhere.setOperator(Operator.eq);
     }
+    return linkedMatch;
+  }
 
-    relationProperty.setRelativeTo((new RelativeTo()).setNodeRef(parentMatch.getNode()).setIri(parentProperty));
-    ClauseUtils.assignFunction(relationProperty);
-    if (match.getDescription()!=null){
-      match.setDescription(match.getDescription()+" (where "+getRelationship(eqRelationship)+")");
+  private void buildCompare(Assignable assignable, Operator operator, String value, String units,
+                            ValueSource relationLeft,
+                            ValueSource relationRight) throws EQDException {
+    if (value.equals("0")) {
+      value = null;
     }
-    if (eqLinkedCriterion.isNegation()){
-      match.setNotExists(true);
-    }
-    return match;
+    assignable.setCompare(new Compare());
+    assignable.getCompare().setLeft(relationLeft);
+    assignable.getCompare().setRight(relationRight);
+    if (units!=null)
+        assignable.getCompare().setUnits(getIMUnits(units));
+    assignable.setOperator(operator);
+    assignable.setValue(value);
   }
 
 
   private Match convertColumns(String table, String eqId, List<EQDOCColumnValue> columns, Match matchToTest) throws EQDException, IOException {
     int index = 0;
     Match match = new Match();
-
     for (EQDOCColumnValue cv : columns) {
         ++index;
         this.convertColumn(table, eqId, cv, match, index, matchToTest);
+    }
+    if (match.getPath()!=null) {
+      match.setTypeOf(new Node().setIri(match.getPath().getFirst().getTypeOf().getIri()));
     }
 
     return match;
@@ -573,11 +609,11 @@ public class EqdResources {
       }
     } else if (cv.getRangeValue() != null) {
       this.setRangeValue(cv.getRangeValue(), pv);
-      if (pv.getIri().toLowerCase().contains("age")||pv.getRelativeTo()!=null) {
-        ClauseUtils.assignFunction(pv);
-      }
     } else if (cv.getSingleValue() != null) {
       setSingleValue(cv,pv,in);
+    }
+    if (cv.getFunction()!=null){
+      throw new EQDException("functions not yest supported");
     }
   }
 
@@ -716,107 +752,87 @@ public class EqdResources {
   }
 
   private void setSingleValue(EQDOCColumnValue cv, Where pv,boolean in) throws IOException, EQDException {
-    EQDOCSingleValue sv=  cv.getSingleValue();
-    EQDOCValue variable= sv.getVariable();
-      if (variable!=null) {
-        String value = variable.getValue();
-        VocValueUnit qualifier = variable.getUnit();
-        VocRelation relative = variable.getRelation();
-        if (relative != null && relative.equals(VocRelation.RELATIVE)) {
-          if (value.equalsIgnoreCase("last")) {
-            pv.setOperator(Operator.eq);
-            pv.setValue("-1");
-            if (!in) pv.setNot(true);
-          } else if (value.equalsIgnoreCase("this")) {
-            pv.setOperator(Operator.eq);
-            if (!in) pv.setNot(true);
-          }
-          switch (qualifier) {
-            case MONTH -> pv.setQualifier(iri(Namespace.IM + "month").setName("month"));
-            case DAY -> pv.setQualifier(iri(Namespace.IM + "day").setName("day"));
-            case YEAR -> pv.setQualifier(iri(Namespace.IM + "year").setName("year"));
-            case FISCALYEAR -> pv.setQualifier(iri(Namespace.IM + "fiscalYear").setName("fiscalYear"));
-            case WEEK -> pv.setQualifier(iri(Namespace.IM + "weekNumber").setName("week number"));
-          }
-          pv.setRelativeTo(new RelativeTo().setParameter("$searchDate").setQualifier(pv.getQualifier()));
-        } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
-          pv.setValue(value);
-          pv.setOperator(Operator.eq);
-          if (!in) pv.setNot(true);
-        } else {
-          String key = this.sourceContext + "/EMISINTERNAL/" + value;
-          Object mapValue = this.dataMap.get(key);
-          if (mapValue != null) {
-              pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
-              if (!in) pv.setNot(true);
-          } else throw new EQDException("variable " + value + "with " + relative + " not supported");
-        }
+    EQDOCSingleValue sv = cv.getSingleValue();
+    EQDOCValue variable = sv.getVariable();
+    if (variable == null) {
+      throw new EQDException("variable is null");
+    }
+    String value = variable.getValue();
+    VocValueUnit eqQualifier = variable.getUnit();
+    VocRelation relative = variable.getRelation();
+    if (!in) pv.setNot(true);
+    TTIriRef qualifier= null;
+    if (eqQualifier != null) {
+      qualifier =
+        switch (eqQualifier) {
+          case MONTH -> iri(IM.MONTH);
+          case DAY -> iri(IM.DAY);
+          case YEAR -> iri(IM.YEAR);
+          case FISCALYEAR -> iri(IM.FISCAL_YEAR);
+          case WEEK -> iri(IM.WEEK);
+          case QUARTER -> iri(IM.QUARTER);
+          default -> throw new EQDException("Unknown qualifier " + eqQualifier);
+        };
+    }
+    if (relative != null && relative.equals(VocRelation.RELATIVE)) {
+      if (value.equalsIgnoreCase("last")) {
+        pv.setOperator(Operator.eq);
+        pv.setValue("-1");
+        pv.setValueTerm("last");
+        pv.setCompare(new Compare());
+        pv.setQualifier(qualifier);
+        Compare diff = pv.getCompare();
+        diff.setLeft(new ValueSource()
+          .setPath(new Path().setIri(pv.getIri())));
+        diff.setRight(new ValueSource()
+        .setParameter("$searchDate"));
+      } else if (value.equalsIgnoreCase("this")) {
+        pv.setOperator(Operator.eq);
+        pv.setCompare(new Compare());
+        pv.setQualifier(qualifier);
+        Compare comp = pv.getCompare();
+        comp.setLeft(new ValueSource()
+          .setPath(new Path().setIri(pv.getIri())));
+        comp.setRight(new ValueSource()
+          .setParameter("$searchDate"));
+        pv.setValueTerm("this");
       }
-      else throw new EQDException("no variable found for single value");
-      ClauseUtils.assignFunction(pv);
+    } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
+      pv.setValue(value);
+      pv.setOperator(Operator.eq);
+      if (!in) pv.setNot(true);
+    } else {
+      String key = this.sourceContext + "/EMISINTERNAL/" + value;
+      Object mapValue = this.dataMap.get(key);
+      if (mapValue != null) {
+        pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
+        if (!in) pv.setNot(true);
+      } else throw new EQDException("variable " + value + "with " + relative + " not supported");
+    }
   }
 
 
   private void setRangeValue(EQDOCRangeValue rv, Where pv) throws EQDException {
     EQDOCRangeFrom rFrom = rv.getRangeFrom();
-    String relativeTo= rv.getRelativeTo();
     EQDOCRangeTo rTo = rv.getRangeTo();
-    if (relativeTo==null) {
-      if (rFrom!=null && rFrom.getValue() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE)
-        relativeTo = "SEARCHDATE";
-      if (rTo!=null && rTo.getValue() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE)
-        relativeTo = "SEARCHDATE";
+    if (rFrom != null&&rTo!=null) {
+      this.setRangeCompare(pv.getIri(),pv, rFrom, rTo, rv.getRelativeTo());
+    } else if (rFrom!=null) {
+        this.setCompareFrom(pv.getIri(),pv, rFrom,rv.getRelativeTo());
+    } else if (rTo != null) {
+      this.setCompareTo(pv.getIri(),pv, rTo, rv.getRelativeTo());
     }
-    if (rFrom != null) {
-      if (rTo == null) {
-        this.setCompareFrom(pv, rFrom,relativeTo);
-      } else {
-        this.setRangeCompare(pv, rFrom, rTo,relativeTo);
-      }
-    }
-
-    if (rTo != null && rFrom == null) {
-      if (rTo.getValue() != null && rTo.getValue().getValue() != null && rTo.getValue().getValue().equals("This")) {
-        if (rTo.getValue().getUnit() != VocValueUnit.FISCALYEAR) {
-          throw new EQDException("unknown units with 'This' value : " + rTo.getValue().getUnit());
-        }
-
-        this.setFiscalYear(pv, rTo);
-      } else {
-        this.setCompareTo(pv, rTo,relativeTo);
-      }
-    }
-
-    if (rv.getRelativeTo() != null){
-      if (rv.getRelativeTo().equals("BASELINE"))
-        pv.setRelativeTo((new RelativeTo()).setParameter("$achievementDate"));
-      else throw new EQDException("unknown relativeTo value : " + rv.getRelativeTo());
-    }
-    ClauseUtils.assignFunction(pv);
   }
 
-  private void setFiscalYear(Where where, EQDOCRangeTo rTo) throws EQDException {
-    if (rTo.getOperator() == VocRangeToOperator.LT) {
-      where.setRelativeTo((new RelativeTo()).setParameter("$endOfFiscalYear"));
-      where.setOperator(Operator.lt);
-    } else {
-      if (rTo.getOperator() != VocRangeToOperator.LTEQ) {
-        throw new EQDException("Unknown fiscal year operator " + rTo.getOperator().value());
-      }
-      where.setRelativeTo((new RelativeTo()).setParameter("$endOfFiscalYear"));
-      where.setOperator(Operator.lte);
-    }
 
-  }
 
-  private void setCompareFrom(Where where, EQDOCRangeFrom rFrom,String relativeTo) throws EQDException {
+  private void setCompareFrom(String property,Where where,EQDOCRangeFrom rFrom,String relativeTo) throws EQDException {
     Operator comp;
     if (rFrom.getOperator() != null) {
       comp = (Operator) this.vocabMap.get(rFrom.getOperator());
     } else {
       comp = Operator.eq;
     }
-
     String value = null;
     String units = null;
     VocRelation relation = null;
@@ -825,43 +841,59 @@ public class EqdResources {
       if (rFrom.getValue().getUnit() != null) {
         units = rFrom.getValue().getUnit().value();
       }
-
       relation = VocRelation.ABSOLUTE;
       if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
         relation = VocRelation.RELATIVE;
       }
     }
-
-    this.setCompare(where, where, comp,value,units, relation,relativeTo);
-  }
-
-
-  private void setCompare(Where where, Assignable pv, Operator comp, String value, String units, VocRelation relation,String relativeTo) throws EQDException {
-
-    if (relation == VocRelation.RELATIVE &&relativeTo!=null)
-        where.setRelativeTo((new RelativeTo()).setParameter(relativeTo.equals("BASELINE") ? "$achievementDate" : "$searchDate"));
-    pv.setOperator(comp);
-    if (value!=null && value.equals("This")) {
+    TTIriRef qualifier = null;
+    if (units!=null) {
       if (units.equals("FISCALYEAR")) {
-        pv.setOperator(Operator.eq);
-        pv.setValue("0");
-        FunctionClause functionClause = new FunctionClause();
-        functionClause.setIri(Namespace.IM+"timeDifference").setName("TimeDifference");
-        functionClause.argument(a->a.setParameter("firstDate").setValuePath(new Path().setIri(Namespace.IM+"effectiveDate").setName("event date")));
-        functionClause.argument(a->a.setParameter("secondDate").setValueParameter("$searchDate"));
-        functionClause.argument(a->a.setParameter("units").setValueIri(iri(Namespace.IM+"fiscalYear").setName("fiscal year")));
-        pv.setFunction(functionClause);
+        where.setQualifier(iri(IM.FISCAL_YEAR));
+        units = null;
+      } else if (units.equals("QUARTER")) {
+        where.setQualifier(iri(IM.QUARTER));
+        units = null;
       }
     }
-    else {
-      pv.setValue(value);
-      if (units != null) {
-        pv.setUnits(getIMUnits(units));
+    this.setCompare(property,where, comp,value,units, relation,relativeTo);
+  }
+
+
+  private void setCompare(String property,Assignable assignable, Operator comp, String value, String units, VocRelation relation,String relativeTo) throws EQDException {
+
+    if (relativeTo!=null){
+      if (relativeTo.equals("BASELINE")) {
+        relativeTo= "$achievementDate";
       }
+      else throw new  EQDException("relative to " + relativeTo + " not supported");
+    }
+    if (property.contains("age")) {
+      property=Namespace.IM+"dateOfBirth";
+    }
+    assignable.setOperator(comp);
+    if (value!=null && value.equals("This")) {
+      assignable.setOperator(Operator.eq);
+      assignable.setValueTerm("this");
+    }
+    else if (value!=null && value.equals("Last")) {
+      assignable.setOperator(Operator.eq);
+      assignable.setValue("-1");
+      assignable.setValueTerm("last");
+    } else if (value!=null) {
+      assignable.setValue(value);
+    }
+    if (relation==VocRelation.RELATIVE) {
+      ValueSource relationLeft = new ValueSource();
+      relationLeft.setPath(new Path().setIri(property));
+      ValueSource relationRight = new ValueSource();
+      relationRight.setParameter(relativeTo);
+      if (assignable.getValue() == null) {
+        buildCompare(assignable, comp, "0", units, relationLeft, relationRight);
+      } else buildCompare(assignable, comp, value, units, relationLeft, relationRight);
     }
 
   }
-
 
 
   private TTIriRef getIMUnits(String units) throws EQDException {
@@ -880,7 +912,7 @@ public class EqdResources {
 
 
 
-  private void setCompareTo(Where pv, EQDOCRangeTo rTo,String relativeTo) throws EQDException {
+  private void setCompareTo(String property,Where pv, EQDOCRangeTo rTo,String relativeTo) throws EQDException {
     Operator comp;
     if (rTo.getOperator() != null) {
       comp = (Operator) this.vocabMap.get(rTo.getOperator());
@@ -903,10 +935,10 @@ public class EqdResources {
       }
     }
 
-    this.setCompare(pv, pv,comp, value, units, relation,relativeTo);
+    this.setCompare(property,pv,comp, value, units, relation,relativeTo);
   }
 
-  private void setRangeCompare(Where where, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo,String relativeTo) throws EQDException {
+  private void setRangeCompare(String property,Where where, EQDOCRangeFrom rFrom, EQDOCRangeTo rTo,String relativeTo) throws EQDException {
     Range range = new Range();
     where.setRange(range);
     Value fromValue = new Value();
@@ -928,8 +960,19 @@ public class EqdResources {
     if (rFrom.getValue().getRelation() != null && rFrom.getValue().getRelation() == VocRelation.RELATIVE) {
       relation = VocRelation.RELATIVE;
     }
+    TTIriRef qualifier = null;
+    if (units!=null) {
+      if (units.equals("FISCALYEAR")){
+        where.setQualifier(iri(IM.FISCAL_YEAR));
+        units=null;
+      }
+      else if (units.equals("QUARTER")) {
+        where.setQualifier(iri(IM.QUARTER));
+        units = null;
+      }
+    }
 
-    this.setCompare(where, fromValue, comp, value, units, relation,relativeTo);
+    this.setCompare(property,fromValue, comp, value, units, relation,relativeTo);
     Value toValue = new Value();
     range.setTo(toValue);
     if (rFrom.getOperator() != null) {
@@ -948,7 +991,8 @@ public class EqdResources {
     if (rTo.getValue().getRelation() != null && rTo.getValue().getRelation() == VocRelation.RELATIVE) {
       relation = VocRelation.RELATIVE;
     }
-    this.setCompare(where, toValue, comp, value, units, relation,relativeTo);
+
+    this.setCompare(property,toValue, comp, value, units, relation,relativeTo);
   }
 
   private List<Node> getExceptionSet(EQDOCException set) throws IOException {

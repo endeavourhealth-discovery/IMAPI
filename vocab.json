@@ -1147,7 +1147,23 @@
       },
       {
         "name": "FISCAL_YEAR",
-        "value": "Namespace.IM + \"fiscalYear\""
+        "value": "Namespace.IM + \"FiscalYear\""
+      },
+      {
+        "name": "QUARTER",
+        "value": "Namespace.IM + \"Quarter\""
+      },
+      {
+        "name": "WEEK",
+        "value": "Namespace.IM + \"Week\""
+      },
+      {
+        "name": "WEEK_NUMBER",
+        "value": "Namespace.IM + \"WeekNumber\""
+      },
+      {
+        "name": "YEAR",
+        "value": "Namespace.IM + \"Year\""
       },
       {
         "name": "YEARS",
@@ -1155,11 +1171,15 @@
       },
       {
         "name": "MONTH",
-        "value": "Namespace.IM + \"month\""
+        "value": "Namespace.IM + \"Month\""
       },
       {
         "name": "MONTHS",
         "value": "Namespace.IM + \"Months\""
+      },
+      {
+        "name": "DAY",
+        "value": "Namespace.IM + \"Day\""
       },
       {
         "name": "DAYS",
@@ -1171,11 +1191,11 @@
       },
       {
         "name": "MINUTES",
-        "value": "Namespace.IM + \"Minutes\""
+        "value": "Namespace.IM + \"Minute\""
       },
       {
         "name": "SECONDS",
-        "value": "Namespace.IM + \"Seconds\""
+        "value": "Namespace.IM + \"Second\""
       },
       {
         "name": "DATATYPE_QUALIFIER",

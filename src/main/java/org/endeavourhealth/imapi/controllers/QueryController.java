@@ -33,7 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/query/protected")
+@RequestMapping("api/query")
 @CrossOrigin(origins = "*")
 @Tag(name = "Query APIs", description = "APIs for querying the Information Model")
 @RequestScope
@@ -44,7 +44,7 @@ public class QueryController {
   private final QueryService queryService = new QueryService();
   private final SecurityService securityService = new SecurityService();
 
-  @PostMapping("/queryIM")
+  @PostMapping("/private/queryIM")
   @Operation(
     summary = "Query IM",
     description = "Runs a generic query on IM"
@@ -59,7 +59,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/askQueryIM")
+  @PostMapping("/private/askQueryIM")
   @Operation(summary = "Check if an iri is within a query's results")
   public Boolean askQueryIM(
     HttpServletRequest request,
@@ -71,7 +71,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/queryIMSearch")
+  @PostMapping("/private/queryIMSearch")
   @Operation(
     summary = "Query IM returning conceptSummaries",
     description = "Runs a generic query on IM and returns results as ConceptSummary items."
@@ -91,7 +91,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/pathQuery")
+  @PostMapping("/private/pathQuery")
   @Operation(
     summary = "Path Query ",
     description = "Query IM for a path between source and target"
@@ -104,7 +104,7 @@ public class QueryController {
   }
 
 
-  @GetMapping(value = "/queryDisplay", produces = "application/json")
+  @GetMapping(value = "/private/queryDisplay", produces = "application/json")
   @Operation(
     summary = "Describe a query",
     description = "Retrieves the details of a query based on the given query IRI."
@@ -120,7 +120,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/indicatorDisplay", produces = "application/json")
+  @GetMapping(value = "/private/indicatorDisplay", produces = "application/json")
   @Operation(
     summary = "Describe a query",
     description = "Retrieves the details of a query based on the given query IRI."
@@ -135,7 +135,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/expandCohort", produces = "application/json")
+  @GetMapping(value = "/private/expandCohort", produces = "application/json")
   @Operation(
     summary = "Expands a cohort reference from a source query",
     description = "Retrieves the details of a query based on the given source and cohort IRI."
@@ -152,7 +152,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping(value = "/queryFromIri", produces = "application/json")
+  @GetMapping(value = "/private/queryFromIri", produces = "application/json")
   @Operation(
     summary = "gets an original IM  query from its iri",
     description = "Retrieves the original details of a query based on the given query IRI."
@@ -167,7 +167,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/queryDisplayFromQuery")
+  @PostMapping("/private/queryDisplayFromQuery")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
@@ -189,7 +189,7 @@ public class QueryController {
   }
 
 
-  @PostMapping("/flattenBooleans")
+  @PostMapping("/private/flattenBooleans")
   @Operation(
     summary = "optimises logical boolean of query",
     description = "Returns the query with boolean optimisation"
@@ -203,7 +203,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/optimiseECLQuery")
+  @PostMapping("/private/optimiseECLQuery")
   @Operation(
     summary = "optimises logical boolean of query",
     description = "Returns the query with boolean optimisation"
@@ -218,7 +218,7 @@ public class QueryController {
   }
 
 
-  @PostMapping("/matchDisplayFromMatch")
+  @PostMapping("/private/matchDisplayFromMatch")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
@@ -234,7 +234,7 @@ public class QueryController {
   }
 
 
-  @PostMapping("/sql")
+  @PostMapping("/private/sql")
   @Operation(
     summary = "Generate SQL",
     description = "Generates SQL from the provided IMQ query request."
@@ -246,7 +246,22 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/sql")
+  @PostMapping("/private/validateQuery")
+  @Operation(
+    summary = "Validate Query",
+    description = "Validates a query"
+  )
+  public Query validateQuery(
+    HttpServletRequest request,
+    @RequestBody Query query
+  ) throws QueryException, OpenSearchException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
+      log.debug("validateQuery");
+      return queryService.validateQuery(query);
+    }
+  }
+
+  @GetMapping("/private/sql")
   @Operation(
     summary = "Generate SQL from IRI",
     description = "Generates SQL from the given IMQ query IRI."
@@ -262,22 +277,8 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/imlFromIri")
-  @Operation(
-    summary = "Generate IML from a query iri",
-    description = "Generates IMQ from the given IMQ query IRI."
-  )
-  public IMLLanguage getIMLFromIMQIri(
-    HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri
-  ) throws QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
-      log.debug("getIMLFromIMQIri");
-      return queryService.getIMLFromIMQIri(queryIri);
-    }
-  }
 
-  @GetMapping(value = "/defaultQuery")
+  @GetMapping(value = "/private/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.DefaultQuery.GET")) {
@@ -312,7 +313,7 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/subQueries")
+  @GetMapping("/private/subQueries")
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public Collection<SubQueryDependency> getSubQueries(
     HttpServletRequest request,
@@ -324,7 +325,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/queryRequestForSQL")
+  @PostMapping("/private/queryRequestForSQL")
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public QueryRequest getQueryRequestForSql(
     HttpServletRequest request,

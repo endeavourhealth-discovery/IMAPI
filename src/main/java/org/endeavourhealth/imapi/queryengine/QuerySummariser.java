@@ -1,29 +1,13 @@
 package org.endeavourhealth.imapi.queryengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.Context;
-import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QuerySummariser {
   private final EntityRepository repo = new EntityRepository();
@@ -176,6 +160,10 @@ public class QuerySummariser {
       if (index>0) summary.append(bool).append(" ");
       else if (bool.equals("or")) summary.append("either ");
     }
+
+    if (where.getQualifier()!=null){
+      summary.append(where.getQualifier().getName()).append(" of ");
+    }
     if (where.getName()!=null){
       summary.append(where.getName()).append(" ");
     }
@@ -191,38 +179,47 @@ public class QuerySummariser {
     else if (where.getIs() != null) {
       summariseIs(where.getIs());
     }
-    else if (where.getValueLabel()!=null) {
-      summary.append(where.getValueLabel()).append(" ");
+    if (where.getRange()!=null) {
+      summariseRange(where.getRange());
     }
+    if (where.getCompare()!=null)
+      summariseCompare(where.getCompare());
+  }
+
+  private void summariseRange(Range range) {
+    summary.append("between ");
+    summariseAssignable(range.getFrom());
+    summary.append(" and ");
+    summariseAssignable(range.getTo());
+  }
+
+  private void summariseAssignable(Value assignable) {
+    if (assignable.getOperator()!=null)
+      summary.append(assignable.getOperator().getValue()).append(" ");
+    if (assignable.getValue()!=null)
+      summary.append(assignable.getValue()).append(" ");
+
+    if (assignable.getCompare()!=null)
+      summariseCompare(assignable.getCompare());
+  }
 
 
-    if (where.getRelativeTo()!=null) {
-      summariseRelativeTo(where);
+  private void summariseCompare(Compare compare) {
+    summariseValueSource(compare.getLeft());
+    if (compare.getUnits()!=null)
+      summary.append(compare.getUnits().getName()).append(" ");
+    summary.append("relative to ");
+    summariseValueSource(compare.getRight());
+  }
+
+  private void summariseValueSource(ValueSource source) {
+    if (source.getPath()!=null) {
+      summary.append(source.getPath().getName()).append(" ");
     }
-
+    if (source.getParameter()!=null) {
+      summary.append(source.getName());
+    }
   }
-
-
-
-  private void summariseRelativeTo(Where where) {
-    if (where.getRelativeTo() == null) return;
-    summariseRelation(where.getRelativeTo());
-  }
-
-  private void summariseRelation(RelativeTo relativeTo) {
-     if (relativeTo.getName()!=null) {
-       summary.append(relativeTo.getName()).append(" ");
-     }
-     if (relativeTo.getParameterName()!=null) {
-       summary.append(relativeTo.getParameterName()).append(" ");
-     }
-     if (relativeTo.getNodeRef()!=null){
-       summary.append(relativeTo.getNodeRef()).append(" ");
-     }
-  }
-
-
-
 
 
   private void indent(){

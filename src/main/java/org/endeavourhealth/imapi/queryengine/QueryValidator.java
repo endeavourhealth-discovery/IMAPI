@@ -160,6 +160,15 @@ public class QueryValidator {
     }
   }
 
+  private void validateAssignable(Assignable assignable) throws QueryException {
+    if
+    (assignable.getOperator()==null)
+      throw new QueryException("Operator must be specified");
+    if (assignable.getValue()==null &&assignable.getCompare()==null){
+      throw new QueryException("Either Value or a Compare with must be specified");
+    }
+  }
+
 
   private void validateWhere(Where where, String subject) throws QueryException {
     if (where.getAnd() != null||where.getOr()!=null){
@@ -172,6 +181,14 @@ public class QueryValidator {
       }
       return;
     }
+    if (where.getRange() != null) {
+      if (where.getRange().getFrom()==null)
+        throw new QueryException("Range must have a from value");
+      validateAssignable(where.getRange().getFrom());
+      if (where.getRange().getTo()==null)
+        throw new QueryException("Range must have a to value");
+      validateAssignable(where.getRange().getTo());
+      }
     if (where.getPropertyVariable() != null)
       variables.put(where.getPropertyVariable(), VarType.PATH);
     if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null&&where.getPropertyVariable()==null)

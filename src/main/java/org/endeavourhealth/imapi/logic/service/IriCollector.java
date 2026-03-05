@@ -124,12 +124,10 @@ public class IriCollector {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
     }
-    if (where.getFunction() != null) {
-      collectFunctionIris(where.getFunction(),iriSet);
-    }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
     }
+
     if (where.getAnd() != null) {
       for (Where subWhere : where.getAnd()) {
         collectWhereIris(subWhere, iriSet);
@@ -146,9 +144,7 @@ public class IriCollector {
           iriSet.add(node.getIri());
     }
     collectAssignableIris(where, iriSet);
-    if (where.getUnits()!=null){
-      iriSet.add(where.getUnits().getIri());
-    }
+
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);
@@ -157,16 +153,8 @@ public class IriCollector {
         collectAssignableIris(where.getRange().getTo(), iriSet);
       }
     }
-    if (where.getValue() != null) {
-      collectAssignableIris(where, iriSet);
-    }
-    if (where.getRelativeTo()!=null){
-      if (where.getRelativeTo().getQualifier()!=null) {
-        iriSet.add(where.getRelativeTo().getQualifier().getIri());
-      }
-      if (where.getRelativeTo().getIri()!=null){
-        iriSet.add(where.getRelativeTo().getIri());
-      }
+    if (where.getQualifier() != null) {
+      iriSet.add(where.getQualifier().getIri());
     }
   }
 
@@ -188,18 +176,25 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getUnits()!=null) iriSet.add(assignable.getUnits().getIri());
-    if (assignable.getFunction()!=null){
-        FunctionClause functionClause = assignable.getFunction();
-        iriSet.add(functionClause.getIri());
-        if (functionClause.getArgument()!=null){
-        for (Argument argument : functionClause.getArgument()) {
-          if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
-          if (argument.getValueIriList() != null) {
-            for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
-          }
-        }
-      }
+
+    if (assignable.getCompare() != null) {
+      collectCompareIris(assignable.getCompare(), iriSet);
     }
+
   }
+
+  private static void collectCompareIris(Compare compare, Set<String> iriSet) {
+    collectValueSourceIris(compare.getLeft(),iriSet);
+    collectValueSourceIris(compare.getRight(),iriSet);
+    if (compare.getUnits()!=null)
+      iriSet.add(compare.getUnits().getIri());
+  }
+
+  private static void collectValueSourceIris(ValueSource source,Set<String> iriSet) {
+    if (source.getPath()!=null){
+      collectPathIris(source.getPath(), iriSet);
+    }
+
+  }
+
 }

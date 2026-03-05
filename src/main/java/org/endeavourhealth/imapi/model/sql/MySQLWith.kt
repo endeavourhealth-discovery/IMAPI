@@ -7,7 +7,7 @@ data class MySQLWith(
   var alias: String = "",
   val wheres: MutableList<MySQLWhere>? = mutableListOf(),
   val selects: MutableList<MySQLSelect> = mutableListOf(),
-  var joins: MutableList<MySQLJoin> = mutableListOf(),
+  var joins: MutableList<MySQLJoin>? = mutableListOf(),
   val whereBool: Bool = Bool.and,
   val exclude: Boolean = false,
   var orderBy: MySQLOrderBy? = null,

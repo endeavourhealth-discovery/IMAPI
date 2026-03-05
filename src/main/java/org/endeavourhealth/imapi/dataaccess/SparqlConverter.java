@@ -717,7 +717,7 @@ public class SparqlConverter {
       else
         selectQl.append("ASC(");
       if (null != order.getIri()) selectQl.append("?").append(order.getIri());
-      else if (null != order.getValueVariable()) selectQl.append("?").append(order.getValueVariable());
+      else if (null != order.getVariable()) selectQl.append("?").append(order.getVariable());
       else throw new QueryException("Order by missing identifier: iri / valueVariable");
       selectQl.append(")");
     }

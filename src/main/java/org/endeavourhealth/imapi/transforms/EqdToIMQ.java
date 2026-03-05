@@ -99,7 +99,6 @@ public class EqdToIMQ {
       this.setVersionMap(eqd);
       this.convertReports(eqd);
       createLibrary();
-      deduplicate();
       createBaseQueries();
     }
     else {
@@ -169,16 +168,6 @@ public class EqdToIMQ {
   }
 
 
-
-  private void deduplicate() throws JsonProcessingException {
-    for (TTEntity entity : this.document.getEntities()) {
-      if (entity.isType(iri(IM.QUERY))) {
-        Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
-        new LogicOptimizer().deduplicateQuery(query, namespace);
-        entity.set(IM.DEFINITION, TTLiteral.literal(query));
-      }
-    }
-  }
 
   private void createBaseQueries() throws JsonProcessingException {
     for (Map.Entry<String, Match> entry : baseQueries.entrySet()) {

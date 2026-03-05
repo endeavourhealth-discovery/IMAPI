@@ -30,6 +30,11 @@ public class Query extends Match {
   private String bindAs;
   private IMQType queryType;
 
+  public Query setErrorMessage(String errorMessage) {
+    super.setErrorMessage(errorMessage);
+    return this;
+  }
+
   public Query setQueryType() {
     this.queryType = this.columnGroup == null ? IMQType.COHORT : IMQType.DATASET;
     return this;

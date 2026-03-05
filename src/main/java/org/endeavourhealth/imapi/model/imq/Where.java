@@ -29,7 +29,6 @@ public class Where extends Element implements Assignable{
   private boolean anyRoleGroup;
   private boolean isNull;
   private boolean roleGroup;
-  private RelativeTo relativeTo;
   private boolean isNotNull;
   private TTIriRef units;
   private List<Where> or;
@@ -45,6 +44,12 @@ public class Where extends Element implements Assignable{
   private boolean exists;
   private boolean invalid;
   private boolean linked;
+  private String valueTerm;
+  private Compare compare;
+
+
+
+
 
   public boolean isLinked(){
     return linked;
@@ -84,6 +89,24 @@ public class Where extends Element implements Assignable{
     return description;
   }
 
+
+  @Override
+  public Compare getCompare() {
+    return this.compare;
+  }
+
+  @Override
+  public Where setCompare(Compare compare) {
+    this.compare = compare;
+    return this;
+  }
+
+  public Where compare(Consumer<Compare> builder) {
+    this.compare = new Compare();
+    builder.accept(this.compare);
+    return this;
+  }
+
   public Node getTypeOf() {
     return typeOf;
   }
@@ -115,11 +138,6 @@ public class Where extends Element implements Assignable{
 
   public void setNotNull(boolean notNull) {
     isNotNull = notNull;
-  }
-
-  @Override
-  public TTIriRef getUnits() {
-    return units;
   }
 
   public boolean isInverse() {
@@ -412,19 +430,18 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-  public RelativeTo getRelativeTo() {
-    return this.relativeTo;
+
+  @Override
+  public String getValueTerm() {
+    return this.valueTerm;
   }
 
-  public Where setRelativeTo(RelativeTo relativeTo) {
-    this.relativeTo = relativeTo;
+  @Override
+  public Assignable setValueTerm(String valueTerm) {
+    this.valueTerm = valueTerm;
     return this;
   }
 
-  public Where relativeTo(Consumer<RelativeTo> builder) {
-    builder.accept(setRelativeTo(new RelativeTo()).getRelativeTo());
-    return this;
-  }
 
   public String getValue() {
     return this.value;
@@ -435,13 +452,12 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-  @Override
-  public Assignable setQualifier(TTIriRef qualifier) {
+
+  public Where setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
-  @Override
   public TTIriRef getQualifier() {
     return this.qualifier;
   }
@@ -468,16 +484,6 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-  @Override
-  public FunctionClause getFunction() {
-    return this.function;
-  }
-
-  @Override
-  public Where setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
 
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();

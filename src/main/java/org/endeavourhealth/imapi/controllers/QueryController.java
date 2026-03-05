@@ -262,20 +262,6 @@ public class QueryController {
     }
   }
 
-  @GetMapping("/imlFromIri")
-  @Operation(
-    summary = "Generate IML from a query iri",
-    description = "Generates IMQ from the given IMQ query IRI."
-  )
-  public IMLLanguage getIMLFromIMQIri(
-    HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri
-  ) throws QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIri.GET")) {
-      log.debug("getIMLFromIMQIri");
-      return queryService.getIMLFromIMQIri(queryIri);
-    }
-  }
 
   @GetMapping(value = "/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
@@ -333,6 +319,21 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getSubQueries");
       return queryService.getQueryRequestForSqlConversion(queryRequest);
+    }
+  }
+
+  @PostMapping("/private/validateQuery")
+  @Operation(
+    summary = "Validate Query",
+    description = "Validates a query"
+  )
+  public Query validateQuery(
+    HttpServletRequest request,
+    @RequestBody Query query
+  ) throws QueryException, OpenSearchException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
+      log.debug("validateQuery");
+      return queryService.validateQuery(query);
     }
   }
 }

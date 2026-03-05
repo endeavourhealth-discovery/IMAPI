@@ -42,6 +42,16 @@ public class Match extends IriLD implements HasPaths {
   private List<Match> union;
   private boolean notExists;
   private String relationMessage;
+  private String errorMessage;
+
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public Match setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+    return this;
+  }
 
   public String getRelationMessage() {
     return relationMessage;

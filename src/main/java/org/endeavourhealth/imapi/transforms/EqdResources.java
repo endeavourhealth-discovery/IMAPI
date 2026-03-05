@@ -215,7 +215,9 @@ public class EqdResources {
         .setIri(Namespace.IM+"patient"));
     }
     else {
-      match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM+"patient"));
+      if (!match.getReturn().getFirst().getIri().equals(Namespace.IM+"patient")) {
+        match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM + "patient"));
+      }
     }
   }
 
@@ -352,10 +354,14 @@ public class EqdResources {
     Match linkedMatch = this.convertCriterion(eqLinkedCriterion);
     if (eqLinkedCriterion.getDescription()!=null) linkedMatch.setDescription(eqLinkedCriterion.getDescription());
     Where relationWhere = new Where();
-    if (linkedMatch.getAnd() != null) {
-      linkedMatch = linkedMatch.getAnd().getFirst();
+    Match targetMatch= linkedMatch;
+    if (targetMatch.getStep() != null) {
+      targetMatch = targetMatch.getStep().getFirst();
     }
-    addMatchWhere(linkedMatch, relationWhere);
+    else if (targetMatch.getAnd() != null) {
+      targetMatch = targetMatch.getAnd().getFirst();
+    }
+    addMatchWhere(targetMatch, relationWhere);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());

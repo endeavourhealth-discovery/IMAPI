@@ -370,7 +370,7 @@ public class EqdResources {
     relationLeft.setPath(new Path().setIri(child.substring(child.lastIndexOf(" ") + 1)));
     injectTestReturn(parentMatch,relationLeft.getPath().getIri());
     ValueSource relationRight= new ValueSource();
-    relationRight.setNodeRef(getNodeRef(parentMatch));
+    relationRight.setNodeRef(parentMatch.getNode());
     if (eqRelationship.getParentColumn().contains("DATE")) {
       relationRight.setPath(new Path().setIri(Namespace.IM + "effectiveDate"));
     } else {
@@ -914,6 +914,9 @@ public class EqdResources {
       assignable.setValue("-1");
       assignable.setValueTerm("last");
     } else if (value!=null) {
+      if (value.equals("0")&&relation==VocRelation.RELATIVE) {
+        value= null;
+      }
       assignable.setValue(value);
     }
     if (relation==VocRelation.RELATIVE) {

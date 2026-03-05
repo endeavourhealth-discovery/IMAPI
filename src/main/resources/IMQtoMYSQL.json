@@ -231,6 +231,10 @@
         "http://endhealth.info/im#MedicationOrder": {
           "fromField": "cohort_id",
           "toField": "patient_id"
+        },
+        "http://endhealth.info/im#EpisodeOfCare": {
+          "fromField": "cohort_id",
+          "toField": "patient_id"
         }
       }
     },

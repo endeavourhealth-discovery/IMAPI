@@ -236,18 +236,6 @@ public class QueryDescriptor {
     } else return "";
   }
 
-  private String getTermInContext(RelativeTo ref) {
-    String display = "";
-    if (ref.getName() != null) {
-      display = display + ref.getName();
-    } else if (ref.getIri() != null) {
-      display = getTermInContext(ref.getIri());
-    } else if (ref.getParameter() != null) {
-      display = ref.getParameter();
-    }
-    return display;
-  }
-
   private void nestReturns(Match match) {
     if (match.getReturn() == null) return;
   }
@@ -391,6 +379,9 @@ public class QueryDescriptor {
     if (where.getAnd() != null) {
       describeWheres(where.getAnd(), match);
     }
+    if (where.getQualifier() != null) {
+      where.getQualifier().setName(getTermInContext(where.getQualifier().getIri(), Context.SINGLE));
+    }
     if (where.getOr() != null) {
       describeWheres(where.getOr(), match);
     } else if (where.getAnd() == null) {
@@ -413,278 +404,50 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeValue(Assignable assignable, Operator operator, boolean date, String value, TTIriRef unit, boolean relativeTo, boolean isRange) {
-    String qualifier = null;
-    boolean inclusive = false;
-    boolean past = false;
-    assignable.setValueLabel("");
-    if (value != null) if (value.startsWith("-")) past = true;
-    String relativity = null;
-    if (null != operator) switch (operator) {
-      case gt:
-        if (date) {
-          if (!isRange) {
-            if (value != null) {
-              if (value.equals("0")) {
-                qualifier = "after ";
-              } else {
-                if (isValidDate(value))
-                  qualifier = " after";
-                else qualifier = "is within ";
-                if (past && relativeTo) relativity = " before the ";
-                if (!past && relativeTo) relativity = " of the ";
-              }
-            } else qualifier = "after";
-          }
-        } else {
-          if (!isRange) qualifier = "greater than ";
-          if (relativeTo && value != null)
-            relativity = " relative to the ";
-        }
-        break;
-      case gte:
-        inclusive = true;
-        if (date) {
-          if (!isRange) {
-            if (value != null) {
-              if (value.equals("0")) {
-                qualifier = " on or after ";
-              } else {
-                if (isValidDate(value))
-                  qualifier = " on or after";
-                else qualifier = "is within ";
-                if (past && relativeTo) relativity = " before the ";
-                if (!past && relativeTo) relativity = " of the ";
-              }
-            } else qualifier = "on or after";
-            if (relativeTo)
-              relativity = " the ";
-          }
-          if (past && relativeTo) relativity = " before ";
-        } else {
-          if (!isRange) {
-            qualifier = "equal to or more than ";
-            if (relativeTo && value != null)
-              relativity = " relative to the ";
-          }
-        }
-        break;
-      case lt:
-        if (date) {
-          if (!isRange) {
-            qualifier = "before ";
-            if (value != null) {
-              if (value.equals("0")) {
-                qualifier = "before ";
-              } else {
-                if (isValidDate(value))
-                  qualifier = "before ";
-                else qualifier = "is within ";
-                if (past && relativeTo) relativity = " before the ";
-                if (!past && relativeTo) relativity = " of the ";
-              }
-            }
-            if (relativeTo) relativity = " the ";
-          }
-          if (past && relativeTo) relativity = " before the ";
-        } else {
-          if (!isRange) {
-            qualifier = "under ";
-            if (relativeTo && value != null)
-              relativity = " relative to the ";
-          }
-        }
-        break;
-      case lte:
-        inclusive = true;
-        if (date) {
-          if (!isRange) {
-            qualifier = "on or before ";
-            if (value != null) {
-              if (value.equals("0")) {
-                qualifier = "on or before ";
-              } else {
-                if (isValidDate(value))
-                  qualifier = " on or before ";
-                else qualifier = "is within ";
-                if (past && relativeTo) relativity = " before the ";
-                if (!past && relativeTo) relativity = " of the ";
-              }
-            }
-          }
-          if (past && relativeTo) relativity = " before the ";
-        } else {
-          if (!isRange) {
-            qualifier = "equal to or less than ";
-            if (relativeTo && value != null)
-              relativity = " relative to the ";
-          }
-        }
-        break;
-      case contains:
-        qualifier = "contains ";
-        break;
-      case start:
-        qualifier = "starts with ";
-        break;
-      case eq:
-        if (date) {
-          if (!isRange) {
-            if (assignable.getQualifier() == null) {
-              qualifier = " same as ";
-              if (relativeTo) relativity = " the date of ";
-            } else {
-              qualifier = " is ";
-            }
-          }
-        } else qualifier = " =";
-        break;
-    }
-    if (qualifier != null) {
-      assignable.setDescription(qualifier);
-    }
-    if (value != null) {
-      if (!date || !value.equals("0")) {
-        if (assignable.getQualifier() != null) {
-          if (value.startsWith("-"))
-            assignable.setValueLabel(value.replace("-", "") + " before ");
-          else assignable.setValueLabel(value + (value.equals("0") ? "" : "after "));
-        } else {
-          assignable.setValueLabel(value.replace("-", ""));
-        }
-        if (unit != null) {
-          assignable.setValueLabel(assignable.getValueLabel() + " " + getTermInContext(unit.getName(), Context.VALUE));
-        }
-      }
-    }
-    if (inclusive && qualifier == null) {
-      if (assignable.getValueLabel() != null) {
-        assignable.setValueLabel(assignable.getValueLabel() + " (inc.)");
-      }
-    }
-    if (relativity != null) assignable.setValueLabel(assignable.getValueLabel() + relativity);
-  }
-
-  private void describeFrom(Where where, Value from) {
-    String qualifier;
-    boolean inclusive = false;
-    boolean past = false;
-    Operator operator = from.getOperator();
-    String value = from.getValue();
-    if (value != null) if (value.startsWith("-")) past = true;
-    qualifier = "is between ";
-    if (null != operator) if (operator == Operator.gte) {
-      inclusive = true;
-    }
-    if (value != null) {
-      qualifier = qualifier + value.replace("-", "");
-    }
-    if (from.getUnits() != null) {
-      qualifier = qualifier + " " + getTermInContext(from.getUnits().getIri(), Context.PLURAL);
-    }
-    if (inclusive) {
-      qualifier = qualifier + " (inc.)";
-    }
-    if (past) qualifier = qualifier + " before";
-    where.setDescription(qualifier);
-  }
-
-  private void describeTo(Where where, Value to) {
-    String qualifier = null;
-    boolean inclusive = false;
-    Operator operator = to.getOperator();
-    String value = to.getValue();
-    boolean date = false;
-    if (where.getIri() != null) {
-      date = where.getIri().toLowerCase().contains("date");
-    }
-    if (null != operator) switch (operator) {
-      case gt:
-        qualifier = "and ";
-        break;
-      case gte:
-        inclusive = true;
-        qualifier = "and ";
-        break;
-      case lt:
-        if (date) {
-          qualifier = "and before ";
-        } else qualifier = "below ";
-        break;
-      case lte:
-        inclusive = true;
-        if (date) {
-          qualifier = "and ";
-        } else qualifier = "below ";
-        break;
-      case eq:
-        if (date) {
-          qualifier = "";
-        } else qualifier = "between ";
-        break;
-    }
-    if (value != null) {
-      qualifier = qualifier + value.replace("-", "");
-    }
-    if (to.getUnits() != null) {
-      qualifier = qualifier + " " + getTermInContext(to.getUnits().getIri(), Context.PLURAL);
-    }
-    if (inclusive) {
-      qualifier = qualifier + " (inc.)";
-    }
-
-    if (value != null) {
-      if (date) {
-        if (!value.contains("-")) {
-          qualifier = qualifier + " after ";
-        } else qualifier = qualifier + " before ";
-      }
-    }
-
-    where.setDescription(where.getDescription() + " and " + qualifier);
-  }
-
   private void describeValueWhere(Where where, Match match) {
-    boolean date = false;
-    if (where.getIri() != null) date = where.getIri().toLowerCase().contains("date");
-    Operator operator = where.getOperator();
-    describeValue(where, operator, date, where.getValue(), where.getUnits(), where.getRelativeTo() != null, false);
-    describeRelativeTo(where, match);
+    if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
+    if (where.getIri() != null) {
+      where.setName(getTermInContext(where.getIri(), Context.PROPERTY));
+    }
+    if (where.getQualifier() != null) {
+      where.getQualifier().setName(getTermInContext(where.getQualifier().getIri(), Context.PLURAL));
+    }
+    describeAssignable(where);
+  }
+
+  public void describeAssignable(Assignable assignable) {
+    if (assignable.getCompare() != null) {
+      describeCompare(assignable.getCompare());
+    }
+
+  }
+
+  private void describeCompare(Compare compare) {
+    describeValueSource(compare.getLeft());
+    describeValueSource(compare.getRight());
+    if (compare.getUnits() != null) {
+      compare.getUnits().setName(getTermInContext(compare.getUnits().getIri(), Context.PLURAL));
+    }
+  }
+
+  private void describeValueSource(ValueSource source) {
+    if (source.getPath() != null) {
+      describePath(source.getPath());
+    }
+
+    if (source.getParameter() != null) {
+      if (source.getParameter().toLowerCase().contains("searchdate"))
+        source.setName("search date");
+      else if (source.getParameter().toLowerCase().contains("achievementdate"))
+        source.setName("achievement date");
+      else source.setName(source.getParameter());
+    }
   }
 
   private void describeRangeWhere(Where where, Match match) {
-    describeFrom(where, where.getRange().getFrom());
-    describeTo(where, where.getRange().getTo());
-    describeRelativeTo(where, match);
-  }
-
-  private void describeRelativeTo(Where where, Match match) {
-    if (where.getRelativeTo() == null) return;
-    describeRelation(where.getRelativeTo(), match);
-    if (where.getRelativeTo().getName() != null) {
-      match.setRelationMessage("the following " + where.getName() + " " +
-        where.getDescription() + " this " +
-        where.getRelativeTo().getName());
-      where.setLinked(true);
-    }
-  }
-
-  private void describeRelation(RelativeTo relativeTo, Match match) {
-    if (relativeTo.getIri() != null) {
-      relativeTo.setName(getTermInContext(relativeTo.getIri(), Context.PROPERTY));
-    }
-    if (relativeTo.getNodeRef() != null) {
-      if (nodeRefToLabel.get(relativeTo.getNodeRef()) != null) {
-        relativeTo.setTargetLabel(nodeRefToLabel.get(relativeTo.getNodeRef()));
-      } else relativeTo.setTargetLabel("the above");
-    }
-    if (relativeTo.getParameter() != null) {
-      if (relativeTo.getParameter().toLowerCase().contains("searchdate")) {
-        relativeTo.setParameterName("search date");
-      } else if (relativeTo.getParameter().toLowerCase().contains("achievementdate")) {
-        relativeTo.setParameterName("achievement date");
-      } else relativeTo.setParameterName(relativeTo.getParameter());
-    }
+    describeValueWhere(where, match);
+    describeAssignable(where.getRange().getFrom());
+    describeAssignable(where.getRange().getTo());
   }
 
   private void describeWhereIs(Where where) {
@@ -766,7 +529,3 @@ public class QueryDescriptor {
     return shortDescription.toString();
   }
 }
-
-
-
-

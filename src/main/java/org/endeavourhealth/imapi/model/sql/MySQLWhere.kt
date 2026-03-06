@@ -83,7 +83,7 @@ class MySQLPropertyValueWhere(
     get() {
       var base = ""
       if (table != null && !property.contains(".") && !property.contains("(")) {
-        base = "${table.alias}.$property $operator $value"
+        base = "`${table.alias}`.$property $operator $value"
       } else {
         base = "$property $operator $value"
       }

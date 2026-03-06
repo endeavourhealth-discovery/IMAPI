@@ -14,14 +14,12 @@ class ObjectComparerTest {
     Match match1 = new Match()
       .setIri(Namespace.IM + "123")
       .setName("match")
-      .where(w1 -> w1.setIri(Namespace.IM + "abc")
-        .relativeTo(r -> r.setNodeRef("ssss").setIri(Namespace.IM + "x")));
+      .where(w1 -> w1.setIri(Namespace.IM + "abc"));
     Match match2 = new Match()
       .setIri(Namespace.IM + "124")
       .setName("match")
       .where(w1 -> w1.setIri(Namespace.IM + "abc")
-        .setNode("1234")
-        .relativeTo(r -> r.setNodeRef("ttt").setIri(Namespace.IM + "y")));
+        .setNode("1234"));
 
     System.out.println(LogicComparer.compareMatches(match1, match2));
 

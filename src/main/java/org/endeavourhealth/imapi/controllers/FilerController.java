@@ -50,7 +50,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @RestController
-@RequestMapping("api/filer")
+@RequestMapping("api/filer/private")
 @CrossOrigin(origins = "*")
 @Tag(name = "FilerController")
 @RequestScope

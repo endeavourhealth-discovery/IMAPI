@@ -25,7 +25,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/workflow")
+@RequestMapping("api/workflow/private")
 @CrossOrigin(origins = "*")
 @Tag(name = "WorkflowController")
 @RequestScope

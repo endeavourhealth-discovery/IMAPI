@@ -146,6 +146,10 @@ public class QuerySummariser {
       if (index > 0) summary.append(bool).append(" ");
       else if (bool.equals("or")) summary.append("either ");
     }
+
+    if (where.getQualifier() != null) {
+      summary.append(where.getQualifier().getName()).append(" of ");
+    }
     if (where.getName() != null) {
       summary.append(where.getName()).append(" ");
     }
@@ -159,32 +163,46 @@ public class QuerySummariser {
       summary.append(where.getDescription()).append(" ");
     } else if (where.getIs() != null) {
       summariseIs(where.getIs());
-    } else if (where.getValueLabel() != null) {
-      summary.append(where.getValueLabel()).append(" ");
     }
-
-
-    if (where.getRelativeTo() != null) {
-      summariseRelativeTo(where);
+    if (where.getRange() != null) {
+      summariseRange(where.getRange());
     }
+    if (where.getCompare() != null)
+      summariseCompare(where.getCompare());
+  }
 
+  private void summariseRange(Range range) {
+    summary.append("between ");
+    summariseAssignable(range.getFrom());
+    summary.append(" and ");
+    summariseAssignable(range.getTo());
+  }
+
+  private void summariseAssignable(Value assignable) {
+    if (assignable.getOperator() != null)
+      summary.append(assignable.getOperator().getValue()).append(" ");
+    if (assignable.getValue() != null)
+      summary.append(assignable.getValue()).append(" ");
+
+    if (assignable.getCompare() != null)
+      summariseCompare(assignable.getCompare());
   }
 
 
-  private void summariseRelativeTo(Where where) {
-    if (where.getRelativeTo() == null) return;
-    summariseRelation(where.getRelativeTo());
+  private void summariseCompare(Compare compare) {
+    summariseValueSource(compare.getLeft());
+    if (compare.getUnits() != null)
+      summary.append(compare.getUnits().getName()).append(" ");
+    summary.append("relative to ");
+    summariseValueSource(compare.getRight());
   }
 
-  private void summariseRelation(RelativeTo relativeTo) {
-    if (relativeTo.getName() != null) {
-      summary.append(relativeTo.getName()).append(" ");
+  private void summariseValueSource(ValueSource source) {
+    if (source.getPath() != null) {
+      summary.append(source.getPath().getName()).append(" ");
     }
-    if (relativeTo.getParameterName() != null) {
-      summary.append(relativeTo.getParameterName()).append(" ");
-    }
-    if (relativeTo.getNodeRef() != null) {
-      summary.append(relativeTo.getNodeRef()).append(" ");
+    if (source.getParameter() != null) {
+      summary.append(source.getName());
     }
   }
 
@@ -193,7 +211,3 @@ public class QuerySummariser {
     summary.append("\n" + "                         ".substring(0, Math.min(level, 20)));
   }
 }
-
-
-
-

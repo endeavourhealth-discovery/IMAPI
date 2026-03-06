@@ -31,7 +31,7 @@ public class GithubController {
   private final SecurityService securityService = new SecurityService();
 
   @Operation(summary = "Retrieve the latest GitHub release", description = "Gets the latest release information from the GitHub repository.")
-  @GetMapping(value = "public/githubLatest")
+  @GetMapping(value = "/public/githubLatest")
   public GithubRelease getLatestRelease() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubLatest.GET")) {
       log.debug("getGithubLatest");
@@ -40,7 +40,7 @@ public class GithubController {
   }
 
   @Operation(summary = "Retrieve all GitHub releases", description = "Gets a list of all releases available in the GitHub repository.")
-  @GetMapping(value = "public/githubAllReleases")
+  @GetMapping(value = "/public/githubAllReleases")
   public List<GithubRelease> getReleases() throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubReleases.GET")) {
       log.debug("getGithubReleases");
@@ -49,7 +49,7 @@ public class GithubController {
   }
 
   @Operation(summary = "Update GitHub configuration", description = "Triggers an update to the GitHub repository configuration.")
-  @PostMapping(value = "/updateGithubConfig")
+  @PostMapping(value = "/private/updateGithubConfig")
   public void updateGithubConfig(HttpServletRequest request) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");

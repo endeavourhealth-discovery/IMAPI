@@ -1825,10 +1825,12 @@ public class EntityRepository {
           {
            ?parent rdf:type ?entity.
            ?entity rdfs:label ?label.
+           optional {
           ?entity sh:property ?property.
           ?property sh:path ?path.
            ?path rdfs:label ?pathLabel.
-          ?property sh:node ?entity.
+          ?property sh:node ?entity.}
+          
           }
           union {
            ?parent im:contentType ?entity.

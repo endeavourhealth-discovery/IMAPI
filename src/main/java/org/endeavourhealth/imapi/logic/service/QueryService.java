@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -17,7 +18,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
-import org.endeavourhealth.imapi.transforms.IMQToIML;
+import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -201,9 +202,6 @@ public class QueryService {
         }
       });
     }
-    if (null != where.getRelativeTo() && null != where.getRelativeTo().getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getRelativeTo().getParameter()))) {
-      addMissingArgument(missingArguments, where.getRelativeTo().getParameter(), where.getIri());
-    }
   }
 
   private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
@@ -238,10 +236,6 @@ public class QueryService {
     return query;
   }
 
-  public IMLLanguage getIMLFromIMQIri(String queryIri) throws QueryException {
-    return new IMQToIML().getIML(queryIri);
-  }
-
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
     TTEntity entity = entityRepository.getEntityPredicates(iri, asHashSet(RDFS.LABEL, RDFS.COMMENT,
@@ -271,4 +265,14 @@ public class QueryService {
   }
 
 
+  public Query validateQuery(Query query) {
+    QueryValidator validator = new QueryValidator();
+    try {
+      validator.validateQuery(query);
+    } catch (Exception e) {
+      query.setInvalid(true);
+      query.setErrorMessage(e.getMessage());
+    }
+    return query;
+  }
 }

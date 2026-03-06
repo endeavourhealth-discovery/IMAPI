@@ -564,7 +564,7 @@ public class EntityService {
     return entityRepository.getAllowableChildTypes(iri);
   }
 
-  public boolean checkEntityExists(String iri) {
+  public boolean entityExists(String iri) {
     return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
   }
 

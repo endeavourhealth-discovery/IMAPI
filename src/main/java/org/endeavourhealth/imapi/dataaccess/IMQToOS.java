@@ -330,13 +330,7 @@ public class IMQToOS {
     Where where = match.getWhere();
     if (isBooleanWhere(where)) {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-      for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
-        if (nested != null) {
-          for (Where nestedWhere : nested) {
-            if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
-          }
-        }
-      }
+      if (!addBoolProperties(where, nestedBool)) return false;
       boolBuilder.filter(nestedBool);
     } else return addProperty(where, Bool.and, boolBuilder);
 
@@ -345,6 +339,15 @@ public class IMQToOS {
 
   private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     String w = where.getIri();
+    if (w==null &&(where.getAnd()!=null||where.getOr()!=null)) {
+      BoolQueryBuilder nestedBool = new BoolQueryBuilder();
+      if (bool ==Bool.and){
+        boolBldr.must(nestedBool);
+      }
+      else boolBldr.should(nestedBool);
+      if (!addBoolProperties(where, nestedBool)) return false;
+      else return true;
+    }
     if (IM.HAS_SCHEME.toString().equals(w)) {
       return addIsFilter("scheme", where, bool, boolBldr);
     } else if (IM.IS_MEMBER_OF.toString().equals(w)) {
@@ -362,6 +365,17 @@ public class IMQToOS {
     } else if (IM.IM_IRI.toString().equals(w)) {
       return addIsFilter("iri", where, bool, boolBldr);
     } else return RDFS.DOMAIN.toString().equals(w);
+  }
+
+  private boolean addBoolProperties(Where where, BoolQueryBuilder nestedBool) throws QueryException {
+    for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
+      if (nested != null) {
+        for (Where nestedWhere : nested) {
+          if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
+        }
+      }
+    }
+    return true;
   }
 
   private boolean isBooleanWhere(Where where) {

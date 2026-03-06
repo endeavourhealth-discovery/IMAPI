@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.iml.ParameterShape;
 import org.endeavourhealth.imapi.model.iml.PropertyRange;
 import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -132,9 +133,9 @@ public class DataModelRepository {
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
     try (IMDB conn = IMDB.getConnection()) {
-      String sql = pathsOnly ? getPathSql() : getPropertySql();
+      String sql = pathsOnly ? getPathSql(iri) : getPropertySql(iri);
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("entity", iri(iri));
+
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -322,7 +323,7 @@ public class DataModelRepository {
   }
 
 
-  private String getPropertySql() {
+  private String getPropertySql(String iri) {
     return """
       Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
       ?class ?className ?classType ?classTypeName
@@ -336,6 +337,7 @@ public class DataModelRepository {
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
       ?orderable ?ascending ?descending ?definingProperty
       WHERE {
+         Values ?entity { %s }
         ?entity sh:property ?property.
         ?entity rdfs:label ?entityName.
         optional {
@@ -358,15 +360,26 @@ public class DataModelRepository {
           optional {
             ?path sh:parameter ?parameter.
             ?parameter rdfs:label ?parameterName.
-            optional {?parameter sh:class ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.}
-            optional {?parameter sh:datatype ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.}
-            optional {?parameter sh:node ?parameterType.
-            ?parameterType rdfs:label ?parameterTypeName.}
             optional {
-              ?parameterSubtype im:isA ?parameterType.
+              ?parameter sh:class ?parameterType.
+              ?parameterType rdfs:label ?parameterTypeName.
+               optional { ?parameterSubtype im:isA ?parameterType.
+                  ?parameterSubtype rdfs:label ?parameterSubtypeName
+                  }
+               }
+            optional {?parameter sh:datatype ?parameterType.
+              ?parameterType rdfs:label ?parameterTypeName.
+              optional {
+               ?parameterSubtype im:isA ?parameterType.
+                ?parameterSubtype rdfs:label ?parameterSubtypeName
+                }
+              }
+            optional {?parameter sh:node ?parameterType.
+            ?parameterType rdfs:label ?parameterTypeName.
+            optional {
+            ?parameterSubtype im:isA ?parameterType.
               ?parameterSubtype rdfs:label ?parameterSubtypeName
+              }
             }
           }
         }
@@ -433,16 +446,17 @@ public class DataModelRepository {
         }
       }
       order by ?groupOrder ?order ?qualifierOrder
-      """;
+      """.formatted("<"+iri+">");
   }
 
 
-  private String getPathSql() {
+  private String getPathSql(String iri) {
     return """
       Select ?entityName ?property ?order ?path ?pathName ?pathType
       ?node ?nodeName ?nodeType ?nodeTypeName
       WHERE {
-        ?enti  ty sh:property ?property.
+      Values ?entity { %s }
+        ?entity sh:property ?property.
         ?entity rdfs:label ?entityName.
         ?property sh:node ?node.
         ?node rdfs:label ?nodeName.
@@ -454,7 +468,7 @@ public class DataModelRepository {
         OPTIONAL {?property sh:order ?order.}
       }
       order by ?order
-      """;
+      """.formatted("<"+iri+">");
   }
 
   public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
@@ -599,28 +613,5 @@ public class DataModelRepository {
       }
     }
     return results;
-  }
-
-  public List<TTIriRef> getDataTypes() {
-    String spq= """
-      select distinct ?rangeType ?rangeTypeName
-      {
-          ?property sh:datatype ?rangeType.
-          ?rangeType rdfs:label ?rangeTypeName.
-      }
-      """;
-    try (IMDB conn = IMDB.getConnection()) {
-      TupleQuery qry = conn.prepareTupleSparql(spq);
-      try (TupleQueryResult rs = qry.evaluate()) {
-        List<TTIriRef> results = new ArrayList<>();
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          results.add(new TTIriRef()
-            .setIri(bs.getValue("rangeType").stringValue())
-            .setName(bs.getValue("rangeTypeName").stringValue()));
-        }
-        return results;
-      }
-    }
   }
 }

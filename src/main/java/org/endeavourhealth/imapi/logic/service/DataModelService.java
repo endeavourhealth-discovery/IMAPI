@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.dto.UIProperty;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -128,6 +129,7 @@ public class DataModelService {
     if (null != uiProp.getUnitIri()) {
       List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
+      unitOptions.forEach(unit-> unit.setName(Pluraliser.pluralise(unit.getName())));
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
@@ -243,9 +245,5 @@ public class DataModelService {
 
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
     return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
-  }
-
-  public List<TTIriRef> getDataTypes() {
-    return dataModelRepository.getDataTypes();
   }
 }

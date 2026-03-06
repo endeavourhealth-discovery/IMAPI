@@ -81,4 +81,10 @@ class Table(
       toField
     )
   }
+
+  fun foreignKeyTo(target: Table): Pair<String?, String?> {
+    val rel = relationships[target.dataModel]
+      ?: return null to null
+    return rel.fromField to rel.toField
+  }
 }

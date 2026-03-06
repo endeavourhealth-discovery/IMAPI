@@ -1,6 +1,6 @@
 tasks.register("extractEnumsFromAutoGen") {
   group = "other"
-  description = "Changes typescript generated const enums to standard enums for functionality"
+  description = "Changes TypeScript generated const enums to standard enums and adds imports"
   dependsOn("typescriptConstEnumToEnum")
 
   val inputFile = File(rootDir, "../VueLibrary/src/interfaces/AutoGen.ts")
@@ -13,30 +13,37 @@ tasks.register("extractEnumsFromAutoGen") {
 
     val content = inputFile.readText()
 
-    val regex = Regex(
-      pattern = """(?ms)^\s*export\s+enum\s+\w+\s*\{.*?^\s*\}""",
+    // Regex to match enums
+    val enumRegex = Regex(
+      pattern = """(?ms)^\s*export\s+enum\s+(\w+)\s*\{.*?^\s*\}"""
     )
-    val matches = regex.findAll(content).map { it.value }.toList()
+
+    val matches = enumRegex.findAll(content).toList()
 
     if (matches.isEmpty()) {
       println("No enums found.")
       return@doLast
     }
 
+    // Extract enum names
+    val enumNames = matches.map { it.groups[1]!!.value }
+
+    // Write extracted enums to output file
     outputFile.writeText(
       "/* Auto-extracted enums */\n\n" +
-        matches.joinToString("\n")
+        matches.joinToString("\n") { it.value }
     )
 
-    val updated = content.replace(
-      Regex("""(?m)^\s*export\s+enum\s+"""),
-      { matchResult ->
-        matchResult.value.replace("export ", "")
-      }
-    )
+    // Remove exported enums from original content
+    var updatedContent = content.replace(enumRegex) { "" }
 
-    inputFile.writeText(updated)
+    // Add import statements for extracted enums at the top
+    val importLine = "import { ${enumNames.joinToString(", ")} } from '../enums/AutoGen';\n\n"
+    updatedContent = importLine + updatedContent.trimStart()
 
-    println("Extracted ${matches.size} enums to ${outputFile.name}")
+    // Write back updated original file
+    inputFile.writeText(updatedContent)
+
+    println("Extracted ${matches.size} enums to ${outputFile.name} and added imports in original file")
   }
 }

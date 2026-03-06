@@ -273,7 +273,6 @@ public class EqdResources {
     }
 
     if (hasLinked) {
-      setNamedMatchNode(lastMatch);
       linkedMatch = this.convertLinkedCriterion(eqCriterion, lastMatch);
       injectPatientReturn(linkedMatch);
     }
@@ -370,16 +369,15 @@ public class EqdResources {
     relationLeft.setPath(new Path().setIri(child.substring(child.lastIndexOf(" ") + 1)));
     injectTestReturn(parentMatch,relationLeft.getPath().getIri());
     ValueSource relationRight= new ValueSource();
-    relationRight.setNodeRef(parentMatch.getNode());
     if (eqRelationship.getParentColumn().contains("DATE")) {
       relationRight.setPath(new Path().setIri(Namespace.IM + "effectiveDate"));
-    } else {
-      if (!eqRelationship.getParentColumn().contains("DOB")) {
-        throw new QueryException("Non date linked criteria not managed yet");
-      }
+      matchCounter++;
+      parentMatch.setNode("Date_" + matchCounter);
+    } else if (eqRelationship.getParentColumn().contains("DOB")) {
       relationRight.setPath(new Path().setIri(Namespace.IM + "dateOfBirth"));
-    }
-
+      parentMatch.setNode("DateOfBirth");
+    } else throw new EQDException("No match found for linked criterion");
+    relationRight.setNodeRef(parentMatch.getNode());
     if (eqRelationship.getRangeValue() != null) {
       EQDOCRangeValue eqRange = eqRelationship.getRangeValue();
       if (eqRange.getRangeFrom() != null && eqRange.getRangeTo() != null) {

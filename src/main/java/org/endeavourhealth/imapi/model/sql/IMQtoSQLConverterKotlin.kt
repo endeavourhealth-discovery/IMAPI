@@ -716,7 +716,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val currentTable =
       if (where.nodeRef != null) variableToTableMap[where.nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: ${where.nodeRef}")
-    val rawField = IMtoMySQLMap.functions[where.qualifier.iri] ?: getPropertyNameByTableAndPropertyIri(
+    val rawField = getPropertyNameByTableAndPropertyIri(
       currentTable,
       where.iri
     ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
@@ -758,7 +758,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         not = where.isNot,
         table = currentTable
       )
-    } else {
+    } else if (where.compare != null) {
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
@@ -768,13 +768,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         args = args,
         table = currentTable
       )
+    } else {
+      throw SQLConversionException("Unsupported where $where")
     }
     return where
   }
 
   private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String? {
     val nodeRef =
-      where.compare.right?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.compare.right}")
+      where.compare.right?.nodeRef
+        ?: throw SQLConversionException("No property found for relativeTo ${where.compare.right}")
     var property = ""
     val nodeRefTable = nodeToTableMap[nodeRef]
     if (nodeRefTable != null) {
@@ -782,7 +785,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
         property =
-          getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), where.compare.right.path.iri).field
+          getPropertyNameByTableAndPropertyIri(
+            getTableFromTypeAndProperty(it, null),
+            where.compare.right.path.iri
+          ).field
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo ${where.compare.right.nodeRef}")

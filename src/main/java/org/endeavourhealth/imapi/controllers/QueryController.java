@@ -322,7 +322,7 @@ public class QueryController {
     }
   }
 
-  @PostMapping("/private/validateQuery")
+  @PostMapping("/validateQuery")
   @Operation(
     summary = "Validate Query",
     description = "Validates a query"

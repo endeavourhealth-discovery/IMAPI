@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Return {
+public class Return implements Returnable{
   private String iri;
   private String nodeRef;
   private String name;

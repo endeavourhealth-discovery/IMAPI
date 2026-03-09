@@ -96,6 +96,9 @@ public class PropertyShape{
   @Setter
   private TTIriRef isValidEntity;
   @Getter
+  @Setter
+  private boolean highCardinality;
+  @Getter
   private List<Argument> isValidArguments;
 
 

@@ -167,10 +167,29 @@ public class QueryValidator {
     if (assignable.getValue()==null &&assignable.getCompare()==null){
       throw new QueryException("Either Value or a Compare with must be specified");
     }
+    if (assignable.getCompare()!=null)
+      validateCompare(assignable);
+  }
+
+  private void validateCompare(Assignable assignable) throws QueryException {
+    Compare compare=assignable.getCompare();
+    if (compare.getUnits()!=null){
+      if (assignable.getValue()==null)
+        throw new QueryException("Value must be specified when units are provided");
+    }
   }
 
 
   private void validateWhere(Where where, String subject) throws QueryException {
+    if (where.getIri() != null){
+      if (where.getIs()==null
+        && where.getCompare()==null
+      && where.getRange()==null
+        &&!where.isNotNull()
+        &&!where.getIsNull()
+        && where.getValue()==null)
+        throw new QueryException("Where clause must have a value or a compare clause");
+    }
     if (where.getAnd() != null||where.getOr()!=null){
       for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
         if (wheres != null) {

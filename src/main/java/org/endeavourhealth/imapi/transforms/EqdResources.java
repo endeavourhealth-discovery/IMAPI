@@ -384,19 +384,27 @@ public class EqdResources {
         Range range = new Range();
         relationWhere.setRange(range);
         String fromValue= eqRange.getRangeFrom().getValue().getValue();
+
         TTIriRef fromUnits= setQualifierGetunits(relationWhere,eqRange.getRangeFrom().getValue().getUnit());
+        if (fromValue.equals("0")){
+          fromValue=null;
+          fromUnits=null;
+        }
         Operator fromOperator= ((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator()));
         Value from = new Value();
         range.setFrom(from);
         from.setOperator(fromOperator);
         from.setValue(fromValue);
-
         buildCompare(from,fromUnits,relationLeft,relationRight);
         Value to = new Value();
         range.setTo(to);
         String toValue= eqRange.getRangeTo().getValue().getValue();
         Operator toOperator= ((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator()));
         TTIriRef toUnits= setQualifierGetunits(relationWhere,eqRange.getRangeTo().getValue().getUnit());
+        if (toValue.equals("0")){
+          toValue=null;
+          toUnits=null;
+        }
         from.setOperator(toOperator);
         from.setValue(toValue);
         buildCompare(to,toUnits,relationLeft,relationRight);
@@ -405,6 +413,10 @@ public class EqdResources {
         String fromValue= eqRange.getRangeFrom().getValue().getValue();
         TTIriRef fromUnits= setQualifierGetunits(relationWhere,eqRange.getRangeFrom().getValue().getUnit());
         Operator fromOperator= ((Operator) this.vocabMap.get(eqRange.getRangeFrom().getOperator()));
+        if (fromValue.equals("0")){
+          fromValue=null;
+          fromUnits=null;
+        }
         relationWhere.setOperator(fromOperator);
         relationWhere.setValue(fromValue);
         buildCompare(relationWhere,fromUnits,relationLeft,relationRight);
@@ -413,6 +425,10 @@ public class EqdResources {
         String toValue= eqRange.getRangeTo().getValue().getValue();
         Operator toOperator= ((Operator) this.vocabMap.get(eqRange.getRangeTo().getOperator()));
         TTIriRef toUnits= setQualifierGetunits(relationWhere,eqRange.getRangeTo().getValue().getUnit());
+        if (toValue.equals("0")){
+          toValue=null;
+          toUnits=null;
+        }
         relationWhere.setOperator(toOperator);
         relationWhere.setValue(toValue);
         buildCompare(relationWhere,toUnits,relationLeft,relationRight);
@@ -892,6 +908,7 @@ public class EqdResources {
   private void setCompare(Where where,Assignable assignable, Operator comp, String value, TTIriRef units, VocRelation relation,String relativeTo) throws EQDException {
 
     if (relativeTo!=null){
+      relation=VocRelation.RELATIVE;
       if (relativeTo.equals("BASELINE")) {
         relativeTo= "$achievementDate";
       }

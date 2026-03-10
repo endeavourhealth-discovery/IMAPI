@@ -69,6 +69,31 @@ class MySQLBoolWhere(
   override val sqlTemplate = ""
 }
 
+class MySQLDiffWhere(
+  override val property: String,
+  val operator: String,
+  val right: String,
+  val value: String,
+  val units: String? = null,
+  val qualifier: String? = null,
+  override val args: Map<String, String>? = null,
+  override var and: MutableList<MySQLWhere>? = null,
+  override var or: MutableList<MySQLWhere>? = null,
+  override val not: Boolean? = false,
+  override val table: Table? = null,
+) : MySQLWhere {
+  override val sqlTemplate: String
+    get() {
+      val base =
+        if (units != null) {
+          "TIMESTAMPDIFF($units, $property, $right) $operator $value)"
+        } else if (qualifier != null) {
+          "$units($property) - $units($right) $operator $value"
+        } else return ""
+      return if (not == true) "NOT ($base)" else base
+    }
+}
+
 class MySQLPropertyValueWhere(
   override val property: String,
   val operator: String,

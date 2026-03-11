@@ -382,8 +382,17 @@ public class EqdResources {
       parentMatch.setNode("Date_" + matchCounter);
       relationRight.setNodeRef(parentMatch.getNode());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
-      Path linkedMatchPath = linkedMatch.getPath().getFirst();
-      linkedMatchPath.addPath(new Path().setIri(Namespace.IM + "dateOfBirth").setNode("pat"));
+      Path linkedMatchPath=null;
+      if (targetMatch.getPath()!=null) {
+        linkedMatchPath=targetMatch.getPath().getFirst();
+        linkedMatchPath.addPath(new Path().setIri(Namespace.IM + "dateOfBirth").setNode("pat"));
+      }
+      else {
+        linkedMatchPath=new Path();
+        linkedMatchPath.setIri(Namespace.IM + "dateOfBirth");
+        linkedMatchPath.setNode("pat");
+        targetMatch.addPath(linkedMatchPath);
+      }
       relationRight.setNodeRef("pat").setIri(Namespace.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 

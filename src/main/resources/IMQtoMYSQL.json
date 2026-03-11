@@ -431,8 +431,7 @@
       "table": "episode_of_care",
       "fields": {
         "http://endhealth.info/im#concept": {"field": "concept", "type": "iri"},
-        "http://endhealth.info/im#gmsPatientType": {"field": "registration_type_concept_id", "type": "iri"},
-        "http://endhealth.info/im#gpPatientType": {"field": "gpPatientType", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {"field": "registration_type_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "date_registered", "type": "date"},
         "http://endhealth.info/im#endDate": {"field": "date_registered_end", "type": "date"}
       },

@@ -405,11 +405,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
       rnWith.joins.add(notExistJoinCondition)
       val or = mutableListOf<MySQLWhere>()
-      or.add(MySQLPropertyValueWhere("sq.rn", "!=", match.orderBy.limit.toString()))
-      or.add(MySQLPropertyValueWhere("sq.$fk", "IS", "NULL"))
+      or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
+      or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
       rnWith.wheres?.add(MySQLBoolWhere(or = or))
     } else {
-      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString()))
+      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
     }
     return rnWith
   }
@@ -723,7 +723,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.`is`,
         "=",
         not = where.isNot,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.range != null) {
       MySQLPropertyRangeWhere(
@@ -733,38 +733,46 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.range.to.value,
         where.range.to.operator.value,
         not = where.isNot,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
         not = where.isNot,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.compare != null) {
-      if (where.compare.units != null) {
-        val (name, type) = getUnitNameAndType(where.compare.units.iri)
-        MySQLDiffWhere(
-          field,
-          where.operator.value,
-          where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
-          ?: throw SQLConversionException("No value provided for where $where"),
-          where.value,
+      val (name, type) =
+        if (where.compare.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
+        else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
+        else null to null
+      val compareValue = where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
+      ?: throw SQLConversionException("No value provided for where $where")
+      if (where.value != null)
+        MySQLCompareWhere(
+          property = field,
+          operator = where.operator.value,
+          right = compareValue,
+          value = where.value,
           if (type == "Unit") name else null,
-          if (type == "Qualifier") name else null
-        )
-      } else {
-        MySQLPropertyValueWhere(
-          field,
-          where.operator.value,
-          where.value ?: where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
-          ?: throw SQLConversionException("No value provided for where $where"),
+          if (type == "Qualifier") name else null,
           not = where.isNot,
-          table = currentTable
-        )
-      }
+          table = currentTable.alias ?: currentTable.table,
+        ) else MySQLPropertyValueWhere(
+        property = field,
+        operator = where.operator.value,
+        value = compareValue,
+        not = where.isNot,
+        table = currentTable.alias ?: currentTable.table,
+      )
     } else {
-      throw SQLConversionException("Unsupported where $where")
+      MySQLPropertyValueWhere(
+        field,
+        where.operator.value,
+        where.value,
+        not = where.isNot,
+        table = currentTable.alias ?: currentTable.table,
+      )
     }
     return where
   }
@@ -851,6 +859,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       IM.MINUTES -> "MINUTE" to "Unit"
       IM.SECONDS -> "SECOND" to "Unit"
       IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
+      IM.QUARTER -> "QUARTER" to "Qualifier"
       else -> throw SQLConversionException("No unit name found for $iri")
     }
   }

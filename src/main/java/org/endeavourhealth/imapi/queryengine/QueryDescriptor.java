@@ -30,10 +30,10 @@ public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
   @Getter
   private EntityRepository repo = new EntityRepository();
-  private final Map<String, String> nodeRefToLabel = new HashMap<>();
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
+  private final Map<String,Match> linkTargets= new HashMap<>();
   private DisplayMode displayMode;
 
 
@@ -82,6 +82,7 @@ public class QueryDescriptor {
 
   private void describeReturn(Return prop) {
     if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(),Context.PATH));
+    if (prop.getAs()==null) prop.setAs(prop.getName());
     if (prop.getFunction()!=null){
       describeFunction(prop.getFunction());
     }
@@ -253,8 +254,8 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere(),match);
     }
-    if (match.getNode() != null && match.getAsDescription() != null) {
-        nodeRefToLabel.put(match.getNode(), match.getAsDescription());
+    if (match.getNode()!=null){
+      linkTargets.put(match.getNode(),match);
     }
   }
 
@@ -422,10 +423,14 @@ public class QueryDescriptor {
   }
 
   private void describeValueSource(ValueSource source) {
-    if (source.getPath()!=null){
-      describePath(source.getPath());
-    }
-
+      String nodeRef= source.getNodeRef();
+      if (nodeRef!=null&&linkTargets.containsKey(nodeRef)){
+        Match match= linkTargets.get(nodeRef);
+        match.setLinkedTarget(true);
+      }
+      if (source.getIri()!=null){
+        source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
+      }
     if (source.getParameter()!=null){
       if (source.getParameter().toLowerCase().contains("searchdate"))
         source.setName("search date");

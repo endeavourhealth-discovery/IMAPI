@@ -346,6 +346,7 @@ public class EqdResources {
     if (match == null) {
       throw new EQDException("No match found for standard criterion");
     }
+    if (eqCriterion.isNegation()) match.setNotExists(true);
     return match;
   }
   private Match convertLinkedCriterion(EQDOCCriterion eqCriterion, Match parentMatch) throws IOException, QueryException, EQDException {
@@ -365,19 +366,27 @@ public class EqdResources {
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
     ValueSource relationLeft= new ValueSource();
-    relationLeft.setNodeRef(getNodeRef(linkedMatch));
-    relationLeft.setPath(new Path().setIri(child.substring(child.lastIndexOf(" ") + 1)));
-    injectTestReturn(parentMatch,relationLeft.getPath().getIri());
+    relationLeft
+        .setNodeRef(getNodeRef(linkedMatch))
+      .setIri(child.substring(child.lastIndexOf(" ") + 1));
+    injectTestReturn(parentMatch,relationLeft.getIri());
+    String parentProperty= eqRelationship.getParentColumn();
+    if (parentProperty.contains("DATE")||parentProperty.contains("DOB")) {
+      relationWhere.setIri(Namespace.IM + "effectiveDate");
+      relationWhere.setNodeRef(getNodeRef(linkedMatch));
+    } else throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight= new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
-      relationRight.setPath(new Path().setIri(Namespace.IM + "effectiveDate"));
+      relationRight.setIri(Namespace.IM + "effectiveDate");
       matchCounter++;
       parentMatch.setNode("Date_" + matchCounter);
+      relationRight.setNodeRef(parentMatch.getNode());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
-      relationRight.setPath(new Path().setIri(Namespace.IM + "dateOfBirth"));
-      parentMatch.setNode("DateOfBirth");
+      Path linkedMatchPath = linkedMatch.getPath().getFirst();
+      linkedMatchPath.addPath(new Path().setIri(Namespace.IM + "dateOfBirth").setNode("pat"));
+      relationRight.setNodeRef("pat").setIri(Namespace.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
-    relationRight.setNodeRef(parentMatch.getNode());
+
     if (eqRelationship.getRangeValue() != null) {
       EQDOCRangeValue eqRange = eqRelationship.getRangeValue();
       if (eqRange.getRangeFrom() != null && eqRange.getRangeTo() != null) {
@@ -812,7 +821,7 @@ public class EqdResources {
         pv.setQualifier(qualifier);
         Compare diff = pv.getCompare();
         diff.setLeft(new ValueSource()
-          .setPath(new Path().setIri(pv.getIri())));
+          .setIri(pv.getIri()).setNodeRef(pv.getNodeRef()));
         diff.setRight(new ValueSource()
         .setParameter("$searchDate"));
       } else if (value.equalsIgnoreCase("this")) {
@@ -821,7 +830,7 @@ public class EqdResources {
         pv.setQualifier(qualifier);
         Compare comp = pv.getCompare();
         comp.setLeft(new ValueSource()
-          .setPath(new Path().setIri(pv.getIri())));
+          .setIri(pv.getIri()).setNodeRef(pv.getNodeRef()));
         comp.setRight(new ValueSource()
           .setParameter("$searchDate"));
         pv.setValueTerm("this");
@@ -939,7 +948,7 @@ public class EqdResources {
         relativeTo= "$searchDate";
       }
       ValueSource relationLeft = new ValueSource();
-      relationLeft.setPath(new Path().setIri(property));
+      relationLeft.setIri(property).setNodeRef(where.getNodeRef());
       ValueSource relationRight = new ValueSource();
       relationRight.setParameter(relativeTo);
       if (assignable.getValue() == null) {

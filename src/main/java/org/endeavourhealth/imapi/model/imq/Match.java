@@ -41,8 +41,17 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String asDescription;
   private List<Match> union;
   private boolean notExists;
-  private String relationMessage;
+  private boolean linkedTarget;
   private String errorMessage;
+
+  public boolean isLinkedTarget() {
+    return linkedTarget;
+  }
+
+  public Match setLinkedTarget(boolean linkedTarget) {
+    this.linkedTarget = linkedTarget;
+    return this;
+  }
 
   public String getErrorMessage() {
     return errorMessage;
@@ -53,14 +62,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public String getRelationMessage() {
-    return relationMessage;
-  }
-
-  public Match setRelationMessage(String relationMessage) {
-    this.relationMessage = relationMessage;
-    return this;
-  }
 
   public boolean isNotExists() {
     return notExists;

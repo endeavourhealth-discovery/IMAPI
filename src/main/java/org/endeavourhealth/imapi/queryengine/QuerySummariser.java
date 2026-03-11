@@ -213,8 +213,8 @@ public class QuerySummariser {
   }
 
   private void summariseValueSource(ValueSource source) {
-    if (source.getPath()!=null) {
-      summary.append(source.getPath().getName()).append(" ");
+    if (source.getName()!=null) {
+      summary.append(source.getName()).append(" ");
     }
     if (source.getParameter()!=null) {
       summary.append(source.getName());

@@ -798,13 +798,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var property = ""
     val nodeRefTable = nodeToTableMap[nodeRef]
     if (nodeRefTable != null) {
-      property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.compare.right.path.iri).field
+      property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.compare.right.iri).field
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
         property =
           getPropertyNameByTableAndPropertyIri(
             getTableFromTypeAndProperty(it, null),
-            where.compare.right.path.iri
+            where.compare.right.iri
           ).field
       }
     }

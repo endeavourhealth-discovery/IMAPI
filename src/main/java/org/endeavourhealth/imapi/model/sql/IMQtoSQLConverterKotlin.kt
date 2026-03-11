@@ -743,13 +743,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     } else if (where.compare != null) {
       if (where.compare.units != null) {
+        val (name, type) = getUnitNameAndType(where.compare.units.iri)
         MySQLDiffWhere(
           field,
           where.operator.value,
           where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
           ?: throw SQLConversionException("No value provided for where $where"),
           where.value,
-          getUnitName(where.compare.units.iri)
+          if (type == "Unit") name else null,
+          if (type == "Qualifier") name else null
         )
       } else {
         MySQLPropertyValueWhere(
@@ -773,7 +775,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.path?.iri ?: where.iri
+    val whereIri = where.compare?.left?.iri ?: where.iri
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
@@ -837,15 +839,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return joins
   }
 
-  private fun getUnitName(iri: String): String {
+  private fun getUnitNameAndType(iri: String): Pair<String, String> {
     return when (IM.from(iri)) {
-      IM.YEARS, IM.YEAR -> "YEAR"
-      IM.MONTHS, IM.MONTH -> "MONTH"
-      IM.DAYS, IM.DAY -> "DAY"
-      IM.HOURS -> "HOUR"
-      IM.MINUTES -> "MINUTE"
-      IM.SECONDS -> "SECOND"
-      IM.FISCAL_YEAR -> "FISCAL_YEAR"
+      IM.YEARS -> "YEAR" to "Unit"
+      IM.YEAR -> "YEAR" to "Qualifier"
+      IM.MONTHS -> "MONTH" to "Unit"
+      IM.MONTH -> "MONTH" to "Qualifier"
+      IM.DAYS -> "DAY" to "Unit"
+      IM.DAY -> "DAY" to "Qualifier"
+      IM.HOURS -> "HOUR" to "Unit"
+      IM.MINUTES -> "MINUTE" to "Unit"
+      IM.SECONDS -> "SECOND" to "Unit"
+      IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
       else -> throw SQLConversionException("No unit name found for $iri")
     }
   }

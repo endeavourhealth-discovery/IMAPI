@@ -80,7 +80,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        val (fk, pk) = mySqlQuery.withs.last { !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
+        val lastCTE = mySqlQuery.withs.last { !it.exclude }
+        val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
+          queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
+        else lastCTE.table.foreignKeyTo(queryTypeOfTable)
         mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
         mySqlQuery.create = MySQLCreate(definition.iri)
       }
@@ -323,7 +326,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (toWith.exclude) {
         MySQLJoin(
           join = "LEFT JOIN",
-          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableFrom = fromWith.table.alias ?: fromWith.table.table,
           tableTo = toWith.table.table,
           tableToAlias = toWith.alias,
           fromProperty = fk,
@@ -335,7 +338,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       } else {
         MySQLJoin(
           join = "JOIN",
-          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableFrom = fromWith.table.alias ?: fromWith.table.table,
           tableTo = toWith.table.table,
           tableToAlias = toWith.alias,
           fromProperty = fk,

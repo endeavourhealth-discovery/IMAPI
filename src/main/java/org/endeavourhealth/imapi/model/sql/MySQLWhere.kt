@@ -87,7 +87,7 @@ class MySQLCompareWhere(
       val prop = if (table != null) "`${table}`.$property" else property
       val base =
         if (units != null) {
-          "TIMESTAMPDIFF($units, $prop, $right) $operator $value)"
+          "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
         } else if (qualifier != null) {
           when (qualifier) {
             "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"

@@ -1,5 +1,9 @@
 import cz.habarta.typescript.generator.*
 
+apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
+apply(from = "$rootDir/gradle/copyAutoGenToQueryRunner.gradle")
+apply(from = "$rootDir/gradle/copyAutoGenToEndeavourSecurity.gradle")
+
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -10,6 +14,7 @@ plugins {
   alias(libs.plugins.static.const.generator)
   id("java-library")
   id("maven-publish")
+  kotlin("jvm")
 }
 
 group = "org.endeavourhealth.imapi"
@@ -19,20 +24,20 @@ description = "Information Model API"
 
 repositories {
   gradlePluginPortal()
+  mavenCentral()
 }
-
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
 
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
-if (ENV == "prod") {
-  tasks.build { finalizedBy("safeSonar") }
-  tasks.build { finalizedBy("publish") }
-} else {
+
+val CI = System.getenv("CI") ?: "false"
+if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
   }
+} else {
+  tasks.build { finalizedBy("safeSonar") }
+  tasks.build { finalizedBy("publish") }
 }
 
 tasks.register("safeSonar") {
@@ -116,11 +121,14 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
-    "org.endeavourhealth.imapi.model.editor.*"
+    "org.endeavourhealth.imapi.model.editor.*",
+    "org.endeavourhealth.imapi.model.casbin.*",
+    "org.endeavourhealth.imapi.model.casdoor.*",
   )
   outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
+  customTypeNaming = listOf("org.endeavourhealth.imapi.model.Namespace:NamespaceDTO")
 }
 
 tasks {
@@ -139,7 +147,6 @@ dependencies {
   implementation(libs.apache.text)
   implementation(libs.apache.commons.text)
   implementation(libs.assert.j)
-  implementation(libs.aws.cognito.idp)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -147,7 +154,6 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
-  implementation(libs.hikari)
   implementation(libs.jackson.databind)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
@@ -155,10 +161,8 @@ dependencies {
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
-  implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -168,7 +172,6 @@ dependencies {
   implementation(libs.rdf4j.repo.sail)
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
-  implementation(libs.spring.amqp)
   implementation(libs.spring.context)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
@@ -179,7 +182,6 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
 
   testImplementation(libs.cucumber)
@@ -193,13 +195,12 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
-  compileOnly(libs.mysqlConncector)
-  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
+  implementation(kotlin("stdlib-jdk8"))
 }
 
 repositories {
@@ -226,3 +227,6 @@ tasks.jacocoTestReport {
 }
 
 
+kotlin {
+  jvmToolchain(21)
+}

@@ -22,12 +22,13 @@ public class EqdAuditToIMQ {
       query.addColumnGroup(popQuery);
       String finalPopId = popId;
       popQuery
-        .setVariable(POPULATION)
-        .setIsCohort(iri(resources.getNamespace() + finalPopId)
+        .setNode(POPULATION)
+        .addIs(Node.iri(resources.getNamespace() + finalPopId)
+          .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + finalPopId));
       Return populationReturn = new Return();
-      popQuery.setReturn(populationReturn);
+      popQuery.addReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);
       if (eqReport.getAuditReport().getStandard() != null) {
         if (eqReport.getAuditReport().getStandard() == VocStandardAuditReportType.COUNTS) {
@@ -42,17 +43,26 @@ public class EqdAuditToIMQ {
             String eqURL = eqTable + "/" + eqColumn;
             String pathString = resources.getIMPath(eqURL);
             String[] pathMap = pathString.split(" ");
-            for (int i = 0; i < pathMap.length - 1; i++) {
-              ReturnProperty property = new ReturnProperty();
-              property.setIri(Namespace.IM + pathMap[i]);
-              Return ret = new Return();
-              property.setReturn(ret);
-              populationReturn = ret;
+            if (pathMap.length > 1) {
+              Path path = new Path();
+              popQuery.addPath(path);
+              path.setIri(Namespace.IM + pathMap[1]);
+              path.setTypeOf(new Node().setIri(Namespace.IM + pathMap[1]));
+              path.setNode(resources.getAcronym(path.getIri()) + "_" + eqColumn);
+              for (int i = 2; i < pathMap.length - 1; i++) {
+                Path subPath = new Path();
+                path.addPath(subPath);
+                subPath.setIri(Namespace.IM + pathMap[i]);
+                subPath.setNode(resources.getAcronym(path.getIri()));
+                subPath.setTypeOf(new Node().setIri(Namespace.IM + pathMap[i + 1]));
+                path = subPath;
+              }
+              popQuery.addReturn(new Return()
+                .setNodeRef(path.getNode())
+                .as(eqColumn)
+                .setIri(pathMap[pathMap.length - 1]));
+              popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));
             }
-            populationReturn.addProperty(new ReturnProperty()
-              .as(eqColumn)
-              .setIri(pathMap[pathMap.length - 1]));
-            popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));
           }
         }
       }

@@ -8,7 +8,9 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -24,7 +26,6 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
@@ -35,8 +36,8 @@ public class FilerService {
   private final ProvService provService;
   private final EntityService entityService;
   private final OpenSearchService openSearchService;
-  private final UserService userService;
   private final TTEntityFiler entityProvFiler;
+  private final Graph insertGraph = Graph.IM;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
   private IMDB imdb;
@@ -47,7 +48,6 @@ public class FilerService {
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
-    userService = new UserService();
   }
 
   private static boolean isValidIri(TTEntity entity) {
@@ -89,7 +89,7 @@ public class FilerService {
     }
   }
 
-  private void setupEntityFiler(Graph insertGraph) {
+  private void setupEntityFiler() {
     setupIMDB();
     if (null == this.entityFiler) {
       this.entityFiler = new TTEntityFilerRdf4j(imdb, insertGraph);
@@ -102,7 +102,7 @@ public class FilerService {
     }
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId, Graph insertGraph) {
+  public void fileDocument(TTDocument document, String agentName, String taskId) {
     new Thread(() -> {
       try {
         setupDocumentFiler(insertGraph);
@@ -119,30 +119,31 @@ public class FilerService {
     return documentFiler.getFilingProgress(taskId);
   }
 
-  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity, Graph insertGraph) throws TTFilerException {
+  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException {
     try {
-      setupEntityFiler(insertGraph);
+      setupEntityFiler();
       entityFiler.fileEntity(entity);
 
-      if (entity.isType(iri(IM.CONCEPT)))
-        entityFiler.updateIsAs(entity);
+      entityFiler.updateIsAs(entity.getIri());
 
-      if (entity.isType(iri(IM.VALUESET)))
+      if (entity.isType(iri(IM.VALUESET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
+        new SetBinder().bindSet(entity.getIri(), insertGraph);
+      }
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);
       TTEntity provUsedEntity = fileUsedEntity(usedEntity);
       ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
 
-      writeDelta(entity, activity, provUsedEntity, insertGraph);
+      writeDelta(entity, activity, provUsedEntity);
       fileOpenSearch(entity.getIri());
     } catch (Exception e) {
-      throw new TTFilerException("Error filing entity", e);
+      throw new TTFilerException("Error filing entity: " + e.getMessage(), e);
     }
   }
 
-  public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity, Graph insertGraph) throws JsonProcessingException {
+  public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws JsonProcessingException {
     TTDocument document = new TTDocument();
     document.addEntity(entity);
     document.addEntity(activity);
@@ -199,19 +200,19 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName, Graph insertGraph) throws TTFilerException, JsonProcessingException {
+  public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
     editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
-    fileEntity(editRequest.getEntity(), agentName, null, insertGraph);
+    fileEntity(editRequest.getEntity(), agentName, null);
     return editRequest.getEntity();
   }
 
-  public TTEntity updateEntity(TTEntity entity, String agentName, Graph updateGraph) throws TTFilerException, JsonProcessingException {
+  public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update");
     entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
-    fileEntity(entity, agentName, usedEntity, updateGraph);
+    fileEntity(entity, agentName, usedEntity);
     return entity;
   }
 
@@ -234,9 +235,8 @@ public class FilerService {
     }
   }
 
-  public boolean userCanFile(String agentId, Graph graph) throws JsonProcessingException {
-    List<String> orgList = userService.getUserOrganisations(agentId);
-    return orgList != null && graph != null && orgList.contains(graph.toString());
+  public boolean userCanFile(User user, Graph graph) throws JsonProcessingException {
+    return graph != null && user.getNamespaces().stream().anyMatch(o -> o.getIri().equals(graph.toString()));
   }
 
 }

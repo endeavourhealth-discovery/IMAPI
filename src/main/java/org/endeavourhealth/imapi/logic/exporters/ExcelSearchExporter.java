@@ -8,8 +8,8 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
@@ -24,10 +24,16 @@ import java.util.StringJoiner;
 public class ExcelSearchExporter {
   private final XSSFWorkbook workbook;
   private final CellStyle headerStyle;
-  private final SearchService searchService = new SearchService();
-  private final EclService eclService = new EclService();
+  private final SearchService searchService;
+  private final EclService eclService;
 
   public ExcelSearchExporter() {
+    this(new SearchService(), new EclService());
+  }
+
+  public ExcelSearchExporter(SearchService searchService, EclService eclService) {
+    this.searchService = searchService;
+    this.eclService = eclService;
     workbook = new XSSFWorkbook();
     XSSFFont font = workbook.createFont();
     headerStyle = workbook.createCellStyle();
@@ -43,7 +49,7 @@ public class ExcelSearchExporter {
       queryRequest.setPage(new Page().setPageNumber(1).setPageSize(downloadByQueryOptions.getTotalCount()));
       searchResponse = searchService.queryIMSearch(downloadByQueryOptions.getQueryRequest());
     } else if (null != downloadByQueryOptions.getEclSearchRequest()) {
-      EclSearchRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
+      ECLQueryRequest eclSearchRequest = downloadByQueryOptions.getEclSearchRequest();
       eclSearchRequest.setPage(1);
       eclSearchRequest.setSize(downloadByQueryOptions.getTotalCount());
       searchResponse = eclService.eclSearch(eclSearchRequest);

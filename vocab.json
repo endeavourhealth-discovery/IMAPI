@@ -130,6 +130,10 @@
         "value": "\"iri\""
       },
       {
+        "name": "IM_IRI",
+        "value": "Namespace.IM + \"iri\""
+      },
+      {
         "name": "VALUE",
         "value": "\"value\""
       },
@@ -162,6 +166,10 @@
         "value": "Namespace.IM + \"scheme\""
       },
       {
+        "name": "DEFAULT_SCHEME",
+        "value": "Namespace.IM + \"defaultScheme\""
+      },
+      {
         "name": "BINDING",
         "value": "Namespace.IM + \"binding\""
       },
@@ -190,8 +198,8 @@
         "value": "Namespace.IM + \"definition\""
       },
       {
-        "name": "INSTANCE_OF",
-        "value": "Namespace.IM + \"instanceOf\""
+        "name": "IS",
+        "value": "Namespace.IM + \"is\""
       },
       {
         "name": "RETURN_TYPE",
@@ -208,6 +216,10 @@
       {
         "name": "CONCEPT",
         "value": "Namespace.IM + \"Concept\""
+      },
+      {
+        "name": "CODEABLE",
+        "value": "Namespace.IM + \"Codeable\""
       },
       {
         "name": "CONCEPT_PROPERTY",
@@ -246,16 +258,8 @@
         "value": "Namespace.IM + \"Query\""
       },
       {
-        "name": "COHORT_QUERY",
-        "value": "Namespace.IM + \"CohortQuery\""
-      },
-      {
         "name": "DEFAULT_COHORTS",
         "value": "Namespace.IM + \"Q_DefaultCohorts\""
-      },
-      {
-        "name": "DATASET_QUERY",
-        "value": "Namespace.IM + \"DatasetQuery\""
       },
       {
         "name": "DATA_UPDATE",
@@ -510,12 +514,20 @@
         "value": "Namespace.IM + \"SupplierAssured\""
       },
       {
+        "name": "COHORT",
+        "value": "Namespace.IM +\"Cohort\""
+      },
+      {
         "name": "HAS_MEMBER",
         "value": "Namespace.IM + \"hasMember\""
       },
       {
         "name": "IS_MEMBER_OF",
         "value": "Namespace.IM + \"isMemberOf\""
+      },
+      {
+        "name": "AVOID_REPLACED_BY",
+        "value": "Namespace.IM + \"avoidReplacedBy\""
       },
       {
         "name": "IS_SUBSET_OF",
@@ -830,6 +842,10 @@
         "value": "Namespace.IM + \"Entity\""
       },
       {
+        "name": "IS_SUBINDICATOR_OF",
+        "value": "Namespace.IM + \"isSubIndicatorOf\""
+      },
+      {
         "name": "QUERY_SET",
         "value": "Namespace.IM + \"QuerySet\""
       },
@@ -850,8 +866,16 @@
         "value": "Namespace.IM + \"QueryTemplate\""
       },
       {
-        "name": "HAS_QUERY",
-        "value": "Namespace.IM + \"hasQuery\""
+        "name": "NUMERATOR",
+        "value": "Namespace.IM + \"numerator\""
+      },
+      {
+        "name": "DENOMINATOR",
+        "value": "Namespace.IM + \"denominator\""
+      },
+      {
+        "name": "HAS_DATASET",
+        "value": "Namespace.IM + \"dataset\""
       },
       {
         "name": "RECORD_TYPE",
@@ -1082,8 +1106,8 @@
         "value": "Namespace.IM + \"hasIncrementalFrom\""
       },
       {
-        "name": "CORE_SCHEMES",
-        "value": "Namespace.IM + \"coreSchemes\""
+        "name": "ECL_BUILDER_SCHEMES",
+        "value": "Namespace.IM + \"ECLBuilderSchemes\""
       },
       {
         "name": "INFERRED_PREDICATES",
@@ -1123,7 +1147,23 @@
       },
       {
         "name": "FISCAL_YEAR",
-        "value": "Namespace.IM + \"fiscalYear\""
+        "value": "Namespace.IM + \"FiscalYear\""
+      },
+      {
+        "name": "QUARTER",
+        "value": "Namespace.IM + \"Quarter\""
+      },
+      {
+        "name": "WEEK",
+        "value": "Namespace.IM + \"Week\""
+      },
+      {
+        "name": "WEEK_NUMBER",
+        "value": "Namespace.IM + \"WeekNumber\""
+      },
+      {
+        "name": "YEAR",
+        "value": "Namespace.IM + \"Year\""
       },
       {
         "name": "YEARS",
@@ -1131,11 +1171,15 @@
       },
       {
         "name": "MONTH",
-        "value": "Namespace.IM + \"month\""
+        "value": "Namespace.IM + \"Month\""
       },
       {
         "name": "MONTHS",
         "value": "Namespace.IM + \"Months\""
+      },
+      {
+        "name": "DAY",
+        "value": "Namespace.IM + \"Day\""
       },
       {
         "name": "DAYS",
@@ -1147,11 +1191,11 @@
       },
       {
         "name": "MINUTES",
-        "value": "Namespace.IM + \"Minutes\""
+        "value": "Namespace.IM + \"Minute\""
       },
       {
         "name": "SECONDS",
-        "value": "Namespace.IM + \"Seconds\""
+        "value": "Namespace.IM + \"Second\""
       },
       {
         "name": "DATATYPE_QUALIFIER",
@@ -1168,10 +1212,6 @@
       {
         "name": "SORT_DIRECTION_FILTER_OPTIONS",
         "value": "Namespace.IM + \"SortDirectionFilterOptions\""
-      },
-      {
-        "name": "SCHEME_FILTER_DEFAULTS",
-        "value": "Namespace.IM + \"SchemeFilterDefaultOptions\""
       },
       {
         "name": "STATUS_FILTER_DEFAULTS",
@@ -1747,6 +1787,9 @@
   },
   {
     "name": "USER",
+    "imports": [
+      "Namespace"
+    ],
     "entries": [
       {
         "name": "DOMAIN",
@@ -1758,39 +1801,39 @@
       },
       {
         "name": "USER_PRESET",
-        "value": "USER.DOMAIN + \"UserPreset\""
+        "value": "Namespace.USER + \"UserPreset\""
       },
       {
         "name": "USER_PRIMARY_COLOR",
-        "value": "USER.DOMAIN + \"UserPrimaryColor\""
+        "value": "Namespace.USER + \"UserPrimaryColor\""
       },
       {
         "name": "USER_SURFACE_COLOR",
-        "value": "USER.DOMAIN + \"UserSurfaceColor\""
+        "value": "Namespace.USER + \"UserSurfaceColor\""
       },
       {
         "name": "USER_DARK_MODE",
-        "value": "USER.DOMAIN + \"UserDarkMode\""
+        "value": "Namespace.USER + \"UserDarkMode\""
       },
       {
-        "name": "USER_SCALE",
-        "value": "USER.DOMAIN + \"UserScale\""
+        "name": "USER_FONT_SIZE",
+        "value": "Namespace.USER + \"UserFontSize\""
       },
       {
         "name": "USER_MRU",
-        "value": "USER.DOMAIN + \"UserMRU\""
+        "value": "Namespace.USER + \"UserMRU\""
       },
       {
         "name": "USER_FAVOURITES",
-        "value": "USER.DOMAIN + \"UserFavourites\""
+        "value": "Namespace.USER + \"UserFavourites\""
       },
       {
         "name": "ORGANISATIONS",
-        "value": "USER.DOMAIN + \"ORGANISATIONS\""
+        "value": "Namespace.USER + \"Organisations\""
       },
       {
         "name": "GRAPHS",
-        "value": "USER.DOMAIN + \"GRAPHS\""
+        "value": "Namespace.USER + \"Graphs\""
       }
     ]
   },
@@ -1881,8 +1924,8 @@
         "value": "Namespace.WORKFLOW + \"requestedRole\""
       },
       {
-        "name": "REQUESTED_GRAPH",
-        "value": "Namespace.WORKFLOW + \"requestedGraph\""
+        "name": "REQUESTED_NAMESPACE",
+        "value": "Namespace.WORKFLOW + \"requestedNamespace\""
       },
       {
         "name": "APPROVAL_TYPE",
@@ -2091,6 +2134,10 @@
       {
         "name": "SUBSET_BUILDER",
         "value": "Namespace.IM_COMPONENT + \"subsetBuilder\""
+      },
+      {
+        "name": "CHECKBOX_DISPLAY",
+        "value": "Namespace.IM_COMPONENT + \"checkboxDisplay\""
       }
     ]
   },
@@ -2131,6 +2178,10 @@
       {
         "name": "PROPERTY_SHAPE",
         "value": "Namespace.IM_EDITOR + \"PropertyShape\""
+      },
+      {
+        "name": "INDICATOR_SHAPE",
+        "value": "Namespace.IM_EDITOR + \"IndicatorShape\""
       }
     ]
   },
@@ -2155,6 +2206,14 @@
       {
         "name": "GET_SUBCLASSES",
         "value": "Namespace.IM_QUERY + \"GetSubClasses\""
+      },
+      {
+        "name": "GET_DESCENDANTS",
+        "value": "Namespace.IM_QUERY + \"GetDescendants\""
+      },
+      {
+        "name": "IS_VALID_DESCENDANT",
+        "value": "Namespace.IM_QUERY + \"IsValidDescendant\""
       },
       {
         "name": "GET_ANCESTORS",
@@ -2193,8 +2252,12 @@
         "value": "Namespace.IM_QUERY + \"IsValidProperty\""
       },
       {
-        "name": "SEARCH_PROPERTIES",
-        "value": "Namespace.IM_QUERY + \"SearchProperties\""
+        "name": "IS_VALID_TYPE",
+        "value": "Namespace.IM_QUERY + \"IsValidType\""
+      },
+      {
+        "name": "ENTITY_FILTER",
+        "value": "Namespace.IM_QUERY + \"EntityFilter\""
       },
       {
         "name": "SEARCH_ENTITIES",
@@ -2219,6 +2282,10 @@
       {
         "name": "SEARCH_ALLOWABLE_SUBCLASS",
         "value": "Namespace.IM_QUERY + \"SearchAllowableSubclass\""
+      },
+      {
+        "name": "SEARCH_ALLOWABLE_CHILD_OF",
+        "value": "Namespace.IM_QUERY + \"SearchAllowableChildOf\""
       },
       {
         "name": "GET_VALUES_FROM_PROPERTY_RANGE",

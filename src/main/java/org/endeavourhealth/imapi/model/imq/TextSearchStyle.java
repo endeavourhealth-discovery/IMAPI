@@ -5,5 +5,6 @@ public enum TextSearchStyle {
   fuzzy,
   multiword,
   ngram,
-  exact
+  exact,
+  all
 }

@@ -33,6 +33,13 @@ public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
     getQueryFromECL(eclQueryRequest);
   }
 
+  public Query convertECL(String eclQuery) {
+    ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
+    eclQueryRequest.setEcl(eclQuery);
+    getQueryFromECL(eclQueryRequest);
+    return eclQueryRequest.getQuery();
+  }
+
   /**
    * Converts an ECL string into IM Query definition class. Assumes active and inactive concepts are requested.
    * <p>To include only active concepts use method with boolean activeOnly= true</p>

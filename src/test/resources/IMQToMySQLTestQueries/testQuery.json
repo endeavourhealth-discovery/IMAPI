@@ -8,7 +8,7 @@
     },
     "and": [
       {
-        "instanceOf": [
+        "is": [
           {
             "iri": "http://endhealth.info/im#Q_RegisteredGMS",
             "name": "Registered for GMS services on reference date",

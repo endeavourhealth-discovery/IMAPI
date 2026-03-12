@@ -37,7 +37,7 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
-    SearchResponse results = osq.openSearchQuery(req);
+    SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(2, results.getEntities().size());
     List<String> iris = new ArrayList<>();
     results.getEntities().forEach(e -> iris.add(e.getIri()));
@@ -57,7 +57,7 @@ class OSQueryTest_IM {
         )
       );
 
-    SearchResponse results = osq.openSearchQuery(req);
+    SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
     assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
@@ -68,11 +68,11 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .addInstanceOf(new Node().setIri("http://snomed.info/sct#57148006")
+        .addIs(new Node().setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true)
         ));
 
-    SearchResponse results = osq.openSearchQuery(req);
+    SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
     assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
@@ -86,11 +86,11 @@ class OSQueryTest_IM {
         (Set.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
-        .addInstanceOf(new Node().setParameter("$isas")
+        .addIs(new Node().setParameter("$isas")
           .setDescendantsOrSelfOf(true)
         ));
 
-    SearchResponse results = osq.openSearchQuery(req);
+    SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
     assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }
@@ -108,7 +108,7 @@ class OSQueryTest_IM {
         )
       );
 
-    SearchResponse results = osq.openSearchQuery(req);
+    SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
     assertEquals("http://snomed.info/sct#702450004", results.getEntities().getFirst().getIri());
   }

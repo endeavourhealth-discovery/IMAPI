@@ -27,7 +27,7 @@ public class CachedObjectMapper implements AutoCloseable {
 
   @Override
   public void close() {
-    objectMapper.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
+    objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
     push(objectMapper);
   }
 
@@ -60,7 +60,7 @@ public class CachedObjectMapper implements AutoCloseable {
         return pool.pop();
       else{
         ObjectMapper om = new ObjectMapper();
-        om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         return om;
       }
     }

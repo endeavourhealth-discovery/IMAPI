@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
+import org.endeavourhealth.imapi.logic.reasoner.SparqlOptimizer;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.springframework.stereotype.Component;
@@ -42,31 +43,36 @@ public class EclService {
   }
 
 
-  public String getEcl(EclSearchRequest inferred) throws QueryException {
+  public String getEcl(ECLQueryRequest inferred) throws QueryException {
     if (inferred == null) throw new QueryException("Missing data for ECL conversion");
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
-    eclQueryRequest.setQuery(inferred.getEclQuery());
+    eclQueryRequest.setShowNames(true);
+    eclQueryRequest.setQuery(inferred.getQuery());
     new IMQToECL().getECLFromQuery(eclQueryRequest);
     return eclQueryRequest.getEcl();
   }
 
-  public int getEclSearchTotalCount(EclSearchRequest request) throws QueryException {
-    return setRepository.getSetExpansionTotalCount(request.getEclQuery(), request.getStatusFilter());
+  public int getEclSearchTotalCount(ECLQueryRequest request) throws QueryException {
+    return setRepository.getSetExpansionTotalCount(request.getQuery(), request.getStatusFilter());
   }
 
-  public Set<Concept> evaluateECLQuery(EclSearchRequest request) throws QueryException {
+  public Set<Concept> evaluateECLQuery(ECLQueryRequest request) throws QueryException {
+
     return setRepository.getSetExpansionFromQuery(
-      request.getEclQuery(),
-      request.isIncludeLegacy(),
+      request.getQuery(),
       request.getStatusFilter(),
       List.of(),
       new Page()
         .setPageNumber(request.getPage())
         .setPageSize(request.getSize()));
+
   }
 
-  public SearchResponse eclSearch(EclSearchRequest request) throws QueryException {
-    int totalCount = getEclSearchTotalCount(request);
+  public SearchResponse eclSearch(ECLQueryRequest request) throws QueryException {
+    new SparqlOptimizer().optimizeQuery(request.getQuery());
+    int totalCount = 0;
+    if (request.getPage()==1)
+      totalCount = getEclSearchTotalCount(request);
     Set<Concept> evaluated = evaluateECLQuery(request);
     List<SearchResultSummary> evaluatedAsSummary = evaluated
       .stream()
@@ -86,8 +92,14 @@ public class EclService {
     return result;
   }
 
-  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) {
-    new IMQToECL().getECLFromQuery(eclQuery);
+  public ECLQueryRequest getECLFromQuery(ECLQueryRequest eclQuery) throws QueryException {
+    try {
+      new QueryDescriptor().describeQuery(eclQuery.getQuery(), DisplayMode.ORIGINAL);
+      new IMQToECL().getECLFromQuery(eclQuery);
+    } catch (Exception e) {
+      throw new QueryException(e.getMessage(),e);
+
+    }
     return eclQuery;
   }
 
@@ -109,11 +121,20 @@ public class EclService {
     return eclQuery;
   }
 
-  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) {
+  public ECLQueryRequest validateEcl(ECLQueryRequest eclQuery) throws QueryException {
     String ecl = eclQuery.getEcl();
     if (ecl == null || ecl.isEmpty())
       return eclQuery;
-    new ECLToIMQ().getQueryFromECL(eclQuery, true);
+    try {
+      new ECLToIMQ().getQueryFromECL(eclQuery, true);
+      new QueryDescriptor().describeQuery(eclQuery.getQuery(), DisplayMode.ORIGINAL);
+    } catch (Exception e) {
+      ECLStatus eclStatus = new ECLStatus();
+      eclStatus.setValid(false);
+      eclStatus.setMessage(e.getMessage());
+      eclQuery.setStatus(eclStatus);
+      return eclQuery;
+    }
     return eclQuery;
   }
 

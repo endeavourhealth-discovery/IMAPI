@@ -6,41 +6,75 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"prefix", "iri", "name", "description", "query","activeOnly", "typeOf","isCohort","instanceOf", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
+@JsonPropertyOrder({"prefix", "iri", "name", "description", "query", "activeOnly", "typeOf", "is", "and", "or", "not", "path", "where", "return", "groupBy", "dataSet"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query extends Match {
   private Prefixes prefixes;
   private String description;
-  @Getter
-  private boolean activeOnly;
   private List<Match> columnGroup;
-  @Getter
-  private List<Query> query;
-
   private String iri;
   private String name;
-  private boolean imQuery;
+  private String imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
 
   @Getter
   private String bindAs;
+  private IMQType queryType;
 
-  public Query setQuery(List<Query> query) {
-    this.query = query;
+  public Query setErrorMessage(String errorMessage) {
+    super.setErrorMessage(errorMessage);
     return this;
   }
-  public Query addQuery(Query query) {
-    if (this.query == null)
-      this.query = new ArrayList<>();
-    this.query.add(query);
+
+  public Query setQueryType() {
+    this.queryType = this.columnGroup == null ? IMQType.COHORT : IMQType.DATASET;
+    return this;
+  }
+
+  public IMQType getQueryType() {
+    return queryType;
+  }
+
+  public Query setStep(List<Match> step) {
+    super.setStep(step);
+    return this;
+  }
+
+  public Query step(Consumer<Match> builder) {
+    Match match = new Match();
+    addStep(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query addStep(Match step) {
+    super.addStep(step);
+    return this;
+  }
+
+  public Query setUnion(List<Match> union) {
+    super.setUnion(union);
+    return this;
+  }
+
+  public Query union(Consumer<Match> builder) {
+    Match match = new Match();
+    addUnion(match);
+    builder.accept(match);
+    return this;
+  }
+
+  public Query addUnion(Match union) {
+    super.addUnion(union);
     return this;
   }
 
@@ -49,11 +83,11 @@ public class Query extends Match {
     return this;
   }
 
+
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
     return this;
   }
-
 
 
   public Query setRule(List<Match> rule) {
@@ -83,37 +117,19 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setNot(List<Match> not) {
-    super.setNot(not);
+
+  public Query addIs(Node is) {
+    super.addIs(is);
     return this;
   }
 
-  public Query addNot(Match not) {
-    super.addNot(not);
+  public Query is(Consumer<Node> builder) {
+    super.is(builder);
     return this;
   }
 
-  public Query not(Consumer<Match> builder) {
-    Match match = new Match();
-    addNot(match);
-    builder.accept(match);
-    return this;
-  }
-
-  public Query addInstanceOf(Node instanceOf) {
-    super.addInstanceOf(instanceOf);
-    return this;
-  }
-
-  public Query instanceOf(Consumer<Node> builder) {
-    Node node = new Node();
-    super.addInstanceOf(node);
-    builder.accept(node);
-    return this;
-  }
-
-  public Query setInstanceOf(List<Node> instanceOf) {
-    super.setInstanceOf(instanceOf);
+  public Query setIs(List<Node> is) {
+    super.setIs(is);
     return this;
   }
 
@@ -133,7 +149,6 @@ public class Query extends Match {
     builder.accept(match);
     return this;
   }
-
 
 
   public Query setPath(List<Path> path) {
@@ -186,18 +201,18 @@ public class Query extends Match {
     return this;
   }
 
-  public boolean isImQuery() {
+  public String getImQuery() {
     return imQuery;
   }
 
-  public Query setImQuery(boolean imQuery) {
+  public Query setImQuery(String imQuery) {
     this.imQuery = imQuery;
     return this;
   }
 
   @Override
-  public Query setVariable(String variable) {
-    super.setVariable(variable);
+  public Query setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -232,8 +247,8 @@ public class Query extends Match {
   }
 
 
-  public Query setReturn(Return returx) {
-    super.setReturn(returx);
+  public Query setReturn(List<Return> returns) {
+    super.setReturn(returns);
     return this;
   }
 
@@ -272,10 +287,8 @@ public class Query extends Match {
   }
 
 
-
-
   public Query setGroupBy(List<GroupBy> groupBy) {
-   super.setGroupBy(groupBy);
+    super.setGroupBy(groupBy);
     return this;
   }
 
@@ -312,7 +325,7 @@ public class Query extends Match {
   }
 
   public Query columnGroup(Consumer<Match> builder) {
-    Match match= new Match();
+    Match match = new Match();
     addColumnGroup(match);
     builder.accept(match);
     return this;
@@ -320,7 +333,7 @@ public class Query extends Match {
 
 
   public Query setActiveOnly(boolean activeOnly) {
-    this.activeOnly = activeOnly;
+    super.setActiveOnly(activeOnly);
     return this;
   }
 

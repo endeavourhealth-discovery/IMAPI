@@ -15,10 +15,7 @@ import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.OpenSearch;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 
@@ -46,6 +43,9 @@ public class IMQToOS {
       .replace("{", "")
       .replace("}", ""));
     switch (type) {
+      case exact -> {
+        return exactQuery();
+      }
       case autocomplete -> {
         return autocompleteQuery();
       }
@@ -121,11 +121,17 @@ public class IMQToOS {
 
   private NestedQueryBuilder buildNested(QueryBuilder query, Script script) {
     ScriptScoreQueryBuilder ssb = new ScriptScoreQueryBuilder(
-      query,
+      new MatchAllQueryBuilder(),
       script
     );
+
+    BoolQueryBuilder bqb = new BoolQueryBuilder();
+    bqb.must().add(query);
+    bqb.must().add(new ExistsQueryBuilder("termCode.length"));
+    bqb.should().add(ssb);
+
     String[] includes = {"termCode.term"};
-    return new NestedQueryBuilder("termCode", ssb, ScoreMode.Max)
+    return new NestedQueryBuilder("termCode", bqb, ScoreMode.Max)
       .innerHit(new InnerHitBuilder()
         .setFetchSourceContext(new FetchSourceContext(true, includes, null)));
   }
@@ -140,12 +146,11 @@ public class IMQToOS {
         if (splits.length == 2) term = namespace + term.split(":")[1];
       }
     }
-    addCodesAndIri(boolBuilder, term);
 
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     String field = "termCode.keyTerm";
     if (prefix.length() > 31)
-      field = "termCode.term.keyword";
+      prefix= prefix.substring(0, 30);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder(field, prefix).caseInsensitive(true);
     Script script = new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, "100000 - doc['termCode.length'].value", Collections.emptyMap());
     NestedQueryBuilder nested = buildNested(pqb, script);
@@ -160,6 +165,30 @@ public class IMQToOS {
     addPages(sourceBuilder);
     return sourceBuilder;
   }
+
+
+  private SearchSourceBuilder exactQuery() throws QueryException {
+    BoolQueryBuilder boolBuilder = new BoolQueryBuilder();
+    String term = request.getTextSearch();
+    if (term.contains(":") && (!term.contains(" "))) {
+      String namespace = EntityCache.getDefaultPrefixes().getNamespace(term.substring(0, term.indexOf(":")));
+      if (namespace != null) {
+        String[] splits = term.split(":");
+        if (splits.length == 2) term = namespace + term.split(":")[1];
+      }
+    }
+    addCodesAndIri(boolBuilder, term);
+    boolBuilder.minimumShouldMatch(1);
+    if (!addMatches(boolBuilder))
+      return null;
+    SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+    if (!addReturns(sourceBuilder))
+      return null;
+    sourceBuilder.query(boolBuilder);
+    return sourceBuilder;
+  }
+
+
 
   private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
     if (query == null)
@@ -201,7 +230,12 @@ public class IMQToOS {
 
   private void addPages(SearchSourceBuilder sourceBuilder) {
     if (request.getPage() != null) {
-      sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      if (request.getPage().getOffset()==null) {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
+      }
+      else {
+        sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getOffset());
+      }
     } else {
       sourceBuilder.size(1000).from(0);
     }
@@ -212,9 +246,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.getReturn() != null) {
-      Return ret = query.getReturn();
-      if (ret.getProperty() != null) {
-        for (ReturnProperty prop : ret.getProperty()) {
+        for (Return prop : query.getReturn()) {
           if (prop.getIri() != null) {
             switch (OpenSearch.from(prop.getIri())) {
               case OpenSearch.DESCRIPTION:
@@ -254,7 +286,6 @@ public class IMQToOS {
             }
           }
         }
-      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
@@ -262,7 +293,7 @@ public class IMQToOS {
   }
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
-    TermsQueryBuilder tqr = new TermsQueryBuilder(property + ".iri", values);
+    TermsQueryBuilder tqr = new TermsQueryBuilder(property.equals("iri") ?property : (property + ".iri"), values);
     if (Bool.and == bool) boolBldr.filter(tqr);
     else if (Bool.or == bool) boolBldr.should(tqr);
   }
@@ -280,8 +311,8 @@ public class IMQToOS {
       addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.and, boolBuilder);
     }
 
-    if (match.getInstanceOf() != null) {
-      setFromAliases(boolBuilder, match.getInstanceOf());
+    if (match.getIs() != null) {
+      setFromAliases(boolBuilder, match.getIs());
     }
     return addProperties(boolBuilder, match);
   }
@@ -301,13 +332,7 @@ public class IMQToOS {
     Where where = match.getWhere();
     if (isBooleanWhere(where)) {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-      for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
-        if (nested != null) {
-          for (Where nestedWhere : nested) {
-            if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
-          }
-        }
-      }
+      if (!addBoolProperties(where, nestedBool)) return false;
       boolBuilder.filter(nestedBool);
     } else return addProperty(where, Bool.and, boolBuilder);
 
@@ -316,6 +341,15 @@ public class IMQToOS {
 
   private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     String w = where.getIri();
+    if (w==null &&(where.getAnd()!=null||where.getOr()!=null)) {
+      BoolQueryBuilder nestedBool = new BoolQueryBuilder();
+      if (bool ==Bool.and){
+        boolBldr.must(nestedBool);
+      }
+      else boolBldr.should(nestedBool);
+      if (!addBoolProperties(where, nestedBool)) return false;
+      else return true;
+    }
     if (IM.HAS_SCHEME.toString().equals(w)) {
       return addIsFilter("scheme", where, bool, boolBldr);
     } else if (IM.IS_MEMBER_OF.toString().equals(w)) {
@@ -330,8 +364,20 @@ public class IMQToOS {
       return addIsFilter("isA", where, bool, boolBldr);
     } else if (IM.CONTENT_TYPE.toString().equals(w)) {
       return addIsFilter("contentType", where, bool, boolBldr);
+    } else if (IM.IM_IRI.toString().equals(w)) {
+      return addIsFilter("iri", where, bool, boolBldr);
+    } else return RDFS.DOMAIN.toString().equals(w);
+  }
+
+  private boolean addBoolProperties(Where where, BoolQueryBuilder nestedBool) throws QueryException {
+    for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
+      if (nested != null) {
+        for (Where nestedWhere : nested) {
+          if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
+        }
+      }
     }
-    return false;
+    return true;
   }
 
   private boolean isBooleanWhere(Where where) {

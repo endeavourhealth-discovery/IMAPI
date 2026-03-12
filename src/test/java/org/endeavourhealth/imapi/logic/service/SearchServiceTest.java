@@ -6,62 +6,107 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.queryengine.QuerySummariser;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 class SearchServiceTest {
 
-  EntityService entityService = new EntityService();
-  private String succinctDefinitions;
+  //@Test
+   void summariser() throws JsonProcessingException, QueryException {
+    List<TTEntity> entities= new EntityService().getPartialEntities(Set.of("http://smartlifehealth.info/smh#18934bee-29d6-484c-af33-2c9313add5b9"),
+      Set.of(IM.DEFINITION.toString()));
+    Query query= entities.get(0).get(IM.DEFINITION.toString()).asLiteral().objectValue(Query.class);
+    Match union= getUnion(query);
+    String summary= new QuerySummariser().summariseQuery(union);
+    System.out.println(summary);
 
+  }
+  private Match getUnion(Match match) {
+    if (match.getUnion() !=null) return match;
+    for (List<Match> matches: Arrays.asList(match.getRule(),match.getAnd(),match.getOr(),match.getStep())) {
+      if (matches!=null)
+        for (Match m: matches) {
+          Match union= getUnion(m);
+          if (union!=null)
+            return union;
+        }
+    }
+    return null;
+  }
+
+//@Test
+  void os() throws QueryException, OpenSearchException {
+  Set<String> entities= getResults(TestQueries.getAllowableProperties());
+  QueryRequest osSearch= TestQueries.entityFilter(entities);
+  SearchResponse results= new SearchService().queryIMSearch(osSearch);
+  System.out.println(results.getEntities().size());
+
+
+}
   //@Test
   void imq() throws Exception {
+    output(TestQueries.getAllowableProperties());
+    /*
+    ask(TestQueries.isValidProperty());
+
+
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.subtypesParameterised());
     output(TestQueries.dataModelPropertyRange());
     output(TestQueries.getAllowableSubtypes());
-    output(TestQueries.getMembers());
-
-    ask(TestQueries.isValidProperty());
-
-    output(TestQueries.shapesWithDateOFBirth());
 
     output(TestQueries.AllowablePropertiesForCovid());
     output(TestQueries.getAllowableProperties());
-
-
-    output(TestQueries.getMembers());
-
-    output(TestQueries.getMembers());
     output(TestQueries.pathQuery());
-
-
-    //output(TestQueries.pathQueryAtenolol3());
-
-
     output(TestQueries.rangeSuggestion());
-
-
-    output(TestQueries.query1());
     output(TestQueries.getShaclProperty());
     output(TestQueries.deleteSets());
     output(TestQueries.substanceTextSearch());
     output(TestQueries.oralNsaids());
-    output(TestQueries.getAllowableProperties());
+
     output(TestQueries.getIsas());
     output(TestQueries.getConcepts());
     output(TestQueries.query4());
 
+     */
 
+
+  }
+  private Set<String> getResults(QueryRequest request) throws OpenSearchException, QueryException {
+    SearchService searchService = new SearchService();
+    JsonNode results = searchService.queryIM(request);
+    Set<String> iris = new HashSet<>();
+    JsonNode entities = results.get("entities");
+
+    if (entities != null && entities.isArray()) {
+      for (JsonNode entity : entities) {
+        JsonNode iriNode = entity.get("iri");
+        if (iriNode != null && iriNode.isTextual()) {
+          iris.add(iriNode.asText());
+        }
+      }
+    }
+    return iris;
   }
 
   private void output(QueryRequest dataSet) throws IOException, OpenSearchException, QueryException {

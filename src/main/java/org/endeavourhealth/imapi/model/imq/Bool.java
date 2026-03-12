@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 public enum Bool {
   and,
   or,
-  not,
-  rule
+  rule,
+  union,
+  step
 }

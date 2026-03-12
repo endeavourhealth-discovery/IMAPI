@@ -2,7 +2,7 @@
   "query": {
     "not": [
       {
-        "instanceOf": [
+        "is": [
           {
             "iri": "http://endhealth.info/im#Q_Hypertensives",
             "memberOf": true
@@ -11,7 +11,7 @@
       }
     ],
     "and": {
-      "instanceOf": [
+      "is": [
         {
           "iri": "http://endhealth.info/im#Q_RegisteredGMS",
           "memberOf": true

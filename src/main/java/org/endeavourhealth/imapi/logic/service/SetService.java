@@ -20,6 +20,8 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -28,11 +30,11 @@ import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.imapi.vocabulary.Graph;
 import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.Namespace;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.ValueSet;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
@@ -63,6 +65,7 @@ public class SetService {
   SetService(SetRepository setRepository) {
     this.setRepository = setRepository;
   }
+
 
   private static void getContains(SetContent result, List<ValueSet.ValueSetExpansionContainsComponent> contains) {
     if (null != result.getConcepts() && !result.getConcepts().isEmpty()) {
@@ -126,13 +129,31 @@ public class SetService {
     return setDiffObject;
   }
 
-  public Pageable<Node> getMembers(String iri, boolean entailments, Integer rowNumber, Integer pageSize) {
-    return setRepository.getMembers(iri, entailments, rowNumber, pageSize);
-  }
 
   public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
   }
+
+  public Pageable<Node> getMembersFromQuery(ECLQueryRequest request) throws QueryException {
+    EclService eclService = new EclService();
+    SearchResponse response = eclService.eclSearch(request);
+    Pageable<Node> result = new Pageable<>();
+    result.setTotalCount(response.getTotalCount());
+    result.setCurrentPage(response.getPage());
+    result.setPageSize(response.getCount());
+    result.setResult(new ArrayList<>());
+    if (response.getEntities() != null) {
+      for (SearchResultSummary entity : response.getEntities()) {
+        Node node = new Node();
+        node.setIri(entity.getIri());
+        node.setName(entity.getName());
+        node.setCode(entity.getCode());
+        result.getResult().add(node);
+      }
+    }
+    return result;
+  }
+
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();
@@ -244,11 +265,10 @@ public class SetService {
       throw new IllegalArgumentException("File type format needs to be set.");
 
     TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    String ecl = null;
 
     if (options.includeDefinition()) {
-      String ecl = getEcl(setEntity);
-      if (null != ecl) return ecl.getBytes();
-      else throw new GeneralCustomException("Set does not have a definition.", HttpStatus.INTERNAL_SERVER_ERROR);
+      ecl = getEcl(setEntity);
     }
 
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
@@ -266,7 +286,7 @@ public class SetService {
 
     switch (format) {
       case "xlsx", "csv", "tsv":
-        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy());
+        return setTextFileExporter.generateFile(format, concepts, setEntity.getName(), includeIM1id, options.includeSubsets(), options.includeLegacy(), options.getSubsumptions(), ecl);
       case "object":
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           SetContent result = getSetContent(options);
@@ -288,26 +308,24 @@ public class SetService {
     boolean legacy,
     boolean subsets,
     List<String> schemes,
-    List<String> subsumptions
+    List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
-    if (!hasMembers) {
-      if (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION))) {
-        new SetMemberGenerator().generateMembers(iri, Graph.IM);
-      } else return new HashSet<>();
+    if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
+      new SetMemberGenerator().generateMembers(iri, Graph.IM);
     }
 
     Set<Concept> result = null;
 
     if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumptions);
+      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumption);
     }
 
     if (null == result) result = new HashSet<>();
 
     if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result, subsumptions);
+      expandSubsets(iri, core, legacy, schemes, result, subsumption);
       result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -333,7 +351,7 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Graph updateGraph) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Namespace updateNamespace) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
     Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
@@ -346,10 +364,10 @@ public class SetService {
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
           subsetEntity.set(iri(IM.IS_SUBSET_OF), new TTArray().add(iri(entityIri)));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
           isSubsetOf.add(iri(entityIri));
-          filerService.updateEntity(subsetEntity, agentName, updateGraph);
+          filerService.updateEntity(subsetEntity, agentName);
         }
       }
     }
@@ -358,7 +376,7 @@ public class SetService {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         isSubsetOf.remove(iri(entityIri));
-        filerService.updateEntity(subsetEntity, agentName, updateGraph);
+        filerService.updateEntity(subsetEntity, agentName);
       }
     }
   }

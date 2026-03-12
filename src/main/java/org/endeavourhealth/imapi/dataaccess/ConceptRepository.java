@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.BooleanQuery;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
@@ -21,13 +22,15 @@ public class ConceptRepository {
   public List<SimpleMap> getMatchedFrom(String iri, List<String> schemeIris) {
     List<SimpleMap> simpleMaps = new ArrayList<>();
     String sql = """
-      SELECT ?s ?code ?scheme ?name
+      SELECT ?s ?code ?scheme ?name ?alternativeCode ?codeId
       WHERE {
         ?s im:matchedTo ?o .
         ?s im:code ?code .
         %s
         ?s im:scheme ?scheme ;
         rdfs:label ?name .
+        optional {?s im:alternativeCode ?alternativeCode .}
+        optional {?s im:codeId ?codeId .}
       }
       """.formatted(valueList("scheme", schemeIris));
     try (IMDB conn = IMDB.getConnection()) {
@@ -36,7 +39,8 @@ public class ConceptRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")));
+          simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")
+          ,getString(bs,"alternativeCode"),getString(bs,"codeId")));
         }
       }
     }
@@ -62,7 +66,7 @@ public class ConceptRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")));
+          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme"),null,null));
         }
       }
     }
@@ -71,13 +75,15 @@ public class ConceptRepository {
 
   public Set<String> getPropertiesForDomains(Set<String> iris) {
     Set<String> properties = new HashSet<>();
-    String sql = """
-      select distinct ?property
-      where {
-        VALUES ?domains {%s}
-        ?domains im:isA ?superDomains.
-        ?property rdfs:domain ?superDomains
-      }
+    String sql= """
+      SELECT distinct ?property
+            WHERE {
+              Values ?parentConcept {%s}
+               ?concept im:isA ?parentConcept.
+               ?concept im:roleGroup ?group.
+               ?group ?property ?value.
+               filter (?property!=im:groupNumber)
+               ?property rdf:type rdf:Property.}
       """.formatted(String.join(" ", iris.stream().map(iri -> "<" + iri + ">").toArray(String[]::new)));
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -208,4 +214,5 @@ public class ConceptRepository {
     }
     return null;
   }
+
 }

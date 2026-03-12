@@ -4,7 +4,7 @@
     "typeOf": {"iri": "http://endhealth.info/im#Patient"},
     "and": [
       {
-        "instanceOf": [
+        "is": [
           {
             "iri": "http://endhealth.info/im#Q_RegisteredGMS",
             "memberOf": true

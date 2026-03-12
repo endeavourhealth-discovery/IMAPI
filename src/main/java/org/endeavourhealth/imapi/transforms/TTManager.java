@@ -457,6 +457,9 @@ public class TTManager implements AutoCloseable {
     }
   }
 
+
+
+
   public TTEntity createNamespaceEntity(Namespace namespace, String name, String description) {
     TTEntity result = new TTEntity()
       .setIri(namespace.toString())

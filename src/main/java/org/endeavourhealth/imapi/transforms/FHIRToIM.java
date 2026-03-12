@@ -38,14 +38,14 @@ public class FHIRToIM {
       query.addOr(match);
       if (valueSet.getCompose().getInclude().length == 1) {
         String member = include[0].getSystem();
-        match.addInstanceOf(new Node().setIri(member)
+        match.addIs(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
         for (Include value : include) {
           Match memberMatch = new Match();
           match.addOr(memberMatch);
           String member = value.getSystem().replace("fhir/", "fhir#");
-          memberMatch.addInstanceOf(new Node().setIri(member).setDescendantsOrSelfOf(true));
+          memberMatch.addIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }
       }
       set.set(iri(IM.DEFINITION), TTLiteral.literal(query));

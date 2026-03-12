@@ -22,8 +22,10 @@ public class EqdPopToIMQ {
     query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query
-        .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date"));
+        .rule(r->r
+        .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
+          .setIsCohort(true)
+            .setName("Registered with GP for GMS services on the reference date")));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
@@ -36,15 +38,24 @@ public class EqdPopToIMQ {
       if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query
-          .setIsCohort(iri(Namespace.IM + "Q_RegisteredGMS")
-            .setName("Registered with GP for GMS services on the reference date"));
+          .rule(r->r
+          .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
+            .setIsCohort(true)
+            .setName("Registered with GP for GMS services on the reference date")));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
       } else {
         query
-          .setIsCohort(iri(resources.getNamespace() + id)
-            .setName(resources.reportNames.get(id)));
+          .addRule(new Match()
+          .addIs(Node.iri(resources.getNamespace() + id)
+            .setIsCohort(true)
+            .setName(resources.reportNames.get(id))));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
       }
+    }
+    if (query.getRule()!=null){
+      query.getRule().getFirst()
+        .setIfTrue(RuleAction.NEXT)
+        .setIfFalse(RuleAction.REJECT);
     }
     resources.setRule(0);
     resources.setSubRule(0);
@@ -60,6 +71,7 @@ public class EqdPopToIMQ {
         case REJECT -> rule.setIfTrue(RuleAction.REJECT);
         case NEXT -> rule.setIfTrue(RuleAction.NEXT);
       }
+
       switch (ifFalse) {
         case SELECT -> rule.setIfFalse(RuleAction.SELECT);
         case REJECT -> rule.setIfFalse(RuleAction.REJECT);

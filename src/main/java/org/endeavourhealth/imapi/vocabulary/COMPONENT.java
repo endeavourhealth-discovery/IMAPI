@@ -41,6 +41,7 @@ public enum COMPONENT implements VocabEnum {
     IRI_BUILDER(Namespace.IM_COMPONENT + "iriBuilder"),
     AUTOCOMPLETE_SEARCH_BAR_WRAPPER(Namespace.IM_COMPONENT + "autocompleteSearchBarWrapper"),
     SUBSET_BUILDER(Namespace.IM_COMPONENT + "subsetBuilder"),
+    CHECKBOX_DISPLAY(Namespace.IM_COMPONENT + "checkboxDisplay"),
     ;
 
     private final String value;

@@ -6,28 +6,35 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.logic.service.RequestObjectService;
+import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -53,22 +60,22 @@ public class SetController {
   private final EntityService entityService = new EntityService();
   private final SetService setService = new SetService();
   private final SetExporter setExporter = new SetExporter();
-  private final RequestObjectService reqObjService = new RequestObjectService();
+  private final SecurityService securityService = new SecurityService();
 
-  @GetMapping(value = "/publish")
+  @GetMapping(value = "/private/publish")
   @Operation(summary = "Publish set", description = "Publishes an expanded set to IM1")
-  @PreAuthorize("hasAuthority('PUBLISHER')")
   public void publish(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri
-  ) throws IOException, QueryException {
+  ) throws IOException, QueryException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
+      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.PUBLISHER), List.of()), request);
       setService.publishSetToIM1(iri);
     }
   }
 
-  @GetMapping(value = "/public/members")
+  @GetMapping(value = "/protected/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
   public Pageable<Node> getMembers(
     HttpServletRequest request,
@@ -87,7 +94,19 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/public/export")
+  @PostMapping(value = "/protected/membersFromQuery")
+  @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
+  public Pageable<Node> getMembersFromQuery(
+    HttpServletRequest request,
+    @RequestBody ECLQueryRequest eclRequest
+  ) throws QueryException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.EntailedMembers.GET")) {
+      log.debug("getMembersFromQuery");
+      return setService.getMembersFromQuery(eclRequest);
+    }
+  }
+
+  @GetMapping(value = "/protected/export")
   @Operation(summary = "Export set", description = "Exporting an expanded set to IM1")
   public HttpEntity<Object> exportSet(
     HttpServletRequest request,
@@ -111,7 +130,7 @@ public class SetController {
   }
 
 
-  @GetMapping("/public/subsets")
+  @GetMapping("/protected/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
   public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
@@ -120,7 +139,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "public/distillation")
+  @PostMapping(value = "/protected/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
   public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
@@ -129,7 +148,7 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/public/setExport")
+  @PostMapping(value = "/protected/setExport")
   @Operation(
     summary = "Export a set in the specified format",
     description = "Exports a set of data according to the provided options, including various flags such as definition, core, legacy, subsets, etc."
@@ -140,9 +159,6 @@ public class SetController {
   ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.SetExport.GET")) {
       log.debug("getSetExport");
-      if (setExportRequest.getOptions().getSubsumptions() == null || setExportRequest.getOptions().getSubsumptions().isEmpty()) {
-        setExportRequest.getOptions().setSubsumptions(asArrayList(IM.SUBSUMED_BY));
-      }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType(APPLICATION, FORCE_DOWNLOAD));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");
@@ -160,7 +176,7 @@ public class SetController {
     }
   }
 
-  @GetMapping(value = "/public/setDiff")
+  @GetMapping(value = "/protected/setDiff")
   @Operation(summary = "Compare two sets", description = "Compares two sets identified by the provided IRIs and returns their differences.")
   public SetDiffObject getSetComparison(
     HttpServletRequest request,
@@ -173,14 +189,14 @@ public class SetController {
     }
   }
 
-  @PostMapping(value = "/updateSubsetsFromSuper")
+  @PostMapping(value = "/private/updateSubsetsFromSuper")
   @Operation(summary = "Update subsets from super", description = "Updates subsets from a superclass according to the provided entity details.")
-  @PreAuthorize("hasAuthority('EDITOR') or hasAuthority('CREATOR')")
-  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException {
+  public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      String agentName = reqObjService.getRequestAgentName(request);
-      setService.updateSubsetsFromSuper(agentName, editRequest.getEntity(), editRequest.getGraph());
+      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
+      User user = securityService.getUser(request);
+      setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getNamespace());
     }
   }
 }

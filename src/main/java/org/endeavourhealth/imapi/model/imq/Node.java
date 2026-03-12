@@ -3,17 +3,58 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"parameter", "iri", "type", "set", "variable", "qualifier","name"})
+@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "qualifier","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
   private boolean exclude;
   private String code;
   private String type;
   private boolean inverse;
+  private Match match;
+  private String node;
+  private String qualifier;
 
+  public String getQualifier() {
+    return qualifier;
+  }
+  public Node setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
+
+
+
+
+  public Match getMatch() {
+    return match;
+  }
+
+  public Node setMatch(Match match) {
+    this.match = match;
+    return this;
+  }
+
+  public Node match(Consumer<Match> match) {
+    Match m = new Match();
+    match.accept(m);
+    this.match = m;
+    return this;
+  }
+
+  public Node setIsResultSet(boolean resultSet) {
+    super.setIsResultSet(resultSet);
+    return this;
+  }
+
+  public Node setIsCohort(boolean isCohort) {
+    super.setIsCohort(isCohort);
+    return this;
+  }
   public boolean isInverse() {
     return inverse;
   }
@@ -22,6 +63,7 @@ public class Node extends Element{
     this.inverse = inverse;
     return this;
   }
+
 
 
   public String getType() {
@@ -63,15 +105,15 @@ public class Node extends Element{
   }
 
   public static Node iri(String iri) {
-    return new Node(iri);
+    Node node= new Node();
+    node.setIri(iri);
+    return node;
   }
 
   public Node() {
   }
 
-  public Node(String iri) {
-    super.setIri(iri);
-  }
+
 
 
   public Node setAncestorsOf(boolean ancestorsOf) {
@@ -106,11 +148,13 @@ public class Node extends Element{
     return this;
   }
 
-  public Node setVariable(String variable) {
-    super.setVariable(variable);
+  public Node setNode(String node) {
+    this.node=node;
     return this;
   }
-
+  public String getNode() {
+    return node;
+  }
 
 }
 

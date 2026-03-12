@@ -40,7 +40,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, Graph graph) {
     this.conn = conn;
     this.prefixMap = prefixMap;
-    this.graph = graph;
+    this.graph = Graph.IM;
     String sparql = """
       DELETE {
         ?concept ?p1 ?o1.
@@ -76,8 +76,22 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     this(conn, new HashMap<>(), graph);
   }
 
+  private TTIriRef getSchemeFromIri(String iri) throws TTFilerException {
+    try {
+      if (iri.contains("#"))
+        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("#")+1));
+      if (iri.contains("/"))
+        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("/")+1));
+      else return TTIriRef.iri(Namespace.IM.toString());
+    } catch (Exception e) {
+      throw new TTFilerException("Unable to get scheme from iri: " + iri, e);
+    }
+  }
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
+    if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null){
+      entity.set(TTIriRef.iri(IM.HAS_SCHEME),getSchemeFromIri(entity.getIri()));
+    }
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
       && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
@@ -95,20 +109,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       throw new TTFilerException("Entity " + entity.getIri() + " has no crud assigned");
     }
 
+
   }
 
-  @Override
-  public void updateIsAs(TTEntity entity) {
-    Set<String> isAs = new HashSet<>();
-    if (entity.has(IM.IS_CHILD_OF.asIri()))
-      entity.get(IM.IS_CHILD_OF.asIri()).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
 
-    if (entity.has(RDFS.SUBCLASS_OF.asIri()))
-      entity.get(RDFS.SUBCLASS_OF.asIri()).stream().forEach(childOf -> isAs.add(childOf.asIriRef().getIri()));
 
-    deleteAscendantIsas(entity.getIri());
-    if (!isAs.isEmpty()) saveAscendantIsas(entity.getIri(), isAs);
-  }
 
   public void saveAscendantIsas(String entityIri, Set<String> isAs) {
     StringJoiner iriLine = new StringJoiner(" ");
@@ -170,37 +175,53 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  public Set<TTEntity> getDescendants(Set<String> entities) {
-    Set<TTEntity> descendants = new HashSet<>();
-    Map<String, TTEntity> entityMap = new HashMap<>();
-    for (String entity : entities) {
-      String sparql = """
-        SELECT ?descendant ?superclass
-        WHERE {
-          ?descendant ?isA ?entity.
-          ?descendant ?subClassOf ?superclass.
-        }
-        """;
-      TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("entity", iri(entity));
-      qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
-      qry.setBinding("isA", IM.IS_A.asDbIri());
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          String descendantIri = bs.getValue("descendant").stringValue();
-          TTEntity descendant = entityMap.get(descendantIri);
-          if (descendant == null) {
-            descendant = new TTEntity();
-            descendant.setIri(descendantIri);
-            entityMap.put(descendantIri, descendant);
-          }
-          descendant.addObject(RDFS.SUBCLASS_OF.asIri(), TTIriRef.iri(bs.getValue("superclass").stringValue()));
-        }
-      }
+  @Override
+  public void updateIsAs(String entity){
+    String sql= """
+    DELETE {
+      ?entity im:isA ?oldSuper .
     }
-    return descendants;
-
+    INSERT {
+      ?entity im:isA ?newSuper .
+    }
+    WHERE {
+      VALUES ?entity {%s}
+      OPTIONAL {
+        ?entity im:isA ?oldSuper .
+        }
+        ?entity rdfs:subClassOf+ ?newSuper .
+      }
+  """.formatted("<"+entity+">");
+    Update update= conn.prepareUpdateSparql(sql,Graph.IM);
+    update.execute();
+  sql= """
+    DELETE {
+      ?child im:isA ?oldSuper .
+    }
+    INSERT {
+      ?child im:isA ?newSuper .
+      ?entity im:isA ?sameEntity.
+    }
+    WHERE {
+        VALUES ?entity {<%s>}
+        Values ?sameEntity {<%s>}
+      # all subclasses affected
+      ?child rdfs:subClassOf+ ?entity .
+      optional {?child im:previousEntityOf ?entity. }
+      OPTIONAL { ?child im:isA ?oldSuper . }
+      OPTIONAL {?child rdfs:subClassOf+ ?newSuper. }
+      FILTER NOT EXISTS {
+          ?child rdfs:subClassOf+ ?oldSuper .
+        }
+    }
+    """.formatted(entity,entity);
+    update= conn.prepareUpdateSparql(sql,Graph.IM);
+    update.execute();
+    sql= """
+      insert data {<%s> im:isA <%s>}
+      """.formatted(entity,entity);
+    Update insert= conn.prepareInsertSparql(sql,Graph.IM);
+    insert.execute();
   }
 
   public Set<String> getIsAs(String superClass) {

@@ -92,6 +92,15 @@ public class PropertyShape{
   @Getter
   @Setter
   private boolean definingProperty;
+  @Getter
+  @Setter
+  private TTIriRef isValidEntity;
+  @Getter
+  @Setter
+  private boolean highCardinality;
+  @Getter
+  private List<Argument> isValidArguments;
+
 
   public PropertyShape setAscending(String ascending) {
     this.ascending = ascending;

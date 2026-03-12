@@ -8,6 +8,10 @@ public class FunctionClause extends IriLD {
   private List<Argument> argument;
 
 
+  public FunctionClause setIri(String iri) {
+    super.setIri(iri);
+    return this;
+  }
 
 
   public FunctionClause setName(String name) {

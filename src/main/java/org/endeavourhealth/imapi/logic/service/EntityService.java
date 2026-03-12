@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
@@ -9,6 +12,9 @@ import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.imq.DisplayMode;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
@@ -29,6 +35,7 @@ public class EntityService {
   public static final int MAX_CHILDREN = 200;
   private final EntityRepository entityRepository;
   private final EntityValidator validator = new EntityValidator();
+  private final ObjectMapper mapper = new ObjectMapper();
 
   public EntityService() {
     entityRepository = new EntityRepository();
@@ -63,14 +70,27 @@ public class EntityService {
     }
   }
 
+  public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException {
+    Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));
+  }
+
   public TTBundle getBundle(String iri, Set<String> predicates) {
     return entityRepository.getBundle(iri, predicates);
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) {
+  public TTEntity getPartialEntity(String iri, Set<String> predicates) {
+    TTBundle bundle = getBundle(iri, predicates);
+    if (bundle == null) return null;
+    return bundle.getEntity();
+  }
+
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
+    if (bundle.getPredicates().containsKey(IM.DEFINITION.toString())) convertRuleToLogicalJson(bundle);
     return bundle;
   }
 
@@ -436,7 +456,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) {
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
@@ -514,12 +534,23 @@ public class EntityService {
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS));
     filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
+    filterOptions.setTypeSchemes(getAllTypeSchemes());
+    filterOptions.setSchemes(getDefaultSchemes(filterOptions));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS));
     filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS));
     return filterOptions;
+  }
+
+  private List<TTIriRef> getDefaultSchemes( FilterOptionsDto filterOptions) {
+    List<TTIriRef> schemes = new ArrayList<>();
+    filterOptions.getTypes().forEach(type -> {for (TTIriRef iri:filterOptions.getTypeSchemes().get(type.getIri())) if (!schemes.contains(iri)) schemes.add(iri);});
+    return schemes;
+  }
+
+  private Map<String, List<TTIriRef>> getAllTypeSchemes() {
+    return entityRepository.getTypeSchemeDefaults();
   }
 
   private List<TTIriRef> getAllChildren(IM iri) {
@@ -530,7 +561,7 @@ public class EntityService {
     return entityRepository.getAllowableChildTypes(iri);
   }
 
-  public boolean checkEntityExists(String iri) {
+  public boolean entityExists(String iri) {
     return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
   }
 
@@ -539,7 +570,11 @@ public class EntityService {
   }
 
   public List<TTBundle> getEntityFromTerm(String term, Set<String> schemes) {
-    return entityRepository.getEntityFromTerm(term,schemes);
+    return entityRepository.getEntityFromTerm(term, schemes);
+  }
+
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
+    return entityRepository.getIriDetails(iris);
   }
 }
 

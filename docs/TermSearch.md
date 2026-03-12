@@ -20,14 +20,16 @@ POST API ...../api/entity/public/search
 
 Post body containing search request json e.g.
 
-`{
-"termFilter":"substance",
-"statusFilter":["http://endhealth.info/im#Active"],
-"isA":["http://snomed.info/sct#105590001"],
-"size":20,
-"page" : 1,
-"select":["iri","code",name"]
-}`
+```
+{
+  "termFilter":"substance",
+  "statusFilter":["http://endhealth.info/im#Active"],
+  "isA":["http://snomed.info/sct#105590001"],
+  "size":20,
+  "page" : 1,
+  "select":["iri","code",name"]
+}
+```
 
 In the above example the client is looking for matches of the term substance that are subclasses of the concept
 substance, and return iri, code and name
@@ -37,7 +39,7 @@ substance, and return iri, code and name
 (n.b. prefix im: = http://endhealth.info/im#)
 
 | Parameter    | meaning                                                                                     |
---------------|---------------------------------------------------------------------------------------------| 
+|--------------|---------------------------------------------------------------------------------------------| 
 | termFilter   | the word, code, iri, phrase, partial phrase to search on                                    |
 | statusFilter | whether active, inactive, draft, unassigned. Without this all statuses will be returned     |
 | typeFilter   | the high level types of entity e.g. im:Concept im:ConceptSet im:Query im:DataModelEntity    |

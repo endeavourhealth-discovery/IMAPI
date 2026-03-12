@@ -1,51 +1,92 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@Getter
-@Setter
-@AllArgsConstructor
+
+@NoArgsConstructor
 public class TableMap {
-  private HashMap<String, Table> properties;
-  private HashMap<String, Table> dataModels;
-  private HashMap<String, String> functions;
+  private List<MappingProperty> properties;
 
-  public TableMap() {
+  public Map<String, Table> getTables() {
+    return tables;
   }
 
-  public Table getTable(String iri) throws SQLConversionException {
-    if (null == iri) throw new SQLConversionException("iri is null");
-    Table propTable = properties.get(iri);
-    if (propTable != null) {
-      String dataModel = propTable.getDataModel();
-      Table dmTable = dataModels.get(dataModel);
-      if (dmTable == null) {
-        throw new SQLConversionException("No table for Data model: " + dataModel + " not found.");
-      }
-      Table returnTable = new Table();
-      returnTable.setDataModel(dataModel);
-      returnTable.setTable(propTable.getTable() != null ? propTable.getTable() : dmTable.getTable());
-      returnTable.setCondition(propTable.getCondition() != null ? propTable.getCondition() : dmTable.getCondition());
-      returnTable.setFields(dmTable.getFields());
-      returnTable.setRelationships(dmTable.getRelationships());
-      returnTable.setPrimaryKey(dmTable.getPrimaryKey());
-      return returnTable;
+  public Map<String, String> getFunctions() {
+    return functions;
+  }
+
+  public List<MappingProperty> getProperties() {
+    return properties;
+  }
+
+  public void setTables(Map<String, Table> tables) {
+    this.tables = tables;
+  }
+
+  public void setFunctions(Map<String, String> functions) {
+    this.functions = functions;
+  }
+
+  public void setPropertiesMap(Map<List<String>, PropertyMapItem> propertiesMap) {
+    this.propertiesMap = propertiesMap;
+  }
+
+  private Map<String, Table> tables;
+  private Map<String, String> functions;
+  private Map<List<String>, PropertyMapItem> propertiesMap;
+
+  public Map<List<String>, PropertyMapItem> getPropertiesMap() {
+    if (propertiesMap == null) buildPropertiesMap();
+    return propertiesMap;
+  }
+
+  private void buildPropertiesMap() {
+    if (properties == null) return;
+    propertiesMap = new HashMap<>();
+    for (MappingProperty p : properties) {
+      if (p.getCondition() != null)
+        propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), new Condition(p.getCondition().getField(), p.getCondition().getValue())));
+      else propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), null));
     }
-    Table returnTable = dataModels.get(iri);
-    if (returnTable == null) {
+  }
+
+  public void setProperties(List<MappingProperty> properties) {
+    this.properties = properties;
+    buildPropertiesMap();
+  }
+
+  public Table getTableFromDataModel(String iri) throws SQLConversionException {
+    if (null == iri) throw new SQLConversionException("iri is null");
+    Table dmTable = tables.get(iri);
+    if (dmTable == null) {
       throw new SQLConversionException("No table for Data model: " + iri + " not found.");
     }
-    if (null == returnTable.getDataModel())
-      returnTable.setDataModel(iri);
+    Table returnTable = new Table();
+    returnTable.setDataModel(iri);
+    returnTable.setTable(dmTable.getTable());
+    returnTable.setCondition(dmTable.getCondition());
+    returnTable.setFields(dmTable.getFields());
+    returnTable.setRelationships(dmTable.getRelationships());
+    returnTable.setPrimaryKey(dmTable.getPrimaryKey());
     return returnTable;
   }
 
+  public Table getTableFromProperty(List<String> iris) throws SQLConversionException {
+    if (null == iris || iris.isEmpty()) throw new SQLConversionException("iri is null");
+    PropertyMapItem pmi = propertiesMap.get(iris);
+    if (null == pmi) return null;
+    Table table = getTableFromDataModel(pmi.getDataModel());
+    table.setCondition(pmi.getCondition());
+    return table;
+  }
+
   public void putTable(String iri, Table table) {
-    dataModels.put(iri, table);
+    tables.put(iri, table);
   }
 }

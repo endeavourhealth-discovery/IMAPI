@@ -87,13 +87,18 @@ class MySQLCompareWhere(
       val prop = if (table != null) "`${table}`.$property" else property
       val base =
         if (units != null) {
-          "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+          when (units) {
+            "DAYS", "MONTHS", "YEARS" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            else -> throw Exception("Unsupported unit $units")
+          }
         } else if (qualifier != null) {
           when (qualifier) {
             "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"
-            else -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) - (YEAR(DATE_SUB($right, INTERVAL 3 MONTH)) + 1) $operator $value"
+            "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            else -> "$prop - $right $operator $value"
           }
-        } else return ""
+        } else throw Exception("No units or qualifier provided")
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -115,6 +120,7 @@ class MySQLPropertyValueWhere(
       val base = if (qualifier != null) {
         when (qualifier) {
           "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value))"
+          "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) $operator (YEAR(DATE_SUB($value, INTERVAL 3 MONTH)) + 1)"
           else -> "$qualifier($prop) $operator $qualifier($value)"
         }
       } else return "$prop $operator $value"

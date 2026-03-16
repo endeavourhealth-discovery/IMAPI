@@ -1047,13 +1047,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
 
         if (path.path != null) {
-          addPathTableAndJoins(path.path, tableMap, with, table)
+          addPathTableAndJoins(path.path, tableMap, with, table, addJoins)
         }
 
       } catch (exception: SQLConversionException) {
         tableMap[path.node] = parentTable
         if (path.path != null) {
-          addPathTableAndJoins(path.path, tableMap, with, parentTable)
+          addPathTableAndJoins(path.path, tableMap, with, parentTable, addJoins)
         }
       }
     }

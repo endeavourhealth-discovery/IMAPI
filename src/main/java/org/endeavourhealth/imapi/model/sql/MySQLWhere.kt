@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql
 
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Node
 
 interface MySQLWhere {
@@ -88,8 +89,8 @@ class MySQLCompareWhere(
       val base =
         if (units != null) {
           when (units) {
-            "DAYS", "MONTHS", "YEARS" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
-            else -> throw Exception("Unsupported unit $units")
+            "DAY", "MONTH", "YEAR" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            else -> throw SQLConversionException("Unsupported unit $units")
           }
         } else if (qualifier != null) {
           when (qualifier) {
@@ -98,7 +99,7 @@ class MySQLCompareWhere(
             "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
             else -> "$prop - $right $operator $value"
           }
-        } else throw Exception("No units or qualifier provided")
+        } else throw SQLConversionException("No units or qualifier provided")
       return if (not == true) "NOT ($base)" else base
     }
 }

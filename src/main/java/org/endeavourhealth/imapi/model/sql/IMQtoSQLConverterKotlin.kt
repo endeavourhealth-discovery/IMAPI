@@ -84,7 +84,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
           queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
         else lastCTE.table.foreignKeyTo(queryTypeOfTable)
-        mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
+        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
         mySqlQuery.create = MySQLCreate(definition.iri)
       }
       return mySqlQuery.toSql()
@@ -359,7 +359,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table.table}"
       )
     }
-    val partitionByField = "${with.table.alias}.$fk"
+    val partitionByField = "${with.table.alias ?: with.table.table}.$fk"
     with.selects.add(
       MySQLSelect(
         "ROW_NUMBER() OVER(PARTITION BY $partitionByField ${
@@ -391,7 +391,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
     val innerQueryJoin = MySQLJoin(
       join = "JOIN",
-      tableFrom = with.table.alias ?: with.alias,
+      tableFrom = with.table.alias ?: with.table.table,
       tableTo = mySQLQuery.withs.last().alias,
       tableToAlias = mySQLQuery.withs.last().alias,
       fromProperty = fk,

@@ -120,7 +120,8 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*",
     "org.endeavourhealth.imapi.model.Namespace",
-    "org.endeavourhealth.imapi.vocabulary.*"
+    "org.endeavourhealth.imapi.vocabulary.*",
+    "org.endeavourhealth.imapi.model.sql.SubQueryDependency"
   )
   outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module

@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql
 
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Node
 
 interface MySQLWhere {
@@ -87,13 +88,18 @@ class MySQLCompareWhere(
       val prop = if (table != null) "`${table}`.$property" else property
       val base =
         if (units != null) {
-          "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+          when (units) {
+            "DAY", "MONTH", "YEAR" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            else -> throw SQLConversionException("Unsupported unit $units")
+          }
         } else if (qualifier != null) {
           when (qualifier) {
             "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"
-            else -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) - (YEAR(DATE_SUB($right, INTERVAL 3 MONTH)) + 1) $operator $value"
+            "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            else -> "$prop - $right $operator $value"
           }
-        } else return ""
+        } else throw SQLConversionException("No units or qualifier provided")
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -115,6 +121,7 @@ class MySQLPropertyValueWhere(
       val base = if (qualifier != null) {
         when (qualifier) {
           "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value))"
+          "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) $operator (YEAR(DATE_SUB($value, INTERVAL 3 MONTH)) + 1)"
           else -> "$qualifier($prop) $operator $qualifier($value)"
         }
       } else return "$prop $operator $value"

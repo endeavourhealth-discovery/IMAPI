@@ -283,6 +283,10 @@
         "http://endhealth.info/im#fullName": {
           "field": "last_name",
           "type": "string"
+        },
+        "http://endhealth.info/im#patient": {
+          "field": "id",
+          "type": "string"
         }
       }
     },
@@ -343,7 +347,8 @@
         "http://endhealth.info/im#ageAtEvent": {"field": "age_at_event", "type": "number"},
         "http://endhealth.info/im#problemEpisode": {"field": "episodicity_concept_id", "type": "iri"},
         "http://endhealth.info/im#text": {"field": "result_text", "type": "string"},
-        "http://endhealth.info/im#units": {"field": "result_value_units", "type": "string"}
+        "http://endhealth.info/im#units": {"field": "result_value_units", "type": "string"},
+        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
@@ -426,8 +431,7 @@
       "table": "episode_of_care",
       "fields": {
         "http://endhealth.info/im#concept": {"field": "concept", "type": "iri"},
-        "http://endhealth.info/im#gmsPatientType": {"field": "registration_type_concept_id", "type": "iri"},
-        "http://endhealth.info/im#gpPatientType": {"field": "gpPatientType", "type": "iri"},
+        "http://endhealth.info/im#gpPatientType": {"field": "registration_type_concept_id", "type": "iri"},
         "http://endhealth.info/im#effectiveDate": {"field": "date_registered", "type": "date"},
         "http://endhealth.info/im#endDate": {"field": "date_registered_end", "type": "date"}
       },
@@ -461,7 +465,6 @@
     }
   ],
   "functions": {
-    "http://endhealth.info/im#age": "TIMESTAMPDIFF({units}, date_of_birth, {relativeTo})",
     "http://endhealth.info/im#TimeDifference": "TIMESTAMPDIFF({units}, {firstDateTime}, {relativeTo})",
     "http://endhealth.info/im#Count": "COUNT(*) AS count",
     "http://endhealth.info/im#Average": "AVG({propertyName}) AS average_{propertyName}",

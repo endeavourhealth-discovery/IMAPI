@@ -191,8 +191,8 @@ public class IriCollector {
   }
 
   private static void collectValueSourceIris(ValueSource source,Set<String> iriSet) {
-    if (source.getPath()!=null){
-      collectPathIris(source.getPath(), iriSet);
+    if (source.getIri()!=null){
+      iriSet.add(source.getIri());
     }
 
   }

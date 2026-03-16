@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"notExists","ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements HasPaths {
+public class Match extends IriLD implements HasPaths,Returnable {
   private Node graph;
   private Where where;
   private String description;
@@ -41,8 +41,17 @@ public class Match extends IriLD implements HasPaths {
   private String asDescription;
   private List<Match> union;
   private boolean notExists;
-  private String relationMessage;
+  private boolean linkedTarget;
   private String errorMessage;
+
+  public boolean isLinkedTarget() {
+    return linkedTarget;
+  }
+
+  public Match setLinkedTarget(boolean linkedTarget) {
+    this.linkedTarget = linkedTarget;
+    return this;
+  }
 
   public String getErrorMessage() {
     return errorMessage;
@@ -53,14 +62,6 @@ public class Match extends IriLD implements HasPaths {
     return this;
   }
 
-  public String getRelationMessage() {
-    return relationMessage;
-  }
-
-  public Match setRelationMessage(String relationMessage) {
-    this.relationMessage = relationMessage;
-    return this;
-  }
 
   public boolean isNotExists() {
     return notExists;

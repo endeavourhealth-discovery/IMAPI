@@ -26,6 +26,10 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
+  public Path setNodeRef(String nodeRef) {
+    super.setNodeRef(nodeRef);
+    return this;
+  }
 
   public Path setPathVariable(String variable) {
     this.pathVariable = variable;

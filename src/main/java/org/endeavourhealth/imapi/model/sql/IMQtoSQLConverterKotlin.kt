@@ -80,7 +80,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        val (fk, pk) = mySqlQuery.withs.last { !it.exclude }.table.foreignKeyTo(queryTypeOfTable)
+        val lastCTE = mySqlQuery.withs.last { !it.exclude }
+        val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
+          queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
+        else lastCTE.table.foreignKeyTo(queryTypeOfTable)
         mySqlQuery.selects.add(MySQLSelect("${mySqlQuery.withs.last { !it.exclude }.alias}.$fk", "cohort_id"))
         mySqlQuery.create = MySQLCreate(definition.iri)
       }
@@ -323,7 +326,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (toWith.exclude) {
         MySQLJoin(
           join = "LEFT JOIN",
-          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableFrom = fromWith.table.alias ?: fromWith.table.table,
           tableTo = toWith.table.table,
           tableToAlias = toWith.alias,
           fromProperty = fk,
@@ -335,7 +338,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       } else {
         MySQLJoin(
           join = "JOIN",
-          tableFrom = fromWith.alias.ifBlank { fromWith.table.table },
+          tableFrom = fromWith.table.alias ?: fromWith.table.table,
           tableTo = toWith.table.table,
           tableToAlias = toWith.alias,
           fromProperty = fk,
@@ -405,11 +408,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
       rnWith.joins.add(notExistJoinCondition)
       val or = mutableListOf<MySQLWhere>()
-      or.add(MySQLPropertyValueWhere("sq.rn", "!=", match.orderBy.limit.toString()))
-      or.add(MySQLPropertyValueWhere("sq.$fk", "IS", "NULL"))
+      or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
+      or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
       rnWith.wheres?.add(MySQLBoolWhere(or = or))
     } else {
-      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString()))
+      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
     }
     return rnWith
   }
@@ -429,7 +432,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {
-    var alias = if (match.name != null) sanitiseAlias(match.name)
+    val alias = if (match.name != null) sanitiseAlias(match.name)
     else if (match.node != null) sanitiseAlias(match.node)
     else if (mySQLQuery.nodeToTableMap.keys.isNotEmpty()) "cte_${mySQLQuery.nodeToTableMap.keys.size}"
     else "cte_1"
@@ -460,8 +463,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     currentWithAlias: String,
     nodeToTableMap: HashMap<String, Table>,
   ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
-    val defaultSelect = getDefaultSelect(table)
-    val selects = mutableListOf(defaultSelect)
+    val selects = mutableListOf<MySQLSelect>()
     val joins = mutableListOf<MySQLJoin>()
     var ynWith: MySQLWith? = null
     for (ret in returx) {
@@ -713,23 +715,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>,
     with: MySQLWith
   ): MySQLWhere {
-    val currentTable =
-      if (where.nodeRef != null) variableToTableMap[where.nodeRef] else with.table
-    if (currentTable == null) throw SQLConversionException("No table found: ${where.nodeRef}")
-    val rawField = IMtoMySQLMap.functions[where.qualifier.iri] ?: getPropertyNameByTableAndPropertyIri(
-      currentTable,
-      where.iri
-    ).field ?: throw SQLConversionException("No field found for property ${where.iri}")
-    val field =
-      if (with.fromAlias != null && where.nodeRef == null && !rawField.contains(".") && !rawField.contains("(")) {
-        "${with.fromAlias}.$rawField"
-      } else {
-        rawField
-      }
-    val args = getFunctionArgumentMap(currentTable, where)
+    val (currentTable, field) = getTableAndField(with, where, variableToTableMap)
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
-        if (with.joins.contains(join) == false)
+        if (!with.joins.contains(join))
           with.joins.add(join)
       }
       MySQLPropertyIsWhere(
@@ -737,8 +726,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.`is`,
         "=",
         not = where.isNot,
-        args = args,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.range != null) {
       MySQLPropertyRangeWhere(
@@ -748,41 +736,89 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.range.to.value,
         where.range.to.operator.value,
         not = where.isNot,
-        args = args,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
-        args = args,
         not = where.isNot,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
+      )
+    } else if (where.compare != null) {
+      val (name, type) =
+        if (where.compare.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
+        else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
+        else null to null
+      val compareValue = where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
+      ?: throw SQLConversionException("No value provided for where $where")
+      if (where.value != null)
+        MySQLCompareWhere(
+          property = field,
+          operator = where.operator.value,
+          right = compareValue,
+          value = where.value,
+          if (type == "Unit") name else null,
+          if (type == "Qualifier") name else null,
+          not = where.isNot,
+          table = currentTable.alias ?: currentTable.table,
+        ) else MySQLPropertyValueWhere(
+        property = field,
+        operator = where.operator.value,
+        value = compareValue,
+        not = where.isNot,
+        table = currentTable.alias ?: currentTable.table,
       )
     } else {
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
-        where.value ?: where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
-        ?: throw SQLConversionException("No value provided for where $where"),
+        where.value,
         not = where.isNot,
-        args = args,
-        table = currentTable
+        table = currentTable.alias ?: currentTable.table,
       )
     }
     return where
   }
 
+  private fun getTableAndField(
+    with: MySQLWith,
+    where: Where,
+    variableToTableMap: HashMap<String, Table>
+  ): Pair<Table, String> {
+    val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
+    val whereIri = where.compare?.left?.iri ?: where.iri
+    if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
+    val currentTable =
+      if (nodeRef != null) variableToTableMap[nodeRef] else with.table
+    if (currentTable == null) throw SQLConversionException("No table found: $nodeRef")
+    val rawField = getPropertyNameByTableAndPropertyIri(
+      currentTable,
+      whereIri
+    ).field ?: throw SQLConversionException("No field found for property $whereIri")
+    val field =
+      if (with.fromAlias != null && nodeRef == null && !rawField.contains(".") && !rawField.contains("(")) {
+        "${with.fromAlias}.$rawField"
+      } else {
+        rawField
+      }
+    return currentTable to field
+  }
+
   private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String? {
     val nodeRef =
-      where.compare.right?.nodeRef ?: throw SQLConversionException("No property found for relativeTo ${where.compare.right}")
+      where.compare.right?.nodeRef
+        ?: throw SQLConversionException("No property found for relativeTo ${where.compare.right}")
     var property = ""
     val nodeRefTable = nodeToTableMap[nodeRef]
     if (nodeRefTable != null) {
-      property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.compare.right.path.iri).field
+      property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.compare.right.iri).field
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
         property =
-          getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), where.compare.right.path.iri).field
+          getPropertyNameByTableAndPropertyIri(
+            getTableFromTypeAndProperty(it, null),
+            where.compare.right.iri
+          ).field
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo ${where.compare.right.nodeRef}")
@@ -814,48 +850,19 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return joins
   }
 
-  private fun getFunctionArgumentMap(table: Table, where: Where): HashMap<String, String> {
-    val argMap = HashMap<String, String>()
-//    if (where.function?.argument != null) {
-//      for (argument in where.function.argument) {
-//        val valueToReplace = argument.parameter
-//        var valueToReplaceWith =
-//          if (table.alias != null && !getArgValue(
-//              table,
-//              argument
-//            ).contains("$") && argument.parameter != "units"
-//          ) "${table.alias}.${getArgValue(table, argument)}" else getArgValue(table, argument)
-//        if (argument.parameter == "units") valueToReplaceWith = getUnitName(valueToReplaceWith)
-//        argMap[valueToReplace] = valueToReplaceWith
-//      }
-//      if (!argMap.containsKey("relativeTo")) {
-//        argMap["relativeTo"] = $$"$searchDate"
-//      }
-//    }
-    return argMap
-  }
-
-  private fun getArgValue(table: Table, argument: Argument): String {
-    return if (argument.valuePath != null) {
-      getPropertyNameByTableAndPropertyIri(table, argument.valuePath.iri).field
-    } else if (argument.valueParameter != null) {
-      argument.valueParameter
-    } else if (argument.valueIri != null) {
-      argument.valueIri.iri
-    } else {
-      throw SQLConversionException("No value provided for argument $argument")
-    }
-  }
-
-  private fun getUnitName(iri: String): String {
+  private fun getUnitNameAndType(iri: String): Pair<String, String> {
     return when (IM.from(iri)) {
-      IM.YEARS -> "YEAR"
-      IM.MONTHS, IM.MONTH -> "MONTH"
-      IM.DAYS -> "DAY"
-      IM.HOURS -> "HOUR"
-      IM.MINUTES -> "MINUTE"
-      IM.SECONDS -> "SECOND"
-      IM.FISCAL_YEAR -> "FISCAL_YEAR"
+      IM.YEARS -> "YEAR" to "Unit"
+      IM.YEAR -> "YEAR" to "Qualifier"
+      IM.MONTHS -> "MONTH" to "Unit"
+      IM.MONTH -> "MONTH" to "Qualifier"
+      IM.DAYS -> "DAY" to "Unit"
+      IM.DAY -> "DAY" to "Qualifier"
+      IM.HOURS -> "HOUR" to "Unit"
+      IM.MINUTES -> "MINUTE" to "Unit"
+      IM.SECONDS -> "SECOND" to "Unit"
+      IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
+      IM.QUARTER -> "QUARTER" to "Qualifier"
       else -> throw SQLConversionException("No unit name found for $iri")
     }
   }

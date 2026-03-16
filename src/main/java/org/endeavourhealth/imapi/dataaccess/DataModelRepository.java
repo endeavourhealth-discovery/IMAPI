@@ -232,6 +232,9 @@ public class DataModelRepository {
     if (bs.getValue("propertyDefinition") != null) {
       property.setDefinition(bs.getValue("propertyDefinition").stringValue());
     }
+    if (bs.getValue("highCardinality") != null) {
+      property.setHighCardinality(true);
+    }
   }
 
   private void getPropertyDataType(BindingSet bs, PropertyShape property) {
@@ -326,6 +329,7 @@ public class DataModelRepository {
   private String getPropertySql(String iri) {
     return """
       Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
+      ?highCardinality
       ?class ?className ?classType ?classTypeName
       ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
       ?pattern ?intervalUnit ?intervalUnitName
@@ -344,6 +348,9 @@ public class DataModelRepository {
           ?property sh:group ?group.
           ?group rdfs:label ?groupName.
           optional {?group sh:order ?groupOrder}
+        }
+        optional {
+          ?property im:highCardinality ?highCardinality.
         }
         optional {?property sh:order ?order.}
         optional {

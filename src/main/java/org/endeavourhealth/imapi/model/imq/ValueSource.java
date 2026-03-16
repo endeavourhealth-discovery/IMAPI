@@ -9,10 +9,27 @@ import java.util.List;
 
 public class ValueSource {
   private String parameter;
+  private String iri;
   private String name;
-  private Path path;
   private String nodeRef;
 
+  public String getIri() {
+    return iri;
+  }
+
+  public ValueSource setIri(String iri) {
+    this.iri = iri;
+    return this;
+  }
+
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public ValueSource setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
+  }
 
   public String getName() {
     return name;
@@ -35,21 +52,5 @@ public class ValueSource {
   }
 
 
-  public Path getPath() {
-    return path;
-  }
 
-  public ValueSource setPath(Path path) {
-    this.path = path;
-    return this;
-  }
-
-  public String getNodeRef() {
-    return nodeRef;
-  }
-
-  public ValueSource setNodeRef(String nodeRef) {
-    this.nodeRef = nodeRef;
-    return this;
-  }
 }

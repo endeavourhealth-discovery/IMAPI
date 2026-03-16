@@ -55,11 +55,15 @@ public class LogicOptimizer {
   public static boolean isLinkedWhere(Where where) {
 
     if (where.getCompare() != null) {
-      if (where.getCompare().getLeft().getNodeRef() != null) {
-        return true;
+      if (where.getCompare().getLeft() != null) {
+        if (where.getCompare().getLeft().getNodeRef() != null) {
+          return true;
+        }
       }
-      if (where.getCompare().getRight().getNodeRef() != null) {
-        return true;
+      if (where.getCompare().getRight() != null) {
+        if (where.getCompare().getRight().getNodeRef() != null) {
+          return true;
+        }
       }
     }
     if (where.getAnd() != null) {

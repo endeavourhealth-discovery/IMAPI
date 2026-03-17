@@ -189,7 +189,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     bool: Bool,
   ) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, mySqlQuery, bool, false, definition.step)
+      addMatchWithsRecursively(m, definition, mySqlQuery, bool)
     }
   }
 
@@ -198,23 +198,21 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     parentMatch: Match,
     mySqlQuery: MySQLQuery,
     bool: Bool,
-    isStep: Boolean = false,
-    steps: MutableList<Match>? = null
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, isStep, currentMatch.step)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or, isStep, currentMatch.step)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
       }
     }
 
     if (currentMatch.step != null) {
       for (m in currentMatch.step) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and, isStep, currentMatch.step)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
       }
     }
 
@@ -225,7 +223,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null && currentMatch.union == null) {
       if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, currentMatch.notExists())
-      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery, isStep))
+      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }
 
@@ -247,7 +245,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
       branchQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
 
-      addMatchWithsRecursively(unionMatch, currentMatch, branchQuery, Bool.and, false)
+      addMatchWithsRecursively(unionMatch, currentMatch, branchQuery, Bool.and)
 
       val newWiths = if (baseWith != null) branchQuery.withs.drop(1) else branchQuery.withs
       if (newWiths.isEmpty()) continue
@@ -288,7 +286,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
 
-  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery, isStep: Boolean): MySQLWith {
+  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     var with = MySQLWith()
     with.table = if (match.nodeRef != null)
       mySQLQuery.nodeToTableMap[match.nodeRef]

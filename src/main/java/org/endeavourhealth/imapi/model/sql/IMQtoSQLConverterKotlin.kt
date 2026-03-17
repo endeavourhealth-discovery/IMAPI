@@ -152,13 +152,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
     val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
     cohortTable.table = "`${isA.iri}`"
-    return MySQLWith(
+    val isAWith = MySQLWith(
       table = cohortTable,
       alias = isAlias,
       selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
       joins = withJoins.ifEmpty { mutableListOf() },
       exclude = isExclude
     )
+
+    if (isA.resultSet) {
+//      TODO: this is placeholder returns
+      val returns = mutableListOf<Return>()
+      for (ret in returns) {
+        if (ret.`as` != null)
+          isAWith.selects.add(
+            MySQLSelect(ret.`as`)
+          )
+        else throw SQLConversionException("Unsupported return $ret")
+      }
+    }
+    return isAWith
   }
 
   private fun getCteAliasFromTypeAndProperty(typeIri: String?, propertyIri: String?): String {

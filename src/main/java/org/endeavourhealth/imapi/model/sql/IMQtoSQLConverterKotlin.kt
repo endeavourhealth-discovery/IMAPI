@@ -48,7 +48,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     ) throw SQLConversionException("Query typeOf is null")
 
     if (definition.`is` != null) {
-      (addIsWiths(definition, mySqlQuery))
+      mySqlQuery.withs.addAll(getIsWiths(definition, mySqlQuery))
     }
 
     if (definition.and != null) {
@@ -67,7 +67,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       for (columnGroup in definition.columnGroup) {
         val newMySqlQuery = MySQLQuery()
         mySQLQueries.add(newMySqlQuery)
-        if (definition.`is` != null) addIsWiths(definition, newMySqlQuery)
+        if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
           newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
@@ -125,53 +125,37 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return jsonObject
   }
 
-  private fun addIsWiths(match: Match, mySQLQuery: MySQLQuery, not: Boolean? = null) {
+  private fun getIsWiths(match: Match, mySqlQuery: MySQLQuery): MutableList<MySQLWith> {
+    val isAWiths = mutableListOf<MySQLWith>()
     for (isA in match.`is`) {
-      val isAlias =
-        if (match.node != null) "`${match.node}_cte`" else "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
-      val with = getIsWith(isA, isAlias, mySQLQuery, isA.isExclude)
-      mySQLQuery.withs.add(with)
-    }
-  }
-
-  private fun getIsWith(isA: Node, isAlias: String, mySqlQuery: MySQLQuery, isExclude: Boolean): MySQLWith {
-    val withJoins = mutableListOf<MySQLJoin>()
-    if (mySqlQuery.withs.isNotEmpty()) {
-      withJoins.add(
-        MySQLJoin(
-          "JOIN",
-          tableFrom = "`${isA.iri}`",
-          tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
-          fromProperty = "cohort_id",
-          toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
-          wheres = if (isExclude) mutableListOf(
-            MySQLPropertyValueWhere("cohort_id", "IS", "NULL", null, null)
-          ) else mutableListOf()
-        )
-      )
-    }
-    val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
-    cohortTable.table = "`${isA.iri}`"
-    val isAWith = MySQLWith(
-      table = cohortTable,
-      alias = isAlias,
-      selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
-      joins = withJoins.ifEmpty { mutableListOf() },
-      exclude = isExclude
-    )
-
-    if (isA.resultSet) {
-//      TODO: this is placeholder returns
-      val returns = mutableListOf<Return>()
-      for (ret in returns) {
-        if (ret.`as` != null)
-          isAWith.selects.add(
-            MySQLSelect(ret.`as`)
+      val isAlias = "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
+      val withJoins = mutableListOf<MySQLJoin>()
+      if (mySqlQuery.withs.isNotEmpty()) {
+        withJoins.add(
+          MySQLJoin(
+            "JOIN",
+            tableFrom = "`${isA.iri}`",
+            tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
+            fromProperty = "cohort_id",
+            toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
+            wheres = if (isA.isExclude) mutableListOf(
+              MySQLPropertyValueWhere("cohort_id", "IS", "NULL", null, null)
+            ) else mutableListOf()
           )
-        else throw SQLConversionException("Unsupported return $ret")
+        )
       }
+      val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
+      cohortTable.table = "`${isA.iri}`"
+      val isAWith = MySQLWith(
+        table = cohortTable,
+        alias = isAlias,
+        selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
+        joins = withJoins.ifEmpty { mutableListOf() },
+        exclude = isA.isExclude
+      )
+      isAWiths.add(isAWith)
     }
-    return isAWith
+    return isAWiths
   }
 
   private fun getCteAliasFromTypeAndProperty(typeIri: String?, propertyIri: String?): String {
@@ -222,7 +206,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null && currentMatch.union == null) {
-      if (currentMatch.`is` != null) addIsWiths(currentMatch, mySqlQuery, currentMatch.notExists())
+      if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }

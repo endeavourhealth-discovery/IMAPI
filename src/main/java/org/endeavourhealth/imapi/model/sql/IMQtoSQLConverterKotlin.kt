@@ -200,72 +200,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
-    if (currentMatch.union != null) {
-      addUnionWiths(currentMatch, mySqlQuery)
-      return
-    }
-
-    if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null && currentMatch.union == null) {
+    if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null) {
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
-    }
-  }
-
-  private fun addUnionWiths(
-    currentMatch: Match,
-    mySqlQuery: MySQLQuery
-  ) {
-    val unionMatches = currentMatch.union ?: return
-    if (unionMatches.isEmpty()) return
-
-    val baseWith = mySqlQuery.withs.lastOrNull()
-    val unionWiths = mutableListOf<MySQLWith>()
-
-    for (unionMatch in unionMatches) {
-      val branchQuery = MySQLQuery(
-        withs = if (baseWith != null) mutableListOf(baseWith) else mutableListOf(),
-        selects = mutableListOf(),
-        joins = mutableListOf()
-      )
-      branchQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
-
-      addMatchWithsRecursively(unionMatch, currentMatch, branchQuery, Bool.and)
-
-      val newWiths = if (baseWith != null) branchQuery.withs.drop(1) else branchQuery.withs
-      if (newWiths.isEmpty()) continue
-
-      mySqlQuery.withs.addAll(newWiths)
-      unionWiths.add(newWiths.last())
-      mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
-    }
-
-    if (unionWiths.isEmpty()) return
-
-    val baseAlias = currentMatch.name?.replace(" ", "")?.replace(".", "")
-      ?: currentMatch.node
-      ?: getCteAliasFromTypeAndProperty(
-        queryTypeOf,
-        currentMatch.where?.iri
-          ?: currentMatch.where?.and?.firstOrNull()?.iri
-          ?: currentMatch.where?.or?.firstOrNull()?.iri
-      )
-    val alias = ensureUniqueAlias(baseAlias, mySqlQuery)
-    val orderByTable = unionWiths.first().table
-    val unionWith = MySQLWith(
-      table = orderByTable,
-      alias = alias,
-      selects = mutableListOf(),
-      joins = mutableListOf(),
-      wheres = mutableListOf(),
-      whereBool = Bool.and,
-      unionWiths = unionWiths
-    )
-    if (currentMatch.orderBy != null) {
-      unionWith.orderBy = getMySQLOrderBy(orderByTable, currentMatch.orderBy, mySqlQuery.nodeToTableMap)
-    }
-    mySqlQuery.withs.add(unionWith)
-    if (currentMatch.node != null) {
-      mySqlQuery.nodeToTableMap[currentMatch.node] = orderByTable
     }
   }
 
@@ -299,6 +236,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (match.orderBy == null && mySQLQuery.withs.isNotEmpty()) {
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
+    }
+
+    if (match.union != null) for (unionMatch in match.union) {
+      with.unionWiths.add(getMySQLWithFromMatch(unionMatch, mySQLQuery))
     }
 
     return with;

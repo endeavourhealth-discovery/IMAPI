@@ -12,7 +12,7 @@ data class MySQLWith(
   val exclude: Boolean = false,
   var orderBy: MySQLOrderBy? = null,
   val fromAlias: String? = null,
-  val unionWiths: MutableList<MySQLWith>? = null,
+  val unionWiths: MutableList<MySQLWith> = mutableListOf(),
   val unionAll: Boolean = false,
   var subQuery: MySQLWith? = null,
   var isStep: Boolean = false

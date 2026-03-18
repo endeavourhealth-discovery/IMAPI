@@ -109,4 +109,6 @@ spring-test-security = { module = "org.springframework.security:spring-security-
 [plugins]
 typescript-generator = { id = "cz.habarta.typescript-generator", version = "3.2.1263" }
 static-const-generator = { id = "org.endeavourhealth.plugins.StaticConstGenerator", version = "1.4-SNAPSHOT" }
+typescript-const-enum-to-enum = { id = "org.endeavourhealth.plugins.TypescriptConstEnumToEnum", version = "1.0-SNAPSHOT" }
+extract-enums-from-auto-gen = { id = "org.endeavourhealth.plugins.ExtractEnumsFromAutoGen", version = "1.0-SNAPSHOT" }
 sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

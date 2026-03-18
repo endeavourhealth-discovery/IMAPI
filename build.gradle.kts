@@ -1,8 +1,5 @@
 import cz.habarta.typescript.generator.*
 
-apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
-apply(from = "$rootDir/gradle/extractEnumsFromAutoGen.gradle.kts")
-
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -11,6 +8,8 @@ plugins {
   id("war")
   alias(libs.plugins.typescript.generator)
   alias(libs.plugins.static.const.generator)
+  alias(libs.plugins.typescript.const.enum.to.enum)
+  alias(libs.plugins.extract.enums.from.auto.gen)
   id("java-library")
   id("maven-publish")
   kotlin("jvm")
@@ -137,6 +136,19 @@ tasks {
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
+  }
+}
+
+tasks {
+  typescriptConstEnumToEnum {
+    filePath = "../VueLibrary/src/interfaces/AutoGen.ts"
+  }
+}
+
+tasks {
+  extractEnumsFromAutoGen {
+    inputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
+    outputFile = "../VueLibrary/src/enums/AutoGen.ts"
   }
 }
 

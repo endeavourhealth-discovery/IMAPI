@@ -366,6 +366,7 @@ public class EqdToIMQ {
     if (qry == null) {
       return null;
     } else {
+      flattenRules(qry);
       queryEntity.addType(iri(IM.QUERY));
       if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");
@@ -381,21 +382,33 @@ public class EqdToIMQ {
 
   private void flattenRules(Query qry) {
     if (qry.getRule() != null) {
-      for (Match match : qry.getRule()) {
-        if (match.getAnd() != null) {
-          List<Match> flatMatches = new ArrayList<>();
-          for (Match subMatch : match.getAnd()) {
-            if (subMatch.getAnd() != null) {
-              flatMatches.addAll(subMatch.getAnd());
-            } else {
-              flatMatches.add(subMatch);
-            }
-          }
-
-          match.setAnd(flatMatches);
-        }
+      for (Match rule : qry.getRule()) {
+        flattenMatch(rule);
       }
     }
+  }
 
+  private void flattenMatch(Match match) {
+    if (match.getOr() != null) {
+      for (Match subMatch : match.getOr()) {
+        flattenMatch(subMatch);
+      }
+    }
+    else if (match.getAnd() != null) {
+      List<Match> flatAnds= new ArrayList<>();
+      flattenAnds(match,flatAnds);
+      if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
+    }
+  }
+  private void flattenAnds(Match match,List<Match> flatAnds) {
+    for (Match subMatch : match.getAnd()) {
+      if (subMatch.getAnd() == null){
+        flatAnds.add(subMatch);
+        flattenMatch(subMatch);
+      }
+      else {
+        flattenAnds(subMatch,flatAnds);
+      }
+    }
   }
 }

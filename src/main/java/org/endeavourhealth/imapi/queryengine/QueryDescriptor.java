@@ -33,7 +33,6 @@ public class QueryDescriptor {
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-  private final Map<String,Match> linkTargets= new HashMap<>();
   private DisplayMode displayMode;
 
 
@@ -254,9 +253,6 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere(),match);
     }
-    if (match.getNode()!=null){
-      linkTargets.put(match.getNode(),match);
-    }
   }
 
   private void describePath(Path path) {
@@ -423,11 +419,6 @@ public class QueryDescriptor {
   }
 
   private void describeValueSource(ValueSource source) {
-      String nodeRef= source.getNodeRef();
-      if (nodeRef!=null&&linkTargets.containsKey(nodeRef)){
-        Match match= linkTargets.get(nodeRef);
-        match.setLinkedTarget(true);
-      }
       if (source.getIri()!=null){
         source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
       }

@@ -209,14 +209,23 @@ public class EqdResources {
   }
 
   private void injectPatientReturn(Match match) {
-    if (match.getReturn()==null){
-      match.addReturn(new Return()
-        .setNodeRef(match.getNode())
-        .setIri(Namespace.IM+"patient"));
-    }
-    else {
-      if (!match.getReturn().getFirst().getIri().equals(Namespace.IM+"patient")) {
-        match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM + "patient"));
+    if (match.getWhere()!=null) {
+      if (match.getReturn() == null) {
+        match.addReturn(new Return()
+          .setNodeRef(match.getNode())
+          .setIri(Namespace.IM + "patient"));
+      } else {
+        if (!match.getReturn().getFirst().getIri().equals(Namespace.IM + "patient")) {
+          match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM + "patient"));
+        }
+      }
+    } else {
+      for (List<Match> matches: Arrays.asList(match.getAnd(), match.getOr(), match.getStep(),match.getUnion())) {
+        if (matches != null) {
+          for (Match subMatch: matches) {
+            injectPatientReturn(subMatch);
+          }
+        }
       }
     }
   }
@@ -231,15 +240,7 @@ public class EqdResources {
     boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
     boolean hasStandard = (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      Match baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
-      baseQuery.setTypeOf(new Node().setIri(Namespace.IM+"Patient"));
-      injectPatientReturn(baseQuery);
-      Match logicalMatch= new LogicOptimizer().getLogicalMatch(baseQuery);
-      String json= new ObjectMapper().writeValueAsString(logicalMatch);
-      int hash= json.hashCode();
-      EqdToIMQ.getBaseQueries().put(String.valueOf(hash),baseQuery);
-      baseMatch= new Match();
-      baseMatch.addIs(new Node().setIri(namespace.toString()+hash).setIsResultSet(true));
+      baseMatch = this.convertBaseCriteriaGroups(eqCriterion);
       injectPatientReturn(baseMatch);
       lastMatch = baseMatch;
     }
@@ -249,7 +250,10 @@ public class EqdResources {
       injectPatientReturn(standardMatch);
       lastMatch= standardMatch;
       if (baseMatch != null) {
-        if (standardMatch.getAnd()==null&&standardMatch.getWhere()==null){
+        if (standardMatch.getAnd()==null
+          &&standardMatch.getWhere()==null
+          &&standardMatch.getOr()==null
+        &&standardMatch.getStep()==null){
           baseMatch.setOrderBy(standardMatch.getOrderBy());
           standardMatch=null;
           setNamedMatchNode(baseMatch);
@@ -262,7 +266,7 @@ public class EqdResources {
       }
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion,lastMatch);
-        setNamedMatchNode(lastMatch);
+        setMatchNode(lastMatch);
         testMatch.setNodeRef(lastMatch.getNode());
         injectPatientReturn(testMatch);
         lastMatch= testMatch;
@@ -273,6 +277,7 @@ public class EqdResources {
     }
 
     if (hasLinked) {
+      setNamedMatchNode(lastMatch);
       linkedMatch = this.convertLinkedCriterion(eqCriterion, lastMatch);
       injectPatientReturn(linkedMatch);
     }
@@ -293,7 +298,7 @@ public class EqdResources {
 
     if (steps.size() > 1) {
       Match outerMatch = new Match();
-      outerMatch.setStep(steps);
+      outerMatch.setAnd(steps);
       injectPatientReturn(outerMatch);
       return outerMatch;
     }
@@ -306,23 +311,18 @@ public class EqdResources {
       baseMatch = new Match();
       for (EQDOCBaseCriteriaGroup baseGroup : eqCriterion.getBaseCriteriaGroup()) {
         Match subQuery = this.convertBaseCriteriaGroup(baseGroup);
-        baseMatch.addUnion(subQuery);
+        baseMatch.addOr(subQuery);
       }
-      setUnionReturns(baseMatch,Namespace.IM+"effectiveDate");
     } else {
       baseMatch = this.convertBaseCriteriaGroup(eqCriterion.getBaseCriteriaGroup().getFirst());
     }
-
     return baseMatch;
   }
 
   private void setUnionReturns(Match match,String returnIri) {
-    match.addReturn(new Return()
-      .setNodeRef(getNodeRef(match))
-      .setIri(returnIri));
-      for (Match subQuery : match.getUnion()) {
-        injectNestedReturn(subQuery, returnIri);
-      }
+    for (Match subQuery : match.getOr()) {
+      injectNestedReturn(subQuery, returnIri);
+    }
   }
 
   private Match convertBaseCriteriaGroup(EQDOCBaseCriteriaGroup baseGroup) throws QueryException, EQDException, IOException {
@@ -367,7 +367,7 @@ public class EqdResources {
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
     ValueSource relationLeft= new ValueSource();
     relationLeft
-        .setNodeRef(getNodeRef(linkedMatch))
+      .setNodeRef(getNodeRef(linkedMatch))
       .setIri(child.substring(child.lastIndexOf(" ") + 1));
     injectTestReturn(parentMatch,relationLeft.getIri());
     String parentProperty= eqRelationship.getParentColumn();
@@ -378,10 +378,17 @@ public class EqdResources {
     ValueSource relationRight= new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
       relationRight.setIri(Namespace.IM + "effectiveDate");
-      matchCounter++;
-      parentMatch.setNode("Date_" + matchCounter);
       relationRight.setNodeRef(parentMatch.getNode());
-    } else if (eqRelationship.getParentColumn().contains("DOB")) {
+      parentMatch.setKeepAs(parentMatch.getKeepAs()+"_DAT");
+      relationRight.setKeepRef(parentMatch.getKeepAs());
+    }
+    else if (eqRelationship.getParentColumn().contains("VALUE")) {
+      relationRight.setIri(Namespace.IM + "value");
+      relationRight.setNodeRef(parentMatch.getNode());
+      parentMatch.setKeepAs(parentMatch.getKeepAs()+"_VAL");
+      relationRight.setKeepRef(parentMatch.getKeepAs());
+    }
+    else if (eqRelationship.getParentColumn().contains("DOB")) {
       Path linkedMatchPath=null;
       if (targetMatch.getPath()!=null) {
         linkedMatchPath=targetMatch.getPath().getFirst();
@@ -483,16 +490,17 @@ public class EqdResources {
     assignable.getCompare().setLeft(relationLeft);
     assignable.getCompare().setRight(relationRight);
     if (units!=null)
-        assignable.getCompare().setUnits(units);
+      assignable.getCompare().setUnits(units);
   }
 
 
   private Match convertColumns(String table, String eqId, List<EQDOCColumnValue> columns, Match matchToTest) throws EQDException, IOException {
     int index = 0;
     Match match = new Match();
+    match.setTypeOf(this.getIMPath(table));
     for (EQDOCColumnValue cv : columns) {
-        ++index;
-        this.convertColumn(table, eqId, cv, match, index, matchToTest);
+      ++index;
+      this.convertColumn(table, eqId, cv, match, index, matchToTest);
     }
     if (match.getPath()!=null) {
       match.setTypeOf(new Node().setIri(match.getPath().getFirst().getTypeOf().getIri()));
@@ -528,7 +536,7 @@ public class EqdResources {
   private void setMatchNode(Match match){
     if (match.getNode()==null) {
       matchCounter++;
-      match.setNode("Match_" + matchCounter);
+      match.setNode("m_" + matchCounter);
     }
   }
 
@@ -545,8 +553,6 @@ public class EqdResources {
         .setIri(iri));
     }
     else if (match.getOr()!=null){
-      match.setUnion(match.getOr());
-      match.setOr(null);
       setUnionReturns(match,iri);
     }
     else {
@@ -557,38 +563,48 @@ public class EqdResources {
   }
 
   private void injectTestReturn(Match matchToTest, String iri) {
-    boolean alreadyIn= false;
-    if (matchToTest.getReturn()!=null) {
-      for (Return returnProp : matchToTest.getReturn()) {
-        if (returnProp.getIri().equals(iri)) {
-          alreadyIn= true;
-          break;
+    if (matchToTest.getWhere()!=null) {
+      boolean alreadyIn = false;
+      if (matchToTest.getReturn() != null) {
+        for (Return returnProp : matchToTest.getReturn()) {
+          if (returnProp.getIri().equals(iri)) {
+            alreadyIn = true;
+            break;
+          }
         }
       }
-    }
-    if (!alreadyIn) {
-      matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri));
-      if (matchToTest.getUnion()!=null){
-          setUnionReturns(matchToTest,iri);
-
+      if (!alreadyIn) {
+        matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri));
+      }
+    } else {
+      for (List<Match> matches:Arrays.asList(
+        matchToTest.getAnd(),
+        matchToTest.getStep(),
+        matchToTest.getOr(),
+        matchToTest.getUnion())) {
+        if (matches!=null) {
+          for (Match match : matches) {
+            injectTestReturn(match, iri);
+          }
+        }
       }
     }
   }
 
   public String setMatchPath(Match match, String[] paths) {
-    if (paths.length == 1) {
+    if (paths.length == 2) {
       return null;
     } else {
-      String path = paths[0];
+      String path = paths[1];
       boolean inverse = path.startsWith("^");
       String pathIri = path.replaceFirst("^", "");
       if (match.getPath() != null) {
         Path pathMatch = match.getPath().getFirst();
         if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
-            if (paths.length == 3) {
-              return pathMatch.getNode();
-            }
-            return this.getPathFromPath(pathMatch, paths, 2);
+          if (paths.length == 4) {
+            return pathMatch.getNode();
+          }
+          return this.getPathFromPath(pathMatch, paths, 3);
         }
       }
 
@@ -596,9 +612,9 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setNode(getAcronym(paths[1]));;
-      pathMatch.setTypeOf((new Node()).setIri(paths[1]));
-      return paths.length == 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 2);
+      pathMatch.setNode(getAcronym(paths[2]));;
+      pathMatch.setTypeOf((new Node()).setIri(paths[2]));
+      return paths.length == 4 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 3);
     }
   }
 
@@ -606,7 +622,7 @@ public class EqdResources {
     if (path.getPath() != null) {
       Path pathMatch = path.getPath().getFirst();
       if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
-          return pathMatch.getNode();
+        return pathMatch.getNode();
       } else return getNodeRef(pathMatch);
     }
     return "";
@@ -630,13 +646,13 @@ public class EqdResources {
     boolean inverse = path.startsWith("^");
     String pathIri = path.replaceFirst("^", "");
     if (pathMatch.getPath() != null) {
-        Path subPathMatch = pathMatch.getPath().getFirst();
-        if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
-          if (paths.length == offset + 3) {
-            return subPathMatch.getNode();
-          }
-          return this.getPathFromPath(subPathMatch, paths, offset + 2);
+      Path subPathMatch = pathMatch.getPath().getFirst();
+      if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
+        if (paths.length == offset + 3) {
+          return subPathMatch.getNode();
         }
+        return this.getPathFromPath(subPathMatch, paths, offset + 2);
+      }
     }
 
     Path subPathMatch = new Path();
@@ -832,7 +848,7 @@ public class EqdResources {
         diff.setLeft(new ValueSource()
           .setIri(pv.getIri()).setNodeRef(pv.getNodeRef()));
         diff.setRight(new ValueSource()
-        .setParameter("$searchDate"));
+          .setParameter("$searchDate"));
       } else if (value.equalsIgnoreCase("this")) {
         pv.setOperator(Operator.eq);
         pv.setCompare(new Compare());
@@ -865,7 +881,7 @@ public class EqdResources {
     if (rFrom != null&&rTo!=null) {
       this.setRangeCompare(pv, rFrom, rTo, rv.getRelativeTo());
     } else if (rFrom!=null) {
-        this.setCompareFrom(pv, rFrom,rv.getRelativeTo());
+      this.setCompareFrom(pv, rFrom,rv.getRelativeTo());
     } else if (rTo != null) {
       this.setCompareTo(pv, rTo, rv.getRelativeTo());
     }
@@ -1070,8 +1086,8 @@ public class EqdResources {
 
     TTIriRef cluster = this.getClusterSet(vs);
     if (cluster != null) {
-        pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
-        if (!in) pv.setNot(true);
+      pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
+      if (!in) pv.setNot(true);
     } else {
       Set<Node> setContent = new HashSet<>();
       for (EQDOCValueSetValue ev : vs.getValues()) {
@@ -1129,7 +1145,7 @@ public class EqdResources {
             }
             if (node.isMemberOf()) {
               pv.addIs(node);
-             if (!in) pv.setNot(true);
+              if (!in) pv.setNot(true);
             }
           }
           Set<Node> conceptContent = setContent.stream().filter(c -> !c.isMemberOf()).collect(Collectors.toSet());
@@ -1487,47 +1503,30 @@ public class EqdResources {
   }
 
   private void setNamedMatchNode(Match match) {
-    StringBuilder node = new StringBuilder();
-    if (match.getOrderBy()!=null){
-      OrderLimit orderBy= match.getOrderBy();
-      for (OrderDirection property : orderBy.getProperty()) {
-        String field = property.getIri();
-        if (field.toLowerCase().contains("date")) {
-          if (property.getDirection() == Order.descending) node.append("Latest_");
-          else node.append("Earliest_");
-        } else {
-          if (property.getDirection() == Order.descending) node.append("Max_");
-          else node.append("Min_");
-        }
-      }
-    }
-    boolean conceptFound= false;
+    matchCounter++;
+    match.setNode("m_" + matchCounter);
+    StringBuilder keepAs = new StringBuilder();
     if (match.getWhere()!=null){
       Where where= match.getWhere();
       if (where.getAnd()!=null){
         for (Where and:where.getAnd()){
           if (and.getShortLabel()!=null){
-            node.append(and.getShortLabel());
-            conceptFound=true;
+            keepAs.append(and.getShortLabel());
           } else if (and.getValueLabel()!=null) {
             String valueLabel= and.getValueLabel();
-            node.append(valueLabel, 0, Math.min(valueLabel.length(), 10));
-            conceptFound=true;
+            keepAs.append(valueLabel, 0, Math.min(valueLabel.length(), 10));
           }
           else if (and.getIs()!=null){
             String isName= and.getIs().getFirst().getName().replace(" ","");
-            node.append(isName,0,Math.min(isName.length(),10));
+            keepAs.append(isName,0,Math.min(isName.length(),10));
           }
         }
       }
-    } else {
-      if (match.getUnion()!=null){
-        node.append("combined_dates");
-        conceptFound=true;
-      }
     }
-    if (conceptFound) match.setNode(node.toString());
-    else setMatchNode(match);
+    if (keepAs.isEmpty()) {
+      match.setKeepAs(match.getNode());
+    }
+    else match.setKeepAs(keepAs.toString());
   }
 
 

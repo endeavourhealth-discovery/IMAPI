@@ -97,6 +97,10 @@ public class EqdListToIMQ {
     else {
       subQuery = new Match();
     }
+    Return patRet= new Return();
+    patRet.setIri(Namespace.IM+ (eqTable.equals("PATIENTS")? "id": "patient"));
+    patRet.setAs("patient");
+    subQuery.addReturn(patRet);
     if (eqColGroup.getColumnar() == null) {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {

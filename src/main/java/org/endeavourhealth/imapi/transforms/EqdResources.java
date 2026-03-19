@@ -213,10 +213,12 @@ public class EqdResources {
       if (match.getReturn() == null) {
         match.addReturn(new Return()
           .setNodeRef(match.getNode())
+            .setAs("patient")
           .setIri(Namespace.IM + "patient"));
       } else {
         if (!match.getReturn().getFirst().getIri().equals(Namespace.IM + "patient")) {
-          match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM + "patient"));
+          match.getReturn().addFirst(new Return().setNodeRef(match.getNode()).setIri(Namespace.IM + "patient")
+            .setAs("patient"));
         }
       }
     } else {
@@ -246,7 +248,7 @@ public class EqdResources {
     }
 
     if (hasStandard) {
-      standardMatch = this.convertStandardCriterion(eqCriterion);
+      standardMatch = this.convertStandardCriterion(eqCriterion,baseMatch!=null? baseMatch: null);
       injectPatientReturn(standardMatch);
       lastMatch= standardMatch;
       if (baseMatch != null) {
@@ -330,10 +332,10 @@ public class EqdResources {
   }
 
 
-  private Match convertStandardCriterion(EQDOCCriterion eqCriterion) throws IOException, EQDException {
+  private Match convertStandardCriterion(EQDOCCriterion eqCriterion,Match matchToTest) throws IOException, EQDException {
     Match match = null;
     if (!eqCriterion.getFilterAttribute().getColumnValue().isEmpty()) {
-      match = this.convertColumns(eqCriterion.getTable(), eqCriterion.getId(), eqCriterion.getFilterAttribute().getColumnValue(), null);
+      match = this.convertColumns(eqCriterion.getTable(), eqCriterion.getId(), eqCriterion.getFilterAttribute().getColumnValue(), matchToTest);
     }
 
     if (eqCriterion.getFilterAttribute().getRestriction() != null) {
@@ -558,7 +560,8 @@ public class EqdResources {
     else {
       match.addReturn (new Return()
         .setNodeRef(getNodeRef(match))
-        .setIri(iri));
+        .setIri(iri)
+        .setAs(iri.substring(iri.lastIndexOf("#") + 1)));
     }
   }
 
@@ -574,7 +577,8 @@ public class EqdResources {
         }
       }
       if (!alreadyIn) {
-        matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri));
+        matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri)
+          .setAs(iri.substring(iri.lastIndexOf("#") + 1)));
       }
     } else {
       for (List<Match> matches:Arrays.asList(

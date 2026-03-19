@@ -12,7 +12,7 @@ data class MySQLWith(
   val exclude: Boolean = false,
   var orderBy: MySQLOrderBy? = null,
   val fromAlias: String? = null,
-  val unionWiths: MutableList<MySQLWith>? = null,
+  val unionWiths: MutableList<MySQLWith> = mutableListOf(),
   val unionAll: Boolean = false,
   var subQuery: MySQLWith? = null,
   var isStep: Boolean = false
@@ -61,9 +61,8 @@ data class MySQLWith(
   }
 
   private fun toUnionSqlBody(): String {
-    val unions = unionWiths ?: return toSqlBody()
     val unionKeyword = if (unionAll) "UNION ALL" else "UNION"
-    val unionSql = unions.joinToString("\n$unionKeyword\n") { unionWith ->
+    val unionSql = unionWiths.joinToString("\n$unionKeyword\n") { unionWith ->
       "(${unionWith.toSqlBody()})"
     }
     val orderBySql = orderBy?.toSql()
@@ -75,7 +74,7 @@ data class MySQLWith(
   }
 
   fun toSql(): String {
-    val body = if (unionWiths != null) toUnionSqlBody() else toSqlBody()
+    val body = if (unionWiths.isNotEmpty()) toUnionSqlBody() else toSqlBody()
     return buildString {
       appendLine("$alias AS (")
       appendLine(body.prependIndent("  "))

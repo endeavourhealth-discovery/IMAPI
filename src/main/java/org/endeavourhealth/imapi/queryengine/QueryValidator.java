@@ -6,7 +6,7 @@ import java.util.*;
 
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
-  private final Map<String, Map<String, Set<String>>> pathMap = new HashMap<>();
+  private final Map<String, Map<String, Set<String>>> nodeMap = new HashMap<>();
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
@@ -43,6 +43,8 @@ public class QueryValidator {
   }
 
   private void processMatch(Match match) throws QueryException {
+    if (match.getKeepAs()!=null&&match.getNode()==null)
+      match.setNode(match.getKeepAs());
     if (match.getNode() != null) {
       variables.put(match.getNode(), VarType.NODE);
     } else if (match.getParameter() != null) {
@@ -177,6 +179,12 @@ public class QueryValidator {
       if (assignable.getValue()==null)
         throw new QueryException("Value must be specified when units are provided");
     }
+    if (compare.getRight()!=null) validateSource(compare.getRight());
+  }
+
+  private void validateSource(ValueSource source) {
+    if (source.getKeepRef()!=null&&source.getNodeRef()==null)
+      source.setNodeRef(source.getKeepRef());
   }
 
 

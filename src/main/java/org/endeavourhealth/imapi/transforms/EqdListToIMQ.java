@@ -44,6 +44,7 @@ public class EqdListToIMQ {
     Match subQuery;
     subQuery= convertColumns(eqColGroup,eqTable);
     subQuery.setName(eqColGroup.getDisplayName());
+
     return subQuery;
   }
 
@@ -97,6 +98,7 @@ public class EqdListToIMQ {
     else {
       subQuery = new Match();
     }
+    subQuery.setTypeOf(resources.getIMPath(eqTable));
     Return patRet= new Return();
     patRet.setIri(Namespace.IM+ (eqTable.equals("PATIENTS")? "id": "patient"));
     patRet.setAs("patient");

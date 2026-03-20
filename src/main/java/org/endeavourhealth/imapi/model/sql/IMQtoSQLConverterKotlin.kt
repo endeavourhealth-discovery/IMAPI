@@ -209,9 +209,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     var with = MySQLWith()
-    with.table = if (match.nodeRef != null)
-      mySQLQuery.nodeToTableMap[match.nodeRef]
-        ?: throw SQLConversionException("Table not found: ${match.nodeRef}") else queryTypeOfTable
+
+    if (match.typeOf?.iri != null) {
+      with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)
+    } else {
+      with.table = if (match.nodeRef != null)
+        mySQLQuery.nodeToTableMap[match.nodeRef]
+          ?: throw SQLConversionException("Table not found: ${match.nodeRef}") else queryTypeOfTable
+    }
+
     if (match.path != null)
       addPathTableAndJoins(match.path, mySQLQuery.nodeToTableMap, with, addJoins = true)
     if (match.node != null) mySQLQuery.nodeToTableMap[match.node] = with.table
@@ -672,15 +678,52 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         table = currentTable.alias ?: currentTable.table,
       )
     } else if (where.range != null) {
-      MySQLPropertyRangeWhere(
-        field,
-        where.range.from.operator.value,
-        where.range.from.value,
-        where.range.to.value,
-        where.range.to.operator.value,
-        not = where.isNot,
-        table = currentTable.alias ?: currentTable.table,
+
+      val from = where.range.from
+      val to = where.range.to
+
+      // Resolve compare RHS (same logic you already use)
+      val fromRight = from.compare?.right?.parameter
+        ?: getValueFromRelativeTo(from, variableToTableMap)
+        ?: throw SQLConversionException("No value for range.from")
+
+      val toRight = to.compare?.right?.parameter
+        ?: getValueFromRelativeTo(to, variableToTableMap)
+        ?: throw SQLConversionException("No value for range.to")
+
+      val fromWhere = MySQLCompareWhere(
+        property = field,
+        operator = from.operator.value,
+        right = fromRight,
+        value = from.value,
+        units = "YEAR", // map properly from IRI
+        table = currentTable.alias ?: currentTable.table
       )
+
+      val toWhere = MySQLCompareWhere(
+        property = field,
+        operator = to.operator.value,
+        right = toRight,
+        value = to.value,
+        units = "YEAR",
+        table = currentTable.alias ?: currentTable.table
+      )
+
+      MySQLBoolWhere(
+        and = mutableListOf(fromWhere, toWhere)
+      )
+
+
+//      val fromWhere = getMySQLWhereFromWhere(where.range.from as Where, variableToTableMap, with)
+//      MySQLPropertyRangeWhere(
+//        field,
+//        where.range.from.operator.value,
+//        where.range.from.value,
+//        where.range.to.value,
+//        where.range.to.operator.value,
+//        not = where.isNot,
+//        table = currentTable.alias ?: currentTable.table,
+//      )
     } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
@@ -748,7 +791,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return currentTable to field
   }
 
-  private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String {
+  private fun getValueFromRelativeTo(where: Assignable, nodeToTableMap: HashMap<String, Table>): String {
     val nodeRef =
       where.compare.right?.nodeRef
         ?: throw SQLConversionException("No property found for relativeTo ${where.compare.right}")
@@ -817,36 +860,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       "Property $propertyIri not found in table ${table.table}"
     )
     return field
-  }
-
-  private fun getStepResultTable(
-    match: Match,
-    nodeToTableMap: HashMap<String, Table>
-  ): Table? {
-    val steps = match.step ?: return null
-    for (i in steps.indices.reversed()) {
-      val step = steps[i]
-      if (step.nodeRef != null) {
-        nodeToTableMap[step.nodeRef]?.let { return it }
-      }
-      if (step.path != null && step.path.isNotEmpty()) {
-        val lastPath = step.path.last()
-        val node = lastPath.node
-        if (node != null) {
-          nodeToTableMap[node]?.let { return it }
-        }
-        return try {
-          getTableFromTypeAndProperty(lastPath.typeOf.iri, null)
-        } catch (e: SQLConversionException) {
-          null
-        }
-      }
-      if (step.step != null) {
-        val nested = getStepResultTable(step, nodeToTableMap)
-        if (nested != null) return nested
-      }
-    }
-    return null
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {

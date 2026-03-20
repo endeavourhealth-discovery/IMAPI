@@ -284,6 +284,10 @@
           "field": "last_name",
           "type": "string"
         },
+        "http://endhealth.info/im#age": {
+          "field": "age",
+          "type": "number"
+        },
         "http://endhealth.info/im#patient": {
           "field": "id",
           "type": "string"

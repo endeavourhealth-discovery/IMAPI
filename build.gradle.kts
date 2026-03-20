@@ -139,17 +139,13 @@ tasks {
   }
 }
 
-tasks {
-  typescriptConstEnumToEnum {
-    filePath = "../VueLibrary/src/interfaces/AutoGen.ts"
-  }
+typescriptConstEnumToEnum {
+  filePath.set("../VueLibrary/src/interfaces/AutoGen.ts")
 }
 
-tasks {
-  extractEnumsFromAutoGen {
-    inputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
-    outputFile = "../VueLibrary/src/enums/AutoGen.ts"
-  }
+extractEnumsFromAutoGen {
+  inputFile.set("../VueLibrary/src/interfaces/AutoGen.ts")
+  outputFile.set("../VueLibrary/src/enums/AutoGen.ts")
 }
 
 dependencies {

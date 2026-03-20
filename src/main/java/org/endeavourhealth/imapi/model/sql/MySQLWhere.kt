@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql
 
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Node
 
 interface MySQLWhere {
@@ -9,7 +10,7 @@ interface MySQLWhere {
   var and: MutableList<MySQLWhere>?
   var or: MutableList<MySQLWhere>?
   val not: Boolean?
-  val table: Table?
+  val table: String?
   fun baseSql(): String {
     if (args == null) return sqlTemplate
     var resolved = sqlTemplate
@@ -64,29 +65,66 @@ class MySQLBoolWhere(
   override val property: String? = null,
   override val args: Map<String, String>? = null,
   override val not: Boolean? = false,
-  override val table: Table? = null,
+  override val table: String? = null,
 ) : MySQLWhere {
   override val sqlTemplate = ""
+}
+
+class MySQLCompareWhere(
+  override val property: String,
+  val operator: String,
+  val right: String,
+  val value: String,
+  val units: String? = null,
+  val qualifier: String? = null,
+  override val args: Map<String, String>? = null,
+  override var and: MutableList<MySQLWhere>? = null,
+  override var or: MutableList<MySQLWhere>? = null,
+  override val not: Boolean? = false,
+  override val table: String? = null,
+) : MySQLWhere {
+  override val sqlTemplate: String
+    get() {
+      val prop = if (table != null) "`${table}`.$property" else property
+      val base =
+        if (units != null) {
+          when (units) {
+            "DAY", "MONTH", "YEAR" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            else -> throw SQLConversionException("Unsupported unit $units")
+          }
+        } else if (qualifier != null) {
+          when (qualifier) {
+            "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"
+            "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) - (YEAR(DATE_SUB($right, INTERVAL 3 MONTH)) + 1) $operator $value"
+            "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            else -> "$prop - $right $operator $value"
+          }
+        } else throw SQLConversionException("No units or qualifier provided")
+      return if (not == true) "NOT ($base)" else base
+    }
 }
 
 class MySQLPropertyValueWhere(
   override val property: String,
   val operator: String,
   val value: String,
+  val qualifier: String? = null,
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
-  override val table: Table? = null,
+  override val table: String? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      var base = ""
-      if (table != null && !property.contains(".") && !property.contains("(")) {
-        base = "`${table.alias}`.$property $operator $value"
-      } else {
-        base = "$property $operator $value"
-      }
+      val prop = if (table != null) "`${table}`.$property" else property
+      val base = if (qualifier != null) {
+        when (qualifier) {
+          "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value))"
+          "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) $operator (YEAR(DATE_SUB($value, INTERVAL 3 MONTH)) + 1)"
+          else -> "$qualifier($prop) $operator $qualifier($value)"
+        }
+      } else return "$prop $operator $value"
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -97,16 +135,12 @@ class MySQLPropertyIsNullWhere(
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
-  override val table: Table? = null,
+  override val table: String? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      var base = ""
-      if (table != null && !property.contains(".") && !property.contains("(")) {
-        base = "${table.alias}.$property IS NULL"
-      } else {
-        base = "$property IS NULL"
-      }
+      val prop = if (table != null) "`${table}`.$property" else property
+      val base = "$prop IS NULL"
       return if (not == true) "$property IS NOT NULL" else base
     }
 }
@@ -122,16 +156,12 @@ class MySQLPropertyRangeWhere(
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
-  override val table: Table? = null,
+  override val table: String? = null,
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      var base = ""
-      if (table != null && !property.contains(".") && !property.contains("(")) {
-        base = "${table.alias}.$property $operator $value AND ${table.alias}.$property $operator2 $value2"
-      } else {
-        base = "$property $operator $value AND $property $operator2 $value2"
-      }
+      val prop = if (table != null) "`${table}`.$property" else property
+      val base = "$prop $operator $value AND $prop $operator2 $value2"
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -144,7 +174,7 @@ class MySQLPropertyIsWhere(
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
-  override val table: Table? = null,
+  override val table: String? = null,
 ) : MySQLWhere {
 
   override val sqlTemplate: String

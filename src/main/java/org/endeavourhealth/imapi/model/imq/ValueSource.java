@@ -12,6 +12,16 @@ public class ValueSource {
   private String iri;
   private String name;
   private String nodeRef;
+  private String keepRef;
+
+  public String getKeepRef() {
+    return keepRef;
+  }
+
+  public ValueSource setKeepRef(String keepRef) {
+    this.keepRef = keepRef;
+    return this;
+  }
 
   public String getIri() {
     return iri;

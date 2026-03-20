@@ -41,17 +41,28 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String asDescription;
   private List<Match> union;
   private boolean notExists;
-  private boolean linkedTarget;
   private String errorMessage;
+  private boolean draft;
+  private String keepAs;
 
-  public boolean isLinkedTarget() {
-    return linkedTarget;
+  public String getKeepAs() {
+    return keepAs;
   }
-
-  public Match setLinkedTarget(boolean linkedTarget) {
-    this.linkedTarget = linkedTarget;
+  public Match setKeepAs(String keepAs) {
+    this.keepAs = keepAs;
     return this;
   }
+
+  public boolean isDraft() {
+    return draft;
+  }
+
+  public Match setDraft(boolean draft) {
+    this.draft = draft;
+    return this;
+  }
+
+
 
   public String getErrorMessage() {
     return errorMessage;

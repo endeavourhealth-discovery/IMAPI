@@ -2394,6 +2394,10 @@
         "value": "\"smartlifequery\""
       },
       {
+        "name": "SMARTLIFEINDICATOR",
+        "value": "\"smartlifeindicators\""
+      },
+      {
         "name": "QOF",
         "value": "\"qof\""
       },

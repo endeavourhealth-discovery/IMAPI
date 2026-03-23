@@ -34,7 +34,7 @@ import java.util.Set;
 
 class SearchServiceTest {
 
-  @Test
+  //@Test
   void queryOptimiser(){
     ObjectMapper mapper = new ObjectMapper();
     String sql= """

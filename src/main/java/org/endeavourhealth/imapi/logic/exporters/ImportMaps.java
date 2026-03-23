@@ -195,7 +195,7 @@ public class ImportMaps implements AutoCloseable {
       String sparql = """
         SELECT ?child ?name
         WHERE {
-          ?child ?scheme ?snomedNamespace
+          ?child ?scheme ?snomedNamespace.
           ?child ?subClassOf ?concept.
           ?child ?label ?name.
         }

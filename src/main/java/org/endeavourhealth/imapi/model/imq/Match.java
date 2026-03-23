@@ -44,6 +44,15 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String errorMessage;
   private boolean draft;
   private String keepAs;
+  private Where then;
+
+  public Where getThen() {
+    return then;
+  }
+  public Match setThen(Where then) {
+    this.then = then;
+    return this;
+  }
 
   public String getKeepAs() {
     return keepAs;

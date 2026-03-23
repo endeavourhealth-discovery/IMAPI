@@ -64,28 +64,6 @@ class SearchServiceTest {
 
   }
 
-  //@Test
-   void summariser() throws JsonProcessingException, QueryException {
-    List<TTEntity> entities= new EntityService().getPartialEntities(Set.of("http://smartlifehealth.info/smh#18934bee-29d6-484c-af33-2c9313add5b9"),
-      Set.of(IM.DEFINITION.toString()));
-    Query query= entities.get(0).get(IM.DEFINITION.toString()).asLiteral().objectValue(Query.class);
-    Match union= getUnion(query);
-    String summary= new QuerySummariser().summariseQuery(union);
-    System.out.println(summary);
-
-  }
-  private Match getUnion(Match match) {
-    if (match.getUnion() !=null) return match;
-    for (List<Match> matches: Arrays.asList(match.getRule(),match.getAnd(),match.getOr(),match.getStep())) {
-      if (matches!=null)
-        for (Match m: matches) {
-          Match union= getUnion(m);
-          if (union!=null)
-            return union;
-        }
-    }
-    return null;
-  }
 
 //@Test
   void os() throws QueryException, OpenSearchException {

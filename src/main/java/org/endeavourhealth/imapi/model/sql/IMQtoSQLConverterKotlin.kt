@@ -59,9 +59,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
     }
 
-    if (definition.union != null) {
-      addMatchWiths(definition.union, definition, mySqlQuery, Bool.union)
-    }
 
     if (definition.columnGroup != null) {
       for (columnGroup in definition.columnGroup) {
@@ -194,13 +191,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
-    if (currentMatch.step != null) {
-      for (m in currentMatch.step) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
-      }
-    }
 
-    if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null) {
+    if (currentMatch.and == null && currentMatch.or == null) {
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
@@ -238,9 +230,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
 
-    if (match.union != null) for (unionMatch in match.union) {
-      with.unionWiths.add(getMySQLWithFromMatch(unionMatch, mySQLQuery))
-    }
 
     return with;
   }
@@ -819,35 +808,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return field
   }
 
-  private fun getStepResultTable(
-    match: Match,
-    nodeToTableMap: HashMap<String, Table>
-  ): Table? {
-    val steps = match.step ?: return null
-    for (i in steps.indices.reversed()) {
-      val step = steps[i]
-      if (step.nodeRef != null) {
-        nodeToTableMap[step.nodeRef]?.let { return it }
-      }
-      if (step.path != null && step.path.isNotEmpty()) {
-        val lastPath = step.path.last()
-        val node = lastPath.node
-        if (node != null) {
-          nodeToTableMap[node]?.let { return it }
-        }
-        return try {
-          getTableFromTypeAndProperty(lastPath.typeOf.iri, null)
-        } catch (e: SQLConversionException) {
-          null
-        }
-      }
-      if (step.step != null) {
-        val nested = getStepResultTable(step, nodeToTableMap)
-        if (nested != null) return nested
-      }
-    }
-    return null
-  }
+
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
     val table =
@@ -930,18 +891,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
-    if (match.step != null) {
-      for (child in match.step) {
-        val result = findMatchByKeepAs(child, keepAs)
-        if (result != null) return result
-      }
-    }
-    if (match.union != null) {
-      for (child in match.union) {
-        val result = findMatchByKeepAs(child, keepAs)
-        if (result != null) return result
-      }
-    }
 
     return null
   }

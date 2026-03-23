@@ -3,17 +3,20 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.queryengine.QuerySummariser;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -30,6 +33,36 @@ import java.util.List;
 import java.util.Set;
 
 class SearchServiceTest {
+
+  @Test
+  void queryOptimiser(){
+    ObjectMapper mapper = new ObjectMapper();
+    String sql= """
+      select ?iri ?definition
+      {
+        ?iri rdf:type im:Query.
+        ?iri im:definition ?definition.
+      }
+      """;
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri= bs.getValue("iri").toString();
+          String definition= bs.getValue("definition").stringValue();
+          Query query= mapper.readValue(definition, Query.class);
+          new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);;
+        }
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+
+
+    }
+
+  }
 
   //@Test
    void summariser() throws JsonProcessingException, QueryException {

@@ -250,6 +250,7 @@ public enum IM implements VocabEnum {
     VALUE_IRI_LIST(Namespace.IM + "valueIriList"),
     VALUE_DATA_LIST(Namespace.IM + "valueDataList"),
     IM_1_ID(Namespace.IM + "im1Id"),
+    IM_1_DBID(Namespace.IM + "im1DbId"),
     PROV_ACTIVITY_TYPE(Namespace.IM + "provenanceActivityType"),
     FOLDER_VALUESETS(Namespace.IM + "ValueSets"),
     FOLDER_SETS(Namespace.IM + "Sets"),

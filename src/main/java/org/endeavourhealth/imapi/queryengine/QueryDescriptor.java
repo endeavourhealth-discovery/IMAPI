@@ -234,16 +234,7 @@ public class QueryDescriptor {
         describeMatch(subMatch);
       }
     }
-    if (match.getUnion() != null) {
-      for (Match subMatch : match.getUnion()) {
-        describeMatch(subMatch);
-      }
-    }
-    if (match.getStep() != null) {
-      for (Match subMatch : match.getStep()) {
-        describeMatch(subMatch);
-      }
-    }
+
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         describePath(path);
@@ -252,6 +243,10 @@ public class QueryDescriptor {
 
     if (match.getWhere() != null) {
       describeWhere(match.getWhere(),match);
+    }
+
+    if (match.getThen() != null) {
+      describeWhere(match.getThen(),match);
     }
   }
 

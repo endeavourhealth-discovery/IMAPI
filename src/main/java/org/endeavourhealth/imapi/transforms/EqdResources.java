@@ -125,8 +125,15 @@ public class EqdResources {
     if (eqGroup.getDefinition().getParentPopulationGuid() != null) {
       String parent = eqGroup.getDefinition().getParentPopulationGuid();
       Match match = new Match();
-      match.addIs(Node.iri(this.namespace + parent).setName(this.reportNames.get(parent)));
-      queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(namespace + parent));
+      if (EqdToIMQ.versionMap.containsKey(parent)) {
+        parent = EqdToIMQ.versionMap.get(parent);
+      }
+      String finalParentId = this.namespace + parent;
+      if (EqdToIMQ.gmsPatients.contains(parent)) {
+        finalParentId = Namespace.IM + "Q_RegisteredGMS";
+      }
+      match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
+      queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalParentId));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -206,7 +213,11 @@ public class EqdResources {
     Match match = new Match();
     match.addIs(new Node().setIri(namespace + searchId)
       .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
-    queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(namespace + searchId));
+    String finalSearchId= namespace + searchId;
+    if (EqdToIMQ.gmsPatients.contains(searchId)) {
+      finalSearchId = Namespace.IM + "Q_RegisteredGMS";
+    }
+    queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalSearchId));
     return match;
   }
 

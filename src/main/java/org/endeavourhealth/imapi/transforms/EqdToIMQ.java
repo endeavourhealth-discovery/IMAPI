@@ -93,6 +93,7 @@ public class EqdToIMQ {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
+    findGmsPatientReports(eqd);
     if (singleEntity==null){
       this.addReportNames(eqd);
       this.convertFolders(eqd);
@@ -251,6 +252,8 @@ public class EqdToIMQ {
 
   }
 
+
+
   private void convertReports(EnquiryDocument eqd) throws IOException, QueryException, EQDException {
     for (EQDOCReport eqReport : eqd.getReport()) {
       if (eqReport.getId() == null) {
@@ -277,6 +280,18 @@ public class EqdToIMQ {
     }
 
   }
+
+  private void findGmsPatientReports(EnquiryDocument eqd){
+    for (EQDOCReport report : eqd.getReport()) {
+      if (report.getName().toLowerCase().contains("all currently registered patients")) {
+        gmsPatients.add(report.getId());
+        if (report.getVersionIndependentGUID()!=null){
+          gmsPatients.add(report.getVersionIndependentGUID());
+        }
+      }
+    }
+  }
+
 
   private void checkGms(Query query) {
     if (query.getRule() != null) {

@@ -353,6 +353,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
+    with.selects.add(getDefaultSelect(with.table))
     if (match.`return` != null) {
       val (selects, selectJoins) =
         getSelects(
@@ -363,7 +364,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           mySQLQuery.nodeToTableMap,
         )
       with.selects.addAll(selects)
-    } else with.selects.add(getDefaultSelect(with.table))
+    }
   }
 
   private fun getDefaultSelect(table: Table): MySQLSelect {
@@ -495,14 +496,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-
-//  private fun walkPropertyPath(property: Return, propertyPath: MutableList<Return>) {
-//    propertyPath.add(property)
-//    if (null != property.getReturn() && null != property.getReturn().property && !property.getReturn()
-//        .property.isEmpty()
-//    ) walkPropertyPath(property.getReturn().property.first(), propertyPath)
-//  }
-
   private fun getMySQLOrderBy(
     table: Table, orderBy: OrderLimit, nodeToTableMap: HashMap<String, Table>,
   ): MySQLOrderBy {
@@ -512,7 +505,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (p.nodeRef != null) nodeToTableMap[p.nodeRef] else table
 
       if (currentTable == null) throw SQLConversionException("No table exists for ${p.iri}")
-
       val field = getPropertyNameByTableAndPropertyIri(
         currentTable,
         p.iri
@@ -657,18 +649,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLBoolWhere(
         and = mutableListOf(fromWhere, toWhere)
       )
-
-
-//      val fromWhere = getMySQLWhereFromWhere(where.range.from as Where, variableToTableMap, with)
-//      MySQLPropertyRangeWhere(
-//        field,
-//        where.range.from.operator.value,
-//        where.range.from.value,
-//        where.range.to.value,
-//        where.range.to.operator.value,
-//        not = where.isNot,
-//        table = currentTable.alias ?: currentTable.table,
-//      )
     } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
@@ -743,7 +723,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     var property = ""
     val nodeRefTable = nodeToTableMap[nodeRef]
     if (nodeRefTable != null) {
-//      if(nodeRefTable.returx)
       property = getPropertyNameByTableAndPropertyIri(nodeRefTable, where.compare.right.iri).field
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {

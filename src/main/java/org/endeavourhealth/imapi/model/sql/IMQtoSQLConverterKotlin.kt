@@ -349,7 +349,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
     }
+
+    if (match.then != null) {
+      val properties = getPropsUsedInThen(match.then)
+      for (property in properties) {
+        val field = getPropertyNameByTableAndPropertyIri(with.table, property).field
+          ?: throw SQLConversionException("No field found for property $property")
+        with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field"))
+      }
+      val table = rnWith.table.copy(table = "sq")
+      addWheresRecursively(match.then, rnWith, mySQLQuery.nodeToTableMap, null, null, table)
+    }
     return rnWith
+  }
+
+  private fun getPropsUsedInThen(then: Where): MutableSet<String> {
+    val properties = mutableSetOf<String>()
+    fun collect(where: Where?) {
+      if (where == null) return
+      where.iri?.let { properties.add(it) }
+      where.and?.forEach { collect(it) }
+      where.or?.forEach { collect(it) }
+    }
+    collect(then)
+    return properties
   }
 
   private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
@@ -534,7 +557,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with: MySQLWith,
     variableToTableMap: HashMap<String, Table>,
     parentWhere: MySQLWhere? = null,
-    bool: Bool? = null
+    bool: Bool? = null,
+    table: Table? = null,
   ) {
     where.and?.let { andList ->
       val boolWhere = MySQLBoolWhere()
@@ -552,7 +576,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         else -> with.wheres?.add(boolWhere)
       }
       andList.forEach {
-        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.and)
+        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.and, table)
       }
       return
     }
@@ -574,12 +598,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
 
       orList.forEach {
-        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.or)
+        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.or, table)
       }
       return
     }
 
-    val leaf = getMySQLWhereFromWhere(where, variableToTableMap, with)
+    val leaf = getMySQLWhereFromWhere(where, variableToTableMap, with, table)
     when (bool) {
       Bool.and -> parentWhere
         ?.also { it.and = it.and ?: mutableListOf() }
@@ -599,9 +623,20 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getMySQLWhereFromWhere(
     where: Where,
     variableToTableMap: HashMap<String, Table>,
-    with: MySQLWith
+    with: MySQLWith,
+    table: Table? = null,
   ): MySQLWhere {
-    val (currentTable, field) = getTableAndField(with, where, variableToTableMap)
+    val (currentTable, field) = if (table != null) table to getPropertyNameByTableAndPropertyIri(
+      table,
+      where.iri
+    ).field
+    else
+      getTableAndField(
+        with,
+        where,
+        variableToTableMap
+      )
+
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
         if (!with.joins.contains(join))
@@ -618,8 +653,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
       val from = where.range.from
       val to = where.range.to
-
-      // Resolve compare RHS (same logic you already use)
       val fromRight = from.compare?.right?.parameter
         ?: getValueFromRelativeTo(from, variableToTableMap)
         ?: throw SQLConversionException("No value for range.from")

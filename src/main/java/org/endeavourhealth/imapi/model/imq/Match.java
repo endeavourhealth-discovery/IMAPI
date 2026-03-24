@@ -31,7 +31,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
-  private List<Match> step;
   private String libraryItem;
   private boolean invalid;
   private List<Node> is;
@@ -39,11 +38,9 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String node;
   private OrderLimit orderBy;
   private String asDescription;
-  private List<Match> union;
   private boolean notExists;
   private String errorMessage;
   private boolean draft;
-  private String keepAs;
   private Where then;
 
   public Where getThen() {
@@ -54,13 +51,12 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public String getKeepAs() {
-    return keepAs;
-  }
-  public Match setKeepAs(String keepAs) {
-    this.keepAs = keepAs;
+  public Match then(Consumer<Where> builder) {
+    this.then = new Where();
+    builder.accept(this.then);
     return this;
   }
+
 
   public boolean isDraft() {
     return draft;
@@ -101,53 +97,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   @JsonGetter
   public boolean notExists() {
     return notExists;
-  }
-
-  public List<Match> getStep() {
-    return step;
-  }
-
-  public Match setStep(List<Match> step) {
-    this.step = step;
-    return this;
-  }
-
-  public Match addStep(Match step) {
-    if (this.step == null) {
-      this.step = new ArrayList<>();
-    }
-    this.step.add(step);
-    return this;
-  }
-
-  public Match step(Consumer<Match> builder) {
-    Match step = new Match();
-    addStep(step);
-    builder.accept(step);
-    return this;
-  }
-
-  public List<Match> getUnion() {
-    return union;
-  }
-
-  public Match setUnion(List<Match> union) {
-    this.union = union;
-    return this;
-  }
-
-  public Match addUnion(Match union) {
-    if (this.union == null) {
-      this.union = new ArrayList<>();
-    }
-    this.union.add(union);
-    return this;
-  }
-  public Match union(Consumer<Match> builder) {
-    Match union = new Match();
-    addUnion(union);
-    builder.accept(union);
-    return this;
   }
 
 

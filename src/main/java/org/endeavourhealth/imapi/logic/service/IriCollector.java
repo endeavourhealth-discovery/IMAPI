@@ -87,19 +87,13 @@ public class IriCollector {
       }
     }
 
-    if (match.getUnion() != null) {
-      for (Match subMatch : match.getUnion()) {
-        collectMatchIris(subMatch, iriSet);
-      }
-    }
-    if (match.getStep() != null) {
-      for (Match subMatch : match.getStep()) {
-        collectMatchIris(subMatch, iriSet);
-      }
-    }
 
     if (match.getWhere() != null) {
       collectWhereIris(match.getWhere(), iriSet);
+    }
+
+    if (match.getThen() != null) {
+      collectWhereIris(match.getThen(), iriSet);
     }
     if (match.getReturn() != null) {
       for (Return prop : match.getReturn()) {

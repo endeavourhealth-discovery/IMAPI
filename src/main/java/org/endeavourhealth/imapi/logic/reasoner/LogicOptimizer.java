@@ -44,10 +44,7 @@ public class LogicOptimizer {
     if (logicalMatch.getWhere() != null) {
       logicalWhere(logicalMatch.getWhere());
     }
-    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(),
-      logicalMatch.getOr(),
-      logicalMatch.getStep(),
-      logicalMatch.getUnion())) {
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr())) {
       if (matches != null) {
         for (int i = 0; i < matches.size(); i++) {
           Match subMatch = matches.get(i);
@@ -143,7 +140,7 @@ public class LogicOptimizer {
   }
 
   private static void clean(Match group, Match parent,Integer parentIndex) {
-    for (List<Match> list: Arrays.asList(group.getAnd(), group.getOr(),group.getUnion())) {
+    for (List<Match> list: Arrays.asList(group.getAnd(), group.getOr())) {
       if (list != null) {
         for (int i = 0; i < list.size(); i++) {
           cleanBoolGroup(list.get(i), group, i);
@@ -165,7 +162,6 @@ public class LogicOptimizer {
   private static Bool getBoolOp(Match group) {
     if (group.getAnd() != null) return Bool.and;
     if (group.getOr() != null) return Bool.or;
-    if (group.getUnion() != null) return Bool.union;
     else return null;
   }
 
@@ -182,6 +178,7 @@ public class LogicOptimizer {
     } else {
       optimiseMatch(match);
     }
+    flattenMatch(match);
   }
 
   private void getLogicFromRules(Match match) {
@@ -236,6 +233,7 @@ public class LogicOptimizer {
       }
     }
     match.setRule(null);
+
   }
 
   public void optimiseMatch(Match match) throws JsonProcessingException {
@@ -243,7 +241,47 @@ public class LogicOptimizer {
     optimizeOrMatches(match);
   }
 
-  private void optimizeAndMatches(Match match) throws JsonProcessingException {
+  private void flattenMatch(Match match) {
+    if (match.getOr() != null) {
+      List<Match> flatOrs= new ArrayList<>();
+      flattenOrs(match,flatOrs);
+      if (!flatOrs.isEmpty()) match.setOr(flatOrs);
+    }
+    else if (match.getAnd() != null) {
+      List<Match> flatAnds= new ArrayList<>();
+      flattenAnds(match,flatAnds);
+      if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
+    }
+  }
+  private void flattenAnds(Match match,List<Match> flatAnds) {
+    for (Match subMatch : match.getAnd()) {
+      if (subMatch.getAnd() == null){
+        flatAnds.add(subMatch);
+        flattenMatch(subMatch);
+      }
+      else {
+        flattenAnds(subMatch,flatAnds);
+      }
+    }
+  }
+
+  private void flattenOrs(Match match,List<Match> flatOrs) {
+    for (Match subMatch : match.getOr()) {
+      if (subMatch.getOr() == null){
+        flatOrs.add(subMatch);
+        flattenMatch(subMatch);
+      }
+      else {
+        flattenOrs(subMatch,flatOrs);
+      }
+    }
+  }
+
+
+
+
+
+private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;

@@ -1014,6 +1014,10 @@
         "value": "Namespace.IM + \"im1Id\""
       },
       {
+        "name": "IM_1_DBID",
+        "value": "Namespace.IM + \"im1DbId\""
+      },
+      {
         "name": "PROV_ACTIVITY_TYPE",
         "value": "Namespace.IM + \"provenanceActivityType\""
       },

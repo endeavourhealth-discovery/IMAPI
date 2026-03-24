@@ -44,39 +44,7 @@ public class Query extends Match {
     return queryType;
   }
 
-  public Query setStep(List<Match> step) {
-    super.setStep(step);
-    return this;
-  }
 
-  public Query step(Consumer<Match> builder) {
-    Match match = new Match();
-    addStep(match);
-    builder.accept(match);
-    return this;
-  }
-
-  public Query addStep(Match step) {
-    super.addStep(step);
-    return this;
-  }
-
-  public Query setUnion(List<Match> union) {
-    super.setUnion(union);
-    return this;
-  }
-
-  public Query union(Consumer<Match> builder) {
-    Match match = new Match();
-    addUnion(match);
-    builder.accept(match);
-    return this;
-  }
-
-  public Query addUnion(Match union) {
-    super.addUnion(union);
-    return this;
-  }
 
   public Query setParameter(String parameter) {
     super.setParameter(parameter);

@@ -3,17 +3,20 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.queryengine.QuerySummariser;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.Graph;
@@ -32,27 +35,35 @@ import java.util.Set;
 class SearchServiceTest {
 
   //@Test
-   void summariser() throws JsonProcessingException, QueryException {
-    List<TTEntity> entities= new EntityService().getPartialEntities(Set.of("http://smartlifehealth.info/smh#18934bee-29d6-484c-af33-2c9313add5b9"),
-      Set.of(IM.DEFINITION.toString()));
-    Query query= entities.get(0).get(IM.DEFINITION.toString()).asLiteral().objectValue(Query.class);
-    Match union= getUnion(query);
-    String summary= new QuerySummariser().summariseQuery(union);
-    System.out.println(summary);
+  void queryOptimiser(){
+    ObjectMapper mapper = new ObjectMapper();
+    String sql= """
+      select ?iri ?definition
+      {
+        ?iri rdf:type im:Query.
+        ?iri im:definition ?definition.
+      }
+      """;
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri= bs.getValue("iri").toString();
+          String definition= bs.getValue("definition").stringValue();
+          Query query= mapper.readValue(definition, Query.class);
+          new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);;
+        }
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+
+
+    }
 
   }
-  private Match getUnion(Match match) {
-    if (match.getUnion() !=null) return match;
-    for (List<Match> matches: Arrays.asList(match.getRule(),match.getAnd(),match.getOr(),match.getStep())) {
-      if (matches!=null)
-        for (Match m: matches) {
-          Match union= getUnion(m);
-          if (union!=null)
-            return union;
-        }
-    }
-    return null;
-  }
+
 
 //@Test
   void os() throws QueryException, OpenSearchException {

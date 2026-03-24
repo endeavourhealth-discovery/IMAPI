@@ -59,9 +59,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
     }
 
-    if (definition.union != null) {
-      addMatchWiths(definition.union, definition, mySqlQuery, Bool.union)
-    }
 
     if (definition.columnGroup != null) {
       for (columnGroup in definition.columnGroup) {
@@ -194,13 +191,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
-    if (currentMatch.step != null) {
-      for (m in currentMatch.step) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
-      }
-    }
 
-    if (currentMatch.and == null && currentMatch.or == null && currentMatch.step == null) {
+    if (currentMatch.and == null && currentMatch.or == null) {
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
@@ -244,9 +236,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
 
-    if (match.union != null) for (unionMatch in match.union) {
-      with.unionWiths.add(getMySQLWithFromMatch(unionMatch, mySQLQuery))
-    }
 
     return with;
   }
@@ -899,18 +888,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
-    if (match.step != null) {
-      for (child in match.step) {
-        val result = findMatchByKeepAs(child, keepAs)
-        if (result != null) return result
-      }
-    }
-    if (match.union != null) {
-      for (child in match.union) {
-        val result = findMatchByKeepAs(child, keepAs)
-        if (result != null) return result
-      }
-    }
 
     return null
   }

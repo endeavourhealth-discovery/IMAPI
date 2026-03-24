@@ -1316,7 +1316,6 @@ public class EqdResources {
 
   private void createLibraryValueSet(String iri, String name) {
     TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(iri(IM.CONCEPT_SET));
-    valueSet.set(iri(IM.IM_1_DBID),TTLiteral.literal(100000000+iri.hashCode()));
     valueSet.setScheme(iri(namespace));
     this.addUsedIn(valueSet);
     this.document.addEntity(valueSet);
@@ -1345,7 +1344,6 @@ public class EqdResources {
         .setScheme(iri(namespace))
         .addType(iri(IM.CONCEPT_SET))
         .set(iri(IM.DEFINITION), TTLiteral.literal(definition));
-      valueSet.set(iri(IM.IM_1_DBID),TTLiteral.literal(100000000+vs.getId().hashCode()));
       this.addUsedIn(valueSet);
       this.document.addEntity(valueSet);
       return valueSet;
@@ -1369,7 +1367,6 @@ public class EqdResources {
     } else {
       TTEntity valueSet = new TTEntity()
         .setIri(namespace + vs.getId()).setName(name).addType(iri(IM.CONCEPT_SET));
-      valueSet.set(iri(IM.IM_1_DBID),TTLiteral.literal(100000000+vs.getId().hashCode()));
       valueSet.setScheme(iri(namespace));
       if (this.columnGroup != null) {
         queryEntity.addObject(iri(IM.USES), iri(valueSet.getIri()));

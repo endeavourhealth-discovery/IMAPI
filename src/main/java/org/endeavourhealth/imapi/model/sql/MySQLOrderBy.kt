@@ -2,8 +2,7 @@ package org.endeavourhealth.imapi.model.sql
 
 class MySQLOrderByItem(val property: String, val direction: String, val table: Table? = null) {
   fun toSql(): String {
-    if (table?.alias != null) return "${table.alias}.$property $direction"
-    return "$property $direction"
+    return "${table?.alias ?: table?.table}.$property $direction"
   }
 }
 
@@ -14,9 +13,6 @@ class MySQLOrderBy(val items: MutableList<MySQLOrderByItem>, val limit: Int? = n
     } else {
       ""
     }
-
-//    val limitClause = limit?.let { " LIMIT $it" } ?: ""
-
     return orderBy
   }
 }

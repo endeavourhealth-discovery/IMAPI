@@ -365,7 +365,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
     if (match.`return` != null) {
-      val (selects, selectJoins, ynWith) =
+      val (selects, selectJoins) =
         getSelects(
           with.table,
           match.`return`,
@@ -415,14 +415,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
     currentWithAlias: String,
     nodeToTableMap: HashMap<String, Table>,
-  ): Triple<MutableList<MySQLSelect>, MutableList<MySQLJoin>, MySQLWith?> {
+  ): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
     val selects = mutableListOf<MySQLSelect>()
     val joins = mutableListOf<MySQLJoin>()
-    var ynWith: MySQLWith? = null
     for (ret in returx) {
       if (ret.iri != null)
-        if (ret.case != null) ynWith = getYNCaseSelect(ret, mySqlQuery, currentWithAlias, table)
-        else addSelectFromProperty(ret, selects, nodeToTableMap, table)
+        addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
         if (ret.function.iri == IM.COUNT.toString()) selects.add(
           MySQLSelect(
@@ -433,7 +431,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         else if (ret.function != null) selects.add(getFunctionSelect(table, ret, nodeToTableMap))
       } else throw SQLConversionException("Unsupported return $returx")
     }
-    return Triple(selects, joins, ynWith)
+    return Pair(selects, joins)
   }
 
   private fun getFunctionSelect(
@@ -464,55 +462,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-  private fun getYNCaseSelect(
-    returnProperty: Return,
-    mySqlQuery: MySQLQuery,
-    currentWithAlias: String,
-    currentWithTable: Table
-  ): MySQLWith {
-    //    TODO: handle multiple when cases?
-    //    TODO: handle when where cases
-    //    TODO: handle nested cases?
-    if (returnProperty.case.`when`.size != 1) throw SQLConversionException("Unsupported case size ${returnProperty.case.`when`.size}")
-    if (!returnProperty.case.`when`.first().isExists) throw SQLConversionException("Unsupported case ${returnProperty.case}")
-
-    val ynSelect = MySQLSelect(
-      "IFNULL($currentWithAlias.${currentWithTable.primaryKey}, '${returnProperty.case.`else`}', '${returnProperty.case.`when`.first().then}')",
-      if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null
-    )
-    val tableYNAlias = "${returnProperty.`as` ?: currentWithAlias}_YN"
-    val join = currentWithTable.getJoinCondition(
-      joinType = "LEFT JOIN",
-      tableTo = mySqlQuery.withs.last().table,
-      tableToAlias = mySqlQuery.withs.last().alias,
-      tableFromAlias = currentWithAlias,
-    )
-    val ynWith = MySQLWith(
-      table = currentWithTable,
-      fromAlias = currentWithAlias,
-      alias = tableYNAlias,
-      selects = mutableListOf(ynSelect),
-      joins = mutableListOf(join),
-      wheres = mutableListOf(),
-      whereBool = Bool.and
-    )
-    return ynWith
-  }
-
   private fun addSelectFromProperty(
     returnProperty: Return,
     selects: MutableList<MySQLSelect>,
     nodeToTableMap: HashMap<String, Table>,
     currentWithTable: Table
   ) {
-//    var field =
-//      if (returnProperty.iri == "http://endhealth.info/im#age") IMtoMySQLMap.functions[returnProperty.iri]?.replace(
-//        "{units}",
-//        "YEAR"
-//      )?.replace("{relativeTo}", $$"$searchDate") else IMtoMySQLMap.functions[returnProperty.iri]
-//    if (field == null) {
     val currentTable =
-      if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else queryTypeOfTable
+      if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else currentWithTable
     if (currentTable == null) throw SQLConversionException("No table exists for ${returnProperty.iri}")
     val property = getPropertyNameByTableAndPropertyIri(
       currentTable,
@@ -522,7 +479,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (returnProperty.nodeRef != null) {
       currentWithTable.fields[returnProperty.iri] = property
     }
-//    }
     selects.add(MySQLSelect(field, if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null))
   }
 

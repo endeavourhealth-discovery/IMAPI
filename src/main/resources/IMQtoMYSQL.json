@@ -352,7 +352,7 @@
         "http://endhealth.info/im#problemEpisode": {"field": "episodicity_concept_id", "type": "iri"},
         "http://endhealth.info/im#text": {"field": "result_text", "type": "string"},
         "http://endhealth.info/im#units": {"field": "result_value_units", "type": "string"},
-        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "string"}
+        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},
@@ -420,7 +420,8 @@
         "http://endhealth.info/im#dosage": {"field": "dose", "type": "string"},
         "http://endhealth.info/im#value": {"field": "quantity_value", "type": "number"},
         "http://endhealth.info/im#units": {"field": "quantity_unit", "type": "string"},
-        "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"}
+        "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"},
+        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},

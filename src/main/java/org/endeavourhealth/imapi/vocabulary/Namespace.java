@@ -64,6 +64,8 @@ public enum Namespace implements VocabEnum {
     CPRD_PROD("http://endhealth.info/cprdp#"),
     NHS_TFC("http://endhealth.info/nhstfc#"),
     KINGS_WINPATH("http://endhealth.info/kwp#"),
+    OPENEHR_104("http://openehr.org/im104#"),
+    OPENEHR_CKM("http://ckm.openehr.org/ckm#"),
     ;
 
     private final String value;

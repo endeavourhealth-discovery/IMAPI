@@ -25,7 +25,10 @@ public enum XSD implements VocabEnum {
     BOOLEAN(Namespace.XSD + "boolean"),
     LONG(Namespace.XSD + "long"),
     DOUBLE(Namespace.XSD + "double"),
+    TIME(Namespace.XSD + "time"),
+    DATE(Namespace.XSD + "date"),
     DATE_TIME(Namespace.XSD + "dateTime"),
+    DURATION(Namespace.XSD + "duration"),
     NUMBER(Namespace.XSD + "number"),
     DECIMAL(Namespace.XSD + "decimal"),
     ;

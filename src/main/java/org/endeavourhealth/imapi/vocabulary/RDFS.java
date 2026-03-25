@@ -25,6 +25,7 @@ public enum RDFS implements VocabEnum {
     CLASS(Namespace.RDFS + "Class"),
     DATATYPE(Namespace.RDFS + "Datatype"),
     IS_DEFINED_BY(Namespace.RDFS + "isDefinedBy"),
+    SEE_ALSO(Namespace.RDFS + "seeAlso"),
     ;
 
     private final String value;

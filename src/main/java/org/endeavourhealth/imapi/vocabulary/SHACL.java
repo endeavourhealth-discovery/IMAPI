@@ -53,6 +53,7 @@ public enum SHACL implements VocabEnum {
     NAME(Namespace.SHACL + "name"),
     EXPRESSION(Namespace.SHACL + "expression"),
     HAS_VALUE(Namespace.SHACL + "hasValue"),
+    IN(Namespace.SHACL + "in"),
     ;
 
     private final String value;

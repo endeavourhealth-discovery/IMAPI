@@ -59,6 +59,24 @@
     ]
   },
   {
+    "name": "OPENEHR_104",
+    "entries": [
+      {
+        "name": "PREFIX",
+        "value": "\"oe\""
+      }
+    ]
+  },
+  {
+    "name": "OPENEHR_CKM",
+    "entries": [
+      {
+        "name": "PREFIX",
+        "value": "\"ickm\""
+      }
+    ]
+  },
+  {
     "name": "IMQ",
     "entries": [
     ]
@@ -1566,6 +1584,10 @@
       {
         "name": "IS_DEFINED_BY",
         "value": "Namespace.RDFS + \"isDefinedBy\""
+      },
+      {
+        "name": "SEE_ALSO",
+        "value": "Namespace.RDFS + \"seeAlso\""
       }
     ]
   },
@@ -1730,6 +1752,10 @@
       {
         "name": "HAS_VALUE",
         "value": "Namespace.SHACL + \"hasValue\""
+      },
+      {
+        "name": "IN",
+        "value": "Namespace.SHACL + \"in\""
       }
     ]
   },
@@ -1977,8 +2003,20 @@
         "value": "Namespace.XSD + \"double\""
       },
       {
+        "name": "TIME",
+        "value": "Namespace.XSD + \"time\""
+      },
+      {
+        "name": "DATE",
+        "value": "Namespace.XSD + \"date\""
+      },
+      {
         "name": "DATE_TIME",
         "value": "Namespace.XSD + \"dateTime\""
+      },
+      {
+        "name": "DURATION",
+        "value": "Namespace.XSD + \"duration\""
       },
       {
         "name": "NUMBER",
@@ -2777,6 +2815,14 @@
       {
         "name": "KINGS_WINPATH",
         "value": "\"http://endhealth.info/kwp#\""
+      },
+      {
+        "name" : "OPENEHR_104",
+        "value" : "\"http://openehr.org/im104#\""
+      },
+      {
+        "name" : "OPENEHR_CKM",
+        "value" : "\"http://ckm.openehr.org/ckm#\""
       }
     ]
   }

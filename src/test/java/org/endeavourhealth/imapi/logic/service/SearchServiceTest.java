@@ -34,36 +34,6 @@ import java.util.Set;
 
 class SearchServiceTest {
 
-  //@Test
-  void queryOptimiser(){
-    ObjectMapper mapper = new ObjectMapper();
-    String sql= """
-      select ?iri ?definition
-      {
-        ?iri rdf:type im:Query.
-        ?iri im:definition ?definition.
-      }
-      """;
-    try (IMDB conn = IMDB.getConnection()) {
-      TupleQuery qry = conn.prepareTupleSparql(sql);
-
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          String iri= bs.getValue("iri").toString();
-          String definition= bs.getValue("definition").stringValue();
-          Query query= mapper.readValue(definition, Query.class);
-          new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);;
-        }
-      } catch (JsonProcessingException e) {
-        throw new RuntimeException(e);
-      }
-
-
-    }
-
-  }
-
 
 //@Test
   void os() throws QueryException, OpenSearchException {

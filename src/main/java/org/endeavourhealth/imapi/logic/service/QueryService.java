@@ -75,7 +75,11 @@ public class QueryService {
     } else {
       query = queryRequest.getQuery();
     }
-    new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    try {
+      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    } catch (Exception e) {
+      throw new SQLConversionException(e.getMessage(),e);
+    }
     if (query == null) return null;
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
     query.setQueryType();

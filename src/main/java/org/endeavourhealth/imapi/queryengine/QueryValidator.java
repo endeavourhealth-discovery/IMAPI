@@ -10,13 +10,15 @@ public class QueryValidator {
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
-   String mainEntity="entity";
-   if (query.getNode()!=null){
-     mainEntity=query.getNode();
-   } else if (query.getParameter()!=null){
-      mainEntity=query.getParameter().replace("$","");
+    if (query.getKeepClauses()!=null){
+      query.getKeepClauses().forEach(keep->variables.put(keep.getNode(), VarType.NODE));
     }
-
+    String mainEntity="entity";
+    if (query.getNode()!=null){
+       mainEntity=query.getNode();
+    } else if (query.getParameter()!=null){
+        mainEntity=query.getParameter().replace("$","");
+    }
     if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere()&&null==query.getTypeOf())
       throw new QueryException("Query must have match clause or is or where clause");
 

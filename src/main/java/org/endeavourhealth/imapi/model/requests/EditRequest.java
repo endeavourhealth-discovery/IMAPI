@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 public class EditRequest {
   private TTEntity entity;
   private String hostUrl;
-  private Namespace namespace;
+  private String namespace;
   private String crud;
 
   public EditRequest(TTEntity entity, String hostUrl) {
@@ -30,7 +30,7 @@ public class EditRequest {
     return this;
   }
 
-  public EditRequest setNamespace(Namespace namespace) {
+  public EditRequest setNamespace(String namespace) {
     this.namespace = namespace;
     return this;
   }

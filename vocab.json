@@ -210,10 +210,6 @@
         "value": "Namespace.IM + \"updateProcedure\""
       },
       {
-        "name": "INVERSE_PATH",
-        "value": "Namespace.IM + \"inversePath\""
-      },
-      {
         "name": "CONCEPT",
         "value": "Namespace.IM + \"Concept\""
       },

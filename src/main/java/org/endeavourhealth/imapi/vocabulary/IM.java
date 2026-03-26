@@ -49,7 +49,6 @@ public enum IM implements VocabEnum {
     IS(Namespace.IM + "is"),
     RETURN_TYPE(Namespace.IM + "returnType"),
     UPDATE_PROCEDURE(Namespace.IM + "updateProcedure"),
-    INVERSE_PATH(Namespace.IM + "inversePath"),
     CONCEPT(Namespace.IM + "Concept"),
     CODEABLE(Namespace.IM + "Codeable"),
     CONCEPT_PROPERTY(Namespace.IM + "concept"),

@@ -10,10 +10,87 @@ import java.util.*;
 public class LogicOptimizer {
   Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
-  private String lastTypeOf;
+  private Map<String,Match> keepMatches = new HashMap<>();
 
 
+  public void resolveReturns(Match match) throws QueryException {
+    setKeepMatches(match);
+    injectKeepReturns(match);
+  }
 
+  private void injectKeepReturns(Match match) {
+    if (match.getWhere()!=null) {
+      injectKeepReturns(match.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          injectKeepReturns(subMatch);
+        }
+      }
+    }
+  }
+
+  private void injectKeepReturns(Where where){
+    if (where.getCompare()!=null){
+      ValueSource right= where.getCompare().getRight();
+      String nodeRef= right.getNodeRef();
+      if (nodeRef==null) return;
+      Match match= keepMatches.get(nodeRef);
+      if (right.getIri()!=null){
+        String alias= right.getIri().substring(right.getIri().lastIndexOf("#")+1);
+        match.addReturn(new Return()
+          .setIri(right.getIri())
+          .setAs(alias));
+        right.setPropertyRef(alias);
+      }
+      else if (right.getPath()!=null){
+        injectReturns(match,right,right.getPath(),"");
+      }
+    }
+    for (List<Where> wheres:Arrays.asList(where.getAnd(),where.getOr())){
+      if (wheres!=null){
+        for (Where subWhere:wheres){
+          injectKeepReturns(subWhere);
+        }
+      }
+    }
+  }
+  private void injectReturns(Match match,ValueSource valueSource,ValuePath path,String prefix){
+    Path matchPath= new Path();
+    matchPath.setIri(path.getIri());
+    matchPath.setTypeOf(path.getTypeOf());
+    matchPath.setNode(prefix+path.getIri().substring(path.getIri().lastIndexOf("#")+1));
+    match.addPath(matchPath);
+    if (path.getPath()==null){
+      match.addReturn(new Return()
+        .setNodeRef(matchPath.getNode())
+        .setIri(path.getIri())
+        .setAs(matchPath.getNode()));
+      valueSource.setPropertyRef(matchPath.getNode());
+    }
+    else {
+      injectReturns(match,valueSource,path.getPath(),matchPath.getNode()+"_");;
+    }
+  }
+
+
+  public void setKeepMatches(Match match) throws QueryException {
+    if (match.getNode()!=null){
+      if (keepMatches.containsKey(match.getNode())){
+        throw new QueryException("Duplicate match node node: " + match.getNode());
+      }
+      keepMatches.put(match.getNode(),match);
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          setKeepMatches(subMatch);
+        }
+      }
+    }
+
+  }
 
   public static void optimizeQuery(Query query) {
     //flattenMatch(query);
@@ -171,14 +248,19 @@ public class LogicOptimizer {
   }
 
 
-  public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
-    if (displayMode == DisplayMode.LOGICAL) {
-      getLogicFromRules(match);
-      optimiseMatch(match);
-    } else {
-      optimiseMatch(match);
+  public void resolveLogic(Match match, DisplayMode displayMode) throws QueryException {
+    try {
+      if (displayMode == DisplayMode.LOGICAL) {
+        getLogicFromRules(match);
+        optimiseMatch(match);
+      } else {
+        optimiseMatch(match);
+      }
+      flattenMatch(match);
+      resolveReturns(match);
+    } catch (Exception e) {
+      throw new QueryException("Error resolving logic", e);
     }
-    flattenMatch(match);
   }
 
   private void getLogicFromRules(Match match) {

@@ -351,7 +351,7 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, Namespace updateNamespace) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, String  updateNamespace) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
     Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);

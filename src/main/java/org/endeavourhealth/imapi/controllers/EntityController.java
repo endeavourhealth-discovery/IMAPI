@@ -149,7 +149,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
+  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException,QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
@@ -313,7 +313,7 @@ public class EntityController {
   public boolean entityExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
       log.debug("entityExists");
-      org.endeavourhealth.imapi.vocabulary.Namespace namespace = org.endeavourhealth.imapi.vocabulary.Namespace.from(iri.substring(0, iri.indexOf("#") + 1));
+      String namespace = iri.substring(0, iri.indexOf("#") + 1);
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
       return entityService.entityExists(iri);
     }

@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
@@ -70,7 +71,7 @@ public class EntityService {
     }
   }
 
-  public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException {
+  public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
     Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));
@@ -86,11 +87,10 @@ public class EntityService {
     return bundle.getEntity();
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException{
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
-    if (bundle.getPredicates().containsKey(IM.DEFINITION.toString())) convertRuleToLogicalJson(bundle);
     return bundle;
   }
 
@@ -456,7 +456,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException{
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;

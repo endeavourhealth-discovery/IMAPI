@@ -1830,7 +1830,7 @@ public class EntityRepository {
           ?property sh:path ?path.
            ?path rdfs:label ?pathLabel.
           ?property sh:node ?entity.}
-          
+      
           }
           union {
            ?parent im:contentType ?entity.
@@ -2147,6 +2147,7 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String subqIri = bs.getValue("o").stringValue();
+          if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
           if (!results.containsKey(subqIri))

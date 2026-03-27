@@ -4,7 +4,7 @@ import org.apache.lucene.search.DoubleValuesSource.fromField
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import kotlin.String
 
-class Table(
+data class Table(
   var dataModels: List<String>? = ArrayList(),
   var table: String = "",
   var primaryKey: String = "",

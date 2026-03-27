@@ -28,7 +28,6 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
-  private final Map<String, Match> linkTargets = new HashMap<>();
   @Getter
   private EntityRepository repo = new EntityRepository();
   @Getter
@@ -287,16 +286,7 @@ public class QueryDescriptor {
         describeMatch(subMatch);
       }
     }
-    if (match.getUnion() != null) {
-      for (Match subMatch : match.getUnion()) {
-        describeMatch(subMatch);
-      }
-    }
-    if (match.getStep() != null) {
-      for (Match subMatch : match.getStep()) {
-        describeMatch(subMatch);
-      }
-    }
+
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         describePath(path);
@@ -306,8 +296,9 @@ public class QueryDescriptor {
     if (match.getWhere() != null) {
       describeWhere(match.getWhere(), match);
     }
-    if (match.getNode() != null) {
-      linkTargets.put(match.getNode(), match);
+
+    if (match.getThen() != null) {
+      describeWhere(match.getThen(), match);
     }
   }
 
@@ -432,11 +423,6 @@ public class QueryDescriptor {
   }
 
   private void describeValueSource(ValueSource source) {
-    String nodeRef = source.getNodeRef();
-    if (nodeRef != null && linkTargets.containsKey(nodeRef)) {
-      Match match = linkTargets.get(nodeRef);
-      match.setLinkedTarget(true);
-    }
     if (source.getIri() != null) {
       source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
     }
@@ -534,6 +520,3 @@ public class QueryDescriptor {
     return shortDescription.toString();
   }
 }
-
-
-

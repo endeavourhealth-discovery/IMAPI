@@ -100,6 +100,15 @@ public class PropertyShape{
   private boolean highCardinality;
   @Getter
   private List<Argument> isValidArguments;
+  private TTIriRef inversePath;
+
+  public TTIriRef getInversePath() {
+    return inversePath;
+  }
+  public PropertyShape setInversePath(TTIriRef inversePath) {
+    this.inversePath = inversePath;
+    return this;
+  }
 
 
   public PropertyShape setAscending(String ascending) {

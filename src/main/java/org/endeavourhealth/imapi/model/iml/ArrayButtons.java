@@ -1,6 +1,11 @@
 package org.endeavourhealth.imapi.model.iml;
 
 import lombok.Getter;
+import lombok.Setter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class ArrayButtons {
@@ -34,4 +39,5 @@ public class ArrayButtons {
     this.addOnlyIfLast = addOnlyIfLast;
     return this;
   }
+
 }

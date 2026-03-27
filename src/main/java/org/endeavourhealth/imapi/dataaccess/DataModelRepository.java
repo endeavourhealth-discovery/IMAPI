@@ -5,13 +5,8 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.dto.UIProperty;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.ParameterShape;
-import org.endeavourhealth.imapi.model.iml.PropertyRange;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -235,6 +230,10 @@ public class DataModelRepository {
     if (bs.getValue("highCardinality") != null) {
       property.setHighCardinality(true);
     }
+    if (bs.getValue("inversePath") != null) {
+      property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
+        .setName(bs.getValue("inversePathName").stringValue()));
+    }
   }
 
   private void getPropertyDataType(BindingSet bs, PropertyShape property) {
@@ -328,7 +327,8 @@ public class DataModelRepository {
 
   private String getPropertySql(String iri) {
     return """
-      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
+      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
+      ?inversePath ?inversePathName
       ?highCardinality
       ?class ?className ?classType ?classTypeName
       ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
@@ -351,6 +351,10 @@ public class DataModelRepository {
         }
         optional {
           ?property im:highCardinality ?highCardinality.
+        }
+         optional {
+          ?property sh:inversePath ?inversePath.
+          ?inversePath rdfs:label ?inversePathName.
         }
         optional {?property sh:order ?order.}
         optional {
@@ -493,12 +497,13 @@ public class DataModelRepository {
         IF(EXISTS {
           ?property sh:class ?valueC
         }, "class", "None"))) AS ?propertyType)
-        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
+        ?valueType ?valueTypeName ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
         WHERE {
           ?dmIri sh:property ?property .
           ?property sh:path ?propIri .
           ?propIri rdfs:label ?name .
           ?property (sh:class | sh:node | sh:datatype) ?valueType .
+          ?valueType rdfs:label ?valueTypeName.
           OPTIONAL {
              ?valueType im:datatypeQualifier ?qualifierIri .
              ?qualifierIri rdfs:label ?qualifierName .
@@ -526,6 +531,7 @@ public class DataModelRepository {
           uiProp.setPropertyType(bs.getValue("propertyType").stringValue());
           if (bs.getValue("valueType") != null) {
             uiProp.setValueType(bs.getValue("valueType").stringValue());
+            uiProp.setValueTypeName(bs.getValue("valueTypeName").stringValue());
           }
           if (bs.getValue("intervalUnitIri") != null)
             uiProp.setIntervalUnitIri(bs.getValue("intervalUnitIri").stringValue());

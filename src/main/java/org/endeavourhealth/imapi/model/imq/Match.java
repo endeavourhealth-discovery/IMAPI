@@ -31,7 +31,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
-  private List<Match> step;
   private String libraryItem;
   private boolean invalid;
   private List<Node> is;
@@ -39,19 +38,52 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String node;
   private OrderLimit orderBy;
   private String asDescription;
-  private List<Match> union;
   private boolean notExists;
-  private boolean linkedTarget;
   private String errorMessage;
+  private boolean draft;
+  private Where then;
+  private List<Match> keepClauses;
 
-  public boolean isLinkedTarget() {
-    return linkedTarget;
+  public List<Match> getKeepClauses() {
+    return keepClauses;
   }
-
-  public Match setLinkedTarget(boolean linkedTarget) {
-    this.linkedTarget = linkedTarget;
+  public Match setKeepClauses(List<Match> keepClauses) {
+    this.keepClauses = keepClauses;
     return this;
   }
+  public Match addKeepClause(Match keepClause) {
+    if (this.keepClauses == null) {
+      this.keepClauses = new ArrayList<>();
+    }
+    this.keepClauses.add(keepClause);
+    return this;
+  }
+
+  public Where getThen() {
+    return then;
+  }
+  public Match setThen(Where then) {
+    this.then = then;
+    return this;
+  }
+
+  public Match then(Consumer<Where> builder) {
+    this.then = new Where();
+    builder.accept(this.then);
+    return this;
+  }
+
+
+  public boolean isDraft() {
+    return draft;
+  }
+
+  public Match setDraft(boolean draft) {
+    this.draft = draft;
+    return this;
+  }
+
+
 
   public String getErrorMessage() {
     return errorMessage;
@@ -81,53 +113,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   @JsonGetter
   public boolean notExists() {
     return notExists;
-  }
-
-  public List<Match> getStep() {
-    return step;
-  }
-
-  public Match setStep(List<Match> step) {
-    this.step = step;
-    return this;
-  }
-
-  public Match addStep(Match step) {
-    if (this.step == null) {
-      this.step = new ArrayList<>();
-    }
-    this.step.add(step);
-    return this;
-  }
-
-  public Match step(Consumer<Match> builder) {
-    Match step = new Match();
-    addStep(step);
-    builder.accept(step);
-    return this;
-  }
-
-  public List<Match> getUnion() {
-    return union;
-  }
-
-  public Match setUnion(List<Match> union) {
-    this.union = union;
-    return this;
-  }
-
-  public Match addUnion(Match union) {
-    if (this.union == null) {
-      this.union = new ArrayList<>();
-    }
-    this.union.add(union);
-    return this;
-  }
-  public Match union(Consumer<Match> builder) {
-    Match union = new Match();
-    addUnion(union);
-    builder.accept(union);
-    return this;
   }
 
 

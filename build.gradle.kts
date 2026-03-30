@@ -164,6 +164,7 @@ dependencies {
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
   implementation(libs.jackson.databind)
+  implementation(libs.jackson.kotlin)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
   implementation(libs.elasticsearch)

@@ -15,7 +15,8 @@ data class MySQLWith(
   val unionWiths: MutableList<MySQLWith> = mutableListOf(),
   val unionAll: Boolean = false,
   var subQuery: MySQLWith? = null,
-  var isStep: Boolean = false
+  var isStep: Boolean = false,
+  var isLeftJoin: Boolean = false,
 ) {
   private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->

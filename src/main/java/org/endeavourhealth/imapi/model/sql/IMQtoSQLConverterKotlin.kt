@@ -179,10 +179,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     definition: Query,
     mySqlQuery: MySQLQuery,
     bool: Bool,
-    isColumnGroup: Boolean? = false,
   ) {
     for (m in match) {
-      addMatchWithsRecursively(m, definition, mySqlQuery, bool, isColumnGroup)
+      addMatchWithsRecursively(m, definition, mySqlQuery, bool)
     }
   }
 
@@ -191,7 +190,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     parentMatch: Match,
     mySqlQuery: MySQLQuery,
     bool: Bool,
-    isColumnGroup: Boolean? = false,
   ) {
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
@@ -207,17 +205,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (currentMatch.and == null && currentMatch.or == null) {
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
-      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery, isColumnGroup))
+      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }
 
 
-  private fun getMySQLWithFromMatch(
-    match: Match,
-    mySQLQuery: MySQLQuery,
-    isColumnGroup: Boolean? = false,
-  ): MySQLWith {
-    var with = MySQLWith(isLeftJoin = isColumnGroup == true)
+  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+    var with = MySQLWith()
 
     if (match.typeOf?.iri != null) {
       with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)

@@ -20,22 +20,7 @@ data class MySQLQuery(
     append(withs.joinToString(",\n") { it.toSql() })
     append("\nSELECT ")
     append(selects.joinToString(",\n") { it.toSql() })
-    append("\nFROM ${withs.last { !it.isLeftJoin }.alias}")
-    if (withs.last().isLeftJoin) {
-      val leftJoinCte = withs.last()
-      val secondLastCte = withs[withs.size - 2]
-      val (fk, pk) = if (leftJoinCte.table.table == secondLastCte.table.table)
-        secondLastCte.table.primaryKey to secondLastCte.table.primaryKey
-      else leftJoinCte.table.foreignKeyTo(secondLastCte.table)
-      MySQLJoin(
-        "LEFT JOIN",
-        tableFrom = secondLastCte.table.table,
-        tableTo = leftJoinCte.table.table,
-        fromProperty = fk,
-        toProperty = pk
-      ).let { joins.add(it) }
-      append("\n LEFT JOIN ${withs.last { it.isLeftJoin }.alias}")
-    }
+    append("\nFROM ${withs.last().alias}")
     append(joins.joinToString("\n") { it.toSql() })
     savingAs?.let {
       append("\n")

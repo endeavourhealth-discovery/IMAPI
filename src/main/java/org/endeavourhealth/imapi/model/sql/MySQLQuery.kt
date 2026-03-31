@@ -20,7 +20,7 @@ data class MySQLQuery(
     append(withs.joinToString(",\n") { it.toSql() })
     append("\nSELECT ")
     append(selects.joinToString(",\n") { it.toSql() })
-    append("\nFROM ${withs.last { !it.isLeftJoin }}")
+    append("\nFROM ${withs.last { !it.isLeftJoin }.alias}")
     if (withs.last().isLeftJoin) {
       val leftJoinCte = withs.last()
       val secondLastCte = withs[withs.size - 2]
@@ -34,7 +34,7 @@ data class MySQLQuery(
         fromProperty = fk,
         toProperty = pk
       ).let { joins.add(it) }
-      append("\n LEFT JOIN ${withs.last { it.isLeftJoin }}")
+      append("\n LEFT JOIN ${withs.last { it.isLeftJoin }.alias}")
     }
     append(joins.joinToString("\n") { it.toSql() })
     savingAs?.let {

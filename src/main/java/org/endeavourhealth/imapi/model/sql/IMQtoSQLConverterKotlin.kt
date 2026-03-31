@@ -65,7 +65,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val newMySqlQuery = MySQLQuery()
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
-        addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and, true)
+        addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
           val lastCTE = mySqlQuery.withs.last { !it.exclude }
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)

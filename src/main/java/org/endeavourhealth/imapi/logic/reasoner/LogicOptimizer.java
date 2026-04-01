@@ -10,10 +10,87 @@ import java.util.*;
 public class LogicOptimizer {
   Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
-  private String lastTypeOf;
+  private Map<String,Match> keepMatches = new HashMap<>();
 
 
+  public void resolveReturns(Match match) throws QueryException {
+    setKeepMatches(match);
+    injectKeepReturns(match);
+  }
 
+  private void injectKeepReturns(Match match) {
+    if (match.getWhere()!=null) {
+      injectKeepReturns(match.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          injectKeepReturns(subMatch);
+        }
+      }
+    }
+  }
+
+  private void injectKeepReturns(Where where){
+    if (where.getCompare()!=null){
+      ValueSource right= where.getCompare().getRight();
+      String nodeRef= right.getNodeRef();
+      if (nodeRef==null) return;
+      Match match= keepMatches.get(nodeRef);
+      if (right.getIri()!=null){
+        String alias= right.getIri().substring(right.getIri().lastIndexOf("#")+1);
+        match.addReturn(new Return()
+          .setIri(right.getIri())
+          .setAs(alias));
+        right.setPropertyRef(alias);
+      }
+      else if (right.getPath()!=null){
+        injectReturns(match,right,right.getPath(),"");
+      }
+    }
+    for (List<Where> wheres:Arrays.asList(where.getAnd(),where.getOr())){
+      if (wheres!=null){
+        for (Where subWhere:wheres){
+          injectKeepReturns(subWhere);
+        }
+      }
+    }
+  }
+  private void injectReturns(Match match,ValueSource valueSource,ValuePath path,String prefix){
+    Path matchPath= new Path();
+    matchPath.setIri(path.getIri());
+    matchPath.setTypeOf(path.getTypeOf());
+    matchPath.setNode(prefix+path.getIri().substring(path.getIri().lastIndexOf("#")+1));
+    match.addPath(matchPath);
+    if (path.getPath()==null){
+      match.addReturn(new Return()
+        .setNodeRef(matchPath.getNode())
+        .setIri(path.getIri())
+        .setAs(matchPath.getNode()));
+      valueSource.setPropertyRef(matchPath.getNode());
+    }
+    else {
+      injectReturns(match,valueSource,path.getPath(),matchPath.getNode()+"_");;
+    }
+  }
+
+
+  public void setKeepMatches(Match match) throws QueryException {
+    if (match.getNode()!=null){
+      if (keepMatches.containsKey(match.getNode())){
+        throw new QueryException("Duplicate match node node: " + match.getNode());
+      }
+      keepMatches.put(match.getNode(),match);
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          setKeepMatches(subMatch);
+        }
+      }
+    }
+
+  }
 
   public static void optimizeQuery(Query query) {
     //flattenMatch(query);
@@ -44,10 +121,7 @@ public class LogicOptimizer {
     if (logicalMatch.getWhere() != null) {
       logicalWhere(logicalMatch.getWhere());
     }
-    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(),
-      logicalMatch.getOr(),
-      logicalMatch.getStep(),
-      logicalMatch.getUnion())) {
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr())) {
       if (matches != null) {
         for (int i = 0; i < matches.size(); i++) {
           Match subMatch = matches.get(i);
@@ -143,7 +217,7 @@ public class LogicOptimizer {
   }
 
   private static void clean(Match group, Match parent,Integer parentIndex) {
-    for (List<Match> list: Arrays.asList(group.getAnd(), group.getOr(),group.getUnion())) {
+    for (List<Match> list: Arrays.asList(group.getAnd(), group.getOr())) {
       if (list != null) {
         for (int i = 0; i < list.size(); i++) {
           cleanBoolGroup(list.get(i), group, i);
@@ -165,7 +239,6 @@ public class LogicOptimizer {
   private static Bool getBoolOp(Match group) {
     if (group.getAnd() != null) return Bool.and;
     if (group.getOr() != null) return Bool.or;
-    if (group.getUnion() != null) return Bool.union;
     else return null;
   }
 
@@ -175,12 +248,18 @@ public class LogicOptimizer {
   }
 
 
-  public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
-    if (displayMode == DisplayMode.LOGICAL) {
-      getLogicFromRules(match);
-      optimiseMatch(match);
-    } else {
-      optimiseMatch(match);
+  public void resolveLogic(Match match, DisplayMode displayMode) throws QueryException {
+    try {
+      if (displayMode == DisplayMode.LOGICAL) {
+        getLogicFromRules(match);
+        optimiseMatch(match);
+      } else {
+        optimiseMatch(match);
+      }
+      flattenMatch(match);
+      resolveReturns(match);
+    } catch (Exception e) {
+      throw new QueryException("Error resolving logic", e);
     }
   }
 
@@ -236,6 +315,7 @@ public class LogicOptimizer {
       }
     }
     match.setRule(null);
+
   }
 
   public void optimiseMatch(Match match) throws JsonProcessingException {
@@ -243,7 +323,47 @@ public class LogicOptimizer {
     optimizeOrMatches(match);
   }
 
-  private void optimizeAndMatches(Match match) throws JsonProcessingException {
+  private void flattenMatch(Match match) {
+    if (match.getOr() != null) {
+      List<Match> flatOrs= new ArrayList<>();
+      flattenOrs(match,flatOrs);
+      if (!flatOrs.isEmpty()) match.setOr(flatOrs);
+    }
+    else if (match.getAnd() != null) {
+      List<Match> flatAnds= new ArrayList<>();
+      flattenAnds(match,flatAnds);
+      if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
+    }
+  }
+  private void flattenAnds(Match match,List<Match> flatAnds) {
+    for (Match subMatch : match.getAnd()) {
+      if (subMatch.getAnd() == null){
+        flatAnds.add(subMatch);
+        flattenMatch(subMatch);
+      }
+      else {
+        flattenAnds(subMatch,flatAnds);
+      }
+    }
+  }
+
+  private void flattenOrs(Match match,List<Match> flatOrs) {
+    for (Match subMatch : match.getOr()) {
+      if (subMatch.getOr() == null){
+        flatOrs.add(subMatch);
+        flattenMatch(subMatch);
+      }
+      else {
+        flattenOrs(subMatch,flatOrs);
+      }
+    }
+  }
+
+
+
+
+
+private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;

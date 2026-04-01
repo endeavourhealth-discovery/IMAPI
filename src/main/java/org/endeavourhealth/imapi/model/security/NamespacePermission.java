@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NamespacePermission {
-  private Namespace iri;
+  private String iri;
   private boolean read;
   private boolean write;
 }

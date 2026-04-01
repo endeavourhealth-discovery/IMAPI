@@ -13,5 +13,5 @@ import org.endeavourhealth.imapi.vocabulary.Namespace;
 @AllArgsConstructor
 public class FileDocumentRequest {
   private TTDocument document;
-  private Namespace insertNamespace;
+  private String insertNamespace;
 }

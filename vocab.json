@@ -210,10 +210,6 @@
         "value": "Namespace.IM + \"updateProcedure\""
       },
       {
-        "name": "INVERSE_PATH",
-        "value": "Namespace.IM + \"inversePath\""
-      },
-      {
         "name": "CONCEPT",
         "value": "Namespace.IM + \"Concept\""
       },
@@ -1012,6 +1008,10 @@
       {
         "name": "IM_1_ID",
         "value": "Namespace.IM + \"im1Id\""
+      },
+      {
+        "name": "IM_1_DBID",
+        "value": "Namespace.IM + \"im1DbId\""
       },
       {
         "name": "PROV_ACTIVITY_TYPE",
@@ -2392,6 +2392,10 @@
       {
         "name": "SMARTLIFE",
         "value": "\"smartlifequery\""
+      },
+      {
+        "name": "SMARTLIFEINDICATOR",
+        "value": "\"smartlifeindicators\""
       },
       {
         "name": "QOF",

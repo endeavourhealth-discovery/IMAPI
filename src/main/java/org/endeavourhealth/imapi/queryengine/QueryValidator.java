@@ -10,13 +10,15 @@ public class QueryValidator {
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
-   String mainEntity="entity";
-   if (query.getNode()!=null){
-     mainEntity=query.getNode();
-   } else if (query.getParameter()!=null){
-      mainEntity=query.getParameter().replace("$","");
+    if (query.getKeepClauses()!=null){
+      query.getKeepClauses().forEach(keep->variables.put(keep.getNode(), VarType.NODE));
     }
-
+    String mainEntity="entity";
+    if (query.getNode()!=null){
+       mainEntity=query.getNode();
+    } else if (query.getParameter()!=null){
+        mainEntity=query.getParameter().replace("$","");
+    }
     if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere()&&null==query.getTypeOf())
       throw new QueryException("Query must have match clause or is or where clause");
 
@@ -32,7 +34,7 @@ public class QueryValidator {
   private void processMatches(Match boolMatch) throws QueryException {
     processMatch(boolMatch);
     validateMatch(boolMatch);
-    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr(),boolMatch.getStep())) {
+    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr())) {
       if (matches != null) {
         for (Match match : matches) {
           processMatch(match);
@@ -43,8 +45,6 @@ public class QueryValidator {
   }
 
   private void processMatch(Match match) throws QueryException {
-    if (match.getKeepAs()!=null&&match.getNode()==null)
-      match.setNode(match.getKeepAs());
     if (match.getNode() != null) {
       variables.put(match.getNode(), VarType.NODE);
     } else if (match.getParameter() != null) {
@@ -182,9 +182,11 @@ public class QueryValidator {
     if (compare.getRight()!=null) validateSource(compare.getRight());
   }
 
-  private void validateSource(ValueSource source) {
-    if (source.getKeepRef()!=null&&source.getNodeRef()==null)
-      source.setNodeRef(source.getKeepRef());
+  private void validateSource(ValueSource source) throws QueryException {
+    if (source.getNodeRef()!=null)
+      if (variables.get(source.getNodeRef()) == null)
+        throw new QueryException("Variable "+source.getNodeRef()+" not found");
+
   }
 
 

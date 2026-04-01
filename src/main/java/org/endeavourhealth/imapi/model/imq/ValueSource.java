@@ -12,14 +12,24 @@ public class ValueSource {
   private String iri;
   private String name;
   private String nodeRef;
-  private String keepRef;
+  private ValuePath path;
+  private String propertyRef;
 
-  public String getKeepRef() {
-    return keepRef;
+  public String getPropertyRef() {
+    return propertyRef;
   }
 
-  public ValueSource setKeepRef(String keepRef) {
-    this.keepRef = keepRef;
+  public ValueSource setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
+
+  public ValuePath getPath() {
+    return path;
+  }
+
+  public ValueSource setPath(ValuePath path) {
+    this.path = path;
     return this;
   }
 

@@ -12,5 +12,6 @@ public enum UserRole {
   TASK_MANAGER,
   AUTHORISER,
   APPROVER,
-  EXECUTOR
+  EXECUTOR,
+  UPRN
 }

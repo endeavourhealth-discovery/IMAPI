@@ -15,7 +15,7 @@ data class MySQLQuery(
 
   fun toSql(): String = buildString {
     create?.let { append(it.toSql()) }
-    insert?.let { append("INSERT INTO `$it`\n") }
+    insert?.let { append("INSERT INTO $it\n") }
     append("WITH ")
     append(withs.joinToString(",\n") { it.toSql() })
     append("\nSELECT ")

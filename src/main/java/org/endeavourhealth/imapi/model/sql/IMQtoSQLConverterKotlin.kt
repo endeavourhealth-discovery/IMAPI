@@ -61,7 +61,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
 
     if (definition.columnGroup != null) {
-      for ((index, columnGroup) in definition.columnGroup.withIndex()) {
+      for (columnGroup in definition.columnGroup) {
         val newMySqlQuery = MySQLQuery()
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
@@ -71,13 +71,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
             queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
           else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+          newMySqlQuery.insert = "dataset.dataset"
+          newMySqlQuery.selects.add(MySQLSelect(definition.iri, "hash"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "results"))
-
-          if (index == 0)
-            newMySqlQuery.create = MySQLCreate(definition.iri)
-          else newMySqlQuery.insert = definition.iri
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
@@ -87,8 +85,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
           queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
         else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+        mySqlQuery.insert = "dataset.cohort"
+        mySqlQuery.selects.add(MySQLSelect(definition.iri, "hash"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
-        mySqlQuery.create = MySQLCreate(definition.iri)
       }
       return mySqlQuery.toSql()
     }
@@ -142,24 +141,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         withJoins.add(
           MySQLJoin(
             "JOIN",
-            tableFrom = "`${isA.iri}`",
+            tableFrom = "dataset.cohort",
             tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
             fromProperty = "cohort_id",
             toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
             wheres = if (isA.isExclude) mutableListOf(
+              MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
               MySQLPropertyValueWhere("cohort_id", "IS", "NULL", null, null)
-            ) else mutableListOf()
+            ) else mutableListOf(
+              MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
+            )
           )
         )
       }
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
-      cohortTable.table = "`${isA.iri}`"
+      cohortTable.table = "dataset.cohort"
       val isAWith = MySQLWith(
         table = cohortTable,
         alias = isAlias,
         selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
         joins = withJoins.ifEmpty { mutableListOf() },
-        exclude = isA.isExclude
+        exclude = isA.isExclude,
+        wheres = mutableListOf(
+          MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
+        )
       )
       isAWiths.add(isAWith)
     }

@@ -219,7 +219,7 @@
       "fields": {
         "http://endhealth.info/im#dateOfBirth": {"field": "date_of_birth", "type": "date"},
         "http://endhealth.info/im#pseudonymisedId": {"field": "id", "type": "string"},
-        "http://endhealth.info/im#id": {"field": "patient_id", "type": "string"},
+        "http://endhealth.info/im#id": {"field": "id", "type": "string"},
         "http://endhealth.info/im#forenames": {"field": "first_names", "type": "string"},
         "http://endhealth.info/im#familyName": {"field": "last_name", "type": "string"},
         "http://endhealth.info/im#dateOfDeath": {"field": "date_of_death", "type": "date"},

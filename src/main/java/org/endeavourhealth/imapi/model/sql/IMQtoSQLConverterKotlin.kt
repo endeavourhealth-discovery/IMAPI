@@ -67,7 +67,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
-          val lastCTE = mySqlQuery.withs.last { !it.exclude }
+          val lastCTE = newMySqlQuery.withs.last { !it.exclude }
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
             queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
           else lastCTE.table.foreignKeyTo(queryTypeOfTable)
@@ -75,7 +75,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.selects.add(MySQLSelect(definition.iri, "hash"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
-          newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "results"))
+          newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }

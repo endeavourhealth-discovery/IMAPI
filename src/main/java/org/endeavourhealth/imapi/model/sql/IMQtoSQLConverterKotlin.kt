@@ -6,31 +6,37 @@ import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.imapi.model.tripletree.TTEntity
 import org.endeavourhealth.imapi.vocabulary.IM
 import java.util.Locale
 import java.util.Locale.getDefault
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
-  val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper()
+  val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper(),
+  val denominator: String? = null, val numerator: String? = null, val dataset: String? = null
 ) {
   private var IMtoMySQLMap: TableMap = MappingParser().parse("IMQtoMYSQL.json")
   var sql: String? = null
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
-  var queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+  var queryTypeOfTable = Table()
   private val MAX_ALIAS_LENGTH = 64  // DB limit for MySQL
   private var longAliasCounter = 1
 
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
-    require(queryTypeOf != null) { "Queries need a type" }
   }
 
   init {
     try {
-      sql = generateSQL(queryRequest.query)
+      if (queryRequest.query.queryType == IMQType.INDICATOR) sql = generateSQLforIndicator()
+      else {
+        require(queryTypeOf != null) { "Queries need a type" }
+        queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+        sql = generateSQL(queryRequest.query)
+      }
     } catch (e: SQLConversionException) {
       println("SQL Conversion Error: $e")
       throw e
@@ -40,6 +46,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } catch (e: Exception) {
       throw RuntimeException(e)
     }
+  }
+
+  private fun generateSQLforIndicator(): String {
+    if (denominator == null || numerator == null || dataset == null) throw SQLConversionException("Missing denominator, numerator or dataset")
+    val indSql = """
+      SELECT c.cohort_id, !ISNULL(n.cohort_id) as "Yes/No", d.json
+      FROM dataset.cohort c
+      LEFT JOIN dataset.cohort n ON n.cohort_id = c.cohort_id AND n.hash = $numerator
+      LEFT JOIN dataset.dataset d ON d.cohort_id = c.cohort_id AND d.hash = $dataset
+      WHERE c.hash = $denominator;
+    """.trimIndent()
+    return indSql
   }
 
   private fun generateSQL(definition: Query): String {
@@ -417,7 +435,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val alias = if (match.name != null) sanitiseAlias(match.name)
     else if (match.node != null) sanitiseAlias(match.node)
     else if (mySQLQuery.nodeToTableMap.keys.isNotEmpty()) "cte_${mySQLQuery.nodeToTableMap.keys.size}"
-    else "cte_1"
+    else "cte_${mySQLQuery.withs.size}"
 
     val existing = mySQLQuery.withs
       .map { it.alias }

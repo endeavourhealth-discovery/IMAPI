@@ -13,7 +13,25 @@ import java.util.function.Consumer;
 public class NodeShape extends TTIriRef {
   private List<TTIriRef> subType;
   private List<PropertyShape> property;
+  private TTIriRef definingProperty;
+  private TTIriRef inverseProperty;
 
+  public TTIriRef getInverseProperty() {
+    return inverseProperty;
+  }
+  public NodeShape setInverseProperty(TTIriRef inverseProperty) {
+    this.inverseProperty = inverseProperty;
+    return this;
+  }
+
+
+  public TTIriRef getDefiningProperty() {
+    return definingProperty;
+  }
+  public NodeShape setDefiningProperty(TTIriRef definingProperty) {
+    this.definingProperty = definingProperty;
+    return this;
+  }
 
 
   public List<TTIriRef> getSubType() {

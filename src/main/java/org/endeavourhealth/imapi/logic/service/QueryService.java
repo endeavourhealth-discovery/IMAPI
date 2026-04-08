@@ -76,7 +76,10 @@ public class QueryService {
     }
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
-      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION)).getEntity();
+      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
+      if (queryEntity.isType(iri(IM.INDICATOR)))
+        return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
+
       if (!queryEntity.has(iri(IM.DEFINITION)))
         throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
       query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);

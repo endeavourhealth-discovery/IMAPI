@@ -5,13 +5,8 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.dto.UIProperty;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
-import org.endeavourhealth.imapi.model.iml.ParameterShape;
-import org.endeavourhealth.imapi.model.iml.PropertyRange;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
+import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
@@ -128,7 +123,7 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
@@ -141,10 +136,12 @@ public class DataModelRepository {
           BindingSet bs = rs.next();
           nodeShape.setName(bs.getValue("entityName").stringValue());
           PropertyShape group = null;
+          if (excludeGeneric
+            && bs.getValue("genericRelationship") != null
+            && bs.getValue("genericRelationship").stringValue().equals("true")) continue;
           if (bs.getValue("path") != null) {
             if (bs.getValue("group") != null) {
               group = getGroupFromNode(bs, nodeShape);
-
             }
             addProperty(nodeShape, group, bs);
           }
@@ -170,6 +167,13 @@ public class DataModelRepository {
     PropertyShape group = getPropertyFromNode(nodeShape, groupIri);
     group.setGroup(TTIriRef.iri(groupIri).setName(bs.getValue("groupName").stringValue()));
     group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
+    if (bs.getValue("highCardinality") != null) {
+      if (group.getHighCardinality() != null) {
+        group.setHighCardinality(true);
+      }
+    } else if (group.getHighCardinality() == null) {
+      group.setHighCardinality(false);
+    }
     return group;
   }
 
@@ -215,6 +219,7 @@ public class DataModelRepository {
     }
     if (bs.getValue("definingProperty") != null) {
       property.setDefiningProperty(true);
+      node.setDefiningProperty(TTIriRef.iri(propertyIri));
     }
     if (bs.getValue("orderable") != null) {
       getPropertyOrderable(bs, property);
@@ -234,6 +239,15 @@ public class DataModelRepository {
     }
     if (bs.getValue("highCardinality") != null) {
       property.setHighCardinality(true);
+    }
+    if (bs.getValue("inversePath") != null) {
+      property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
+        .setName(bs.getValue("inversePathName").stringValue()));
+    }
+    if (bs.getValue("genericRelationship") != null) {
+      if (bs.getValue("genericRelationship").stringValue().equals("true")) {
+        property.setGeneric(true);
+      }
     }
   }
 
@@ -328,7 +342,8 @@ public class DataModelRepository {
 
   private String getPropertySql(String iri) {
     return """
-      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
+      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
+      ?inversePath ?inversePathName
       ?highCardinality
       ?class ?className ?classType ?classTypeName
       ?datatype ?datatypeName ?datatypeType ?datatypeTypeName
@@ -339,7 +354,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
-      ?orderable ?ascending ?descending ?definingProperty
+      ?orderable ?ascending ?descending ?definingProperty ?genericRelationship
       WHERE {
          Values ?entity { %s }
         ?entity sh:property ?property.
@@ -352,6 +367,10 @@ public class DataModelRepository {
         optional {
           ?property im:highCardinality ?highCardinality.
         }
+         optional {
+          ?property sh:inversePath ?inversePath.
+          ?inversePath rdfs:label ?inversePathName.
+        }
         optional {?property sh:order ?order.}
         optional {
           ?property im:orderable ?orderable.
@@ -362,6 +381,7 @@ public class DataModelRepository {
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
+          BIND(EXISTS { ?path im:isA im:genericRelationship} AS ?genericRelationship)
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
@@ -453,7 +473,7 @@ public class DataModelRepository {
         }
       }
       order by ?groupOrder ?order ?qualifierOrder
-      """.formatted("<"+iri+">");
+      """.formatted("<" + iri + ">");
   }
 
 
@@ -475,7 +495,7 @@ public class DataModelRepository {
         OPTIONAL {?property sh:order ?order.}
       }
       order by ?order
-      """.formatted("<"+iri+">");
+      """.formatted("<" + iri + ">");
   }
 
   public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
@@ -493,12 +513,13 @@ public class DataModelRepository {
         IF(EXISTS {
           ?property sh:class ?valueC
         }, "class", "None"))) AS ?propertyType)
-        ?valueType ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
+        ?valueType ?valueTypeName ?intervalUnitIri ?unitsIri ?operatorIri ?qualifierIri ?qualifierName
         WHERE {
           ?dmIri sh:property ?property .
           ?property sh:path ?propIri .
           ?propIri rdfs:label ?name .
           ?property (sh:class | sh:node | sh:datatype) ?valueType .
+          ?valueType rdfs:label ?valueTypeName.
           OPTIONAL {
              ?valueType im:datatypeQualifier ?qualifierIri .
              ?qualifierIri rdfs:label ?qualifierName .
@@ -526,6 +547,7 @@ public class DataModelRepository {
           uiProp.setPropertyType(bs.getValue("propertyType").stringValue());
           if (bs.getValue("valueType") != null) {
             uiProp.setValueType(bs.getValue("valueType").stringValue());
+            uiProp.setValueTypeName(bs.getValue("valueTypeName").stringValue());
           }
           if (bs.getValue("intervalUnitIri") != null)
             uiProp.setIntervalUnitIri(bs.getValue("intervalUnitIri").stringValue());
@@ -620,5 +642,29 @@ public class DataModelRepository {
       }
     }
     return results;
+  }
+
+  public TTIriRef getInversePath(String source, String target) {
+    String sql = """
+      select ?inversePath ?pathLabel
+      where {
+       values ?source { <%s> }
+       values ?target { <%s> }
+       ?source sh:property ?property.
+       ?property sh:inversePath ?inversePath.
+       ?inversePath rdfs:label ?pathLabel.
+       ?property sh:node ?target.
+       }
+      """.formatted(source, target);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return TTIriRef.iri(bs.getValue("inversePath").stringValue()).setName(bs.getValue("pathLabel").stringValue());
+        }
+      }
+    }
+    return null;
   }
 }

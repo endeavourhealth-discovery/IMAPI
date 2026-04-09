@@ -41,6 +41,7 @@ public class EqdListToIMQ {
     Match subQuery;
     subQuery = convertColumns(eqColGroup, eqTable);
     subQuery.setName(eqColGroup.getDisplayName());
+
     return subQuery;
   }
 
@@ -93,6 +94,12 @@ public class EqdListToIMQ {
     else {
       subQuery = new Match();
     }
+    subQuery.setReturn(null);
+    subQuery.setTypeOf(resources.getIMPath(eqTable));
+    Return patRet = new Return();
+    patRet.setIri(NAMESPACE.IM + (eqTable.equals("PATIENTS") ? "id" : "patient"));
+    patRet.setAs("patient");
+    subQuery.addReturn(patRet);
     if (eqColGroup.getColumnar() == null) {
       if (eqColGroup.getSummary() != null) {
         if (eqColGroup.getSummary() == VocListGroupSummary.COUNT) {
@@ -116,13 +123,14 @@ public class EqdListToIMQ {
       EQDOCListColumns eqCols = eqColGroup.getColumnar();
       for (EQDOCListColumn eqCol : eqCols.getListColumn()) {
         String eqColumn = String.join("/", eqCol.getColumn());
+        if (eqColumn.equals("PATIENT")) continue;
         String eqURL = eqTable + "/" + eqColumn;
         String columnPath = resources.getIMPath(eqURL);
         if (columnPath.contains("$concat(")) {
           convertReturnConcatenate(subQuery, eqTable, tablePath, columnPath, eqCol.getDisplayName());
           continue;
         } else {
-          String[] subPath = (tablePath + " " + columnPath).trim().split(" ");
+          String[] subPath = (columnPath).trim().split(" ");
           String nodeRef = getNodeRef(subQuery, subPath, 0);
           convertColumn(subQuery, subPath[subPath.length - 1], eqCol.getDisplayName(), nodeRef);
         }
@@ -154,7 +162,7 @@ public class EqdListToIMQ {
     for (String eqPath : concats.split(" ")) {
       String eqURL = eqTable + "/" + eqPath;
       String columnPath = resources.getIMPath(eqURL);
-      String[] subPath = (tablePath + " " + columnPath).trim().split(" ");
+      String[] subPath = (columnPath).trim().split(" ");
       String nodeRef = getNodeRef(subQuery, subPath, 0);
       Argument arg = new Argument();
       function.addArgument(arg);

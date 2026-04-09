@@ -4,8 +4,9 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
-import org.endeavourhealth.imapi.model.dto.UIProperty;
+import org.endeavourhealth.imapi.model.iml.ArrayButtons;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.UIProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -47,8 +48,8 @@ public class DataModelService {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly,boolean excludeGeneric) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
   }
 
 
@@ -245,5 +246,9 @@ public class DataModelService {
 
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
     return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
+  }
+
+  public TTIriRef getInversePath(String source, String target) {
+    return dataModelRepository.getInversePath(source, target);
   }
 }

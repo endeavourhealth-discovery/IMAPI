@@ -6,17 +6,19 @@ import java.util.*;
 
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
-  private final Map<String, Map<String, Set<String>>> pathMap = new HashMap<>();
+  private final Map<String, Map<String, Set<String>>> nodeMap = new HashMap<>();
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
-   String mainEntity="entity";
-   if (query.getNode()!=null){
-     mainEntity=query.getNode();
-   } else if (query.getParameter()!=null){
-      mainEntity=query.getParameter().replace("$","");
+    if (query.getKeepClauses()!=null){
+      query.getKeepClauses().forEach(keep->variables.put(keep.getNode(), VarType.NODE));
     }
-
+    String mainEntity="entity";
+    if (query.getNode()!=null){
+       mainEntity=query.getNode();
+    } else if (query.getParameter()!=null){
+        mainEntity=query.getParameter().replace("$","");
+    }
     if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere()&&null==query.getTypeOf())
       throw new QueryException("Query must have match clause or is or where clause");
 
@@ -32,7 +34,7 @@ public class QueryValidator {
   private void processMatches(Match boolMatch) throws QueryException {
     processMatch(boolMatch);
     validateMatch(boolMatch);
-    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr(),boolMatch.getStep())) {
+    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr())) {
       if (matches != null) {
         for (Match match : matches) {
           processMatch(match);
@@ -177,18 +179,31 @@ public class QueryValidator {
       if (assignable.getValue()==null)
         throw new QueryException("Value must be specified when units are provided");
     }
+    if (compare.getRight()!=null) validateSource(compare.getRight());
+  }
+
+  private void validateSource(ValueSource source) throws QueryException {
+    if (source.getNodeRef()!=null)
+      if (variables.get(source.getNodeRef()) == null)
+        throw new QueryException("Variable "+source.getNodeRef()+" not found");
+
   }
 
 
   private void validateWhere(Where where, String subject) throws QueryException {
     if (where.getIri() != null){
-      if (where.getIs()==null
-        && where.getCompare()==null
+      if (where.getIs()!=null){
+        Node is = where.getIs().getFirst();
+        if (is.getIri()==null&&is.getParameter()==null){
+          throw new QueryException("Where clause must have a value for its property of "+where.getName());
+        }
+      }
+      else if (where.getCompare()==null
       && where.getRange()==null
         &&!where.isNotNull()
         &&!where.getIsNull()
         && where.getValue()==null)
-        throw new QueryException("Where clause must have a value or a compare clause");
+        throw new QueryException("Clause filter must have a value or a compare clause for the property of "+where.getName());
     }
     if (where.getAnd() != null||where.getOr()!=null){
       for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {

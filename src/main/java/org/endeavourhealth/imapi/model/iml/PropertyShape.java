@@ -97,9 +97,27 @@ public class PropertyShape{
   private TTIriRef isValidEntity;
   @Getter
   @Setter
-  private boolean highCardinality;
+  private Boolean highCardinality;
   @Getter
   private List<Argument> isValidArguments;
+  private TTIriRef inversePath;
+  private boolean generic;
+
+  public boolean isGeneric() {
+    return generic;
+  }
+  public PropertyShape setGeneric(boolean generic) {
+    this.generic = generic;
+    return this;
+  }
+
+  public TTIriRef getInversePath() {
+    return inversePath;
+  }
+  public PropertyShape setInversePath(TTIriRef inversePath) {
+    this.inversePath = inversePath;
+    return this;
+  }
 
 
   public PropertyShape setAscending(String ascending) {

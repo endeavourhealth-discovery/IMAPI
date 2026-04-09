@@ -17,16 +17,20 @@ public class EqdAuditToIMQ {
   public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws EQDException {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
-      if (EqdToIMQ.versionMap.containsKey(popId)) popId = EqdToIMQ.versionMap.get(popId);
+      String finalPopId = resources.getNamespace() + popId;
+      if (EqdToIMQ.versionMap.containsKey(popId))
+        finalPopId = resources.getNamespace() + EqdToIMQ.versionMap.get(popId);
+      if (EqdToIMQ.gmsPatients.contains(popId) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
+        finalPopId = NAMESPACE.IM + "Q_RegisteredGMS";
+      }
       Match popQuery = new Match();
       query.addColumnGroup(popQuery);
-      String finalPopId = popId;
       popQuery
         .setNode(POPULATION)
-        .addIs(Node.iri(resources.getNamespace() + finalPopId)
+        .addIs(Node.iri(finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
-      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + finalPopId));
+      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(finalPopId));
       Return populationReturn = new Return();
       popQuery.addReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);

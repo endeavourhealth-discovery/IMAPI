@@ -19,6 +19,7 @@ public enum IMPORT_TYPE implements VocabEnum {
     SKIP_SEARCH("search"),
     FHIR("fhir"),
     SMARTLIFE("smartlifequery"),
+    SMARTLIFEINDICATOR("smartlifeindicators"),
     QOF("qof"),
     CORE("core"),
     SINGLE_FILE("singlefile"),

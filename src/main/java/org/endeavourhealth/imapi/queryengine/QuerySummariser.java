@@ -71,29 +71,7 @@ public class QuerySummariser {
       }
       level--;
     }
-    if (match.getUnion() != null) {
-      summary.append("Combine results of :");
-      level++;
-      for (Match subMatch : match.getUnion()) {
-        subIndex++;
-        indent();
-        summariseMatch(subMatch, subIndex, "union");
-      }
-      level--;
-    }
-    if (match.getStep() != null) {
-      if (!bool.equals("union"))
-        summary.append(bool).append(" ");
-      else summary.append("combined with ");
-      level++;
-      for (Match subMatch : match.getStep()) {
-        subIndex++;
-        indent();
-        summary.append(match.getNodeRef() != null ? "from " + match.getNodeRef() + " test" : subIndex > 0 ? "with " : "");
-        summariseMatch(subMatch, subIndex, "step");
-      }
-      level--;
-    }
+
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {
         summarisePath(path);
@@ -211,6 +189,3 @@ public class QuerySummariser {
     summary.append("\n" + "                         ".substring(0, Math.min(level, 20)));
   }
 }
-
-
-

@@ -16,15 +16,15 @@ public enum USER implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
     PREFIX("usr"),
-    USER_PRESET(Namespace.USER + "UserPreset"),
-    USER_PRIMARY_COLOR(Namespace.USER + "UserPrimaryColor"),
-    USER_SURFACE_COLOR(Namespace.USER + "UserSurfaceColor"),
-    USER_DARK_MODE(Namespace.USER + "UserDarkMode"),
-    USER_FONT_SIZE(Namespace.USER + "UserFontSize"),
-    USER_MRU(Namespace.USER + "UserMRU"),
-    USER_FAVOURITES(Namespace.USER + "UserFavourites"),
-    ORGANISATIONS(Namespace.USER + "Organisations"),
-    GRAPHS(Namespace.USER + "Graphs"),
+    USER_PRESET(NAMESPACE.USER + "UserPreset"),
+    USER_PRIMARY_COLOR(NAMESPACE.USER + "UserPrimaryColor"),
+    USER_SURFACE_COLOR(NAMESPACE.USER + "UserSurfaceColor"),
+    USER_DARK_MODE(NAMESPACE.USER + "UserDarkMode"),
+    USER_FONT_SIZE(NAMESPACE.USER + "UserFontSize"),
+    USER_MRU(NAMESPACE.USER + "UserMRU"),
+    USER_FAVOURITES(NAMESPACE.USER + "UserFavourites"),
+    ORGANISATIONS(NAMESPACE.USER + "Organisations"),
+    GRAPHS(NAMESPACE.USER + "Graphs"),
     ;
 
     private final String value;

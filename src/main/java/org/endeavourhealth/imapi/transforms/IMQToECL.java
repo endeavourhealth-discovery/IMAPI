@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.util.*;
 
@@ -126,7 +126,7 @@ public class IMQToECL {
   }
 
   private boolean isExclusion(Match match) {
-    for (List<Match> matches: Arrays.asList(match.getOr(),match.getAnd())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match m : matches) {
           if (m.notExists())
@@ -158,7 +158,7 @@ public class IMQToECL {
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    if ((match.getIs() == null ||(match.getIs().getFirst().getIri()==null&&match.getIs().getFirst().getMatch()==null)) && match.getOr() == null && match.getAnd() == null) {
+    if ((match.getIs() == null || (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null)) && match.getOr() == null && match.getAnd() == null) {
       if (match.getWhere() != null)
         ecl.append("*");
       else throw new QueryException("Must have concept if no refinement");
@@ -179,21 +179,21 @@ public class IMQToECL {
     }
   }
 
-  private Map<String,List<Match>> sortInclusions(Match match){
-    Map<String,List<Match>> includeExclude = new HashMap<>();
-    for (List<Match> matches: Arrays.asList(match.getOr(),match.getAnd())) {
+  private Map<String, List<Match>> sortInclusions(Match match) {
+    Map<String, List<Match>> includeExclude = new HashMap<>();
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match subMatch : matches) {
           if (subMatch.notExists()) {
             includeExclude.computeIfAbsent("out", m -> new ArrayList<>()).add(subMatch);
-          } else includeExclude.computeIfAbsent("in", m-> new ArrayList<>()).add(subMatch);
+          } else includeExclude.computeIfAbsent("in", m -> new ArrayList<>()).add(subMatch);
         }
       }
     }
     return includeExclude;
   }
 
-  private boolean needsExcludeBracket(List<Match> matches){
+  private boolean needsExcludeBracket(List<Match> matches) {
     if (matches.size() > 1) return true;
     for (Match m : matches) {
       if (m.getWhere() != null) return true;
@@ -203,12 +203,12 @@ public class IMQToECL {
   }
 
   private boolean needsBracket(List<Match> matches,
-                               Match match){
+                               Match match) {
     return matches.size() > 1 && match.getWhere() != null && match.getAnd() == null && match.getOr() == null;
   }
 
-  private boolean needsIncludeBracket(Map<String,List<Match>> includeExclude){
-    if (includeExclude.containsKey("out")){
+  private boolean needsIncludeBracket(Map<String, List<Match>> includeExclude) {
+    if (includeExclude.containsKey("out")) {
       List<Match> matches = includeExclude.get("in");
       if (matches.size() > 1)
         return true;
@@ -219,20 +219,20 @@ public class IMQToECL {
   }
 
   private void compound(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    Map<String,List<Match>> includeExclude = sortInclusions(match);
-    if (includeExclude.get("out")!=null && includeExclude.get("out").size()>1)
+    Map<String, List<Match>> includeExclude = sortInclusions(match);
+    if (includeExclude.get("out") != null && includeExclude.get("out").size() > 1)
       throw new QueryException("Only one exclusion allowed in ecl");
 
     boolean first = true;
     if (match.getAnd() != null) {
-      boolean outerBracket= needsIncludeBracket(includeExclude);
+      boolean outerBracket = needsIncludeBracket(includeExclude);
       if (outerBracket) ecl.append("(");
       List<Match> matches = includeExclude.get("in");
       for (Match subMatch : matches) {
         if (!first) {
           ecl.append(" AND ");
         }
-        boolean compoundRefined = needsBracket(matches,subMatch);
+        boolean compoundRefined = needsBracket(matches, subMatch);
         if (compoundRefined)
           ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, true);
@@ -243,13 +243,13 @@ public class IMQToECL {
       if (outerBracket) ecl.append(")");
     }
     if (match.getOr() != null) {
-      boolean outerBracket= needsIncludeBracket(includeExclude);
+      boolean outerBracket = needsIncludeBracket(includeExclude);
       if (outerBracket) ecl.append("(");
       for (Match subMatch : includeExclude.get("in")) {
         if (!first) {
           ecl.append(" OR ");
         }
-        boolean compoundRefined = needsBracket(includeExclude.get("in"),subMatch);
+        boolean compoundRefined = needsBracket(includeExclude.get("in"), subMatch);
         if (compoundRefined)
           ecl.append("(");
         expressionMatch(subMatch, ecl, includeNames, true);
@@ -273,17 +273,16 @@ public class IMQToECL {
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
     if (match.getIs().size() == 1) {
-      if (match.getIs().getFirst().getIri() == null&&match.getIs().getFirst().getMatch()==null && match.getWhere()==null)
+      if (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null && match.getWhere() == null)
         throw new QueryException("Must have concept if no refinement");
       if (match.getIs().getFirst().isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      if (match.getIs().getFirst().getMatch() != null){
+      if (match.getIs().getFirst().getMatch() != null) {
         ecl.append(getSubsumption(match.getIs().getFirst()));
         ecl.append("(");
-        expressionMatch(match.getIs().getFirst().getMatch(),ecl,includeNames,false);
+        expressionMatch(match.getIs().getFirst().getMatch(), ecl, includeNames, false);
         ecl.append(")");
-      }
-      else
+      } else
         addClass(match.getIs().getFirst(), ecl, includeNames);
     } else {
       ecl.append("(");
@@ -366,7 +365,6 @@ public class IMQToECL {
   }
 
 
-
   private void addProperty(Where exp, StringBuilder ecl, boolean includeName) {
     if (exp.isInverse())
       ecl.append(" R ");
@@ -410,7 +408,7 @@ public class IMQToECL {
       }
       name = names.get(iri);
     }
-    if (iri.startsWith(Namespace.SNOMED.toString())) {
+    if (iri.startsWith(NAMESPACE.SNOMED.toString())) {
       iri = iri.substring(iri.lastIndexOf("#") + 1);
     } else if (iri.contains("#")) {
       if (prefixes != null) {

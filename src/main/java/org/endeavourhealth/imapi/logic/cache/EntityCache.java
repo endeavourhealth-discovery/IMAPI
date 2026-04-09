@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
@@ -22,11 +22,11 @@ public class EntityCache implements Runnable {
 
   @Getter
   public static final TTContext defaultPrefixes = new TTContext()
-    .add(Namespace.RDFS, "rdfs")
-    .add(Namespace.RDF, "rdf")
-    .add(Namespace.IM, "im")
-    .add(Namespace.XSD, "xsd")
-    .add(Namespace.SNOMED, "sn");
+    .add(NAMESPACE.RDFS, "rdfs")
+    .add(NAMESPACE.RDF, "rdf")
+    .add(NAMESPACE.IM, "im")
+    .add(NAMESPACE.XSD, "xsd")
+    .add(NAMESPACE.SNOMED, "sn");
   public static final Object shapeLock = new Object();
   public static final Object propertyLock = new Object();
   public static final Object entityLock = new Object();

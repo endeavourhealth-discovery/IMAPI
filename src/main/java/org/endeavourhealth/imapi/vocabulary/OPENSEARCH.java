@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum OpenSearch implements VocabEnum {
+public enum OPENSEARCH implements VocabEnum {
 
     NAME(RDFS.LABEL),
     DESCRIPTION(RDFS.COMMENT),
@@ -29,11 +29,11 @@ public enum OpenSearch implements VocabEnum {
 
     private final String value;
 
-    OpenSearch(final String value) {
+    OPENSEARCH(final String value) {
         this.value = value;
     }
 
-    OpenSearch(final VocabEnum value) {
+    OPENSEARCH(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -56,11 +56,11 @@ public enum OpenSearch implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static OpenSearch from(String text) {
+    public static OPENSEARCH from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (OpenSearch b : OpenSearch.values()) {
+      for (OPENSEARCH b : OPENSEARCH.values()) {
         if (b.value.equals(text)) {
           return b;
         }

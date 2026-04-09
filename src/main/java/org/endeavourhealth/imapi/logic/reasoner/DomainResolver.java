@@ -5,7 +5,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +14,7 @@ import java.util.StringJoiner;
 @Slf4j
 public class DomainResolver {
 
-  public void updateDomains(Graph insertGraph) {
+  public void updateDomains(GRAPH insertGraph) {
     try (IMDB conn = IMDB.getConnection()) {
       Set<String> domains = getDomains(conn);
       for (String domain : domains) {
@@ -23,7 +23,7 @@ public class DomainResolver {
     }
   }
 
-  private void updateDomain(IMDB conn, String domain, Graph insertGraph) {
+  private void updateDomain(IMDB conn, String domain, GRAPH insertGraph) {
     String sql = """
       select distinct ?property
       where {

@@ -16,8 +16,8 @@ public enum SNOMED implements VocabEnum {
 
     DOMAIN("http://snomed.info/"),
     PREFIX("sn"),
-    ATTRIBUTE(Namespace.SNOMED + "246061005"),
-    ANY(Namespace.SNOMED + "*"),
+    ATTRIBUTE(NAMESPACE.SNOMED + "246061005"),
+    ANY(NAMESPACE.SNOMED + "*"),
     ;
 
     private final String value;

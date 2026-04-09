@@ -12,7 +12,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +31,11 @@ public class EqdResources {
   private final Set<String> acronyms = new HashSet<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
+  @Setter
   @Getter
-  private Namespace namespace;
+  TTEntity queryEntity;
+  @Getter
+  private NAMESPACE namespace;
   @Setter
   private String activeReport;
   @Getter
@@ -57,21 +60,13 @@ public class EqdResources {
   @Setter
   @Getter
   private int subRule = 0;
-  @Setter
-  @Getter
-  TTEntity queryEntity;
   private Map<String, Match> nodeRefMap;
 
-  public EqdResources(TTDocument document, Properties dataMap, Namespace namespace) {
+  public EqdResources(TTDocument document, Properties dataMap, NAMESPACE namespace) {
     this.dataMap = dataMap;
     this.document = document;
     this.namespace = namespace;
     this.setVocabMaps();
-  }
-
-  public EqdResources setMatchCounter(int matchCounter) {
-    this.matchCounter = matchCounter;
-    return this;
   }
 
   private static boolean isValidUUID(String str) {
@@ -83,6 +78,11 @@ public class EqdResources {
     }
   }
 
+  public EqdResources setMatchCounter(int matchCounter) {
+    this.matchCounter = matchCounter;
+    return this;
+  }
+
   public void incrementRule() {
     ++this.rule;
   }
@@ -91,7 +91,7 @@ public class EqdResources {
     ++this.subRule;
   }
 
-  public EqdResources setNamespace(Namespace namespace) {
+  public EqdResources setNamespace(NAMESPACE namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -130,7 +130,7 @@ public class EqdResources {
       }
       String finalParentId = this.namespace + parent;
       if (EqdToIMQ.gmsPatients.contains(parent)) {
-        finalParentId = Namespace.IM + "Q_RegisteredGMS";
+        finalParentId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
       match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
       queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalParentId));
@@ -213,14 +213,13 @@ public class EqdResources {
     Match match = new Match();
     match.addIs(new Node().setIri(namespace + searchId)
       .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
-    String finalSearchId= namespace + searchId;
+    String finalSearchId = namespace + searchId;
     if (EqdToIMQ.gmsPatients.contains(searchId)) {
-      finalSearchId = Namespace.IM + "Q_RegisteredGMS";
+      finalSearchId = NAMESPACE.IM + "Q_RegisteredGMS";
     }
     queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalSearchId));
     return match;
   }
-
 
 
   private Match convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
@@ -250,7 +249,7 @@ public class EqdResources {
         if (standardMatch.getOrderBy() != null) {
           baseMatch.setOrderBy(standardMatch.getOrderBy());
         }
-        standardMatch=null;
+        standardMatch = null;
       } else lastMatch = standardMatch;
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
@@ -341,16 +340,16 @@ public class EqdResources {
     injectPropertyReturn(parentMatch, relationLeft.getIri());
     String parentProperty = eqRelationship.getParentColumn();
     if (parentProperty.contains("DATE") || parentProperty.contains("DOB")) {
-      relationWhere.setIri(Namespace.IM + "effectiveDate");
+      relationWhere.setIri(NAMESPACE.IM + "effectiveDate");
       relationWhere.setNodeRef(getNodeRef(linkedMatch));
     } else throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight = new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
-      relationRight.setIri(Namespace.IM + "effectiveDate");
+      relationRight.setIri(NAMESPACE.IM + "effectiveDate");
       relationRight.setNodeRef(getNode(parentMatch));
       relationRight.setNodeRef(getKeepAs(parentMatch));
     } else if (eqRelationship.getParentColumn().contains("VALUE")) {
-      relationRight.setIri(Namespace.IM + "value");
+      relationRight.setIri(NAMESPACE.IM + "value");
       relationRight.setNodeRef(parentMatch.getNode());
       parentMatch.setNode(parentMatch.getNode() + "_VAL");
       relationRight.setNodeRef(parentMatch.getNode());
@@ -358,14 +357,14 @@ public class EqdResources {
       Path linkedMatchPath = null;
       if (linkedMatch.getPath() != null) {
         linkedMatchPath = linkedMatch.getPath().getFirst();
-        linkedMatchPath.addPath(new Path().setIri(Namespace.IM + "dateOfBirth").setNode("pat"));
+        linkedMatchPath.addPath(new Path().setIri(NAMESPACE.IM + "dateOfBirth").setNode("pat"));
       } else {
         linkedMatchPath = new Path();
-        linkedMatchPath.setIri(Namespace.IM + "dateOfBirth");
+        linkedMatchPath.setIri(NAMESPACE.IM + "dateOfBirth");
         linkedMatchPath.setNode("pat");
         linkedMatch.addPath(linkedMatchPath);
       }
-      relationRight.setNodeRef("pat").setIri(Namespace.IM + "dateOfBirth");
+      relationRight.setNodeRef("pat").setIri(NAMESPACE.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
     if (eqRelationship.getRangeValue() != null) {
@@ -486,6 +485,7 @@ public class EqdResources {
 
     return match;
   }
+
   private Match convertTestColumns(String table, String eqId, List<EQDOCColumnValue> columns) throws EQDException, IOException {
     int index = 0;
     Match match = new Match();
@@ -690,7 +690,7 @@ public class EqdResources {
           path = path.substring(1);
         }
 
-        path = inverse + (path.startsWith("http") ? path : Namespace.IM + path);
+        path = inverse + (path.startsWith("http") ? path : NAMESPACE.IM + path);
         paths[i] = path;
       }
 
@@ -700,7 +700,7 @@ public class EqdResources {
 
 
   private String resolveIri(String iri) {
-    return iri.startsWith("http") ? iri : Namespace.IM + iri;
+    return iri.startsWith("http") ? iri : NAMESPACE.IM + iri;
   }
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion) throws EQDException, IOException {
@@ -905,7 +905,7 @@ public class EqdResources {
     }
     String property = where.getIri();
     if (where.getIri().contains("age")) {
-      property = Namespace.IM + "dateOfBirth";
+      property = NAMESPACE.IM + "dateOfBirth";
       relation = VocRelation.RELATIVE;
     }
     assignable.setOperator(comp);
@@ -1131,7 +1131,7 @@ public class EqdResources {
 
   private Query convertToEcl(VocCodeSystemEx scheme, Set<Node> setContent) throws EQDException {
     if (scheme == VocCodeSystemEx.SCT_CONST) {
-      String property = Namespace.SNOMED + "127489000";
+      String property = NAMESPACE.SNOMED + "127489000";
       String name = null;
       Query eclQuery = (new Query());
       Where where = new Where();
@@ -1224,11 +1224,11 @@ public class EqdResources {
     } else if (scheme != VocCodeSystemEx.SNOMED_CONCEPT && !scheme.value().contains("SCT")) {
       throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
     } else {
-      List<Namespace> schemes = new ArrayList<>();
-      schemes.add(Namespace.SNOMED);
-      schemes.add(Namespace.EMIS);
-      schemes.add(Namespace.IM);
-      schemes.add(Namespace.BNF);
+      List<NAMESPACE> schemes = new ArrayList<>();
+      schemes.add(NAMESPACE.SNOMED);
+      schemes.add(NAMESPACE.EMIS);
+      schemes.add(NAMESPACE.IM);
+      schemes.add(NAMESPACE.BNF);
       Set<Node> snomed = valueMap.get(originalCode);
       if (snomed == null) {
         snomed = this.getValuesFromOriginal(originalCode, originalTerm, legacyCode, schemes);
@@ -1262,7 +1262,7 @@ public class EqdResources {
     return result;
   }
 
-  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<Namespace> schemes) {
+  private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<NAMESPACE> schemes) {
     Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes);
     if (snomed == null && legacyCode != null) {
       snomed = this.getCoreFromCode(legacyCode, schemes);
@@ -1294,7 +1294,7 @@ public class EqdResources {
 
   private Set<Entity> getLegacyFromTermCode(String originalCode) {
     try {
-      return this.importMaps.getLegacyFromTermCode(originalCode, Namespace.EMIS);
+      return this.importMaps.getLegacyFromTermCode(originalCode, NAMESPACE.EMIS);
     } catch (Exception e) {
       log.error("unable to retrieve iri from term code {}", e.getMessage());
       return Collections.emptySet();
@@ -1306,14 +1306,14 @@ public class EqdResources {
       if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck")) {
         log.info("!!");
       }
-      return this.importMaps.getCoreFromLegacyTerm(originalTerm, Namespace.EMIS);
+      return this.importMaps.getCoreFromLegacyTerm(originalTerm, NAMESPACE.EMIS);
     } catch (Exception e) {
       log.error("unable to retrieve from term {}", e.getMessage());
       return Collections.emptySet();
     }
   }
 
-  private Set<Entity> getCoreFromCode(String originalCode, List<Namespace> schemes) {
+  private Set<Entity> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
     return this.importMaps.getCoreFromCode(originalCode, schemes);
   }
 
@@ -1490,8 +1490,7 @@ public class EqdResources {
           keepAs.append("_");
         keepAs.append(this.createKeepAs(or));
       }
-    }
-    else if(match.getNodeRef()!=null){
+    } else if (match.getNodeRef() != null) {
       keepAs.append(createKeepAs(nodeRefMap.get(match.getNodeRef())));
     }
     return keepAs.toString();
@@ -1508,18 +1507,15 @@ public class EqdResources {
     StringBuilder keepAs = new StringBuilder();
     if (match.getWhere() != null) {
       keepAs.append(createKeepAs(match));
-      if (keepAs.isEmpty()&&match.getNode()==null) {
-          matchCounter++;
-          match.setNode("m_" + matchCounter);
-        }
-      else {
+      if (keepAs.isEmpty() && match.getNode() == null) {
+        matchCounter++;
+        match.setNode("m_" + matchCounter);
+      } else {
         match.setNode(keepAs + (affix != null ? affix : ""));
       }
-    }
-     else if (match.getNodeRef() != null) {
+    } else if (match.getNodeRef() != null) {
       match.setNode(createKeepAs(nodeRefMap.get(match.getNodeRef()))
-        + (affix != null ? ("_"+affix) : ""));
+        + (affix != null ? ("_" + affix) : ""));
     }
   }
 }
-

@@ -14,50 +14,50 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum TransformFunction implements VocabEnum {
 
-    CONCATENATE(Namespace.IM + "Concatenate"),
-    STRING_JOIN(Namespace.IM + "StringJoin"),
-    SNOMED_CODE_CONCEPT_MAP(Namespace.IM + "SchemedCodeConceptMap"),
-    ;
+  CONCATENATE(NAMESPACE.IM + "Concatenate"),
+  STRING_JOIN(NAMESPACE.IM + "StringJoin"),
+  SNOMED_CODE_CONCEPT_MAP(NAMESPACE.IM + "SchemedCodeConceptMap"),
+  ;
 
-    private final String value;
+  private final String value;
 
-    TransformFunction(final String value) {
-        this.value = value;
-    }
+  TransformFunction(final String value) {
+    this.value = value;
+  }
 
-    TransformFunction(final VocabEnum value) {
-        this.value = value.toString();
-    }
+  TransformFunction(final VocabEnum value) {
+    this.value = value.toString();
+  }
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return value;
-    }
+  public static TransformFunction from(String text) {
+    if (text == null)
+      throw new IllegalArgumentException("no text specified");
 
-    public TTIriRef asIri() {
-      return iri(
-        value,
-        Arrays.stream(this.name().split("_"))
-          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
-          .collect(Collectors.joining(" "))
-      );
-    }
-
-    public IRI asDbIri() {
-      return Values.iri(value);
-    }
-
-    public static TransformFunction from(String text) {
-      if (text == null)
-        throw new IllegalArgumentException("no text specified");
-
-      for (TransformFunction b : TransformFunction.values()) {
-        if (b.value.equals(text)) {
-          return b;
-        }
+    for (TransformFunction b : TransformFunction.values()) {
+      if (b.value.equals(text)) {
+        return b;
       }
-      throw new IllegalArgumentException("no enums match text specified");
     }
+    throw new IllegalArgumentException("no enums match text specified");
+  }
+
+  @JsonValue
+  @Override
+  public String toString() {
+    return value;
+  }
+
+  public TTIriRef asIri() {
+    return iri(
+      value,
+      Arrays.stream(this.name().split("_"))
+        .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "))
+    );
+  }
+
+  public IRI asDbIri() {
+    return Values.iri(value);
+  }
 
 }

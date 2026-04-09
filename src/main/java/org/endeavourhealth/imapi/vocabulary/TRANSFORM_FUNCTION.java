@@ -12,28 +12,20 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum RDFS implements VocabEnum {
+public enum TRANSFORM_FUNCTION implements VocabEnum {
 
-    PREFIX("rdfs"),
-    LABEL(NAMESPACE.RDFS + "label"),
-    COMMENT(NAMESPACE.RDFS + "comment"),
-    SUBCLASS_OF(NAMESPACE.RDFS + "subClassOf"),
-    SUB_PROPERTY_OF(NAMESPACE.RDFS + "subPropertyOf"),
-    DOMAIN(NAMESPACE.RDFS + "domain"),
-    RANGE(NAMESPACE.RDFS + "range"),
-    RESOURCE(NAMESPACE.RDFS + "Resource"),
-    CLASS(NAMESPACE.RDFS + "Class"),
-    DATATYPE(NAMESPACE.RDFS + "Datatype"),
-    IS_DEFINED_BY(NAMESPACE.RDFS + "isDefinedBy"),
+    CONCATENATE(NAMESPACE.IM + "Concatenate"),
+    STRING_JOIN(NAMESPACE.IM + "StringJoin"),
+    SNOMED_CODE_CONCEPT_MAP(NAMESPACE.IM + "SchemedCodeConceptMap"),
     ;
 
     private final String value;
 
-    RDFS(final String value) {
+    TRANSFORM_FUNCTION(final String value) {
         this.value = value;
     }
 
-    RDFS(final VocabEnum value) {
+    TRANSFORM_FUNCTION(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -56,11 +48,11 @@ public enum RDFS implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static RDFS from(String text) {
+    public static TRANSFORM_FUNCTION from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (RDFS b : RDFS.values()) {
+      for (TRANSFORM_FUNCTION b : TRANSFORM_FUNCTION.values()) {
         if (b.value.equals(text)) {
           return b;
         }

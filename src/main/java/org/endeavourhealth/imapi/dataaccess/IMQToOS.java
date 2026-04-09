@@ -150,7 +150,7 @@ public class IMQToOS {
     String prefix = term.replaceAll("[ '()\\-_./]", "").toLowerCase();
     String field = "termCode.keyTerm";
     if (prefix.length() > 31)
-      prefix= prefix.substring(0, 30);
+      prefix = prefix.substring(0, 30);
     PrefixQueryBuilder pqb = new PrefixQueryBuilder(field, prefix).caseInsensitive(true);
     Script script = new Script(ScriptType.INLINE, Script.DEFAULT_SCRIPT_LANG, "100000 - doc['termCode.length'].value", Collections.emptyMap());
     NestedQueryBuilder nested = buildNested(pqb, script);
@@ -187,7 +187,6 @@ public class IMQToOS {
     sourceBuilder.query(boolBuilder);
     return sourceBuilder;
   }
-
 
 
   private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
@@ -230,10 +229,9 @@ public class IMQToOS {
 
   private void addPages(SearchSourceBuilder sourceBuilder) {
     if (request.getPage() != null) {
-      if (request.getPage().getOffset()==null) {
+      if (request.getPage().getOffset() == null) {
         sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getPageSize() * (request.getPage().getPageNumber() - 1));
-      }
-      else {
+      } else {
         sourceBuilder.size(request.getPage().getPageSize()).from(request.getPage().getOffset());
       }
     } else {
@@ -246,46 +244,46 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.getReturn() != null) {
-        for (Return prop : query.getReturn()) {
-          if (prop.getIri() != null) {
-            switch (OpenSearch.from(prop.getIri())) {
-              case OpenSearch.DESCRIPTION:
-                sources.add("description");
-                break;
-              case OpenSearch.NAME:
-                sources.add("name");
-                break;
-              case OpenSearch.CODE:
-                sources.add("code");
-                break;
-              case OpenSearch.STATUS:
-                sources.add(STATUS);
-                break;
-              case OpenSearch.ALTERNATIVE_CODE:
-                sources.add("alternativeCode");
-                break;
-              case OpenSearch.SCHEME:
-                sources.add(SCHEME);
-                break;
-              case OpenSearch.TYPE:
-                sources.add("type");
-                break;
-              case OpenSearch.USAGE_TOTAL:
-                sources.add(USAGE_TOTAL);
-                break;
-              case OpenSearch.BINDING:
-                sources.add("binding");
-                break;
-              case OpenSearch.TERM_CODE:
-                sources.add("termCode");
-                break;
-              case OpenSearch.DOMAIN:
-                break;
-              default:
-                return false;
-            }
+      for (Return prop : query.getReturn()) {
+        if (prop.getIri() != null) {
+          switch (OPEN_SEARCH.from(prop.getIri())) {
+            case OPEN_SEARCH.DESCRIPTION:
+              sources.add("description");
+              break;
+            case OPEN_SEARCH.NAME:
+              sources.add("name");
+              break;
+            case OPEN_SEARCH.CODE:
+              sources.add("code");
+              break;
+            case OPEN_SEARCH.STATUS:
+              sources.add(STATUS);
+              break;
+            case OPEN_SEARCH.ALTERNATIVE_CODE:
+              sources.add("alternativeCode");
+              break;
+            case OPEN_SEARCH.SCHEME:
+              sources.add(SCHEME);
+              break;
+            case OPEN_SEARCH.TYPE:
+              sources.add("type");
+              break;
+            case OPEN_SEARCH.USAGE_TOTAL:
+              sources.add(USAGE_TOTAL);
+              break;
+            case OPEN_SEARCH.BINDING:
+              sources.add("binding");
+              break;
+            case OPEN_SEARCH.TERM_CODE:
+              sources.add("termCode");
+              break;
+            case OPEN_SEARCH.DOMAIN:
+              break;
+            default:
+              return false;
           }
         }
+      }
     }
     String[] sourceArray = sources.toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray, null);
@@ -293,7 +291,7 @@ public class IMQToOS {
   }
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
-    TermsQueryBuilder tqr = new TermsQueryBuilder(property.equals("iri") ?property : (property + ".iri"), values);
+    TermsQueryBuilder tqr = new TermsQueryBuilder(property.equals("iri") ? property : (property + ".iri"), values);
     if (Bool.and == bool) boolBldr.filter(tqr);
     else if (Bool.or == bool) boolBldr.should(tqr);
   }

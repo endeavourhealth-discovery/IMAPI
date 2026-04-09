@@ -11,12 +11,12 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
-import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
@@ -26,55 +26,67 @@ public class SparqlOptimizer {
   private Set<String> setIris = new HashSet<>();
   private SetRepository setRepo = new SetRepository();
 
+  public static String getHash(List<Node> is) throws QueryException {
+    is.sort(Comparator.comparing(Node::getIri));
+    try {
 
-  public void optimizeQuery(Query query) throws QueryException{
+      String isString = new ObjectMapper().writeValueAsString(is);
+      MessageDigest digest = MessageDigest.getInstance("SHA-256");
+      byte[] hash = digest.digest(isString.getBytes(StandardCharsets.UTF_8));
+      return HexFormat.of().formatHex(hash);
+    } catch (Exception e) {
+      throw new QueryException(e.getMessage(), e);
+    }
+  }
+
+  public void optimizeQuery(Query query) throws QueryException {
     try {
       optimizeValueSets(query);
       optimizeProperties(query);
     } catch (Exception e) {
-      throw new QueryException(e.getMessage(),e);
+      throw new QueryException(e.getMessage(), e);
     }
   }
 
   private void optimizeProperties(Match match) throws QueryException, TTFilerException, JsonProcessingException {
-    if (match.getIs()!=null){
-      for (Node node:match.getIs()){
-        if (node.getMatch()!=null)
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        if (node.getMatch() != null)
           optimizeProperties(node.getMatch());
       }
     }
-    if (match.getWhere()!=null){
+    if (match.getWhere() != null) {
       optimizeWhereProperties(match.getWhere());
     }
-    if (match.getAnd()!=null){
-      for (Match and:match.getAnd()){
+    if (match.getAnd() != null) {
+      for (Match and : match.getAnd()) {
         optimizeProperties(and);
       }
     }
-    if (match.getOr()!=null){
-      for (Match or:match.getOr()){
+    if (match.getOr() != null) {
+      for (Match or : match.getOr()) {
         optimizeProperties(or);
       }
     }
   }
 
   private void optimizeValueSets(Match match) throws QueryException, JsonProcessingException, TTFilerException {
-    if (match.getIs()!=null){
-      for (Node node:match.getIs()){
-        if (node.getMatch()!=null)
+    if (match.getIs() != null) {
+      for (Node node : match.getIs()) {
+        if (node.getMatch() != null)
           optimizeValueSets(node.getMatch());
       }
     }
-    if (match.getWhere()!=null){
+    if (match.getWhere() != null) {
       optimizeWhereSets(match.getWhere());
     }
-    if (match.getAnd()!=null){
-      for (Match and:match.getAnd()){
+    if (match.getAnd() != null) {
+      for (Match and : match.getAnd()) {
         optimizeValueSets(and);
       }
     }
-    if (match.getOr()!=null){
-      for (Match or:match.getOr()){
+    if (match.getOr() != null) {
+      for (Match or : match.getOr()) {
         optimizeValueSets(or);
       }
     }
@@ -149,49 +161,35 @@ public class SparqlOptimizer {
   }
 
   private List<Node> inferPropertyList(List<Node> propertyList) throws QueryException {
-    Query propertyQuery= new Query()
+    Query propertyQuery = new Query()
       .setIs(propertyList);
-    Set<Concept>  conceptList= setRepo.getMembersFromDefinition(propertyQuery);
+    Set<Concept> conceptList = setRepo.getMembersFromDefinition(propertyQuery);
     return conceptList.stream()
       .map(c -> new Node().setIri(c.getIri()))
       .sorted(Comparator.comparing(Node::getIri))
       .toList();
   }
 
-
   private String createConceptSet(List<Node> is) throws JsonProcessingException, QueryException, TTFilerException {
-    Query setQuery=new Query();
+    Query setQuery = new Query();
     setQuery.setIs(is);
-    TTEntity setEntity= new TTEntity();
-    String setIri= Namespace.IM+"ASET_"+getHash(is);
+    TTEntity setEntity = new TTEntity();
+    String setIri = NAMESPACE.IM + "ASET_" + getHash(is);
     if (setIris.contains(setIri)) return setIri;
     if (!repo.iriExists(setIri)) {
-      TTDocument document= new TTDocument();
+      TTDocument document = new TTDocument();
       setEntity
         .setIri(setIri)
         .addType(iri(IM.CONCEPT_SET))
         .set(IM.DEFINITION, TTLiteral.literal(setQuery));
       document.addEntity(setEntity);
-      try (TTTransactionFiler filer= new TTTransactionFiler(Graph.IM)) {
+      try (TTTransactionFiler filer = new TTTransactionFiler(GRAPH.IM)) {
         TTTransactionFiler.disableIm1Deltas();
         filer.fileDocument(document);
         TTTransactionFiler.enableIm1Deltas();
       }
     }
     return setIri;
-  }
-
-  public static String getHash(List<Node> is) throws QueryException {
-    is.sort(Comparator.comparing(Node::getIri));
-    try {
-
-      String isString= new ObjectMapper().writeValueAsString(is);
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      byte[] hash = digest.digest(isString.getBytes(StandardCharsets.UTF_8));
-      return HexFormat.of().formatHex(hash);
-    } catch (Exception e) {
-      throw new QueryException(e.getMessage(),e);
-    }
   }
 
 }

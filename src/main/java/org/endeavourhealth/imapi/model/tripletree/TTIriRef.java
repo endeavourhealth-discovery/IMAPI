@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
@@ -63,7 +63,7 @@ public class TTIriRef implements TTValue, Serializable {
   public TTIriRef setIri(String iri) {
     this.iri = iri;
     if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()) {
-      iri = Namespace.IM + iri;
+      iri = NAMESPACE.IM + iri;
       if (!iriPattern.matcher(iri).matches())
         Thread.dumpStack();
     }

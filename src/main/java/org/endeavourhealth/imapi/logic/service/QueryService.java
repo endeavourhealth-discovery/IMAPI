@@ -87,9 +87,9 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(Namespace.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+    List<TTEntity> children = entityRepository.getFolderChildren(NAMESPACE.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
     if (children.isEmpty()) {
-      return new Query().setTypeOf(Namespace.IM + "Patient");
+      return new Query().setTypeOf(NAMESPACE.IM + "Patient");
     }
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
@@ -110,7 +110,7 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(Namespace.IM + "DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(NAMESPACE.IM + "DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }

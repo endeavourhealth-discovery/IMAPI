@@ -9,7 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class ProvService {
     if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
       root = targetEntity.getScheme().getIri();
     else
-      root = Namespace.IM.toString();
+      root = NAMESPACE.IM.toString();
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()

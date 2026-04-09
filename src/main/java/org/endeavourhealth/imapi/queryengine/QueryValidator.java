@@ -192,13 +192,18 @@ public class QueryValidator {
 
   private void validateWhere(Where where, String subject) throws QueryException {
     if (where.getIri() != null){
-      if (where.getIs()==null
-        && where.getCompare()==null
+      if (where.getIs()!=null){
+        Node is = where.getIs().getFirst();
+        if (is.getIri()==null&&is.getParameter()==null){
+          throw new QueryException("Where clause must have a value for its property of "+where.getName());
+        }
+      }
+      else if (where.getCompare()==null
       && where.getRange()==null
         &&!where.isNotNull()
         &&!where.getIsNull()
         && where.getValue()==null)
-        throw new QueryException("Where clause must have a value or a compare clause");
+        throw new QueryException("Clause filter must have a value or a compare clause for the property of "+where.getName());
     }
     if (where.getAnd() != null||where.getOr()!=null){
       for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {

@@ -48,8 +48,8 @@ public class DataModelService {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly,boolean excludeGeneric) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
   }
 
 
@@ -246,5 +246,9 @@ public class DataModelService {
 
   public List<NodeShape> getDataModelPropertiesWithValueType(Set<String> iris, String valueType) {
     return dataModelRepository.getDataModelPropertiesWithValueType(iris, valueType);
+  }
+
+  public TTIriRef getInversePath(String source, String target) {
+    return dataModelRepository.getInversePath(source, target);
   }
 }

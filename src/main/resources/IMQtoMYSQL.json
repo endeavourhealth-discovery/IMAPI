@@ -188,16 +188,10 @@
       ],
       "table": "patient_address",
       "fields": {
-        "http://endhealth.info/im#lsoa": {
-          "field": "lsoa_2011_code",
-          "type": "string"
-        }
+        "http://endhealth.info/im#lsoa": {"field": "lsoa_2011_code", "type": "string"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {
-          "fromField": "patient_id",
-          "toField": "id"
-        }
+        "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"}
       }
     },
     {
@@ -206,36 +200,15 @@
       ],
       "table": "cohort",
       "fields": {
-        "http://endhealth.info/im#hash": {
-          "field": "hash",
-          "type": "string"
-        },
-        "http://endhealth.info/im#cohort_id": {
-          "field": "id",
-          "type": "string"
-        }
+        "http://endhealth.info/im#hash": {"field": "hash", "type": "string"},
+        "http://endhealth.info/im#cohort_id": {"field": "id", "type": "string"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {
-          "fromField": "cohort_id",
-          "toField": "id"
-        },
-        "http://endhealth.info/im#Observation": {
-          "fromField": "cohort_id",
-          "toField": "patient_id"
-        },
-        "http://endhealth.info/im#MedicationRequest": {
-          "fromField": "cohort_id",
-          "toField": "patient_id"
-        },
-        "http://endhealth.info/im#MedicationOrder": {
-          "fromField": "cohort_id",
-          "toField": "patient_id"
-        },
-        "http://endhealth.info/im#EpisodeOfCare": {
-          "fromField": "cohort_id",
-          "toField": "patient_id"
-        }
+        "http://endhealth.info/im#Patient": {"fromField": "cohort_id", "toField": "id"},
+        "http://endhealth.info/im#Observation": {"fromField": "cohort_id", "toField": "patient_id"},
+        "http://endhealth.info/im#MedicationRequest": {"fromField": "cohort_id", "toField": "patient_id"},
+        "http://endhealth.info/im#MedicationOrder": {"fromField": "cohort_id", "toField": "patient_id"},
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "cohort_id", "toField": "patient_id"}
       }
     },
     {
@@ -244,54 +217,18 @@
       ],
       "table": "patient",
       "fields": {
-        "http://endhealth.info/im#dateOfBirth": {
-          "field": "date_of_birth",
-          "type": "date"
-        },
-        "http://endhealth.info/im#pseudonymisedId": {
-          "field": "id",
-          "type": "string"
-        },
-        "http://endhealth.info/im#id": {
-          "field": "person_id",
-          "type": "string"
-        },
-        "http://endhealth.info/im#forenames": {
-          "field": "first_names",
-          "type": "string"
-        },
-        "http://endhealth.info/im#familyName": {
-          "field": "last_name",
-          "type": "string"
-        },
-        "http://endhealth.info/im#dateOfDeath": {
-          "field": "date_of_death",
-          "type": "date"
-        },
-        "http://endhealth.info/im#statedGender": {
-          "field": "gender_concept_id",
-          "type": "iri"
-        },
-        "http://endhealth.info/im#nhsNumber": {
-          "field": "nhs_number",
-          "type": "string"
-        },
-        "http://endhealth.info/im#ethnicity": {
-          "field": "ethnic_code_concept_id",
-          "type": "iri"
-        },
-        "http://endhealth.info/im#fullName": {
-          "field": "last_name",
-          "type": "string"
-        },
-        "http://endhealth.info/im#age": {
-          "field": "age",
-          "type": "number"
-        },
-        "http://endhealth.info/im#patient": {
-          "field": "id",
-          "type": "string"
-        }
+        "http://endhealth.info/im#dateOfBirth": {"field": "date_of_birth", "type": "date"},
+        "http://endhealth.info/im#pseudonymisedId": {"field": "id", "type": "string"},
+        "http://endhealth.info/im#id": {"field": "patient_id", "type": "string"},
+        "http://endhealth.info/im#forenames": {"field": "first_names", "type": "string"},
+        "http://endhealth.info/im#familyName": {"field": "last_name", "type": "string"},
+        "http://endhealth.info/im#dateOfDeath": {"field": "date_of_death", "type": "date"},
+        "http://endhealth.info/im#statedGender": {"field": "gender_concept_id", "type": "iri"},
+        "http://endhealth.info/im#nhsNumber": {"field": "nhs_number", "type": "string"},
+        "http://endhealth.info/im#ethnicity": {"field": "ethnic_code_concept_id", "type": "iri"},
+        "http://endhealth.info/im#fullName": {"field": "last_name", "type": "string"},
+        "http://endhealth.info/im#age": {"field": "age", "type": "number"},
+        "http://endhealth.info/im#patient": {"field": "id", "type": "string"}
       }
     },
     {
@@ -300,24 +237,12 @@
       ],
       "table": "medication_statement",
       "fields": {
-        "http://endhealth.info/im#courseType": {
-          "field": "authorisation_type_concept_id",
-          "type": "iri"
-        },
-        "http://endhealth.info/im#concept": {
-          "field": "core_concept_id",
-          "type": "iri"
-        }
+        "http://endhealth.info/im#courseType": {"field": "authorisation_type_concept_id", "type": "iri"},
+        "http://endhealth.info/im#concept": {"field": "core_concept_id", "type": "iri"}
       },
       "relationships": {
-        "http://endhealth.info/im#MedicationRequest": {
-          "fromField": "medication_order_id",
-          "toField": "id"
-        },
-        "http://endhealth.info/im#Concept": {
-          "fromField": "authorisation_type_concept_id",
-          "toField": "dbid"
-        }
+        "http://endhealth.info/im#MedicationRequest": {"fromField": "medication_order_id", "toField": "id"},
+        "http://endhealth.info/im#Concept": {"fromField": "authorisation_type_concept_id", "toField": "dbid"}
       }
     },
     {
@@ -326,14 +251,11 @@
       ],
       "table": "practitioner",
       "fields": {
-        "http://endhealth.info/im#dateOfBirth": {
-          "field": "date_of_birth",
-          "type": "date"
-        },
-        "http://endhealth.info/im#mnemonic": {
-          "field": "name",
-          "type": "string"
-        }
+        "http://endhealth.info/im#dateOfBirth": {"field": "date_of_birth", "type": "date"},
+        "http://endhealth.info/im#mnemonic": {"field": "name", "type": "string"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Organisation": {"fromField": "organization_id", "toField": "id"}
       }
     },
     {
@@ -455,7 +377,8 @@
       "primaryKey": "dbid",
       "fields": {
         "http://www.w3.org/2000/01/rdf-schema#label": {"field": "name", "type": "string"},
-        "http://endhealth.info/im#code": {"field": "code", "type": "string"}
+        "http://endhealth.info/im#code": {"field": "code", "type": "string"},
+        "http://endhealth.info/im#concept": {"field": "dbid", "type": "iri"}
       }
     },
     {

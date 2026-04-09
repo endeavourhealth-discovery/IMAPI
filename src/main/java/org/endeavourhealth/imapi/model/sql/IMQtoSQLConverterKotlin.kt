@@ -61,17 +61,23 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
 
     if (definition.columnGroup != null) {
-      for (columnGroup in definition.columnGroup) {
+      for ((index, columnGroup) in definition.columnGroup.withIndex()) {
         val newMySqlQuery = MySQLQuery()
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
         if (definition.`return` == null) {
-          newMySqlQuery.selects.add(MySQLSelect(queryTypeOfTable.primaryKey, "cohort_id"))
+          val lastCTE = mySqlQuery.withs.last { !it.exclude }
+          val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
+            queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
+          else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
-          newMySqlQuery.create = MySQLCreate(definition.iri)
-          val jsonObject = getJSONObject(newMySqlQuery)
-          newMySqlQuery.selects.add(MySQLSelect(jsonObject, "results"))
+          newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "results"))
+
+          if (index == 0)
+            newMySqlQuery.create = MySQLCreate(definition.iri)
+          else newMySqlQuery.insert = definition.iri
         }
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
@@ -94,17 +100,22 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     val selects = if (
       lastWith.selects.size == 1 &&
-      lastWith.selects.first().name == "*"
+      lastWith.selects.first().name.contains("*")
     ) {
-      // Fallback to previous WITH and exclude rn
-      newMySqlQuery.withs
-        .dropLast(1)
-        .last()
-        .selects
-        .filterNot { it.alias == "rn" || it.name == "patient.id" }
+      if (lastWith.subQuery != null) {
+        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == ("rn") }
+      } else {
+        newMySqlQuery.withs
+          .dropLast(1)
+          .last()
+          .selects
+          .filterNot { it.alias == "rn" || it.name == "patient.id" }
+      }
     } else {
       lastWith.selects.filterNot { it.name == "patient.id" }
     }
+
+    if (selects == null) throw SQLConversionException("No selects found in last with")
 
     val jsonObject = buildString {
       append("JSON_OBJECT(\n")
@@ -419,7 +430,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun sanitiseAlias(alias: String): String {
-    return alias.replace(" ", "_").replace(".", "_").lowercase(getDefault())
+    return alias.replace("...", "_").replace(" ", "_").replace(".", "_").replace("-", "_").lowercase(getDefault())
   }
 
   private fun getSelects(

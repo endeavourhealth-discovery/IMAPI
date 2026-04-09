@@ -123,7 +123,7 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
@@ -136,10 +136,12 @@ public class DataModelRepository {
           BindingSet bs = rs.next();
           nodeShape.setName(bs.getValue("entityName").stringValue());
           PropertyShape group = null;
+          if (excludeGeneric
+            && bs.getValue("genericRelationship") != null
+            && bs.getValue("genericRelationship").stringValue().equals("true")) continue;
           if (bs.getValue("path") != null) {
             if (bs.getValue("group") != null) {
               group = getGroupFromNode(bs, nodeShape);
-
             }
             addProperty(nodeShape, group, bs);
           }
@@ -165,6 +167,13 @@ public class DataModelRepository {
     PropertyShape group = getPropertyFromNode(nodeShape, groupIri);
     group.setGroup(TTIriRef.iri(groupIri).setName(bs.getValue("groupName").stringValue()));
     group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
+    if (bs.getValue("highCardinality") != null) {
+      if (group.getHighCardinality() != null) {
+        group.setHighCardinality(true);
+      }
+    } else if (group.getHighCardinality() == null) {
+      group.setHighCardinality(false);
+    }
     return group;
   }
 
@@ -210,6 +219,7 @@ public class DataModelRepository {
     }
     if (bs.getValue("definingProperty") != null) {
       property.setDefiningProperty(true);
+      node.setDefiningProperty(TTIriRef.iri(propertyIri));
     }
     if (bs.getValue("orderable") != null) {
       getPropertyOrderable(bs, property);
@@ -233,6 +243,11 @@ public class DataModelRepository {
     if (bs.getValue("inversePath") != null) {
       property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
         .setName(bs.getValue("inversePathName").stringValue()));
+    }
+    if (bs.getValue("genericRelationship") != null) {
+      if (bs.getValue("genericRelationship").stringValue().equals("true")) {
+        property.setGeneric(true);
+      }
     }
   }
 
@@ -339,7 +354,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
-      ?orderable ?ascending ?descending ?definingProperty
+      ?orderable ?ascending ?descending ?definingProperty ?genericRelationship
       WHERE {
          Values ?entity { %s }
         ?entity sh:property ?property.
@@ -366,6 +381,7 @@ public class DataModelRepository {
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
+          BIND(EXISTS { ?path im:isA im:genericRelationship} AS ?genericRelationship)
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
@@ -457,7 +473,7 @@ public class DataModelRepository {
         }
       }
       order by ?groupOrder ?order ?qualifierOrder
-      """.formatted("<"+iri+">");
+      """.formatted("<" + iri + ">");
   }
 
 
@@ -479,7 +495,7 @@ public class DataModelRepository {
         OPTIONAL {?property sh:order ?order.}
       }
       order by ?order
-      """.formatted("<"+iri+">");
+      """.formatted("<" + iri + ">");
   }
 
   public UIProperty findUIPropertyForQB(String dmIri, String propIri) {
@@ -626,5 +642,29 @@ public class DataModelRepository {
       }
     }
     return results;
+  }
+
+  public TTIriRef getInversePath(String source, String target) {
+    String sql = """
+      select ?inversePath ?pathLabel
+      where {
+       values ?source { <%s> }
+       values ?target { <%s> }
+       ?source sh:property ?property.
+       ?property sh:inversePath ?inversePath.
+       ?inversePath rdfs:label ?pathLabel.
+       ?property sh:node ?target.
+       }
+      """.formatted(source, target);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return TTIriRef.iri(bs.getValue("inversePath").stringValue()).setName(bs.getValue("pathLabel").stringValue());
+        }
+      }
+    }
+    return null;
   }
 }

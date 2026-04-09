@@ -271,6 +271,7 @@ public class QueryService {
 
   public Query validateQuery(Query query) {
     QueryValidator validator = new QueryValidator();
+    query.setInvalid(false);
     try {
       validator.validateQuery(query);
     } catch (Exception e) {

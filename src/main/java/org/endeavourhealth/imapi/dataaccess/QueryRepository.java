@@ -276,13 +276,13 @@ public class QueryRepository {
         node = mapper.createObjectNode();
         entities.add(node);
         node.put("iri", refIri);
+        nodeMap.put(refIri, node);
       }
       if (property.getReturn() != null) {
         for (Return returnProperty : property.getReturn()) {
           bindReturn(bs, node, returnProperty, nodeMap, entities);
         }
       }
-      return node;
     }
     String predicate = property.getIri();
     if (property.getPropertyRef() != null) {

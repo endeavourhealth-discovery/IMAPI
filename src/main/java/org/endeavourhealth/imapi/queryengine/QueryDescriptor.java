@@ -466,7 +466,7 @@ public class QueryDescriptor {
         if (i > 0) valueLabel.append(", or ");
       }
       Node set = where.getIs().get(i);
-      valueLabel.append(set.getDescription() != null ? set.getDescription() + " " : "").append(getShortName(set.getName()));
+      valueLabel.append(set.getDescription() != null ? set.getDescription() + " " : getShortName(set.getName()));
     }
     where.setValueLabel(valueLabel.toString());
     if (where.getShortLabel() != null)

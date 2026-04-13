@@ -9,7 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -19,20 +19,20 @@ public class TestMaps {
   public static void patientDSTU2() throws JsonProcessingException {
     TTEntity patientMapEntity = new TTEntity();
     patientMapEntity
-      .setIri(Namespace.MAP + "FHIR_2_PatientToIM")
+      .setIri(NAMESPACE.MAP + "FHIR_2_PatientToIM")
       .setName("FHIR DSTU2 Patient to IM Patient transformMap")
       .setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
     MapObject patientMap = new MapObject();
     patientMap
       .setIri(patientMapEntity.getIri())
       .setSourceType(FHIR.DSTU2 + "Patient")
-      .setTargetType(Namespace.IM + "Patient")
+      .setTargetType(NAMESPACE.IM + "Patient")
       .propertyMap(r -> r
         .setSource("id")
         .setSourceVariable("fhirId")
         .setTarget("iri")
         .function(f -> f
-          .setIri(Namespace.IM + "Concatenate")
+          .setIri(NAMESPACE.IM + "Concatenate")
           .argument(a -> a
             .setValueData("urn:uuid:"))
           .argument(a -> a
@@ -43,7 +43,7 @@ public class TestMaps {
           .setSource("value")
           .where(w -> w
             .where(p -> p
-              .setIri(Namespace.IM + "system")
+              .setIri(NAMESPACE.IM + "system")
               .setValue("http://fhir.nhs.net/Id/nhs-number"))))
         .setTarget("nhsNumber"))
       .propertyMap(m -> m
@@ -61,7 +61,7 @@ public class TestMaps {
           .setListMode(ListMode.ALL)
           .setTarget("forenames")
           .function(f -> f
-            .setIri(Namespace.IM + "StringJoin")
+            .setIri(NAMESPACE.IM + "StringJoin")
             .argument(a -> a
               .setParameter("delimiter")
               .setValueData(" "))
@@ -74,9 +74,9 @@ public class TestMaps {
         .objectMap(m1 -> m1
           .where(w -> w
             .where(p -> p
-              .setIri(Namespace.IM + "use")
+              .setIri(NAMESPACE.IM + "use")
               .setValue("home")))))
-      .setTargetType(Namespace.IM + "Address")
+      .setTargetType(NAMESPACE.IM + "Address")
       .propertyMap(m2 -> m2
         .setSource("line")
         .setTarget("addressLine"))
@@ -93,10 +93,10 @@ public class TestMaps {
           .setSource("value")
           .where(w -> w
             .where(w1 -> w1
-              .setIri(Namespace.IM + "system")
+              .setIri(NAMESPACE.IM + "system")
               .setValue("phone"))
             .where(w1 -> w1
-              .setIri(Namespace.IM + "use")
+              .setIri(NAMESPACE.IM + "use")
               .setValue("mobile")))
           .setTarget("mobileTelephoneNumber")))
       .propertyMap(m -> m
@@ -105,11 +105,11 @@ public class TestMaps {
           .setSource("value"))
         .where(w -> w
           .where(w1 -> w1
-            .setIri(Namespace.IM + "system")
+            .setIri(NAMESPACE.IM + "system")
             .setValue("phone")
           )
           .where(w1 -> w1
-            .setIri(Namespace.IM + "use")
+            .setIri(NAMESPACE.IM + "use")
             .setValue("home")))
         .setTarget("homeTelephoneNumber"))
       .propertyMap(m -> m
@@ -123,7 +123,7 @@ public class TestMaps {
       .propertyMap(m -> m
         .setTarget("administrativeGender")
         .objectMap(m1 -> m1
-          .setTargetType(Namespace.IM + "CodeableConcept")
+          .setTargetType(NAMESPACE.IM + "CodeableConcept")
           .propertyMap(m2 -> m2
             .setSource("gender")
             .setTarget("originalCode"))

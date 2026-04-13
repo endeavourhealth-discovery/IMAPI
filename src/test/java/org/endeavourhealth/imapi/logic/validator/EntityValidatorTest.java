@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 import org.junit.jupiter.api.Nested;
@@ -35,7 +35,7 @@ public class EntityValidatorTest {
     @Test
     void isInvalidIriAndData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(iri(Namespace.IM + "foo"), iri(IM.QUERY.toString(), "Query"));
+      actual.addObject(iri(NAMESPACE.IM + "foo"), iri(IM.QUERY.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -53,7 +53,7 @@ public class EntityValidatorTest {
     @Test
     void isInvalidIriAndInvalidData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(iri(Namespace.IM + "foo"), "bar");
+      actual.addObject(iri(NAMESPACE.IM + "foo"), "bar");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(VALIDATION.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);

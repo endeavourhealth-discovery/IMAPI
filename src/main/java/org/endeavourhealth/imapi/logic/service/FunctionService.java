@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toCollection;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class FunctionService {
@@ -125,10 +126,13 @@ public class FunctionService {
 
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM.toString(), null, 1, 200, false);
+    ArrayList<TTIriRef> resultsAsIri =
+      results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).collect(toCollection(ArrayList::new));
+    resultsAsIri.add(NAMESPACE.IM.asIri());
     User user = securityService.getUser(request);
-    List<TTIriRef> resultsAsIri = results.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().toString().equals(r.getIri()))).map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
+    List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().asIri().equals(r))).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      return om.valueToTree(resultsAsIri);
+      return om.valueToTree(editableSchemes);
     }
   }
 

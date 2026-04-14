@@ -202,7 +202,8 @@ public class QueryValidator {
       && where.getRange()==null
         &&!where.isNotNull()
         &&!where.getIsNull()
-        && where.getValue()==null)
+        && where.getValue()==null
+      && where.getNode()==null)
         throw new QueryException("Clause filter must have a value or a compare clause for the property of "+where.getName());
     }
     if (where.getAnd() != null||where.getOr()!=null){

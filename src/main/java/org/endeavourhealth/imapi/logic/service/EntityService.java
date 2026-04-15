@@ -524,7 +524,7 @@ public class EntityService {
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(NAMESPACE.IM));
+    filterOptions.setSchemes(getAllChildren(IM.ROOT_NAMESPACE));
     filterOptions.setStatus(getAllChildren(IM.STATUS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS));

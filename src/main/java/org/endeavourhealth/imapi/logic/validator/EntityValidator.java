@@ -187,7 +187,7 @@ public class EntityValidator {
   private EntityValidationResponse isValidScheme(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
-    List<TTIriRef> schemes = entityService.getChildren(NAMESPACE.IM.toString(), null, null, null, false);
+    List<TTIriRef> schemes = entityService.getChildren(IM.ROOT_NAMESPACE.toString(), null, null, null, false);
     if (entity.has(iri(IM.HAS_SCHEME)) && !entity.get(iri(IM.HAS_SCHEME)).isEmpty() && entity.get(iri(IM.HAS_SCHEME)).get(0).isIriRef()) {
       if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
         response.setValid(true);

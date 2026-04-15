@@ -72,7 +72,7 @@ public class FunctionService {
       throw new IllegalArgumentException(NO_ENTITY_IRI_WHERE_IN_REQUEST_BODY);
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
-      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(NAMESPACE.IM.toString(), new ArrayList<>(), 1, 1000, false);
+      List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), new ArrayList<>(), 1, 1000, false);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
       List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
@@ -117,7 +117,7 @@ public class FunctionService {
   }
 
   private JsonNode getSetEditorIriSchemes() {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM.toString(), null, 1, 200, false);
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), null, 1, 200, false);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
@@ -125,10 +125,8 @@ public class FunctionService {
   }
 
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
-    List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM.toString(), null, 1, 200, false);
-    ArrayList<TTIriRef> resultsAsIri =
-      results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).collect(toCollection(ArrayList::new));
-    resultsAsIri.add(NAMESPACE.IM.asIri());
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), null, 1, 200, false);
+    List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     User user = securityService.getUser(request);
     List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().asIri().equals(r))).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {

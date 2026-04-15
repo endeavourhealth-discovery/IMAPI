@@ -1682,7 +1682,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("namespace", NAMESPACE.IM.asDbIri());
+      qry.setBinding("namespace", IM.ROOT_NAMESPACE.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

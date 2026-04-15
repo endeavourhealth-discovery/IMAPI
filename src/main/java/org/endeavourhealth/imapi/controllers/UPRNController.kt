@@ -138,12 +138,14 @@ open class UPRNController(
       log.debug("upload")
       // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
-      var byteArrays = listOf<ByteArray>(
+      val fileContent = String(file.bytes)
+
+      val byteArrays = listOf<ByteArray>(
         "--boundary\r\n".encodeToByteArray(),
         "Content-Disposition: form-data; name=\"file\"; filename=\"".encodeToByteArray(),
         file.name.encodeToByteArray(),
         "\"\r\nContent-Type: text/plain\r\n\r\n".encodeToByteArray(),
-        file.bytes,
+        fileContent.encodeToByteArray(),
         "\r\n--boundary--\r\n".encodeToByteArray());
 
       val uprnReq = HttpRequest.newBuilder()

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.ArrayList;
@@ -56,10 +56,10 @@ public class TTUtil {
 
   public static TTContext getDefaultContext() {
     TTContext ctx = new TTContext();
-    ctx.add(Namespace.IM, "");
-    ctx.add(Namespace.RDFS, "rdfs");
-    ctx.add(Namespace.RDF, "rdf");
-    ctx.add(Namespace.SNOMED, "sn");
+    ctx.add(NAMESPACE.IM, "");
+    ctx.add(NAMESPACE.RDFS, "rdfs");
+    ctx.add(NAMESPACE.RDF, "rdf");
+    ctx.add(NAMESPACE.SNOMED, "sn");
     return ctx;
   }
 

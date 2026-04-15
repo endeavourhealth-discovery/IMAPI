@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.logic.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
 import org.endeavourhealth.imapi.model.responses.LoginResponseES
 import org.endeavourhealth.imapi.model.security.Permission
@@ -154,6 +155,8 @@ class EndeavourSecurityService {
       params,
       headers
     )
+    val mapper = ObjectMapper()
+    //System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(params))
     if (null != response) return response
     else throw UserAuthorisationException("Failed to check hasPermission")
   }

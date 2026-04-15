@@ -28,9 +28,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
@@ -275,7 +275,7 @@ public class SetService {
       options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     if (concepts.isEmpty()) {
       if (setEntity.get(iri(IM.DEFINITION)) != null) {
-        new SetMemberGenerator().generateMembers(options.getSetIri(), Graph.IM);
+        new SetMemberGenerator().generateMembers(options.getSetIri(), GRAPH.IM);
         concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(),
           options.getSchemes(),
           options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -313,7 +313,7 @@ public class SetService {
     if (!(core || legacy || subsets)) return new HashSet<>();
     boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
     if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
-      new SetMemberGenerator().generateMembers(iri, Graph.IM);
+      new SetMemberGenerator().generateMembers(iri, GRAPH.IM);
     }
 
     Set<Concept> result = null;
@@ -351,7 +351,7 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, String  updateNamespace) throws TTFilerException, JsonProcessingException {
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, NAMESPACE updateNamespace) throws TTFilerException, JsonProcessingException {
     TTArray subsets = entity.get(iri(IM.HAS_SUBSET));
     String entityIri = entity.getIri();
     Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);

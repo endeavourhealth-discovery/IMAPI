@@ -12,28 +12,28 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum RDFS implements VocabEnum {
+public enum OPEN_SEARCH implements VocabEnum {
 
-    PREFIX("rdfs"),
-    LABEL(NAMESPACE.RDFS + "label"),
-    COMMENT(NAMESPACE.RDFS + "comment"),
-    SUBCLASS_OF(NAMESPACE.RDFS + "subClassOf"),
-    SUB_PROPERTY_OF(NAMESPACE.RDFS + "subPropertyOf"),
-    DOMAIN(NAMESPACE.RDFS + "domain"),
-    RANGE(NAMESPACE.RDFS + "range"),
-    RESOURCE(NAMESPACE.RDFS + "Resource"),
-    CLASS(NAMESPACE.RDFS + "Class"),
-    DATATYPE(NAMESPACE.RDFS + "Datatype"),
-    IS_DEFINED_BY(NAMESPACE.RDFS + "isDefinedBy"),
+    NAME(RDFS.LABEL),
+    DESCRIPTION(RDFS.COMMENT),
+    CODE(IM.CODE),
+    STATUS(IM.HAS_STATUS),
+    ALTERNATIVE_CODE(IM.ALTERNATIVE_CODE),
+    SCHEME(IM.HAS_SCHEME),
+    TYPE(RDF.TYPE),
+    USAGE_TOTAL(IM.USAGE_TOTAL),
+    BINDING(IM.BINDING),
+    TERM_CODE(IM.HAS_TERM_CODE),
+    DOMAIN(RDFS.DOMAIN),
     ;
 
     private final String value;
 
-    RDFS(final String value) {
+    OPEN_SEARCH(final String value) {
         this.value = value;
     }
 
-    RDFS(final VocabEnum value) {
+    OPEN_SEARCH(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -56,11 +56,11 @@ public enum RDFS implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static RDFS from(String text) {
+    public static OPEN_SEARCH from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (RDFS b : RDFS.values()) {
+      for (OPEN_SEARCH b : OPEN_SEARCH.values()) {
         if (b.value.equals(text)) {
           return b;
         }

@@ -25,6 +25,7 @@ public class Where extends Element implements Assignable{
   private String value;
   private String valueLabel;
   private String subjectVariable;
+  private String subjectParameter;
   private boolean not;
   private boolean anyRoleGroup;
   private boolean isNull;
@@ -49,6 +50,14 @@ public class Where extends Element implements Assignable{
 
 
 
+  public String getSubjectVariable() {
+    return subjectVariable;
+  }
+
+  public Where setSubjectVariable(String subjectVariable) {
+    this.subjectVariable = subjectVariable;
+    return this;
+  }
 
 
   public boolean isLinked(){
@@ -72,11 +81,11 @@ public class Where extends Element implements Assignable{
   public List<Node> getPropertyList() {
     return propertyList;
   }
-  public String getSubjectVariable() {
-    return subjectVariable;
+  public String getSubjectParameter() {
+    return subjectParameter;
   }
-  public Where setSubjectVariable(String subject) {
-    this.subjectVariable = subject;
+  public Where setSubjectParameter(String subject) {
+    this.subjectParameter = subject;
     return this;
   }
   public Where setParameter(String parameter) {

@@ -15,14 +15,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum VALIDATION implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    IS_DEFINITION(Namespace.IM_VALIDATION + "isDefinition"),
-    HAS_PARENT(Namespace.IM_VALIDATION + "hasParent"),
-    IS_IRI(Namespace.IM_VALIDATION + "isIri"),
-    IS_TERMCODE(Namespace.IM_VALIDATION + "isTermcode"),
-    IS_PROPERTY(Namespace.IM_VALIDATION + "isProperty"),
-    IS_SCHEME(Namespace.IM_VALIDATION + "isScheme"),
-    IS_STATUS(Namespace.IM_VALIDATION + "isStatus"),
-    IS_ROLE_GROUP(Namespace.IM_VALIDATION + "isRoleGroup"),
+    IS_DEFINITION(NAMESPACE.IM_VALIDATION + "isDefinition"),
+    HAS_PARENT(NAMESPACE.IM_VALIDATION + "hasParent"),
+    IS_IRI(NAMESPACE.IM_VALIDATION + "isIri"),
+    IS_TERMCODE(NAMESPACE.IM_VALIDATION + "isTermcode"),
+    IS_PROPERTY(NAMESPACE.IM_VALIDATION + "isProperty"),
+    IS_SCHEME(NAMESPACE.IM_VALIDATION + "isScheme"),
+    IS_STATUS(NAMESPACE.IM_VALIDATION + "isStatus"),
+    IS_ROLE_GROUP(NAMESPACE.IM_VALIDATION + "isRoleGroup"),
     ;
 
     private final String value;

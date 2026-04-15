@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -19,15 +19,12 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   private Prefixes prefixes;
   @Getter
   private boolean hasNames;
-  private int counter =0;
+  private int counter = 0;
 
 
   public Query getIMQ(IMECLParser.ImeclContext ctx) {
     return (Query) visitImecl(ctx);
   }
-
-
-
 
 
   @Override
@@ -51,7 +48,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         }
       }
     }
-    if (query==null){
+    if (query == null) {
       query = new Query();
       query.setInvalid(true);
     }
@@ -133,8 +130,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         Object result = visit(child);
         if (result instanceof Match asMatch) {
           match = asMatch;
-        }
-        else if (result instanceof Where asWhere) {
+        } else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();
             match.setTypeOf(new Node().setIri(IM.CONCEPT.toString()));
@@ -235,18 +231,16 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           }
         }
       }
-      if (match==null&&node!=null&&!nested){
+      if (match == null && node != null && !nested) {
         match = new Match();
         match.addIs(node);
         return match;
-      }
-      else if (match!=null&&node!=null&&nested){
+      } else if (match != null && node != null && nested) {
         Match outerMatch = new Match();
         outerMatch.addIs(node);
         node.setMatch(match);
         return outerMatch;
-      }
-      else if (match!=null){
+      } else if (match != null) {
         return match;
       }
     }
@@ -304,7 +298,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitSctid(IMECLParser.SctidContext ctx) {
-    return Namespace.SNOMED + ctx.getText();
+    return NAMESPACE.SNOMED + ctx.getText();
   }
 
 
@@ -540,7 +534,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           reverseFlag = true;
         }
         if (result instanceof Match asMatch) {
-          if (where==null){
+          if (where == null) {
             Node node = (asMatch).getIs().getFirst();
             where = new Where();
             where.setIri(node.getIri());
@@ -553,21 +547,21 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {
-              if (asMatch.getOr() != null) {
-                getWhereFromMatch(asMatch, where);
-              } else if (asMatch.getAnd() != null) {
-                  Where andWhere = new Where();
-                  for (Match subMatch : asMatch.getAnd()) {
-                    andWhere.addAnd(new Where().setIri(where.getIri())
-                        .addIs(new Node().setIri(subMatch.getIs().getFirst().getIri())));
+            if (asMatch.getOr() != null) {
+              getWhereFromMatch(asMatch, where);
+            } else if (asMatch.getAnd() != null) {
+              Where andWhere = new Where();
+              for (Match subMatch : asMatch.getAnd()) {
+                andWhere.addAnd(new Where().setIri(where.getIri())
+                  .addIs(new Node().setIri(subMatch.getIs().getFirst().getIri())));
               }
-              where= andWhere;
+              where = andWhere;
             } else {
-                Node node = (asMatch).getIs().getFirst();
-                where.addIs(node);
-                if (reverseFlag)
-                  where.setInverse(reverseFlag);
-              }
+              Node node = (asMatch).getIs().getFirst();
+              where.addIs(node);
+              if (reverseFlag)
+                where.setInverse(reverseFlag);
+            }
           }
         }
       }

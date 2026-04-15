@@ -38,11 +38,12 @@ public class DataModelController {
   public NodeShape getDataModelProperties(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
+    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
+    @RequestParam(name="excludeGeneric",required= false, defaultValue= "false") boolean excludeGeneric
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
     }
   }
 
@@ -119,6 +120,22 @@ public class DataModelController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getDataModelPropertiesWithValueType");
       return dataModelService.getDataModelPropertiesWithValueType(iris, valueType);
+    }
+  }
+
+
+  @GetMapping(value = "/inversePath", produces = "application/json")
+  @Operation(
+    summary = "gets the inverse path between source and target",
+    description = "for a known source tye ad target type whats the reverse property e.g. patient "
+  )
+  public TTIriRef getInversePath(
+    HttpServletRequest request,
+    @RequestParam(name = "source") String source,
+    @RequestParam(name = "target") String target) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getInversePath from " + source + " to " + target);
+      return dataModelService.getInversePath(source, target);
     }
   }
 }

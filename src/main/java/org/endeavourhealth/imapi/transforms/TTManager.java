@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -45,13 +45,13 @@ public class TTManager implements AutoCloseable {
 
   public static TTContext createBasicContext() {
     TTContext context = new TTContext();
-    context.add(Namespace.IM, "im", "Discovery namespace");
-    context.add(Namespace.SNOMED, "sn", "Snomed-CT namespace");
-    context.add(Namespace.OWL, "owl", "OWL2 namespace");
-    context.add(Namespace.RDF, "rdf", "RDF namespace");
-    context.add(Namespace.RDFS, "rdfs", "RDFS namespace");
-    context.add(Namespace.XSD, "xsd", "xsd namespace");
-    context.add(Namespace.SHACL, "sh", "SHACL namespace");
+    context.add(NAMESPACE.IM, "im", "Discovery namespace");
+    context.add(NAMESPACE.SNOMED, "sn", "Snomed-CT namespace");
+    context.add(NAMESPACE.OWL, "owl", "OWL2 namespace");
+    context.add(NAMESPACE.RDF, "rdf", "RDF namespace");
+    context.add(NAMESPACE.RDFS, "rdfs", "RDFS namespace");
+    context.add(NAMESPACE.XSD, "xsd", "xsd namespace");
+    context.add(NAMESPACE.SHACL, "sh", "SHACL namespace");
     return context;
   }
 
@@ -154,16 +154,16 @@ public class TTManager implements AutoCloseable {
     }
     return false;
   }
-  public static boolean termCodeUsed(TTEntity entity, String term,String code) {
+
+  public static boolean termCodeUsed(TTEntity entity, String term, String code) {
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
-        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term)){
-          if (code!=null){
+        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term)) {
+          if (code != null) {
             if (val.asNode().get(iri(IM.CODE)) != null && val.asNode().get(iri(IM.CODE)).asLiteral().getValue().equals(code)) {
               return true;
             }
-          }
-          else return true;
+          } else return true;
         }
       }
     }
@@ -177,7 +177,7 @@ public class TTManager implements AutoCloseable {
 
   public static TTEntity addTermCode(TTEntity entity,
                                      String term, String code, TTIriRef status) {
-    if (!termCodeUsed(entity, term,code)) {
+    if (!termCodeUsed(entity, term, code)) {
       TTNode termCode = new TTNode();
       if (status != null)
         termCode.set(iri(IM.HAS_STATUS), status);
@@ -288,13 +288,13 @@ public class TTManager implements AutoCloseable {
 
   public static TTContext getDefaultContext() {
     TTContext ctx = new TTContext();
-    ctx.add(Namespace.IM, "");
-    ctx.add(Namespace.IM, "im");
-    ctx.add(Namespace.RDFS, "rdfs");
-    ctx.add(Namespace.RDF, "rdf");
-    ctx.add(Namespace.SNOMED, "sn");
-    ctx.add(Namespace.SHACL, "sh");
-    ctx.add(Namespace.XSD, "xsd");
+    ctx.add(NAMESPACE.IM, "");
+    ctx.add(NAMESPACE.IM, "im");
+    ctx.add(NAMESPACE.RDFS, "rdfs");
+    ctx.add(NAMESPACE.RDF, "rdf");
+    ctx.add(NAMESPACE.SNOMED, "sn");
+    ctx.add(NAMESPACE.SHACL, "sh");
+    ctx.add(NAMESPACE.XSD, "xsd");
     return ctx;
   }
 
@@ -339,12 +339,12 @@ public class TTManager implements AutoCloseable {
 
   public TTContext createDefaultContext() {
     context = new TTContext();
-    context.add(Namespace.IM, "im", "Discovery namespace");
-    context.add(Namespace.SNOMED, "sn", "Snomed-CT namespace");
-    context.add(Namespace.OWL, "owl", "OWL2 namespace");
-    context.add(Namespace.RDF, "rdf", "RDF namespace");
-    context.add(Namespace.RDFS, "rdfs", "RDFS namespace");
-    context.add(Namespace.XSD, "xsd", "xsd namespace");
+    context.add(NAMESPACE.IM, "im", "Discovery namespace");
+    context.add(NAMESPACE.SNOMED, "sn", "Snomed-CT namespace");
+    context.add(NAMESPACE.OWL, "owl", "OWL2 namespace");
+    context.add(NAMESPACE.RDF, "rdf", "RDF namespace");
+    context.add(NAMESPACE.RDFS, "rdfs", "RDFS namespace");
+    context.add(NAMESPACE.XSD, "xsd", "xsd namespace");
     return context;
   }
 
@@ -458,16 +458,14 @@ public class TTManager implements AutoCloseable {
   }
 
 
-
-
-  public TTEntity createNamespaceEntity(Namespace namespace, String name, String description) {
+  public TTEntity createNamespaceEntity(NAMESPACE namespace, String name, String description) {
     TTEntity result = new TTEntity()
       .setIri(namespace.toString())
       .addType(RDFS.CLASS.asIri())
       .setName(name)
       .setDescription(description)
       .setScheme(namespace.asIri());
-    result.addObject(iri(RDFS.SUBCLASS_OF), IM.NAMESPACE.asIri());
+    result.addObject(iri(RDFS.SUBCLASS_OF), NAMESPACE.IM.asIri());
     return result;
   }
 

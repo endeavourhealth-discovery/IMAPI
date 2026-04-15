@@ -60,7 +60,7 @@ public class CodeGenRepository {
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("s", iri(Namespace.IM_CODE_TEMPLATE + name));
+      qry.setBinding("s", iri(NAMESPACE.IM_CODE_TEMPLATE + name));
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -103,7 +103,7 @@ public class CodeGenRepository {
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
       Update qry = conn.prepareDeleteSparql(deleteSparql);
-      qry.setBinding("s", iri(Namespace.IM_CODE_TEMPLATE + name));
+      qry.setBinding("s", iri(NAMESPACE.IM_CODE_TEMPLATE + name));
       qry.execute();
     }
     String insertSparql = """
@@ -123,7 +123,7 @@ public class CodeGenRepository {
     try (ConfigDB conn = ConfigDB.getConnection()) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         Update qry2 = conn.prepareInsertSparql(insertSparql);
-        qry2.setBinding("iri", iri(Namespace.IM_CODE_TEMPLATE + name));
+        qry2.setBinding("iri", iri(NAMESPACE.IM_CODE_TEMPLATE + name));
         qry2.setBinding("label", RDFS.LABEL.asDbIri());
         qry2.setBinding("name", literal(name));
         qry2.setBinding("extensionType", CodeTemplate.EXTENSION.asDbIri());

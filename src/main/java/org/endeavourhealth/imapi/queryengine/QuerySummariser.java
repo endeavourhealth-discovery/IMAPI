@@ -1,13 +1,14 @@
 package org.endeavourhealth.imapi.queryengine;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
-import java.util.*;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class QuerySummariser {
   private final EntityRepository repo = new EntityRepository();
@@ -19,36 +20,26 @@ public class QuerySummariser {
   private int level;
 
 
-
-
-
-
-
-
   public String summariseQuery(Match query) throws QueryException, JsonProcessingException {
     new QueryDescriptor().describeSingleMatch(query);
-    summariseMatch(query,0,"");
+    summariseMatch(query, 0, "");
     return summary.toString();
   }
 
 
-
-
-
-
-  public void summariseMatch(Match match,Integer index,String bool) {
-    int subIndex=-1;
+  public void summariseMatch(Match match, Integer index, String bool) {
+    int subIndex = -1;
     if (match.getTypeOf() != null) {
       summary.append(match.getTypeOf().getName()).append(" with ");
       indent();
     }
-    if (!bool.isEmpty() &&!bool.equals("union") &&!bool.equals("step") &&index>0){
+    if (!bool.isEmpty() && !bool.equals("union") && !bool.equals("step") && index > 0) {
       summary.append(bool).append(" ");
     }
-    if (bool.equals("or")&&index==0) {
+    if (bool.equals("or") && index == 0) {
       summary.append("either ");
     }
-    if (match.getNodeRef()!=null){
+    if (match.getNodeRef() != null) {
       summary.append("From ").append(match.getNodeRef());
       indent();
     }
@@ -56,7 +47,6 @@ public class QuerySummariser {
     if (match.getOrderBy() != null) {
       summary.append(match.getOrderBy().getDescription());
     }
-
 
 
     if (match.getIs() != null) {
@@ -68,7 +58,7 @@ public class QuerySummariser {
       for (Match subMatch : match.getOr()) {
         subIndex++;
         indent();
-        summariseMatch(subMatch,subIndex,"or");
+        summariseMatch(subMatch, subIndex, "or");
       }
       level--;
     }
@@ -77,7 +67,7 @@ public class QuerySummariser {
       for (Match subMatch : match.getAnd()) {
         subIndex++;
         indent();
-        summariseMatch(subMatch,subIndex,"and");
+        summariseMatch(subMatch, subIndex, "and");
       }
       level--;
     }
@@ -90,9 +80,9 @@ public class QuerySummariser {
 
     if (match.getWhere() != null) {
       summary.append(" with ");
-      summariseWhere(match.getWhere(),0,"");
+      summariseWhere(match.getWhere(), 0, "");
     }
-    if (match.getNode() != null){
+    if (match.getNode() != null) {
       summary.append("as (").append(match.getNode()).append(")");
     }
   }
@@ -108,59 +98,54 @@ public class QuerySummariser {
   }
 
 
-
-
-  private void summariseWheres(List<Where> wheres,Integer index,String bool) {
-    int subIndex=-1;
+  private void summariseWheres(List<Where> wheres, Integer index, String bool) {
+    int subIndex = -1;
     for (Where where : wheres) {
       subIndex++;
-      summariseWhere(where,subIndex,bool);
+      summariseWhere(where, subIndex, bool);
     }
   }
 
 
   private void summariseIs(List<Node> inSets) {
     for (Node set : inSets) {
-      if (set.getDescription()!=null) {
+      if (set.getDescription() != null) {
         summary.append(set.getDescription()).append(" ");
-      }
-     else summary.append(set.getName()).append(" ");
-      if (set.getMatch()!=null) {
-        summariseMatch(set.getMatch(),0,"");
+      } else summary.append(set.getName()).append(" ");
+      if (set.getMatch() != null) {
+        summariseMatch(set.getMatch(), 0, "");
       }
     }
   }
 
 
-
-  private void summariseWhere(Where where,Integer index, String bool) {
+  private void summariseWhere(Where where, Integer index, String bool) {
     if (!bool.isEmpty()) {
-      if (index>0) summary.append(bool).append(" ");
+      if (index > 0) summary.append(bool).append(" ");
       else if (bool.equals("or")) summary.append("either ");
     }
 
-    if (where.getQualifier()!=null){
+    if (where.getQualifier() != null) {
       summary.append(where.getQualifier().getName()).append(" of ");
     }
-    if (where.getName()!=null){
+    if (where.getName() != null) {
       summary.append(where.getName()).append(" ");
     }
     if (where.getAnd() != null) {
-      summariseWheres(where.getAnd(),index,"and");
+      summariseWheres(where.getAnd(), index, "and");
     }
     if (where.getOr() != null) {
-      summariseWheres(where.getOr(),index,"or");
+      summariseWheres(where.getOr(), index, "or");
     }
-    if (where.getDescription()!=null) {
+    if (where.getDescription() != null) {
       summary.append(where.getDescription()).append(" ");
-    }
-    else if (where.getIs() != null) {
+    } else if (where.getIs() != null) {
       summariseIs(where.getIs());
     }
-    if (where.getRange()!=null) {
+    if (where.getRange() != null) {
       summariseRange(where.getRange());
     }
-    if (where.getCompare()!=null)
+    if (where.getCompare() != null)
       summariseCompare(where.getCompare());
   }
 
@@ -172,39 +157,35 @@ public class QuerySummariser {
   }
 
   private void summariseAssignable(Value assignable) {
-    if (assignable.getOperator()!=null)
+    if (assignable.getOperator() != null)
       summary.append(assignable.getOperator().getValue()).append(" ");
-    if (assignable.getValue()!=null)
+    if (assignable.getValue() != null)
       summary.append(assignable.getValue()).append(" ");
 
-    if (assignable.getCompare()!=null)
+    if (assignable.getCompare() != null)
       summariseCompare(assignable.getCompare());
   }
 
 
   private void summariseCompare(Compare compare) {
     summariseValueSource(compare.getLeft());
-    if (compare.getUnits()!=null)
+    if (compare.getUnits() != null)
       summary.append(compare.getUnits().getName()).append(" ");
     summary.append("relative to ");
     summariseValueSource(compare.getRight());
   }
 
   private void summariseValueSource(ValueSource source) {
-    if (source.getName()!=null) {
+    if (source.getName() != null) {
       summary.append(source.getName()).append(" ");
     }
-    if (source.getParameter()!=null) {
+    if (source.getParameter() != null) {
       summary.append(source.getName());
     }
   }
 
 
-  private void indent(){
-    summary.append("\n"+ "                         ".substring(0, Math.min(level,20)));
+  private void indent() {
+    summary.append("\n" + "                         ".substring(0, Math.min(level, 20)));
   }
 }
-
-
-
-

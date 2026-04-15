@@ -174,7 +174,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(NAMESPACE.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -194,7 +194,7 @@ public class EntityService {
   public Integer totalRecords(String iri) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(NAMESPACE.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri);
@@ -418,7 +418,7 @@ public class EntityService {
   }
 
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
-    List<String> snomedCodes = codes.stream().map(code -> org.endeavourhealth.imapi.vocabulary.Namespace.SNOMED + code).toList();
+    List<String> snomedCodes = codes.stream().map(code -> NAMESPACE.SNOMED + code).toList();
     List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()));
     SetService setService = new SetService();
     List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
@@ -471,7 +471,7 @@ public class EntityService {
       TTNode loadMoreNode = new TTNode()
         .setIri(IM.LOAD_MORE.toString())
         .set(iri(RDFS.LABEL), "Load more")
-        .set(iri(org.endeavourhealth.imapi.vocabulary.Namespace.IM + "totalCount"), partialAndCount.getTotalCount());
+        .set(iri(NAMESPACE.IM + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
@@ -515,7 +515,7 @@ public class EntityService {
   }
 
   public Set<String> getXmlSchemaDataTypes() {
-    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    return entityRepository.getByNamespace(NAMESPACE.XSD);
   }
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
@@ -524,7 +524,7 @@ public class EntityService {
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE));
+    filterOptions.setSchemes(getAllChildren(NAMESPACE.IM));
     filterOptions.setStatus(getAllChildren(IM.STATUS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS));
@@ -543,9 +543,12 @@ public class EntityService {
     return filterOptions;
   }
 
-  private List<TTIriRef> getDefaultSchemes( FilterOptionsDto filterOptions) {
+  private List<TTIriRef> getDefaultSchemes(FilterOptionsDto filterOptions) {
     List<TTIriRef> schemes = new ArrayList<>();
-    filterOptions.getTypes().forEach(type -> {for (TTIriRef iri:filterOptions.getTypeSchemes().get(type.getIri())) if (!schemes.contains(iri)) schemes.add(iri);});
+    filterOptions.getTypes().forEach(type -> {
+      for (TTIriRef iri : filterOptions.getTypeSchemes().get(type.getIri()))
+        if (!schemes.contains(iri)) schemes.add(iri);
+    });
     return schemes;
   }
 
@@ -553,7 +556,7 @@ public class EntityService {
     return entityRepository.getTypeSchemeDefaults();
   }
 
-  private List<TTIriRef> getAllChildren(IM iri) {
+  private List<TTIriRef> getAllChildren(VocabEnum iri) {
     return getChildren(iri.toString(), null, null, null, false);
   }
 

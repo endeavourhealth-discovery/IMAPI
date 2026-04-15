@@ -52,7 +52,7 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, bugReport);
-      ModelBuilder namedGraph = builder.namedGraph(Graph.IM.toString());
+      ModelBuilder namedGraph = builder.namedGraph(GRAPH.IM.toString());
       namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_PRODUCT.asDbIri(), literal(bugReport.getProduct()))
         .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_VERSION.asDbIri(), literal(bugReport.getVersion()))
         .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_MODULE.asDbIri(), literal(bugReport.getModule()))
@@ -91,7 +91,7 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, roleRequest);
-      builder.namedGraph(Graph.IM.toString())
+      builder.namedGraph(GRAPH.IM.toString())
         .add(iri(roleRequest.getId().getIri()), WORKFLOW.REQUESTED_ROLE.asDbIri(), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
@@ -109,7 +109,7 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, namespaceRequest);
-      builder.namedGraph(Graph.IM.toString())
+      builder.namedGraph(GRAPH.IM.toString())
         .add(iri(namespaceRequest.getId().getIri()), WORKFLOW.REQUESTED_NAMESPACE.asDbIri(), literal(namespaceRequest.getNamespacePermission()));
       conn.add(builder.build());
       String emailSubject = "New namespace request added: [" + namespaceRequest.getId().getIri() + "]";
@@ -127,7 +127,7 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, entityApproval);
-      builder.namedGraph(Graph.IM.toString())
+      builder.namedGraph(GRAPH.IM.toString())
         .add(iri(entityApproval.getId().getIri()), WORKFLOW.APPROVAL_TYPE.asDbIri(), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
@@ -185,7 +185,7 @@ public class TaskFilerRdf4j {
     try {
       ModelBuilder builder = new ModelBuilder();
       BNode bn = bnode();
-      ModelBuilder ng = builder.namedGraph(Graph.IM.toString());
+      ModelBuilder ng = builder.namedGraph(GRAPH.IM.toString());
       ng.add(iri(subject), WORKFLOW.HISTORY.asDbIri(), bn)
         .add(bn, WORKFLOW.HISTORY_PREDICATE.asDbIri(), predicate.asDbIri())
         .add(bn, WORKFLOW.HISTORY_CHANGE_DATE.asDbIri(), literal(LocalDateTime.now()))
@@ -241,7 +241,7 @@ public class TaskFilerRdf4j {
   }
 
   private void buildTask(ModelBuilder builder, Task task) {
-    builder.namedGraph(Graph.IM.toString())
+    builder.namedGraph(GRAPH.IM.toString())
       .add(iri(task.getId().getIri()), WORKFLOW.CREATED_BY.asDbIri(), literal(task.getCreatedBy()))
       .add(iri(task.getId().getIri()), RDF.TYPE.asDbIri(), literal(task.getType()))
       .add(iri(task.getId().getIri()), WORKFLOW.STATE.asDbIri(), literal(null == task.getState() ? TaskState.TODO : task.getState()))

@@ -6,9 +6,9 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.*;
@@ -22,12 +22,13 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class TTBulkFiler implements TTDocumentFiler {
-  private static final Set<String> specialChildren = new HashSet<>(List.of(Namespace.SNOMED + "92381000000106"));
+  private static final Set<String> specialChildren = new HashSet<>(List.of(NAMESPACE.SNOMED + "92381000000106"));
   private static String dataPath;
   private static String configTTl;
   private static String preload;
   private static int privacyLevel = 0;
   private static int statementCount;
+  private final GRAPH insertGraph;
   private FileWriter codeMap;
   private FileWriter coreTerms;
   private FileWriter quads;
@@ -36,19 +37,17 @@ public class TTBulkFiler implements TTDocumentFiler {
   private FileWriter legacyCore;
   private FileWriter allEntities;
   private FileWriter coreIris;
-  private Map<Namespace, FileWriter> termCoreMap;
-  private Map<Namespace, FileWriter> codeCoreMap;
-  private Map<Namespace, FileWriter> codeIds;
+  private Map<NAMESPACE, FileWriter> termCoreMap;
+  private Map<NAMESPACE, FileWriter> codeCoreMap;
+  private Map<NAMESPACE, FileWriter> codeIds;
 
-  private final Graph insertGraph;
-
-  public TTBulkFiler(Graph insertGraph) {
+  public TTBulkFiler(GRAPH insertGraph) {
     this.insertGraph = insertGraph;
   }
 
   private static void setStatus(TTEntity entity) {
     if (entity.get(iri(RDFS.LABEL)) != null && entity.get(iri(IM.HAS_STATUS)) == null)
-        entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
+      entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
   }
 
   public static void createRepository() throws TTFilerException {
@@ -70,7 +69,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Executing command [{}{}]", startCommand, command);
 
       Process process = Runtime.getRuntime()
-        .exec((startCommand + command).split(" "),null, new File(preloadPath));
+        .exec((startCommand + command).split(" "), null, new File(preloadPath));
       BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()));
       BufferedReader e = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
@@ -175,7 +174,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void writeGraph(TTDocument document, Graph graph) throws TTFilerException {
+  private void writeGraph(TTDocument document, GRAPH graph) throws TTFilerException {
     try {
       createFileWriters();
 
@@ -188,7 +187,7 @@ public class TTBulkFiler implements TTDocumentFiler {
           continue;
 
         allEntities.write(entity.getIri() + "\n");
-        if (Graph.IM.equals(graph))
+        if (GRAPH.IM.equals(graph))
           coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
         if (entity.getScheme() == null) {
           transformAndWriteQuads(converter, entity, graph);
@@ -213,7 +212,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, Graph graph) throws IOException {
+  private void transformAndWriteQuads(TTToNQuad converter, TTEntity entity, GRAPH graph) throws IOException {
     List<String> quadList = converter.transformEntity(entity, graph);
     for (String quad : quadList) {
       quads.write(quad + "\n");
@@ -231,12 +230,12 @@ public class TTBulkFiler implements TTDocumentFiler {
     legacyCore = new FileWriter(dataPath + "/LegacyCore.txt", true);
     coreIris = new FileWriter(dataPath + "/coreIris.txt", true);
 
-    termCoreMap = new EnumMap<>(Namespace.class);
-    codeCoreMap = new EnumMap<>(Namespace.class);
-    codeIds = new EnumMap<>(Namespace.class);
+    termCoreMap = new EnumMap<>(NAMESPACE.class);
+    codeCoreMap = new EnumMap<>(NAMESPACE.class);
+    codeIds = new EnumMap<>(NAMESPACE.class);
   }
 
-  private FileWriter getTermCoreMap(Namespace namespace) throws IOException {
+  private FileWriter getTermCoreMap(NAMESPACE namespace) throws IOException {
     FileWriter result = termCoreMap.get(namespace);
     if (result == null) {
       result = new FileWriter(dataPath + "/TermCoreMap-" + namespace.name() + ".txt", true);
@@ -246,7 +245,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     return result;
   }
 
-  private FileWriter getCodeCoreMap(Namespace namespace) throws IOException {
+  private FileWriter getCodeCoreMap(NAMESPACE namespace) throws IOException {
     FileWriter result = codeCoreMap.get(namespace);
     if (result == null) {
       result = new FileWriter(dataPath + "/CodeCoreMap-" + namespace.name() + ".txt", true);
@@ -256,7 +255,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     return result;
   }
 
-  private FileWriter getCodeIds(Namespace namespace) throws IOException {
+  private FileWriter getCodeIds(NAMESPACE namespace) throws IOException {
     FileWriter result = codeIds.get(namespace);
     if (result == null) {
       result = new FileWriter(dataPath + "/CodeIds-" + namespace.name() + ".txt", true);
@@ -291,7 +290,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTerms(TTEntity entity) throws IOException {
-    if (entity.getScheme().getIri().equals(Namespace.IM.toString()) && entity.getName() != null)
+    if (entity.getScheme().getIri().equals(NAMESPACE.IM.toString()) && entity.getName() != null)
       coreTerms.write(entity.getName() + "\t" + entity.getIri() + "\n");
   }
 
@@ -315,16 +314,16 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addCodeToMaps(TTEntity entity) throws IOException {
-    Namespace namespace = Namespace.from(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
 
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
       codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
-      if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+      if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
         getCodeCoreMap(namespace).write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
         codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");
-        if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+        if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
           getCodeCoreMap(namespace).write(entity.getCode() + "\t" + entity.getIri() + "\n");
       }
     }
@@ -332,7 +331,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void addCodeIdToMaps(TTEntity entity) throws IOException {
     if (entity.get(iri(IM.CODE_ID)) != null) {
-      Namespace namespace = Namespace.from(entity.getScheme().getIri());
+      NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
       for (TTValue codeId : entity.get(iri(IM.CODE_ID)).getElements()) {
         getCodeIds(namespace).write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       }
@@ -340,13 +339,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTermCodeToMaps(TTEntity entity) throws IOException {
-    Namespace namespace = Namespace.from(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
 
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         if (tc.asNode().get(iri(IM.CODE)) != null) {
           String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
-          if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED)))
+          if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
             getCodeCoreMap(namespace).write(code + "\t" + entity.getIri() + "\n");
         }
       }
@@ -354,11 +353,11 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addMatchToToMaps(TTEntity entity) throws IOException {
-    Namespace namespace = Namespace.from(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
 
     if (entity.get(iri(IM.MATCHED_TO)) != null) {
       for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {
-        if (namespace.equals(Namespace.IM) || (namespace.equals(Namespace.SNOMED))) {
+        if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED))) {
           legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
           if (entity.get(iri(IM.CODE_ID)) != null)
             getCodeIds(namespace).write(entity.get(iri(IM.CODE_ID)).asLiteral().getValue() + "\t" +
@@ -374,7 +373,7 @@ public class TTBulkFiler implements TTDocumentFiler {
   private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      Namespace namespace = Namespace.from(entity.getScheme().getIri());
+      NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
 
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         TTNode termCode = tc.asNode();
@@ -390,7 +389,7 @@ public class TTBulkFiler implements TTDocumentFiler {
     }
   }
 
-  private void writeTermCoreMap(Namespace namespace, String term, String core) throws IOException {
+  private void writeTermCoreMap(NAMESPACE namespace, String term, String core) throws IOException {
     if (term == null)
       return;
 

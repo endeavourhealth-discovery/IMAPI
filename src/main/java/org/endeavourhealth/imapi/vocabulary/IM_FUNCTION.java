@@ -15,18 +15,18 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum IM_FUNCTION implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
-    SNOMED_CONCEPT_GENERATOR(Namespace.FUNCTION + "SnomedConceptGenerator"),
-    LOCAL_NAME_RETRIEVER(Namespace.FUNCTION + "LocalNameRetriever"),
-    GET_ADDITIONAL_ALLOWABLE_TYPES(Namespace.FUNCTION + "GetAdditionalAllowableTypes"),
-    GET_LOGIC_OPTIONS(Namespace.FUNCTION + "GetLogicOptions"),
-    GET_SET_EDITOR_IRI_SCHEMES(Namespace.FUNCTION + "GetSetEditorIriSchemes"),
-    IM1_SCHEME_OPTIONS(Namespace.FUNCTION + "IM1SchemeOptions"),
-    SCHEME_FROM_IRI(Namespace.FUNCTION + "SchemeFromIri"),
-    GET_USER_EDITABLE_SCHEMES(Namespace.FUNCTION + "GetUserEditableSchemes"),
-    IS_TYPE(Namespace.FUNCTION + "IsType"),
-    ALLOWABLE_PROPERTIES(Namespace.FUNCTION + "AllowableProperties"),
-    ALLOWABLE_RANGES(Namespace.FUNCTION + "AllowableRanges"),
-    ALLOWABLE_PROPERTY_VALUES(Namespace.FUNCTION + "AllowablePropertyValues"),
+    SNOMED_CONCEPT_GENERATOR(NAMESPACE.FUNCTION + "SnomedConceptGenerator"),
+    LOCAL_NAME_RETRIEVER(NAMESPACE.FUNCTION + "LocalNameRetriever"),
+    GET_ADDITIONAL_ALLOWABLE_TYPES(NAMESPACE.FUNCTION + "GetAdditionalAllowableTypes"),
+    GET_LOGIC_OPTIONS(NAMESPACE.FUNCTION + "GetLogicOptions"),
+    GET_SET_EDITOR_IRI_SCHEMES(NAMESPACE.FUNCTION + "GetSetEditorIriSchemes"),
+    IM1_SCHEME_OPTIONS(NAMESPACE.FUNCTION + "IM1SchemeOptions"),
+    SCHEME_FROM_IRI(NAMESPACE.FUNCTION + "SchemeFromIri"),
+    GET_USER_EDITABLE_SCHEMES(NAMESPACE.FUNCTION + "GetUserEditableSchemes"),
+    IS_TYPE(NAMESPACE.FUNCTION + "IsType"),
+    ALLOWABLE_PROPERTIES(NAMESPACE.FUNCTION + "AllowableProperties"),
+    ALLOWABLE_RANGES(NAMESPACE.FUNCTION + "AllowableRanges"),
+    ALLOWABLE_PROPERTY_VALUES(NAMESPACE.FUNCTION + "AllowablePropertyValues"),
     ;
 
     private final String value;

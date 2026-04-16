@@ -143,7 +143,7 @@ open class UPRNController(
       val byteArrays = listOf<ByteArray>(
         "--boundary\r\n".encodeToByteArray(),
         "Content-Disposition: form-data; name=\"file\"; filename=\"".encodeToByteArray(),
-        file.name.encodeToByteArray(),
+        file.originalFilename.encodeToByteArray(),
         "\"\r\nContent-Type: text/plain\r\n\r\n".encodeToByteArray(),
         fileContent.encodeToByteArray(),
         "\r\n--boundary--\r\n".encodeToByteArray());

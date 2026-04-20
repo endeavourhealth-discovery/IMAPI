@@ -16,11 +16,6 @@ performed.
 1. Build IMAPI (or run the `IMAPI -> Tasks -> other -> extractEnumsFromAutoGen` gradle task)
 1. Check that the changes have been correctly generated in the VueLibrary code (`src/interfaces/AutoGen.ts` &
    `src/enums/AutoGen.ts`)
-1. Bump patch version of VueLibrary in package.lock (e.g. `v0.0.0 -> v0.0.1`)
-1. Repackage VueLibrary (`.tgz`) with the changes (run `pnpm pack`)
 1. Commit & push the VueLibrary changes
-1. Download the new VueLibrary package to your UI project by upgrading the dependency version (e.g. `v0.0.0 -> v0.0.1`)
-
-1. Alternatively for local development skip stage 3 and perform commands
-   `pnpm add     "vue-library": "https://raw.githubusercontent.com/endeavourhealth-discovery/VueLibrary/main/vue-library-0.0.0.tgz",`
-   in your UI project.
+1. Download the new VueLibrary package to your UI project automatically from the package.json using `"vue-library": "github:endeavourhealth-discovery/VueLibrary",
+` in the dependencies section. This will build the latest code from github on install.

@@ -276,8 +276,13 @@ public class QueryService {
     return indicator;
   }
 
-  public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri) {
+  public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri, Boolean isIndicator) {
+    if (isIndicator) return getIndicatorSubqueries(queryIri);
     return entityRepository.getOrderedSubqueries(queryIri);
+  }
+
+  public Collection<SubQueryDependency> getIndicatorSubqueries(String queryIri) {
+    return entityRepository.getIndicatorSubqueries(queryIri);
   }
 
 

@@ -200,15 +200,15 @@
       ],
       "table": "cohort",
       "fields": {
-        "http://endhealth.info/im#hash": {"field": "hash", "type": "string"},
-        "http://endhealth.info/im#cohort_id": {"field": "id", "type": "string"}
+        "http://endhealth.info/im#hash": {"field": "query_result_id", "type": "string"},
+        "http://endhealth.info/im#entity_id": {"field": "id", "type": "string"}
       },
       "relationships": {
-        "http://endhealth.info/im#Patient": {"fromField": "cohort_id", "toField": "id"},
-        "http://endhealth.info/im#Observation": {"fromField": "cohort_id", "toField": "patient_id"},
-        "http://endhealth.info/im#MedicationRequest": {"fromField": "cohort_id", "toField": "patient_id"},
-        "http://endhealth.info/im#MedicationOrder": {"fromField": "cohort_id", "toField": "patient_id"},
-        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "cohort_id", "toField": "patient_id"}
+        "http://endhealth.info/im#Patient": {"fromField": "entity_id", "toField": "id"},
+        "http://endhealth.info/im#Observation": {"fromField": "entity_id", "toField": "patient_id"},
+        "http://endhealth.info/im#MedicationRequest": {"fromField": "entity_id", "toField": "patient_id"},
+        "http://endhealth.info/im#MedicationOrder": {"fromField": "entity_id", "toField": "patient_id"},
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "entity_id", "toField": "patient_id"}
       }
     },
     {

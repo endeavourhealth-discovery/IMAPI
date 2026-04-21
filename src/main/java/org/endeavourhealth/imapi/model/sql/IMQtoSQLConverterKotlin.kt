@@ -51,11 +51,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun generateSQLforIndicator(): String {
     if (denominator == null || numerator == null || dataset == null) throw SQLConversionException("Missing denominator, numerator or dataset")
     val indSql = """
-      SELECT c.cohort_id, !ISNULL(n.cohort_id) as "Yes/No", d.json
-      FROM dataset.cohort c
-      LEFT JOIN dataset.cohort n ON n.cohort_id = c.cohort_id AND n.hash = $numerator
-      LEFT JOIN dataset.dataset d ON d.cohort_id = c.cohort_id AND d.hash = $dataset
-      WHERE c.hash = $denominator;
+      SELECT c.entity_id, !ISNULL(n.entity_id) as "Yes/No", d.json
+      FROM dataset.cohort_results c
+      LEFT JOIN dataset.cohort_results n ON n.entity_id = c.entity_id AND n.query_result_id = $numerator
+      LEFT JOIN dataset.dataset_results d ON d.entity_id = c.entity_id AND d.query_result_id = $dataset
+      WHERE c.query_result_id = $denominator;
     """.trimIndent()
     return indSql
   }
@@ -89,10 +89,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
             queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
           else lastCTE.table.foreignKeyTo(queryTypeOfTable)
-          newMySqlQuery.insert = "dataset.dataset"
-          newMySqlQuery.selects.add(MySQLSelect(definition.iri, "hash"))
-          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
-          newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "group"))
+          newMySqlQuery.insert = "dataset.dataset_results"
+          newMySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
+          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
+          newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
       }
@@ -103,9 +103,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
           queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
         else lastCTE.table.foreignKeyTo(queryTypeOfTable)
-        mySqlQuery.insert = "dataset.cohort"
-        mySqlQuery.selects.add(MySQLSelect(definition.iri, "hash"))
-        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "cohort_id"))
+        mySqlQuery.insert = "dataset.cohort_results"
+        mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
+        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
       return mySqlQuery.toSql()
     }
@@ -159,29 +159,29 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         withJoins.add(
           MySQLJoin(
             "JOIN",
-            tableFrom = "dataset.cohort",
+            tableFrom = "dataset.cohort_results",
             tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
-            fromProperty = "cohort_id",
+            fromProperty = "entity_id",
             toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
             wheres = if (isA.isExclude) mutableListOf(
-              MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
-              MySQLPropertyValueWhere("cohort_id", "IS", "NULL", null, null)
+              MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+              MySQLPropertyValueWhere("entity_id", "IS", "NULL", null, null)
             ) else mutableListOf(
-              MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
+              MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
             )
           )
         )
       }
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
-      cohortTable.table = "dataset.cohort"
+      cohortTable.table = "dataset.cohort_results"
       val isAWith = MySQLWith(
         table = cohortTable,
         alias = isAlias,
-        selects = mutableListOf(MySQLSelect("${cohortTable.table}.cohort_id")),
+        selects = mutableListOf(MySQLSelect("${cohortTable.table}.entity_id")),
         joins = withJoins.ifEmpty { mutableListOf() },
         exclude = isA.isExclude,
         wheres = mutableListOf(
-          MySQLPropertyValueWhere("hash", "=", "${isA.iri}", null, null),
+          MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
         )
       )
       isAWiths.add(isAWith)

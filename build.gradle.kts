@@ -1,9 +1,5 @@
 import cz.habarta.typescript.generator.*
 
-apply(from = "$rootDir/gradle/typescriptConstEnumToEnum.gradle")
-apply(from = "$rootDir/gradle/copyAutoGenToQueryRunner.gradle")
-apply(from = "$rootDir/gradle/copyAutoGenToEndeavourSecurity.gradle")
-
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -12,6 +8,8 @@ plugins {
   id("war")
   alias(libs.plugins.typescript.generator)
   alias(libs.plugins.static.const.generator)
+  alias(libs.plugins.typescript.const.enum.to.enum)
+  alias(libs.plugins.extract.enums.from.auto.gen)
   id("java-library")
   id("maven-publish")
   kotlin("jvm")
@@ -105,8 +103,6 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.set.SetExportRequest",
     "org.endeavourhealth.imapi.model.imq.*",
     "org.endeavourhealth.imapi.model.eclBuilder.*",
-    "org.endeavourhealth.imapi.vocabulary.*",
-    "org.endeavourhealth.imapi.vocabulary.**.*",
     "org.endeavourhealth.imapi.model.github.*",
     "org.endeavourhealth.imapi.model.workflow.*",
     "org.endeavourhealth.imapi.model.workflow.**.*",
@@ -122,21 +118,34 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
     "org.endeavourhealth.imapi.model.editor.*",
-    "org.endeavourhealth.imapi.model.casbin.*",
-    "org.endeavourhealth.imapi.model.casdoor.*",
+    "org.endeavourhealth.imapi.model.Namespace",
+    "org.endeavourhealth.imapi.vocabulary.*",
+    "org.endeavourhealth.imapi.model.sql.SubQueryDependency"
   )
-  outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
+  outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
-  customTypeNaming = listOf("org.endeavourhealth.imapi.model.Namespace:NamespaceDTO")
+  customTypeNaming = listOf(
+    "org.endeavourhealth.imapi.model.security.NamespacePermission:NamespacePermissionJava",
+    "org.endeavourhealth.imapi.model.security.User:UserJava"
+  )
+
 }
 
 tasks {
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../IMDirectory/src/vocabulary/"
   }
+}
+
+typescriptConstEnumToEnum {
+  filePath.set("../VueLibrary/src/interfaces/AutoGen.ts")
+}
+
+extractEnumsFromAutoGen {
+  inputFile.set("../VueLibrary/src/interfaces/AutoGen.ts")
+  outputFile.set("../VueLibrary/src/enums/AutoGen.ts")
 }
 
 dependencies {

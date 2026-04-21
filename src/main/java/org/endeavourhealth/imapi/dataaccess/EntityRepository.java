@@ -20,7 +20,6 @@ import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,7 +60,7 @@ public class EntityRepository {
     if (rs.hasBinding("extraType")) {
       TTIriRef extraType = TTIriRef.iri(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
       entityDocument.addType(extraType);
-      if (extraType.equals(TTIriRef.iri(Namespace.IM + "DataModelEntity"))) {
+      if (extraType.equals(TTIriRef.iri(NAMESPACE.IM + "DataModelEntity"))) {
         int usageTotal = 2000000;
         entityDocument.setUsageTotal(usageTotal);
       }
@@ -386,7 +385,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("im1Scheme", Namespace.IM1.asDbIri());
+      qry.setBinding("im1Scheme", NAMESPACE.IM1.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -691,13 +690,13 @@ public class EntityRepository {
   /**
    * creates ranges for properties without ranges where the super properties have them
    */
-  public void inheritRanges(Graph graph) {
+  public void inheritRanges(GRAPH graph) {
     try (IMDB conn = IMDB.getConnection()) {
       inheritRanges(conn, graph);
     }
   }
 
-  public void inheritRanges(IMDB conn, Graph graph) {
+  public void inheritRanges(IMDB conn, GRAPH graph) {
     String sql = """
       INSERT { ?property rdfs:range ?range }
       WHERE {
@@ -726,8 +725,8 @@ public class EntityRepository {
    * @param code the code or description id or term code
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromCode(String code, List<Namespace> namespaces) {
-    List<String> schemes = namespaces.stream().map(Namespace::toString).toList();
+  public Set<Entity> getCoreFromCode(String code, List<NAMESPACE> namespaces) {
+    List<String> schemes = namespaces.stream().map(NAMESPACE::toString).toList();
 
     String sql = """
       SELECT ?concept ?label ?legacyLabel ?type
@@ -781,7 +780,7 @@ public class EntityRepository {
    * @param namespace the legacy scheme of the term
    * @return iri and name of entity
    */
-  public Set<Entity> getCoreFromLegacyTerm(String term, Namespace namespace) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, NAMESPACE namespace) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -807,7 +806,7 @@ public class EntityRepository {
    * @param namespace the scheme of the term
    * @return set of iris and name of entity
    */
-  public Set<Entity> getReferenceFromTermCode(String code, Namespace namespace) {
+  public Set<Entity> getReferenceFromTermCode(String code, NAMESPACE namespace) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -826,7 +825,7 @@ public class EntityRepository {
     }
   }
 
-  public Map<String, String> getCodesToIri(Namespace namespace) {
+  public Map<String, String> getCodesToIri(NAMESPACE namespace) {
     String sql = """
       SELECT ?code ?scheme ?iri ?altCode
       WHERE {
@@ -879,7 +878,7 @@ public class EntityRepository {
    * @return iri and name of entity
    */
   public TTIriRef getReferenceFromCoreTerm(String term) {
-    List<String> schemes = asArrayList(Namespace.IM, Namespace.SNOMED);
+    List<String> schemes = asArrayList(NAMESPACE.IM, NAMESPACE.SNOMED);
     String sql = """
       select ?concept ?label
       where {
@@ -1683,7 +1682,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("namespace", IM.NAMESPACE.asDbIri());
+      qry.setBinding("namespace", IM.ROOT_NAMESPACE.asDbIri());
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1704,13 +1703,13 @@ public class EntityRepository {
     int hashIndex = iri.lastIndexOf('#');
     if (lastSlashIndex != -1 && hashIndex != -1 && hashIndex > lastSlashIndex) {
       return iri.substring(lastSlashIndex + 1, hashIndex);
-    } else if (iri.equals(Namespace.FHIR.toString())) {
+    } else if (iri.equals(NAMESPACE.FHIR.toString())) {
       return FHIR.PREFIX.toString();
     }
     return iri;
   }
 
-  public Set<String> getByNamespace(Namespace namespace) {
+  public Set<String> getByNamespace(NAMESPACE namespace) {
     Set<String> results = new HashSet<>();
     String sparql = """
       SELECT DISTINCT ?s

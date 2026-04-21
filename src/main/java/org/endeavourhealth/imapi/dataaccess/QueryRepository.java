@@ -82,7 +82,7 @@ public class QueryRepository {
    * @throws QueryException          if query syntax is invalid
    * @throws JsonProcessingException if the json is invalid
    */
-  public void updateIM(QueryRequest queryRequest, Graph insertGraph) throws JsonProcessingException, QueryException {
+  public void updateIM(QueryRequest queryRequest, GRAPH insertGraph) throws JsonProcessingException, QueryException {
     try (IMDB conn = IMDB.getConnection()) {
       if (queryRequest.getUpdate() == null)
         throw new QueryException("Missing update in query request");
@@ -150,7 +150,7 @@ public class QueryRepository {
       if (arg.getParameter().equals(parameterName)) {
         found = true;
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-        if (parameterType.equals(TTIriRef.iri(Namespace.IM + "IriRef"))) {
+        if (parameterType.equals(TTIriRef.iri(NAMESPACE.IM + "IriRef"))) {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
@@ -167,7 +167,7 @@ public class QueryRepository {
     Query query = queryRequest.getQuery();
     ArrayNode entities = result.putArray(ENTITIES);
     ObjectNode lastEntity = null;
-    ObjectNode entity=null;
+    ObjectNode entity = null;
     Map<String, ObjectNode> nodeMap = new HashMap<>();
     Integer start = null;
     Integer end = null;
@@ -189,14 +189,14 @@ public class QueryRepository {
             entity.put("iri", bs.getValue(query.getNode()).stringValue());
           }
         } else {
-          entity=null;
+          entity = null;
         }
-        if (query.getReturn()!=null){
-          for (Return returnProperty: query.getReturn()){
-           entity=bindReturn(bs, entity, returnProperty,nodeMap,entities);
+        if (query.getReturn() != null) {
+          for (Return returnProperty : query.getReturn()) {
+            entity = bindReturn(bs, entity, returnProperty, nodeMap, entities);
           }
         } else {
-          entity= mapper.createObjectNode();
+          entity = mapper.createObjectNode();
         }
         if (queryRequest.getTextSearch() != null) {
           if (lastEntity == null) lastEntity = entity;
@@ -264,9 +264,8 @@ public class QueryRepository {
   }
 
 
-
   private ObjectNode bindReturn(BindingSet bs, ObjectNode node, Return property, Map<String, ObjectNode> nodeMap, ArrayNode entities) {
-    if (node==null) {
+    if (node == null) {
       String ref;
       if (property.getPropertyRef() != null)
         ref = property.getPropertyRef();
@@ -277,17 +276,17 @@ public class QueryRepository {
         node = mapper.createObjectNode();
         entities.add(node);
         node.put("iri", refIri);
+        nodeMap.put(refIri, node);
       }
       if (property.getReturn() != null) {
         for (Return returnProperty : property.getReturn()) {
           bindReturn(bs, node, returnProperty, nodeMap, entities);
         }
       }
-      return node;
     }
     String predicate = property.getIri();
-    if (property.getPropertyRef()!=null){
-      predicate= bs.getValue(property.getPropertyRef()).stringValue();
+    if (property.getPropertyRef() != null) {
+      predicate = bs.getValue(property.getPropertyRef()).stringValue();
     }
 
     String objectVariable = property.getAs();
@@ -304,7 +303,7 @@ public class QueryRepository {
         } else
           node.put(predicate, nodeValue);
       } else {
-        if (node.path(predicate).isMissingNode()){
+        if (node.path(predicate).isMissingNode()) {
           ArrayNode arrayNode = new ObjectMapper().createArrayNode();
           node.set(predicate, arrayNode);
         }
@@ -316,18 +315,16 @@ public class QueryRepository {
         }
         if (object.isIRI()) {
           valueNode.put("iri", nodeValue);
-        }
-        else {
+        } else {
           valueNode.put("bn", nodeValue);
         }
         for (Return returnProperty : property.getReturn()) {
-          bindReturn(bs, valueNode, returnProperty,nodeMap,entities);
+          bindReturn(bs, valueNode, returnProperty, nodeMap, entities);
         }
       }
     }
     return node;
   }
-
 
 
   private ObjectNode getValueNode(ArrayNode arrayNode, String nodeId) {
@@ -386,8 +383,8 @@ public class QueryRepository {
 
   public List<String> getSubtypeProperties(Set<TTIriRef> iris) {
     List<String> properties = new ArrayList<>();
-    String iriList= "<"+iris.stream().map(TTIriRef::getIri).collect(Collectors.joining("> <"))+">";
-    String spq= """
+    String iriList = "<" + iris.stream().map(TTIriRef::getIri).collect(Collectors.joining("> <")) + ">";
+    String spq = """
       SELECT distinct ?property
       WHERE {
         Values ?parentConcept {%s}

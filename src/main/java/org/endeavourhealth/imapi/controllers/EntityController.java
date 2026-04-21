@@ -149,7 +149,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException,QueryException {
+  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
@@ -188,7 +188,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) Graph graph) {
+  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) GRAPH graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -313,7 +313,7 @@ public class EntityController {
   public boolean entityExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
       log.debug("entityExists");
-      String namespace = iri.substring(0, iri.indexOf("#") + 1);
+      NAMESPACE namespace = NAMESPACE.from(iri.substring(0, iri.indexOf("#") + 1));
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
       return entityService.entityExists(iri);
     }
@@ -393,7 +393,6 @@ public class EntityController {
       return entityService.getShortestPathBetweenNodes(ancestor, descendant);
     }
   }
-
 
 
   @GetMapping("/protected/entityByPredicateExclusions")

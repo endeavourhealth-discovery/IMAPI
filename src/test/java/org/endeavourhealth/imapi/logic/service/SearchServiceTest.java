@@ -19,7 +19,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.queryengine.QuerySummariser;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.junit.jupiter.api.Test;
 
@@ -135,7 +135,7 @@ class SearchServiceTest {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
     } else if (dataSet.getUpdate() != null) {
-      searchService.updateIM(dataSet, Graph.IM);
+      searchService.updateIM(dataSet, GRAPH.IM);
     }
 
 
@@ -151,7 +151,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", Graph.IM);
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", GRAPH.IM);
   }
 }
 

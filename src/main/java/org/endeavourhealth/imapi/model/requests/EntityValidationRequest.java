@@ -2,14 +2,14 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 
 @Getter
 public class EntityValidationRequest {
   private TTEntity entity;
   private String validationIri;
-  private Graph graph;
+  private GRAPH graph;
 
   public EntityValidationRequest() {
   }
@@ -29,7 +29,7 @@ public class EntityValidationRequest {
     return this;
   }
 
-  public EntityValidationRequest setGraph(Graph graph) {
+  public EntityValidationRequest setGraph(GRAPH graph) {
     this.graph = graph;
     return this;
   }

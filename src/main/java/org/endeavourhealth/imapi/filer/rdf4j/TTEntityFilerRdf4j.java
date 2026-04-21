@@ -17,9 +17,9 @@ import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.net.*;
@@ -34,13 +34,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   private final BaseDB conn;
-  private final Graph graph;
-  private final String blockers = "<http://snomed.info/sct#138875005>,<" + Namespace.IM + "Concept>";
+  private final GRAPH graph;
+  private final String blockers = "<http://snomed.info/sct#138875005>,<" + NAMESPACE.IM + "Concept>";
 
-  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, Graph graph) {
+  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, GRAPH graph) {
     this.conn = conn;
     this.prefixMap = prefixMap;
-    this.graph = Graph.IM;
+    this.graph = GRAPH.IM;
     String sparql = """
       DELETE {
         ?concept ?p1 ?o1.
@@ -72,25 +72,26 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     deleteTriples = conn.prepareDeleteSparql(sparql);
   }
 
-  public TTEntityFilerRdf4j(BaseDB conn, Graph graph) {
+  public TTEntityFilerRdf4j(BaseDB conn, GRAPH graph) {
     this(conn, new HashMap<>(), graph);
   }
 
   private TTIriRef getSchemeFromIri(String iri) throws TTFilerException {
     try {
       if (iri.contains("#"))
-        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("#")+1));
+        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("#") + 1));
       if (iri.contains("/"))
-        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("/")+1));
-      else return TTIriRef.iri(Namespace.IM.toString());
+        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("/") + 1));
+      else return TTIriRef.iri(NAMESPACE.IM.toString());
     } catch (Exception e) {
       throw new TTFilerException("Unable to get scheme from iri: " + iri, e);
     }
   }
+
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null){
-      entity.set(TTIriRef.iri(IM.HAS_SCHEME),getSchemeFromIri(entity.getIri()));
+    if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null) {
+      entity.set(TTIriRef.iri(IM.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
     }
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
@@ -111,8 +112,6 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
 
   }
-
-
 
 
   public void saveAscendantIsas(String entityIri, Set<String> isAs) {
@@ -176,51 +175,51 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   @Override
-  public void updateIsAs(String entity){
-    String sql= """
-    DELETE {
-      ?entity im:isA ?oldSuper .
-    }
-    INSERT {
-      ?entity im:isA ?newSuper .
-    }
-    WHERE {
-      VALUES ?entity {%s}
-      OPTIONAL {
-        ?entity im:isA ?oldSuper .
+  public void updateIsAs(String entity) {
+    String sql = """
+        DELETE {
+          ?entity im:isA ?oldSuper .
         }
-        ?entity rdfs:subClassOf+ ?newSuper .
+        INSERT {
+          ?entity im:isA ?newSuper .
+        }
+        WHERE {
+          VALUES ?entity {%s}
+          OPTIONAL {
+            ?entity im:isA ?oldSuper .
+            }
+            ?entity rdfs:subClassOf+ ?newSuper .
+          }
+      """.formatted("<" + entity + ">");
+    Update update = conn.prepareUpdateSparql(sql, GRAPH.IM);
+    update.execute();
+    sql = """
+      DELETE {
+        ?child im:isA ?oldSuper .
       }
-  """.formatted("<"+entity+">");
-    Update update= conn.prepareUpdateSparql(sql,Graph.IM);
+      INSERT {
+        ?child im:isA ?newSuper .
+        ?entity im:isA ?sameEntity.
+      }
+      WHERE {
+          VALUES ?entity {<%s>}
+          Values ?sameEntity {<%s>}
+        # all subclasses affected
+        ?child rdfs:subClassOf+ ?entity .
+        optional {?child im:previousEntityOf ?entity. }
+        OPTIONAL { ?child im:isA ?oldSuper . }
+        OPTIONAL {?child rdfs:subClassOf+ ?newSuper. }
+        FILTER NOT EXISTS {
+            ?child rdfs:subClassOf+ ?oldSuper .
+          }
+      }
+      """.formatted(entity, entity);
+    update = conn.prepareUpdateSparql(sql, GRAPH.IM);
     update.execute();
-  sql= """
-    DELETE {
-      ?child im:isA ?oldSuper .
-    }
-    INSERT {
-      ?child im:isA ?newSuper .
-      ?entity im:isA ?sameEntity.
-    }
-    WHERE {
-        VALUES ?entity {<%s>}
-        Values ?sameEntity {<%s>}
-      # all subclasses affected
-      ?child rdfs:subClassOf+ ?entity .
-      optional {?child im:previousEntityOf ?entity. }
-      OPTIONAL { ?child im:isA ?oldSuper . }
-      OPTIONAL {?child rdfs:subClassOf+ ?newSuper. }
-      FILTER NOT EXISTS {
-          ?child rdfs:subClassOf+ ?oldSuper .
-        }
-    }
-    """.formatted(entity,entity);
-    update= conn.prepareUpdateSparql(sql,Graph.IM);
-    update.execute();
-    sql= """
+    sql = """
       insert data {<%s> im:isA <%s>}
-      """.formatted(entity,entity);
-    Update insert= conn.prepareInsertSparql(sql,Graph.IM);
+      """.formatted(entity, entity);
+    Update insert = conn.prepareInsertSparql(sql, GRAPH.IM);
     insert.execute();
   }
 
@@ -323,7 +322,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             }
           }
         }
-      """.formatted("<"+entity.getIri()+">",predList);
+      """.formatted("<" + entity.getIri() + ">", predList);
     Update deletePredicates = conn.prepareDeleteSparql(spq);
     try {
       deletePredicates.execute();

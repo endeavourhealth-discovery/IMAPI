@@ -12,23 +12,26 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum Graph implements VocabEnum {
+public enum CODE_TEMPLATE implements VocabEnum {
 
-    IM("http://endhealth.info/im#"),
-    PROV("http://endhealth.info/prov#"),
-    USER("http://endhealth.info/user#"),
-    WORKFLOW("http://endhealth.info/workflow#"),
-    CONFIG("http://endhealth.info/config#"),
-    SMARTLIFE("http://smartlifehealth.info/smh#"),
+    DOMAIN("http://endhealth.info/"),
+    PREFIX("cTemp"),
+    WRAPPER(NAMESPACE.IM_CODE_TEMPLATE + "wrapper"),
+    LABEL(RDFS.LABEL),
+    DEFINITION(IM.DEFINITION),
+    TYPE(RDF.TYPE),
+    DATATYPE_MAP(NAMESPACE.IM_CODE_TEMPLATE + "datatypeMap"),
+    EXTENSION(NAMESPACE.IM_CODE_TEMPLATE + "extension"),
+    INCLUDE_COMPLEX_TYPES(NAMESPACE.IM_CODE_TEMPLATE + "includeComplexTypes"),
     ;
 
     private final String value;
 
-    Graph(final String value) {
+    CODE_TEMPLATE(final String value) {
         this.value = value;
     }
 
-    Graph(final VocabEnum value) {
+    CODE_TEMPLATE(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -51,11 +54,11 @@ public enum Graph implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static Graph from(String text) {
+    public static CODE_TEMPLATE from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (Graph b : Graph.values()) {
+      for (CODE_TEMPLATE b : CODE_TEMPLATE.values()) {
         if (b.value.equals(text)) {
           return b;
         }

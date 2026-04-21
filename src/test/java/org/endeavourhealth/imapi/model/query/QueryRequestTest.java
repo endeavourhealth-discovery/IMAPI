@@ -9,13 +9,13 @@ public class QueryRequestTest {
 //  @Test
 //  void testSameQueryHashCode() throws JsonProcessingException, QueryException {
 //    String queryIri = "http://smartlifehealth.info/smh#441fa4d1-3160-4b9d-88e6-02f914c1fe83";
-//    Query query = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, Graph.SMARTLIFE);
+//    Query query = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, GRAPH.SMARTLIFE);
 //    QueryRequest queryRequest = new QueryRequest().setQuery(query);
 //    int hashCode = queryService.getQueryRequestHashCode(queryRequest);
 //    System.out.println(hashCode);
 //    System.out.println(queryRequest.hashCode());
 //
-//    Query sameQuery = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, Graph.SMARTLIFE);
+//    Query sameQuery = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, GRAPH.SMARTLIFE);
 //    QueryRequest sameQueryRequest = new QueryRequest().setQuery(sameQuery);
 //    int sameHashCode = queryService.getQueryRequestHashCode(sameQueryRequest);
 //    System.out.println(sameHashCode);
@@ -28,14 +28,14 @@ public class QueryRequestTest {
 //  @Test
 //  void testDifferentQueryHashCode() throws JsonProcessingException, QueryException {
 //    String queryIri = "http://smartlifehealth.info/smh#441fa4d1-3160-4b9d-88e6-02f914c1fe83";
-//    Query query = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, Graph.SMARTLIFE);
+//    Query query = queryService.describeQuery(queryIri, DisplayMode.LOGICAL, GRAPH.SMARTLIFE);
 //    QueryRequest queryRequest = new QueryRequest().setQuery(query);
 //    int hashCode = queryService.getQueryRequestHashCode(queryRequest);
 //    System.out.println(hashCode);
 //    System.out.println(queryRequest.hashCode());
 //
 //    String diffIri = "http://endhealth.info/im#Q_RegisteredGMS";
-//    Query diffQuery = queryService.describeQuery(diffIri, DisplayMode.LOGICAL, Graph.IM);
+//    Query diffQuery = queryService.describeQuery(diffIri, DisplayMode.LOGICAL, GRAPH.IM);
 //    QueryRequest diffQueryRequest = new QueryRequest().setQuery(diffQuery);
 //    int diffHashCode = queryService.getQueryRequestHashCode(diffQueryRequest);
 //    System.out.println(diffHashCode);

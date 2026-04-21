@@ -15,14 +15,14 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum EDITOR implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
-    CONCEPT_SHAPE(Namespace.IM_EDITOR + "ConceptShape"),
-    CONCEPT_SET_SHAPE(Namespace.IM_EDITOR + "ConceptSetShape"),
-    VALUE_SET_SHAPE(Namespace.IM_EDITOR + "ValueSetShape"),
-    FOLDER_SHAPE(Namespace.IM_EDITOR + "FolderShape"),
-    DATA_MODEL_SHAPE(Namespace.IM_EDITOR + "DataModelShape"),
-    COHORT_QUERY_SHAPE(Namespace.IM_EDITOR + "CohortQueryShape"),
-    PROPERTY_SHAPE(Namespace.IM_EDITOR + "PropertyShape"),
-    INDICATOR_SHAPE(Namespace.IM_EDITOR + "IndicatorShape"),
+    CONCEPT_SHAPE(NAMESPACE.IM_EDITOR + "ConceptShape"),
+    CONCEPT_SET_SHAPE(NAMESPACE.IM_EDITOR + "ConceptSetShape"),
+    VALUE_SET_SHAPE(NAMESPACE.IM_EDITOR + "ValueSetShape"),
+    FOLDER_SHAPE(NAMESPACE.IM_EDITOR + "FolderShape"),
+    DATA_MODEL_SHAPE(NAMESPACE.IM_EDITOR + "DataModelShape"),
+    COHORT_QUERY_SHAPE(NAMESPACE.IM_EDITOR + "CohortQueryShape"),
+    PROPERTY_SHAPE(NAMESPACE.IM_EDITOR + "PropertyShape"),
+    INDICATOR_SHAPE(NAMESPACE.IM_EDITOR + "IndicatorShape"),
     ;
 
     private final String value;

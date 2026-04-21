@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -204,13 +204,13 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setDefaultPrefixMap() {
     this.context = new HashMap<>();
-    context.put(Namespace.IM.toString(), "im");
-    context.put(Namespace.SNOMED.toString(), "sn");
-    context.put(Namespace.OWL.toString(), "owl");
-    context.put(Namespace.RDF.toString(), "rdf");
-    context.put(Namespace.RDFS.toString(), "rdfs");
-    context.put(Namespace.XSD.toString(), "xsd");
-    context.put(Namespace.SHACL.toString(), "sh");
+    context.put(NAMESPACE.IM.toString(), "im");
+    context.put(NAMESPACE.SNOMED.toString(), "sn");
+    context.put(NAMESPACE.OWL.toString(), "owl");
+    context.put(NAMESPACE.RDF.toString(), "rdf");
+    context.put(NAMESPACE.RDFS.toString(), "rdfs");
+    context.put(NAMESPACE.XSD.toString(), "xsd");
+    context.put(NAMESPACE.SHACL.toString(), "sh");
     return this;
   }
 

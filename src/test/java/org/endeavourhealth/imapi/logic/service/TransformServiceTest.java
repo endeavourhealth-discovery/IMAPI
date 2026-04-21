@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.FHIR;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -33,7 +33,7 @@ class TransformServiceTest {
     TestMaps.patientDSTU2();
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
-    TTEntity mapEntity = EntityCache.getEntity(Namespace.MAP + "FHIR_2_PatientToIM").getEntity();
+    TTEntity mapEntity = EntityCache.getEntity(NAMESPACE.MAP + "FHIR_2_PatientToIM").getEntity();
     MapObject map = mapEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());

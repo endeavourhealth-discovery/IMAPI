@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -17,10 +17,11 @@ public class EqdAuditToIMQ {
   public void convertReport(EQDOCReport eqReport, Query query, EqdResources resources) throws EQDException {
     resources.setQueryType(QueryType.AGGREGATE_REPORT);
     for (String popId : eqReport.getAuditReport().getPopulation()) {
-      String finalPopId= resources.getNamespace() + popId;
-      if (EqdToIMQ.versionMap.containsKey(popId)) finalPopId = resources.getNamespace()+EqdToIMQ.versionMap.get(popId);
+      String finalPopId = resources.getNamespace() + popId;
+      if (EqdToIMQ.versionMap.containsKey(popId))
+        finalPopId = resources.getNamespace() + EqdToIMQ.versionMap.get(popId);
       if (EqdToIMQ.gmsPatients.contains(popId) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
-        finalPopId = Namespace.IM + "Q_RegisteredGMS";
+        finalPopId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
       Match popQuery = new Match();
       query.addColumnGroup(popQuery);
@@ -49,15 +50,15 @@ public class EqdAuditToIMQ {
             if (pathMap.length > 1) {
               Path path = new Path();
               popQuery.addPath(path);
-              path.setIri(Namespace.IM + pathMap[1]);
-              path.setTypeOf(new Node().setIri(Namespace.IM + pathMap[1]));
+              path.setIri(NAMESPACE.IM + pathMap[1]);
+              path.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[1]));
               path.setNode(resources.getAcronym(path.getIri()) + "_" + eqColumn);
               for (int i = 2; i < pathMap.length - 1; i++) {
                 Path subPath = new Path();
                 path.addPath(subPath);
-                subPath.setIri(Namespace.IM + pathMap[i]);
+                subPath.setIri(NAMESPACE.IM + pathMap[i]);
                 subPath.setNode(resources.getAcronym(path.getIri()));
-                subPath.setTypeOf(new Node().setIri(Namespace.IM + pathMap[i + 1]));
+                subPath.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[i + 1]));
                 path = subPath;
               }
               popQuery.addReturn(new Return()

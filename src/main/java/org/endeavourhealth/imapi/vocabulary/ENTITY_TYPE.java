@@ -12,28 +12,19 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum RDFS implements VocabEnum {
+public enum ENTITY_TYPE implements VocabEnum {
 
-    PREFIX("rdfs"),
-    LABEL(NAMESPACE.RDFS + "label"),
-    COMMENT(NAMESPACE.RDFS + "comment"),
-    SUBCLASS_OF(NAMESPACE.RDFS + "subClassOf"),
-    SUB_PROPERTY_OF(NAMESPACE.RDFS + "subPropertyOf"),
-    DOMAIN(NAMESPACE.RDFS + "domain"),
-    RANGE(NAMESPACE.RDFS + "range"),
-    RESOURCE(NAMESPACE.RDFS + "Resource"),
-    CLASS(NAMESPACE.RDFS + "Class"),
-    DATATYPE(NAMESPACE.RDFS + "Datatype"),
-    IS_DEFINED_BY(NAMESPACE.RDFS + "isDefinedBy"),
+    QUERY(IM.QUERY),
+    NODESHAPE(SHACL.NODESHAPE),
     ;
 
     private final String value;
 
-    RDFS(final String value) {
+    ENTITY_TYPE(final String value) {
         this.value = value;
     }
 
-    RDFS(final VocabEnum value) {
+    ENTITY_TYPE(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -56,11 +47,11 @@ public enum RDFS implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static RDFS from(String text) {
+    public static ENTITY_TYPE from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (RDFS b : RDFS.values()) {
+      for (ENTITY_TYPE b : ENTITY_TYPE.values()) {
         if (b.value.equals(text)) {
           return b;
         }

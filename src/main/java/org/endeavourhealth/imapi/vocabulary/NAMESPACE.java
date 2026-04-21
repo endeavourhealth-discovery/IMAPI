@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
-public enum Namespace implements VocabEnum {
+public enum NAMESPACE implements VocabEnum {
 
     LNWH_SY("http://endhealth.info/lnwhsy#"),
     LNWH_SL("http://endhealth.info/lnwhsl#"),
@@ -68,11 +68,11 @@ public enum Namespace implements VocabEnum {
 
     private final String value;
 
-    Namespace(final String value) {
+    NAMESPACE(final String value) {
         this.value = value;
     }
 
-    Namespace(final VocabEnum value) {
+    NAMESPACE(final VocabEnum value) {
         this.value = value.toString();
     }
 
@@ -95,11 +95,11 @@ public enum Namespace implements VocabEnum {
       return Values.iri(value);
     }
 
-    public static Namespace from(String text) {
+    public static NAMESPACE from(String text) {
       if (text == null)
         throw new IllegalArgumentException("no text specified");
 
-      for (Namespace b : Namespace.values()) {
+      for (NAMESPACE b : NAMESPACE.values()) {
         if (b.value.equals(text)) {
           return b;
         }

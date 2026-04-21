@@ -119,11 +119,7 @@ public class SparqlConverter {
     } else {
       selectQl.append("SELECT ");
       selectQl.append("distinct ");
-      if (match.getReturn()==null) {
         selectQl.append("?").append(mainEntity);
-      } else if (match.getNode()!=null) {
-        selectQl.append("?").append(match.getNode());
-      }
     }
     processQuery(match,selectQl, !countOnly);
     return selectQl.toString();
@@ -473,7 +469,11 @@ public class SparqlConverter {
       subject = where.getNodeRef();
     }
     if (where.getSubjectVariable()!=null){
-      subject=where.getSubjectVariable();
+      subject= where.getSubjectVariable();
+    }
+    if (where.getSubjectParameter()!=null){
+      subject= where.getSubjectParameter();
+      whereQl.append("VALUES ?").append(subject).append(" {").append(resolveReference(where.getSubjectParameter(), queryRequest)).append("}\n");
     }
     if (where.isAnyRoleGroup() && !where.isInverse() && !isInRoleGroup) {
       whereQl.append("?").append(subject).append(" im:roleGroup ").append("?roleGroup").append(o).append(".\n");

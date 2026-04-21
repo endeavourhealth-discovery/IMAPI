@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.BufferedReader;
@@ -23,12 +23,12 @@ import java.util.stream.Stream;
 public class FileRepository {
 
 
-  private final Map<Namespace, Map<String, Set<String>>> codeCoreMap = new EnumMap<>(Namespace.class);
-  private final Map<Namespace, Map<String, Set<String>>> termCoreMap = new EnumMap<>(Namespace.class);
-  private final Map<Namespace, Map<String, Set<String>>> codes = new EnumMap<>(Namespace.class);
+  private final Map<NAMESPACE, Map<String, Set<String>>> codeCoreMap = new EnumMap<>(NAMESPACE.class);
+  private final Map<NAMESPACE, Map<String, Set<String>>> termCoreMap = new EnumMap<>(NAMESPACE.class);
+  private final Map<NAMESPACE, Map<String, Set<String>>> codes = new EnumMap<>(NAMESPACE.class);
   private final Map<String, String> coreTerms = new HashMap<>();
-  private final Map<Namespace, Map<String, String>> termCodes = new EnumMap<>(Namespace.class);
-  private final Map<Namespace, Map<String, Set<String>>> codeIds = new EnumMap<>(Namespace.class);
+  private final Map<NAMESPACE, Map<String, String>> termCodes = new EnumMap<>(NAMESPACE.class);
+  private final Map<NAMESPACE, Map<String, Set<String>>> codeIds = new EnumMap<>(NAMESPACE.class);
   private final Map<String, String> coreIris = new HashMap<>();
   @Setter
   @Getter
@@ -86,8 +86,8 @@ public class FileRepository {
     }
   }
 
-  public Set<TTIriRef> getCoreFromCodeId(String codeId, List<Namespace> schemes) throws IOException {
-    for (Namespace scheme : schemes) {
+  public Set<TTIriRef> getCoreFromCodeId(String codeId, List<NAMESPACE> schemes) throws IOException {
+    for (NAMESPACE scheme : schemes) {
       if (codeIds.get(scheme) == null) {
         fetchCodeIds(scheme);
       }
@@ -147,9 +147,9 @@ public class FileRepository {
     readFileToStringMap(fileName, coreTerms);
   }
 
-  public Set<TTIriRef> getCoreFromCode(String originalCode, List<Namespace> schemes) {
+  public Set<TTIriRef> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
     try {
-      for (Namespace scheme : schemes) {
+      for (NAMESPACE scheme : schemes) {
         if (codeCoreMap.get(scheme) == null)
           fetchCodeCoreMap(scheme);
         if (codeCoreMap.get(scheme).get(originalCode) != null) {
@@ -163,7 +163,7 @@ public class FileRepository {
     }
   }
 
-  public Set<TTIriRef> getCoreFromLegacyTerm(String originalTerm, Namespace scheme) throws IOException {
+  public Set<TTIriRef> getCoreFromLegacyTerm(String originalTerm, NAMESPACE scheme) throws IOException {
     if (termCoreMap.get(scheme) == null)
       fetchTermCoreMap(scheme);
     if (termCoreMap.get(scheme).get(originalTerm) != null)
@@ -182,20 +182,20 @@ public class FileRepository {
   }
 
 
-  public void fetchCodeMap(Namespace scheme) throws IOException {
+  public void fetchCodeMap(NAMESPACE scheme) throws IOException {
     Map<String, Set<String>> codeSet = codes.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeMap", scheme);
     readFileToSetMap(fileName, codeSet);
   }
 
-  public void fetchCodeIds(Namespace scheme) throws IOException {
+  public void fetchCodeIds(NAMESPACE scheme) throws IOException {
     Map<String, Set<String>> codeSet = codeIds.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeIds", scheme);
     readFileToSetMap(fileName, codeSet);
   }
 
 
-  public void fetchTermCodes(Namespace scheme) throws IOException {
+  public void fetchTermCodes(NAMESPACE scheme) throws IOException {
     Map<String, String> iris = termCodes.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("TermCodes", scheme);
     readFileToStringMap(fileName, iris);
@@ -224,21 +224,21 @@ public class FileRepository {
 
   }
 
-  public Map<String, Set<String>> getCodeCoreMap(Namespace scheme) throws IOException {
+  public Map<String, Set<String>> getCodeCoreMap(NAMESPACE scheme) throws IOException {
     if (codeCoreMap.get(scheme) != null)
       return codeCoreMap.get(scheme);
     else
       return fetchCodeCoreMap(scheme);
   }
 
-  public Map<String, Set<String>> fetchCodeCoreMap(Namespace scheme) throws IOException {
+  public Map<String, Set<String>> fetchCodeCoreMap(NAMESPACE scheme) throws IOException {
     Map<String, Set<String>> coreMap = codeCoreMap.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("CodeCoreMap", scheme);
     readFileToSetMap(fileName, coreMap);
     return codeCoreMap.get(scheme);
   }
 
-  public void fetchTermCoreMap(Namespace scheme) throws IOException {
+  public void fetchTermCoreMap(NAMESPACE scheme) throws IOException {
     Map<String, Set<String>> coreMap = termCoreMap.computeIfAbsent(scheme, s -> new HashMap<>());
     String fileName = getSchemeFile("TermCoreMap", scheme);
     readFileToSetMap(fileName, coreMap);
@@ -268,7 +268,7 @@ public class FileRepository {
   }
 
 
-  private String getSchemeFile(String fileType, Namespace namespace) {
+  private String getSchemeFile(String fileType, NAMESPACE namespace) {
     return dataPath + "/" + fileType + "-" + namespace.name() + ".txt";
   }
 

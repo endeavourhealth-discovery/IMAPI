@@ -14,7 +14,7 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String description;
   private String nodeRef;
   private boolean optional;
-  private FunctionClause aggregate;
+
   private Node typeOf;
   private String parameter;
   private String name;
@@ -31,6 +31,7 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
+  private List<Match> all;
   private String libraryItem;
   private boolean invalid;
   private List<Node> is;
@@ -43,6 +44,49 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private boolean draft;
   private Where then;
   private List<Match> keepClauses;
+  private String score;
+  private Having having;
+
+  public Having getHaving() {
+    return having;
+  }
+  public Match setHaving(Having having) {
+    this.having = having;
+    return this;
+  }
+  public Match having(Consumer<Having> builder) {
+    Having having = new Having();
+    setHaving(having);
+    return this;
+  }
+
+  public List<Match> getAll() {
+    return all;
+  }
+  public Match setAll(List<Match> all) {
+    this.all = all;
+    return this;
+  }
+  public Match addAll(Match all) {
+    if (this.all == null) {
+      this.all = new ArrayList<>();
+    }
+    this.all.add(all);
+    return this;
+  }
+  public Match all(Consumer<Match> builder) {
+    Match all = new Match();
+    addAll(all);
+    builder.accept(all);
+    return this;
+  }
+  public String getScore() {
+    return score;
+  }
+  public Match setScore(String score) {
+    this.score = score;
+    return this;
+  }
 
   public List<Match> getKeepClauses() {
     return keepClauses;
@@ -473,21 +517,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public FunctionClause getAggregate() {
-    return aggregate;
-  }
-
-  public Match setAggregate(FunctionClause aggregate) {
-    this.aggregate = aggregate;
-    return this;
-  }
-
-  public Match aggregate(Consumer<FunctionClause> builder) {
-    FunctionClause function = new FunctionClause();
-    this.aggregate = function;
-    builder.accept(function);
-    return this;
-  }
 
   public boolean isOptional() {
     return optional;

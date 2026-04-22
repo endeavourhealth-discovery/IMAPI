@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.RestAccessDeniedHandler;
 import org.endeavourhealth.imapi.errorhandling.RestAuthenticationEntryPoint;
 import org.endeavourhealth.imapi.utility.EnvHelper;
@@ -21,12 +22,15 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 
+@Slf4j
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+    log.debug("filterChain");
+
     http
       .cors(cors -> cors.configurationSource(corsFilter()))
       .csrf(AbstractHttpConfigurer::disable)
@@ -42,10 +46,12 @@ public class SecurityConfig {
 
   @Bean
   public UrlBasedCorsConfigurationSource corsFilter() {
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    log.debug("filterChain");
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowCredentials(true);
     String corsList = System.getenv().getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:8082");
+    log.debug(corsList);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    config.setAllowCredentials(true);
     config.setAllowedOrigins(Arrays.stream(corsList.split(",")).toList());
     config.setAllowedMethods(Arrays.asList("POST", "GET", "DELETE", "PUT", "OPTIONS"));
     config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
@@ -59,6 +65,7 @@ public class SecurityConfig {
   }
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    log.debug("setRequestPermission");
     req.requestMatchers(HttpMethod.OPTIONS).permitAll();
 
     req.requestMatchers(HttpMethod.GET, "/").permitAll()
@@ -73,14 +80,19 @@ public class SecurityConfig {
 
 
     if (EnvHelper.isPublicMode()) {
+      log.info("Security mode: PUBLIC");
         req.requestMatchers(HttpMethod.GET, "/api/*/protected/**").permitAll()
         .requestMatchers(HttpMethod.POST, "/api/*/protected/**").permitAll();
+    } else {
+      log.info("Security mode: PRIVATE");
     }
 
     req.anyRequest().authenticated();
   }
 
   private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+    log.debug("allowUrlEncodedSlashHttpFirewall");
+
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
@@ -89,10 +101,12 @@ public class SecurityConfig {
   }
 
   RestAccessDeniedHandler accessDeniedHandler() {
+    log.debug("accessDeniedHandler");
     return new RestAccessDeniedHandler();
   }
 
   RestAuthenticationEntryPoint authenticationEntryPoint() {
+    log.debug("authenticationEntryPoint");
     return new RestAuthenticationEntryPoint();
   }
 }

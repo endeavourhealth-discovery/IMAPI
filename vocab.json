@@ -78,6 +78,10 @@
         "value": "\"im\""
       },
       {
+        "name": "ROOT_NAMESPACE",
+        "value": "NAMESPACE.IM + \"Namespace\""
+      },
+      {
         "name": "DISPLAY_LABEL",
         "value": "NAMESPACE.IM + \"displayLabel\""
       },

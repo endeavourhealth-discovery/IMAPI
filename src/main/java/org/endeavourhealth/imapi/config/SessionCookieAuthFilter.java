@@ -5,15 +5,16 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.EndeavourSecurityService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.security.sasl.AuthenticationException;
 import java.io.IOException;
 
 import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
 
+@Slf4j
 public class SessionCookieAuthFilter extends OncePerRequestFilter {
   EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
 
@@ -24,6 +25,7 @@ public class SessionCookieAuthFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    log.debug("doFilterInternal");
     String ip = getIpAddress(request);
     String sessionId = extractValueFromCookie(request, "session_id");
     if (sessionId != null) {

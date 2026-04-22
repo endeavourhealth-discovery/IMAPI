@@ -116,10 +116,11 @@ open class UPRNController(
       // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val uprnReq = HttpRequest.newBuilder()
-        .uri(URI.create("$uprnUrl/api2/download3?file=${file}"))
+        .uri(URI.create("$uprnUrl/api2/download3?filename=${file}"))
         .GET()
 
-      return callUPRN(uprnReq, securityService.getUser(request).id)
+      val response = callUPRN(uprnReq, securityService.getUser(request).id)
+      return response;
     }
   }
 
@@ -138,20 +139,20 @@ open class UPRNController(
       log.debug("upload")
       // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
-      var byteArrays = listOf<ByteArray>(
-        "--boundary\r\n".encodeToByteArray(),
-        "Content-Disposition: form-data; name=\"file\"; filename=\"".encodeToByteArray(),
-        file.name.encodeToByteArray(),
-        "\"\r\nContent-Type: text/plain\r\n\r\n".encodeToByteArray(),
-        file.bytes,
-        "\r\n--boundary--\r\n".encodeToByteArray());
+      val fileContent = String(file.bytes)
+      val boundary = "---" + System.currentTimeMillis()
+      val multipartBody = "--$boundary\r\n" +
+        "Content-Disposition: form-data; name=\"file\"; filename=\"${file.originalFilename}\"\r\n" +
+        "Content-Type: text/plain\r\n\r\n" +
+        "$fileContent\r\n" +
+        "--$boundary--\r\n"
 
       val uprnReq = HttpRequest.newBuilder()
         .uri(URI.create("$uprnUrl/api2/fileupload2"))
-        .POST(HttpRequest.BodyPublishers.ofByteArrays(byteArrays.asIterable()))
+        .POST(HttpRequest.BodyPublishers.ofString(multipartBody))
+        .setHeader("Content-Type", "multipart/form-data; boundary=$boundary")
 
-      val uploadStatus = callUPRNAndParse(uprnReq, securityService.getUser(request).id, UploadStatus::class.java)
-      return uploadStatus
+      return callUPRNAndParse(uprnReq, securityService.getUser(request).id, UploadStatus::class.java)
     }
   }
 

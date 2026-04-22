@@ -16,6 +16,7 @@ public enum IM implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),
     PREFIX("im"),
+    ROOT_NAMESPACE(NAMESPACE.IM + "Namespace"),
     DISPLAY_LABEL(NAMESPACE.IM + "displayLabel"),
     HAS_SUBTYPES(NAMESPACE.IM + "hasSubtypes"),
     HAS_VALUESET(NAMESPACE.IM + "hasValueSet"),

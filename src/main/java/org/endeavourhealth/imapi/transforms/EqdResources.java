@@ -143,6 +143,7 @@ public class EqdResources {
         EQDOCRangeValue range=eqScore.getRangeValue();
         Having having=new Having();
         groupMatch.setHaving(having);
+        having.setAggregate(Aggregate.SUM);
         if (range.getRangeFrom()!=null &&range.getRangeTo()==null){
            having.setOperator((Operator) this.vocabMap.get(range.getRangeFrom().getOperator()));
            having.setValue(range.getRangeFrom().getValue().getValue());

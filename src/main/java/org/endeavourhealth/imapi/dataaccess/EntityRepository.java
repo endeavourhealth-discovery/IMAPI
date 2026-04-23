@@ -2078,6 +2078,38 @@ public class EntityRepository {
     return result;
   }
 
+  public List<SubQueryDependency> getIndicatorSubqueries(String iri) {
+    Map<String, SubQueryDependency> results = new HashMap<>();
+    String sql = """
+          SELECT DISTINCT ?o ?label ?depth
+          WHERE {
+             ?s (im:denominator|im:numerator|im:dataset) ?o .
+             ?o rdfs:label ?label .
+             BIND(1 AS ?depth) .
+          }
+          ORDER BY DESC(?depth) ?label
+      """;
+
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("s", iri(iri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String subqIri = bs.getValue("o").stringValue();
+          if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
+          String label = bs.getValue("label").stringValue();
+          String depth = bs.getValue("depth").stringValue();
+          if (!results.containsKey(subqIri))
+            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+        }
+      }
+    }
+    List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
+    valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+    return valuelist;
+  }
+
 
   public List<SubQueryDependency> getOrderedSubqueries(String iri) {
     Map<String, SubQueryDependency> results = new HashMap<>();

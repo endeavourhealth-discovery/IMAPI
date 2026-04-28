@@ -174,15 +174,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
       cohortTable.table = "dataset.cohort_results"
+      val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
+        MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+      ) else mutableListOf()
       val isAWith = MySQLWith(
         table = cohortTable,
         alias = isAlias,
         selects = mutableListOf(MySQLSelect("${cohortTable.table}.entity_id")),
         joins = withJoins.ifEmpty { mutableListOf() },
         exclude = isA.isExclude,
-        wheres = mutableListOf(
-          MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-        )
+        wheres = topWheres
       )
       isAWiths.add(isAWith)
     }
@@ -214,7 +215,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
     bool: Bool,
   ) {
-    if (currentMatch.having != null && currentMatch.and != null) {
+    if (currentMatch.having != null && (currentMatch.and != null || currentMatch.or != null)) {
       addScoredMatchWiths(currentMatch, mySqlQuery)
       return
     }
@@ -244,15 +245,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val scoredWiths = mutableListOf<MySQLWith>()
     val priorWiths = mySqlQuery.withs.toList()
 
+    val childMatches = currentMatch.and ?: currentMatch.or
+      ?: throw SQLConversionException("Scored match must have 'and' or 'or' children")
+
     // Build each child match as an independent CTE with a score select
-    for (childMatch in currentMatch.and) {
+    for (childMatch in childMatches) {
       val scoreValue = childMatch.score ?: "1"
       // Reset withs to prior state so each child CTE doesn't join to sibling CTEs
       mySqlQuery.withs.clear()
       mySqlQuery.withs.addAll(priorWiths)
-      val childWith = getMySQLWithFromMatch(childMatch, mySqlQuery)
-      childWith.selects.add(MySQLSelect(scoreValue, "score"))
-      scoredWiths.add(childWith)
+      if (childMatch.`is` != null) {
+        val isWiths = getIsWiths(childMatch, mySqlQuery)
+        for (isWith in isWiths) {
+          isWith.selects.add(MySQLSelect(scoreValue, "score"))
+          scoredWiths.add(isWith)
+        }
+      } else {
+        val childWith = getMySQLWithFromMatch(childMatch, mySqlQuery)
+        childWith.selects.add(MySQLSelect(scoreValue, "score"))
+        scoredWiths.add(childWith)
+      }
     }
 
     // Restore prior withs and add all scored CTEs
@@ -288,7 +300,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val thresholdValue = having.value ?: "0"
 
     val aggregatedWith = MySQLWith(
-      table = Table().apply { table = "combined" },
+      table = queryTypeOfTable.copy(),
       fromAlias = "combined",
       alias = "aggregated",
       selects = mutableListOf(

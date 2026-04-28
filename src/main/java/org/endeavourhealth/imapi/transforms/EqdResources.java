@@ -137,7 +137,26 @@ public class EqdResources {
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
-      return this.getMatchFromGroup(groupCriteria, eqGroup.getDefinition().getMemberOperator());
+      Match groupMatch= this.getMatchFromGroup(groupCriteria, eqGroup.getDefinition().getMemberOperator());
+      if (eqGroup.getDefinition().getMemberOperator() == VocMemberOperator.SCORE) {
+        EQDOCScore eqScore=eqGroup.getDefinition().getScore();
+        EQDOCRangeValue range=eqScore.getRangeValue();
+        Having having=new Having();
+        groupMatch.setHaving(having);
+        having.setAggregate(Aggregate.SUM);
+        if (range.getRangeFrom()!=null &&range.getRangeTo()==null){
+           having.setOperator((Operator) this.vocabMap.get(range.getRangeFrom().getOperator()));
+           having.setValue(range.getRangeFrom().getValue().getValue());
+        } else if (range.getRangeTo()!=null && range.getRangeFrom()==null){
+          having.setOperator((Operator) this.vocabMap.get(range.getRangeTo().getOperator()));
+          having.setValue(range.getRangeTo().getValue().getValue());
+        } else {
+          having.setRange(new Range());
+          having.getRange().setFrom(new Value().setOperator((Operator) this.vocabMap.get(range.getRangeFrom().getOperator())).setValue(range.getRangeFrom().getValue().getValue()));
+          having.getRange().setTo(new Value().setOperator((Operator) this.vocabMap.get(range.getRangeTo().getOperator())).setValue(range.getRangeTo().getValue().getValue()));
+        }
+      }
+      return groupMatch;
     }
   }
 
@@ -166,6 +185,7 @@ public class EqdResources {
           boolMatch.addAnd(match);
         } else boolMatch.addOr(match);
       }
+
       return boolMatch;
     }
   }
@@ -178,6 +198,10 @@ public class EqdResources {
 
   public Match convertCriteria(EQDOCCriteria eqCriteria) throws IOException, QueryException, EQDException {
     acronyms.clear();
+    String score=null;
+    if (eqCriteria.getScoreWeightage()!=null){
+      score=eqCriteria.getScoreWeightage().toString();
+    }
     if (eqCriteria.getPopulationCriterion() != null) {
       return this.getPopulationQuery(eqCriteria);
     } else {
@@ -186,6 +210,8 @@ public class EqdResources {
         Match match = this.convertCriterion(eqCriteria.getCriterion());
         if (eqCriteria.getCriterion().getDescription() != null)
           match.setDescription(eqCriteria.getCriterion().getDescription());
+        if (score!=null)
+          match.setScore(score);
         return match;
       } else {
         Map<String, EQDOCCriterion> libraryItems = EqdToIMQ.getLibraryItems();
@@ -194,16 +220,25 @@ public class EqdResources {
           System.err.println("Library item not found: " + libraryId);
           Match libraryMatch = new Match();
           libraryMatch.addIs(new Node().setIri(this.namespace + libraryId));
+          if (score!=null)
+            libraryMatch.setScore(score);
           return libraryMatch;
         } else {
           System.out.println("Library item found : " + libraryId);
-          return this.convertCriterion(libraryItems.get(libraryId));
+          Match match=this.convertCriterion(libraryItems.get(libraryId));
+          if (score!=null)
+            match.setScore(score);
+          return match;
         }
       }
     }
   }
 
   public Match getPopulationQuery(EQDOCCriteria eqCriteria) {
+    String score=null;
+    if (eqCriteria.getScoreWeightage()!=null){
+      score=eqCriteria.getScoreWeightage().toString();
+    }
     EQDOCSearchIdentifier search = eqCriteria.getPopulationCriterion();
     String searchId = search.getReportGuid();
     if (search.getVersionIndependentGuid() != null) searchId = search.getVersionIndependentGuid();
@@ -217,7 +252,11 @@ public class EqdResources {
     if (EqdToIMQ.gmsPatients.contains(searchId)) {
       finalSearchId = NAMESPACE.IM + "Q_RegisteredGMS";
     }
+
     queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalSearchId));
+    if (score!=null){
+      match.setScore(score);
+    }
     return match;
   }
 

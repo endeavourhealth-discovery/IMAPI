@@ -302,11 +302,12 @@ public class QueryController {
   @Operation(summary = "Get all subQueries ordered of a query using the query iri")
   public Collection<SubQueryDependency> getSubQueries(
     HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "isIndicator", defaultValue = "false") Boolean isIndicator
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getSubQueries");
-      return queryService.getOrderedSubqueries(queryIri);
+      return queryService.getOrderedSubqueries(queryIri, isIndicator);
     }
   }
 

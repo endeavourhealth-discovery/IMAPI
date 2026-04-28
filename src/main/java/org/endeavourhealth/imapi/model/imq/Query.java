@@ -33,6 +33,7 @@ public class Query extends Match {
   public List<Match> getKeepClauses() {
     return super.getKeepClauses();
   }
+
   public Query setKeepClauses(List<Match> keepClauses) {
     super.setKeepClauses(keepClauses);
     return this;
@@ -40,6 +41,11 @@ public class Query extends Match {
 
   public Query setErrorMessage(String errorMessage) {
     super.setErrorMessage(errorMessage);
+    return this;
+  }
+
+  public Query setQueryType(IMQType type) {
+    this.queryType = type;
     return this;
   }
 

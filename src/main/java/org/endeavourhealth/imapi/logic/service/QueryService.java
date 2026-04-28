@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -14,6 +15,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
@@ -49,6 +51,13 @@ public class QueryService {
   }
 
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
+    if (queryRequest.getQuery().getQueryType() == IMQType.INDICATOR) {
+      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(iri(IM.NUMERATOR).getIri(), iri(IM.DENOMINATOR).getIri(), iri(IM.HAS_DATASET).getIri()));
+      String denominator = bundle.getEntity().get(IM.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
+      String numerator = bundle.getEntity().get(IM.NUMERATOR).getElements().getFirst().asIriRef().getIri();
+      String dataset = bundle.getEntity().get(IM.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
+      return new IMQtoSQLConverterKotlin(queryRequest, new ObjectMapper(), denominator, numerator, dataset).getSql();
+    }
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
@@ -67,7 +76,10 @@ public class QueryService {
     }
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
-      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION)).getEntity();
+      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
+      if (queryEntity.isType(iri(IM.INDICATOR)))
+        return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
+
       if (!queryEntity.has(iri(IM.DEFINITION)))
         throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
       query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
@@ -78,7 +90,7 @@ public class QueryService {
     try {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     } catch (Exception e) {
-      throw new SQLConversionException(e.getMessage(),e);
+      throw new SQLConversionException(e.getMessage(), e);
     }
     if (query == null) return null;
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
@@ -264,8 +276,13 @@ public class QueryService {
     return indicator;
   }
 
-  public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri) {
+  public Collection<SubQueryDependency> getOrderedSubqueries(String queryIri, Boolean isIndicator) {
+    if (isIndicator) return getIndicatorSubqueries(queryIri);
     return entityRepository.getOrderedSubqueries(queryIri);
+  }
+
+  public Collection<SubQueryDependency> getIndicatorSubqueries(String queryIri) {
+    return entityRepository.getIndicatorSubqueries(queryIri);
   }
 
 

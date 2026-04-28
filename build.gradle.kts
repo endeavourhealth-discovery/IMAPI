@@ -13,6 +13,7 @@ plugins {
   id("java-library")
   id("maven-publish")
   kotlin("jvm")
+  kotlin("plugin.spring") version "2.2.20"
 }
 
 group = "org.endeavourhealth.imapi"
@@ -196,6 +197,7 @@ dependencies {
 
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
+  testImplementation(libs.cucumber.spring)
   testImplementation(libs.junit)
   testImplementation(libs.junit.suite)
   testImplementation(libs.mockito)

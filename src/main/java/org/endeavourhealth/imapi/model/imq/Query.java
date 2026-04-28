@@ -50,7 +50,7 @@ public class Query extends Match {
   }
 
   public Query setQueryType() {
-    this.queryType = this.columnGroup == null ? IMQType.COHORT : IMQType.DATASET;
+    this.queryType = this.columnGroup != null ? IMQType.DATASET : IMQType.COHORT;
     return this;
   }
 

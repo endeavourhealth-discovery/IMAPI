@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.ibm.icu.text.PluralRules;
-
 public class Having {
   private Aggregate aggregate;
   private Range range;

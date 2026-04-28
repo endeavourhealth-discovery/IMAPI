@@ -45,7 +45,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private List<Match> keepClauses;
   private String score;
   private Having having;
-  private String testProperty;
 
   public Having getHaving() {
     return having;
@@ -551,14 +550,5 @@ public class Match extends IriLD implements HasPaths,Returnable {
 
   public boolean isActiveOnly() {
     return activeOnly;
-  }
-
-  public String getTestProperty() {
-    return testProperty;
-  }
-
-  public Match setTestProperty(String testProperty) {
-    this.testProperty = testProperty;
-    return this;
   }
 }

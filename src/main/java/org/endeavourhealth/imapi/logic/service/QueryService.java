@@ -94,7 +94,7 @@ public class QueryService {
     }
     if (query == null) return null;
     if (null == query.getIri()) query.setIri(UUID.randomUUID().toString());
-    query.setQueryType();
+    query.setQueryType(query.getColumnGroup() != null ? IMQType.DATASET : IMQType.COHORT);
     return new QueryRequest().setQuery(query).setArgument(queryRequest.getArgument()); // need to add update info instead of queryString
   }
 

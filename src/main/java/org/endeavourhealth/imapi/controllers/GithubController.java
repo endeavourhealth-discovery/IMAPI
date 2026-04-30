@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.model.github.REPO;
+import org.endeavourhealth.imapi.model.postRequestPrimatives.REPOBody;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
@@ -51,11 +52,11 @@ public class GithubController {
 
   @Operation(summary = "Update GitHub configuration", description = "Triggers an update to the GitHub repository configuration.")
   @PostMapping(value = "/private/updateGithubConfig")
-  public void updateGithubConfig(HttpServletRequest request, @RequestBody REPO repo) throws IOException, InterruptedException {
+  public void updateGithubConfig(HttpServletRequest request, @RequestBody REPOBody repoBody) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");
       securityService.requiresPermission(new Permission(Resource.GITHUB, List.of(UserRole.ADMIN), List.of()), request);
-      githubService.updateGithubConfig(repo);
+      githubService.updateGithubConfig(repoBody.getRepo());
     }
   }
 }

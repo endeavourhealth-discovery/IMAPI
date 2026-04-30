@@ -6,7 +6,6 @@ data class MySQLQuery(
   var withs: MutableList<MySQLWith> = ArrayList(),
   var selects: MutableList<MySQLSelect> = ArrayList(),
   var joins: MutableList<MySQLJoin> = ArrayList(),
-  var create: MySQLCreate? = null,
   var savingAs: String? = null,
   var update: String? = null,
   var insert: String? = null,
@@ -14,8 +13,7 @@ data class MySQLQuery(
   val nodeToTableMap: HashMap<String, Table> = hashMapOf()
 
   fun toSql(): String = buildString {
-    create?.let { append(it.toSql()) }
-    insert?.let { append("INSERT INTO `$it`\n") }
+    insert?.let { append("INSERT INTO $it\n") }
     append("WITH ")
     append(withs.joinToString(",\n") { it.toSql() })
     append("\nSELECT ")

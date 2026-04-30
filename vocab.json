@@ -36,6 +36,14 @@
         "value": "NAMESPACE.CONFIG + \"IMDirectoryAllReleases\""
       },
       {
+        "name": "IMQUERY_RUNNER_LATEST_RELEASE",
+        "value": "NAMESPACE.CONFIG + \"IMQueryRunnerLatestRelease\""
+      },
+      {
+        "name": "IMQUERY_RUNNER_ALL_RELEASES",
+        "value": "NAMESPACE.CONFIG + \"IMQueryRunnerAllReleases\""
+      },
+      {
         "name": "MONITORING",
         "value": "NAMESPACE.CONFIG + \"monitoring\""
       }

@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.logic.service.GithubService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
+import org.endeavourhealth.imapi.model.github.REPO;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
@@ -32,29 +33,29 @@ public class GithubController {
 
   @Operation(summary = "Retrieve the latest GitHub release", description = "Gets the latest release information from the GitHub repository.")
   @GetMapping(value = "/public/githubLatest")
-  public GithubRelease getLatestRelease() throws IOException, ConfigException {
+  public GithubRelease getLatestRelease(@RequestParam(name = "repositoryName") REPO repo) throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubLatest.GET")) {
       log.debug("getGithubLatest");
-      return githubService.getGithubLatestRelease();
+      return githubService.getGithubLatestRelease(repo);
     }
   }
 
   @Operation(summary = "Retrieve all GitHub releases", description = "Gets a list of all releases available in the GitHub repository.")
   @GetMapping(value = "/public/githubAllReleases")
-  public List<GithubRelease> getReleases() throws IOException, ConfigException {
+  public List<GithubRelease> getReleases(@RequestParam(name = "repositoryName") REPO repo) throws IOException, ConfigException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubReleases.GET")) {
       log.debug("getGithubReleases");
-      return githubService.getGithubReleases();
+      return githubService.getGithubReleases(repo);
     }
   }
 
   @Operation(summary = "Update GitHub configuration", description = "Triggers an update to the GitHub repository configuration.")
   @PostMapping(value = "/private/updateGithubConfig")
-  public void updateGithubConfig(HttpServletRequest request) throws IOException, InterruptedException {
+  public void updateGithubConfig(HttpServletRequest request, @RequestBody REPO repo) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");
       securityService.requiresPermission(new Permission(Resource.GITHUB, List.of(UserRole.ADMIN), List.of()), request);
-      githubService.updateGithubConfig();
+      githubService.updateGithubConfig(repo);
     }
   }
 }

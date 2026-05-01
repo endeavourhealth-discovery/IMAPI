@@ -175,11 +175,17 @@ public class GithubService {
   }
 
   private List<String> processReleaseNotes(String releaseNotes) {
+    if (releaseNotes == null || releaseNotes.isEmpty())
+      return new ArrayList<>();
+
     String[] lines = releaseNotes.split(System.lineSeparator());
     return Arrays.asList(lines);
   }
 
   private String processDate(String date) {
+    if (date == null || date.isEmpty())
+      return "";
+
     DateTimeFormatter formatterInput = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     LocalDateTime dateTime = LocalDateTime.parse(date, formatterInput);
     DateTimeFormatter formatterOutput = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -193,7 +199,7 @@ public class GithubService {
       .setCreatedDate(processDate(githubDTO.getCreated_at()))
       .setPublishedDate(processDate(githubDTO.getPublished_at()))
       .setReleaseNotes(processReleaseNotes(githubDTO.getBody()))
-      .setAuthor(githubDTO.getAuthor().getLogin())
+      .setAuthor(githubDTO.getAuthor())
       .setUrl(githubDTO.getHtml_url());
   }
 }

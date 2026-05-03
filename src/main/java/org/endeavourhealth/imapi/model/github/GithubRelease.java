@@ -51,12 +51,8 @@ public class GithubRelease {
     return this;
   }
 
-  public GithubRelease setAuthor(GithubAuthorDTO author) {
-    if (author == null || author.getLogin() == null)
-      this.author = "";
-    else
-      this.author = author.getLogin();
-
+  public GithubRelease setAuthor(String author) {
+    this.author = author;
     return this;
   }
 

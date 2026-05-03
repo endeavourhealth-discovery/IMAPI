@@ -193,13 +193,17 @@ public class GithubService {
   }
 
   private GithubRelease processGithubRelease(GithubDTO githubDTO) {
-    return new GithubRelease()
+    GithubRelease release = new GithubRelease()
       .setVersion(githubDTO.getTag_name())
       .setTitle(githubDTO.getName())
       .setCreatedDate(processDate(githubDTO.getCreated_at()))
       .setPublishedDate(processDate(githubDTO.getPublished_at()))
       .setReleaseNotes(processReleaseNotes(githubDTO.getBody()))
-      .setAuthor(githubDTO.getAuthor())
       .setUrl(githubDTO.getHtml_url());
+
+    if (githubDTO.getAuthor() != null)
+      release.setAuthor(githubDTO.getAuthor().getLogin());
+
+    return release;
   }
 }

@@ -12,7 +12,6 @@ public class ValueSource {
   private String iri;
   private String name;
   private String nodeRef;
-  private ValuePath path;
   private String propertyRef;
 
   public String getPropertyRef() {
@@ -24,14 +23,6 @@ public class ValueSource {
     return this;
   }
 
-  public ValuePath getPath() {
-    return path;
-  }
-
-  public ValueSource setPath(ValuePath path) {
-    this.path = path;
-    return this;
-  }
 
   public String getIri() {
     return iri;

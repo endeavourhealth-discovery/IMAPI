@@ -17,7 +17,6 @@ public class Value implements Assignable {
   private String valueParameter;
   private FunctionClause function;
   private String description;
-  @Getter
   private TTIriRef units;
   private boolean invalid;
   private String valueTerm;
@@ -49,6 +48,10 @@ public class Value implements Assignable {
   public Value setUnits(TTIriRef units) {
     this.units = units;
     return this;
+  }
+
+  public TTIriRef getUnits(){
+    return this.units;
   }
 
 

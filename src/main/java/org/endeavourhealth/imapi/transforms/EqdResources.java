@@ -376,34 +376,31 @@ public class EqdResources {
     relationLeft
       .setNodeRef(getNodeRef(linkedMatch))
       .setIri(child.substring(child.lastIndexOf(" ") + 1));
-    injectPropertyReturn(parentMatch, relationLeft.getIri());
+
     String parentProperty = eqRelationship.getParentColumn();
-    if (parentProperty.contains("DATE") || parentProperty.contains("DOB")) {
-      relationWhere.setIri(NAMESPACE.IM + "effectiveDate");
-      relationWhere.setNodeRef(getNodeRef(linkedMatch));
-    } else throw new EQDException("No match found for linked criterion parent property");
+    if (!parentProperty.contains("DATE") &&!parentProperty.contains("DOB"))
+      throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight = new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
       relationRight.setIri(NAMESPACE.IM + "effectiveDate");
+      injectPropertyReturn(parentMatch, relationRight.getIri());
       relationRight.setNodeRef(getNode(parentMatch));
       relationRight.setNodeRef(getKeepAs(parentMatch));
+      relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
     } else if (eqRelationship.getParentColumn().contains("VALUE")) {
       relationRight.setIri(NAMESPACE.IM + "value");
+      injectPropertyReturn(parentMatch, relationRight.getIri());
       relationRight.setNodeRef(parentMatch.getNode());
+      relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
       parentMatch.setNode(parentMatch.getNode() + "_VAL");
       relationRight.setNodeRef(parentMatch.getNode());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
-      Path linkedMatchPath = null;
-      if (linkedMatch.getPath() != null) {
-        linkedMatchPath = linkedMatch.getPath().getFirst();
-        linkedMatchPath.addPath(new Path().setIri(NAMESPACE.IM + "dateOfBirth").setNode("pat"));
-      } else {
-        linkedMatchPath = new Path();
-        linkedMatchPath.setIri(NAMESPACE.IM + "dateOfBirth");
-        linkedMatchPath.setNode("pat");
+        Path linkedMatchPath = new Path();
+        linkedMatchPath.setIri(NAMESPACE.IM+"patient");
+        linkedMatchPath.setNode("patient");
+        linkedMatchPath.setTypeOf(NAMESPACE.IM+"Patient");
         linkedMatch.addPath(linkedMatchPath);
-      }
-      relationRight.setNodeRef("pat").setIri(NAMESPACE.IM + "dateOfBirth");
+      relationRight.setNodeRef("patient").setIri(NAMESPACE.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
     if (eqRelationship.getRangeValue() != null) {
@@ -579,7 +576,7 @@ public class EqdResources {
         }
       }
       if (!alreadyIn) {
-        matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri));
+        matchToTest.return_(p -> p.setNodeRef(getNodeRef(matchToTest)).setIri(iri).setAs(iri.substring(iri.lastIndexOf("#") + 1)));
       }
     } else if (matchToTest.getOr() != null) {
       for (Match m : matchToTest.getOr()) {
@@ -876,17 +873,18 @@ public class EqdResources {
   private void setRangeValue(EQDOCRangeValue rv, Where pv) throws EQDException {
     EQDOCRangeFrom rFrom = rv.getRangeFrom();
     EQDOCRangeTo rTo = rv.getRangeTo();
+    String leftProperty= pv.getIri();
     if (rFrom != null && rTo != null) {
       this.setRangeCompare(pv, rFrom, rTo, rv.getRelativeTo());
     } else if (rFrom != null) {
-      this.setCompareFrom(pv, rFrom, rv.getRelativeTo());
+      this.setCompareFrom(pv, rFrom, rv.getRelativeTo(),leftProperty);
     } else if (rTo != null) {
-      this.setCompareTo(pv, rTo, rv.getRelativeTo());
+      this.setCompareTo(pv, rTo, rv.getRelativeTo(),leftProperty);
     }
   }
 
 
-  private void setCompareFrom(Where where, EQDOCRangeFrom rFrom, String relativeTo) throws EQDException {
+  private void setCompareFrom(Where where, EQDOCRangeFrom rFrom, String relativeTo,String leftProperty) throws EQDException {
     Operator comp;
     if (rFrom.getOperator() != null) {
       comp = (Operator) this.vocabMap.get(rFrom.getOperator());
@@ -905,11 +903,11 @@ public class EqdResources {
         relation = VocRelation.RELATIVE;
       }
     }
-    this.setCompare(where, where, comp, value, units, relation, relativeTo);
+    this.setCompare(where, where, comp, value, units, relation, relativeTo,leftProperty);
   }
 
 
-  private void setCompareTo(Where pv, EQDOCRangeTo rTo, String relativeTo) throws EQDException {
+  private void setCompareTo(Where pv, EQDOCRangeTo rTo, String relativeTo,String leftProperty) throws EQDException {
     Operator comp;
     if (rTo.getOperator() != null) {
       comp = (Operator) this.vocabMap.get(rTo.getOperator());
@@ -930,11 +928,13 @@ public class EqdResources {
       }
     }
 
-    this.setCompare(pv, pv, comp, value, units, relation, relativeTo);
+    this.setCompare(pv, pv, comp, value, units, relation, relativeTo,leftProperty);
   }
 
 
-  private void setCompare(Where where, Assignable assignable, Operator comp, String value, TTIriRef units, VocRelation relation, String relativeTo) throws EQDException {
+  private void setCompare(Where where, Assignable assignable, Operator comp, String value, TTIriRef units, VocRelation relation, String relativeTo,String leftProperty) throws EQDException {
+
+    String property = leftProperty;
 
     if (relativeTo != null) {
       relation = VocRelation.RELATIVE;
@@ -942,11 +942,7 @@ public class EqdResources {
         relativeTo = "$achievementDate";
       } else throw new EQDException("relative to " + relativeTo + " not supported");
     }
-    String property = where.getIri();
-    if (where.getIri().contains("age")) {
-      property = NAMESPACE.IM + "dateOfBirth";
-      relation = VocRelation.RELATIVE;
-    }
+
     assignable.setOperator(comp);
     if (value != null && value.equals("This")) {
       assignable.setOperator(Operator.eq);
@@ -962,10 +958,16 @@ public class EqdResources {
       assignable.setValue(value);
     }
     if (relation == VocRelation.RELATIVE) {
+      if (leftProperty.contains("age")) {
+        assignable.setUnits(units);
+        return;
+      }
       if (relativeTo == null) {
         relativeTo = "$searchDate";
       }
       ValueSource relationLeft = new ValueSource();
+      where.setIri((String) null);
+      where.setName(null);
       relationLeft.setIri(property).setNodeRef(where.getNodeRef());
       ValueSource relationRight = new ValueSource();
       relationRight.setParameter(relativeTo);
@@ -1013,6 +1015,7 @@ public class EqdResources {
     where.setRange(range);
     Value fromValue = new Value();
     range.setFrom(fromValue);
+    String leftProperty= where.getIri();
     Operator comp;
     if (rFrom.getOperator() != null) {
       comp = (Operator) this.vocabMap.get(rFrom.getOperator());
@@ -1032,7 +1035,7 @@ public class EqdResources {
     }
 
 
-    this.setCompare(where, fromValue, comp, value, units, relation, relativeTo);
+    this.setCompare(where, fromValue, comp, value, units, relation, relativeTo,leftProperty);
     Value toValue = new Value();
     range.setTo(toValue);
     if (rFrom.getOperator() != null) {
@@ -1052,7 +1055,7 @@ public class EqdResources {
       relation = VocRelation.RELATIVE;
     }
 
-    this.setCompare(where, toValue, comp, value, units, relation, relativeTo);
+    this.setCompare(where, toValue, comp, value, units, relation, relativeTo,leftProperty);
   }
 
   private List<Node> getExceptionSet(EQDOCException set) throws IOException {

@@ -6,11 +6,13 @@ import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.slf4j.LoggerFactory
 
+@Tag("IMQFullTest")
 @SpringBootTest
 class IMQtoSQLFullTest {
   private val log = LoggerFactory.getLogger(IMQtoSQLFullTest::class.java)

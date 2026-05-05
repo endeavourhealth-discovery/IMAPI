@@ -234,6 +234,12 @@ tasks.test {
   finalizedBy("jacocoTestReport")
 }
 
+tasks.register("imqTests", Test::class.java) {
+  useJUnitPlatform {
+    includeTags("IMQTest")
+  }
+}
+
 tasks.jacocoTestReport {
   reports {
     xml.required.set(true)

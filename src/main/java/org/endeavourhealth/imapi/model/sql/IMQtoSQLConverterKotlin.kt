@@ -872,10 +872,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: $nodeRef")
-    val rawField = getPropertyNameByTableAndPropertyIri(
+    var rawField = getPropertyNameByTableAndPropertyIri(
       currentTable,
       whereIri
-    ).field ?: throw SQLConversionException("No field found for property $whereIri")
+    ).field
+    if (rawField.isEmpty()) {
+      rawField = getPropertyNameByTableAndPropertyIri(currentTable, whereIri).field
+        ?: throw SQLConversionException("No field found for property $whereIri")
+      val (fk, pk) = with.table.foreignKeyTo(queryTypeOfTable)
+      with.joins.add(
+        MySQLJoin(
+          join = "JOIN",
+          with.table.table,
+          queryTypeOfTable.table,
+          fromProperty = fk,
+          toProperty = pk
+        )
+      )
+      rawField = queryTypeOfTable.table + "." + rawField
+      return queryTypeOfTable to rawField
+    }
+
     val field =
       if (with.fromAlias != null && nodeRef == null && !rawField.contains(".") && !rawField.contains("(")) {
         "${with.fromAlias}.$rawField"

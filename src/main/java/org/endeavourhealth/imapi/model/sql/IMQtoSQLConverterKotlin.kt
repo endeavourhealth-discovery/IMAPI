@@ -111,7 +111,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-
   private fun getJSONObject(newMySqlQuery: MySQLQuery): String {
     val lastWith = newMySqlQuery.withs.last()
 
@@ -238,7 +237,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-//  private fun addScoredMatchWiths(currentMatch: Match, mySqlQuery: MySQLQuery) {
+  private fun addScoredMatchWiths(currentMatch: Match, mySqlQuery: MySQLQuery) {
 //    val having = currentMatch.having
 //      ?: throw SQLConversionException("Having clause is required for scored match")
 //
@@ -311,8 +310,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 //      havingClause = "$aggregateFn(score) $operatorValue $thresholdValue"
 //    )
 //    mySqlQuery.withs.add(aggregatedWith)
-//  }
-
+  }
 
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     var with = MySQLWith()
@@ -801,7 +799,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           operator = from.operator.value,
           right = fromRight,
           value = from.value,
-          units = "YEAR", // map properly from IRI
           table = currentTable.alias ?: currentTable.table
         )
 
@@ -810,7 +807,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           operator = to.operator.value,
           right = toRight,
           value = to.value,
-          units = "YEAR",
           table = currentTable.alias ?: currentTable.table
         )
       }

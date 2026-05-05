@@ -49,11 +49,6 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setQueryType() {
-    this.queryType = this.columnGroup == null ? IMQType.COHORT : IMQType.DATASET;
-    return this;
-  }
-
   public IMQType getQueryType() {
     return queryType;
   }

@@ -174,15 +174,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
       cohortTable.table = "dataset.cohort_results"
+      val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
+        MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+      ) else mutableListOf()
       val isAWith = MySQLWith(
         table = cohortTable,
         alias = isAlias,
         selects = mutableListOf(MySQLSelect("${cohortTable.table}.entity_id")),
         joins = withJoins.ifEmpty { mutableListOf() },
         exclude = isA.isExclude,
-        wheres = mutableListOf(
-          MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-        )
+        wheres = topWheres
       )
       isAWiths.add(isAWith)
     }
@@ -214,6 +215,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
     bool: Bool,
   ) {
+//    if (currentMatch.having != null && (currentMatch.and != null || currentMatch.or != null)) {
+//      addScoredMatchWiths(currentMatch, mySqlQuery)
+//      return
+//    }
+
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
         addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
@@ -231,6 +237,81 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
   }
+
+//  private fun addScoredMatchWiths(currentMatch: Match, mySqlQuery: MySQLQuery) {
+//    val having = currentMatch.having
+//      ?: throw SQLConversionException("Having clause is required for scored match")
+//
+//    val scoredWiths = mutableListOf<MySQLWith>()
+//    val priorWiths = mySqlQuery.withs.toList()
+//
+//    val childMatches = currentMatch.and ?: currentMatch.or
+//      ?: throw SQLConversionException("Scored match must have 'and' or 'or' children")
+//
+//    // Build each child match as an independent CTE with a score select
+//    for (childMatch in childMatches) {
+//      val scoreValue = childMatch.score ?: "1"
+//      // Reset withs to prior state so each child CTE doesn't join to sibling CTEs
+//      mySqlQuery.withs.clear()
+//      mySqlQuery.withs.addAll(priorWiths)
+//      if (childMatch.`is` != null) {
+//        val isWiths = getIsWiths(childMatch, mySqlQuery)
+//        for (isWith in isWiths) {
+//          isWith.selects.add(MySQLSelect(scoreValue, "score"))
+//          scoredWiths.add(isWith)
+//        }
+//      } else {
+//        val childWith = getMySQLWithFromMatch(childMatch, mySqlQuery)
+//        childWith.selects.add(MySQLSelect(scoreValue, "score"))
+//        scoredWiths.add(childWith)
+//      }
+//    }
+//
+//    // Restore prior withs and add all scored CTEs
+//    mySqlQuery.withs.clear()
+//    mySqlQuery.withs.addAll(priorWiths)
+//    for (w in scoredWiths) {
+//      mySqlQuery.withs.add(w)
+//    }
+//
+//    // Build the "combined" CTE using UNION ALL of all scored CTEs
+//    val primaryKeyCol = queryTypeOfTable.primaryKey
+//    val unionWiths = scoredWiths.map { scoredWith ->
+//      MySQLWith(
+//        table = Table().apply { table = scoredWith.alias },
+//        fromAlias = scoredWith.alias,
+//        selects = mutableListOf(
+//          MySQLSelect(primaryKeyCol),
+//          MySQLSelect("score")
+//        )
+//      )
+//    }.toMutableList()
+//
+//    val combinedWith = MySQLWith(
+//      alias = "combined",
+//      unionWiths = unionWiths,
+//      unionAll = true
+//    )
+//    mySqlQuery.withs.add(combinedWith)
+//
+//    // Build the "aggregated" CTE with GROUP BY and aggregate HAVING
+//    val aggregateFn = having.aggregate?.name ?: "SUM"
+//    val operatorValue = having.operator?.value ?: ">="
+//    val thresholdValue = having.value ?: "0"
+//
+//    val aggregatedWith = MySQLWith(
+//      table = queryTypeOfTable.copy(),
+//      fromAlias = "combined",
+//      alias = "aggregated",
+//      selects = mutableListOf(
+//        MySQLSelect(primaryKeyCol),
+//        MySQLSelect("$aggregateFn(score)", "total_score")
+//      ),
+//      groupByColumns = mutableListOf(primaryKeyCol),
+//      havingClause = "$aggregateFn(score) $operatorValue $thresholdValue"
+//    )
+//    mySqlQuery.withs.add(aggregatedWith)
+//  }
 
 
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
@@ -687,31 +768,52 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
       val from = where.range.from
       val to = where.range.to
-      val fromRight = from.compare?.right?.parameter
-        ?: getValueFromRelativeTo(from, variableToTableMap)
-        ?: throw SQLConversionException("No value for range.from")
 
-      val toRight = to.compare?.right?.parameter
-        ?: getValueFromRelativeTo(to, variableToTableMap)
-        ?: throw SQLConversionException("No value for range.to")
+      val isDirectValue = from.compare == null && from.value != null
 
-      val fromWhere = MySQLCompareWhere(
-        property = field,
-        operator = from.operator.value,
-        right = fromRight,
-        value = from.value,
-        units = "YEAR", // map properly from IRI
-        table = currentTable.alias ?: currentTable.table
-      )
+      val fromWhere: MySQLWhere
+      val toWhere: MySQLWhere
 
-      val toWhere = MySQLCompareWhere(
-        property = field,
-        operator = to.operator.value,
-        right = toRight,
-        value = to.value,
-        units = "YEAR",
-        table = currentTable.alias ?: currentTable.table
-      )
+      if (isDirectValue) {
+        fromWhere = MySQLPropertyValueWhere(
+          property = field,
+          operator = from.operator.value,
+          value = "'${from.value}'",
+          table = currentTable.alias ?: currentTable.table
+        )
+        toWhere = MySQLPropertyValueWhere(
+          property = field,
+          operator = to.operator.value,
+          value = "'${to.value}'",
+          table = currentTable.alias ?: currentTable.table
+        )
+      } else {
+        val fromRight = from.compare?.right?.parameter
+          ?: getValueFromRelativeTo(from, variableToTableMap)
+          ?: throw SQLConversionException("No value for range.from")
+
+        val toRight = to.compare?.right?.parameter
+          ?: getValueFromRelativeTo(to, variableToTableMap)
+          ?: throw SQLConversionException("No value for range.to")
+
+        fromWhere = MySQLCompareWhere(
+          property = field,
+          operator = from.operator.value,
+          right = fromRight,
+          value = from.value,
+          units = "YEAR", // map properly from IRI
+          table = currentTable.alias ?: currentTable.table
+        )
+
+        toWhere = MySQLCompareWhere(
+          property = field,
+          operator = to.operator.value,
+          right = toRight,
+          value = to.value,
+          units = "YEAR",
+          table = currentTable.alias ?: currentTable.table
+        )
+      }
 
       MySQLBoolWhere(
         and = mutableListOf(fromWhere, toWhere)
@@ -770,10 +872,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: $nodeRef")
-    val rawField = getPropertyNameByTableAndPropertyIri(
+    var rawField = getPropertyNameByTableAndPropertyIri(
       currentTable,
       whereIri
-    ).field ?: throw SQLConversionException("No field found for property $whereIri")
+    ).field
+    if (rawField.isEmpty()) {
+      rawField = getPropertyNameByTableAndPropertyIri(currentTable, whereIri).field
+        ?: throw SQLConversionException("No field found for property $whereIri")
+      val (fk, pk) = with.table.foreignKeyTo(queryTypeOfTable)
+      with.joins.add(
+        MySQLJoin(
+          join = "JOIN",
+          with.table.table,
+          queryTypeOfTable.table,
+          fromProperty = fk,
+          toProperty = pk
+        )
+      )
+      rawField = queryTypeOfTable.table + "." + rawField
+      return queryTypeOfTable to rawField
+    }
+
     val field =
       if (with.fromAlias != null && nodeRef == null && !rawField.contains(".") && !rawField.contains("(")) {
         "${with.fromAlias}.$rawField"

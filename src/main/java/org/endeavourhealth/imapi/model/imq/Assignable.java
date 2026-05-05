@@ -17,5 +17,7 @@ public interface Assignable {
   Assignable setIsInvalid(boolean invalid);
   String getValueTerm();
   Assignable setValueTerm(String valueTerm);
+  TTIriRef getUnits();
+  Assignable setUnits(TTIriRef units);
 
 }

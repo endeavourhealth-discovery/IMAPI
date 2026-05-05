@@ -493,6 +493,10 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
+  public TTIriRef getUnits() {
+    return units;
+  }
+
 
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();

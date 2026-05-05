@@ -226,8 +226,8 @@ public class QueryValidator {
       }
     if (where.getPropertyVariable() != null)
       variables.put(where.getPropertyVariable(), VarType.PATH);
-    if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null&&where.getPropertyVariable()==null)
-      throw new QueryException("Where clause has no where iri  (set iri to where iri) ir a parameter");
+    if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null&&where.getPropertyVariable()==null&&where.getCompare()==null)
+      throw new QueryException("Where clause has no criteria (property, compare or parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))
       throw new QueryException("Where clause variable '" + where.getNodeRef() + "' has not been declared in a match path");
 

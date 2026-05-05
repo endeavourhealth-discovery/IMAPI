@@ -177,8 +177,6 @@ public class LogicOptimizer {
           .setIri(right.getIri())
           .setAs(alias));
         right.setPropertyRef(alias);
-      } else if (right.getPath() != null) {
-        injectReturns(match, right, right.getPath(), "");
       }
     }
     for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
@@ -190,23 +188,6 @@ public class LogicOptimizer {
     }
   }
 
-  private void injectReturns(Match match, ValueSource valueSource, ValuePath path, String prefix) {
-    Path matchPath = new Path();
-    matchPath.setIri(path.getIri());
-    matchPath.setTypeOf(path.getTypeOf());
-    matchPath.setNode(prefix + path.getIri().substring(path.getIri().lastIndexOf("#") + 1));
-    match.addPath(matchPath);
-    if (path.getPath() == null) {
-      match.addReturn(new Return()
-        .setNodeRef(matchPath.getNode())
-        .setIri(path.getIri())
-        .setAs(matchPath.getNode()));
-      valueSource.setPropertyRef(matchPath.getNode());
-    } else {
-      injectReturns(match, valueSource, path.getPath(), matchPath.getNode() + "_");
-      ;
-    }
-  }
 
   public void setKeepMatches(Match match) throws QueryException {
     if (match.getNode() != null) {

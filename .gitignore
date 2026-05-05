@@ -17,4 +17,4 @@ gradle.properties
 *.xml
 /src/main/resources/application.properties
 /src/main/resources/casdoor-cert.txt
-.ollamassist/**
+.ollamassist

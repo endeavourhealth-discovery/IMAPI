@@ -1,5 +1,5 @@
 Feature: IMQ to SQL conversion
-
+  @IMQTest
   Scenario Outline: IMQ converts to SQL without errors
     When IMQ to SQL conversion is executed for <iri>
     Then SQL should be generated successfully

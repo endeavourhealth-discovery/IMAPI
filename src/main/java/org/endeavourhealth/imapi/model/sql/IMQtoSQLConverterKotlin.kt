@@ -739,7 +739,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with: MySQLWith,
     table: Table? = null,
   ): MySQLWhere {
-    val (currentTable, field) = if (table != null) table to getPropertyNameByTableAndPropertyIri(
+    var (currentTable, field) = if (table != null) table to getPropertyNameByTableAndPropertyIri(
       table,
       where.iri
     ).field
@@ -749,7 +749,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where,
         variableToTableMap
       )
-
+    if (where.propertyRef != null) field = where.propertyRef
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
         if (!with.joins.contains(join))
@@ -786,13 +786,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           table = currentTable.alias ?: currentTable.table
         )
       } else {
-        val fromRight = from.compare?.right?.parameter
-          ?: getValueFromRelativeTo(from, variableToTableMap)
-          ?: throw SQLConversionException("No value for range.from")
+        val fromRight = from.compare?.right?.parameter ?: from.compare?.right?.propertyRef
+        ?: getValueFromRelativeTo(from, variableToTableMap)
+        ?: throw SQLConversionException("No value for range.from")
 
-        val toRight = to.compare?.right?.parameter
-          ?: getValueFromRelativeTo(to, variableToTableMap)
-          ?: throw SQLConversionException("No value for range.to")
+        val toRight = to.compare?.right?.parameter ?: to.compare?.right?.propertyRef
+        ?: getValueFromRelativeTo(to, variableToTableMap)
+        ?: throw SQLConversionException("No value for range.to")
 
         fromWhere = MySQLCompareWhere(
           property = field,
@@ -825,7 +825,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (where.compare.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
         else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
         else null to null
-      val compareValue = where.compare.right.parameter ?: getValueFromRelativeTo(where, variableToTableMap)
+      val compareValue = where.compare.right.parameter ?: where.compare.right.propertyRef ?: getValueFromRelativeTo(
+        where,
+        variableToTableMap
+      )
       ?: throw SQLConversionException("No value provided for where $where")
       if (where.value != null)
         MySQLCompareWhere(

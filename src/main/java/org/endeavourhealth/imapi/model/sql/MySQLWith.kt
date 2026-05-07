@@ -15,7 +15,9 @@ data class MySQLWith(
   val unionWiths: MutableList<MySQLWith> = mutableListOf(),
   val unionAll: Boolean = false,
   var subQuery: MySQLWith? = null,
-  var isStep: Boolean = false
+  var isStep: Boolean = false,
+  val groupByColumns: MutableList<String> = mutableListOf(),
+  var havingClause: String? = null
 ) {
   private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->
@@ -52,6 +54,14 @@ data class MySQLWith(
 
       if (whereSql != null) {
         appendLine("  WHERE $whereSql")
+      }
+
+      if (groupByColumns.isNotEmpty()) {
+        appendLine("  GROUP BY ${groupByColumns.joinToString(", ")}")
+      }
+
+      if (havingClause != null) {
+        appendLine("  HAVING $havingClause")
       }
 
       if (orderBySql != null) {

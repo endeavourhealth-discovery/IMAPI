@@ -13,6 +13,7 @@ plugins {
   id("java-library")
   id("maven-publish")
   kotlin("jvm")
+  kotlin("plugin.spring") version "2.2.20"
 }
 
 group = "org.endeavourhealth.imapi"
@@ -103,7 +104,6 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.set.SetExportRequest",
     "org.endeavourhealth.imapi.model.imq.*",
     "org.endeavourhealth.imapi.model.eclBuilder.*",
-    "org.endeavourhealth.imapi.model.github.*",
     "org.endeavourhealth.imapi.model.workflow.*",
     "org.endeavourhealth.imapi.model.workflow.**.*",
     "org.endeavourhealth.imapi.model.DownloadEntityOptions",
@@ -120,7 +120,8 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.editor.*",
     "org.endeavourhealth.imapi.model.Namespace",
     "org.endeavourhealth.imapi.vocabulary.*",
-    "org.endeavourhealth.imapi.model.sql.SubQueryDependency"
+    "org.endeavourhealth.imapi.model.sql.SubQueryDependency",
+    "org.endeavourhealth.imapi.model.github.REPO"
   )
   outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
@@ -196,6 +197,7 @@ dependencies {
 
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
+  testImplementation(libs.cucumber.spring)
   testImplementation(libs.junit)
   testImplementation(libs.junit.suite)
   testImplementation(libs.mockito)
@@ -226,8 +228,16 @@ repositories {
 
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
-  useJUnitPlatform()
+  useJUnitPlatform {
+    excludeTags("IMQTest", "IMQFullTest")
+  }
   finalizedBy("jacocoTestReport")
+}
+
+tasks.register("imqTests", Test::class.java) {
+  useJUnitPlatform {
+    includeTags("IMQTest")
+  }
 }
 
 tasks.jacocoTestReport {

@@ -2243,4 +2243,32 @@ public class EntityRepository {
     }
     return results;
   }
+
+  public List<TTEntity> getQueryEntitiesWithDefinition() {
+    String spq = """
+      PREFIX smh: <http://smartlifehealth.info/smh#>
+      select ?s ?label ?definition
+      where {
+        ?s rdf:type im:Query .
+        ?s rdfs:label ?label .
+        ?s im:definition ?definition .
+        ?s im:scheme smh: .
+      }
+      """;
+    List<TTEntity> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          TTEntity entity = new TTEntity();
+          entity.setIri(bs.getValue("s").stringValue());
+          entity.setName(bs.getValue("label").stringValue());
+          entity.set(IM.DEFINITION, TTLiteral.literal(bs.getValue("definition").stringValue()));
+          results.add(entity);
+        }
+      }
+    }
+    return results;
+  }
 }

@@ -8,10 +8,13 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.logic.service.SecurityService
+import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.uprn.Activity
 import org.endeavourhealth.imapi.model.uprn.UploadStatus
 import org.endeavourhealth.imapi.model.uprn.UprnException
 import org.endeavourhealth.imapi.model.uprn.UprnSearchResponse
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -64,7 +67,7 @@ open class UPRNController(
   ): UprnSearchResponse? {
     MetricsHelper.recordTime("API.UPRN.getinfo.GET").use {
       log.debug("getinfo")
-      // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val uprnReq = HttpRequest.newBuilder()
         .uri(URI("$uprnUrl/api2/getinfo?adrec=${encode(adrec, Charsets.UTF_8)}&commercial=${encode(commercial, Charsets.UTF_8)}"))
@@ -89,7 +92,7 @@ open class UPRNController(
   ): List<Activity>? {
     MetricsHelper.recordTime("API.UPRN.activity.GET").use {
       log.debug("activity")
-      // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val uprnReq = HttpRequest.newBuilder()
         // .uri(URI.create("$uprnUrl/api2/activity?u=${user}"))
@@ -113,7 +116,7 @@ open class UPRNController(
   ): String? {
     MetricsHelper.recordTime("API.UPRN.download.GET").use {
       log.debug("download")
-      // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val uprnReq = HttpRequest.newBuilder()
         .uri(URI.create("$uprnUrl/api2/download3?filename=${file}"))
@@ -137,7 +140,7 @@ open class UPRNController(
   ): UploadStatus? {
     MetricsHelper.recordTime("API.UPRN.upload.POST").use {
       log.debug("upload")
-      // securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val fileContent = String(file.bytes)
       val boundary = "---" + System.currentTimeMillis()

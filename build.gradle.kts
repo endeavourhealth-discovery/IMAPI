@@ -8,8 +8,12 @@ plugins {
   id("war")
   alias(libs.plugins.typescript.generator)
   alias(libs.plugins.static.const.generator)
+  alias(libs.plugins.typescript.const.enum.to.enum)
+  alias(libs.plugins.extract.enums.from.auto.gen)
   id("java-library")
   id("maven-publish")
+  kotlin("jvm")
+  kotlin("plugin.spring") version "2.2.20"
 }
 
 group = "org.endeavourhealth.imapi"
@@ -19,23 +23,20 @@ description = "Information Model API"
 
 repositories {
   gradlePluginPortal()
+  mavenCentral()
 }
-
-java.sourceCompatibility = JavaVersion.VERSION_21
-java.targetCompatibility = JavaVersion.VERSION_21
 
 val ENV = System.getenv("ENV") ?: "dev"
 println("Build environment = [$ENV]")
-if (ENV == "prod") {
-  tasks.build { finalizedBy("safeSonar") }
-  tasks.build { finalizedBy("publish") }
-}
 
 val CI = System.getenv("CI") ?: "false"
 if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
     dependsOn("staticConstGenerator")
   }
+} else {
+  tasks.build { finalizedBy("safeSonar") }
+  tasks.build { finalizedBy("publish") }
 }
 
 tasks.register("safeSonar") {
@@ -103,9 +104,6 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.set.SetExportRequest",
     "org.endeavourhealth.imapi.model.imq.*",
     "org.endeavourhealth.imapi.model.eclBuilder.*",
-    "org.endeavourhealth.imapi.vocabulary.*",
-    "org.endeavourhealth.imapi.vocabulary.**.*",
-    "org.endeavourhealth.imapi.model.github.*",
     "org.endeavourhealth.imapi.model.workflow.*",
     "org.endeavourhealth.imapi.model.workflow.**.*",
     "org.endeavourhealth.imapi.model.DownloadEntityOptions",
@@ -119,19 +117,36 @@ tasks.generateTypeScript {
     "org.endeavourhealth.imapi.model.ConceptContextMap",
     "org.endeavourhealth.imapi.model.dto.CodeGenDto",
     "org.endeavourhealth.imapi.model.postgres.*",
-    "org.endeavourhealth.imapi.model.editor.*"
+    "org.endeavourhealth.imapi.model.editor.*",
+    "org.endeavourhealth.imapi.model.Namespace",
+    "org.endeavourhealth.imapi.vocabulary.*",
+    "org.endeavourhealth.imapi.model.sql.SubQueryDependency",
+    "org.endeavourhealth.imapi.model.github.REPO"
   )
-  outputFile = "../IMDirectory/src/interfaces/AutoGen.ts"
+  outputFile = "../VueLibrary/src/interfaces/AutoGen.ts"
   outputKind = TypeScriptOutputKind.module
   mapEnum = EnumMapping.asEnum
+  customTypeNaming = listOf(
+    "org.endeavourhealth.imapi.model.security.NamespacePermission:NamespacePermissionJava",
+    "org.endeavourhealth.imapi.model.security.User:UserJava"
+  )
+
 }
 
 tasks {
   staticConstGenerator {
     inputJson = "vocab.json"
     javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
-    typeScriptOutputFolder = "../IMDirectory/src/vocabulary/"
   }
+}
+
+typescriptConstEnumToEnum {
+  filePath.set("../VueLibrary/src/interfaces/AutoGen.ts")
+}
+
+extractEnumsFromAutoGen {
+  inputFile.set("../VueLibrary/src/interfaces/AutoGen.ts")
+  outputFile.set("../VueLibrary/src/enums/AutoGen.ts")
 }
 
 dependencies {
@@ -142,7 +157,6 @@ dependencies {
   implementation(libs.apache.text)
   implementation(libs.apache.commons.text)
   implementation(libs.assert.j)
-  implementation(libs.aws.cognito.idp)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -150,18 +164,16 @@ dependencies {
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
   implementation(libs.fact.plus.plus)
-  implementation(libs.hikari)
   implementation(libs.jackson.databind)
+  implementation(libs.jackson.kotlin)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
   implementation(libs.elasticsearch)
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
-  implementation(libs.mysql)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.rabbitmq.amqp.client)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -171,7 +183,6 @@ dependencies {
   implementation(libs.rdf4j.repo.sail)
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
-  implementation(libs.spring.amqp)
   implementation(libs.spring.context)
   implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
@@ -182,11 +193,11 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  runtimeOnly(libs.h2database)
   runtimeOnly(libs.spring.dev.tools)
 
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
+  testImplementation(libs.cucumber.spring)
   testImplementation(libs.junit)
   testImplementation(libs.junit.suite)
   testImplementation(libs.mockito)
@@ -196,13 +207,12 @@ dependencies {
 
   providedCompile(libs.spring.tomcat)
 
-  compileOnly(libs.mysqlConncector)
-  compileOnly(libs.postgres)
   compileOnly(libs.jackson.annotations)
   compileOnly(libs.lombok)
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
+  implementation(kotlin("stdlib-jdk8"))
 }
 
 repositories {
@@ -218,8 +228,16 @@ repositories {
 
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
-  useJUnitPlatform()
+  useJUnitPlatform {
+    excludeTags("IMQTest", "IMQFullTest")
+  }
   finalizedBy("jacocoTestReport")
+}
+
+tasks.register("imqTests", Test::class.java) {
+  useJUnitPlatform {
+    includeTags("IMQTest")
+  }
 }
 
 tasks.jacocoTestReport {
@@ -229,3 +247,6 @@ tasks.jacocoTestReport {
 }
 
 
+kotlin {
+  jvmToolchain(21)
+}

@@ -4,24 +4,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SetService;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.vocabulary.Graph;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.junit.jupiter.api.Test;
 
 public class ComplexECLTest {
   //@Test
   public void expanderTest() throws QueryException, JsonProcessingException {
-    new SetMemberGenerator().generateMembers(Namespace.IM+"CSET_OralCorticosteroids", Graph.IM);
+    new SetMemberGenerator().generateMembers(NAMESPACE.IM+"CSET_OralCorticosteroids", GRAPH.IM);
   }
   //@Test
   public void eclToIMQ() throws QueryException {
     ECLToIMQ eclToIMQ = new ECLToIMQ();
     Query query= eclToIMQ.convertECL(getEclComplex());
-    SearchResponse results= new EclService().eclSearch(new EclSearchRequest().setEclQuery(query));
+    SearchResponse results= new EclService().eclSearch(new ECLQueryRequest().setQuery(query));
   }
 
   public String getEclSimple(){

@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
@@ -27,10 +29,15 @@ import org.endeavourhealth.imapi.model.requests.ValidatedEntitiesRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.security.NamespacePermission;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.IriExtractor;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -39,7 +46,6 @@ import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -63,15 +69,61 @@ public class EntityController {
   private static final String APPLICATION = "application";
   private final EntityService entityService = new EntityService();
   private final GraphDtoService graphDtoService = new GraphDtoService();
-  private final RequestObjectService requestObjectService = new RequestObjectService();
   private final ProvService provService = new ProvService();
-  private final FilerService filerService;
+  private final FilerService filerService = new FilerService();
+  private final SecurityService securityService = new SecurityService();
 
-  public EntityController(FilerService filerService) {
-    this.filerService = filerService;
+  // ============================ PUBLIC ============================
+
+  @GetMapping(value = "/public/schemes")
+  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
+  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
+      log.debug("getNamespacesWithPrefixes (getSchemes)");
+      List<Namespace> namespaces = entityService.getNamespaces();
+      Map<String, Namespace> result = new HashMap<>();
+      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
+      return result;
+    }
   }
 
-  @GetMapping(value = "/public/partial", produces = "application/json")
+  @GetMapping(value = "/public/namespaces")
+  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
+  public List<Namespace> getNamespaces(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
+      log.debug("getNamespaces");
+      return entityService.getNamespaces();
+    }
+  }
+
+  @GetMapping(value = "/public/xmlSchemaDataTypes")
+  @Operation(summary = "Get XML schema data types", description = "Fetches the XML schema data types supported by the system")
+  public Set<String> getXmlSchemaDataTypes(HttpServletRequest request) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
+      log.debug("getXmlSchemaDataTypes");
+      return entityService.getXmlSchemaDataTypes();
+    }
+  }
+
+  @GetMapping("/public/filterOptions")
+  public FilterOptionsDto getFilterOptions() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FilterOptions.GET")) {
+      log.debug("getFilterOptions");
+      return entityService.getFilterOptions();
+    }
+  }
+
+  @GetMapping("/public/filterDefaults")
+  public FilterOptionsDto getFilterDefaults() {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FilterDefaults.GET")) {
+      log.debug("getFilterDefaults");
+      return entityService.getFilterDefaults();
+    }
+  }
+
+  // ============================ PROTECTED ============================
+
+  @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
   public TTEntity getPartialEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partial.GET")) {
@@ -80,7 +132,7 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/public/partials")
+  @PostMapping(value = "/protected/partials")
   @Operation(summary = "Get partial entities", description = "Fetches partial details for multiple entities based on IRIs and predicates")
   public List<TTEntity> getPartialEntities(HttpServletRequest request, @RequestBody Map<String, Object> map) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.POST")) {
@@ -95,16 +147,16 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/fullEntity", produces = "application/json")
+  @GetMapping(value = "/protected/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
+  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
     }
   }
 
-  @GetMapping(value = "/entityTypes", produces = "application/json")
+  @GetMapping(value = "/protected/entityTypes", produces = "application/json")
   @Operation(summary = "Get entity type", description = "Fetches entity types using IRI")
   public Set<String> getEntityType(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
@@ -115,7 +167,7 @@ public class EntityController {
   }
 
 
-  @GetMapping(value = "/public/partialBundle", produces = "application/json")
+  @GetMapping(value = "/protected/partialBundle", produces = "application/json")
   @Operation(summary = "Get partial entity bundle", description = "Fetches a partial entity bundle by IRI and a set of predicates")
   public TTBundle getPartialEntityBundle(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
@@ -125,7 +177,7 @@ public class EntityController {
   }
 
 
-  @GetMapping(value = "/public/entityFromTerm", produces = "application/json")
+  @GetMapping(value = "/protected/entityFromTerm", produces = "application/json")
   @Operation(summary = "Get entity bundle from term and scheme", description = "Fetches a set of partial entity bundle by term and scheme")
   public List<TTBundle> getEntityFromTerm(HttpServletRequest request, @RequestParam(name = "term") String term, @RequestParam(name = "schemes") Set<String> schemes) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.PartialBundle.GET")) {
@@ -134,9 +186,9 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/children")
+  @GetMapping(value = "/protected/children")
   @Operation(summary = "Get entity children", description = "Fetches immediate child entities of the specified entity by IRI")
-  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) Graph graph) {
+  public List<EntityReferenceNode> getEntityChildren(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size, @RequestParam(name = "graph", required = false) GRAPH graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
       log.debug("getEntityChildren");
       if (page == null && size == null) {
@@ -150,7 +202,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/asEntityReferenceNode")
+  @GetMapping(value = "/protected/asEntityReferenceNode")
   @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity as an EntityReferenceNode by IRI")
   public EntityReferenceNode getEntityAsEntityReferenceNode(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNode.GET")) {
@@ -159,7 +211,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/asEntityReferenceNodes")
+  @GetMapping(value = "/protected/asEntityReferenceNodes")
   @Operation(summary = "Get entity as reference node", description = "Fetches the specified entity iris as an EntityReferenceNode by IRI")
   public List<EntityReferenceNode> getAsEntityReferenceNodes(HttpServletRequest request, @RequestParam(name = "iris") List<String> iris) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.AsEntityReferenceNodes.GET")) {
@@ -168,7 +220,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/childrenPaged")
+  @GetMapping(value = "/protected/childrenPaged")
   @Operation(summary = "Get entity children with paging", description = "Fetches immediate children of the specified entity with pagination and total count")
   public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(
     HttpServletRequest request,
@@ -188,7 +240,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/partialAndTotalCount")
+  @GetMapping(value = "/protected/partialAndTotalCount")
   @Operation(summary = "Get partial and total count", description = "Fetches partial results and provides total count for the given entity and predicate")
   public Pageable<TTIriRef> getPartialAndTotalCount(
     HttpServletRequest request,
@@ -208,7 +260,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/downloadEntity")
+  @GetMapping(value = "/protected/downloadEntity")
   @Operation(summary = "Download entity", description = "Downloads the specified entity as a JSON file")
   public HttpEntity<Object> downloadEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws IOException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DownloadEntity.GET")) {
@@ -229,7 +281,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/parents")
+  @GetMapping(value = "/protected/parents")
   @Operation(summary = "Get entity parents", description = "Fetches immediate parent entities of the specified entity by IRI")
   public List<EntityReferenceNode> getEntityParents(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
@@ -238,7 +290,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/usages")
+  @GetMapping(value = "/protected/usages")
   @Operation(summary = "Get entity usages", description = "Fetches usage details of the specified entity using IRI with pagination options")
   public List<TTEntity> entityUsages(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
@@ -247,7 +299,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/usagesTotalRecords")
+  @GetMapping("/protected/usagesTotalRecords")
   @Operation(summary = "Get total records for usages", description = "Fetches the total number of records for the usages of a specified entity by IRI")
   public Integer totalRecords(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UsagesTotalRecords.GET")) {
@@ -256,39 +308,27 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/create")
-  @PreAuthorize("hasAuthority('CREATOR')")
-  @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws TTFilerException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
-      log.debug("createEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.createEntity(editRequest, agentName);
+  @GetMapping(value = "/protected/entityExists")
+  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists (iri with RDF.TYPE). ")
+  public boolean entityExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
+      log.debug("entityExists");
+      NAMESPACE namespace = NAMESPACE.from(iri.substring(0, iri.indexOf("#") + 1));
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
+      return entityService.entityExists(iri);
     }
   }
 
-
-  @GetMapping(value = "/checkExists")
-  @Operation(summary = "Check entity exists", description = "Checks whether an entity exists. ")
-  public boolean checkExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Exists.POST")) {
-      log.debug("checkEntityExists");
-      return entityService.checkEntityExists(iri);
+  @GetMapping("/protected/iriExists")
+  @Operation(summary = "Check if IRI exists", description = "Checks if a specified IRI exists in the system")
+  public Boolean iriExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
+      log.debug("iriExists");
+      return entityService.iriExists(iri);
     }
   }
 
-  @PostMapping(value = "/update")
-  @PreAuthorize("hasAuthority('EDITOR')")
-  @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
-      log.debug("updateEntity");
-      String agentName = requestObjectService.getRequestAgentName(request);
-      return filerService.updateEntity(editRequest.getEntity(), agentName);
-    }
-  }
-
-  @GetMapping("/public/summary")
+  @GetMapping("/protected/summary")
   @Operation(summary = "Get entity summary", description = "Fetches a summary of the search results for the specified entity by IRI")
   public SearchResultSummary getSummary(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
@@ -297,7 +337,7 @@ public class EntityController {
     }
   }
 
-  @PostMapping("/public/downloadSearchResults")
+  @PostMapping("/protected/downloadSearchResults")
   @Operation(summary = "Download search results", description = "Downloads search results in specified format (e.g., xlsx, csv, tsv) for the given query options.")
   public HttpEntity<Object> downloadSearchResults(
     HttpServletRequest request,
@@ -336,7 +376,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/folderPath")
+  @GetMapping("/protected/folderPath")
   @Operation(summary = "Get folder path", description = "Fetches the folder path of an entity specified by its IRI")
   public List<TTIriRef> getFolderPath(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
@@ -345,7 +385,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/shortestParentHierarchy")
+  @GetMapping("/protected/shortestParentHierarchy")
   @Operation(summary = "Get shortest parent hierarchy", description = "Fetches the shortest parent hierarchy between an ancestor and a descendant by their IRIs")
   public List<TTIriRef> getShortestPathBetweenNodes(HttpServletRequest request, @RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
@@ -354,16 +394,8 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/iriExists")
-  @Operation(summary = "Check if IRI exists", description = "Checks if a specified IRI exists in the system")
-  public Boolean iriExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.IriExists.GET")) {
-      log.debug("iriExists");
-      return entityService.iriExists(iri);
-    }
-  }
 
-  @GetMapping("/public/entityByPredicateExclusions")
+  @GetMapping("/protected/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
   public TTEntity getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
@@ -372,7 +404,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/bundleByPredicateExclusions")
+  @GetMapping("/protected/bundleByPredicateExclusions")
   @Operation(summary = "Get bundle by predicate exclusions", description = "Fetches a bundle of entities identified by IRI, excluding specified predicates")
   public TTBundle getBundleByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.BundleByPredicateExclusions.GET")) {
@@ -381,7 +413,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/predicates")
+  @GetMapping(value = "/protected/predicates")
   @Operation(summary = "Get predicates of an entity", description = "Fetches the predicates associated with a specified entity IRI")
   public Set<String> getPredicates(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
@@ -390,7 +422,7 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/public/validatedEntity")
+  @PostMapping(value = "/protected/validatedEntity")
   @Operation(summary = "Get validated entities by codes", description = "Fetches a list of validated entities for the provided SNOMED codes")
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(HttpServletRequest request, @RequestBody ValidatedEntitiesRequest validatedEntitiesRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ValidatedEntity.POST")) {
@@ -399,7 +431,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/detailsDisplay")
+  @GetMapping(value = "/protected/detailsDisplay")
   @Operation(summary = "Get entity details display", description = "Fetches the detailed display information for an entity specified by its IRI")
   public TTBundle getDetailsDisplay(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DetailsDisplay.GET")) {
@@ -408,7 +440,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/detailsDisplay/loadMore")
+  @GetMapping(value = "/protected/detailsDisplay/loadMore")
   @Operation(summary = "Load more details display", description = "Fetches additional details for an entity, based on a predicate and pagination options")
   public TTBundle getDetailsDisplayLoadMore(
     HttpServletRequest request,
@@ -423,7 +455,7 @@ public class EntityController {
     }
   }
 
-  @PostMapping(value = "/public/validate")
+  @PostMapping(value = "/protected/validate")
   @Operation(summary = "Validate entity", description = "Validates an entity using the provided validation request details")
   public EntityValidationResponse validateEntity(
     HttpServletRequest request,
@@ -435,7 +467,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/type/entities")
+  @GetMapping(value = "/protected/type/entities")
   @Operation(summary = "Get entities by type", description = "Fetches entities that match the specified type IRI")
   public List<TTIriRef> getEntitiesByType(HttpServletRequest request, @RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
@@ -444,37 +476,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping(value = "/public/schemes")
-  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
-      log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Namespace> namespaces = entityService.getNamespaces();
-      Map<String, Namespace> result = new HashMap<>();
-      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
-      return result;
-    }
-  }
-
-  @GetMapping(value = "/public/namespaces")
-  @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public List<Namespace> getNamespaces(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
-      log.debug("getNamespaces");
-      return entityService.getNamespaces();
-    }
-  }
-
-  @GetMapping(value = "/public/xmlSchemaDataTypes")
-  @Operation(summary = "Get XML schema data types", description = "Fetches the XML schema data types supported by the system")
-  public Set<String> getXmlSchemaDataTypes(HttpServletRequest request) {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.XmlSchemaDataTypes.GET")) {
-      log.debug("getXmlSchemaDataTypes");
-      return entityService.getXmlSchemaDataTypes();
-    }
-  }
-
-  @GetMapping(value = "/public/graph")
+  @GetMapping(value = "/protected/graph")
   @Operation(summary = "Get graph data", description = "Fetches graph data for an entity specified by its IRI")
   public GraphDto getGraphData(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Graph.Graph.GET")) {
@@ -483,7 +485,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/history")
+  @GetMapping("/protected/history")
   @Operation(summary = "Get provenance history", description = "Fetches the provenance history of an entity specified by its IRI")
   public List<TTEntity> getProvHistory(@RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
@@ -492,23 +494,7 @@ public class EntityController {
     }
   }
 
-  @GetMapping("/public/filterOptions")
-  public FilterOptionsDto getFilterOptions() {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
-      log.debug("getFilterOptions");
-      return entityService.getFilterOptions();
-    }
-  }
-
-  @GetMapping("/public/filterDefaults")
-  public FilterOptionsDto getFilterDefaults() {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.History.GET")) {
-      log.debug("getFilterDefaults");
-      return entityService.getFilterDefaults();
-    }
-  }
-
-  @GetMapping("/public/allowableChildTypes")
+  @GetMapping("/protected/allowableChildTypes")
   @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
   public List<TTEntity> getAllowableChildTypes(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
@@ -517,8 +503,7 @@ public class EntityController {
     }
   }
 
-
-  @GetMapping(value = "/public/childIris")
+  @GetMapping(value = "/protected/childIris")
   @Operation(summary = "Get entity children not paged", description = "Fetches immediate child iris of the specified entity by IRI")
   public List<String> getChildEntities(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.GET")) {
@@ -528,7 +513,7 @@ public class EntityController {
   }
 
 
-  @PostMapping(value = "/public/iriDetails")
+  @PostMapping(value = "/protected/iriDetails")
   @Operation(summary = "Get names and types for iris in object", description = "Fetches names and types for the iris in the object")
   public Map<String, Entity> getChildEntities(HttpServletRequest request, @RequestBody Object object) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.POST")) {
@@ -537,4 +522,29 @@ public class EntityController {
       return entityService.getIriDetails(iris);
     }
   }
+
+  // ============================ PRIVATE ============================
+
+  @PostMapping(value = "/private/create")
+  @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
+  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
+      log.debug("createEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
+      User user = securityService.getUser(request);
+      return filerService.createEntity(editRequest, user.getUsername());
+    }
+  }
+
+  @PostMapping(value = "/private/update")
+  @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
+  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
+      log.debug("updateEntity");
+      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
+      User user = securityService.getUser(request);
+      return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
+    }
+  }
+
 }

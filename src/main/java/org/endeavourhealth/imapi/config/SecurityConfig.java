@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.errorhandling.RestAccessDeniedHandler;
 import org.endeavourhealth.imapi.errorhandling.RestAuthenticationEntryPoint;
 import org.endeavourhealth.imapi.utility.EnvHelper;
@@ -12,24 +13,26 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
+@Slf4j
 @Configuration
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class SecurityConfig {
 
-
   @Bean
   protected SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
+    log.debug("filterChain");
+
     http
+      .cors(cors -> cors.configurationSource(corsFilter()))
       .csrf(AbstractHttpConfigurer::disable)
       .authorizeHttpRequests(this::setRequestPermissions)
       .exceptionHandling(ex -> ex
@@ -37,8 +40,23 @@ public class SecurityConfig {
         .authenticationEntryPoint(authenticationEntryPoint())
       )
       .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .oauth2ResourceServer(oa2 -> oa2.jwt(jwt -> jwt.jwtAuthenticationConverter(grantedAuthoritiesExtractor())));
+      .addFilterBefore(new SessionCookieAuthFilter(), BasicAuthenticationFilter.class);
     return http.build();
+  }
+
+  @Bean
+  public UrlBasedCorsConfigurationSource corsFilter() {
+    log.debug("filterChain");
+    CorsConfiguration config = new CorsConfiguration();
+    String corsList = System.getenv().getOrDefault("CORS_ALLOWED_ORIGINS", "http://localhost:8082");
+    log.debug(corsList);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    config.setAllowCredentials(true);
+    config.setAllowedOrigins(Arrays.stream(corsList.split(",")).toList());
+    config.setAllowedMethods(Arrays.asList("POST", "GET", "DELETE", "PUT", "OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("X-Requested-From", "Origin", "Content-Type", "Accept", "Authorization"));
+    source.registerCorsConfiguration("/**", config);
+    return source;
   }
 
   @Bean
@@ -47,30 +65,34 @@ public class SecurityConfig {
   }
 
   protected void setRequestPermissions(AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry req) {
+    log.debug("setRequestPermission");
     req.requestMatchers(HttpMethod.OPTIONS).permitAll();
-    if (EnvHelper.isPublicMode()) {
-      req.requestMatchers(HttpMethod.GET, "/api/**/public/**").permitAll()
-        .requestMatchers(HttpMethod.POST, "/api/**/public/**").permitAll()
-//        .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-        .requestMatchers(HttpMethod.GET, "/webjars/**").permitAll();
-    }
 
     req.requestMatchers(HttpMethod.GET, "/").permitAll()
       .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/status/public/**").permitAll()
       .requestMatchers(HttpMethod.POST, "/oauth/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/swagger-ui/**").permitAll()
       .requestMatchers(HttpMethod.GET, "/v3/api-docs/**").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/cognito/public/config").permitAll()
-      // Temporary for testing Smartlife API
       .requestMatchers(HttpMethod.GET, "/api/fhir/r4/**").permitAll()
-      .requestMatchers(HttpMethod.GET, "/api/entity/public/partial").permitAll()
-      .requestMatchers(HttpMethod.POST, "/api/query/public/sql").permitAll()
-      // -----------------------------------
-      .anyRequest().authenticated();
+
+      .requestMatchers(HttpMethod.GET, "/api/*/public/**").permitAll()
+      .requestMatchers(HttpMethod.POST, "/api/*/public/**").permitAll();
+
+
+    if (EnvHelper.isPublicMode()) {
+      log.info("Security mode: PUBLIC");
+        req.requestMatchers(HttpMethod.GET, "/api/*/protected/**").permitAll()
+        .requestMatchers(HttpMethod.POST, "/api/*/protected/**").permitAll();
+    } else {
+      log.info("Security mode: PRIVATE");
+    }
+
+    req.anyRequest().authenticated();
   }
 
   private HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+    log.debug("allowUrlEncodedSlashHttpFirewall");
+
     StrictHttpFirewall firewall = new StrictHttpFirewall();
     firewall.setAllowUrlEncodedSlash(true);
     firewall.setAllowUrlEncodedDoubleSlash(true);
@@ -78,24 +100,13 @@ public class SecurityConfig {
     return firewall;
   }
 
-  private JwtAuthenticationConverter grantedAuthoritiesExtractor() {
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
-        List<String> list = jwt.getClaimAsStringList("cognito:groups");
-        if (list != null && !list.isEmpty())
-          return list.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
-        else
-          return null;
-      }
-    );
-    return jwtAuthenticationConverter;
-  }
-
   RestAccessDeniedHandler accessDeniedHandler() {
+    log.debug("accessDeniedHandler");
     return new RestAccessDeniedHandler();
   }
 
   RestAuthenticationEntryPoint authenticationEntryPoint() {
+    log.debug("authenticationEntryPoint");
     return new RestAuthenticationEntryPoint();
   }
 }

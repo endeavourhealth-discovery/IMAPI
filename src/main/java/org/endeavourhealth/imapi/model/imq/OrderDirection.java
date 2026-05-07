@@ -1,8 +1,28 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class OrderDirection extends RelativeTo {
+public class OrderDirection extends IriLD{
   private Order direction;
   private FunctionClause function;
+  private String nodeRef;
+  private String variable;
+
+  public String getVariable() {
+    return variable;
+  }
+
+  public OrderDirection setVariable(String variable) {
+    this.variable = variable;
+    return this;
+  }
+
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public OrderDirection setNodeRef(String nodeRef){
+    this.nodeRef = nodeRef;
+    return this;
+  }
 
   public FunctionClause getFunction() {
     return function;
@@ -12,10 +32,6 @@ public class OrderDirection extends RelativeTo {
     return this;
   }
 
-  public  OrderDirection setNodeRef(String nodeRef){
-    super.setNodeRef(nodeRef);
-    return this;
-  }
 
   public Order getDirection() {
     return direction;

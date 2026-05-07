@@ -3,20 +3,16 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
 
 import java.util.*;
 
 public class LogicOptimizer {
-  Set<String> commonMatches;
   final ObjectMapper mapper = new ObjectMapper();
-  private String lastTypeOf;
-
-
-
+  Set<String> commonMatches;
+  private Map<String, Match> keepMatches = new HashMap<>();
 
   public static void optimizeQuery(Query query) {
-    flattenMatch(query);
+    //flattenMatch(query);
     cleanBooleans(query);
   }
 
@@ -29,92 +25,9 @@ public class LogicOptimizer {
     mergeNested(query);
   }
 
-
-  public void deduplicateQuery(Query query, Namespace namespace) throws JsonProcessingException {
-    if (query.getRule() != null) {
-      for (Match rule : query.getRule()) {
-        deduplicateRule(rule, namespace);
-      }
-    }
-  }
-
-  private void deduplicateRule(Match rule, Namespace namespace) throws JsonProcessingException {
-    Map<String, String> criteriaNodeRef = new HashMap<>();
-    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr(), rule.getNot())) {
-      if (matches != null) {
-        for (int i = 0; i < matches.size(); i++) {
-          Match match = matches.get(i);
-          Match logicalMatch = getLogicalMatch(match);
-          String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
-          if (criteriaNodeRef.containsKey(libraryIri)) {
-            if (matches.size() > i + 1) {
-              Match linkedMatch = matches.get(i + 1);
-              if (isLinkedMatch(linkedMatch) && linkedMatch.getWhere() != null) {
-                Where where = linkedMatch.getWhere();
-                if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) {
-                  where.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
-                }
-                if (where.getAnd() != null) {
-                  for (Where andWhere : where.getAnd()) {
-                    if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) {
-                      andWhere.getRelativeTo().setNodeRef(criteriaNodeRef.get(libraryIri));
-                    }
-                  }
-                }
-              }
-            }
-            matches.remove(i);
-            i--;
-          } else if (match.getReturn() != null && match.getReturn().getAs() != null) {
-            criteriaNodeRef.put(libraryIri, match.getReturn().getAs());
-          }
-        }
-      }
-    }
-  }
-
-
-  public Match getLogicalMatch(Match match) throws JsonProcessingException {
-    String matchJson = mapper.writeValueAsString(match);
-    Match logicalMatch = mapper.readValue(matchJson, Match.class);
-    if (logicalMatch.getReturn() != null) {
-      logicalMatch.getReturn().setAs(null);
-    }
-    if (logicalMatch.getPath() != null) {
-      for (Path path : logicalMatch.getPath()) {
-        logicalPath(path);
-      }
-    }
-    if (logicalMatch.getWhere() != null) {
-      logicalWhere(logicalMatch.getWhere());
-    }
-    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr(), logicalMatch.getNot())) {
-      if (matches != null) {
-        for (int i = 0; i < matches.size(); i++) {
-          Match subMatch = matches.get(i);
-          Match logicalSubMatch = getLogicalMatch(subMatch);
-          matches.set(i, logicalSubMatch);
-        }
-      }
-    }
-
-    return logicalMatch;
-  }
-
-  private void logicalWhere(Where where) {
-    where.setNodeRef(null);
-    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
-      if (wheres != null) {
-        for (Where subWhere : wheres) {
-          logicalWhere(subWhere);
-        }
-      }
-    }
-  }
-
   private static void logicalPath(Path path) {
     if (path == null) return;
-    path.setVariable(null);
+    path.setNode(null);
     if (path.getPath() != null)
       for (Path subPath : path.getPath()) {
         logicalPath(subPath);
@@ -134,11 +47,28 @@ public class LogicOptimizer {
 
   public static boolean isLinkedMatch(Match match) {
     if (match.getWhere() != null) {
-      Where where = match.getWhere();
-      if (where.getRelativeTo() != null && where.getRelativeTo().getNodeRef() != null) return true;
-      if (where.getAnd() != null) {
-        for (Where andWhere : where.getAnd()) {
-          if (andWhere.getRelativeTo() != null && andWhere.getRelativeTo().getNodeRef() != null) return true;
+      return isLinkedWhere(match.getWhere());
+    } else return false;
+  }
+
+  public static boolean isLinkedWhere(Where where) {
+
+    if (where.getCompare() != null) {
+      if (where.getCompare().getLeft() != null) {
+        if (where.getCompare().getLeft().getNodeRef() != null) {
+          return true;
+        }
+      }
+      if (where.getCompare().getRight() != null) {
+        if (where.getCompare().getRight().getNodeRef() != null) {
+          return true;
+        }
+      }
+    }
+    if (where.getAnd() != null) {
+      for (Where andWhere : where.getAnd()) {
+        if (isLinkedWhere(andWhere)) {
+          return true;
         }
       }
     }
@@ -149,10 +79,7 @@ public class LogicOptimizer {
     match.setIs(nestedMatch.getIs());
     match.setOr(nestedMatch.getOr());
     match.setAnd(nestedMatch.getAnd());
-    if (nestedMatch.getNot() != null) {
-      if (match.getNot() == null) match.setNot(nestedMatch.getNot());
-      else match.getNot().addAll(nestedMatch.getNot());
-    }
+    match.setNotExists(nestedMatch.notExists());
     if (nestedMatch.getWhere() != null) {
       if (match.getWhere() == null) match.setWhere(nestedMatch.getWhere());
       else {
@@ -163,40 +90,171 @@ public class LogicOptimizer {
     }
   }
 
-
-  private static  void cleanBoolGroup(Match group, Match parent, Bool parentOp, Integer parentIndex) {
-    clean(group, parent, parentOp, parentIndex, Bool.and);
-    clean(group, parent, parentOp, parentIndex, Bool.or);
+  private static void cleanBoolGroup(Match group, Match parent, Integer parentIndex) {
+    clean(group, parent, parentIndex);
   }
 
-  private static void clean(Match group, Match parent, Bool parentOp, Integer parentIndex, Bool op) {
-    List<Match> list = (op == Bool.and) ? group.getAnd() : group.getOr();
-    if (list == null) return;
-    for (int i = 0; i < list.size(); i++) {
-      cleanBoolGroup(list.get(i), group, op, i);
-    }
-    if (list.isEmpty()) {
-      if (op == Bool.and) group.setAnd(null);
-      else group.setOr(null);
-    } else if (list.size() == 1 && parent != null) {
-      Match only = list.getFirst();
-      if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
-      else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
+  private static void clean(Match group, Match parent, Integer parentIndex) {
+    for (List<Match> list : Arrays.asList(group.getAnd(), group.getOr())) {
+      if (list != null) {
+        for (int i = 0; i < list.size(); i++) {
+          cleanBoolGroup(list.get(i), group, i);
+        }
+        Bool op = getBoolOp(group);
+        if (list.isEmpty()) {
+          if (op == Bool.and) group.setAnd(null);
+          else group.setOr(null);
+        } else if (list.size() == 1 && parent != null) {
+          Bool parentOp = getBoolOp(parent);
+          Match only = list.getFirst();
+          if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
+          else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
+        }
+      }
     }
   }
 
+  private static Bool getBoolOp(Match group) {
+    if (group.getAnd() != null) return Bool.and;
+    if (group.getOr() != null) return Bool.or;
+    else return null;
+  }
 
   private static void cleanBooleans(Match match) {
-    cleanBoolGroup(match, null, null, null);
+    cleanBoolGroup(match, null, null);
+  }
+
+  private static void flattenWhere(Where where) {
+    if (where.getAnd() != null) {
+      List<Where> flatWheres = new ArrayList<>();
+      for (Where child : where.getAnd()) {
+        if (child.getAnd() != null && child.getOr() == null) {
+          flatWheres.addAll(child.getAnd());
+        } else flatWheres.add(child);
+        flattenWhere(child);
+      }
+      where.setAnd(flatWheres);
+    }
+    if (where.getOr() != null) {
+      List<Where> flatWheres = new ArrayList<>();
+      for (Where child : where.getOr()) {
+        if (child.getOr() != null && child.getAnd() == null) {
+          flatWheres.addAll(child.getOr());
+        } else flatWheres.add(child);
+        flattenWhere(child);
+      }
+      where.setOr(flatWheres);
+    }
+  }
+
+  public void resolveReturns(Match match) throws QueryException {
+    setKeepMatches(match);
+    injectKeepReturns(match);
+  }
+
+  private void injectKeepReturns(Match match) {
+    if (match.getWhere() != null) {
+      injectKeepReturns(match.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          injectKeepReturns(subMatch);
+        }
+      }
+    }
+  }
+
+  private void injectKeepReturns(Where where) {
+    if (where.getCompare() != null) {
+      ValueSource right = where.getCompare().getRight();
+      String nodeRef = right.getNodeRef();
+      if (nodeRef == null) return;
+      Match match = keepMatches.get(nodeRef);
+      if (right.getIri() != null) {
+        String alias = right.getIri().substring(right.getIri().lastIndexOf("#") + 1);
+        match.addReturn(new Return()
+          .setIri(right.getIri())
+          .setAs(alias));
+        right.setPropertyRef(alias);
+      }
+    }
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) {
+        for (Where subWhere : wheres) {
+          injectKeepReturns(subWhere);
+        }
+      }
+    }
   }
 
 
-  public void resolveLogic(Match match, DisplayMode displayMode) throws JsonProcessingException {
-    if (displayMode == DisplayMode.LOGICAL) {
-      getLogicFromRules(match);
-      optimiseMatch(match);
-    } else {
-      optimiseMatch(match);
+  public void setKeepMatches(Match match) throws QueryException {
+    if (match.getNode() != null) {
+      if (keepMatches.containsKey(match.getNode())) {
+        throw new QueryException("Duplicate match node node: " + match.getNode());
+      }
+      keepMatches.put(match.getNode(), match);
+    }
+    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+      if (matches != null) {
+        for (Match subMatch : matches) {
+          setKeepMatches(subMatch);
+        }
+      }
+    }
+
+  }
+
+  public Match getLogicalMatch(Match match) throws JsonProcessingException {
+    String matchJson = mapper.writeValueAsString(match);
+    Match logicalMatch = mapper.readValue(matchJson, Match.class);
+    logicalMatch.setUuid(null);
+    if (logicalMatch.getPath() != null) {
+      for (Path path : logicalMatch.getPath()) {
+        logicalPath(path);
+      }
+    }
+    if (logicalMatch.getWhere() != null) {
+      logicalWhere(logicalMatch.getWhere());
+    }
+    for (List<Match> matches : Arrays.asList(logicalMatch.getAnd(), logicalMatch.getOr())) {
+      if (matches != null) {
+        for (int i = 0; i < matches.size(); i++) {
+          Match subMatch = matches.get(i);
+          Match logicalSubMatch = getLogicalMatch(subMatch);
+          matches.set(i, logicalSubMatch);
+        }
+      }
+    }
+
+    return logicalMatch;
+  }
+
+  private void logicalWhere(Where where) {
+    where.setUuid(null);
+    where.setNodeRef(null);
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) {
+        for (Where subWhere : wheres) {
+          logicalWhere(subWhere);
+        }
+      }
+    }
+  }
+
+  public void resolveLogic(Match match, DisplayMode displayMode) throws QueryException {
+    try {
+      if (displayMode == DisplayMode.LOGICAL) {
+        getLogicFromRules(match);
+        optimiseMatch(match);
+      } else {
+        optimiseMatch(match);
+      }
+      flattenMatch(match);
+      resolveReturns(match);
+    } catch (Exception e) {
+      throw new QueryException("Error resolving logic", e);
     }
   }
 
@@ -225,19 +283,25 @@ public class LogicOptimizer {
           }
           break;
         case "REJECT_SELECT":
-          match.addNot(subMatch);
+          subMatch.setNotExists(true);
+          if (topOr != null) {
+            topOr.addOr(subMatch);
+            topOr = null;
+          } else match.addAnd(subMatch);
           break;
         case "REJECT_NEXT":
-          match.addNot(subMatch);
+          subMatch.setNotExists(true);
+          match.addAnd(subMatch);
           break;
         case "NEXT_SELECT":
+          subMatch.setNotExists(true);
           if (topOr != null) {
-            topOr.addNot(subMatch);
+            topOr.addOr(subMatch);
             topOr = null;
           } else {
             topOr = new Match();
             match.addAnd(topOr);
-            topOr.addNot(subMatch);
+            topOr.addOr(subMatch);
           }
           break;
         case "NEXT_REJECT":
@@ -246,6 +310,7 @@ public class LogicOptimizer {
       }
     }
     match.setRule(null);
+
   }
 
   public void optimiseMatch(Match match) throws JsonProcessingException {
@@ -253,43 +318,76 @@ public class LogicOptimizer {
     optimizeOrMatches(match);
   }
 
+  private void flattenMatch(Match match) {
+    if (match.getOr() != null) {
+      List<Match> flatOrs = new ArrayList<>();
+      flattenOrs(match, flatOrs);
+      if (!flatOrs.isEmpty()) match.setOr(flatOrs);
+    } else if (match.getAnd() != null) {
+      List<Match> flatAnds = new ArrayList<>();
+      flattenAnds(match, flatAnds);
+      if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
+    }
+  }
+
+  private void flattenAnds(Match match, List<Match> flatAnds) {
+    for (Match subMatch : match.getAnd()) {
+      if (subMatch.getAnd() == null) {
+        flatAnds.add(subMatch);
+        flattenMatch(subMatch);
+      } else {
+        flattenAnds(subMatch, flatAnds);
+      }
+    }
+  }
+
+  private void flattenOrs(Match match, List<Match> flatOrs) {
+    for (Match subMatch : match.getOr()) {
+      if (subMatch.getOr() == null) {
+        flatOrs.add(subMatch);
+        flattenMatch(subMatch);
+      } else {
+        flattenOrs(subMatch, flatOrs);
+      }
+    }
+  }
+
   private void optimizeAndMatches(Match match) throws JsonProcessingException {
     commonMatches = new HashSet<>();
 
     if (match.getAnd() == null) return;
-    if (match.getWhere() == null && match.getIs()==null){
-      if (match.getAnd().size() > 1){
-      List<Match> originalAnds = match.getAnd();
-      List<Match> optimalAnds = new ArrayList<>();
-      getCommonAnds(originalAnds, commonMatches, optimalAnds);
-      if (commonMatches.isEmpty()) return;
-      for (Match andMatch : originalAnds) {
-        if (andMatch.getAnd() != null) {
-          for (Match subMatch : andMatch.getAnd()) {
-            String content = LogicComparer.serializeMatchLogic(subMatch);
-            if (!commonMatches.contains(content)) {
-              optimalAnds.add(subMatch);
+    if (match.getWhere() == null && match.getIs() == null) {
+      if (match.getAnd().size() > 1) {
+        List<Match> originalAnds = match.getAnd();
+        List<Match> optimalAnds = new ArrayList<>();
+        getCommonAnds(originalAnds, commonMatches, optimalAnds);
+        if (commonMatches.isEmpty()) return;
+        for (Match andMatch : originalAnds) {
+          if (andMatch.getAnd() != null) {
+            for (Match subMatch : andMatch.getAnd()) {
+              String content = LogicComparer.serializeMatchLogic(subMatch);
+              if (!commonMatches.contains(content)) {
+                optimalAnds.add(subMatch);
+              }
             }
           }
         }
-      }
-      match.setAnd(optimalAnds);
-    }
-    else if (match.getAnd().size() == 1) {
-      Match and= match.getAnd().getFirst();
-      if (and.getWhere()==null&&and.getReturn()==null){
-        if (and.getOr()!=null){
-          match.setOr(and.getOr());
-          match.setAnd(null);
-          match.setReturn(and.getReturn());
-          match.setNot(and.getNot());
-        } else if (and.getAnd()!=null){
+        match.setAnd(optimalAnds);
+      } else if (match.getAnd().size() == 1) {
+        Match and = match.getAnd().getFirst();
+        if (and.getWhere() == null && and.getReturn() == null) {
+          if (and.getOr() != null) {
+            match.setOr(and.getOr());
+            match.setAnd(null);
+            match.setReturn(and.getReturn());
+            match.setNotExists(and.notExists());
+          } else if (and.getAnd() != null) {
             match.setAnd(and.getAnd());
             match.setOr(null);
             match.setReturn(and.getReturn());
           }
         }
-     }
+      }
     }
   }
 
@@ -326,7 +424,6 @@ public class LogicOptimizer {
 
   }
 
-
   private void getCommonAnds(List<Match> matches, Set<String> commonMatches, List<Match> ands) throws JsonProcessingException {
     Match first = matches.getFirst();
     if (first.getAnd() != null) {
@@ -343,7 +440,6 @@ public class LogicOptimizer {
 
     }
   }
-
 
   private boolean isCommon(List<Match> matches, String content, int index) throws JsonProcessingException {
     if (index > matches.size() - 1) return true;
@@ -362,69 +458,29 @@ public class LogicOptimizer {
     return false;
   }
 
-
-  public static void flattenMatch(Match match) {
-    if (match.getAnd() != null) {
-      List<Match> flatMatches = new ArrayList<>();
-      for (Match child : match.getAnd()) {
-        if (child.getAnd() != null && child.getOr() == null && child.getNot() == null) {
-          flatMatches.addAll(child.getAnd());
-        } else flatMatches.add(child);
-        flattenMatch(child);
-      }
-      match.setAnd(flatMatches);
-    }
-    if (match.getOr() != null) {
-      List<Match> flatMatches = new ArrayList<>();
-      for (Match child : match.getOr()) {
-        if (child.getOr() != null && child.getAnd() == null && child.getNot() == null) {
-          flatMatches.addAll(child.getOr());
-        } else flatMatches.add(child);
-        flattenMatch(child);
-      }
-      match.setOr(flatMatches);
-    }
-    if (match.getWhere() != null) {
-      flattenWhere(match.getWhere());
-    }
-  }
-
-  private static void flattenWhere(Where where) {
-    if (where.getAnd() != null) {
-      List<Where> flatWheres = new ArrayList<>();
-      for (Where child : where.getAnd()) {
-        if (child.getAnd() != null && child.getOr() == null) {
-          flatWheres.addAll(child.getAnd());
-        } else flatWheres.add(child);
-        flattenWhere(child);
-      }
-      where.setAnd(flatWheres);
-    }
-    if (where.getOr() != null) {
-      List<Where> flatWheres = new ArrayList<>();
-      for (Where child : where.getOr()) {
-        if (child.getOr() != null && child.getAnd() == null) {
-          flatWheres.addAll(child.getOr());
-        } else flatWheres.add(child);
-        flattenWhere(child);
-      }
-      where.setOr(flatWheres);
-    }
-  }
-
-
   public void getRulesFromLogic(Query query) {
-    if (query.getAnd() == null && query.getOr() == null && query.getNot() == null) return;
+    if (query.getAnd() == null && query.getOr() == null) return;
     if (query.getAnd() != null) {
       for (Match match : query.getAnd()) {
         query.addRule(match);
-        match.setIfTrue(RuleAction.NEXT);
-        match.setIfFalse(RuleAction.REJECT);
+        if (match.notExists()) {
+          match.setIfTrue(RuleAction.REJECT);
+          match.setIfFalse(RuleAction.NEXT);
+        } else {
+          match.setIfTrue(RuleAction.NEXT);
+          match.setIfFalse(RuleAction.REJECT);
+        }
       }
-      if (query.getOr() == null && query.getNot() == null) {
+      if (query.getOr() == null) {
         Match lastRule = query.getRule().getLast();
-        lastRule.setIfTrue(RuleAction.SELECT);
-        lastRule.setIfFalse(RuleAction.REJECT);
+        if (lastRule.notExists()) {
+          lastRule.setIfTrue(RuleAction.REJECT);
+          lastRule.setIfFalse(RuleAction.SELECT);
+
+        } else {
+          lastRule.setIfTrue(RuleAction.SELECT);
+          lastRule.setIfFalse(RuleAction.REJECT);
+        }
       }
     }
     if (query.getOr() != null) {
@@ -436,27 +492,16 @@ public class LogicOptimizer {
         orRule.addOr(match);
       }
       Match lastRule = orRule.getRule().getLast();
-      if (query.getNot() == null) {
-        lastRule.setIfTrue(RuleAction.SELECT);
-        lastRule.setIfFalse(RuleAction.REJECT);
+      if (lastRule.notExists()) {
+        lastRule.setIfTrue(RuleAction.REJECT);
+        lastRule.setIfFalse(RuleAction.SELECT);
       } else {
         lastRule.setIfTrue(RuleAction.SELECT);
-        lastRule.setIfFalse(RuleAction.NEXT);
+        lastRule.setIfFalse(RuleAction.REJECT);
       }
-    }
-    if (query.getNot() != null) {
-      for (Match match : query.getNot()) {
-        query.addRule(match);
-        match.setIfTrue(RuleAction.REJECT);
-        match.setIfFalse(RuleAction.NEXT);
-      }
-      Match lastRule = query.getRule().getLast();
-      lastRule.setIfTrue(RuleAction.REJECT);
-      lastRule.setIfFalse(RuleAction.SELECT);
     }
     query.setAnd(null);
     query.setOr(null);
-    query.setNot(null);
   }
 
 }

@@ -27,14 +27,12 @@ public class IriCollector {
     }
     collectMatchIris(query, iris);
   }
-  private static void collectReturnIris(Return ret, Set<String> iriSet) {
-    if (ret.getProperty() != null) {
-      for (ReturnProperty prop : ret.getProperty()) {
-        if (prop.getIri() != null) iriSet.add(prop.getIri());
-        if (prop.getReturn() != null) {
-          collectReturnIris(prop.getReturn(), iriSet);
-        }
-      }
+
+
+  private static void collectReturnIris(Return prop, Set<String> iriSet) {
+    if (prop.getIri() != null) iriSet.add(prop.getIri());
+    if (prop.getFunction()!=null){
+      collectFunctionIris(prop.getFunction(),iriSet);
     }
   }
 
@@ -88,17 +86,19 @@ public class IriCollector {
         collectMatchIris(subMatch, iriSet);
       }
     }
-    if (match.getNot() != null) {
-      for (Match subMatch : match.getNot()) {
-        collectMatchIris(subMatch, iriSet);
-      }
-    }
+
 
     if (match.getWhere() != null) {
       collectWhereIris(match.getWhere(), iriSet);
     }
+
+    if (match.getThen() != null) {
+      collectWhereIris(match.getThen(), iriSet);
+    }
     if (match.getReturn() != null) {
-       collectReturnIris(match.getReturn(), iriSet);
+      for (Return prop : match.getReturn()) {
+        collectReturnIris(prop, iriSet);
+      }
     }
     if (match.getOrderBy()!=null){
       collectOrderByIris(match.getOrderBy(),iriSet);
@@ -118,12 +118,10 @@ public class IriCollector {
     if (where.getIri() != null) {
       iriSet.add(where.getIri());
     }
-    if (where.getFunction() != null) {
-      collectFunctionIris(where.getFunction(),iriSet);
-    }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
     }
+
     if (where.getAnd() != null) {
       for (Where subWhere : where.getAnd()) {
         collectWhereIris(subWhere, iriSet);
@@ -136,12 +134,11 @@ public class IriCollector {
     }
     if (where.getIs() != null) {
       for (Node node : where.getIs())
-        iriSet.add(node.getIri());
+        if (node.getIri() != null)
+          iriSet.add(node.getIri());
     }
     collectAssignableIris(where, iriSet);
-    if (where.getUnits()!=null){
-      iriSet.add(where.getUnits().getIri());
-    }
+
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null) {
         collectAssignableIris(where.getRange().getFrom(), iriSet);
@@ -150,11 +147,8 @@ public class IriCollector {
         collectAssignableIris(where.getRange().getTo(), iriSet);
       }
     }
-    if (where.getValue() != null) {
-      collectAssignableIris(where, iriSet);
-    }
-    if (where.getRelativeTo()!=null &&where.getRelativeTo().getQualifier()!=null){
-      iriSet.add(where.getRelativeTo().getQualifier().getIri());
+    if (where.getQualifier() != null) {
+      iriSet.add(where.getQualifier().getIri());
     }
   }
 
@@ -176,18 +170,25 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-    if (assignable.getUnits()!=null) iriSet.add(assignable.getUnits().getIri());
-    if (assignable.getFunction()!=null){
-        FunctionClause functionClause = assignable.getFunction();
-        iriSet.add(functionClause.getIri());
-        if (functionClause.getArgument()!=null){
-        for (Argument argument : functionClause.getArgument()) {
-          if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
-          if (argument.getValueIriList() != null) {
-            for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
-          }
-        }
-      }
+
+    if (assignable.getCompare() != null) {
+      collectCompareIris(assignable.getCompare(), iriSet);
     }
+
   }
+
+  private static void collectCompareIris(Compare compare, Set<String> iriSet) {
+    collectValueSourceIris(compare.getLeft(),iriSet);
+    collectValueSourceIris(compare.getRight(),iriSet);
+    if (compare.getUnits()!=null)
+      iriSet.add(compare.getUnits().getIri());
+  }
+
+  private static void collectValueSourceIris(ValueSource source,Set<String> iriSet) {
+    if (source.getIri()!=null){
+      iriSet.add(source.getIri());
+    }
+
+  }
+
 }

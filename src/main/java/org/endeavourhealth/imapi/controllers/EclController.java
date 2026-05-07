@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EclSearchRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -20,7 +19,7 @@ import java.util.Set;
 import java.util.UnknownFormatConversionException;
 
 @RestController
-@RequestMapping("api/ecl")
+@RequestMapping("api/ecl/protected")
 @CrossOrigin(origins = "*")
 @Tag(name = "Ecl Controller", description = "Controller to handle ECL-related requests")
 @RequestScope
@@ -30,26 +29,26 @@ public class EclController {
   private final EclService eclService = new EclService();
   private final ConceptService conceptService = new ConceptService();
 
-  @PostMapping("/public/ecl")
+  @PostMapping("/ecl")
   @Operation(
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(HttpServletRequest request, @RequestBody EclSearchRequest inferred) throws QueryException {
+  public String getEcl(HttpServletRequest request, @RequestBody ECLQueryRequest inferred) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
       return eclService.getEcl(inferred);
     }
   }
 
-  @PostMapping(value = "/public/eclSearch", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/eclSearch", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Execute an ECL search",
     description = "Performs a search for entities based on the provided ECL string query"
   )
   public SearchResponse eclSearch(
     HttpServletRequest request,
-    @RequestBody EclSearchRequest eclSearchRequest
+    @RequestBody ECLQueryRequest eclSearchRequest
   ) throws EclFormatException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.EclSearch.POST")) {
       log.debug("eclSearch");
@@ -59,18 +58,18 @@ public class EclController {
     }
   }
 
-  @PostMapping("/public/eclFromQuery")
+  @PostMapping("/eclFromQuery")
   public ECLQueryRequest getECLFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException{
+  ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.EclFromQuery.POST")) {
       log.debug("getEclFromQuery");
       return eclService.getECLFromQuery(eclQueryRequest);
     }
   }
 
-  @PostMapping("/public/validateModelFromQuery")
+  @PostMapping("/validateModelFromQuery")
   public ECLQueryRequest validateModelFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
@@ -82,7 +81,7 @@ public class EclController {
   }
 
 
-  @PostMapping("/public/validateModelFromECL")
+  @PostMapping("/validateModelFromECL")
   public ECLQueryRequest validateModelFromEcl(HttpServletRequest request, @RequestBody ECLQueryRequest eclQueryRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateModelFromECL.POST")) {
       log.debug("validatesModelFromECL");
@@ -90,7 +89,7 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "/public/queryFromEcl", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/queryFromEcl", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Convert ECL to Query",
     description = "Transforms a provided ECL string into an IM Query object"
@@ -102,7 +101,7 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "/public/eclFromEcl", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/eclFromEcl", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Convert ECL to ECL with names",
     description = "Transforms a provided ECL string into an IM Query object"
@@ -117,7 +116,7 @@ public class EclController {
     }
   }
 
-  @PostMapping(value = "/public/validateEcl", consumes = "application/json", produces = "application/json")
+  @PostMapping(value = "/validateEcl", consumes = "application/json", produces = "application/json")
   @Operation(
     summary = "Validate ECL format",
     description = "Checks if the provided ECL string is valid"
@@ -125,14 +124,14 @@ public class EclController {
   public ECLQueryRequest validateEcl(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclQueryRequest
-  ) throws QueryException{
+  ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.ECL.ValidateEcl.POST")) {
       log.debug("validatesEcl");
       return eclService.validateEcl(eclQueryRequest);
     }
   }
 
-  @GetMapping(value = "/public/propertiesForDomains")
+  @GetMapping(value = "/propertiesForDomains")
   @Operation(summary = "Get top level properties for an entity as a tree node", description = "Finds the highest parent (superior) properties for an entity and returns then in a tree node format for use in a hierarchy tree")
   public Set<String> getPropertiesForDomains(
     HttpServletRequest request,
@@ -145,7 +144,20 @@ public class EclController {
   }
 
 
-  @GetMapping(value = "/public/rangesForProperty")
+
+  @GetMapping(value = "/isValidPropertyForDomains")
+  @Operation(summary = "Check if a property is valid for a list of domains")
+  public Boolean isValidPropertyForDomains(
+    @RequestParam(name = "propertyIri") String propertyIri,
+    @RequestParam(name = "conceptIris") Set<String> iris
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.isValidPropertyForDomains.GET")) {
+      log.debug("isValidPropertyForDomains");
+      return conceptService.isValidPropertyForDomains(propertyIri, iris);
+    }
+  }
+
+  @GetMapping(value = "/rangesForProperty")
   @Operation(summary = "Get top level property ranges for an entity as a tree node", description = "Finds the highest parent (superior) property value for an entity and returns then in a tree node format for use in a hierarchy tree")
   public Set<String> getRangesForProperty(
     HttpServletRequest request,

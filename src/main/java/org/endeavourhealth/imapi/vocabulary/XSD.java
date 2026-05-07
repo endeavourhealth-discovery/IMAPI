@@ -15,19 +15,19 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum XSD implements VocabEnum {
 
     PREFIX("xsd"),
-    PATTERN(Namespace.XSD + "pattern"),
-    MIN_INCLUSIVE(Namespace.XSD + "minInclusive"),
-    MIN_EXCLUSIVE(Namespace.XSD + "minExclusive"),
-    MAX_INCLUSIVE(Namespace.XSD + "maxInclusive"),
-    MAX_EXCLUSIVE(Namespace.XSD + "maxExclusive"),
-    INTEGER(Namespace.XSD + "integer"),
-    STRING(Namespace.XSD + "string"),
-    BOOLEAN(Namespace.XSD + "boolean"),
-    LONG(Namespace.XSD + "long"),
-    DOUBLE(Namespace.XSD + "double"),
-    DATE_TIME(Namespace.XSD + "dateTime"),
-    NUMBER(Namespace.XSD + "number"),
-    DECIMAL(Namespace.XSD + "decimal"),
+    PATTERN(NAMESPACE.XSD + "pattern"),
+    MIN_INCLUSIVE(NAMESPACE.XSD + "minInclusive"),
+    MIN_EXCLUSIVE(NAMESPACE.XSD + "minExclusive"),
+    MAX_INCLUSIVE(NAMESPACE.XSD + "maxInclusive"),
+    MAX_EXCLUSIVE(NAMESPACE.XSD + "maxExclusive"),
+    INTEGER(NAMESPACE.XSD + "integer"),
+    STRING(NAMESPACE.XSD + "string"),
+    BOOLEAN(NAMESPACE.XSD + "boolean"),
+    LONG(NAMESPACE.XSD + "long"),
+    DOUBLE(NAMESPACE.XSD + "double"),
+    DATE_TIME(NAMESPACE.XSD + "dateTime"),
+    NUMBER(NAMESPACE.XSD + "number"),
+    DECIMAL(NAMESPACE.XSD + "decimal"),
     ;
 
     private final String value;

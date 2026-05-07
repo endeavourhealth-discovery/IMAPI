@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.ClosureGeneratorBulk;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 public class TTFilerFactory {
   private static boolean bulk = false;
@@ -24,14 +24,14 @@ public class TTFilerFactory {
     TTFilerFactory.transactional = transactional;
   }
 
-  public static TTDocumentFiler getDocumentFiler(Graph graph) {
+  public static TTDocumentFiler getDocumentFiler(GRAPH graph) {
     if (!bulk)
       return new TTTransactionFiler(graph);
     else
       return new TTBulkFiler(graph);
   }
 
-  public static TTEntityFiler getEntityFiler(Graph insertGraph) {
+  public static TTEntityFiler getEntityFiler(GRAPH insertGraph) {
     return new TTEntityFilerRdf4j(IMDB.getConnection(), insertGraph);
   }
 

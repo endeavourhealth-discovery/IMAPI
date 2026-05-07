@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -18,24 +19,46 @@ public class Query extends Match {
   private Prefixes prefixes;
   private String description;
   private List<Match> columnGroup;
-
-
   private String iri;
   private String name;
-  private boolean imQuery;
+  private String imQuery;
   private JsonNode parentResult;
   @Getter
   private TTIriRef persistentIri;
 
   @Getter
   private String bindAs;
+  private IMQType queryType;
 
+  public List<Match> getKeepClauses() {
+    return super.getKeepClauses();
+  }
+
+  public Query setKeepClauses(List<Match> keepClauses) {
+    super.setKeepClauses(keepClauses);
+    return this;
+  }
+
+  public Query setErrorMessage(String errorMessage) {
+    super.setErrorMessage(errorMessage);
+    return this;
+  }
+
+  public Query setQueryType(IMQType type) {
+    this.queryType = type;
+    return this;
+  }
+
+  public IMQType getQueryType() {
+    return queryType;
+  }
 
 
   public Query setParameter(String parameter) {
     super.setParameter(parameter);
     return this;
   }
+
 
   public Query setBindAs(String bindAs) {
     this.bindAs = bindAs;
@@ -70,22 +93,6 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setNot(List<Match> not) {
-    super.setNot(not);
-    return this;
-  }
-
-  public Query addNot(Match not) {
-    super.addNot(not);
-    return this;
-  }
-
-  public Query not(Consumer<Match> builder) {
-    Match match = new Match();
-    addNot(match);
-    builder.accept(match);
-    return this;
-  }
 
   public Query addIs(Node is) {
     super.addIs(is);
@@ -170,18 +177,18 @@ public class Query extends Match {
     return this;
   }
 
-  public boolean isImQuery() {
+  public String getImQuery() {
     return imQuery;
   }
 
-  public Query setImQuery(boolean imQuery) {
+  public Query setImQuery(String imQuery) {
     this.imQuery = imQuery;
     return this;
   }
 
   @Override
-  public Query setVariable(String variable) {
-    super.setVariable(variable);
+  public Query setNode(String node) {
+    super.setNode(node);
     return this;
   }
 
@@ -216,8 +223,8 @@ public class Query extends Match {
   }
 
 
-  public Query setReturn(Return returx) {
-    super.setReturn(returx);
+  public Query setReturn(List<Return> returns) {
+    super.setReturn(returns);
     return this;
   }
 

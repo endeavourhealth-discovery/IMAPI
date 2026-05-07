@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -19,15 +19,12 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   private Prefixes prefixes;
   @Getter
   private boolean hasNames;
-  private int counter =0;
+  private int counter = 0;
 
 
   public Query getIMQ(IMECLParser.ImeclContext ctx) {
     return (Query) visitImecl(ctx);
   }
-
-
-
 
 
   @Override
@@ -51,7 +48,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         }
       }
     }
-    if (query==null){
+    if (query == null) {
       query = new Query();
       query.setInvalid(true);
     }
@@ -62,8 +59,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (match.getIs() != null) {
       query.setIs(match.getIs());
     }
-    if (match.getNot() != null)
-      query.setNot(match.getNot());
+    query.setNotExists(match.notExists());
     if (match.getAnd() != null)
       query.setAnd(match.getAnd());
     if (match.getOr() != null)
@@ -134,8 +130,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         Object result = visit(child);
         if (result instanceof Match asMatch) {
           match = asMatch;
-        }
-        else if (result instanceof Where asWhere) {
+        } else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();
             match.setTypeOf(new Node().setIri(IM.CONCEPT.toString()));
@@ -197,7 +192,8 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           if (match.getAnd() == null)
             match.addAnd(asMatch);
           else {
-            match.addNot(asMatch);
+            asMatch.setNotExists(true);
+            match.addAnd(asMatch);
           }
         }
       }
@@ -235,18 +231,16 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           }
         }
       }
-      if (match==null&&node!=null&&!nested){
+      if (match == null && node != null && !nested) {
         match = new Match();
         match.addIs(node);
         return match;
-      }
-      else if (match!=null&&node!=null&&nested){
+      } else if (match != null && node != null && nested) {
         Match outerMatch = new Match();
         outerMatch.addIs(node);
         node.setMatch(match);
         return outerMatch;
-      }
-      else if (match!=null){
+      } else if (match != null) {
         return match;
       }
     }
@@ -304,7 +298,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitSctid(IMECLParser.SctidContext ctx) {
-    return Namespace.SNOMED + ctx.getText();
+    return NAMESPACE.SNOMED + ctx.getText();
   }
 
 
@@ -393,18 +387,18 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitAncestororselfof(IMECLParser.AncestororselfofContext ctx) {
-    return new Node().setAncestorsOrSelfOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
   @Override
   public Object visitParentof(IMECLParser.ParentofContext ctx) {
-    return new Node().setParentOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
 
   @Override
   public Object visitParentorselfof(IMECLParser.ParentorselfofContext ctx) {
-    return new Node().setParentOrSelfOf(true);
+    return new Node().setAncestorsOf(true);
   }
 
   @Override
@@ -540,7 +534,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           reverseFlag = true;
         }
         if (result instanceof Match asMatch) {
-          if (where==null){
+          if (where == null) {
             Node node = (asMatch).getIs().getFirst();
             where = new Where();
             where.setIri(node.getIri());
@@ -549,26 +543,25 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             where.setDescendantsOrSelfOf(node.isDescendantsOrSelfOf());
             where.setChildOf(node.isChildOf());
             where.setChildOrSelfOf(node.isChildOrSelfOf());
-            where.setParentOf(node.isParentOf());
-            where.setParentOrSelfOf(node.isParentOrSelfOf());
+            where.setAncestorsOf(node.isAncestorsOf());
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {
-              if (asMatch.getOr() != null) {
-                getWhereFromMatch(asMatch, where);
-              } else if (asMatch.getAnd() != null) {
-                  Where andWhere = new Where();
-                  for (Match subMatch : asMatch.getAnd()) {
-                    andWhere.addAnd(new Where().setIri(where.getIri())
-                        .addIs(new Node().setIri(subMatch.getIs().getFirst().getIri())));
+            if (asMatch.getOr() != null) {
+              getWhereFromMatch(asMatch, where);
+            } else if (asMatch.getAnd() != null) {
+              Where andWhere = new Where();
+              for (Match subMatch : asMatch.getAnd()) {
+                andWhere.addAnd(new Where().setIri(where.getIri())
+                  .addIs(new Node().setIri(subMatch.getIs().getFirst().getIri())));
               }
-              where= andWhere;
+              where = andWhere;
             } else {
-                Node node = (asMatch).getIs().getFirst();
-                where.addIs(node);
-                if (reverseFlag)
-                  where.setInverse(reverseFlag);
-              }
+              Node node = (asMatch).getIs().getFirst();
+              where.addIs(node);
+              if (reverseFlag)
+                where.setInverse(reverseFlag);
+            }
           }
         }
       }

@@ -6,19 +6,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 
-@JsonPropertyOrder({"parameter", "iri", "variable", "parameter", "name"})
+@JsonPropertyOrder({"parameter", "iri", "parameter", "name"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Element extends IriLD implements Entailment {
-  private String variable;
+public abstract class Element extends IriLD implements Entailment {
   private String parameter;
   private boolean ancestorsOf;
-  private boolean ancestorsOrSelfOf;
   private boolean descendantsOrSelfOf;
   private boolean descendantsOf;
   private boolean childOrSelfOf;
   private boolean childOf;
-  private boolean parentOrSelfOf;
-  private boolean parentOf;
   private boolean memberOf;
   @Getter
   private boolean cohort;
@@ -26,6 +22,17 @@ public class Element extends IriLD implements Entailment {
   @Getter
   @Setter
   private boolean invalid;
+  private boolean resultSet;
+
+  public boolean getResultSet(){
+    return resultSet;
+  }
+
+  public Element setIsResultSet(boolean resultSet){
+    this.resultSet = resultSet;
+    return this;
+  }
+
 
   public Element setIsCohort(boolean cohort) {
     this.cohort= cohort;
@@ -40,32 +47,6 @@ public class Element extends IriLD implements Entailment {
     return this;
   }
 
-  public boolean isAncestorsOrSelfOf() {
-    return ancestorsOrSelfOf;
-  }
-
-  public Element setAncestorsOrSelfOf(boolean ancestorsOrSelfOf) {
-    this.ancestorsOrSelfOf = ancestorsOrSelfOf;
-    return this;
-  }
-
-  public boolean isParentOrSelfOf() {
-    return parentOrSelfOf;
-  }
-
-  public Element setParentOrSelfOf(boolean parentOrSelfOf) {
-    this.parentOrSelfOf = parentOrSelfOf;
-    return this;
-  }
-
-  public boolean isParentOf() {
-    return parentOf;
-  }
-
-  public Element setParentOf(boolean parentOf) {
-    this.parentOf = parentOf;
-    return this;
-  }
 
   public String getNodeRef() {
     return nodeRef;
@@ -94,13 +75,6 @@ public class Element extends IriLD implements Entailment {
     return this;
   }
 
-  public static Element iri(String iri) {
-    return new Element(iri);
-  }
-
-  public static Element iri(String iri, String name) {
-    return new Element(iri, name);
-  }
 
   public Element() {
   }
@@ -133,10 +107,6 @@ public class Element extends IriLD implements Entailment {
   public Element setParameter(String parameter) {
     this.parameter = parameter;
     return this;
-  }
-
-  public String getVariable() {
-    return variable;
   }
 
 
@@ -172,10 +142,7 @@ public class Element extends IriLD implements Entailment {
   }
 
 
-  public Element setVariable(String variable) {
-    this.variable = variable;
-    return this;
-  }
+
 
 
 }

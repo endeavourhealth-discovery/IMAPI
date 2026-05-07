@@ -14,6 +14,12 @@ public class ECLQueryValidator {
   public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
+    if (iris.isEmpty()){
+      ECLStatus status = new ECLStatus();
+      status.setValid(false);
+      status.setMessage("No concepts in query");
+      return status;
+    }
     validConcepts = setRepository.getValidConcepts(iris);
     query.setInvalid(isInvalidMatchWheres(query));
     ECLStatus status = new ECLStatus();
@@ -44,7 +50,7 @@ public class ECLQueryValidator {
         invalid = true;
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match m : matches) {
           if (isInvalidMatchWheres(m)) {
@@ -112,7 +118,7 @@ public class ECLQueryValidator {
         }
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd(), match.getNot())) {
+    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
       if (matches != null) {
         for (Match m : matches) {
           getFocusConcepts(m, focusConcepts);

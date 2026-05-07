@@ -12,32 +12,49 @@ public class Value implements Assignable {
   private Operator operator;
   @Getter
   private String value;
-  @Getter
-  private TTIriRef qualifier;
   private String valueLabel;
   @Getter
   private String valueParameter;
   private FunctionClause function;
   private String description;
-  @Getter
   private TTIriRef units;
+  private boolean invalid;
+  private String valueTerm;
+  private Compare compare;
+
+
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+  public Value setIsInvalid(boolean invalid) {
+    this.invalid = invalid;
+    return this;
+  }
+
+
+  @Override
+  public String getValueTerm() {
+    return this.valueTerm;
+  }
+
+  @Override
+  public Assignable setValueTerm(String valueTerm) {
+    this.valueTerm = valueTerm;
+    return this;
+  }
+
 
   public Value setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }
 
-
-  @Override
-  public FunctionClause getFunction() {
-    return this.function;
+  public TTIriRef getUnits(){
+    return this.units;
   }
 
-  @Override
-  public Value setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
+
   public Value function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();
     builder.accept(this.function);
@@ -87,8 +104,19 @@ public class Value implements Assignable {
   }
 
 
-  public Value setQualifier(TTIriRef qualifier) {
-    this.qualifier = qualifier;
+  public Compare getCompare() {
+    return this.compare;
+  }
+
+  @Override
+  public Value setCompare(Compare compare) {
+    this.compare = compare;
+    return this;
+  }
+
+  public Value compare(Consumer<Compare> builder) {
+    this.compare = new Compare();
+    builder.accept(this.compare);
     return this;
   }
 

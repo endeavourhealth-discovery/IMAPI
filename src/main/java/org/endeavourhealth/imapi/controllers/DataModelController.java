@@ -8,8 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
-import org.endeavourhealth.imapi.model.dto.UIProperty;
+import org.endeavourhealth.imapi.model.iml.ArrayButtons;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.UIProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
-@RequestMapping("api/dataModel")
+@RequestMapping("api/dataModel/protected")
 @CrossOrigin(origins = "*")
 @Tag(name = "Data model Controller")
 @RequestScope
@@ -33,15 +34,16 @@ public class DataModelController {
     summary = "Retrieve a node shape with data model properties",
     description = "Fetches the data model properties for the given IRI."
   )
-  @GetMapping("/public/dataModelProperties")
+  @GetMapping("/dataModelProperties")
   public NodeShape getDataModelProperties(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
+    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
+    @RequestParam(name="excludeGeneric",required= false, defaultValue= "false") boolean excludeGeneric
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
     }
   }
 
@@ -49,7 +51,7 @@ public class DataModelController {
     summary = "Fetches the property display information",
     description = "Returns a list of properties displayed for the given IRI."
   )
-  @GetMapping(value = "/public/propertiesDisplay")
+  @GetMapping(value = "/propertiesDisplay")
   public List<PropertyDisplay> getPropertiesDisplay(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
@@ -65,7 +67,7 @@ public class DataModelController {
     summary = "Retrieve UI property for query builder",
     description = "Returns the UI property metadata for a given data model IRI and property IRI."
   )
-  @GetMapping(value = "public/UIPropertyForQB")
+  @GetMapping(value = "/UIPropertyForQB")
   public UIProperty getUIPropertyForQB(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "dmIri") String dmIri,
@@ -81,7 +83,7 @@ public class DataModelController {
     summary = "Retrieve data models from a property",
     description = "Returns a list of data models that reference the given property IRI."
   )
-  @GetMapping(value = "/public/dataModels")
+  @GetMapping(value = "/dataModels")
   public List<TTIriRef> getDataModelsFromProperty(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property")
@@ -95,7 +97,7 @@ public class DataModelController {
     summary = "Check the type of a property",
     description = "Determines the type of the property for the given IRI."
   )
-  @GetMapping(value = "public/checkPropertyType")
+  @GetMapping(value = "/checkPropertyType")
   public String checkPropertyType(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property") @RequestParam(name = "propertyIri") String iri
@@ -106,7 +108,7 @@ public class DataModelController {
     }
   }
 
-  @GetMapping(value = "/public/dataModelPropertiesWithValueType", produces = "application/json")
+  @GetMapping(value = "/dataModelPropertiesWithValueType", produces = "application/json")
   @Operation(
     summary = "gets a property shape for the defining property of a type",
     description = "Returns a property needed to define a type , typically im:concept, together with its value set"
@@ -122,4 +124,18 @@ public class DataModelController {
   }
 
 
+  @GetMapping(value = "/inversePath", produces = "application/json")
+  @Operation(
+    summary = "gets the inverse path between source and target",
+    description = "for a known source tye ad target type whats the reverse property e.g. patient "
+  )
+  public TTIriRef getInversePath(
+    HttpServletRequest request,
+    @RequestParam(name = "source") String source,
+    @RequestParam(name = "target") String target) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getInversePath from " + source + " to " + target);
+      return dataModelService.getInversePath(source, target);
+    }
+  }
 }

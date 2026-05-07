@@ -1,14 +1,13 @@
 [versions]
-angusMail = "2.0.2"
+angusMail = "2.0.5"
 antlr = "4.13.1"
 apacheCollections4 = "4.4"
 apachePoi = "5.4.0"
 apacheText = "1.13.1"
-assertJ = "3.27.3"
-awsCognitoIDP = "2.28.13"
-awsS3 = "2.28.13"
-awsSDKBOM = "2.28.13"
-awsSDKCore = "2.28.13"
+assertJ = "3.27.7"
+awsS3 = "2.39.0"
+awsSDKBOM = "2.39.0"
+awsSDKCore = "2.39.0"
 cucumber = "7.22.0"
 commons-text = "1.10.0"
 dropwizard = "4.2.30"
@@ -16,7 +15,7 @@ elasticSearch = "7.17.29"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
-hikari = "7.0.1"
+hikari = "7.0.2"
 jackson = "2.18.0"
 jersey = "3.1.10"
 junit = "5.10.1"
@@ -32,7 +31,7 @@ rabbitmqAmqpClient = "5.24.0"
 rdf4j = "4.3.13"
 reactor = "3.6.10"
 slf4j = "2.0.17"
-spring = "3.4.5"
+spring = "3.5.7"
 springContext = "6.2.5"
 springdoc = "2.8.6"
 springTestSecurity = "6.2.0"
@@ -51,20 +50,20 @@ apache-poi = { module = "org.apache.poi:poi-ooxml", version.ref = "apachePoi" }
 apache-text = { module = "org.apache.commons:commons-text", version.ref = "apacheText" }
 assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
 apache-commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
-aws-cognito-idp = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "awsCognitoIDP" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
 aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-elasticsearch = {module= "org.elasticsearch.client:elasticsearch-rest-high-level-client",version.ref="elasticSearch"}
+elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }
 hikari = { module = "com.zaxxer:HikariCP", version.ref = "hikari" }
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jackson" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jersey-client = { module = "org.glassfish.jersey.core:jersey-client", version.ref = "jersey" }
 jersey-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
@@ -102,6 +101,7 @@ mysqlConncector = { module = "com.mysql:mysql-connector-j", version.ref = "mysql
 #Test implementation
 cucumber = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
 cucumber-junit = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
+cucumber-spring = { module = "io.cucumber:cucumber-spring", version.ref = "cucumber" }
 junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "junitSuite" }
 mockito = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
@@ -110,5 +110,7 @@ spring-test-security = { module = "org.springframework.security:spring-security-
 
 [plugins]
 typescript-generator = { id = "cz.habarta.typescript-generator", version = "3.2.1263" }
-static-const-generator = { id = "org.endeavourhealth.plugins.StaticConstGenerator", version = "1.3-SNAPSHOT" }
+static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.4-SNAPSHOT" }
+typescript-const-enum-to-enum = { id = "org.endeavourhealth.plugins.typescript-const-enum-to-enum", version = "0.3-SNAPSHOT" }
+extract-enums-from-auto-gen = { id = "org.endeavourhealth.plugins.extract-enums-from-auto-gen", version = "0.3-SNAPSHOT" }
 sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

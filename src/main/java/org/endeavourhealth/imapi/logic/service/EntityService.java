@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
@@ -16,6 +15,7 @@ import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
@@ -71,7 +71,7 @@ public class EntityService {
     }
   }
 
-  public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException {
+  public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
     Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));
@@ -87,11 +87,10 @@ public class EntityService {
     return bundle.getEntity();
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException{
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
-    if (bundle.getPredicates().containsKey(IM.DEFINITION.toString())) convertRuleToLogicalJson(bundle);
     return bundle;
   }
 
@@ -175,7 +174,7 @@ public class EntityService {
     ArrayList<TTEntity> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(NAMESPACE.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return Collections.emptyList();
 
     int rowNumber = 0;
@@ -195,7 +194,7 @@ public class EntityService {
   public Integer totalRecords(String iri) {
     if (iri == null || iri.isEmpty()) return 0;
 
-    Set<String> xmlDataTypes = entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    Set<String> xmlDataTypes = entityRepository.getByNamespace(NAMESPACE.XSD);
     if (xmlDataTypes != null && xmlDataTypes.contains(iri)) return 0;
 
     return entityRepository.getConceptUsagesCount(iri);
@@ -419,7 +418,7 @@ public class EntityService {
   }
 
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
-    List<String> snomedCodes = codes.stream().map(code -> org.endeavourhealth.imapi.vocabulary.Namespace.SNOMED + code).toList();
+    List<String> snomedCodes = codes.stream().map(code -> NAMESPACE.SNOMED + code).toList();
     List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()));
     SetService setService = new SetService();
     List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
@@ -457,7 +456,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException{
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
@@ -472,7 +471,7 @@ public class EntityService {
       TTNode loadMoreNode = new TTNode()
         .setIri(IM.LOAD_MORE.toString())
         .set(iri(RDFS.LABEL), "Load more")
-        .set(iri(org.endeavourhealth.imapi.vocabulary.Namespace.IM + "totalCount"), partialAndCount.getTotalCount());
+        .set(iri(NAMESPACE.IM + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
       response.addPredicate(iri(IM.HAS_MEMBER));
       response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
@@ -516,7 +515,7 @@ public class EntityService {
   }
 
   public Set<String> getXmlSchemaDataTypes() {
-    return entityRepository.getByNamespace(org.endeavourhealth.imapi.vocabulary.Namespace.XSD);
+    return entityRepository.getByNamespace(NAMESPACE.XSD);
   }
 
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
@@ -525,7 +524,7 @@ public class EntityService {
 
   public FilterOptionsDto getFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.NAMESPACE));
+    filterOptions.setSchemes(getAllChildren(IM.ROOT_NAMESPACE));
     filterOptions.setStatus(getAllChildren(IM.STATUS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_OPTIONS));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_OPTIONS));
@@ -535,15 +534,29 @@ public class EntityService {
 
   public FilterOptionsDto getFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
-    filterOptions.setSchemes(getAllChildren(IM.SCHEME_FILTER_DEFAULTS));
     filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
+    filterOptions.setTypeSchemes(getAllTypeSchemes());
+    filterOptions.setSchemes(getDefaultSchemes(filterOptions));
     filterOptions.setSortFields(getAllChildren(IM.SORT_FIELD_FILTER_DEFAULTS));
     filterOptions.setSortDirections(getAllChildren(IM.SORT_DIRECTION_FILTER_DEFAULTS));
     return filterOptions;
   }
 
-  private List<TTIriRef> getAllChildren(IM iri) {
+  private List<TTIriRef> getDefaultSchemes(FilterOptionsDto filterOptions) {
+    List<TTIriRef> schemes = new ArrayList<>();
+    filterOptions.getTypes().forEach(type -> {
+      for (TTIriRef iri : filterOptions.getTypeSchemes().get(type.getIri()))
+        if (!schemes.contains(iri)) schemes.add(iri);
+    });
+    return schemes;
+  }
+
+  private Map<String, List<TTIriRef>> getAllTypeSchemes() {
+    return entityRepository.getTypeSchemeDefaults();
+  }
+
+  private List<TTIriRef> getAllChildren(VocabEnum iri) {
     return getChildren(iri.toString(), null, null, null, false);
   }
 
@@ -551,7 +564,7 @@ public class EntityService {
     return entityRepository.getAllowableChildTypes(iri);
   }
 
-  public boolean checkEntityExists(String iri) {
+  public boolean entityExists(String iri) {
     return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
   }
 

@@ -7,8 +7,10 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+
 import java.io.IOException;
+
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 
@@ -19,17 +21,18 @@ public class EqdPopToIMQ {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     resources.setQueryType(QueryType.POP);
-    query.setTypeOf(new Node().setIri(Namespace.IM + "Patient"));
+    query.setTypeOf(new Node().setIri(NAMESPACE.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query
-        .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
-          .setIsCohort(true)
-            .setName("Registered with GP for GMS services on the reference date"));
-      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
+        .rule(r -> r
+          .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
+            .setIsCohort(true)
+            .setName("Registered with GP for GMS services on the reference date")));
+      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + activeReport));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(NAMESPACE.IM + "Q_RegisteredGMS"));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -37,17 +40,24 @@ public class EqdPopToIMQ {
       if (EqdToIMQ.versionMap.containsKey(id)) id = EqdToIMQ.versionMap.get(id);
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query
-          .addIs(Node.iri(Namespace.IM + "Q_RegisteredGMS")
-            .setIsCohort(true)
-            .setName("Registered with GP for GMS services on the reference date"));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri((Namespace.IM + "Q_RegisteredGMS")));
+          .rule(r -> r
+            .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
+              .setIsCohort(true)
+              .setName("Registered with GP for GMS services on the reference date")));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       } else {
         query
-          .addIs(Node.iri(resources.getNamespace() + id)
-            .setIsCohort(true)
-            .setName(resources.reportNames.get(id)));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON),iri(resources.getNamespace() + id));
+          .addRule(new Match()
+            .addIs(Node.iri(resources.getNamespace() + id)
+              .setIsCohort(true)
+              .setName(resources.reportNames.get(id))));
+        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + id));
       }
+    }
+    if (query.getRule() != null) {
+      query.getRule().getFirst()
+        .setIfTrue(RuleAction.NEXT)
+        .setIfFalse(RuleAction.REJECT);
     }
     resources.setRule(0);
     resources.setSubRule(0);
@@ -63,6 +73,7 @@ public class EqdPopToIMQ {
         case REJECT -> rule.setIfTrue(RuleAction.REJECT);
         case NEXT -> rule.setIfTrue(RuleAction.NEXT);
       }
+
       switch (ifFalse) {
         case SELECT -> rule.setIfFalse(RuleAction.SELECT);
         case REJECT -> rule.setIfFalse(RuleAction.REJECT);

@@ -3,12 +3,11 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.function.Consumer;
 
 
-@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "variable", "qualifier","match"})
+@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "qualifier","match"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element{
   private boolean exclude;
@@ -16,6 +15,20 @@ public class Node extends Element{
   private String type;
   private boolean inverse;
   private Match match;
+  private String node;
+  private String qualifier;
+
+  public String getQualifier() {
+    return qualifier;
+  }
+  public Node setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
+
+
+
 
   public Match getMatch() {
     return match;
@@ -30,6 +43,11 @@ public class Node extends Element{
     Match m = new Match();
     match.accept(m);
     this.match = m;
+    return this;
+  }
+
+  public Node setIsResultSet(boolean resultSet) {
+    super.setIsResultSet(resultSet);
     return this;
   }
 
@@ -130,11 +148,13 @@ public class Node extends Element{
     return this;
   }
 
-  public Node setVariable(String variable) {
-    super.setVariable(variable);
+  public Node setNode(String node) {
+    this.node=node;
     return this;
   }
-
+  public String getNode() {
+    return node;
+  }
 
 }
 

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.junit.jupiter.api.Test;
 
@@ -16,17 +16,17 @@ class TTToTurtleTest {
     TTEntity entity = new TTEntity();
     TTContext context = new TTContext();
     entity.setContext(context);
-    context.add(Namespace.IM, "im");
-    context.add(Namespace.SNOMED, "sn");
-    context.add(Namespace.OWL, "owl");
-    entity.setIri(Namespace.IM + "VaccineSet");
-    entity.set(iri(IM.DEFINITION), new TTArray().add(TTIriRef.iri(Namespace.SNOMED + "39330711000001103")));
+    context.add(NAMESPACE.IM, "im");
+    context.add(NAMESPACE.SNOMED, "sn");
+    context.add(NAMESPACE.OWL, "owl");
+    entity.setIri(NAMESPACE.IM + "VaccineSet");
+    entity.set(iri(IM.DEFINITION), new TTArray().add(TTIriRef.iri(NAMESPACE.SNOMED + "39330711000001103")));
     TTNode inter = new TTNode();
     inter.set(iri(OWL.INTERSECTION_OF), new TTArray()
-      .add(iri(Namespace.SNOMED + "10363601000001109"))
+      .add(iri(NAMESPACE.SNOMED + "10363601000001109"))
       .add(new TTNode().set(TTIriRef.iri(
-          Namespace.SNOMED + "10362601000001103"),
-        iri(Namespace.SNOMED + "39330711000001103"))));
+          NAMESPACE.SNOMED + "10362601000001103"),
+        iri(NAMESPACE.SNOMED + "39330711000001103"))));
     entity.get(iri(IM.DEFINITION)).add(inter);
     TTToTurtle converter = new TTToTurtle();
     String turtle = converter.transformEntity(entity);

@@ -15,16 +15,16 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public enum RDFS implements VocabEnum {
 
     PREFIX("rdfs"),
-    LABEL(Namespace.RDFS + "label"),
-    COMMENT(Namespace.RDFS + "comment"),
-    SUBCLASS_OF(Namespace.RDFS + "subClassOf"),
-    SUB_PROPERTY_OF(Namespace.RDFS + "subPropertyOf"),
-    DOMAIN(Namespace.RDFS + "domain"),
-    RANGE(Namespace.RDFS + "range"),
-    RESOURCE(Namespace.RDFS + "Resource"),
-    CLASS(Namespace.RDFS + "Class"),
-    DATATYPE(Namespace.RDFS + "Datatype"),
-    IS_DEFINED_BY(Namespace.RDFS + "isDefinedBy"),
+    LABEL(NAMESPACE.RDFS + "label"),
+    COMMENT(NAMESPACE.RDFS + "comment"),
+    SUBCLASS_OF(NAMESPACE.RDFS + "subClassOf"),
+    SUB_PROPERTY_OF(NAMESPACE.RDFS + "subPropertyOf"),
+    DOMAIN(NAMESPACE.RDFS + "domain"),
+    RANGE(NAMESPACE.RDFS + "range"),
+    RESOURCE(NAMESPACE.RDFS + "Resource"),
+    CLASS(NAMESPACE.RDFS + "Class"),
+    DATATYPE(NAMESPACE.RDFS + "Datatype"),
+    IS_DEFINED_BY(NAMESPACE.RDFS + "isDefinedBy"),
     ;
 
     private final String value;

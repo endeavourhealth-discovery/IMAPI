@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class SetBinder {
   private final SetRepository setRepository = new SetRepository();
 
-  public void bindSets(Graph insertGraph) {
+  public void bindSets(GRAPH insertGraph) {
     log.info("Getting value sets....");
     Set<String> sets = getSets();
     int count = 0;
@@ -56,7 +56,7 @@ public class SetBinder {
     return setIris;
   }
 
-  public void bindSet(String iri, Graph insertGraph) {
+  public void bindSet(String iri, GRAPH insertGraph) {
     Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());

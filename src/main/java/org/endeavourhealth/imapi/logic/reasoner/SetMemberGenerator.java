@@ -8,7 +8,7 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Set;
@@ -21,7 +21,7 @@ public class SetMemberGenerator {
   private final EntityRepository entityRepository = new EntityRepository();
   private final SetRepository setRepo = new SetRepository();
 
-  public void generateAllSetMembers(Graph insertGraph) throws JsonProcessingException, QueryException {
+  public void generateAllSetMembers(GRAPH insertGraph) throws JsonProcessingException, QueryException {
     log.info("Getting value sets....");
     //First get the list of sets that dont have members already expanded
     Set<String> sets = setRepo.getSets();
@@ -34,7 +34,7 @@ public class SetMemberGenerator {
   }
 
 
-  public void generateMembers(String iri, Graph insertGraph) throws QueryException, JsonProcessingException {
+  public void generateMembers(String iri, GRAPH insertGraph) throws QueryException, JsonProcessingException {
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, asHashSet(IM.DEFINITION));
     if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
@@ -44,12 +44,13 @@ public class SetMemberGenerator {
       }
     } else {
       log.info("Expanding from definition {}", iri);
-      Query query=setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query query = setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       new SparqlOptimizer().optimizeQuery(query);
       Set<Concept> members = setRepo.getMembersFromDefinition(query);
       setRepo.updateMembers(iri, members, insertGraph);
     }
   }
+
 }
 
 

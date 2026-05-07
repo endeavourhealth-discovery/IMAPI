@@ -19,9 +19,11 @@ public enum CONFIG implements VocabEnum {
     LABEL(RDFS.LABEL),
     HAS_CONFIG(IM.HAS_CONFIG),
     COMMENT(RDFS.COMMENT),
-    IMDIRECTORY_LATEST_RELEASE(Namespace.CONFIG + "IMDirectoryLatestRelease"),
-    IMDIRECTORY_ALL_RELEASES(Namespace.CONFIG + "IMDirectoryAllReleases"),
-    MONITORING(Namespace.CONFIG + "monitoring"),
+    IMDIRECTORY_LATEST_RELEASE(NAMESPACE.CONFIG + "IMDirectoryLatestRelease"),
+    IMDIRECTORY_ALL_RELEASES(NAMESPACE.CONFIG + "IMDirectoryAllReleases"),
+    IMQUERY_RUNNER_LATEST_RELEASE(NAMESPACE.CONFIG + "IMQueryRunnerLatestRelease"),
+    IMQUERY_RUNNER_ALL_RELEASES(NAMESPACE.CONFIG + "IMQueryRunnerAllReleases"),
+    MONITORING(NAMESPACE.CONFIG + "monitoring"),
     ;
 
     private final String value;

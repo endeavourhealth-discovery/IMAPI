@@ -10,15 +10,38 @@ import java.util.Map;
 
 
 @NoArgsConstructor
-@Getter
-@Setter
 public class TableMap {
   private List<MappingProperty> properties;
+
+  public Map<String, Table> getTables() {
+    return tables;
+  }
+
+  public Map<String, String> getFunctions() {
+    return functions;
+  }
+
+  public List<MappingProperty> getProperties() {
+    return properties;
+  }
+
+  public void setTables(Map<String, Table> tables) {
+    this.tables = tables;
+  }
+
+  public void setFunctions(Map<String, String> functions) {
+    this.functions = functions;
+  }
+
+  public void setPropertiesMap(Map<List<String>, PropertyMapItem> propertiesMap) {
+    this.propertiesMap = propertiesMap;
+  }
+
   private Map<String, Table> tables;
   private Map<String, String> functions;
-  private transient Map<List<String>, String> propertiesMap;
+  private Map<List<String>, PropertyMapItem> propertiesMap;
 
-  public Map<List<String>, String> getPropertiesMap() {
+  public Map<List<String>, PropertyMapItem> getPropertiesMap() {
     if (propertiesMap == null) buildPropertiesMap();
     return propertiesMap;
   }
@@ -27,7 +50,9 @@ public class TableMap {
     if (properties == null) return;
     propertiesMap = new HashMap<>();
     for (MappingProperty p : properties) {
-      propertiesMap.put(List.copyOf(p.getPath()), p.getDataModel());
+      if (p.getCondition() != null)
+        propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), new Condition(p.getCondition().getField(), p.getCondition().getValue())));
+      else propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), null));
     }
   }
 
@@ -54,9 +79,11 @@ public class TableMap {
 
   public Table getTableFromProperty(List<String> iris) throws SQLConversionException {
     if (null == iris || iris.isEmpty()) throw new SQLConversionException("iri is null");
-    String dataModel = propertiesMap.get(iris);
-    if (null == dataModel) throw new SQLConversionException("No table for properties: " + iris);
-    return getTableFromDataModel(dataModel);
+    PropertyMapItem pmi = propertiesMap.get(iris);
+    if (null == pmi) return null;
+    Table table = getTableFromDataModel(pmi.getDataModel());
+    table.setCondition(pmi.getCondition());
+    return table;
   }
 
   public void putTable(String iri, Table table) {

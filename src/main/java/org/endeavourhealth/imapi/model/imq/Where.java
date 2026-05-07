@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
@@ -12,57 +11,233 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"description", "nodeVariable", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
+@JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable {
-  @Getter
+public class Where extends Element implements Assignable{
+
   private String description;
   private Range range;
-  @Getter
+  private boolean inverse;
   private Node typeOf;
-  @Getter
   private List<Node> is;
-  @Getter
   private Operator operator;
   private String value;
   private String valueLabel;
-  @Getter
+  private String subjectVariable;
+  private String subjectParameter;
   private boolean not;
-  @Getter
   private boolean anyRoleGroup;
   private boolean isNull;
-  @Getter
   private boolean roleGroup;
-  private RelativeTo relativeTo;
   private boolean isNotNull;
-  @Getter
   private TTIriRef units;
-  private String valueVariable;
-  @Getter
-  private boolean inverse;
-  @Getter
   private List<Where> or;
-  @Getter
   private List<Where> and;
-  @Getter
+  private String propertyRef;
   private String shortLabel;
   private FunctionClause function;
   private TTIriRef qualifier;
-  @Getter
   private List<Node> propertyList;
+  private String propertyVariable;
+  private String node;
+  private List<IriLD> excludeProperty;
+  private boolean exists;
+  private boolean invalid;
+  private boolean linked;
+  private String valueTerm;
+  private Compare compare;
+
+
+
+  public String getSubjectVariable() {
+    return subjectVariable;
+  }
+
+  public Where setSubjectVariable(String subjectVariable) {
+    this.subjectVariable = subjectVariable;
+    return this;
+  }
+
+
+  public boolean isLinked(){
+    return linked;
+  }
+
+  public Where setLinked(boolean is){
+    this.linked = true;
+    return this;
+  }
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+
+  public Where setIsInvalid(boolean invalid) {
+    this.invalid = invalid;
+    return this;
+  }
+
+  public List<Node> getPropertyList() {
+    return propertyList;
+  }
+  public String getSubjectParameter() {
+    return subjectParameter;
+  }
+  public Where setSubjectParameter(String subject) {
+    this.subjectParameter = subject;
+    return this;
+  }
+  public Where setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
+
+  @Override
+  public String getDescription() {
+    return description;
+  }
+
+
+  @Override
+  public Compare getCompare() {
+    return this.compare;
+  }
+
+  @Override
+  public Where setCompare(Compare compare) {
+    this.compare = compare;
+    return this;
+  }
+
+  public Where compare(Consumer<Compare> builder) {
+    this.compare = new Compare();
+    builder.accept(this.compare);
+    return this;
+  }
+
+  public Node getTypeOf() {
+    return typeOf;
+  }
+
+  public List<Node> getIs() {
+    return is;
+  }
+
+  @Override
+  public Operator getOperator() {
+    return operator;
+  }
+
+  public boolean isNot() {
+    return not;
+  }
+
+  public boolean isAnyRoleGroup() {
+    return anyRoleGroup;
+  }
+
+  public boolean isRoleGroup() {
+    return roleGroup;
+  }
+
+  public boolean isNotNull() {
+    return isNotNull;
+  }
+
+  public void setNotNull(boolean notNull) {
+    isNotNull = notNull;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public List<Where> getOr() {
+    return or;
+  }
+
+  public List<Where> getAnd() {
+    return and;
+  }
+
+  public String getShortLabel() {
+    return shortLabel;
+  }
+
+
+  public boolean isExists() {
+    return exists;
+  }
+
+  public Where setExists(boolean exists) {
+    this.exists = exists;
+    return this;
+  }
+
+
+  public List<IriLD> getExcludeProperty() {
+    return excludeProperty;
+  }
+
+  public Where setExcludeProperty(List<IriLD> properties){
+    this.excludeProperty = properties;
+    return this;
+  }
+
+  public Where addExcludeProperty(IriLD property){
+    if(this.excludeProperty == null) this.excludeProperty = new ArrayList<>();
+    this.excludeProperty.add(property);
+    return this;
+  }
+
+  public Where excludeProperty(Consumer<IriLD> builder){
+    IriLD property = new IriLD();
+    addExcludeProperty(property);
+    builder.accept(property);
+    return this;
+  }
+
+
+  public String getNode() {
+    return node;
+  }
+
+  public Where setNode(String node) {
+    this.node = node;
+    return this;
+  }
+
+  public Where setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public Where setPropertyVariable(String variable) {
+    this.propertyVariable=variable;
+    return this;
+  }
+
+  public String getPropertyVariable() {
+    return propertyVariable;
+  }
+
 
 
   public Where setPropertyList(List<Node> propertyList) {
     this.propertyList = propertyList;
     return this;
   }
+
   public Where addToPropertyList(Node property) {
     if (this.propertyList == null) this.propertyList = new ArrayList<>();
     this.propertyList.add(property);
     return this;
   }
-
 
 
   public Where setNot(boolean not) {
@@ -151,16 +326,9 @@ public class Where extends Element implements Assignable {
   }
 
 
-
-
-
-
-
-
   public static Where iri(String iri) {
     return new Where(iri);
   }
-
 
 
   @Override
@@ -188,15 +356,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public String getValueVariable() {
-    return valueVariable;
-  }
-
-  public Where setValueVariable(String valueVariable) {
-    this.valueVariable = valueVariable;
-    return this;
-  }
-
   @Override
   public Where setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
@@ -204,10 +363,6 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Where setVariable(String variable) {
-    super.setVariable(variable);
-    return this;
-  }
 
   public Where setIri(String iri) {
     super.setIri(iri);
@@ -284,19 +439,18 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public RelativeTo getRelativeTo() {
-    return this.relativeTo;
+
+  @Override
+  public String getValueTerm() {
+    return this.valueTerm;
   }
 
-  public Where setRelativeTo(RelativeTo relativeTo) {
-    this.relativeTo = relativeTo;
+  @Override
+  public Assignable setValueTerm(String valueTerm) {
+    this.valueTerm = valueTerm;
     return this;
   }
 
-  public Where relativeTo(Consumer<RelativeTo> builder) {
-    builder.accept(setRelativeTo(new RelativeTo()).getRelativeTo());
-    return this;
-  }
 
   public String getValue() {
     return this.value;
@@ -307,13 +461,12 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  @Override
-  public Assignable setQualifier(TTIriRef qualifier) {
-    this.qualifier= qualifier;
+
+  public Where setQualifier(TTIriRef qualifier) {
+    this.qualifier = qualifier;
     return this;
   }
 
-  @Override
   public TTIriRef getQualifier() {
     return this.qualifier;
   }
@@ -340,16 +493,11 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  @Override
-  public FunctionClause getFunction() {
-    return this.function;
+  public TTIriRef getUnits() {
+    return units;
   }
 
-  @Override
-  public Where setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
+
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();
     builder.accept(this.function);

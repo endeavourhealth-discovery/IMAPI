@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.vocabulary.Graph;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 @Setter
 @Getter
@@ -13,5 +13,5 @@ import org.endeavourhealth.imapi.vocabulary.Graph;
 @AllArgsConstructor
 public class FileDocumentRequest {
   private TTDocument document;
-  private Graph insertGraph;
+  private NAMESPACE insertNamespace;
 }

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.vocabulary.Namespace;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.junit.jupiter.api.Test;
 
 
@@ -12,16 +12,14 @@ class ObjectComparerTest {
   public void compare() throws JsonProcessingException {
 
     Match match1 = new Match()
-      .setIri(Namespace.IM + "123")
+      .setIri(NAMESPACE.IM + "123")
       .setName("match")
-      .where(w1 -> w1.setIri(Namespace.IM + "abc")
-        .relativeTo(r -> r.setNodeRef("ssss").setIri(Namespace.IM + "x")));
+      .where(w1 -> w1.setIri(NAMESPACE.IM + "abc"));
     Match match2 = new Match()
-      .setIri(Namespace.IM + "124")
+      .setIri(NAMESPACE.IM + "124")
       .setName("match")
-      .where(w1 -> w1.setIri(Namespace.IM + "abc")
-        .setValueVariable("1234")
-        .relativeTo(r -> r.setNodeRef("ttt").setIri(Namespace.IM + "y")));
+      .where(w1 -> w1.setIri(NAMESPACE.IM + "abc")
+        .setNode("1234"));
 
     System.out.println(LogicComparer.compareMatches(match1, match2));
 

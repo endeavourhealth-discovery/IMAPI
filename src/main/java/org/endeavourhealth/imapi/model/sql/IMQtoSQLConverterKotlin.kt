@@ -739,7 +739,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with: MySQLWith,
     table: Table? = null,
   ): MySQLWhere {
-    var (currentTable, field) = if (table != null) table to getPropertyNameByTableAndPropertyIri(
+    var (currentTable, field) = if (table != null && where.iri != null) table to getPropertyNameByTableAndPropertyIri(
       table,
       where.iri
     ).field

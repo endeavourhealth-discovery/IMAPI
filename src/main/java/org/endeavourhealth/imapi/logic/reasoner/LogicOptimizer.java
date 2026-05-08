@@ -153,16 +153,16 @@ public class LogicOptimizer {
   }
 
   private void injectKeepReturns(Match match) {
-    if (match.getWhere() != null) {
-      injectKeepReturns(match.getWhere());
-    }
-    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
-      if (matches != null) {
-        for (Match subMatch : matches) {
-          injectKeepReturns(subMatch);
-        }
-      }
-    }
+//      if (match.getWhere() != null) {
+//        injectKeepReturns(match.getWhere());
+//      }
+//      for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
+//        if (matches != null) {
+//          for (Match subMatch : matches) {
+//            injectKeepReturns(subMatch);
+//          }
+//        }
+//      }
   }
 
   private void injectKeepReturns(Where where) {

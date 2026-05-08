@@ -228,7 +228,7 @@
         "http://endhealth.info/im#ethnicity": {"field": "ethnic_code_concept_id", "type": "iri"},
         "http://endhealth.info/im#fullName": {"field": "last_name", "type": "string"},
         "http://endhealth.info/im#age": {
-          "field": "TIMESTAMPDIFF(YEARS, date_of_birth, $searchDate)", "type": "number"
+          "field": "TIMESTAMPDIFF(YEAR, date_of_birth, $searchDate)", "type": "number"
         },
         "http://endhealth.info/im#patient": {"field": "id", "type": "string"}
       }

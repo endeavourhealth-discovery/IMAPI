@@ -24,7 +24,8 @@ public class EntityValidator {
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
-    return switch (VALIDATION.from(request.getValidationIri())) {
+    EntityValidationResponse response=
+    switch (VALIDATION.from(request.getValidationIri())) {
       case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
       case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
       case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
@@ -35,6 +36,8 @@ public class EntityValidator {
       case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
       default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
     };
+    System.out.println(response);
+    return response;
   }
 
   private EntityValidationResponse hasValidParents(TTEntity entity) {

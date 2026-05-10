@@ -143,7 +143,8 @@ public class EqdResources {
         EQDOCRangeValue range=eqScore.getRangeValue();
         Having having=new Having();
         groupMatch.setHaving(having);
-        having.setAggregate(Aggregate.SUM);
+        having.setFunction(Aggregate.SUM);
+        having.setIdentifier("score");
         if (range.getRangeFrom()!=null &&range.getRangeTo()==null){
            having.setOperator((Operator) this.vocabMap.get(range.getRangeFrom().getOperator()));
            having.setValue(range.getRangeFrom().getValue().getValue());
@@ -210,8 +211,9 @@ public class EqdResources {
         Match match = this.convertCriterion(eqCriteria.getCriterion());
         if (eqCriteria.getCriterion().getDescription() != null)
           match.setDescription(eqCriteria.getCriterion().getDescription());
-        if (score!=null)
-          match.setScore(score);
+        if (score!=null){
+         addScore(match,score);
+        }
         return match;
       } else {
         Map<String, EQDOCCriterion> libraryItems = EqdToIMQ.getLibraryItems();
@@ -221,17 +223,28 @@ public class EqdResources {
           Match libraryMatch = new Match();
           libraryMatch.addIs(new Node().setIri(this.namespace + libraryId));
           if (score!=null)
-            libraryMatch.setScore(score);
+            addScore(libraryMatch,score);
+
           return libraryMatch;
         } else {
           System.out.println("Library item found : " + libraryId);
           Match match=this.convertCriterion(libraryItems.get(libraryId));
           if (score!=null)
-            match.setScore(score);
+            addScore(match,score);
           return match;
         }
       }
     }
+  }
+
+  private void addScore(Match match, String score) {
+    Case scoreCase= new Case();
+    When scoreWhen= new When();
+    scoreCase.addWhen(scoreWhen);
+    scoreWhen.setExists(true);
+    scoreWhen.setThen(score);
+    match.addReturn(new Return().setCase(scoreCase).setAs("score"));
+    scoreCase.setElse("0");
   }
 
   public Match getPopulationQuery(EQDOCCriteria eqCriteria) {
@@ -255,7 +268,7 @@ public class EqdResources {
 
     queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalSearchId));
     if (score!=null){
-      match.setScore(score);
+      addScore(match,score);
     }
     return match;
   }

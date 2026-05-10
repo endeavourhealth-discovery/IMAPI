@@ -136,11 +136,17 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeReturn(Return prop) {
+  private void describeReturn(Return prop,Match match) {
     if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(), Context.PATH));
     if (prop.getAs() == null) prop.setAs(prop.getName());
     if (prop.getFunction() != null) {
       describeFunction(prop.getFunction());
+    }
+    if (prop.getCase()!=null &&prop.getCase().getWhen()!=null){
+      for (When when:prop.getCase().getWhen()){
+        if (when.getWhere()!=null)
+          describeWhere(when.getWhere(), null);
+      }
     }
   }
 
@@ -246,7 +252,7 @@ public class QueryDescriptor {
 
     if (match.getReturn() != null) {
       for (Return prop : match.getReturn()) {
-        describeReturn(prop);
+        describeReturn(prop,match);
       }
     }
     if (match.getOrderBy() != null) {

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.queryengine;
 import org.endeavourhealth.imapi.model.imq.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
@@ -94,9 +95,25 @@ public class QueryValidator {
 
   private void processReturn(Match query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
+      validateReturnColumns(query);
       for (Return path : query.getReturn()) {
         validateReturn(path, mainEntity);
       }
+    }
+  }
+  private void validateReturnColumns(Match match) throws QueryException {
+    List<Return> returns = match.getReturn();
+    if (returns == null || returns.isEmpty()) {
+      return;
+    }
+    Set<String> seen = new HashSet<>();
+    Set<String> duplicates = returns.stream()
+      .map(Return::getAs)
+      .filter(as -> !seen.add(as))
+      .collect(Collectors.toCollection(LinkedHashSet::new));
+
+    if (!duplicates.isEmpty()) {
+     throw new QueryException("Duplicate column names");
     }
   }
 

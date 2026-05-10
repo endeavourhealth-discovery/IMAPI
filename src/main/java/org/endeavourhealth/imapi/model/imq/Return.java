@@ -22,7 +22,7 @@ public class Return implements Returnable{
   private String pathRef;
   private boolean inverse;
   private FunctionClause function;
-  private String unit;
+  private TTIriRef units;
   private String as;
   private List<Return> returx;
   private TTIriRef dataType;
@@ -110,8 +110,8 @@ public class Return implements Returnable{
     return this;
   }
 
-  public Return setUnit(String unit) {
-    this.unit = unit;
+  public Return setUnits(TTIriRef units) {
+    this.units = units;
     return this;
   }
 
@@ -180,8 +180,8 @@ public class Return implements Returnable{
     return function;
   }
 
-  public String getUnit() {
-    return unit;
+  public TTIriRef getUnits() {
+    return this.units;
   }
 
   public String getAs() {

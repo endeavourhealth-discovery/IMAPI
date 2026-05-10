@@ -31,6 +31,13 @@ public class IriCollector {
 
   private static void collectReturnIris(Return prop, Set<String> iriSet) {
     if (prop.getIri() != null) iriSet.add(prop.getIri());
+    if (prop.getCase()!=null){
+      if (prop.getCase().getWhen()!=null)
+        for (When when:prop.getCase().getWhen()){
+          if (when.getWhere()!=null)
+            collectWhereIris(when.getWhere(),iriSet);
+        }
+    }
     if (prop.getFunction()!=null){
       collectFunctionIris(prop.getFunction(),iriSet);
     }

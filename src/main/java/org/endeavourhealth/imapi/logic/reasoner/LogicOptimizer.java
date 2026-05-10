@@ -147,64 +147,6 @@ public class LogicOptimizer {
     }
   }
 
-  public void resolveReturns(Match match) throws QueryException {
-    setKeepMatches(match);
-    injectKeepReturns(match);
-  }
-
-  private void injectKeepReturns(Match match) {
-//      if (match.getWhere() != null) {
-//        injectKeepReturns(match.getWhere());
-//      }
-//      for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
-//        if (matches != null) {
-//          for (Match subMatch : matches) {
-//            injectKeepReturns(subMatch);
-//          }
-//        }
-//      }
-  }
-
-  private void injectKeepReturns(Where where) {
-    if (where.getCompare() != null) {
-      ValueSource right = where.getCompare().getRight();
-      String nodeRef = right.getNodeRef();
-      if (nodeRef == null) return;
-      Match match = keepMatches.get(nodeRef);
-      if (right.getIri() != null) {
-        String alias = right.getIri().substring(right.getIri().lastIndexOf("#") + 1);
-        match.addReturn(new Return()
-          .setIri(right.getIri())
-          .setAs(alias));
-        right.setPropertyRef(alias);
-      }
-    }
-    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
-      if (wheres != null) {
-        for (Where subWhere : wheres) {
-          injectKeepReturns(subWhere);
-        }
-      }
-    }
-  }
-
-
-  public void setKeepMatches(Match match) throws QueryException {
-    if (match.getNode() != null) {
-      if (keepMatches.containsKey(match.getNode())) {
-        throw new QueryException("Duplicate match node node: " + match.getNode());
-      }
-      keepMatches.put(match.getNode(), match);
-    }
-    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
-      if (matches != null) {
-        for (Match subMatch : matches) {
-          setKeepMatches(subMatch);
-        }
-      }
-    }
-
-  }
 
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson = mapper.writeValueAsString(match);
@@ -252,7 +194,6 @@ public class LogicOptimizer {
         optimiseMatch(match);
       }
       flattenMatch(match);
-      resolveReturns(match);
     } catch (Exception e) {
       throw new QueryException("Error resolving logic", e);
     }

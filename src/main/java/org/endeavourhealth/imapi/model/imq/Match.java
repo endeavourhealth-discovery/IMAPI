@@ -42,7 +42,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String errorMessage;
   private boolean draft;
   private Where then;
-  private List<Match> keepClauses;
   private Having having;
 
   public Having getHaving() {
@@ -59,20 +58,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   }
 
 
-  public List<Match> getKeepClauses() {
-    return keepClauses;
-  }
-  public Match setKeepClauses(List<Match> keepClauses) {
-    this.keepClauses = keepClauses;
-    return this;
-  }
-  public Match addKeepClause(Match keepClause) {
-    if (this.keepClauses == null) {
-      this.keepClauses = new ArrayList<>();
-    }
-    this.keepClauses.add(keepClause);
-    return this;
-  }
 
   public Where getThen() {
     return then;

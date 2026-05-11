@@ -15,7 +15,8 @@ public enum Operator {
   lte("<=","less than or equal to"),
   lt("<","less than"),
   start("startsWith","starts with"),
-  isTrue("isTrue","is true"),
+  notNull("notNull","not null"),
+  isNull("isNull","is null"),
   contains("contains","contains"),;
 
   // declaring private variable for getting values

@@ -30,14 +30,6 @@ public class Query extends Match {
   private String bindAs;
   private IMQType queryType;
 
-  public List<Match> getKeepClauses() {
-    return super.getKeepClauses();
-  }
-
-  public Query setKeepClauses(List<Match> keepClauses) {
-    super.setKeepClauses(keepClauses);
-    return this;
-  }
 
   public Query setErrorMessage(String errorMessage) {
     super.setErrorMessage(errorMessage);

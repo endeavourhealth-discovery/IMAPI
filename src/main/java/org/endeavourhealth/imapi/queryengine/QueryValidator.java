@@ -11,9 +11,6 @@ public class QueryValidator {
   private int o = 0;
 
   public void validateQuery(Match query) throws QueryException {
-    if (query.getKeepClauses()!=null){
-      query.getKeepClauses().forEach(keep->variables.put(keep.getNode(), VarType.NODE));
-    }
     String mainEntity="entity";
     if (query.getNode()!=null){
        mainEntity=query.getNode();
@@ -109,6 +106,7 @@ public class QueryValidator {
     Set<String> seen = new HashSet<>();
     Set<String> duplicates = returns.stream()
       .map(Return::getAs)
+      .filter(Objects::nonNull)
       .filter(as -> !seen.add(as))
       .collect(Collectors.toCollection(LinkedHashSet::new));
 

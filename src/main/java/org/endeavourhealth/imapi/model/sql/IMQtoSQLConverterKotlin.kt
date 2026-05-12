@@ -485,6 +485,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       where.or?.forEach { collect(it) }
       where.range?.from?.compare?.left?.iri?.let { properties.add(it) }
       where.range?.from?.compare?.right?.iri?.let { properties.add(it) }
+      where.compare?.left?.iri?.let { properties.add(it) }
+      where.compare?.right?.iri?.let { properties.add(it) }
     }
     collect(then)
     return properties
@@ -751,6 +753,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where,
         variableToTableMap
       )
+    if (table != null) currentTable = table
     if (where.propertyRef != null) field = where.propertyRef
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {

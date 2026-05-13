@@ -23,8 +23,7 @@ public enum Operator {
   private final String value;
   @Getter
   private final String description;
-
-
+  
   @JsonValue
   public String getValue() {
     return this.value;

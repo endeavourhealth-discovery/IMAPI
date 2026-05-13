@@ -483,6 +483,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       where.iri?.let { properties.add(it) }
       where.and?.forEach { collect(it) }
       where.or?.forEach { collect(it) }
+      where.range?.from?.compare?.left?.iri?.let { properties.add(it) }
+      where.range?.from?.compare?.right?.iri?.let { properties.add(it) }
+      where.compare?.left?.iri?.let { properties.add(it) }
+      where.compare?.right?.iri?.let { properties.add(it) }
     }
     collect(then)
     return properties
@@ -749,6 +753,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where,
         variableToTableMap
       )
+    if (table != null) currentTable = table
     if (where.propertyRef != null) field = where.propertyRef
     val where = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
@@ -777,13 +782,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = from.operator.value,
           value = "'${from.value}'",
-          table = currentTable.alias ?: currentTable.table
+          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
         toWhere = MySQLPropertyValueWhere(
           property = field,
           operator = to.operator.value,
           value = "'${to.value}'",
-          table = currentTable.alias ?: currentTable.table
+          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
       } else {
         val fromRight = from.compare?.right?.parameter ?: from.compare?.right?.propertyRef
@@ -794,12 +799,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         ?: getValueFromRelativeTo(to, variableToTableMap)
         ?: throw SQLConversionException("No value for range.to")
 
+        val (fromUnit, fromUnitType) =
+          if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
+          else if (where.range?.from?.compare?.units?.iri != null) getUnitNameAndType(where.range.from.compare.units.iri)
+          else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
+          else null to null
+
+        val (toUnit, toType) =
+          if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
+          else if (where.range?.to?.compare?.units?.iri != null) getUnitNameAndType(where.range.to.compare.units.iri)
+          else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
+          else null to null
+
         fromWhere = MySQLCompareWhere(
           property = field,
           operator = from.operator.value,
           right = fromRight,
           value = from.value,
-          table = currentTable.alias ?: currentTable.table
+          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
+          units = if (fromUnitType == "Unit") fromUnit else null,
+          qualifier = if (fromUnitType == "Qualifier") fromUnit else null,
         )
 
         toWhere = MySQLCompareWhere(
@@ -807,7 +826,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           operator = to.operator.value,
           right = toRight,
           value = to.value,
-          table = currentTable.alias ?: currentTable.table
+          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
+          units = if (toType == "Unit") toUnit else null,
+          qualifier = if (toType == "Qualifier") toUnit else null,
         )
       }
 
@@ -866,7 +887,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.iri ?: where.iri
+    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compare?.left?.iri
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table

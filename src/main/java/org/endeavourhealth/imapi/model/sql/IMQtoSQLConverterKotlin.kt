@@ -154,14 +154,22 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     for (isA in match.`is`) {
       val isAlias = "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
       val withJoins = mutableListOf<MySQLJoin>()
+      val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
+      cohortTable.table = "dataset.cohort_results"
       if (mySqlQuery.withs.isNotEmpty()) {
+        val lastWith = mySqlQuery.withs.last()
+        val (fk, pk) =
+          if (cohortTable.table == lastWith.table.table)
+            lastWith.table.primaryKey to cohortTable.primaryKey
+          else
+            lastWith.table.foreignKeyTo(cohortTable)
         withJoins.add(
           MySQLJoin(
             "JOIN",
             tableFrom = "dataset.cohort_results",
             tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
             fromProperty = "entity_id",
-            toProperty = mySqlQuery.withs.last().selects.first().name.split(".").last(),
+            toProperty = fk,
             wheres = if (isA.isExclude) mutableListOf(
               MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
               MySQLPropertyValueWhere("entity_id", "IS", "NULL", null, null)
@@ -171,8 +179,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           )
         )
       }
-      val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
-      cohortTable.table = "dataset.cohort_results"
+
       val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
         MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
       ) else mutableListOf()

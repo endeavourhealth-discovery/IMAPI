@@ -199,9 +199,10 @@
         "http://endhealth.info/im#Cohort"
       ],
       "table": "cohort_results",
+      "primaryKey": "entity_id",
       "fields": {
-        "http://endhealth.info/im#hash": {"field": "query_result_id", "type": "string"},
-        "http://endhealth.info/im#entity_id": {"field": "id", "type": "string"}
+        "http://endhealth.info/im#query_result_id": {"field": "query_result_id", "type": "string"},
+        "http://endhealth.info/im#entity_id": {"field": "entity_id", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "entity_id", "toField": "id"},

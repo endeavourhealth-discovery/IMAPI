@@ -410,10 +410,12 @@ public class EqdResources {
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
         Path linkedMatchPath = new Path();
         linkedMatchPath.setIri(NAMESPACE.IM+"patient");
-        linkedMatchPath.setNode("patient");
+        matchCounter++;
+        String node="patient_"+matchCounter;
+        linkedMatchPath.setNode(node);
         linkedMatchPath.setTypeOf(NAMESPACE.IM+"Patient");
         linkedMatch.addPath(linkedMatchPath);
-      relationRight.setNodeRef("patient").setIri(NAMESPACE.IM + "dateOfBirth");
+      relationRight.setNodeRef(node).setIri(NAMESPACE.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
     if (eqRelationship.getRangeValue() != null) {
@@ -623,7 +625,9 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setNode(getAcronym(paths[2]));
+      matchCounter++;
+      String node= getAcronym(paths[2])+"_"+matchCounter;
+      pathMatch.setNode(node);
       ;
       pathMatch.setTypeOf((new Node()).setIri(paths[2]));
       return paths.length == 4 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 3);
@@ -669,7 +673,9 @@ public class EqdResources {
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    subPathMatch.setNode(getAcronym(paths[offset + 1]));
+    matchCounter++;
+    String node= paths[offset+1]+"_"+matchCounter;
+    subPathMatch.setNode(node);
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
     return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
@@ -1548,7 +1554,8 @@ public class EqdResources {
     } else if (match.getNodeRef() != null) {
       keepAs.append(createKeepAs(nodeRefMap.get(match.getNodeRef())));
     }
-    return keepAs.toString();
+    matchCounter++;
+    return keepAs.toString()+"_"+matchCounter;
   }
 
   private void setKeepMatchNode(Match match, String affix) {
@@ -1566,7 +1573,8 @@ public class EqdResources {
         matchCounter++;
         match.setNode("m_" + matchCounter);
       } else {
-        match.setNode(keepAs + (affix != null ? affix : ""));
+        matchCounter++;
+        match.setNode(keepAs + "_"+ matchCounter+"_"+ (affix != null ? affix : ""));
       }
     } else if (match.getNodeRef() != null) {
       match.setNode(createKeepAs(nodeRefMap.get(match.getNodeRef()))

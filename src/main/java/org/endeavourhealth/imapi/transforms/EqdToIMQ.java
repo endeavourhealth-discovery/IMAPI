@@ -108,8 +108,11 @@ public class EqdToIMQ {
       this.addReportNames(eqd);
       this.setVersionMap(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
-        if (eqReport.getId() != null) {
-          if (eqReport.getId().equals(this.singleEntity)) {
+        boolean found=false;
+        String versionIndependentId = eqReport.getVersionIndependentGUID();
+        if (versionIndependentId!=null && versionIndependentId.equals(this.singleEntity)) found= true;
+        if (eqReport.getId() != null &&eqReport.getId().equals(this.singleEntity)) found=true;
+        if (found){
             log.info(eqReport.getName() + " found");
             TTEntity qry = this.convertReport(eqReport);
             if (eqReport.getVersionIndependentGUID() != null) {
@@ -121,7 +124,6 @@ public class EqdToIMQ {
           }
         }
       }
-    }
     // addLibraryEntities();
     // assignLibraryClauses();
   }

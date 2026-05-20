@@ -77,10 +77,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
     }
 
-
     if (definition.columnGroup != null) {
-      for (columnGroup in definition.columnGroup) {
+      for ((index, columnGroup) in definition.columnGroup.withIndex()) {
         val newMySqlQuery = MySQLQuery()
+        if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
         addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
@@ -221,16 +221,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
     bool: Bool,
   ) {
-//    if (currentMatch.having != null && (currentMatch.and != null || currentMatch.or != null)) {
-//      addScoredMatchWiths(currentMatch, mySqlQuery)
-//      return
-//    }
-
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
         addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
       }
     }
+
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
         addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
@@ -242,81 +238,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
       else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
     }
-  }
-
-  private fun addScoredMatchWiths(currentMatch: Match, mySqlQuery: MySQLQuery) {
-//    val having = currentMatch.having
-//      ?: throw SQLConversionException("Having clause is required for scored match")
-//
-//    val scoredWiths = mutableListOf<MySQLWith>()
-//    val priorWiths = mySqlQuery.withs.toList()
-//
-//    val childMatches = currentMatch.and ?: currentMatch.or
-//      ?: throw SQLConversionException("Scored match must have 'and' or 'or' children")
-//
-//    // Build each child match as an independent CTE with a score select
-//    for (childMatch in childMatches) {
-//      val scoreValue = childMatch.score ?: "1"
-//      // Reset withs to prior state so each child CTE doesn't join to sibling CTEs
-//      mySqlQuery.withs.clear()
-//      mySqlQuery.withs.addAll(priorWiths)
-//      if (childMatch.`is` != null) {
-//        val isWiths = getIsWiths(childMatch, mySqlQuery)
-//        for (isWith in isWiths) {
-//          isWith.selects.add(MySQLSelect(scoreValue, "score"))
-//          scoredWiths.add(isWith)
-//        }
-//      } else {
-//        val childWith = getMySQLWithFromMatch(childMatch, mySqlQuery)
-//        childWith.selects.add(MySQLSelect(scoreValue, "score"))
-//        scoredWiths.add(childWith)
-//      }
-//    }
-//
-//    // Restore prior withs and add all scored CTEs
-//    mySqlQuery.withs.clear()
-//    mySqlQuery.withs.addAll(priorWiths)
-//    for (w in scoredWiths) {
-//      mySqlQuery.withs.add(w)
-//    }
-//
-//    // Build the "combined" CTE using UNION ALL of all scored CTEs
-//    val primaryKeyCol = queryTypeOfTable.primaryKey
-//    val unionWiths = scoredWiths.map { scoredWith ->
-//      MySQLWith(
-//        table = Table().apply { table = scoredWith.alias },
-//        fromAlias = scoredWith.alias,
-//        selects = mutableListOf(
-//          MySQLSelect(primaryKeyCol),
-//          MySQLSelect("score")
-//        )
-//      )
-//    }.toMutableList()
-//
-//    val combinedWith = MySQLWith(
-//      alias = "combined",
-//      unionWiths = unionWiths,
-//      unionAll = true
-//    )
-//    mySqlQuery.withs.add(combinedWith)
-//
-//    // Build the "aggregated" CTE with GROUP BY and aggregate HAVING
-//    val aggregateFn = having.aggregate?.name ?: "SUM"
-//    val operatorValue = having.operator?.value ?: ">="
-//    val thresholdValue = having.value ?: "0"
-//
-//    val aggregatedWith = MySQLWith(
-//      table = queryTypeOfTable.copy(),
-//      fromAlias = "combined",
-//      alias = "aggregated",
-//      selects = mutableListOf(
-//        MySQLSelect(primaryKeyCol),
-//        MySQLSelect("$aggregateFn(score)", "total_score")
-//      ),
-//      groupByColumns = mutableListOf(primaryKeyCol),
-//      havingClause = "$aggregateFn(score) $operatorValue $thresholdValue"
-//    )
-//    mySqlQuery.withs.add(aggregatedWith)
   }
 
   private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
@@ -524,7 +445,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {
     val alias = if (match.name != null) sanitiseAlias(match.name)
     else if (match.node != null) sanitiseAlias(match.node)
-    else if (mySQLQuery.nodeToTableMap.keys.isNotEmpty()) "cte_${mySQLQuery.nodeToTableMap.keys.size}"
     else "cte_${mySQLQuery.withs.size}"
 
     val existing = mySQLQuery.withs

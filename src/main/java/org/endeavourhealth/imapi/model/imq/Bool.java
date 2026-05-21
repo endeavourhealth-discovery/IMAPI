@@ -4,5 +4,5 @@ public enum Bool {
   and,
   or,
   rule,
-  not
+  any
 }

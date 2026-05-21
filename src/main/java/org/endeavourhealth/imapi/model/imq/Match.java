@@ -14,7 +14,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private String description;
   private String nodeRef;
   private boolean optional;
-
   private Node typeOf;
   private String parameter;
   private String name;
@@ -30,8 +29,8 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private boolean activeOnly;
   private List<Match> or;
   private List<Match> and;
-  private List<Match> not;
   private List<Match> rule;
+  private List<Match> any;
   private String libraryItem;
   private boolean invalid;
   private List<Node> is;
@@ -45,26 +44,27 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private Where then;
   private Having having;
 
-  public List<Match> getNot() {
-    return not;
-  }
-  public Match setNot(List<Match> not) {
-    this.not = not;
-    return this;
-  }
-  public Match addNot(Match not) {
-    if (this.not == null) {
-      this.not = new ArrayList<>();
-    }
-    this.not.add(not);
-    return this;
-  }
-  public Match not(Consumer<Match> builder) {
-    Match not = new Match();
-    addNot(not);
-    builder.accept(not);
-    return this;
-  }
+public List<Match> getAny() {
+  return any;
+}
+
+public Match setAny(List<Match> any) {
+  this.any = any;
+  return this;
+}
+public Match addAny(Match any) {
+  if (this.any == null)
+    this.any = new ArrayList<>();
+  this.any.add(any);
+  return this;
+}
+public Match any(Consumer<Match> builder) {
+  Match any = new Match();
+  addAny(any);
+  builder.accept(any);
+  return this;
+}
+
   public Having getHaving() {
     return having;
   }

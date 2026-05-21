@@ -85,23 +85,21 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setNot(List<Match> not) {
-    super.setNot(not);
+  public Query setAny(List<Match> any) {
+    super.setAny(any);
+    return this;
+  }
+  public Query addAny(Match any) {
+    super.addAny(any);
     return this;
   }
 
-  public Query addNot(Match not) {
-    super.addNot(not);
-    return this;
-  }
-
-  public Query not(Consumer<Match> builder) {
+  public Query any(Consumer<Match> builder) {
     Match match = new Match();
-    addNot(match);
+    addAny(match);
     builder.accept(match);
     return this;
   }
-
   public Query addIs(Node is) {
     super.addIs(is);
     return this;

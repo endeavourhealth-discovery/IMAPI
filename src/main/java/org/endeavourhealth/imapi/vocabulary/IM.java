@@ -152,6 +152,7 @@ public enum IM implements VocabEnum {
     PROV_UPDATE(NAMESPACE.IM + "1661000252106"),
     USES(NAMESPACE.IM + "uses"),
     COUNT(NAMESPACE.IM + "Count"),
+    MEMBER_COUNT(NAMESPACE.IM + "memberCount"),
     SUM(NAMESPACE.IM + "Sum"),
     AVERAGE(NAMESPACE.IM + "Average"),
     MIN(NAMESPACE.IM + "Min"),

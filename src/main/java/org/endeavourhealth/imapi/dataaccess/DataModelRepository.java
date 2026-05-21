@@ -123,7 +123,7 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
@@ -136,9 +136,6 @@ public class DataModelRepository {
           BindingSet bs = rs.next();
           nodeShape.setName(bs.getValue("entityName").stringValue());
           PropertyShape group = null;
-          if (excludeGeneric
-            && bs.getValue("genericRelationship") != null
-            && bs.getValue("genericRelationship").stringValue().equals("true")) continue;
           if (bs.getValue("path") != null) {
             if (bs.getValue("group") != null) {
               group = getGroupFromNode(bs, nodeShape);

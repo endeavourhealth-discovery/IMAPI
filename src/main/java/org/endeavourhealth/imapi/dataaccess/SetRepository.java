@@ -411,6 +411,30 @@ public class SetRepository {
     }
   }
 
+  public void updateMemberCount(String iri,GRAPH graph){
+    int count=0;
+    try (IMDB conn = IMDB.getConnection()) {
+      String sql = """
+        Select (count(?member) as ?count)
+        Where {<%s> im:hasMember ?member.}
+        """.formatted(iri);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          count = ((Literal)rs.next().getValue("count")).intValue();
+
+        }
+      }
+      sql= """
+        INSERT DATA {<%s>  im:memberCount %s}
+        """.formatted(iri,count);
+      org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sql, GRAPH.IM);
+      conn.begin();
+      upd.execute();
+      conn.commit();
+    }
+  }
+
 
   private void sendUp(StringJoiner sj, IMDB conn, GRAPH graph) {
     org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(), GRAPH.IM);
@@ -837,6 +861,25 @@ public class SetRepository {
       }
     }
     return result;
+  }
+
+  public Integer getMemberCount(String iri) {
+    String spq = """
+      SELECT ?memberCount
+      WHERE {
+        <%s> in:memberCount ?memberCount.
+      }
+      """.formatted(iri);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return ((Literal) bs.getValue("memberCount")).intValue();
+        }
+      }
+    }
+    return 0;
   }
 }
 

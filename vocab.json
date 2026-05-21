@@ -630,6 +630,10 @@
         "value": "NAMESPACE.IM + \"Count\""
       },
       {
+        "name": "MEMBER_COUNT",
+        "value": "NAMESPACE.IM + \"memberCount\""
+      },
+      {
         "name": "SUM",
         "value": "NAMESPACE.IM + \"Sum\""
       },

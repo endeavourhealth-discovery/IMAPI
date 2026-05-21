@@ -42,12 +42,14 @@ public class SetMemberGenerator {
         log.info("Expanding members {}", iri);
         setRepo.updateMembers(iri, members, insertGraph);
       }
+      setRepo.updateMemberCount(iri,insertGraph);
     } else {
       log.info("Expanding from definition {}", iri);
       Query query = setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       new SparqlOptimizer().optimizeQuery(query);
       Set<Concept> members = setRepo.getMembersFromDefinition(query);
       setRepo.updateMembers(iri, members, insertGraph);
+      setRepo.updateMemberCount(iri,insertGraph);
     }
   }
 

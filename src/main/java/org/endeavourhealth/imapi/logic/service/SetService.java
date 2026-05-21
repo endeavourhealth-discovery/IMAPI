@@ -402,5 +402,9 @@ public class SetService {
     Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
   }
+
+  public Integer getMemberCount(String iri) {
+    return setRepository.getMemberCount(iri);
+  }
 }
 

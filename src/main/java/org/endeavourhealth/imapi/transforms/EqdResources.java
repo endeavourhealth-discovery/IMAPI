@@ -163,20 +163,10 @@ public class EqdResources {
 
   private Match getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
-    if (groupCriteria.size() <= 1) {
-      EQDOCCriteria eqCriteria = groupCriteria.getFirst();
-      if (isNegatedCriteria(eqCriteria)) {
-        Match match = convertCriteria(eqCriteria);
-        match.setNotExists(true);
-        return match;
-      } else return convertCriteria(groupCriteria.getFirst());
-    } else {
       Match boolMatch = new Match();
       if (memberOp == null) {
         memberOp = VocMemberOperator.OR;
       }
-
-
       for (EQDOCCriteria eqCriteria : groupCriteria) {
         Match match = this.convertCriteria(eqCriteria);
         if (isNegatedCriteria(eqCriteria)) {
@@ -186,9 +176,8 @@ public class EqdResources {
           boolMatch.addAnd(match);
         } else boolMatch.addOr(match);
       }
-
       return boolMatch;
-    }
+
   }
 
   private boolean isNegatedCriteria(EQDOCCriteria criteria) {

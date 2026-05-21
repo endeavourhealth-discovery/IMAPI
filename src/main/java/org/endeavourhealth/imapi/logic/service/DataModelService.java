@@ -48,8 +48,8 @@ public class DataModelService {
   }
 
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly,boolean excludeGeneric) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
   }
 
 

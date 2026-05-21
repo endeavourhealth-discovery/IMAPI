@@ -233,6 +233,7 @@ public class LogicOptimizer {
         case "REJECT_NEXT":
           subMatch.setNotExists(true);
           match.addAnd(subMatch);
+          topOr = null;
           break;
         case "NEXT_SELECT":
           subMatch.setNotExists(true);
@@ -260,11 +261,11 @@ public class LogicOptimizer {
   }
 
   private void flattenMatch(Match match) {
-    if (match.getOr() != null) {
+    if (match.getOr() != null&&!match.isNotExists()) {
       List<Match> flatOrs = new ArrayList<>();
       flattenOrs(match, flatOrs);
       if (!flatOrs.isEmpty()) match.setOr(flatOrs);
-    } else if (match.getAnd() != null) {
+    } else if (match.getAnd() != null&&!match.isNotExists()) {
       List<Match> flatAnds = new ArrayList<>();
       flattenAnds(match, flatAnds);
       if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
@@ -277,7 +278,10 @@ public class LogicOptimizer {
         flatAnds.add(subMatch);
         flattenMatch(subMatch);
       } else {
-        flattenAnds(subMatch, flatAnds);
+        if (subMatch.isNotExists()){
+          flatAnds.add(subMatch);
+        }
+        else flattenAnds(subMatch, flatAnds);
       }
     }
   }
@@ -288,7 +292,10 @@ public class LogicOptimizer {
         flatOrs.add(subMatch);
         flattenMatch(subMatch);
       } else {
-        flattenOrs(subMatch, flatOrs);
+        if (subMatch.isNotExists()){
+          flatOrs.add(subMatch);
+        }
+        else flattenOrs(subMatch, flatOrs);
       }
     }
   }

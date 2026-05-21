@@ -117,6 +117,9 @@ public class EqdToIMQ {
             TTEntity qry = this.convertReport(eqReport);
             if (eqReport.getVersionIndependentGUID() != null) {
               qry.setIri(this.namespace + eqReport.getVersionIndependentGUID());
+              Query query = qry.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+              query.setIri(qry.getIri());
+              qry.set(IM.DEFINITION, TTLiteral.literal(query));
             }
             if (qry != null) {
               this.document.addEntity(qry);

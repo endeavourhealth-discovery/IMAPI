@@ -38,12 +38,11 @@ public class DataModelController {
   public NodeShape getDataModelProperties(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
-    @RequestParam(name="excludeGeneric",required= false, defaultValue= "false") boolean excludeGeneric
+    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
     }
   }
 

@@ -138,6 +138,8 @@ public class QueryDescriptor {
 
   private void describeReturn(Return prop,Match match) {
     if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(), Context.PATH));
+    if (prop.getUnits()!=null &&prop.getUnits().getIri()!=null)
+      prop.getUnits().setName(getTermInContext(prop.getUnits().getIri(), Context.PLURAL));
     if (prop.getAs() == null) prop.setAs(prop.getName());
     if (prop.getFunction() != null) {
       describeFunction(prop.getFunction());

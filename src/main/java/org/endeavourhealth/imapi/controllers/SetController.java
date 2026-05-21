@@ -93,6 +93,18 @@ public class SetController {
       return setService.getDirectOrEntailedMembersFromIri(iri, entailments, page, size);
     }
   }
+  @GetMapping(value = "/protected/memberCount")
+  @Operation(summary = "Get count of members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
+  public Integer getMemberCount(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Set.MemberCount.GET")) {
+      log.debug("getMemberCount");
+
+      return setService.getMemberCount(iri);
+    }
+  }
 
   @PostMapping(value = "/protected/membersFromQuery")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")

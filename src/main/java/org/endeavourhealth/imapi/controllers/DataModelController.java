@@ -63,6 +63,21 @@ public class DataModelController {
 
 
   @Operation(
+    summary = "Fetches properties of a type and its linked types",
+    description = "Returns a list of properties displayed and linked types for the given IRI."
+  )
+  @GetMapping(value = "/relatedTypes")
+  public NodeShape getRelatedTypes(
+    HttpServletRequest request,
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.RelatedTypes.GET")) {
+      log.debug("getRelatedTypes for "+ iri);
+      return dataModelService.getRelatedTypes(iri);
+    }
+  }
+
+  @Operation(
     summary = "Retrieve UI property for query builder",
     description = "Returns the UI property metadata for a given data model IRI and property IRI."
   )

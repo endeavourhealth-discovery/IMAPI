@@ -52,6 +52,10 @@ public class DataModelService {
     return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
   }
 
+  public NodeShape getRelatedTypes(String iri) {
+    return dataModelRepository.getRelatedTypes(iri);
+  }
+
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
     return getDataModelProperties(iri, true);

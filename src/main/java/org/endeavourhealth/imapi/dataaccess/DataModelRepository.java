@@ -1,5 +1,9 @@
 package org.endeavourhealth.imapi.dataaccess;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
@@ -122,6 +126,59 @@ public class DataModelRepository {
       }
     }
   }
+
+
+  public NodeShape getRelatedTypes(String iri) {
+    NodeShape result= getDataModelDisplayProperties(iri,false);
+    String sql= """
+      Select distinct ?folderOrder ?folder  ?folderName ?type ?typeName  \s
+      where {
+          Values ?c {%s}
+          ?c rdfs:label ?cName.
+          ?type sh:property ?property.
+          ?property sh:node ?c.
+          filter not exists{
+              ?c sh:property ?property1.
+              ?property1 sh:path ?path.
+              filter not exists {?path rdf:type sh:Function}
+              ?property1 sh:node ?type.
+          }
+          filter not exists {?type im:abstract true}
+          ?type im:isContainedIn ?folder.
+          optional {?folder sh:order ?folderOrder}
+          ?folder rdfs:label ?folderName.
+          ?type rdfs:label ?typeName.
+      }
+      order by ?folderOrder ?folder ?typeName
+      """.formatted("<"+iri+">");
+    Map<String,NodeShape> folderMap=new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String folderIri=bs.getValue("folder").stringValue();
+          String folderName=bs.getValue("folderName").stringValue();
+          String typeName=bs.getValue("typeName").stringValue();
+          String typeIri=bs.getValue("type").stringValue();
+          NodeShape folder=folderMap.get(folderIri);
+          if (folder==null) {
+            folder= new NodeShape();
+            folder.setIri(folderIri);
+            folder.setName(folderName);
+            folderMap.put(folderIri,folder);
+            result.addFolder(folder);
+          }
+          NodeShape type= new NodeShape();
+          type.setIri(typeIri);
+          type.setName(typeName);
+          folder.addType(type);
+        }
+      }
+    }
+    return result;
+  }
+
 
   public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();

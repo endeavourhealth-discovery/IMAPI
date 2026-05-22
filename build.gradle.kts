@@ -192,6 +192,7 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
+  implementation(libs.interfacemanager)
 
   runtimeOnly(libs.spring.dev.tools)
 

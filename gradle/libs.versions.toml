@@ -40,6 +40,7 @@ validation = "3.1.1"
 woodstox = "7.1.0"
 wsrs = "3.1.0"
 mysqlConncector = "9.2.0"
+interfaceManager = "0.0.0"
 
 [libraries]
 # Implementation
@@ -97,6 +98,7 @@ validation = { module = "jakarta.validation:jakarta.validation-api", version.ref
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 wsrs = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "wsrs" }
 mysqlConncector = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlConncector" }
+interfacemanager = { module = "org.endeavourhealth.interfacemanager:interfacemanager", version.ref = "interfaceManager" }
 
 #Test implementation
 cucumber = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }

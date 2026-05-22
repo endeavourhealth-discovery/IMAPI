@@ -228,19 +228,39 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (currentMatch.or != null) {
-      for (m in currentMatch.or) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
+      val orWiths = mutableListOf<MySQLWith>()
+      val tempQuery = MySQLQuery()
+      tempQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
+      if (mySqlQuery.withs.isNotEmpty()) {
+        tempQuery.withs.add(mySqlQuery.withs.last())
       }
+
+      for (m in currentMatch.or) {
+        val branchQuery = MySQLQuery()
+        branchQuery.nodeToTableMap.putAll(tempQuery.nodeToTableMap)
+        if (tempQuery.withs.isNotEmpty()) {
+          branchQuery.withs.add(tempQuery.withs.last())
+        }
+        addMatchWithsRecursively(m, currentMatch, branchQuery, Bool.and)
+        orWiths.add(branchQuery.withs.last())
+        mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
+      }
+
+      val unionWith = MySQLWith(
+        alias = "union_${mySqlQuery.withs.size}",
+        table = orWiths.first().table,
+        unionWiths = orWiths
+      )
+      mySqlQuery.withs.add(unionWith)
     }
 
-
-    if (currentMatch.and == null && currentMatch.or == null) {
+    if (currentMatch.and == null && currentMatch.or == null && currentMatch.any == null) {
       if (currentMatch.`is` != null) mySqlQuery.withs.addAll(getIsWiths(currentMatch, mySqlQuery))
-      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery))
+      else mySqlQuery.withs.add(getMySQLWithFromMatch(currentMatch, mySqlQuery, bool))
     }
   }
 
-  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery, bool: Bool): MySQLWith {
     var with = MySQLWith()
 
     if (match.typeOf?.iri != null) {
@@ -272,11 +292,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       with = getOrderByWith(with, match, mySQLQuery)
     }
 
-
-    if (match.orderBy == null && mySQLQuery.withs.isNotEmpty()) {
+    if (match.orderBy == null && mySQLQuery.withs.isNotEmpty() && bool == Bool.and && match.ifTrue != RuleAction.SELECT) {
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
-
 
     return with;
   }
@@ -361,16 +379,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table.table}"
       )
     }
-    val innerQueryJoin = MySQLJoin(
-      join = "JOIN",
-      tableFrom = with.table.alias ?: with.table.table,
-      tableTo = mySQLQuery.withs.last().alias,
-      tableToAlias = mySQLQuery.withs.last().alias,
-      fromProperty = fk,
-      toProperty = fkLast,
-      reference = true
-    )
-    with.joins.add(innerQueryJoin)
+    if (match.ifTrue != RuleAction.SELECT) {
+      val innerQueryJoin = MySQLJoin(
+        join = "JOIN",
+        tableFrom = with.table.alias ?: with.table.table,
+        tableTo = mySQLQuery.withs.last().alias,
+        tableToAlias = mySQLQuery.withs.last().alias,
+        fromProperty = fk,
+        toProperty = fkLast,
+        reference = true
+      )
+      with.joins.add(innerQueryJoin)
+    }
 
     if (match.notExists()) {
       val notExistJoinCondition = MySQLJoin(

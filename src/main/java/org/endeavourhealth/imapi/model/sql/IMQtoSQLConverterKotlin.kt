@@ -292,7 +292,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       with = getOrderByWith(with, match, mySQLQuery)
     }
 
-    if (match.orderBy == null && mySQLQuery.withs.isNotEmpty() && bool == Bool.and && match.ifTrue != RuleAction.SELECT) {
+    if (match.orderBy == null && mySQLQuery.withs.isNotEmpty() && bool == Bool.and) {
       with.joins.add(getJoinBetweenWiths(with, mySQLQuery.withs.last()))
     }
 
@@ -379,18 +379,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table.table}"
       )
     }
-    if (match.ifTrue != RuleAction.SELECT) {
-      val innerQueryJoin = MySQLJoin(
-        join = "JOIN",
-        tableFrom = with.table.alias ?: with.table.table,
-        tableTo = mySQLQuery.withs.last().alias,
-        tableToAlias = mySQLQuery.withs.last().alias,
-        fromProperty = fk,
-        toProperty = fkLast,
-        reference = true
-      )
-      with.joins.add(innerQueryJoin)
-    }
+    val innerQueryJoin = MySQLJoin(
+      join = "JOIN",
+      tableFrom = with.table.alias ?: with.table.table,
+      tableTo = mySQLQuery.withs.last().alias,
+      tableToAlias = mySQLQuery.withs.last().alias,
+      fromProperty = fk,
+      toProperty = fkLast,
+      reference = true
+    )
+
+    with.joins.add(innerQueryJoin)
+
 
     if (match.notExists()) {
       val notExistJoinCondition = MySQLJoin(

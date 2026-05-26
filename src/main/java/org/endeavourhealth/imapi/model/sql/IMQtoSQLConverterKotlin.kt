@@ -23,6 +23,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   var queryTypeOfTable = Table()
   private val MAX_ALIAS_LENGTH = 64  // DB limit for MySQL
   private var longAliasCounter = 1
+  private val usedAliases = mutableSetOf<String>()
 
 
   init {
@@ -61,6 +62,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun generateSQL(definition: Query): String {
+    usedAliases.clear()
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null
     ) throw SQLConversionException("Query typeOf is null")
@@ -79,6 +81,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (definition.columnGroup != null) {
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
+        usedAliases.clear()
         val newMySqlQuery = MySQLQuery()
         if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
@@ -152,7 +155,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getIsWiths(match: Match, mySqlQuery: MySQLQuery): MutableList<MySQLWith> {
     val isAWiths = mutableListOf<MySQLWith>()
     for (isA in match.`is`) {
-      val isAlias = "`${getCteAliasFromTypeAndProperty(isA.iri, null)}`"
+      val isAlias = ensureUniqueAlias(getCteAliasFromTypeAndProperty(isA.iri, null))
       val withJoins = mutableListOf<MySQLJoin>()
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
       cohortTable.table = "dataset.cohort_results"
@@ -242,12 +245,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           branchQuery.withs.add(tempQuery.withs.last())
         }
         addMatchWithsRecursively(m, currentMatch, branchQuery, Bool.and)
+
+        val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
+        mySqlQuery.withs.addAll(newWiths)
+
         orWiths.add(branchQuery.withs.last())
         mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
       }
 
       val unionWith = MySQLWith(
-        alias = "union_${mySqlQuery.withs.size}",
+        alias = ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
         table = orWiths.first().table,
         unionWiths = orWiths
       )
@@ -463,23 +470,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {
-    val alias = if (match.name != null) sanitiseAlias(match.name)
+    val baseAlias = if (match.name != null) sanitiseAlias(match.name)
     else if (match.node != null) sanitiseAlias(match.node)
     else "cte_${mySQLQuery.withs.size}"
 
-    val existing = mySQLQuery.withs
-      .map { it.alias }
-      .toHashSet()
-
-    if (alias.length > MAX_ALIAS_LENGTH) {
-      var alias: String
-      do {
-        alias = "cte_${longAliasCounter++}"
-      } while (existing.contains(alias))
-      return alias
-    }
-
-    return alias
+    return ensureUniqueAlias(baseAlias)
   }
 
   private fun sanitiseAlias(alias: String): String {
@@ -950,35 +945,38 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return table
   }
 
-  private fun ensureUniqueAlias(baseAlias: String, mySqlQuery: MySQLQuery): String {
+  private fun ensureUniqueAlias(baseAlias: String): String {
     fun normalize(a: String) =
       a.replace("`", "").lowercase()
 
-    val existing = mySqlQuery.withs
-      .map { normalize(it.alias) }
-      .toHashSet()
+    var alias = baseAlias.replace("`", "")
 
-    if (baseAlias.length > MAX_ALIAS_LENGTH) {
-      var alias: String
+    if (alias.length > MAX_ALIAS_LENGTH) {
+      var newAlias: String
       do {
-        alias = "cte_${longAliasCounter++}"
-      } while (existing.contains(normalize(alias)))
-      return "`$alias`"
+        newAlias = "cte_${longAliasCounter++}"
+      } while (usedAliases.contains(normalize(newAlias)))
+      usedAliases.add(normalize(newAlias))
+      return "`$newAlias`"
     }
 
-    var alias = baseAlias
+    var uniqueAlias = alias
     var index = 2
 
     while (
-      existing.contains(normalize(alias)) ||
-      alias.length > MAX_ALIAS_LENGTH
+      usedAliases.contains(normalize(uniqueAlias)) ||
+      uniqueAlias.length > MAX_ALIAS_LENGTH
     ) {
-      alias = "${baseAlias}_$index"
+      uniqueAlias = if (uniqueAlias.length > MAX_ALIAS_LENGTH) {
+        "cte_${longAliasCounter++}"
+      } else {
+        "${alias}_$index"
+      }
       index++
     }
 
-    alias = alias.replace("`", "")
-    return "`$alias`"
+    usedAliases.add(normalize(uniqueAlias))
+    return "`$uniqueAlias`"
   }
 
   fun getDataModelFromKeepAs(keepAs: String?): String? {

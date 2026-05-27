@@ -347,7 +347,7 @@ public class QueryRepository {
     String sql = """
       select ?cohort
       where {
-       Values ?cohortIri {%s} 
+       Values ?cohortIri {%s}
        ?cohortIri im:definition ?cohort .
        }
       """.formatted("<" + cohortIri + ">");
@@ -360,8 +360,8 @@ public class QueryRepository {
           cohort = mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
         }
       }
-      return null;
     }
+    return cohort;
   }
 
   public List<String> getSubtypeProperties(Set<TTIriRef> iris) {

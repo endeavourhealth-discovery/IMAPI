@@ -230,6 +230,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
 
+    if (currentMatch.any != null) {
+      for (m in currentMatch.any) {
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.any)
+      }
+    }
+
     if (currentMatch.or != null) {
       val orWiths = mutableListOf<MySQLWith>()
       val tempQuery = MySQLQuery()

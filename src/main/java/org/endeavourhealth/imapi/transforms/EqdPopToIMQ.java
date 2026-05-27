@@ -25,7 +25,7 @@ public class EqdPopToIMQ {
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query
         .rule(r -> r
-          .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
+          .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
             .setIsCohort(true)
             .setName("Registered with GP for GMS services on the reference date")));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
@@ -41,14 +41,14 @@ public class EqdPopToIMQ {
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query
           .rule(r -> r
-            .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
+            .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
               .setIsCohort(true)
               .setName("Registered with GP for GMS services on the reference date")));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       } else {
         query
           .addRule(new Match()
-            .addIs(Node.iri(resources.getNamespace() + id)
+            .setIs(Node.iri(resources.getNamespace() + id)
               .setIsCohort(true)
               .setName(resources.reportNames.get(id))));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + id));

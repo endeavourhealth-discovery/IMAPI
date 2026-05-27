@@ -24,7 +24,7 @@ public class EqdListToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       id = NAMESPACE.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
-    query.addIs(Node.iri(id)
+    query.setIs(Node.iri(id)
       .setIsCohort(true)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {

@@ -479,11 +479,9 @@ public class IMQToOS {
     }
   }
 
-  private void setFromAliases(BoolQueryBuilder boolBuilder, List<Node> types) throws QueryException {
+  private void setFromAliases(BoolQueryBuilder boolBuilder, Node type) throws QueryException {
     Map<String, Set<String>> instanceFilters = new HashMap<>();
-    for (Node type : types) {
-      setFromAlias(type, instanceFilters);
-    }
+    setFromAlias(type, instanceFilters);
     if (!instanceFilters.isEmpty()) {
       for (Map.Entry<String, Set<String>> entry : instanceFilters.entrySet()) {
         addFilterWithId(entry.getKey(), entry.getValue(), Bool.and, boolBuilder);

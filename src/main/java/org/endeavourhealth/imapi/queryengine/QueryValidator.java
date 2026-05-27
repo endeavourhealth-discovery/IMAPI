@@ -58,20 +58,16 @@ public class QueryValidator {
     }
   }
 
-  private void processIs(List<Node> is) throws QueryException {
-    if (is.size()>1){
-      Node first= is.getFirst();
-      if (first.getNodeRef()!=null|| first.getMatch()!=null||first.getNode()!=null){
+  private void processIs(Node is) throws QueryException {
+    if (is.getNodeRef()!=null|| is.getMatch()!=null||is.getNode()!=null){
         throw new QueryException("in list cannot have nore than one entry if references are used");
-      }
     }
     else {
-      Node first= is.getFirst();
-      if (first.getNode()!=null)
-        variables.put(first.getNode(), VarType.NODE);
+      if (is.getNode()!=null)
+        variables.put(is.getNode(), VarType.NODE);
       if
-      (first.getMatch()!=null){
-        processMatch(first.getMatch());
+      (is.getMatch()!=null){
+        processMatch(is.getMatch());
       }
     }
   }

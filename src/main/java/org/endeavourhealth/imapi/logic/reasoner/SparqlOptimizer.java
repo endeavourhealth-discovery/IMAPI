@@ -50,10 +50,9 @@ public class SparqlOptimizer {
 
   private void optimizeProperties(Match match) throws QueryException, TTFilerException, JsonProcessingException {
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
+      Node node = match.getIs();
         if (node.getMatch() != null)
           optimizeProperties(node.getMatch());
-      }
     }
     if (match.getWhere() != null) {
       optimizeWhereProperties(match.getWhere());
@@ -72,10 +71,9 @@ public class SparqlOptimizer {
 
   private void optimizeValueSets(Match match) throws QueryException, JsonProcessingException, TTFilerException {
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
+      Node node = match.getIs();
         if (node.getMatch() != null)
           optimizeValueSets(node.getMatch());
-      }
     }
     if (match.getWhere() != null) {
       optimizeWhereSets(match.getWhere());
@@ -161,10 +159,15 @@ public class SparqlOptimizer {
   }
 
   private List<Node> inferPropertyList(List<Node> propertyList) throws QueryException {
-    Query propertyQuery = new Query()
-      .setIs(propertyList);
-    Set<Concept> conceptList = setRepo.getMembersFromDefinition(propertyQuery);
-    return conceptList.stream()
+    Set<Concept> conceptSet = new HashSet<>();
+    Query propertyQuery = new Query();
+    for (Node node : propertyList) {
+      Query orQuery = new Query();
+      orQuery.setIs(node);
+      propertyQuery.addOr(orQuery);
+      conceptSet.addAll(setRepo.getMembersFromDefinition(orQuery));
+    }
+    return conceptSet.stream()
       .map(c -> new Node().setIri(c.getIri()))
       .sorted(Comparator.comparing(Node::getIri))
       .toList();
@@ -172,7 +175,9 @@ public class SparqlOptimizer {
 
   private String createConceptSet(List<Node> is) throws JsonProcessingException, QueryException, TTFilerException {
     Query setQuery = new Query();
-    setQuery.setIs(is);
+    for (Node node : is) {
+      setQuery.addOr(new Match().setIs(node));
+    }
     TTEntity setEntity = new TTEntity();
     String setIri = NAMESPACE.IM + "ASET_" + getHash(is);
     if (setIris.contains(setIri)) return setIri;

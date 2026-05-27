@@ -73,12 +73,11 @@ public class IriCollector {
       }
     }
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getMatch()!=null)
-          collectMatchIris(node.getMatch(),iriSet);
-        else if (node.getIri()!=null)
-          iriSet.add(node.getIri());
-      }
+      Node node = match.getIs();
+      if (node.getMatch()!=null)
+        collectMatchIris(node.getMatch(),iriSet);
+      else if (node.getIri()!=null)
+        iriSet.add(node.getIri());
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {

@@ -132,7 +132,7 @@ public class EqdResources {
       if (EqdToIMQ.gmsPatients.contains(parent)) {
         finalParentId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
-      match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
+      match.setIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
       queryEntity.addObject(iri(IM.DEPENDENT_ON), iri(finalParentId));
       return match;
     } else {
@@ -210,7 +210,7 @@ public class EqdResources {
         if (!libraryItems.containsKey(libraryId)) {
           System.err.println("Library item not found: " + libraryId);
           Match libraryMatch = new Match();
-          libraryMatch.addIs(new Node().setIri(this.namespace + libraryId));
+          libraryMatch.setIs(new Node().setIri(this.namespace + libraryId));
           if (score!=null)
             addScore(libraryMatch,score);
 
@@ -248,7 +248,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addIs(new Node().setIri(namespace + searchId)
+    match.setIs(new Node().setIri(namespace + searchId)
       .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
     String finalSearchId = namespace + searchId;
     if (EqdToIMQ.gmsPatients.contains(searchId)) {

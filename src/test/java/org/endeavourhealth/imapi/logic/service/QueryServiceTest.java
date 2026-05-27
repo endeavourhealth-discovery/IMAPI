@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.imq.DatabaseOption;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.EntityType;
+import org.endeavourhealth.interfacemanager.model.DatabaseOption;
+import org.endeavourhealth.interfacemanager.model.EntityType;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 

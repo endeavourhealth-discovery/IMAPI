@@ -4,7 +4,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntityMap;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

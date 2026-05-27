@@ -6,9 +6,9 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSBaseVisitor;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSLexer;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSParser;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.OWL;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

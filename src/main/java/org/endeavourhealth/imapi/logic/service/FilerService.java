@@ -20,15 +20,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 
 @Component
 public class FilerService {
@@ -72,7 +72,7 @@ public class FilerService {
   }
 
   private static boolean hasParents(TTEntity entity) {
-    String[] parentPredicateArray = asArray(IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF);
+    String[] parentPredicateArray = EnumUtils.asArray(IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF);
     for (String parentPredicate : parentPredicateArray) {
       if (!hasParentPredicateAndIsValidIriRefList(entity, iri(parentPredicate))) return false;
     }
@@ -126,7 +126,7 @@ public class FilerService {
 
       entityFiler.updateIsAs(entity.getIri());
 
-      if (entity.isType(iri(IM.VALUESET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
+      if (entity.isType(iri(IM.VALUE_SET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         new SetBinder().bindSet(entity.getIri(), insertGraph);
       }

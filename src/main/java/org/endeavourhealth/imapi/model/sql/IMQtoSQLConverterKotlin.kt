@@ -6,9 +6,10 @@ import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.imapi.model.tripletree.TTEntity
-import org.endeavourhealth.imapi.vocabulary.IM
-import java.util.Locale
+import org.endeavourhealth.interfacemanager.model.Bool
+import org.endeavourhealth.interfacemanager.model.IM
+import org.endeavourhealth.interfacemanager.model.IMQType
+import org.endeavourhealth.interfacemanager.model.Order
 import java.util.Locale.getDefault
 
 @Slf4j
@@ -969,7 +970,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getUnitNameAndType(iri: String): Pair<String, String> {
-    return when (IM.from(iri)) {
+    return when (IM.decode(iri)) {
       IM.YEARS -> "YEAR" to "Unit"
       IM.YEAR -> "YEAR" to "Qualifier"
       IM.MONTHS -> "MONTH" to "Unit"

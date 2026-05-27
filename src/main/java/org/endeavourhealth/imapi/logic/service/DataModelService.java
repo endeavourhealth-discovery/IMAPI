@@ -4,18 +4,23 @@ import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
-import org.endeavourhealth.imapi.model.iml.ArrayButtons;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.OWL;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class DataModelService {
@@ -35,6 +40,18 @@ public class DataModelService {
     entityService = new EntityService(entityRepository);
   }
 
+  private static String getCardinality(TTValue ttProperty) {
+    int minCount = 0;
+    if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
+      minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
+    }
+    int maxCount = 0;
+    if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
+      maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
+    }
+    return minCount + " : " + (maxCount == 0 ? "*" : maxCount);
+  }
+
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);
   }
@@ -47,19 +64,16 @@ public class DataModelService {
     return dataModelRepository.getProperties();
   }
 
-
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly,boolean excludeGeneric) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, excludeGeneric);
   }
-
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
     return getDataModelProperties(iri, true);
   }
 
-
   public List<DataModelProperty> getDataModelProperties(String iri, Boolean includeComplexTypes) {
-    TTEntity entity = entityRepository.getBundle(iri, asHashSet(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
+    TTEntity entity = entityRepository.getBundle(iri, EnumUtils.asHashSet(SHACL.PROPERTY, RDFS.LABEL)).getEntity();
     return getDataModelProperties(entity, includeComplexTypes);
   }
 
@@ -130,7 +144,7 @@ public class DataModelService {
     if (null != uiProp.getUnitIri()) {
       List<TTIriRef> isas = entityService.getIsas(uiProp.getUnitIri());
       List<TTIriRef> unitOptions = isas.stream().filter(unit -> !unit.getIri().equals(uiProp.getUnitIri())).toList();
-      unitOptions.forEach(unit-> unit.setName(Pluraliser.pluralise(unit.getName())));
+      unitOptions.forEach(unit -> unit.setName(Pluraliser.pluralise(unit.getName())));
       uiProp.setUnitOptions(unitOptions);
     }
     if (null != uiProp.getOperatorIri())
@@ -160,18 +174,6 @@ public class DataModelService {
       }
     }
     return propertyList;
-  }
-
-  private static String getCardinality(TTValue ttProperty) {
-    int minCount = 0;
-    if (ttProperty.asNode().has(iri(SHACL.MINCOUNT))) {
-      minCount = ttProperty.asNode().get(iri(SHACL.MINCOUNT)).asLiteral().intValue();
-    }
-    int maxCount = 0;
-    if (ttProperty.asNode().has(iri(SHACL.MAXCOUNT))) {
-      maxCount = ttProperty.asNode().get(iri(SHACL.MAXCOUNT)).asLiteral().intValue();
-    }
-    return minCount + " : " + (maxCount == 0 ? "*" : maxCount);
   }
 
   private String getReverseCardinality(TTValue ttProperty, Set<String> predicates, String newCardinality, String entityIri) {

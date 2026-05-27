@@ -13,8 +13,8 @@ import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.imapi.vocabulary.WORKFLOW;
 import org.springframework.stereotype.Component;
 

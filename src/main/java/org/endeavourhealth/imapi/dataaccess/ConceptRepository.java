@@ -8,8 +8,8 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.util.*;
 
@@ -40,7 +40,7 @@ public class ConceptRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           simpleMaps.add(new SimpleMap(getString(bs, "s"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme")
-          ,getString(bs,"alternativeCode"),getString(bs,"codeId")));
+            , getString(bs, "alternativeCode"), getString(bs, "codeId")));
         }
       }
     }
@@ -66,7 +66,7 @@ public class ConceptRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme"),null,null));
+          simpleMaps.add(new SimpleMap(getString(bs, "o"), getString(bs, "name"), getString(bs, "code"), getString(bs, "scheme"), null, null));
         }
       }
     }
@@ -75,7 +75,7 @@ public class ConceptRepository {
 
   public Set<String> getPropertiesForDomains(Set<String> iris) {
     Set<String> properties = new HashSet<>();
-    String sql= """
+    String sql = """
       SELECT distinct ?property
             WHERE {
               Values ?parentConcept {%s}
@@ -198,7 +198,7 @@ public class ConceptRepository {
       ?entity im:hasTermCode ?termCode.
       ?termCode rdfs:label ?term.
       }
-     
+      
       }
       order by strlen(?term)
       limit 1

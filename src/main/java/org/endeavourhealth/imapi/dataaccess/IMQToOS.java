@@ -13,13 +13,13 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.TextSearchStyle;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
-
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class IMQToOS {
   private static final String SCHEME = "scheme";
@@ -193,7 +193,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
-      addFilterWithId("status", asHashSet(IM.ACTIVE), Bool.and, boolBuilder);
+      addFilterWithId("status", EnumUtils.asHashSet(IM.ACTIVE), Bool.and, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null) {
       if (!addMatch(boolBuilder, query))
@@ -246,39 +246,41 @@ public class IMQToOS {
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         if (prop.getIri() != null) {
-          switch (OPEN_SEARCH.from(prop.getIri())) {
-            case OPEN_SEARCH.DESCRIPTION:
+          switch (OPENSEARCH.Companion.decode(prop.getIri())) {
+            case OPENSEARCH.DESCRIPTION:
               sources.add("description");
               break;
-            case OPEN_SEARCH.NAME:
+            case OPENSEARCH.NAME:
               sources.add("name");
               break;
-            case OPEN_SEARCH.CODE:
+            case OPENSEARCH.CODE:
               sources.add("code");
               break;
-            case OPEN_SEARCH.STATUS:
+            case OPENSEARCH.STATUS:
               sources.add(STATUS);
               break;
-            case OPEN_SEARCH.ALTERNATIVE_CODE:
+            case OPENSEARCH.ALTERNATIVE_CODE:
               sources.add("alternativeCode");
               break;
-            case OPEN_SEARCH.SCHEME:
+            case OPENSEARCH.SCHEME:
               sources.add(SCHEME);
               break;
-            case OPEN_SEARCH.TYPE:
+            case OPENSEARCH.TYPE:
               sources.add("type");
               break;
-            case OPEN_SEARCH.USAGE_TOTAL:
+            case OPENSEARCH.USAGE_TOTAL:
               sources.add(USAGE_TOTAL);
               break;
-            case OPEN_SEARCH.BINDING:
+            case OPENSEARCH.BINDING:
               sources.add("binding");
               break;
-            case OPEN_SEARCH.TERM_CODE:
+            case OPENSEARCH.TERM_CODE:
               sources.add("termCode");
               break;
-            case OPEN_SEARCH.DOMAIN:
+            case OPENSEARCH.DOMAIN:
               break;
+            case null:
+              throw new IllegalArgumentException("Failed to decode as OPENSEARCH enum");
             default:
               return false;
           }
@@ -339,12 +341,11 @@ public class IMQToOS {
 
   private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     String w = where.getIri();
-    if (w==null &&(where.getAnd()!=null||where.getOr()!=null)) {
+    if (w == null && (where.getAnd() != null || where.getOr() != null)) {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-      if (bool ==Bool.and){
+      if (bool == Bool.and) {
         boolBldr.must(nestedBool);
-      }
-      else boolBldr.should(nestedBool);
+      } else boolBldr.should(nestedBool);
       if (!addBoolProperties(where, nestedBool)) return false;
       else return true;
     }

@@ -5,9 +5,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTEntityDeserializer;
 import org.endeavourhealth.imapi.json.TTEntitySerializer;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,41 +34,45 @@ public class TTEntity extends TTNode implements Serializable {
     return this;
   }
 
+  public String getName() {
+    TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
+    return (literal == null) ? null : literal.getValue();
+  }
+
   // Utility methods for common predicates
   public TTEntity setName(String name) {
     set(iri(RDFS.LABEL), TTLiteral.literal(name));
     return this;
   }
 
-  public String getName() {
-    TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
-    return (literal == null) ? null : literal.getValue();
-  }
-
-  public String getPreferredName(){
+  public String getPreferredName() {
     TTLiteral literal = getAsLiteral(iri(IM.PREFERRED_NAME));
     return (literal == null) ? null : literal.getValue();
   }
 
-  public String getBestMatch(){
+  public String getBestMatch() {
     TTLiteral literal = getAsLiteral(iri(IM.BEST_MATCH));
     return (literal == null) ? null : literal.getValue();
   }
 
-  public Integer getUsageTotal(){
+  public Integer getUsageTotal() {
     TTLiteral literal = getAsLiteral(iri(IM.USAGE_TOTAL));
-    return (literal == null) ? null :literal.getValue()==null ?null: literal.intValue();
+    return (literal == null) ? null : literal.getValue() == null ? null : literal.intValue();
   }
 
+  public int getVersion() {
+    TTLiteral literal = getAsLiteral(iri(IM.VERSION));
+    return (literal == null) ? 1 : literal.intValue();
+  }
 
   public TTEntity setVersion(int version) {
     set(iri(IM.VERSION), TTLiteral.literal(version));
     return this;
   }
 
-  public int getVersion() {
-    TTLiteral literal = getAsLiteral(iri(IM.VERSION));
-    return (literal == null) ? 1 : literal.intValue();
+  public String getDescription() {
+    TTLiteral literal = getAsLiteral(iri(RDFS.COMMENT));
+    return (literal == null) ? null : literal.getValue();
   }
 
   public TTEntity setDescription(String description) {
@@ -79,8 +83,8 @@ public class TTEntity extends TTNode implements Serializable {
     return this;
   }
 
-  public String getDescription() {
-    TTLiteral literal = getAsLiteral(iri(RDFS.COMMENT));
+  public String getCode() {
+    TTLiteral literal = getAsLiteral(iri(IM.CODE));
     return (literal == null) ? null : literal.getValue();
   }
 
@@ -89,23 +93,13 @@ public class TTEntity extends TTNode implements Serializable {
     return this;
   }
 
-  public String getCode() {
-    TTLiteral literal = getAsLiteral(iri(IM.CODE));
-    return (literal == null) ? null : literal.getValue();
+  public TTIriRef getScheme() {
+    return this.getAsIriRef(iri(IM.HAS_SCHEME));
   }
 
   @JsonSetter
   public TTEntity setScheme(TTIriRef scheme) {
     set(iri(IM.HAS_SCHEME), scheme);
-    return this;
-  }
-
-  public TTIriRef getScheme() {
-    return this.getAsIriRef(iri(IM.HAS_SCHEME));
-  }
-
-  public TTEntity setType(TTArray type) {
-    set(iri(RDF.TYPE), type);
     return this;
   }
 
@@ -134,13 +128,18 @@ public class TTEntity extends TTNode implements Serializable {
     else
       return get(iri(RDF.TYPE));
   }
-  public Set<TTIriRef> getTypes(){
+
+  public TTEntity setType(TTArray type) {
+    set(iri(RDF.TYPE), type);
+    return this;
+  }
+
+  public Set<TTIriRef> getTypes() {
     TTArray types = getType();
-    if(types == null)
+    if (types == null)
       return null;
     return types.getElements().stream().map(TTValue::asIriRef).collect(java.util.stream.Collectors.toSet());
   }
-
 
 
   public TTIriRef getStatus() {
@@ -150,11 +149,6 @@ public class TTEntity extends TTNode implements Serializable {
   @JsonSetter
   public TTEntity setStatus(TTIriRef status) {
     set(iri(IM.HAS_STATUS), status);
-    return this;
-  }
-
-  public TTEntity setContext(TTContext context) {
-    this.context = context;
     return this;
   }
 
@@ -211,6 +205,11 @@ public class TTEntity extends TTNode implements Serializable {
 
   public TTContext getContext() {
     return context;
+  }
+
+  public TTEntity setContext(TTContext context) {
+    this.context = context;
+    return this;
   }
 
   public TTIriRef getCrud() {

@@ -1,14 +1,15 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
+import org.endeavourhealth.interfacemanager.model.Entail;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"notExists","ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
+@JsonPropertyOrder({"notExists", "ifTrue", "ifFalse", "name", "description", "nodeRef", "header", "typeOf", "is", "path", "and", "or", "not", "where", "return", "then", ""})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Match extends IriLD implements HasPaths,Returnable {
+public class Match extends IriLD implements HasPaths, Returnable {
   private Node graph;
   private Where where;
   private String description;
@@ -47,10 +48,12 @@ public class Match extends IriLD implements HasPaths,Returnable {
   public Having getHaving() {
     return having;
   }
+
   public Match setHaving(Having having) {
     this.having = having;
     return this;
   }
+
   public Match having(Consumer<Having> builder) {
     Having having = new Having();
     setHaving(having);
@@ -58,10 +61,10 @@ public class Match extends IriLD implements HasPaths,Returnable {
   }
 
 
-
   public Where getThen() {
     return then;
   }
+
   public Match setThen(Where then) {
     this.then = then;
     return this;
@@ -84,7 +87,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
   }
 
 
-
   public String getErrorMessage() {
     return errorMessage;
   }
@@ -99,6 +101,11 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return notExists;
   }
 
+  public Match setNotExists(boolean notExists) {
+    this.notExists = notExists;
+    return this;
+  }
+
   public Match rule(Consumer<Match> builder) {
     Match rule = new Match();
     addRule(rule);
@@ -106,10 +113,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public Match setNotExists(boolean notExists) {
-    this.notExists = notExists;
-    return this;
-  }
   @JsonGetter
   public boolean notExists() {
     return notExists;
@@ -120,8 +123,24 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return typeOf;
   }
 
+  @JsonSetter
+  public Match setTypeOf(Node typeOf) {
+    this.typeOf = typeOf;
+    return this;
+  }
+
+  public Match setTypeOf(String type) {
+    this.typeOf = new Node().setIri(type);
+    return this;
+  }
+
   public Where getWhere() {
     return where;
+  }
+
+  public Match setWhere(Where where) {
+    this.where = where;
+    return this;
   }
 
   @Override
@@ -129,8 +148,18 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return description;
   }
 
+  public Match setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+
   public String getParameter() {
     return parameter;
+  }
+
+  public Match setParameter(String parameter) {
+    this.parameter = parameter;
+    return this;
   }
 
   @Override
@@ -138,29 +167,64 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return name;
   }
 
+  public Match setName(String name) {
+    this.name = name;
+    return this;
+  }
+
   @Override
   public List<Path> getPath() {
     return path;
+  }
+
+  public Match setPath(List<Path> path) {
+    this.path = path;
+    return this;
   }
 
   public FunctionClause getFunction() {
     return function;
   }
 
+  public Match setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+
   public Entail getEntailment() {
     return entailment;
+  }
+
+  public Match setEntailment(Entail entailment) {
+    this.entailment = entailment;
+    return this;
   }
 
   public RuleAction getIfTrue() {
     return ifTrue;
   }
 
+  public Match setIfTrue(RuleAction ifTrue) {
+    this.ifTrue = ifTrue;
+    return this;
+  }
+
   public RuleAction getIfFalse() {
     return ifFalse;
   }
 
+  public Match setIfFalse(RuleAction ifFalse) {
+    this.ifFalse = ifFalse;
+    return this;
+  }
+
   public boolean isBaseRule() {
     return baseRule;
+  }
+
+  public Match setBaseRule(boolean baseRule) {
+    this.baseRule = baseRule;
+    return this;
   }
 
   public Integer getRuleNumber() {
@@ -175,22 +239,45 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return inverse;
   }
 
-
+  public Match setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
 
   public List<Match> getOr() {
     return or;
+  }
+
+  public Match setOr(List<Match> ors) {
+    this.or = ors;
+    return this;
   }
 
   public List<Match> getAnd() {
     return and;
   }
 
+  public Match setAnd(List<Match> and) {
+    this.and = and;
+    return this;
+  }
+
   public List<Match> getRule() {
     return rule;
   }
 
+  public Match setRule(List<Match> rule) {
+    this.rule = rule;
+    return this;
+  }
+
   public String getLibraryItem() {
     return libraryItem;
+  }
+
+  public Match setLibraryItem(String libraryItem) {
+    this.libraryItem = libraryItem;
+    return this;
   }
 
   public boolean isInvalid() {
@@ -205,13 +292,14 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return is;
   }
 
-  public String getAsDescription() {
-    return asDescription;
+  @JsonSetter
+  public Match setIs(List<Node> is) {
+    this.is = is;
+    return this;
   }
 
-  public Match setActiveOnly(boolean activeOnly) {
-    this.activeOnly = activeOnly;
-    return this;
+  public String getAsDescription() {
+    return asDescription;
   }
 
   public Match setAsDescription(String asDescription) {
@@ -233,12 +321,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     builder.accept(this.orderBy);
     return this;
   }
-
-  public Match setNode(String node) {
-    this.node = node;
-    return this;
-  }
-
 
   public List<GroupBy> getGroupBy() {
     return groupBy;
@@ -263,24 +345,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
-  @JsonSetter
-  public Match setIs(List<Node> is) {
-    this.is = is;
-    return this;
-  }
-
-
-  public Match setLibraryItem(String libraryItem) {
-    this.libraryItem = libraryItem;
-    return this;
-  }
-
-  public Match setWhere(Where where) {
-    this.where = where;
-    return this;
-  }
-
   public Match where(Consumer<Where> builder) {
     if (this.where == null) {
       Where where = new Where();
@@ -290,22 +354,11 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public Match setRule(List<Match> rule) {
-    this.rule = rule;
-    return this;
-  }
-
   public Match addRule(Match rule) {
     if (this.rule == null) {
       this.rule = new ArrayList<>();
     }
     this.rule.add(rule);
-    return this;
-  }
-
-
-  public Match setOr(List<Match> ors) {
-    this.or = ors;
     return this;
   }
 
@@ -324,11 +377,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public Match setAnd(List<Match> and) {
-    this.and = and;
-    return this;
-  }
-
   public Match addAnd(Match and) {
     if (this.and == null) {
       this.and = new ArrayList<>();
@@ -344,40 +392,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
-
-
-  public Match setBaseRule(boolean baseRule) {
-    this.baseRule = baseRule;
-    return this;
-  }
-
-  public Match setParameter(String parameter) {
-    this.parameter = parameter;
-    return this;
-  }
-
-  public Match setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
-
-
-
-
-
-
-  public Match setIfTrue(RuleAction ifTrue) {
-    this.ifTrue = ifTrue;
-    return this;
-  }
-
-  public Match setIfFalse(RuleAction ifFalse) {
-    this.ifFalse = ifFalse;
-    return this;
-  }
-
-
   @JsonGetter
   public List<Return> getReturn() {
     return returx;
@@ -388,6 +402,7 @@ public class Match extends IriLD implements HasPaths,Returnable {
     this.returx = returns;
     return this;
   }
+
   public Match addReturn(Return returnx) {
     if (this.returx == null) {
       this.returx = new ArrayList<>();
@@ -403,26 +418,10 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-  public Match setEntailment(Entail entailment) {
-    this.entailment = entailment;
-    return this;
-  }
-
-  public Match setFunction(FunctionClause function) {
-    this.function = function;
-    return this;
-  }
-
   public Match function(Consumer<FunctionClause> builder) {
     FunctionClause function = new FunctionClause();
     this.function = function;
     builder.accept(function);
-    return this;
-  }
-
-
-  public Match setPath(List<Path> path) {
-    this.path = path;
     return this;
   }
 
@@ -441,13 +440,11 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
   @Override
   public Match setIri(String iri) {
     super.setIri(iri);
     return this;
   }
-
 
   public Match addIs(Node is) {
     if (this.is == null) {
@@ -457,7 +454,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
   @JsonIgnore
   public Match is(Consumer<Node> builder) {
     Node is = new Node();
@@ -465,14 +461,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     builder.accept(is);
     return this;
   }
-
-
-  @JsonSetter
-  public Match setTypeOf(Node typeOf) {
-    this.typeOf = typeOf;
-    return this;
-  }
-
 
   public boolean isOptional() {
     return optional;
@@ -492,7 +480,6 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
   public Node getGraph() {
     return graph;
   }
@@ -502,30 +489,21 @@ public class Match extends IriLD implements HasPaths,Returnable {
     return this;
   }
 
-
-  public Match setTypeOf(String type) {
-    this.typeOf = new Node().setIri(type);
-    return this;
-  }
-
-
-  public Match setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-
-  public Match setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-
   public String getNode() {
     return node;
   }
 
+  public Match setNode(String node) {
+    this.node = node;
+    return this;
+  }
+
   public boolean isActiveOnly() {
     return activeOnly;
+  }
+
+  public Match setActiveOnly(boolean activeOnly) {
+    this.activeOnly = activeOnly;
+    return this;
   }
 }

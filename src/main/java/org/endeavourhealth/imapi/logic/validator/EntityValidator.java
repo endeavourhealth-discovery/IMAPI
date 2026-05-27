@@ -9,7 +9,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.SHACL;
+import org.endeavourhealth.interfacemanager.model.VALIDATION;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,18 +27,20 @@ public class EntityValidator {
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
-    EntityValidationResponse response=
-    switch (VALIDATION.from(request.getValidationIri())) {
-      case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
-      case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
-      case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
-      case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
-      case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
-      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
-      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
-      case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
-      default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
-    };
+    EntityValidationResponse response =
+      switch (VALIDATION.Companion.decode(request.getValidationIri())) {
+        case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
+        case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
+        case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
+        case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
+        case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
+        case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
+        case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
+        case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
+        case null ->
+          throw new IllegalStateException("Failed to decode into VALIDATION enum: " + request.getValidationIri());
+        default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
+      };
     System.out.println(response);
     return response;
   }

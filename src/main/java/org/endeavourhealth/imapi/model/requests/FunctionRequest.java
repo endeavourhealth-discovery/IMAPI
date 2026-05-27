@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.requests;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.util.ArrayList;
 import java.util.List;

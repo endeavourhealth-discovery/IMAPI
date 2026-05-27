@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"node", "variable", "iri", "name", "function", "as"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Return implements Returnable{
+public class Return implements Returnable {
   private String iri;
   private String nodeRef;
   private String name;
@@ -36,11 +35,6 @@ public class Return implements Returnable{
 
   public Return setPathRef(String pathRef) {
     this.pathRef = pathRef;
-    return this;
-  }
-
-  public Return setName(String name) {
-    this.name = name;
     return this;
   }
 
@@ -69,12 +63,6 @@ public class Return implements Returnable{
     return this;
   }
 
-  public Return setNodeRef(String nodeRef) {
-    this.nodeRef = nodeRef;
-    return this;
-  }
-
-
   @JsonProperty("return")
   public List<Return> getReturn() {
     return returx;
@@ -99,24 +87,8 @@ public class Return implements Returnable{
     return this;
   }
 
-  @JsonSetter
-  public Return setAs(String as) {
-    this.as = as;
-    return this;
-  }
-
   public Return as(String as) {
     this.as = as;
-    return this;
-  }
-
-  public Return setUnits(TTIriRef units) {
-    this.units = units;
-    return this;
-  }
-
-  public Return setFunction(FunctionClause function) {
-    this.function = function;
     return this;
   }
 
@@ -125,34 +97,7 @@ public class Return implements Returnable{
     return this;
   }
 
-  public Return setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
-
-
   public Return setValue(String value) {
-    return this;
-  }
-
-  public Return setIri(String iri) {
-    this.iri = iri;
-    return this;
-  }
-
-  public Return setIri(VocabEnum iri) {
-    this.iri = iri.toString();
-    return this;
-  }
-
-  public Return setPropertyRef(String propertyRef) {
-    this.propertyRef = propertyRef;
-    return this;
-  }
-
-
-  public Return setDescription(String description) {
-    this.description = description;
     return this;
   }
 
@@ -160,35 +105,86 @@ public class Return implements Returnable{
     return iri;
   }
 
+  public Return setIri(String iri) {
+    this.iri = iri;
+    return this;
+  }
+
+  public Return setIri(Enum<?> iri) {
+    this.iri = EnumUtils.asIri(iri).toString();
+    return this;
+  }
+
   public String getNodeRef() {
     return nodeRef;
+  }
+
+  public Return setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
   }
 
   public String getName() {
     return name;
   }
 
+  public Return setName(String name) {
+    this.name = name;
+    return this;
+  }
+
   public String getPropertyRef() {
     return propertyRef;
+  }
+
+  public Return setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
   }
 
   public boolean isInverse() {
     return inverse;
   }
 
+  public Return setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
   public FunctionClause getFunction() {
     return function;
+  }
+
+  public Return setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
   }
 
   public TTIriRef getUnits() {
     return this.units;
   }
 
+  public Return setUnits(TTIriRef units) {
+    this.units = units;
+    return this;
+  }
+
   public String getAs() {
     return as;
   }
 
+  @JsonSetter
+  public Return setAs(String as) {
+    this.as = as;
+    return this;
+  }
+
   public String getDescription() {
     return description;
+  }
+
+  public Return setDescription(String description) {
+    this.description = description;
+    return this;
   }
 }

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.IMQType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,15 +36,14 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setQueryType(IMQType type) {
-    this.queryType = type;
-    return this;
-  }
-
   public IMQType getQueryType() {
     return queryType;
   }
 
+  public Query setQueryType(IMQType type) {
+    this.queryType = type;
+    return this;
+  }
 
   public Query setParameter(String parameter) {
     super.setParameter(parameter);

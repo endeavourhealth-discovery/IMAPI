@@ -6,7 +6,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.util.ArrayList;
 import java.util.List;

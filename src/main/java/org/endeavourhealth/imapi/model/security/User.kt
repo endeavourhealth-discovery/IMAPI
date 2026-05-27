@@ -2,10 +2,10 @@ package org.endeavourhealth.imapi.model.security
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
-import org.endeavourhealth.imapi.model.primevue.FontSize
-import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
-import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.interfacemanager.model.FontSize
+import org.endeavourhealth.interfacemanager.model.PrimeVueColors
+import org.endeavourhealth.interfacemanager.model.PrimeVuePresetThemes
 
 class User {
   var id: String = ""

@@ -11,11 +11,14 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.DisplayMode;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.Order;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -24,7 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
@@ -95,7 +97,7 @@ public class QueryDescriptor {
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
     Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
@@ -136,15 +138,15 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeReturn(Return prop,Match match) {
+  private void describeReturn(Return prop, Match match) {
     if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(), Context.PATH));
     if (prop.getAs() == null) prop.setAs(prop.getName());
     if (prop.getFunction() != null) {
       describeFunction(prop.getFunction());
     }
-    if (prop.getCase()!=null &&prop.getCase().getWhen()!=null){
-      for (When when:prop.getCase().getWhen()){
-        if (when.getWhere()!=null)
+    if (prop.getCase() != null && prop.getCase().getWhen() != null) {
+      for (When when : prop.getCase().getWhen()) {
+        if (when.getWhere() != null)
           describeWhere(when.getWhere(), null);
       }
     }
@@ -172,7 +174,7 @@ public class QueryDescriptor {
   private void setIriNames(Match match) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -182,7 +184,7 @@ public class QueryDescriptor {
     Set<String> iriSet = IriCollector.collectIris(query);
     if (!iriSet.isEmpty()) {
       try {
-        iriContext = repo.getEntitiesWithPredicates(iriSet, asHashSet(IM.PREPOSITION, RDF.TYPE, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL, IM.ALTERNATIVE_CODE));
+        iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(IM.PREPOSITION, RDF.TYPE, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL, IM.ALTERNATIVE_CODE));
       } catch (Exception e) {
         throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
       }
@@ -252,7 +254,7 @@ public class QueryDescriptor {
 
     if (match.getReturn() != null) {
       for (Return prop : match.getReturn()) {
-        describeReturn(prop,match);
+        describeReturn(prop, match);
       }
     }
     if (match.getOrderBy() != null) {

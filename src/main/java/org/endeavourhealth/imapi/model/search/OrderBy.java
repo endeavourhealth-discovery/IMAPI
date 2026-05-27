@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.imq.Order;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.Order;
 
 import java.util.ArrayList;
 import java.util.List;

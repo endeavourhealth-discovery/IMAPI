@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 public class WorkflowDB extends BaseDB {
   private static final Repository repository = BaseDB.getRepository("workflow");

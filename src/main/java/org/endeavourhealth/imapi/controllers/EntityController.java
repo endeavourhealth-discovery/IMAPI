@@ -39,10 +39,16 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.IriExtractor;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.EntityType;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -55,7 +61,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @RestController
 @RequestMapping("api/entity")
@@ -161,7 +166,7 @@ public class EntityController {
   public Set<String> getEntityType(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getEntityTypes");
-      return entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity()
+      return entityService.getBundle(iri, EnumUtils.asHashSet(RDF.TYPE)).getEntity()
         .getType().getElements().stream().map(e -> e.asIriRef().getIri()).collect(Collectors.toSet());
     }
   }
@@ -195,7 +200,7 @@ public class EntityController {
         page = 1;
         size = EntityService.MAX_CHILDREN;
       }
-      TTEntity entity = entityService.getBundle(iri, asHashSet(RDF.TYPE)).getEntity();
+      TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RDF.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(iri(IM.TASK));
 
       return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
@@ -313,7 +318,7 @@ public class EntityController {
   public boolean entityExists(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
       log.debug("entityExists");
-      NAMESPACE namespace = NAMESPACE.from(iri.substring(0, iri.indexOf("#") + 1));
+      NAMESPACE namespace = NAMESPACE.Companion.decode(iri.substring(0, iri.indexOf("#") + 1));
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
       return entityService.entityExists(iri);
     }
@@ -472,7 +477,7 @@ public class EntityController {
   public List<TTIriRef> getEntitiesByType(HttpServletRequest request, @RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getEntitiesByType");
-      return entityService.getEntitiesByType(EntityType.from(typeIri));
+      return entityService.getEntitiesByType(EntityType.Companion.decode(typeIri));
     }
   }
 

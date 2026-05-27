@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.junit.jupiter.api.Test;
 
 import static org.endeavourhealth.imapi.dataaccess.SetRepository.*;
@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ObjectCreatorTester {
   @Test
   public void testObjectCreator() throws JsonProcessingException {
-    Query imQuery= new Query();
+    Query imQuery = new Query();
     imQuery
-      .path(p->p
+      .path(p -> p
         .setOptional(true)
         .setIri(IM.HAS_SCHEME)
         .setTypeOf(IM.CONCEPT)
         .setNode("scheme"))
-      .return_(s->s
+      .return_(s -> s
         .setIri(RDFS.LABEL).as("term"))
       .return_(s -> s
         .setIri(IM.CODE).as("code"))
@@ -35,9 +35,9 @@ public class ObjectCreatorTester {
       .return_(s -> s
         .setIri(IM.IM_1_ID)
         .as(IM_1_ID));
-    String originalQuery= new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(imQuery);
+    String originalQuery = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(imQuery);
 
-    String testJson= """
+    String testJson = """
       {
         path : [ {
         iri : im:scheme,
@@ -66,8 +66,8 @@ public class ObjectCreatorTester {
         } ]
       }
       """;
-    Query createdQuery= ObjectCreator.create(testJson, Query.class);
-    assertEquals(originalQuery,new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(createdQuery));
+    Query createdQuery = ObjectCreator.create(testJson, Query.class);
+    assertEquals(originalQuery, new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(createdQuery));
   }
 
 

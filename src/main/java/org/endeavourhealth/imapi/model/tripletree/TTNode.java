@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Getter;
 import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
 import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -80,8 +80,8 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTNode set(VocabEnum predicate, TTValue value) {
-    this.set(predicate.asIri(), value);
+  public TTNode set(Enum<?> predicate, TTValue value) {
+    this.set(EnumUtils.asIri(predicate), value);
     return this;
   }
 
@@ -98,8 +98,8 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTArray get(VocabEnum predicate) {
-    return predicateValues.get(predicate.asIri());
+  public TTArray get(Enum<?> predicate) {
+    return predicateValues.get(EnumUtils.asIri(predicate));
   }
 
   @JsonGetter
@@ -111,8 +111,8 @@ public class TTNode implements TTValue, Serializable {
     return predicateValues.containsKey(predicate);
   }
 
-  public boolean has(VocabEnum predicate) {
-    return predicateValues.containsKey(predicate.asIri());
+  public boolean has(Enum<?> predicate) {
+    return predicateValues.containsKey(EnumUtils.asIri(predicate));
   }
 
   public Map<TTIriRef, TTArray> getPredicateMap() {

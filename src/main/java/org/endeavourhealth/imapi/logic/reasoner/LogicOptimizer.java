@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.interfacemanager.model.Bool;
+import org.endeavourhealth.interfacemanager.model.DisplayMode;
 
 import java.util.*;
 

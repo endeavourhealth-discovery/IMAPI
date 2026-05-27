@@ -2,15 +2,14 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
-
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class SetToSparql {
   private final EntityRepository entityRepository = new EntityRepository();
@@ -19,7 +18,7 @@ public class SetToSparql {
 
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
-    Set<String> predicates = asHashSet(RDFS.LABEL, IM.DEFINITION);
+    Set<String> predicates = EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION);
     TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRef.iri(IM.HAS_MEMBER)) != null) {
@@ -149,13 +148,13 @@ public class SetToSparql {
       if (group) {
         subQuery.append(tabs).append("?roleGroup ").append(pred).append(" ").append(obj).append(".\n");
         subQuery.append(tabs).append(" FILTER (isBlank(?roleGroup))");
-        subQuery.append(tabs).append("?superMember ").append(IM.ROLE_GROUP.asIri()).append(" ?roleGroup.\n");
+        subQuery.append(tabs).append("?superMember ").append(EnumUtils.asIri(IM.ROLE_GROUP)).append(" ?roleGroup.\n");
       } else {
         subQuery.append(tabs).append("?superMember ").append(pred).append(" ").append(obj).append(".\n");
         subQuery.append(tabs).append("  FILTER (isIri(?superMember))");
       }
     }
-    subQuery.append(tabs).append("?entity ").append(IM.IS_A.asIri()).append(" ?superMember.\n");
+    subQuery.append(tabs).append("?entity ").append(EnumUtils.asIri(IM.IS_A)).append(" ?superMember.\n");
 
   }
 

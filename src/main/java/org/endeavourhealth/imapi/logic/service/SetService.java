@@ -28,10 +28,11 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.ValueSet;
@@ -44,9 +45,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
-
 
 @Slf4j
 @Component
@@ -81,7 +79,7 @@ public class SetService {
   }
 
   private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
-    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(IM.DEFINITION)).getEntity();
+    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(IM.DEFINITION)).getEntity();
     if (null != entityDefinition.get(iri(IM.DEFINITION))) {
       filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
@@ -159,7 +157,7 @@ public class SetService {
     SetContent result = new SetContent();
 
     log.trace("Fetching metadata for {}...", options.getSetIri());
-    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
 
     if (null != entity) {
       result.setName(entity.getName()).setDescription(entity.getDescription()).setVersion(entity.getVersion());
@@ -264,7 +262,7 @@ public class SetService {
     if (null == format || format.isEmpty())
       throw new IllegalArgumentException("File type format needs to be set.");
 
-    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
     String ecl = null;
 
     if (options.includeDefinition()) {
@@ -311,8 +309,8 @@ public class SetService {
     List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
-    boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
-    if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
+    boolean hasMembers = entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.HAS_MEMBER));
+    if (!hasMembers && (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.DEFINITION)))) {
       new SetMemberGenerator().generateMembers(iri, GRAPH.IM);
     }
 
@@ -359,7 +357,7 @@ public class SetService {
     for (TTIriRef subset : subsetsArray) {
       TTEntity subsetEntity = entityRepository.getBundle(subset.getIri()).getEntity();
       if (null != subsetEntity) {
-        if (!(subsetEntity.isType(iri(IM.VALUESET)) || subsetEntity.isType(iri(IM.CONCEPT_SET))))
+        if (!(subsetEntity.isType(iri(IM.VALUE_SET)) || subsetEntity.isType(iri(IM.CONCEPT_SET))))
           throw new TTFilerException("Subsets must be of type valueSet or conceptSet. Type: " + subsetEntity.getType());
         TTArray isSubsetOf = subsetEntity.get(iri(IM.IS_SUBSET_OF));
         if (null == isSubsetOf) {
@@ -398,8 +396,8 @@ public class SetService {
 
   public void publishSetToIM1(String iri) throws QueryException, JsonProcessingException {
     log.trace("Looking up set...");
-    String name = entityRepository.getBundle(iri, asHashSet(RDFS.LABEL)).getEntity().getName();
-    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY));
+    String name = entityRepository.getBundle(iri, EnumUtils.asHashSet(RDFS.LABEL)).getEntity().getName();
+    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), EnumUtils.asArrayList(IM.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
   }
 }

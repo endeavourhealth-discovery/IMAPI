@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.postRequestPrimatives;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.github.REPO;
+import org.endeavourhealth.interfacemanager.model.REPO;
 
 @NoArgsConstructor
 @Getter

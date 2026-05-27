@@ -8,9 +8,10 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDF;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -44,9 +45,9 @@ public class SetBinder {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("rdfType", RDF.TYPE.asDbIri());
-      qry.setBinding("imConceptSet", IM.CONCEPT_SET.asDbIri());
-      qry.setBinding("imValueSet", IM.VALUESET.asDbIri());
+      qry.setBinding("rdfType", EnumUtils.asDbIri(RDF.TYPE));
+      qry.setBinding("imConceptSet", EnumUtils.asDbIri(IM.CONCEPT_SET));
+      qry.setBinding("imValueSet", EnumUtils.asDbIri(IM.VALUE_SET));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           setIris.add(rs.next().getValue("iri").stringValue());

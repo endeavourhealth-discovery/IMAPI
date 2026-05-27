@@ -7,22 +7,25 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class SetRepository {
@@ -191,8 +194,8 @@ public class SetRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(iri));
-      qry.setBinding("isSubset", IM.IS_SUBSET_OF.asDbIri());
-      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      qry.setBinding("isSubset", EnumUtils.asDbIri(IM.IS_SUBSET_OF));
+      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -213,7 +216,7 @@ public class SetRepository {
 
   private Set<Concept> expand(TupleQuery qry, boolean includeLegacy, boolean subsumedBy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes = asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM);
+    Set<String> coreSchemes = EnumUtils.asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -350,7 +353,7 @@ public class SetRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       conn.begin();
-      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(deleteBinding);
+      Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
       upd = conn.prepareInsertSparql(newBinding.toString(), GRAPH.IM);
@@ -389,7 +392,7 @@ public class SetRepository {
           ?concept im:hasMember ?x.
         }
         """;
-      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(spq);
+      Update upd = conn.prepareDeleteSparql(spq);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
       StringJoiner sj = new StringJoiner("\n");
@@ -413,8 +416,8 @@ public class SetRepository {
 
 
   private void sendUp(StringJoiner sj, IMDB conn, GRAPH graph) {
-    org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(), GRAPH.IM);
-    upd.setBinding("g", graph.asDbIri());
+    Update upd = conn.prepareInsertSparql(sj.toString(), GRAPH.IM);
+    upd.setBinding("g", EnumUtils.asDbIri(graph));
     conn.begin();
     upd.execute();
     conn.commit();
@@ -626,7 +629,7 @@ public class SetRepository {
         FILTER (?child != ?parent)}
         """.formatted(iris, iris);
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("isA", IM.IS_A.asDbIri());
+      qry.setBinding("isA", EnumUtils.asDbIri(IM.IS_A));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -705,10 +708,12 @@ public class SetRepository {
           node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
-            switch (IM.from(entailment)) {
+            switch (IM.Companion.decode(entailment)) {
               case IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
               case IM.DESCENDANTS_OF -> node.setDescendantsOf(true);
               case IM.ANCESTORS_OF -> node.setAncestorsOf(true);
+              case null -> throw new IllegalArgumentException("Failed to decode into IM enum");
+              default -> throw new IllegalStateException("Unexpected value: " + IM.Companion.decode(entailment));
             }
             if (bs.getValue("exclude") != null) {
               node.setExclude(true);

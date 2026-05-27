@@ -13,7 +13,6 @@ import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
@@ -21,7 +20,8 @@ import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class EntityService {
@@ -51,7 +50,7 @@ public class EntityService {
       Map<String, String> filtered = bundle.getPredicates().entrySet().stream().filter(entry -> !entry.getKey().equals(RDFS.LABEL.toString()) && entry.getValue() != null).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
       bundle.setPredicates(filtered);
       if (excludePredicates.contains(RDFS.LABEL.toString())) {
-        bundle.getEntity().set(RDFS.LABEL.asIri(), (TTValue) null);
+        bundle.getEntity().set(EnumUtils.asIri(RDFS.LABEL), (TTValue) null);
       }
     }
   }
@@ -62,7 +61,7 @@ public class EntityService {
       TTArray activeTermCodes = new TTArray();
       for (TTValue value : termCodes) {
         if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
-          if (value.asNode().get(IM.HAS_STATUS.asIri()) != null && IM.ACTIVE.toString().equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getIri())) {
+          if (value.asNode().get(EnumUtils.asIri(IM.HAS_STATUS)) != null && IM.ACTIVE.toString().equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getIri())) {
             activeTermCodes.add(value);
           }
         } else activeTermCodes.add(value);
@@ -74,7 +73,7 @@ public class EntityService {
   public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
     Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
-    bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));
+    bundle.getEntity().set(EnumUtils.asIri(IM.DEFINITION), mapper.writeValueAsString(query));
   }
 
   public TTBundle getBundle(String iri, Set<String> predicates) {
@@ -87,7 +86,7 @@ public class EntityService {
     return bundle.getEntity();
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException{
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
@@ -217,8 +216,8 @@ public class EntityService {
   public TTEntity getConceptShape(String iri) {
     if (iri == null || iri.isEmpty()) return null;
     TTEntity entity = getBundle(iri, Set.of(SHACL.PROPERTY.toString(), SHACL.OR.toString(), RDF.TYPE.toString())).getEntity();
-    TTArray value = entity.get(RDF.TYPE.asIri());
-    if (!value.getElements().contains(SHACL.NODESHAPE.asIri())) {
+    TTArray value = entity.get(EnumUtils.asIri(RDF.TYPE));
+    if (!value.getElements().contains(EnumUtils.asIri(SHACL.NODESHAPE))) {
       return null;
     }
     return entity;
@@ -456,8 +455,8 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException{
-    Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
+    Set<String> excludedPredicates = EnumUtils.asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;
     if (entityPredicates.contains(IM.HAS_MEMBER.toString())) {
@@ -556,8 +555,8 @@ public class EntityService {
     return entityRepository.getTypeSchemeDefaults();
   }
 
-  private List<TTIriRef> getAllChildren(VocabEnum iri) {
-    return getChildren(iri.toString(), null, null, null, false);
+  private List<TTIriRef> getAllChildren(Enum<?> iri) {
+    return getChildren(EnumUtils.asIri(iri).toString(), null, null, null, false);
   }
 
   public List<TTEntity> getAllowableChildTypes(String iri) {
@@ -565,7 +564,7 @@ public class EntityService {
   }
 
   public boolean entityExists(String iri) {
-    return entityRepository.hasPredicates(iri, asHashSet(RDF.TYPE));
+    return entityRepository.hasPredicates(iri, EnumUtils.asHashSet(RDF.TYPE));
   }
 
   public List<String> getChildIris(String iri) {

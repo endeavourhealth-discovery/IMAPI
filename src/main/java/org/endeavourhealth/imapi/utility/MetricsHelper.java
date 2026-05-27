@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.Metrics;
 import org.endeavourhealth.imapi.model.config.MetricsConsole;
 import org.endeavourhealth.imapi.model.config.MetricsGraphite;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.interfacemanager.model.CONFIG;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class MetricsHelper {
 
   private static String getHostName() throws IOException {
     Runtime r = Runtime.getRuntime();
-    Process p = r.exec(new String[] { "hostname" });
+    Process p = r.exec(new String[]{"hostname"});
     try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
       return br.readLine();
     }

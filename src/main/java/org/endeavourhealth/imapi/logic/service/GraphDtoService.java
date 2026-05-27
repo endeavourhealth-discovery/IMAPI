@@ -4,8 +4,9 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.OWL;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class GraphDtoService {
@@ -33,7 +33,7 @@ public class GraphDtoService {
   public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();
 
-    TTEntity entity = entityService.getBundle(iri, asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
+    TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
 
     GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
     GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");

@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ public class TTContext implements Serializable {
     return prefixes;
   }
 
-  public TTContext add(VocabEnum iri, String prefix) {
-    return add(iri.toString(), prefix);
+  public TTContext add(Enum<?> iri, String prefix) {
+    return add(EnumUtils.asIri(iri).toString(), prefix);
   }
 
   public TTContext add(String iri, String prefix) {
@@ -45,8 +45,8 @@ public class TTContext implements Serializable {
     return this;
   }
 
-  public TTContext add(VocabEnum iri, String prefix, String name) {
-    return add(iri.toString(), prefix, name);
+  public TTContext add(Enum<?> iri, String prefix, String name) {
+    return add(EnumUtils.asIri(iri).toString(), prefix, name);
   }
 
   public TTContext add(String iri, String prefix, String name) {

@@ -12,7 +12,8 @@ import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,9 +37,9 @@ public class CodeGenRepository {
       """;
     try (ConfigDB conn = ConfigDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("type", RDF.TYPE.asDbIri());
-      qry.setBinding("codeTemplate", IM.CODE_TEMPLATE.asDbIri());
-      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      qry.setBinding("type", EnumUtils.asDbIri(RDF.TYPE));
+      qry.setBinding("codeTemplate", EnumUtils.asDbIri(IM.CODE_TEMPLATE));
+      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -68,20 +69,23 @@ public class CodeGenRepository {
           try (CachedObjectMapper om = new CachedObjectMapper()) {
 
 
-            switch (CodeTemplate.from(bs.getValue("p").stringValue())) {
-              case CodeTemplate.DATATYPE_MAP -> {
+            switch (CODETEMPLATE.Companion.decode(bs.getValue("p").stringValue())) {
+              case CODETEMPLATE.DATATYPE_MAP -> {
                 ObjectNode map = (ObjectNode) om.readTree(bs.getValue("o").stringValue());
                 for (Iterator<Map.Entry<String, JsonNode>> it = map.fields(); it.hasNext(); ) {
                   Map.Entry<String, JsonNode> ele = it.next();
                   result.getDatatypeMap().put(ele.getKey(), ele.getValue().textValue());
                 }
               }
-              case CodeTemplate.WRAPPER -> result.setCollectionWrapper(bs.getValue("o").stringValue());
-              case CodeTemplate.EXTENSION -> result.setExtension(bs.getValue("o").stringValue());
-              case CodeTemplate.LABEL -> result.setName(bs.getValue("o").stringValue());
-              case CodeTemplate.DEFINITION -> result.setTemplate(bs.getValue("o").stringValue());
-              case CodeTemplate.INCLUDE_COMPLEX_TYPES ->
+              case CODETEMPLATE.WRAPPER -> result.setCollectionWrapper(bs.getValue("o").stringValue());
+              case CODETEMPLATE.EXTENSION -> result.setExtension(bs.getValue("o").stringValue());
+              case CODETEMPLATE.LABEL -> result.setName(bs.getValue("o").stringValue());
+              case CODETEMPLATE.DEFINITION -> result.setTemplate(bs.getValue("o").stringValue());
+              case CODETEMPLATE.INCLUDE_COMPLEX_TYPES ->
                 result.setComplexTypes(((Literal) bs.getValue("o")).booleanValue());
+              case null -> throw new IllegalArgumentException("Failed to decode into CODETEMPLATE enum");
+              default ->
+                throw new IllegalArgumentException("Invalid CODETEMPLATE found" + CODETEMPLATE.Companion.decode(bs.getValue("p").stringValue()));
             }
           } catch (JsonProcessingException e) {
             log.error("Unable to parse codeTemplate", e);
@@ -124,19 +128,19 @@ public class CodeGenRepository {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         Update qry2 = conn.prepareInsertSparql(insertSparql);
         qry2.setBinding("iri", iri(NAMESPACE.IM_CODE_TEMPLATE + name));
-        qry2.setBinding("label", RDFS.LABEL.asDbIri());
+        qry2.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
         qry2.setBinding("name", literal(name));
-        qry2.setBinding("extensionType", CodeTemplate.EXTENSION.asDbIri());
+        qry2.setBinding("extensionType", EnumUtils.asDbIri(CODETEMPLATE.EXTENSION));
         qry2.setBinding("extension", literal(extension));
-        qry2.setBinding("type", RDF.TYPE.asDbIri());
-        qry2.setBinding("typeIri", IM.CODE_TEMPLATE.asDbIri());
-        qry2.setBinding("definition", CodeTemplate.DEFINITION.asDbIri());
+        qry2.setBinding("type", EnumUtils.asDbIri(RDF.TYPE));
+        qry2.setBinding("typeIri", EnumUtils.asDbIri(IM.CODE_TEMPLATE));
+        qry2.setBinding("definition", EnumUtils.asDbIri(CODETEMPLATE.DEFINITION));
         qry2.setBinding("template", literal(template));
-        qry2.setBinding("typeMap", CodeTemplate.DATATYPE_MAP.asDbIri());
+        qry2.setBinding("typeMap", EnumUtils.asDbIri(CODETEMPLATE.DATATYPE_MAP));
         qry2.setBinding("datatypeMap", literal(om.writeValueAsString(dataTypeMap)));
-        qry2.setBinding("wrapperType", CodeTemplate.WRAPPER.asDbIri());
+        qry2.setBinding("wrapperType", EnumUtils.asDbIri(CODETEMPLATE.WRAPPER));
         qry2.setBinding("wrapper", literal(wrapper));
-        qry2.setBinding("includeComplex", CodeTemplate.INCLUDE_COMPLEX_TYPES.asDbIri());
+        qry2.setBinding("includeComplex", EnumUtils.asDbIri(CODETEMPLATE.INCLUDE_COMPLEX_TYPES));
         qry2.setBinding("complexTypes", literal(complexTypes));
         qry2.execute();
       } catch (JsonProcessingException err) {

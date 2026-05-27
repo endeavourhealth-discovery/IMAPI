@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.DisplayMode;
 
 @NoArgsConstructor
 @Getter

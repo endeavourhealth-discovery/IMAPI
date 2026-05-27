@@ -8,13 +8,13 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.util.Set;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class SetMemberGenerator {
@@ -27,7 +27,7 @@ public class SetMemberGenerator {
     Set<String> sets = setRepo.getSets();
     //for each set get their definition
     for (String iri : sets) {
-      if (entityRepository.hasPredicates(iri, asHashSet(IM.ENTAILED_MEMBER, IM.DEFINITION))) {
+      if (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.ENTAILED_MEMBER, IM.DEFINITION))) {
         generateMembers(iri, insertGraph);
       }
     }
@@ -35,7 +35,7 @@ public class SetMemberGenerator {
 
 
   public void generateMembers(String iri, GRAPH insertGraph) throws QueryException, JsonProcessingException {
-    TTBundle setDefinition = entityRepository.getEntityPredicates(iri, asHashSet(IM.DEFINITION));
+    TTBundle setDefinition = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(IM.DEFINITION));
     if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
       if (!members.isEmpty()) {

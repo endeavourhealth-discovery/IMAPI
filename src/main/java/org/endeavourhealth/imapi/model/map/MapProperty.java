@@ -3,11 +3,11 @@ package org.endeavourhealth.imapi.model.map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.ListMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +31,11 @@ public class MapProperty extends TTIriRef {
 
   public String getTarget() {
     return target;
+  }
+
+  public MapProperty setTarget(String target) {
+    this.target = target;
+    return this;
   }
 
   public List<MapProperty> getPropertyMap() {
@@ -57,13 +62,13 @@ public class MapProperty extends TTIriRef {
     return this;
   }
 
+  public String getSource() {
+    return source;
+  }
+
   public MapProperty setSource(String source) {
     this.source = source;
     return this;
-  }
-
-  public String getSource() {
-    return source;
   }
 
   public String getSourceVariable() {
@@ -72,11 +77,6 @@ public class MapProperty extends TTIriRef {
 
   public MapProperty setSourceVariable(String sourceVariable) {
     this.sourceVariable = sourceVariable;
-    return this;
-  }
-
-  public MapProperty setTarget(String target) {
-    this.target = target;
     return this;
   }
 

@@ -11,12 +11,11 @@ import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
-import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -53,27 +52,27 @@ public class TaskFilerRdf4j {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, bugReport);
       ModelBuilder namedGraph = builder.namedGraph(GRAPH.IM.toString());
-      namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_PRODUCT.asDbIri(), literal(bugReport.getProduct()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_VERSION.asDbIri(), literal(bugReport.getVersion()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.RELATED_MODULE.asDbIri(), literal(bugReport.getModule()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.OPERATING_SYSTEM.asDbIri(), literal(bugReport.getOs()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.BROWSER.asDbIri(), literal(bugReport.getBrowser()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.SEVERITY.asDbIri(), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()))
-        .add(iri(bugReport.getId().getIri()), IM.HAS_STATUS.asDbIri(), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()))
-        .add(iri(bugReport.getId().getIri()), RDFS.COMMENT.asDbIri(), literal(bugReport.getDescription()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.REPRODUCE_STEPS.asDbIri(), literal(bugReport.getReproduceSteps()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.EXPECTED_RESULT.asDbIri(), literal(bugReport.getExpectedResult()))
-        .add(iri(bugReport.getId().getIri()), WORKFLOW.ACTUAL_RESULT.asDbIri(), literal(bugReport.getActualResult()));
+      namedGraph.add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.RELATED_PRODUCT), literal(bugReport.getProduct()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.RELATED_VERSION), literal(bugReport.getVersion()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.RELATED_MODULE), literal(bugReport.getModule()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.OPERATING_SYSTEM), literal(bugReport.getOs()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.BROWSER), literal(bugReport.getBrowser()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.SEVERITY), literal(null == bugReport.getSeverity() ? Severity.UNASSIGNED : bugReport.getSeverity()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(IM.HAS_STATUS), literal(null == bugReport.getStatus() ? Status.NEW : bugReport.getStatus()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(RDFS.COMMENT), literal(bugReport.getDescription()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.REPRODUCE_STEPS), literal(bugReport.getReproduceSteps()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.EXPECTED_RESULT), literal(bugReport.getExpectedResult()))
+        .add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.ACTUAL_RESULT), literal(bugReport.getActualResult()));
 
 
       if (bugReport.getOs().equals(OperatingSystem.OTHER))
-        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.OPERATING_SYSTEM_OTHER.asDbIri(), literal(bugReport.getOsOther()));
+        namedGraph.add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.OPERATING_SYSTEM_OTHER), literal(bugReport.getOsOther()));
 
       if (bugReport.getBrowser().equals(Browser.OTHER))
-        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.BROWSER_OTHER.asDbIri(), literal(bugReport.getBrowserOther()));
+        namedGraph.add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.BROWSER_OTHER), literal(bugReport.getBrowserOther()));
 
       if (null != bugReport.getError())
-        namedGraph.add(iri(bugReport.getId().getIri()), WORKFLOW.ERROR.asDbIri(), literal(bugReport.getError()));
+        namedGraph.add(iri(bugReport.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.ERROR), literal(bugReport.getError()));
 
       conn.add(builder.build());
       String emailSubject = "New bug report added: [" + bugReport.getId().getIri() + "]";
@@ -92,7 +91,7 @@ public class TaskFilerRdf4j {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, roleRequest);
       builder.namedGraph(GRAPH.IM.toString())
-        .add(iri(roleRequest.getId().getIri()), WORKFLOW.REQUESTED_ROLE.asDbIri(), literal(roleRequest.getRole()));
+        .add(iri(roleRequest.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.REQUESTED_ROLE), literal(roleRequest.getRole()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + roleRequest.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + roleRequest.getHostUrl() + "/#/workflow/roleRequest/" + roleRequest.getId().getIri() + "\">here</a>";
@@ -110,7 +109,7 @@ public class TaskFilerRdf4j {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, namespaceRequest);
       builder.namedGraph(GRAPH.IM.toString())
-        .add(iri(namespaceRequest.getId().getIri()), WORKFLOW.REQUESTED_NAMESPACE.asDbIri(), literal(namespaceRequest.getNamespacePermission()));
+        .add(iri(namespaceRequest.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.REQUESTED_NAMESPACE), literal(namespaceRequest.getNamespacePermission()));
       conn.add(builder.build());
       String emailSubject = "New namespace request added: [" + namespaceRequest.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + namespaceRequest.getHostUrl() + "/#/workflow/namespaceRequest/" + namespaceRequest.getId().getIri() + "\">here</a>";
@@ -128,7 +127,7 @@ public class TaskFilerRdf4j {
       ModelBuilder builder = new ModelBuilder();
       buildTask(builder, entityApproval);
       builder.namedGraph(GRAPH.IM.toString())
-        .add(iri(entityApproval.getId().getIri()), WORKFLOW.APPROVAL_TYPE.asDbIri(), literal(entityApproval.getApprovalType()));
+        .add(iri(entityApproval.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.APPROVAL_TYPE), literal(entityApproval.getApprovalType()));
       conn.add(builder.build());
       String emailSubject = "New role request added: [" + entityApproval.getId().getIri() + "]";
       String emailContent = "Click <a href=\"" + entityApproval.getHostUrl() + "/#/workflow/entityApproval/" + entityApproval.getId().getIri() + "\">here</a>";
@@ -161,7 +160,7 @@ public class TaskFilerRdf4j {
     fileBugReport(bugReport);
   }
 
-  public void updateTask(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+  public void updateTask(String subject, Enum<?> predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
     if (null == originalObject && null == newObject) return;
     if (predicate.equals(WORKFLOW.ASSIGNED_TO) || predicate.equals(WORKFLOW.CREATED_BY)) {
       newObject = usernameToId(newObject);
@@ -171,7 +170,7 @@ public class TaskFilerRdf4j {
       StringJoiner stringJoiner = getTaskUpdateSparql(originalObject, newObject);
       Update update = conn.prepareInsertSparql(stringJoiner.toString());
       update.setBinding("subject", iri(subject));
-      update.setBinding("predicate", predicate.asDbIri());
+      update.setBinding("predicate", EnumUtils.asDbIri(predicate));
       if (null != newObject) update.setBinding("newVal", literal(newObject));
       if (null != originalObject) update.setBinding("originalObject", literal(originalObject));
       update.execute();
@@ -181,15 +180,15 @@ public class TaskFilerRdf4j {
     }
   }
 
-  private void updateHistory(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
+  private void updateHistory(String subject, Enum<?> predicate, String originalObject, String newObject, String userId) throws TaskFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
       BNode bn = bnode();
       ModelBuilder ng = builder.namedGraph(GRAPH.IM.toString());
-      ng.add(iri(subject), WORKFLOW.HISTORY.asDbIri(), bn)
-        .add(bn, WORKFLOW.HISTORY_PREDICATE.asDbIri(), predicate.asDbIri())
-        .add(bn, WORKFLOW.HISTORY_CHANGE_DATE.asDbIri(), literal(LocalDateTime.now()))
-        .add(bn, WORKFLOW.MODIFIED_BY.asDbIri(), literal(userId));
+      ng.add(iri(subject), EnumUtils.asDbIri(WORKFLOW.HISTORY), bn)
+        .add(bn, EnumUtils.asDbIri(WORKFLOW.HISTORY_PREDICATE), EnumUtils.asDbIri(predicate))
+        .add(bn, EnumUtils.asDbIri(WORKFLOW.HISTORY_CHANGE_DATE), literal(LocalDateTime.now()))
+        .add(bn, EnumUtils.asDbIri(WORKFLOW.MODIFIED_BY), literal(userId));
 
       if (null != originalObject)
         ng.add(bn, WORKFLOW.HISTORY_ORIGINAL_OBJECT.asDbIri(), literal(originalObject));

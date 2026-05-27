@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.model.cdm;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.util.List;
 

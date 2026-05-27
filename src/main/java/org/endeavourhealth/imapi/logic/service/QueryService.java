@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
@@ -9,7 +8,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.iml.IMLLanguage;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -21,15 +19,14 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 @Slf4j
@@ -76,7 +73,7 @@ public class QueryService {
     }
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
-      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
+      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
       if (queryEntity.isType(iri(IM.INDICATOR)))
         return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
 
@@ -99,7 +96,7 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(NAMESPACE.IM + "Q_DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+    List<TTEntity> children = entityRepository.getFolderChildren(NAMESPACE.IM + "Q_DefaultCohorts", EnumUtils.asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
     if (children.isEmpty()) {
       return new Query().setTypeOf(NAMESPACE.IM + "Patient");
     }
@@ -122,7 +119,7 @@ public class QueryService {
     }
     for (TTEntity child : children) {
       if (child.isType(iri(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(NAMESPACE.IM + "DefaultCohorts", asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(NAMESPACE.IM + "DefaultCohorts", EnumUtils.asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
@@ -254,7 +251,7 @@ public class QueryService {
 
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
-    TTEntity entity = entityRepository.getEntityPredicates(iri, asHashSet(RDFS.LABEL, RDFS.COMMENT,
+    TTEntity entity = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(RDFS.LABEL, RDFS.COMMENT,
       IM.IS_SUBINDICATOR_OF, IM.DENOMINATOR, IM.NUMERATOR, IM.HAS_DATASET)).getEntity();
     Indicator indicator = new Indicator();
     indicator.setIri(entity.getIri());

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -47,8 +47,8 @@ public class TTIriRef implements TTValue, Serializable {
     return new TTIriRef(iri);
   }
 
-  public static TTIriRef iri(VocabEnum vocabEnum) {
-    return vocabEnum.asIri();
+  public static TTIriRef iri(Enum<?> vocabEnum) {
+    return EnumUtils.asIri(vocabEnum);
   }
 
   public static TTIriRef iri(String iri, String name) {
@@ -71,8 +71,8 @@ public class TTIriRef implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTIriRef setIri(VocabEnum iri) {
-    return setIri(iri.toString());
+  public TTIriRef setIri(Enum<?> iri) {
+    return setIri(EnumUtils.asIri(iri).toString());
   }
 
   public TTIriRef setName(String name) {

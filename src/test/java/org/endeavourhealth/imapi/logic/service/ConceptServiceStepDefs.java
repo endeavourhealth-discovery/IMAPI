@@ -12,8 +12,9 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -21,20 +22,21 @@ import java.util.List;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 public class ConceptServiceStepDefs {
-  private AutoCloseable mocks;
   private final String entityIri = "http://snomed.info/sct#44054006";
+  private AutoCloseable mocks;
   private List<SearchTermCode> entityTermCodes;
 
   private ConceptService conceptService;
 
-  @Mock private EntityRepository entityRepository;
-  @Mock private ConceptRepository conceptRepository;
+  @Mock
+  private EntityRepository entityRepository;
+  @Mock
+  private ConceptRepository conceptRepository;
 
   @Before
   public void initMocks() {
@@ -64,7 +66,7 @@ public class ConceptServiceStepDefs {
     TTBundle termsBundle = new TTBundle();
     termsBundle.setEntity(entity);
 
-    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
+    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), EnumUtils.asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
   }
 
 

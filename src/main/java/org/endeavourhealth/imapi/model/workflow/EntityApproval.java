@@ -2,10 +2,10 @@ package org.endeavourhealth.imapi.model.workflow;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
+import org.endeavourhealth.interfacemanager.model.ApprovalType;
 
 import java.time.LocalDateTime;
 import java.util.List;

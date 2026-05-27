@@ -3,47 +3,37 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.queryengine.QuerySummariser;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.junit.jupiter.api.Test;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 class SearchServiceTest {
 
 
-//@Test
+  //@Test
   void os() throws QueryException, OpenSearchException {
-  Set<String> entities= getResults(TestQueries.getAllowableProperties());
-  QueryRequest osSearch= TestQueries.entityFilter(entities);
-  SearchResponse results= new SearchService().queryIMSearch(osSearch);
-  System.out.println(results.getEntities().size());
+    Set<String> entities = getResults(TestQueries.getAllowableProperties());
+    QueryRequest osSearch = TestQueries.entityFilter(entities);
+    SearchResponse results = new SearchService().queryIMSearch(osSearch);
+    System.out.println(results.getEntities().size());
 
 
-}
+  }
+
   //@Test
   void imq() throws Exception {
     output(TestQueries.getAllowableProperties());
@@ -73,6 +63,7 @@ class SearchServiceTest {
 
 
   }
+
   private Set<String> getResults(QueryRequest request) throws OpenSearchException, QueryException {
     SearchService searchService = new SearchService();
     JsonNode results = searchService.queryIM(request);

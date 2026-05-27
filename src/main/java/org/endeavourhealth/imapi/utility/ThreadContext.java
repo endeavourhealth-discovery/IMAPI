@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.utility;
 
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.util.List;
 

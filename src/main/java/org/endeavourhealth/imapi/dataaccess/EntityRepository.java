@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.iml.Entity;
@@ -19,7 +20,8 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +30,6 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
@@ -385,7 +386,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("im1Scheme", NAMESPACE.IM1.asDbIri());
+      qry.setBinding("im1Scheme", EnumUtils.asDbIri(NAMESPACE.IM1));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -574,7 +575,7 @@ public class EntityRepository {
     return predicates;
   }
 
-  public List<TTIriRef> findAncestorsByType(String childIri, VocabEnum relationshipIri, List<String> candidateAncestorIris) {
+  public List<TTIriRef> findAncestorsByType(String childIri, Enum<?> relationshipIri, List<String> candidateAncestorIris) {
     List<TTIriRef> result = new ArrayList<>();
     String sql = """
       SELECT ?aname
@@ -587,7 +588,7 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("c", Values.iri(childIri));
-      qry.setBinding("r", relationshipIri.asDbIri());
+      qry.setBinding("r", EnumUtils.asDbIri(relationshipIri));
 
       for (String candidate : candidateAncestorIris) {
         qry.setBinding("a", Values.iri(candidate));
@@ -794,7 +795,7 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("term", Values.literal(term));
-      qry.setBinding("scheme", namespace.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(namespace));
       return getConceptRefsFromResult(qry);
     }
   }
@@ -820,7 +821,7 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("code", Values.literal(code));
-      qry.setBinding("scheme", namespace.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(namespace));
       return getConceptRefsFromResult(qry);
     }
   }
@@ -878,7 +879,7 @@ public class EntityRepository {
    * @return iri and name of entity
    */
   public TTIriRef getReferenceFromCoreTerm(String term) {
-    List<String> schemes = asArrayList(NAMESPACE.IM, NAMESPACE.SNOMED);
+    List<String> schemes = EnumUtils.asArrayList(NAMESPACE.IM, NAMESPACE.SNOMED);
     String sql = """
       select ?concept ?label
       where {
@@ -1031,7 +1032,7 @@ public class EntityRepository {
         }
       } else {
         tripleMap.putIfAbsent(subject, new TTNode());
-        tripleMap.get(subject).asNode().set(RDFS.LABEL.asIri(), TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
+        tripleMap.get(subject).asNode().set(EnumUtils.asIri(RDFS.LABEL), TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
       }
     } else {
       if (s.isIRI()) {
@@ -1658,7 +1659,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparqlString);
-      qry.setBinding("c", typeIri.asDbIri());
+      qry.setBinding("c", EnumUtils.asDbIri(typeIri));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -1669,8 +1670,8 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public List<org.endeavourhealth.imapi.model.Namespace> findNamespaces() {
-    List<org.endeavourhealth.imapi.model.Namespace> result = new ArrayList<>();
+  public List<Namespace> findNamespaces() {
+    List<Namespace> result = new ArrayList<>();
 
     String sql = """
        select *
@@ -1682,12 +1683,12 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("namespace", IM.ROOT_NAMESPACE.asDbIri());
+      qry.setBinding("namespace", EnumUtils.asDbIri(IM.ROOT_NAMESPACE));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          org.endeavourhealth.imapi.model.Namespace namespace = new org.endeavourhealth.imapi.model.Namespace()
+          Namespace namespace = new Namespace()
             .setIri(iri)
             .setName(bs.getValue("name").stringValue())
             .setPrefix(getPrefixFromIri(iri));
@@ -1720,7 +1721,7 @@ public class EntityRepository {
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", namespace.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(namespace));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

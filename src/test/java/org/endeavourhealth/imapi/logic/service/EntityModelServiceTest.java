@@ -4,9 +4,10 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDF;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,14 +22,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EntityModelServiceTest {
-  @Mock EntityRepository entityRepository;
+  @Mock
+  EntityRepository entityRepository;
 
   EntityService entityService;
 
@@ -382,13 +383,13 @@ class EntityModelServiceTest {
   @Test
   void getSummaryFromConfig_NotNullIri() {
     TTEntity entity = new TTEntity()
-      .set(IM.IS_CHILD_OF.asIri(), new TTArray()
+      .set(EnumUtils.asIri(IM.IS_CHILD_OF), new TTArray()
         .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
         .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", asArrayList(IM.IS_CHILD_OF));
+    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", EnumUtils.asArrayList(IM.IS_CHILD_OF));
     assertNotNull(actual);
   }
 

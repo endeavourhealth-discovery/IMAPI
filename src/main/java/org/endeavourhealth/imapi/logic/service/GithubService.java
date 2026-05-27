@@ -11,8 +11,8 @@ import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
-import org.endeavourhealth.imapi.model.github.REPO;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
+import org.endeavourhealth.interfacemanager.model.CONFIG;
+import org.endeavourhealth.interfacemanager.model.REPO;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

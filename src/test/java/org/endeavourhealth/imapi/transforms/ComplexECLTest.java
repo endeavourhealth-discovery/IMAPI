@@ -3,32 +3,31 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.logic.service.EclService;
-import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.junit.jupiter.api.Test;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 public class ComplexECLTest {
   //@Test
   public void expanderTest() throws QueryException, JsonProcessingException {
-    new SetMemberGenerator().generateMembers(NAMESPACE.IM+"CSET_OralCorticosteroids", GRAPH.IM);
+    new SetMemberGenerator().generateMembers(NAMESPACE.IM + "CSET_OralCorticosteroids", GRAPH.IM);
   }
+
   //@Test
   public void eclToIMQ() throws QueryException {
     ECLToIMQ eclToIMQ = new ECLToIMQ();
-    Query query= eclToIMQ.convertECL(getEclComplex());
-    SearchResponse results= new EclService().eclSearch(new ECLQueryRequest().setQuery(query));
+    Query query = eclToIMQ.convertECL(getEclComplex());
+    SearchResponse results = new EclService().eclSearch(new ECLQueryRequest().setQuery(query));
   }
 
-  public String getEclSimple(){
+  public String getEclSimple() {
     return "<<763158003";
   }
 
-  public String getEclComplex(){
+  public String getEclComplex() {
     return """
       <<((<< 10363801000001108|Virtual medicinal product (product)|
        OR << 10363901000001102|Actual medicinal product (product)|

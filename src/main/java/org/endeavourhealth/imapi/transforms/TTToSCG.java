@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDF;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -11,10 +11,25 @@ import java.util.zip.DataFormatException;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTToSCG {
-  boolean refinedSet;
   private static final TTIriRef[] corePredicates = {iri(RDF.TYPE), iri(IM.IS_A), iri(IM.HAS_SCHEME), iri(IM.IS_CONTAINED_IN),
     iri(IM.HAS_STATUS), iri(IM.DEFINITIONAL_STATUS)};
+  boolean refinedSet;
 
+  private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
+    String iri = checkMember(exp.asIriRef().getIri());
+    if (includeName) {
+      scg.append(iri).append(" |").append(exp.asIriRef().getName()).append(" |");
+    } else {
+      scg.append(iri);
+    }
+  }
+
+  private static String checkMember(String iri) {
+    if (iri.contains("/sct#") || (iri.contains("/im#")))
+      return iri.split("#")[1];
+    else
+      return iri;
+  }
 
   public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {
     StringBuilder scg = new StringBuilder();
@@ -80,21 +95,5 @@ public class TTToSCG {
 
   private boolean excludeCorePredicates(TTIriRef predicate) {
     return (Arrays.asList(corePredicates).contains(predicate));
-  }
-
-  private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
-    String iri = checkMember(exp.asIriRef().getIri());
-    if (includeName) {
-      scg.append(iri).append(" |").append(exp.asIriRef().getName()).append(" |");
-    } else {
-      scg.append(iri);
-    }
-  }
-
-  private static String checkMember(String iri) {
-    if (iri.contains("/sct#") || (iri.contains("/im#")))
-      return iri.split("#")[1];
-    else
-      return iri;
   }
 }

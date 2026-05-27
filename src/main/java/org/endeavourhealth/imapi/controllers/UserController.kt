@@ -9,9 +9,6 @@ import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
 import org.endeavourhealth.imapi.logic.service.SecurityService
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
-import org.endeavourhealth.imapi.model.primevue.FontSize
-import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
-import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
 import org.endeavourhealth.imapi.model.security.NamespacePermission
 import org.endeavourhealth.imapi.model.security.Permission
 import org.endeavourhealth.imapi.model.security.Resource
@@ -19,6 +16,9 @@ import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.APIGuard
 import org.endeavourhealth.imapi.utility.MetricsHelper
+import org.endeavourhealth.interfacemanager.model.FontSize
+import org.endeavourhealth.interfacemanager.model.PrimeVueColors
+import org.endeavourhealth.interfacemanager.model.PrimeVuePresetThemes
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -51,7 +51,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Preset.POST").use {
       log.debug("updateUserPreset")
-      val theme = PrimeVuePresetThemes.fromValue(preset)
+      val theme = PrimeVuePresetThemes.decode(preset)
       requireNotNull(theme)
       val user = securityService.getUser(request)
       user.theme = theme
@@ -75,7 +75,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.PrimaryColor.POST").use {
       log.debug("updateUserPrimaryColor")
-      val colorEnum = PrimeVueColors.fromValue(color)
+      val colorEnum = PrimeVueColors.decode(color)
       requireNotNull(colorEnum)
       val user = securityService.getUser(request)
       user.primaryColor = colorEnum
@@ -97,7 +97,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Surface.POST").use {
       log.debug("updateUserSurfaceColor")
-      val colorEnum = PrimeVueColors.fromValue(color)
+      val colorEnum = PrimeVueColors.decode(color)
       requireNotNull(colorEnum)
       val user = securityService.getUser(request)
       user.surfaceColor = colorEnum
@@ -141,7 +141,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.FontSize.POST").use {
       log.debug("updateUserFontSize")
-      val fontSizeEnum = FontSize.fromValue(fontSize)
+      val fontSizeEnum = FontSize.decode(fontSize)
       requireNotNull(fontSizeEnum)
       val user = securityService.getUser(request)
       user.fontSize = fontSizeEnum

@@ -9,15 +9,16 @@ import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.IMFUNCTION;
+import org.endeavourhealth.interfacemanager.model.RDF;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import static java.util.stream.Collectors.toCollection;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class FunctionService {
   public static final String ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY = "One or more arguments are missing parameter key";
@@ -27,14 +28,15 @@ public class FunctionService {
   private final SecurityService securityService = new SecurityService();
 
   public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
-    return switch (IM_FUNCTION.from(iri)) {
-      case IM_FUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
-      case IM_FUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
-      case IM_FUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
-      case IM_FUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
-      case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
-      case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
-      case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+    return switch (IMFUNCTION.Companion.decode(iri)) {
+      case IMFUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
+      case IMFUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
+      case IMFUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
+      case IMFUNCTION.GET_SET_EDITOR_IRI_SCHEMES -> getSetEditorIriSchemes();
+      case IMFUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
+      case IMFUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
+      case IMFUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+      case null -> throw new IllegalArgumentException("Failed to decode to IMFUNCTION enum");
       default -> throw new IllegalArgumentException("No such function: " + iri);
     };
   }
@@ -109,7 +111,7 @@ public class FunctionService {
 
   private JsonNode getLogicOptions() {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      Set<String> iris = asHashSet(SHACL.AND, SHACL.OR, SHACL.NOT);
+      Set<String> iris = EnumUtils.asHashSet(SHACL.AND, SHACL.OR, SHACL.NOT);
       Set<TTIriRef> iriRefs = entityService.getNames(iris);
       List<TTIriRef> options = new ArrayList<>(iriRefs);
       return om.valueToTree(options);
@@ -128,7 +130,7 @@ public class FunctionService {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), null, 1, 200, false);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
     User user = securityService.getUser(request);
-    List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().asIri().equals(r))).toList();
+    List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> EnumUtils.asIri(o.getIri()).equals(r))).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(editableSchemes);
     }

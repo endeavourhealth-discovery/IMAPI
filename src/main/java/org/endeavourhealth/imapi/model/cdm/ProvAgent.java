@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.cdm;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
-import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.interfacemanager.model.IM;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

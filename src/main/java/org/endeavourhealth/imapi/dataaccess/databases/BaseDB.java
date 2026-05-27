@@ -14,7 +14,8 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.io.File;
 import java.util.StringJoiner;
@@ -40,7 +41,7 @@ public abstract class BaseDB implements AutoCloseable {
       if (graph == null)
         dataset.addDefaultGraph(null);
       else
-        dataset.addDefaultGraph(graph.asDbIri());
+        dataset.addDefaultGraph(EnumUtils.asDbIri(graph));
     }
   }
 
@@ -144,7 +145,7 @@ public abstract class BaseDB implements AutoCloseable {
       throw new DALException("A graph MUST be specified for an insert statement");
 
     Update insert = prepareSparql(sparql);
-    dataset.setDefaultInsertGraph(graph.asDbIri());
+    dataset.setDefaultInsertGraph(EnumUtils.asDbIri(graph));
 
     return insert;
   }
@@ -158,7 +159,7 @@ public abstract class BaseDB implements AutoCloseable {
       throw new DALException("A graph MUST be specified for an update statement");
 
     Update update = prepareSparql(sparql);
-    dataset.setDefaultInsertGraph(graph.asDbIri());
+    dataset.setDefaultInsertGraph(EnumUtils.asDbIri(graph));
 
     return update;
   }

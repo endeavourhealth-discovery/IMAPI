@@ -16,13 +16,15 @@ import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.imapi.model.workflow.bugReport.*;
-import org.endeavourhealth.imapi.model.workflow.entityApproval.ApprovalType;
+import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
+import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
+import org.endeavourhealth.imapi.model.workflow.bugReport.TaskModule;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.model.workflow.task.TaskType;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -102,12 +104,12 @@ public class WorkflowRepository {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       setBugReportBindings(qry);
       qry.setBinding("s", iri(id));
-      qry.setBinding("history", WORKFLOW.HISTORY.asDbIri());
-      qry.setBinding("predicate", WORKFLOW.HISTORY_PREDICATE.asDbIri());
-      qry.setBinding("originalObject", WORKFLOW.HISTORY_ORIGINAL_OBJECT.asDbIri());
-      qry.setBinding("newObject", WORKFLOW.HISTORY_NEW_OBJECT.asDbIri());
-      qry.setBinding("changeDate", WORKFLOW.HISTORY_CHANGE_DATE.asDbIri());
-      qry.setBinding("modifiedBy", WORKFLOW.MODIFIED_BY.asDbIri());
+      qry.setBinding("history", EnumUtils.asDbIri(WORKFLOW.HISTORY));
+      qry.setBinding("predicate", EnumUtils.asDbIri(WORKFLOW.HISTORY_PREDICATE));
+      qry.setBinding("originalObject", EnumUtils.asDbIri(WORKFLOW.HISTORY_ORIGINAL_OBJECT));
+      qry.setBinding("newObject", EnumUtils.asDbIri(WORKFLOW.HISTORY_NEW_OBJECT));
+      qry.setBinding("changeDate", EnumUtils.asDbIri(WORKFLOW.HISTORY_CHANGE_DATE));
+      qry.setBinding("modifiedBy", EnumUtils.asDbIri(WORKFLOW.MODIFIED_BY));
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
@@ -153,7 +155,7 @@ public class WorkflowRepository {
     taskFilerRdf4j.deleteTask(taskId);
   }
 
-  public void update(String subject, VocabEnum predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
+  public void update(String subject, Enum<?> predicate, String originalObject, String newObject, String userId) throws TaskFilerException, UserNotFoundException {
     taskFilerRdf4j.updateTask(subject, predicate, originalObject, newObject, userId);
   }
 
@@ -212,7 +214,7 @@ public class WorkflowRepository {
       """;
     try (WorkflowDB conn = WorkflowDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("createdBy", WORKFLOW.CREATED_BY.asDbIri());
+      qry.setBinding("createdBy", EnumUtils.asDbIri(WORKFLOW.CREATED_BY));
       qry.setBinding("createdByData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -255,7 +257,7 @@ public class WorkflowRepository {
       """;
     try (WorkflowDB conn = WorkflowDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("assignedTo", WORKFLOW.ASSIGNED_TO.asDbIri());
+      qry.setBinding("assignedTo", EnumUtils.asDbIri(WORKFLOW.ASSIGNED_TO));
       qry.setBinding("assignedToData", literal(request.getUserId()));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
@@ -428,7 +430,7 @@ public class WorkflowRepository {
       """;
     try (WorkflowDB conn = WorkflowDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("p", WORKFLOW.CREATED_BY.asDbIri());
+      qry.setBinding("p", EnumUtils.asDbIri(WORKFLOW.CREATED_BY));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -442,40 +444,40 @@ public class WorkflowRepository {
   }
 
   private void setTaskBindings(TupleQuery qry) {
-    qry.setBinding("createdBy", WORKFLOW.CREATED_BY.asDbIri());
-    qry.setBinding("type", RDF.TYPE.asDbIri());
-    qry.setBinding("state", WORKFLOW.STATE.asDbIri());
-    qry.setBinding("assignedTo", WORKFLOW.ASSIGNED_TO.asDbIri());
-    qry.setBinding("dateCreated", WORKFLOW.DATE_CREATED.asDbIri());
-    qry.setBinding("hostUrl", WORKFLOW.HOST_URL.asDbIri());
+    qry.setBinding("createdBy", EnumUtils.asDbIri(WORKFLOW.CREATED_BY));
+    qry.setBinding("type", EnumUtils.asDbIri(RDF.TYPE));
+    qry.setBinding("state", EnumUtils.asDbIri(WORKFLOW.STATE));
+    qry.setBinding("assignedTo", EnumUtils.asDbIri(WORKFLOW.ASSIGNED_TO));
+    qry.setBinding("dateCreated", EnumUtils.asDbIri(WORKFLOW.DATE_CREATED));
+    qry.setBinding("hostUrl", EnumUtils.asDbIri(WORKFLOW.HOST_URL));
   }
 
   private void setBugReportBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("product", WORKFLOW.RELATED_PRODUCT.asDbIri());
-    qry.setBinding("version", WORKFLOW.RELATED_VERSION.asDbIri());
-    qry.setBinding("module", WORKFLOW.RELATED_MODULE.asDbIri());
-    qry.setBinding("os", WORKFLOW.OPERATING_SYSTEM.asDbIri());
-    qry.setBinding("osOther", WORKFLOW.OPERATING_SYSTEM_OTHER.asDbIri());
-    qry.setBinding("browser", WORKFLOW.BROWSER.asDbIri());
-    qry.setBinding("browserOther", WORKFLOW.BROWSER_OTHER.asDbIri());
-    qry.setBinding("severity", WORKFLOW.SEVERITY.asDbIri());
-    qry.setBinding("status", IM.HAS_STATUS.asDbIri());
-    qry.setBinding("error", WORKFLOW.ERROR.asDbIri());
-    qry.setBinding("description", RDFS.COMMENT.asDbIri());
-    qry.setBinding("reproduceSteps", WORKFLOW.REPRODUCE_STEPS.asDbIri());
-    qry.setBinding("expectedResult", WORKFLOW.EXPECTED_RESULT.asDbIri());
-    qry.setBinding("actualResult", WORKFLOW.ACTUAL_RESULT.asDbIri());
+    qry.setBinding("product", EnumUtils.asDbIri(WORKFLOW.RELATED_PRODUCT));
+    qry.setBinding("version", EnumUtils.asDbIri(WORKFLOW.RELATED_VERSION));
+    qry.setBinding("module", EnumUtils.asDbIri(WORKFLOW.RELATED_MODULE));
+    qry.setBinding("os", EnumUtils.asDbIri(WORKFLOW.OPERATING_SYSTEM));
+    qry.setBinding("osOther", EnumUtils.asDbIri(WORKFLOW.OPERATING_SYSTEM_OTHER));
+    qry.setBinding("browser", EnumUtils.asDbIri(WORKFLOW.BROWSER));
+    qry.setBinding("browserOther", EnumUtils.asDbIri(WORKFLOW.BROWSER_OTHER));
+    qry.setBinding("severity", EnumUtils.asDbIri(WORKFLOW.SEVERITY));
+    qry.setBinding("status", EnumUtils.asDbIri(IM.HAS_STATUS));
+    qry.setBinding("error", EnumUtils.asDbIri(WORKFLOW.ERROR));
+    qry.setBinding("description", EnumUtils.asDbIri(RDFS.COMMENT));
+    qry.setBinding("reproduceSteps", EnumUtils.asDbIri(WORKFLOW.REPRODUCE_STEPS));
+    qry.setBinding("expectedResult", EnumUtils.asDbIri(WORKFLOW.EXPECTED_RESULT));
+    qry.setBinding("actualResult", EnumUtils.asDbIri(WORKFLOW.ACTUAL_RESULT));
   }
 
   private void setRoleRequestBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("role", WORKFLOW.REQUESTED_ROLE.asDbIri());
+    qry.setBinding("role", EnumUtils.asDbIri(WORKFLOW.REQUESTED_ROLE));
   }
 
   private void setEntityApprovalBindings(TupleQuery qry) {
     setTaskBindings(qry);
-    qry.setBinding("approvalType", WORKFLOW.APPROVAL_TYPE.asDbIri());
+    qry.setBinding("approvalType", EnumUtils.asDbIri(WORKFLOW.APPROVAL_TYPE));
   }
 
   private void mapBugReportFromBindingSet(BugReport bugReport, BindingSet bs) throws UserNotFoundException {
@@ -484,7 +486,8 @@ public class WorkflowRepository {
     if (null != bs.getValue("moduleData"))
       bugReport.setModule(TaskModule.valueOf(bs.getValue("moduleData").stringValue()));
     if (null != bs.getValue("versionData")) bugReport.setVersion(bs.getValue("versionData").stringValue());
-    if (null != bs.getValue("osData")) bugReport.setOs(OperatingSystem.valueOf(bs.getValue("osData").stringValue()));
+    if (null != bs.getValue("osData"))
+      bugReport.setOs(OperatingSystem.Companion.decode(bs.getValue("osData").stringValue()));
     if (null != bs.getValue("osOtherData")) bugReport.setOsOther(bs.getValue("osOtherData").stringValue());
     if (null != bs.getValue("browserData"))
       bugReport.setBrowser(Browser.valueOf(bs.getValue("browserData").stringValue()));
@@ -545,6 +548,6 @@ public class WorkflowRepository {
   private void mapEntityApprovalFromBindingSet(EntityApproval entityApproval, BindingSet bs) throws UserNotFoundException {
     mapTaskFromBindingSet(entityApproval, bs);
     if (null != bs.getValue("approvalTypeData"))
-      entityApproval.setApprovalType(ApprovalType.valueOf(bs.getValue("approvalTypeData").stringValue()));
+      entityApproval.setApprovalType(ApprovalType.Companion.decode(bs.getValue("approvalTypeData").stringValue()));
   }
 }

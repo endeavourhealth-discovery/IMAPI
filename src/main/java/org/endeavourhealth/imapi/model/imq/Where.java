@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.interfacemanager.model.Operator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
 @JsonPropertyOrder({"description", "nodeRef", "iri", "name", "bool", "match", "property", "range", "operator", "isNull", "value", "intervalUnit", "is", "relativeTo", "anyRoleGroup"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties({"key"})
-public class Where extends Element implements Assignable{
+public class Where extends Element implements Assignable {
 
   private String description;
   private Range range;
@@ -49,6 +50,16 @@ public class Where extends Element implements Assignable{
   private Compare compare;
 
 
+  public Where() {
+  }
+
+  public Where(String iri) {
+    super.setIri(iri);
+  }
+
+  public static Where iri(String iri) {
+    return new Where(iri);
+  }
 
   public String getSubjectVariable() {
     return subjectVariable;
@@ -59,12 +70,11 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
-  public boolean isLinked(){
+  public boolean isLinked() {
     return linked;
   }
 
-  public Where setLinked(boolean is){
+  public Where setLinked(boolean is) {
     this.linked = true;
     return this;
   }
@@ -81,13 +91,21 @@ public class Where extends Element implements Assignable{
   public List<Node> getPropertyList() {
     return propertyList;
   }
+
+  public Where setPropertyList(List<Node> propertyList) {
+    this.propertyList = propertyList;
+    return this;
+  }
+
   public String getSubjectParameter() {
     return subjectParameter;
   }
+
   public Where setSubjectParameter(String subject) {
     this.subjectParameter = subject;
     return this;
   }
+
   public Where setParameter(String parameter) {
     super.setParameter(parameter);
     return this;
@@ -98,6 +116,11 @@ public class Where extends Element implements Assignable{
     return description;
   }
 
+  @Override
+  public Where setDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
   @Override
   public Compare getCompare() {
@@ -120,8 +143,25 @@ public class Where extends Element implements Assignable{
     return typeOf;
   }
 
+  @JsonSetter
+  public Where setTypeOf(Node typeOf) {
+    this.typeOf = typeOf;
+    return this;
+  }
+
+  public Where setTypeOf(String type) {
+    this.typeOf = new Node().setIri(type);
+    return this;
+  }
+
   public List<Node> getIs() {
     return is;
+  }
+
+  @JsonSetter
+  public Where setIs(List<Node> isList) {
+    this.is = isList;
+    return this;
   }
 
   @Override
@@ -129,16 +169,36 @@ public class Where extends Element implements Assignable{
     return operator;
   }
 
+  public Where setOperator(Operator operator) {
+    this.operator = operator;
+    return this;
+  }
+
   public boolean isNot() {
     return not;
+  }
+
+  public Where setNot(boolean not) {
+    this.not = not;
+    return this;
   }
 
   public boolean isAnyRoleGroup() {
     return anyRoleGroup;
   }
 
+  public Where setAnyRoleGroup(boolean anyRoleGroup) {
+    this.anyRoleGroup = anyRoleGroup;
+    return this;
+  }
+
   public boolean isRoleGroup() {
     return roleGroup;
+  }
+
+  public Where setRoleGroup(boolean roleGroup) {
+    this.roleGroup = roleGroup;
+    return this;
   }
 
   public boolean isNotNull() {
@@ -153,18 +213,37 @@ public class Where extends Element implements Assignable{
     return inverse;
   }
 
+  public Where setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
   public List<Where> getOr() {
     return or;
+  }
+
+  public Where setOr(List<Where> or) {
+    this.or = or;
+    return this;
   }
 
   public List<Where> getAnd() {
     return and;
   }
 
+  public Where setAnd(List<Where> and) {
+    this.and = and;
+    return this;
+  }
+
   public String getShortLabel() {
     return shortLabel;
   }
 
+  public Where setShortLabel(String shortLabel) {
+    this.shortLabel = shortLabel;
+    return this;
+  }
 
   public boolean isExists() {
     return exists;
@@ -175,29 +254,27 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
   public List<IriLD> getExcludeProperty() {
     return excludeProperty;
   }
 
-  public Where setExcludeProperty(List<IriLD> properties){
+  public Where setExcludeProperty(List<IriLD> properties) {
     this.excludeProperty = properties;
     return this;
   }
 
-  public Where addExcludeProperty(IriLD property){
-    if(this.excludeProperty == null) this.excludeProperty = new ArrayList<>();
+  public Where addExcludeProperty(IriLD property) {
+    if (this.excludeProperty == null) this.excludeProperty = new ArrayList<>();
     this.excludeProperty.add(property);
     return this;
   }
 
-  public Where excludeProperty(Consumer<IriLD> builder){
+  public Where excludeProperty(Consumer<IriLD> builder) {
     IriLD property = new IriLD();
     addExcludeProperty(property);
     builder.accept(property);
     return this;
   }
-
 
   public String getNode() {
     return node;
@@ -208,17 +285,12 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-  public Where setPropertyRef(String propertyRef) {
-    this.propertyRef = propertyRef;
-    return this;
-  }
-
   public String getPropertyRef() {
     return propertyRef;
   }
 
-  public Where setPropertyVariable(String variable) {
-    this.propertyVariable=variable;
+  public Where setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
     return this;
   }
 
@@ -226,10 +298,8 @@ public class Where extends Element implements Assignable{
     return propertyVariable;
   }
 
-
-
-  public Where setPropertyList(List<Node> propertyList) {
-    this.propertyList = propertyList;
+  public Where setPropertyVariable(String variable) {
+    this.propertyVariable = variable;
     return this;
   }
 
@@ -238,38 +308,6 @@ public class Where extends Element implements Assignable{
     this.propertyList.add(property);
     return this;
   }
-
-
-  public Where setNot(boolean not) {
-    this.not = not;
-    return this;
-  }
-
-
-  public Where setShortLabel(String shortLabel) {
-    this.shortLabel = shortLabel;
-    return this;
-  }
-
-
-  public Where setRoleGroup(boolean roleGroup) {
-    this.roleGroup = roleGroup;
-    return this;
-  }
-
-  public Where() {
-  }
-
-  public Where(String iri) {
-    super.setIri(iri);
-  }
-
-
-  public Where setAnd(List<Where> and) {
-    this.and = and;
-    return this;
-  }
-
 
   public Where addAnd(Where and) {
     if (this.and == null) {
@@ -283,12 +321,6 @@ public class Where extends Element implements Assignable{
     Where and = new Where();
     addAnd(and);
     builder.accept(and);
-    return this;
-  }
-
-
-  public Where setOr(List<Where> or) {
-    this.or = or;
     return this;
   }
 
@@ -307,35 +339,15 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
-  @JsonSetter
-  public Where setTypeOf(Node typeOf) {
-    this.typeOf = typeOf;
-    return this;
-  }
-
-
-  public Where setTypeOf(String type) {
-    this.typeOf = new Node().setIri(type);
-    return this;
-  }
-
-  public Where setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
-
-
-  public static Where iri(String iri) {
-    return new Where(iri);
-  }
-
-
   @Override
   public String getValueLabel() {
     return this.valueLabel;
   }
 
+  public Where setValueLabel(String valueLabel) {
+    this.valueLabel = valueLabel;
+    return this;
+  }
 
   public boolean getIsNotNull() {
     return isNotNull;
@@ -355,14 +367,11 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
   @Override
   public Where setNodeRef(String nodeRef) {
     super.setNodeRef(nodeRef);
     return this;
   }
-
-
 
   public Where setIri(String iri) {
     super.setIri(iri);
@@ -379,35 +388,10 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
-  public Where setValueLabel(String valueLabel) {
-    this.valueLabel = valueLabel;
-    return this;
-  }
-
-  public Where setAnyRoleGroup(boolean anyRoleGroup) {
-    this.anyRoleGroup = anyRoleGroup;
-    return this;
-  }
-
-
   public Where setName(String name) {
     super.setName(name);
     return this;
   }
-
-  @Override
-  public Where setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  @JsonSetter
-  public Where setIs(List<Node> isList) {
-    this.is = isList;
-    return this;
-  }
-
 
   public Where addIs(Node isItem) {
     if (this.is == null) this.is = new ArrayList<>();
@@ -422,7 +406,6 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
-
   public Where addIs(String isIri) {
     if (this.is == null) this.is = new ArrayList<>();
     this.is.add(new Node().setIri(isIri));
@@ -433,12 +416,6 @@ public class Where extends Element implements Assignable{
     super.setDescendantsOrSelfOf(entailment);
     return this;
   }
-
-  public Where setOperator(Operator operator) {
-    this.operator = operator;
-    return this;
-  }
-
 
   @Override
   public String getValueTerm() {
@@ -461,16 +438,14 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
+  public TTIriRef getQualifier() {
+    return this.qualifier;
+  }
 
   public Where setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }
-
-  public TTIriRef getQualifier() {
-    return this.qualifier;
-  }
-
 
   public Range getRange() {
     return range;
@@ -487,16 +462,14 @@ public class Where extends Element implements Assignable{
     return this;
   }
 
+  public TTIriRef getUnits() {
+    return units;
+  }
 
   public Where setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }
-
-  public TTIriRef getUnits() {
-    return units;
-  }
-
 
   public Where function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();

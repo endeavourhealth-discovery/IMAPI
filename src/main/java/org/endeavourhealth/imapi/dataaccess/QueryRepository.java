@@ -15,18 +15,16 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -339,7 +337,7 @@ public class QueryRepository {
 
   private TTEntity getEntity(String iri) {
     return new EntityRepository().getBundle(iri,
-      asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
+      EnumUtils.asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
   }
 
   public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException {

@@ -10,9 +10,9 @@ import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
-import org.endeavourhealth.imapi.vocabulary.CONFIG;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.CONFIG;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -42,9 +42,9 @@ public class ConfigManager {
 
     try (ConfigDB conn = ConfigDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("s", config.asDbIri());
-      qry.setBinding("label", CONFIG.LABEL.asDbIri());
-      qry.setBinding("config", CONFIG.HAS_CONFIG.asDbIri());
+      qry.setBinding("s", EnumUtils.asDbIri(config));
+      qry.setBinding("label", EnumUtils.asDbIri(CONFIG.LABEL));
+      qry.setBinding("config", EnumUtils.asDbIri(CONFIG.HAS_CONFIG));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -64,7 +64,7 @@ public class ConfigManager {
     insert(iri, CONFIG.HAS_CONFIG, config.getData());
   }
 
-  private void insert(CONFIG subject, VocabEnum predicate, String object) {
+  private void insert(CONFIG subject, Enum<?> predicate, String object) {
     if (null == subject || null == predicate)
       throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper();
@@ -84,8 +84,8 @@ public class ConfigManager {
         : "WHERE { ?s ?p ?oAny }";
 
       Update qry = conn.prepareUpdateSparql(query, GRAPH.CONFIG);
-      qry.setBinding("s", subject.asDbIri());
-      qry.setBinding("p", predicate.asDbIri());
+      qry.setBinding("s", EnumUtils.asDbIri(subject));
+      qry.setBinding("p", EnumUtils.asDbIri(predicate));
       qry.setBinding("o", literal(object));
       qry.execute();
     }

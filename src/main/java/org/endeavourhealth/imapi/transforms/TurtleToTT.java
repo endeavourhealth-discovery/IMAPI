@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteBaseVisitor;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteLexer;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteParser;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.interfacemanager.model.RDF;
 
 import java.util.HashMap;
 import java.util.List;

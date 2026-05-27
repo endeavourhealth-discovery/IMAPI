@@ -9,8 +9,9 @@ import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class ConceptService {
@@ -60,7 +60,7 @@ public class ConceptService {
   public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
     if (iri == null || iri.isEmpty())
       return Collections.emptyList();
-    TTBundle termsBundle = entityRepository.getBundle(iri, asHashSet(IM.HAS_TERM_CODE));
+    TTBundle termsBundle = entityRepository.getBundle(iri, EnumUtils.asHashSet(IM.HAS_TERM_CODE));
     if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
     TTArray terms = termsBundle.getEntity().get(iri(IM.HAS_TERM_CODE));
     if (null == terms) return Collections.emptyList();

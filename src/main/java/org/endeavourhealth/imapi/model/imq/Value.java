@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.Operator;
 
 import java.util.function.Consumer;
 
@@ -23,10 +24,10 @@ public class Value implements Assignable {
   private Compare compare;
 
 
-
   public boolean isInvalid() {
     return invalid;
   }
+
   public Value setIsInvalid(boolean invalid) {
     this.invalid = invalid;
     return this;
@@ -44,16 +45,14 @@ public class Value implements Assignable {
     return this;
   }
 
+  public TTIriRef getUnits() {
+    return this.units;
+  }
 
   public Value setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }
-
-  public TTIriRef getUnits(){
-    return this.units;
-  }
-
 
   public Value function(Consumer<FunctionClause> builder) {
     this.function = new FunctionClause();
@@ -93,16 +92,15 @@ public class Value implements Assignable {
   }
 
   @Override
-  public Value setDescription(String description) {
-    this.description= description;
-    return this;
-  }
-
-  @Override
   public String getDescription() {
     return description;
   }
 
+  @Override
+  public Value setDescription(String description) {
+    this.description = description;
+    return this;
+  }
 
   public Compare getCompare() {
     return this.compare;
@@ -119,11 +117,6 @@ public class Value implements Assignable {
     builder.accept(this.compare);
     return this;
   }
-
-
-
-
-
 
 
 }

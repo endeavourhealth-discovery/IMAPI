@@ -4,7 +4,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository
 import org.endeavourhealth.imapi.logic.service.QueryService
 import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.imapi.vocabulary.IM
+import org.endeavourhealth.interfacemanager.model.IM
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test

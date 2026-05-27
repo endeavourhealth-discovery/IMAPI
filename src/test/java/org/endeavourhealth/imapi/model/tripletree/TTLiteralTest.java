@@ -6,10 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
@@ -18,6 +18,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TTLiteralTest {
+  final EntityService entityService = new EntityService();
   private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
     .set(TTIriRef.iri(RDFS.LABEL), "Test object")
     .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
@@ -30,7 +31,6 @@ class TTLiteralTest {
     .add("  \"http://endhealth.info/im#Query\" : \"{\\\"term\\\":\\\"Mickey Mouse\\\",\\\"code\\\":\\\"EM-EYE-CEE\\\",\\\"status\\\":{\\\"name\\\":\\\"Active\\\",\\\"iri\\\":\\\"http://endhealth.info/im#Active\\\"}}\"")
     .add("}")
     .toString();
-  final EntityService entityService = new EntityService();
 
   TTLiteralTest() throws JsonProcessingException {
   }
@@ -64,11 +64,11 @@ class TTLiteralTest {
     ObjectMapper om = new ObjectMapper()
       .setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
-      String actual = om
-        .writerWithDefaultPrettyPrinter()
-        .writeValueAsString(testObject);
+    String actual = om
+      .writerWithDefaultPrettyPrinter()
+      .writeValueAsString(testObject);
 
-      assertEquals(json, actual);
+    assertEquals(json, actual);
   }
 
   @Test

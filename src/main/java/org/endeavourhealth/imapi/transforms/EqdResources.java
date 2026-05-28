@@ -1194,6 +1194,7 @@ public class EqdResources {
       for (Node node : setContent) {
         if (node.isExclude()) {
           notWhere.addIs(node);
+          node.setExclude(false);
         } else where.addIs(node);
         if (node.getName() != null && name == null) {
           name = this.getShortName(node.getName(), null);

@@ -6,10 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.XSD;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
@@ -99,14 +100,14 @@ class TTLiteralTest {
   @Test
   void testTTLiteralSerialization_FirstNull() throws JsonProcessingException {
     TTLiteral first = literal(null, (TTIriRef) null);
-    TTLiteral second = literal("TEST", XSD.STRING.asIri());
+    TTLiteral second = literal("TEST", EnumUtils.asIri(XSD.STRING));
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_SecondNull() throws JsonProcessingException {
-    TTLiteral first = literal("TEST", XSD.STRING.asIri());
+    TTLiteral first = literal("TEST", EnumUtils.asIri(XSD.STRING));
     TTLiteral second = literal(null, (TTIriRef) null);
 
     assertNotEquals(first, second);
@@ -114,16 +115,16 @@ class TTLiteralTest {
 
   @Test
   void testTTLiteralSerialization_DiffVal() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING.asIri());
-    TTLiteral second = literal("DIFFERENT", XSD.STRING.asIri());
+    TTLiteral first = literal("SAME", EnumUtils.asIri(XSD.STRING));
+    TTLiteral second = literal("DIFFERENT", EnumUtils.asIri(XSD.STRING));
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_DiffType() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING.asIri());
-    TTLiteral second = literal("SAME", XSD.INTEGER.asIri());
+    TTLiteral first = literal("SAME", EnumUtils.asIri(XSD.STRING));
+    TTLiteral second = literal("SAME", EnumUtils.asIri(XSD.INTEGER));
 
     assertNotEquals(first, second);
   }
@@ -146,8 +147,8 @@ class TTLiteralTest {
 
   @Test
   void testTTLiteralSerialization_Same() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", XSD.STRING.asIri());
-    TTLiteral second = literal("SAME", XSD.STRING.asIri());
+    TTLiteral first = literal("SAME", EnumUtils.asIri(XSD.STRING));
+    TTLiteral second = literal("SAME", EnumUtils.asIri(XSD.STRING));
 
     assertEquals(first, second);
   }

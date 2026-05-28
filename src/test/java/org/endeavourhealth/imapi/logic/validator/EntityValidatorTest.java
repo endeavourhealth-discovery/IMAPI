@@ -9,8 +9,8 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.VALIDATION;
+import org.endeavourhealth.interfacemanager.model.SHACL;
+import org.endeavourhealth.interfacemanager.model.VALIDATION;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

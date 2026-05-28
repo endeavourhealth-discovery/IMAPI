@@ -111,7 +111,7 @@ public class Return implements Returnable {
   }
 
   public Return setIri(Enum<?> iri) {
-    this.iri = EnumUtils.asIri(iri).toString();
+    this.iri = EnumUtils.asIri(iri).getIri();
     return this;
   }
 

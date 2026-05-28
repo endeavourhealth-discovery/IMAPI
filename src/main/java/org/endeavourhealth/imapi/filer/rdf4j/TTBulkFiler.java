@@ -6,10 +6,11 @@ import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -183,7 +184,7 @@ public class TTBulkFiler implements TTDocumentFiler {
       log.info("Writing document entities...");
       for (TTEntity entity : document.getEntities()) {
         counter++;
-        if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
+        if (entity.get(EnumUtils.asIri(IM.PRIVACY_LEVEL)) != null && (entity.get(EnumUtils.asIri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > getPrivacyLevel()))
           continue;
 
         allEntities.write(entity.getIri() + "\n");
@@ -314,8 +315,9 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addCodeToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
-
+    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    if (null == namespace)
+      throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
     if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
       codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
@@ -331,7 +333,7 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void addCodeIdToMaps(TTEntity entity) throws IOException {
     if (entity.get(iri(IM.CODE_ID)) != null) {
-      NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
+      NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
       for (TTValue codeId : entity.get(iri(IM.CODE_ID)).getElements()) {
         getCodeIds(namespace).write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       }
@@ -339,12 +341,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addTermCodeToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
 
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         if (tc.asNode().get(iri(IM.CODE)) != null) {
           String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
+          assert namespace != null;
           if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
             getCodeCoreMap(namespace).write(code + "\t" + entity.getIri() + "\n");
         }
@@ -353,7 +356,9 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addMatchToToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    if (null == namespace)
+      throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
     if (entity.get(iri(IM.MATCHED_TO)) != null) {
       for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {
@@ -373,7 +378,9 @@ public class TTBulkFiler implements TTDocumentFiler {
   private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
     if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
+      NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+      if (null == namespace)
+        throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
       for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
         TTNode termCode = tc.asNode();

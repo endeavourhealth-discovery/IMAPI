@@ -3,9 +3,9 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 
 import java.util.Map;
 import java.util.Set;

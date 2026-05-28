@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.iml.ModelDocument;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.RDF;
@@ -461,11 +462,11 @@ public class TTManager implements AutoCloseable {
   public TTEntity createNamespaceEntity(NAMESPACE namespace, String name, String description) {
     TTEntity result = new TTEntity()
       .setIri(namespace.toString())
-      .addType(RDFS.CLASS.asIri())
+      .addType(EnumUtils.asIri(RDFS.CLASS))
       .setName(name)
       .setDescription(description)
-      .setScheme(namespace.asIri());
-    result.addObject(iri(RDFS.SUBCLASS_OF), IM.ROOT_NAMESPACE.asIri());
+      .setScheme(EnumUtils.asIri(namespace));
+    result.addObject(iri(RDFS.SUBCLASS_OF), EnumUtils.asIri(IM.ROOT_NAMESPACE));
     return result;
   }
 

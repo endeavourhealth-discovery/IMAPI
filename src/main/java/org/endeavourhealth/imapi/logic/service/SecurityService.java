@@ -13,7 +13,7 @@ import org.endeavourhealth.imapi.model.responses.LoginResponseES;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.interfacemanager.model.UserRole;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

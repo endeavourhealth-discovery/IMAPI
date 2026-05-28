@@ -36,7 +36,7 @@ public class TTContext implements Serializable {
   }
 
   public TTContext add(Enum<?> iri, String prefix) {
-    return add(EnumUtils.asIri(iri).toString(), prefix);
+    return add(EnumUtils.asIri(iri).getIri(), prefix);
   }
 
   public TTContext add(String iri, String prefix) {
@@ -46,7 +46,7 @@ public class TTContext implements Serializable {
   }
 
   public TTContext add(Enum<?> iri, String prefix, String name) {
-    return add(EnumUtils.asIri(iri).toString(), prefix, name);
+    return add(EnumUtils.asIri(iri).getIri(), prefix, name);
   }
 
   public TTContext add(String iri, String prefix, String name) {

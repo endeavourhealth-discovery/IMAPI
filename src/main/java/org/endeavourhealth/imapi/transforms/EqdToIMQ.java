@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.slf4j.Logger;
@@ -273,7 +274,7 @@ public class EqdToIMQ {
         if (report.get(IM.DEFINITION) != null) {
           Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
-          report.set(IM.DEFINITION.asIri(), TTLiteral.literal(query));
+          report.set(EnumUtils.asIri(IM.DEFINITION), TTLiteral.literal(query));
         }
       }
     }

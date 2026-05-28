@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.transformengine;
 
-import org.endeavourhealth.imapi.vocabulary.TransformFunction;
+import org.endeavourhealth.interfacemanager.model.TransformFunction;
 
 import java.util.Collection;
 import java.util.List;

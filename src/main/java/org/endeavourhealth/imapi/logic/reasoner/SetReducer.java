@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;

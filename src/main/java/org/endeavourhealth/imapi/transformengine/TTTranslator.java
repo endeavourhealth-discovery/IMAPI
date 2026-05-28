@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
 
 import java.util.Collection;
 import java.util.List;

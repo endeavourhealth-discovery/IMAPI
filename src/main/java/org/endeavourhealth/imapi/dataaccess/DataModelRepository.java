@@ -7,9 +7,10 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.iml.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.util.*;
 
@@ -93,9 +94,9 @@ public class DataModelRepository {
         """;
       TupleQuery qry = conn.prepareTupleSparql(query);
       qry.setBinding("propIri", iri(propIri));
-      qry.setBinding("isA", IM.IS_A.asDbIri());
-      qry.setBinding("objProp", IM.DATAMODEL_OBJECTPROPERTY.asDbIri());
-      qry.setBinding("dataProp", IM.DATAMODEL_DATAPROPERTY.asDbIri());
+      qry.setBinding("isA", EnumUtils.asDbIri(IM.IS_A));
+      qry.setBinding("objProp", EnumUtils.asDbIri(IM.DATAMODEL_OBJECTPROPERTY));
+      qry.setBinding("dataProp", EnumUtils.asDbIri(IM.DATAMODEL_DATAPROPERTY));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();

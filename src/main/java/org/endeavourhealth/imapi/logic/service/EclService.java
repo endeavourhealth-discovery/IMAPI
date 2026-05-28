@@ -4,13 +4,17 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.reasoner.SparqlOptimizer;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.interfacemanager.model.DisplayMode;
+import org.endeavourhealth.interfacemanager.model.ValidationLevel;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

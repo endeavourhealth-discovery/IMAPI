@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
@@ -37,7 +38,7 @@ public class SCGToTT {
 
   private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
     if (ctx.definitionstatus() != null && ctx.definitionstatus().equivalentto() != null) {
-      entity.set(IM.DEFINITIONAL_STATUS.asIri(), IM.SUFFICIENTLY_DEFINED.asIri());
+      entity.set(EnumUtils.asIri(IM.DEFINITIONAL_STATUS), EnumUtils.asIri(IM.SUFFICIENTLY_DEFINED));
     }
     if (ctx.subexpression() != null)
       convertSubexpression(ctx.subexpression());

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.Operator;
 
 import java.util.ArrayList;
@@ -378,8 +378,8 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public Where setIri(VocabEnum iri) {
-    super.setIri(iri.toString());
+  public Where setIri(Enum<?> iri) {
+    super.setIri(EnumUtils.asIri(iri).getIri());
     return this;
   }
 

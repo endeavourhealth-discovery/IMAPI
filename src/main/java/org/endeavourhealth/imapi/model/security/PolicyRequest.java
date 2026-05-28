@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.security;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.interfacemanager.model.UserRole;
 
 @Getter
 @Setter

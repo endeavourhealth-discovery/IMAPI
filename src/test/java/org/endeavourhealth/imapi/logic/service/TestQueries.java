@@ -4,11 +4,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.interfacemanager.model.QUERY;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;

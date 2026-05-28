@@ -17,10 +17,11 @@ import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -96,7 +97,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
       && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
-      entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
+      entity.set(EnumUtils.asIri(IM.HAS_STATUS), EnumUtils.asIri(IM.ACTIVE));
     if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) {
       updatePredicates(entity);
     } else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) {
@@ -167,7 +168,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         }
         """;
       Update deleteIsas = conn.prepareDeleteSparql(deleteSql);
-      deleteIsas.setBinding("isA", IM.IS_A.asDbIri());
+      deleteIsas.setBinding("isA", EnumUtils.asDbIri(IM.IS_A));
       deleteIsas.setBinding("entity", iri(entity));
       deleteIsas.execute();
     }
@@ -264,7 +265,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private void addQuads(TTEntity entity) throws TTFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
-      builder.namedGraph(graph.asDbIri());
+      builder.namedGraph(EnumUtils.asDbIri(graph));
       for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }

@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

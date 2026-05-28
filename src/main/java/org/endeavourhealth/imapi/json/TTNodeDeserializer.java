@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -113,7 +113,7 @@ public class TTNodeDeserializer {
       return TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
 
     TTIriRef type = iri(expand(node.get(IM.TYPE.toString()).asText()));
-    return switch (XSD.from(type.getIri())) {
+    return switch (XSD.Companion.decode(type.getIri())) {
       case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
       case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
       case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));

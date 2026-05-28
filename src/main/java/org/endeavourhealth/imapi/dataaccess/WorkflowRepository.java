@@ -16,13 +16,7 @@ import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
-import org.endeavourhealth.imapi.model.workflow.bugReport.TaskModule;
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
-import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.model.workflow.task.TaskType;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 

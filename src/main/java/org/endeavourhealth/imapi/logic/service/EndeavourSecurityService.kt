@@ -5,8 +5,8 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
 import org.endeavourhealth.imapi.model.responses.LoginResponseES
 import org.endeavourhealth.imapi.model.security.Permission
 import org.endeavourhealth.imapi.model.security.User
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.HttpRequestService
+import org.endeavourhealth.interfacemanager.model.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

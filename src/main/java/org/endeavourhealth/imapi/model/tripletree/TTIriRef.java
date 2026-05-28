@@ -72,7 +72,7 @@ public class TTIriRef implements TTValue, Serializable {
 
   @JsonIgnore
   public TTIriRef setIri(Enum<?> iri) {
-    return setIri(EnumUtils.asIri(iri).toString());
+    return setIri(EnumUtils.asIri(iri).getIri());
   }
 
   public TTIriRef setName(String name) {

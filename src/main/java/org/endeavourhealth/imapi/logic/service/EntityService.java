@@ -556,7 +556,7 @@ public class EntityService {
   }
 
   private List<TTIriRef> getAllChildren(Enum<?> iri) {
-    return getChildren(EnumUtils.asIri(iri).toString(), null, null, null, false);
+    return getChildren(EnumUtils.asIri(iri).getIri(), null, null, null, false);
   }
 
   public List<TTEntity> getAllowableChildTypes(String iri) {

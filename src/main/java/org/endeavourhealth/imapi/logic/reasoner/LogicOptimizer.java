@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.interfacemanager.model.Bool;
 import org.endeavourhealth.interfacemanager.model.DisplayMode;
+import org.endeavourhealth.interfacemanager.model.RuleAction;
 
 import java.util.*;
 

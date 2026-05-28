@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.RDF;
 import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.IOException;
 import java.util.List;
@@ -126,7 +126,7 @@ public class TTNodeSerializer {
 
   public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
     if (literal.getType() != null) {
-      switch (XSD.from(literal.getType().getIri())) {
+      switch (XSD.Companion.decode(literal.getType().getIri())) {
         case XSD.STRING -> gen.writeString(literal.getValue());
         case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
         case XSD.INTEGER -> gen.writeNumber(literal.intValue());

@@ -12,10 +12,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.OWL;
+import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 import org.springframework.stereotype.Component;
 
 import java.util.*;

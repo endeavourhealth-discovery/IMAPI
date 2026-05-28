@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
     usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
     if (literal.getType() != null) {
-      switch (XSD.from(literal.getType().getIri())) {
+      switch (XSD.Companion.decode(literal.getType().getIri())) {
         case XSD.STRING -> gen.writeString(literal.getValue());
         case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
         case XSD.INTEGER -> gen.writeNumber(literal.intValue());

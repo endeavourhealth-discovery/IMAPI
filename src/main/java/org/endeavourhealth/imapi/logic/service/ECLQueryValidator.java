@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.interfacemanager.model.ValidationLevel;
 
 import java.util.*;
 
@@ -14,7 +15,7 @@ public class ECLQueryValidator {
   public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
-    if (iris.isEmpty()){
+    if (iris.isEmpty()) {
       ECLStatus status = new ECLStatus();
       status.setValid(false);
       status.setMessage("No concepts in query");

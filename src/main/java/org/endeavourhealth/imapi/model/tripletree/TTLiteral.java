@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
@@ -21,6 +21,55 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
 public class TTLiteral implements TTValue, Serializable {
+  private String value;
+  private TTIriRef type;
+
+  // General constructors
+  public TTLiteral() {
+  }
+
+  public TTLiteral(String value, TTIriRef type) {
+    this.value = value;
+    this.type = type;
+  }
+
+  public TTLiteral(String value, String type) {
+    this.value = value;
+    this.type = iri(type);
+  }
+
+  // Type specific constructors
+  public TTLiteral(String value) {
+    this.value = value;
+    this.type = null;
+  }
+
+  public TTLiteral(Boolean value) {
+    this.value = value.toString();
+    this.type = iri(XSD.BOOLEAN);
+  }
+
+  public TTLiteral(Integer value) {
+    this.value = value.toString();
+    this.type = iri(XSD.INTEGER);
+  }
+
+  public TTLiteral(Long value) {
+    this.value = value.toString();
+    this.type = iri(XSD.LONG);
+  }
+
+  public TTLiteral(Pattern value) {
+    this.value = value.toString();
+    this.type = iri(XSD.PATTERN);
+  }
+  public TTLiteral(Object value) throws JsonProcessingException {
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      this.value = om.writeValueAsString(value);
+      this.type = iri(XSD.STRING);
+    }
+  }
+
   // Static helpers
   public static TTLiteral literal(String value, TTIriRef type) {
     return new TTLiteral(value, type);
@@ -68,58 +117,13 @@ public class TTLiteral implements TTValue, Serializable {
       return literal(node.textValue());
   }
 
-  private String value;
-  private TTIriRef type;
-
-  // General constructors
-  public TTLiteral() {
-  }
-
-  public TTLiteral(String value, TTIriRef type) {
-    this.value = value;
-    this.type = type;
-  }
-
-  public TTLiteral(String value, String type) {
-    this.value = value;
-    this.type = iri(type);
-  }
-
-  // Type specific constructors
-  public TTLiteral(String value) {
-    this.value = value;
-    this.type = null;
-  }
-
-  public TTLiteral(Boolean value) {
-    this.value = value.toString();
-    this.type = iri(XSD.BOOLEAN);
-  }
-
-  public TTLiteral(Integer value) {
-    this.value = value.toString();
-    this.type = iri(XSD.INTEGER);
-  }
-
-  public TTLiteral(Long value) {
-    this.value = value.toString();
-    this.type = iri(XSD.LONG);
-  }
-
-  public TTLiteral(Pattern value) {
-    this.value = value.toString();
-    this.type = iri(XSD.PATTERN);
-  }
-
-  public TTLiteral(Object value) throws JsonProcessingException {
-    try (CachedObjectMapper om = new CachedObjectMapper()) {
-      this.value = om.writeValueAsString(value);
-      this.type = iri(XSD.STRING);
-    }
-  }
-
   public String getValue() {
     return value;
+  }
+
+  public TTLiteral setValue(String value) {
+    this.value = value;
+    return this;
   }
 
   // Type specific getters
@@ -143,11 +147,6 @@ public class TTLiteral implements TTValue, Serializable {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.readValue(this.value, valueType);
     }
-  }
-
-  public TTLiteral setValue(String value) {
-    this.value = value;
-    return this;
   }
 
   public TTIriRef getType() {

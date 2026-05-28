@@ -111,8 +111,4 @@ spring-test = { module = "org.springframework.boot:spring-boot-starter-test", ve
 spring-test-security = { module = "org.springframework.security:spring-security-test", version.ref = "springTestSecurity" }
 
 [plugins]
-typescript-generator = { id = "cz.habarta.typescript-generator", version = "3.2.1263" }
-static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.4-SNAPSHOT" }
-typescript-const-enum-to-enum = { id = "org.endeavourhealth.plugins.typescript-const-enum-to-enum", version = "0.3-SNAPSHOT" }
-extract-enums-from-auto-gen = { id = "org.endeavourhealth.plugins.extract-enums-from-auto-gen", version = "0.3-SNAPSHOT" }
 sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

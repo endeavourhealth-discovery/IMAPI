@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.VALIDATION;
 
 @Getter
 public class EntityValidationRequest {

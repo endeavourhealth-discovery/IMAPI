@@ -2,14 +2,8 @@ package org.endeavourhealth.imapi.model.workflow;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
-import org.endeavourhealth.imapi.model.workflow.bugReport.TaskModule;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
-import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.model.workflow.task.TaskType;
-import org.endeavourhealth.interfacemanager.model.Browser;
-import org.endeavourhealth.interfacemanager.model.OperatingSystem;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.time.LocalDateTime;
 import java.util.List;

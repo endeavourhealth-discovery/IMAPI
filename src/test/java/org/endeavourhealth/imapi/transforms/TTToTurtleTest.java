@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.interfacemanager.model.OWL;
 import org.junit.jupiter.api.Test;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;

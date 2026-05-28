@@ -10,10 +10,10 @@ import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.IMFUNCTION;
 import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.SHACL;
 
 import java.util.ArrayList;
 import java.util.List;

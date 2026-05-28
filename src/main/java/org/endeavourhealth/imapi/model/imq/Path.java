@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class Path extends Element implements HasPaths {
   }
 
   public Path setNode(String node) {
-    this.node=node;
+    this.node = node;
     return this;
   }
 
@@ -31,25 +31,17 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
+  public String getPathVariable() {
+    return pathVariable;
+  }
+
   public Path setPathVariable(String variable) {
     this.pathVariable = variable;
     return this;
   }
 
-  public String getPathVariable() {
-    return pathVariable;
-  }
-
-
-  public Path setIri(VocabEnum iri){
-    super.setIri(iri.toString());
-    return this;
-  }
-
-
-
-  public Path setTypeOf(VocabEnum iri){
-    this.setTypeOf(iri.toString());
+  public Path setIri(Enum<?> iri) {
+    super.setIri(EnumUtils.asIri(iri).getIri());
     return this;
   }
 
@@ -62,9 +54,13 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-
   public Node getTypeOf() {
     return typeOf;
+  }
+
+  public Path setTypeOf(Enum<?> iri) {
+    this.setTypeOf(EnumUtils.asIri(iri).getIri());
+    return this;
   }
 
   @JsonSetter
@@ -103,17 +99,6 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public Path setOptional(boolean optional) {
-    this.optional = optional;
-    return this;
-  }
-
-
-  public Path setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
-
   @Override
   public Path setDescription(String description) {
     super.setDescription(description);
@@ -138,7 +123,17 @@ public class Path extends Element implements HasPaths {
     return optional;
   }
 
+  public Path setOptional(boolean optional) {
+    this.optional = optional;
+    return this;
+  }
+
   public boolean isInverse() {
     return inverse;
+  }
+
+  public Path setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
   }
 }

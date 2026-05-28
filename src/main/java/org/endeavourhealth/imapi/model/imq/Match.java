@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import org.endeavourhealth.interfacemanager.model.Entail;
+import org.endeavourhealth.interfacemanager.model.RuleAction;
 
 import java.util.ArrayList;
 import java.util.List;

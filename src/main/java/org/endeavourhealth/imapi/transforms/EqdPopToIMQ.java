@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
@@ -9,6 +12,7 @@ import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.QueryType;
+import org.endeavourhealth.interfacemanager.model.RuleAction;
 
 import java.io.IOException;
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
@@ -17,7 +18,7 @@ public class IndicatorGenerator {
       .setIri(iri)
       .setName(name)
       .setDescription(description)
-      .setScheme(namespace.asIri())
+      .setScheme(EnumUtils.asIri(namespace))
       .addType(iri(IM.INDICATOR));
     if (denominator != null)
       indicator.set(iri(IM.DENOMINATOR).toString(), iri(denominator));

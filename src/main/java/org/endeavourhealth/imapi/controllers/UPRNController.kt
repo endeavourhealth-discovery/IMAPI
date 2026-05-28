@@ -14,8 +14,8 @@ import org.endeavourhealth.imapi.model.uprn.Activity
 import org.endeavourhealth.imapi.model.uprn.UploadStatus
 import org.endeavourhealth.imapi.model.uprn.UprnException
 import org.endeavourhealth.imapi.model.uprn.UprnSearchResponse
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.MetricsHelper
+import org.endeavourhealth.interfacemanager.model.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -46,7 +46,7 @@ open class UPRNController(
     .registerKotlinModule()
     .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     .configure(com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
-  private val uprnUrl  = System.getenv("UPRN_API")
+  private val uprnUrl = System.getenv("UPRN_API")
   private val uprnUsername = System.getenv("UPRN_USERNAME")
   private val uprnPassword = System.getenv("UPRN_PASSWORD")
   private val headers = hashMapOf(
@@ -70,7 +70,16 @@ open class UPRNController(
       securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val uprnReq = HttpRequest.newBuilder()
-        .uri(URI("$uprnUrl/api2/getinfo?adrec=${encode(adrec, Charsets.UTF_8)}&commercial=${encode(commercial, Charsets.UTF_8)}"))
+        .uri(
+          URI(
+            "$uprnUrl/api2/getinfo?adrec=${encode(adrec, Charsets.UTF_8)}&commercial=${
+              encode(
+                commercial,
+                Charsets.UTF_8
+              )
+            }"
+          )
+        )
         .GET()
 
       val response = callUPRNAndParse(uprnReq, securityService.getUser(request).id, UprnSearchResponse::class.java)
@@ -99,7 +108,7 @@ open class UPRNController(
         .uri(URI.create("$uprnUrl/api2/activity?u=${uprnUsername}"))
         .GET()
 
-      return callUPRNAndParse(uprnReq, securityService.getUser(request).id, object: TypeReference<List<Activity>>() {})
+      return callUPRNAndParse(uprnReq, securityService.getUser(request).id, object : TypeReference<List<Activity>>() {})
     }
   }
 
@@ -173,7 +182,11 @@ open class UPRNController(
     return mapper.readValue(response, valueType)
   }
 
-  private fun callUPRN(request: HttpRequest.Builder, userId: String, mediaType: MediaType = MediaType.TEXT_PLAIN): String {
+  private fun callUPRN(
+    request: HttpRequest.Builder,
+    userId: String,
+    mediaType: MediaType = MediaType.TEXT_PLAIN
+  ): String {
     val client: HttpClient = HttpClient.newBuilder().build()
     request.setHeader("Accept", mediaType.toString())
     request.setHeader("Authorization", "Basic " + Base64.encode("${uprnUsername}:${uprnPassword}".encodeToByteArray()))

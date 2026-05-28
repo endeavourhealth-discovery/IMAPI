@@ -7,8 +7,8 @@ import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
-import org.endeavourhealth.imapi.vocabulary.TransformFunction;
 import org.endeavourhealth.interfacemanager.model.ListMode;
+import org.endeavourhealth.interfacemanager.model.TransformFunction;
 
 import java.util.*;
 

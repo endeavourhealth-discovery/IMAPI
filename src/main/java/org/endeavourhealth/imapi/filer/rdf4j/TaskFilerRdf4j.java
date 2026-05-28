@@ -11,9 +11,6 @@ import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
 import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
-import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
-import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
@@ -191,10 +188,10 @@ public class TaskFilerRdf4j {
         .add(bn, EnumUtils.asDbIri(WORKFLOW.MODIFIED_BY), literal(userId));
 
       if (null != originalObject)
-        ng.add(bn, WORKFLOW.HISTORY_ORIGINAL_OBJECT.asDbIri(), literal(originalObject));
+        ng.add(bn, EnumUtils.asDbIri(WORKFLOW.HISTORY_ORIGINAL_OBJECT), literal(originalObject));
 
       if (null != newObject)
-        ng.add(bn, WORKFLOW.HISTORY_NEW_OBJECT.asDbIri(), literal(newObject));
+        ng.add(bn, EnumUtils.asDbIri(WORKFLOW.HISTORY_NEW_OBJECT), literal(newObject));
 
       conn.add(builder.build());
     } catch (Exception e) {
@@ -241,12 +238,12 @@ public class TaskFilerRdf4j {
 
   private void buildTask(ModelBuilder builder, Task task) {
     builder.namedGraph(GRAPH.IM.toString())
-      .add(iri(task.getId().getIri()), WORKFLOW.CREATED_BY.asDbIri(), literal(task.getCreatedBy()))
-      .add(iri(task.getId().getIri()), RDF.TYPE.asDbIri(), literal(task.getType()))
-      .add(iri(task.getId().getIri()), WORKFLOW.STATE.asDbIri(), literal(null == task.getState() ? TaskState.TODO : task.getState()))
-      .add(iri(task.getId().getIri()), WORKFLOW.ASSIGNED_TO.asDbIri(), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()))
-      .add(iri(task.getId().getIri()), WORKFLOW.DATE_CREATED.asDbIri(), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()))
-      .add(iri(task.getId().getIri()), WORKFLOW.HOST_URL.asDbIri(), literal(task.getHostUrl()));
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.CREATED_BY), literal(task.getCreatedBy()))
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(RDF.TYPE), literal(task.getType()))
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.STATE), literal(null == task.getState() ? TaskState.TODO : task.getState()))
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.ASSIGNED_TO), literal(null == task.getAssignedTo() ? "UNASSIGNED" : task.getAssignedTo()))
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.DATE_CREATED), literal(null == task.getDateCreated() ? LocalDateTime.now() : task.getDateCreated()))
+      .add(iri(task.getId().getIri()), EnumUtils.asDbIri(WORKFLOW.HOST_URL), literal(task.getHostUrl()));
   }
 
   private EmailService getEmailService() {

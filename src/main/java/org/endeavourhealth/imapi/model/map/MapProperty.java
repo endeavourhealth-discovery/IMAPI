@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.iml.MapFunction;
-import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.interfacemanager.model.ListMode;
+import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
 
 import java.util.ArrayList;
 import java.util.List;

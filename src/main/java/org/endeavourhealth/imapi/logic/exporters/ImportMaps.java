@@ -16,6 +16,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.RDFS;
@@ -201,11 +202,11 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
       qry.setBinding("concept", valueFactory.createIRI(concept));
-      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
-      qry.setBinding("subClassOf", RDFS.SUBCLASS_OF.asDbIri());
-      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
+      qry.setBinding("subClassOf", EnumUtils.asDbIri(RDFS.SUBCLASS_OF));
+      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -234,7 +235,7 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("rdfLabel", RDFS.LABEL.asDbIri());
+      qry.setBinding("rdfLabel", EnumUtils.asDbIri(RDFS.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -258,9 +259,9 @@ public class ImportMaps implements AutoCloseable {
           ?concept ?code ?snomed}
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("code", IM.CODE.asDbIri());
-      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("code", EnumUtils.asDbIri(IM.CODE));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -288,11 +289,11 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
-      qry.setBinding("vision", NAMESPACE.VISION.asDbIri());
-      qry.setBinding("imCode", IM.CODE.asDbIri());
-      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
+      qry.setBinding("vision", EnumUtils.asDbIri(NAMESPACE.VISION));
+      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -347,12 +348,12 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("emis", NAMESPACE.EMIS.asDbIri());
-      qry.setBinding("label", RDFS.LABEL.asDbIri());
-      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
-      qry.setBinding("hasTermCode", IM.HAS_TERM_CODE.asDbIri());
-      qry.setBinding("imCode", IM.CODE.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("emis", EnumUtils.asDbIri(NAMESPACE.EMIS));
+      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
+      qry.setBinding("hasTermCode", EnumUtils.asDbIri(IM.HAS_TERM_CODE));
+      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -396,12 +397,12 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
-      qry.setBinding("emis", NAMESPACE.EMIS.asDbIri());
-      qry.setBinding("imCode", IM.CODE.asDbIri());
-      qry.setBinding("matchedTo", IM.MATCHED_TO.asDbIri());
-      qry.setBinding("label", RDFS.LABEL.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
+      qry.setBinding("emis", EnumUtils.asDbIri(NAMESPACE.EMIS));
+      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
+      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -436,8 +437,8 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", IM.HAS_SCHEME.asDbIri());
-      qry.setBinding("snomedNamespace", NAMESPACE.SNOMED.asDbIri());
+      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

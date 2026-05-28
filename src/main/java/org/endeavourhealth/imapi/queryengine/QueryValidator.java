@@ -59,17 +59,12 @@ public class QueryValidator {
   }
 
   private void processIs(Node is) throws QueryException {
-    if (is.getNodeRef()!=null|| is.getMatch()!=null||is.getNode()!=null){
-        throw new QueryException("in list cannot have nore than one entry if references are used");
-    }
-    else {
       if (is.getNode()!=null)
         variables.put(is.getNode(), VarType.NODE);
       if
       (is.getMatch()!=null){
         processMatch(is.getMatch());
       }
-    }
   }
 
   private void processPath(Path pathMatch) {

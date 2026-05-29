@@ -314,12 +314,11 @@ public class EqdToIMQ {
 
   private void checkGms(Match match) {
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
+      Node node =match.getIs();
         if (gmsPatients.contains(node.getIri())) {
           node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
       }
-    }
   }
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {

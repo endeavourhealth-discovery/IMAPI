@@ -27,7 +27,7 @@ public class EqdAuditToIMQ {
       query.addColumnGroup(popQuery);
       popQuery
         .setNode(POPULATION)
-        .addIs(Node.iri(finalPopId)
+        .setIs(Node.iri(finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(finalPopId));

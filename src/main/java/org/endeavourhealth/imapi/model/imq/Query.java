@@ -100,17 +100,13 @@ public class Query extends Match {
     builder.accept(match);
     return this;
   }
-  public Query addIs(Node is) {
-    super.addIs(is);
-    return this;
-  }
 
   public Query is(Consumer<Node> builder) {
     super.is(builder);
     return this;
   }
 
-  public Query setIs(List<Node> is) {
+  public Query setIs(Node is) {
     super.setIs(is);
     return this;
   }

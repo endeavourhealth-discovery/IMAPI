@@ -272,12 +272,7 @@ public class QueryDescriptor {
     if (match.getIs() != null) {
       describeIs(match.getIs());
     }
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null)
-          node.setName(getTermInContext(node.getIri(), Context.MATCH));
-      }
-    }
+
 
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
@@ -356,8 +351,7 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeIs(List<Node> inSets) {
-    for (Node set : inSets) {
+  private void describeIs(Node set) {
       String qualifier = "";
       if (set.isExclude()) {
         qualifier = "but not ";
@@ -371,7 +365,6 @@ public class QueryDescriptor {
       if (set.getMatch() != null) {
         describeMatch(set.getMatch());
       }
-    }
   }
 
   private void describeWhere(Where where, Match match) {

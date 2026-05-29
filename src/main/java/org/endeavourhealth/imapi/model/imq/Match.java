@@ -33,7 +33,7 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private List<Match> any;
   private String libraryItem;
   private boolean invalid;
-  private List<Node> is;
+  private Node is;
   private List<GroupBy> groupBy;
   private String node;
   private OrderLimit orderBy;
@@ -222,7 +222,7 @@ public Match any(Consumer<Match> builder) {
     this.invalid = invalid;
   }
 
-  public List<Node> getIs() {
+  public Node getIs() {
     return is;
   }
 
@@ -286,7 +286,7 @@ public Match any(Consumer<Match> builder) {
 
 
   @JsonSetter
-  public Match setIs(List<Node> is) {
+  public Match setIs(Node is) {
     this.is = is;
     return this;
   }
@@ -470,19 +470,11 @@ public Match any(Consumer<Match> builder) {
   }
 
 
-  public Match addIs(Node is) {
-    if (this.is == null) {
-      this.is = new ArrayList<>();
-    }
-    this.is.add(is);
-    return this;
-  }
 
 
   @JsonIgnore
   public Match is(Consumer<Node> builder) {
-    Node is = new Node();
-    addIs(is);
+    this.is = new Node();
     builder.accept(is);
     return this;
   }

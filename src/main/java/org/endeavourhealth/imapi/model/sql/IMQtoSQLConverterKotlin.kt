@@ -154,7 +154,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getIsWiths(match: Match, mySqlQuery: MySQLQuery): MutableList<MySQLWith> {
     val isAWiths = mutableListOf<MySQLWith>()
-    for (isA in match.`is`) {
+    val isA = match.`is`;
       val isAlias = ensureUniqueAlias(getCteAliasFromTypeAndProperty(isA.iri, null))
       val withJoins = mutableListOf<MySQLJoin>()
       val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
@@ -195,7 +195,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         wheres = topWheres
       )
       isAWiths.add(isAWith)
-    }
     return isAWiths
   }
 

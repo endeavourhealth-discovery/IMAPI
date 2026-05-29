@@ -107,15 +107,18 @@ public class QuerySummariser {
   }
 
 
-  private void summariseIs(List<Node> inSets) {
+  private void summariseIsList(List<Node> inSets) {
     for (Node set : inSets) {
+      summariseIs(set);
+    }
+  }
+  private void summariseIs(Node set) {
       if (set.getDescription() != null) {
         summary.append(set.getDescription()).append(" ");
       } else summary.append(set.getName()).append(" ");
       if (set.getMatch() != null) {
         summariseMatch(set.getMatch(), 0, "");
       }
-    }
   }
 
 
@@ -140,7 +143,7 @@ public class QuerySummariser {
     if (where.getDescription() != null) {
       summary.append(where.getDescription()).append(" ");
     } else if (where.getIs() != null) {
-      summariseIs(where.getIs());
+      summariseIsList(where.getIs());
     }
     if (where.getRange() != null) {
       summariseRange(where.getRange());

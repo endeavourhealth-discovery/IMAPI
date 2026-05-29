@@ -33,14 +33,13 @@ public class ECLQueryValidator {
   private boolean isInvalidMatchWheres(Match match) {
     boolean invalid = false;
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null) {
+      Node node = match.getIs();
+      if (node.getIri() != null) {
           if (!validConcepts.get(node.getIri())) {
             node.setInvalid(true);
             invalid = true;
           }
         }
-      }
     }
     if (match.getWhere() != null) {
       Set<String> focusConcepts = new HashSet<>();
@@ -112,10 +111,9 @@ public class ECLQueryValidator {
 
   private void getFocusConcepts(Match match, Set<String> focusConcepts) {
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null) {
-          focusConcepts.add(node.getIri());
-        }
+      Node node =match.getIs();
+      if (node.getIri() != null) {
+        focusConcepts.add(node.getIri());
       }
     }
     for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {

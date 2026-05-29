@@ -101,7 +101,7 @@ public class IMQToECL {
 
 
   private boolean isBlankMatch(Match match) {
-    return match.getIs() != null && match.getIs().getFirst().getIri() == null && match.getWhere() == null;
+    return match.getIs() != null && match.getIs().getIri() == null && match.getWhere() == null;
   }
 
   public ECLType getEclType(Match match) {
@@ -158,18 +158,12 @@ public class IMQToECL {
   }
 
   private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    if ((match.getIs() == null || (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null)) && match.getOr() == null && match.getAnd() == null) {
+    if ((match.getIs() == null || (match.getIs().getIri() == null && match.getIs().getMatch() == null)) && match.getOr() == null && match.getAnd() == null) {
       if (match.getWhere() != null)
         ecl.append("*");
       else throw new QueryException("Must have concept if no refinement");
     } else if (match.getIs() != null) {
-      if (match.getIs().size() > 1) {
-        ecl.append("(");
-      }
       matchInstanceOf(match, ecl, includeNames);
-      if (match.getIs().size() > 1) {
-        ecl.append(")");
-      }
     } else {
       if (isNested)
         ecl.append("(");
@@ -272,32 +266,18 @@ public class IMQToECL {
   }
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    if (match.getIs().size() == 1) {
-      if (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null && match.getWhere() == null)
+      if (match.getIs().getIri() == null && match.getIs().getMatch() == null && match.getWhere() == null)
         throw new QueryException("Must have concept if no refinement");
-      if (match.getIs().getFirst().isInvalid())
+      if (match.getIs().isInvalid())
         setErrorStatus(ecl, "unknown concept");
-      if (match.getIs().getFirst().getMatch() != null) {
-        ecl.append(getSubsumption(match.getIs().getFirst()));
+      if (match.getIs().getMatch() != null) {
+        ecl.append(getSubsumption(match.getIs()));
         ecl.append("(");
-        expressionMatch(match.getIs().getFirst().getMatch(), ecl, includeNames, false);
+        expressionMatch(match.getIs().getMatch(), ecl, includeNames, false);
         ecl.append(")");
       } else
-        addClass(match.getIs().getFirst(), ecl, includeNames);
-    } else {
-      ecl.append("(");
-      boolean first = true;
-      for (Node instance : match.getIs()) {
-        if (instance.isInvalid()) setErrorStatus(ecl, "unknown concept");
-        if (!first) {
-          ecl.append(" OR ");
-        }
-        first = false;
-        addClass(instance, ecl, includeNames);
-        ecl.append("\n");
-      }
-      ecl.append(")");
-    }
+        addClass(match.getIs(), ecl, includeNames);
+
   }
 
 

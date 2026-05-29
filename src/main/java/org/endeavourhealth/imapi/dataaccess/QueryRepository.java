@@ -342,43 +342,26 @@ public class QueryRepository {
       asHashSet(IM.DEFINITION, RDF.TYPE, IM.FUNCTION_DEFINITION, IM.UPDATE_PROCEDURE, SHACL.PARAMETER)).getEntity();
   }
 
-  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
-    Query query;
-    Query cohort;
+  public Query expandCohort(String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
+    Query cohort=null;
     String sql = """
-      select ?query ?cohort
+      select ?cohort
       where {
-       Values ?queryIri {%s}
        Values ?cohortIri {%s}
-       ?queryIri im:definition ?query .
        ?cohortIri im:definition ?cohort .
        }
-      """.formatted("<" + queryIri + ">", "<" + cohortIri + ">");
+      """.formatted("<" + cohortIri + ">");
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
-          query = mapper.readValue(bs.getValue("query").stringValue(), Query.class);
           cohort = mapper.readValue(bs.getValue("cohort").stringValue(), Query.class);
-          if (cohort.getIs() != null) {
-            if (query.getIs() != null) {
-              for (int i = 0; i < query.getIs().size(); i++) {
-                if (i > cohort.getIs().size() - 1) {
-                  if (cohort.getIs().get(i).equals(query.getIs().get(i))) {
-                    cohort.getIs().remove(i);
-                    i--;
-                  }
-                }
-              }
-            }
-          }
-          return cohort;
         }
       }
-      return null;
     }
+    return cohort;
   }
 
   public List<String> getSubtypeProperties(Set<TTIriRef> iris) {

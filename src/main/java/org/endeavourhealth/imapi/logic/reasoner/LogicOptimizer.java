@@ -12,8 +12,13 @@ public class LogicOptimizer {
   private Map<String, Match> keepMatches = new HashMap<>();
 
   public static void optimizeQuery(Query query) {
-    //flattenMatch(query);
     cleanBooleans(query);
+    cleanColumnGroups(query);
+  }
+
+  public static void cleanColumnGroups(Query query) {
+    if (query.getColumnGroup() == null) return;
+    flatten(query.getColumnGroup());
   }
 
   public static void optimiseECLQuery(Query query) {
@@ -90,39 +95,39 @@ public class LogicOptimizer {
     }
   }
 
-  private static void cleanBoolGroup(Match group, Match parent, Integer parentIndex) {
-    clean(group, parent, parentIndex);
-  }
 
-  private static void clean(Match group, Match parent, Integer parentIndex) {
-    for (List<Match> list : Arrays.asList(group.getAnd(), group.getOr())) {
-      if (list != null) {
-        for (int i = 0; i < list.size(); i++) {
-          cleanBoolGroup(list.get(i), group, i);
-        }
-        Bool op = getBoolOp(group);
-        if (list.isEmpty()) {
-          if (op == Bool.and) group.setAnd(null);
-          else group.setOr(null);
-        } else if (list.size() == 1 && parent != null) {
-          Bool parentOp = getBoolOp(parent);
-          Match only = list.getFirst();
-          if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
-          else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
-        }
+
+  public static void cleanBooleans(Match group) {
+    List<Match> matches = group.getAnd();
+    if (matches != null) {
+      if (matches.isEmpty()) group.setAnd(null);
+      else flatten(matches);
+    } else {
+      matches = group.getOr();
+      if (matches != null) {
+        if (matches.isEmpty()) group.setOr(null);
+        else flatten(matches);
+      } else matches = group.getAny();
+      if (matches != null) {
+        if (matches.isEmpty()) group.setAny(null);
+        else flatten(matches);
       }
     }
   }
 
-  private static Bool getBoolOp(Match group) {
-    if (group.getAnd() != null) return Bool.and;
-    if (group.getOr() != null) return Bool.or;
-    else return null;
+  private static void flatten(List<Match> list) {
+      for (int i = 0; i < list.size(); i++) {
+        Match match = list.get(i);
+        if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
+          && match.getAny() == null&&match.getReturn()==null) {
+          list.remove(i);
+          i--;
+        }
+        else cleanBooleans(match);
+      }
   }
 
-  private static void cleanBooleans(Match match) {
-    cleanBoolGroup(match, null, null);
-  }
+
 
   private static void flattenWhere(Where where) {
     if (where.getAnd() != null) {

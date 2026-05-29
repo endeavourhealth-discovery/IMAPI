@@ -140,13 +140,12 @@ public class QueryController {
   )
   public Query expandCohort(
     HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri,
     @RequestParam(name = "cohortIri") String cohortIri,
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("expandCohort");
-      return queryService.expandCohort(queryIri, cohortIri, displayMode);
+      return queryService.expandCohort(cohortIri, displayMode);
     }
   }
 

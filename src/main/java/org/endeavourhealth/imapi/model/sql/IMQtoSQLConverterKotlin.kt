@@ -322,10 +322,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
     val (fk, pk) =
-      if (fromWith.table.table == toWith.table.table)
-        fromWith.table.primaryKey to toWith.table.primaryKey
-      else
+      if (fromWith.table.table == toWith.table.table) {
+        val (ffk, _) = fromWith.table.foreignKeyTo(queryTypeOfTable)
+          .takeIf { it.first != null }
+          ?: (fromWith.table.primaryKey to fromWith.table.primaryKey)
+        ffk to ffk
+      } else {
         fromWith.table.foreignKeyTo(toWith.table)
+      }
+
 
     if (fk == null || pk == null) {
       throw SQLConversionException(

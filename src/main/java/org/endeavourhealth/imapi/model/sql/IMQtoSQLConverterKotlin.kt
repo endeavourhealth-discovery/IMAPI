@@ -263,9 +263,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       addMatchWithsRecursively(match, branchQuery)
 
-      if (match.and == null && match.or == null && match.any == null) {
-        if (match.`is` != null) mySqlQuery.withs.add(getIsWith(match, mySqlQuery))
-        else mySqlQuery.withs.add(getMySQLWithFromMatch(match, mySqlQuery))
+      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
+        mySqlQuery.withs.add(getMySQLWithFromMatch(match, mySqlQuery))
       }
       val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
       mySqlQuery.withs.addAll(newWiths)
@@ -274,6 +273,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
     }
 
+    if (orWiths.size == 1) {
+      return
+    }
 
     val unionWith = MySQLWith(
       alias = ensureUniqueAlias("union_${mySqlQuery.withs.size}"),

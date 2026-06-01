@@ -10,16 +10,15 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.*;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class SparqlOptimizer {
   private EntityRepository repo = new EntityRepository();
@@ -180,7 +179,7 @@ public class SparqlOptimizer {
       TTDocument document = new TTDocument();
       setEntity
         .setIri(setIri)
-        .addType(iri(IM.CONCEPT_SET))
+        .addType(new TTIriRef(IM.CONCEPT_SET))
         .set(IM.DEFINITION, TTLiteral.literal(setQuery));
       document.addEntity(setEntity);
       try (TTTransactionFiler filer = new TTTransactionFiler(GRAPH.IM)) {

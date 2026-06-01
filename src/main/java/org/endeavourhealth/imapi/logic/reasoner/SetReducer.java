@@ -14,8 +14,6 @@ import org.endeavourhealth.interfacemanager.model.SHACL;
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Slf4j
 public class SetReducer {
 
@@ -33,17 +31,17 @@ public class SetReducer {
   public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
     String sql;
     int originalSize;
-    if (set.get(iri(IM.DEFINITION)) != null) {
+    if (set.get(new TTIriRef(IM.DEFINITION)) != null) {
       sql = getOrSql(set);
       if (sql == null)
         throw new InvalidAttributesException("Complex ecl. Cannot reduce");
       else
-        originalSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
-    } else if (set.get(iri(IM.HAS_MEMBER)) == null) {
+        originalSize = set.get(new TTIriRef(IM.DEFINITION)).asNode().get(new TTIriRef(SHACL.OR)).size();
+    } else if (set.get(new TTIriRef(IM.HAS_MEMBER)) == null) {
       throw new InvalidAttributesException("No set members to reduce");
     } else {
       sql = getMemberSql();
-      originalSize = set.get(iri(IM.HAS_MEMBER)).size();
+      originalSize = set.get(new TTIriRef(IM.HAS_MEMBER)).size();
     }
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -53,13 +51,13 @@ public class SetReducer {
           throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
 
         TTNode ors = new TTNode();
-        set.set(iri(IM.DEFINITION), ors);
+        set.set(new TTIriRef(IM.DEFINITION), ors);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          ors.addObject(iri(SHACL.OR), TTIriRef.iri(bs.getValue("member").stringValue()));
+          ors.addObject(new TTIriRef(SHACL.OR), new TTIriRef(bs.getValue("member").stringValue()));
         }
-        set.getPredicateMap().remove(iri(IM.HAS_MEMBER));
-        int newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();
+        set.getPredicateMap().remove(new TTIriRef(IM.HAS_MEMBER));
+        int newSize = set.get(new TTIriRef(IM.DEFINITION)).asNode().get(new TTIriRef(SHACL.OR)).size();
         log.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
       }
     }
@@ -83,15 +81,15 @@ public class SetReducer {
 
   private String getOrSql(TTEntity set) {
 
-    TTArray definition = set.get(iri(IM.DEFINITION));
+    TTArray definition = set.get(new TTIriRef(IM.DEFINITION));
     if (definition.isIriRef()) {
       return null;
     }
     if (!definition.isNode())
       return null;
-    if (definition.asNode().get(iri(SHACL.OR)) == null)
+    if (definition.asNode().get(new TTIriRef(SHACL.OR)) == null)
       return null;
-    for (TTValue value : definition.asNode().get(iri(SHACL.OR)).getElements()) {
+    for (TTValue value : definition.asNode().get(new TTIriRef(SHACL.OR)).getElements()) {
       if (!value.isIriRef())
         return null;
     }

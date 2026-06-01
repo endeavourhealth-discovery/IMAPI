@@ -6,13 +6,11 @@ import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.RDF;
 import org.endeavourhealth.interfacemanager.model.RDFS;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * static utilities to handle templated display orders of RDF nodes
  */
 public class TTDisplay {
-  private static final TTIriRef[] entity = {iri(RDF.TYPE), iri(RDFS.LABEL), iri(IM.DEFINITION)};
+  private static final TTIriRef[] entity = {new TTIriRef(RDF.TYPE), new TTIriRef(RDFS.LABEL), new TTIriRef(IM.DEFINITION)};
 
   private TTDisplay() {
     throw new IllegalStateException("Utility class");

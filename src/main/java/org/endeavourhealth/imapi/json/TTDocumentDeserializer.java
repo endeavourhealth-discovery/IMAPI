@@ -5,18 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
   private static final String DEFAULT_SCHEME = "defaultScheme";
@@ -47,7 +42,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     if (!prefixes.isEmpty())
       result.setContext(context);
     if (node.get(CRUD) != null)
-      result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
+      result.setCrud(new TTIriRef(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {
       result.setEntities(getEntities(node.withArray(ENTITIES)));
     }
@@ -70,12 +65,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         Map.Entry<String, JsonNode> field = fields.next();
         switch (field.getKey()) {
           case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
-          case CRUD -> entity.setCrud(iri(helper.expand(field.getValue().get(ID).asText())));
+          case CRUD -> entity.setCrud(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
           default -> {
             if (field.getValue().isArray())
-              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+              entity.set(new TTIriRef(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
             else
-              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+              entity.set(new TTIriRef(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
           }
         }
       }

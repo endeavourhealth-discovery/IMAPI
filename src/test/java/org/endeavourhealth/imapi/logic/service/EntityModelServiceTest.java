@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
@@ -77,7 +76,7 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityReference_NotNullEntity() {
-    TTIriRef ttIriRef = new TTIriRef().setIri("http://endhealth.info/im#25451000252115").setName("http://endhealth.info/im#25451000252115");
+    TTIriRef ttIriRef = new TTIriRef().iri("http://endhealth.info/im#25451000252115").name("http://endhealth.info/im#25451000252115");
     when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttIriRef);
     TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
 
@@ -187,7 +186,7 @@ class EntityModelServiceTest {
       0, 20, true))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray()
-      .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
+      .add(new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 20, true);
@@ -204,7 +203,7 @@ class EntityModelServiceTest {
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 10, false))
       .thenReturn(Collections.singletonList(entityReferenceNode));
-    TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
+    TTArray ttArray = new TTArray().add(new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 10, false);
@@ -256,8 +255,8 @@ class EntityModelServiceTest {
   @Test
   void isWhichType_NotNullIriAndCandidates() {
     TTIriRef ttIriRef = new TTIriRef()
-      .setIri("http://www.w3.org/2002/07/owl#Class")
-      .setName("Class");
+      .iri("http://www.w3.org/2002/07/owl#Class")
+      .name("Class");
 
     when(entityRepository.findAncestorsByType(any(), any(), any()))
       .thenReturn(Collections.singletonList(ttIriRef));
@@ -339,8 +338,8 @@ class EntityModelServiceTest {
   @Test
   void getConceptShape_NotContainNodeShape() {
     TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(TTIriRef.iri(RDF.TYPE), new TTArray()
-        .add(TTIriRef.iri(IM.CONCEPT))
+      .set(new TTIriRef(RDF.TYPE), new TTArray()
+        .add(new TTIriRef(IM.CONCEPT))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -351,8 +350,8 @@ class EntityModelServiceTest {
   @Test
   void getConceptShape_ContainsNodeShape() {
     TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(TTIriRef.iri(RDF.TYPE), new TTArray()
-        .add(TTIriRef.iri(SHACL.NODESHAPE))
+      .set(new TTIriRef(RDF.TYPE), new TTArray()
+        .add(new TTIriRef(SHACL.NODESHAPE))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -384,8 +383,8 @@ class EntityModelServiceTest {
   void getSummaryFromConfig_NotNullIri() {
     TTEntity entity = new TTEntity()
       .set(EnumUtils.asIri(IM.IS_CHILD_OF), new TTArray()
-        .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-        .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
+        .add(new TTIriRef("http://endhealth.info/im#parent1", "Parent 1"))
+        .add(new TTIriRef("http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 

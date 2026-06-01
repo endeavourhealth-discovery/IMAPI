@@ -15,22 +15,17 @@ import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
 import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Methods to create update and delete entities and generate a transaction log with the ability to refile
@@ -83,7 +78,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
       setEntityCrudOperation(transaction, entity);
 
-      if (Objects.equals(entity.getCrud(), iri(IM.REPLACE_ALL_PREDICATES))) {
+      if (Objects.equals(entity.getCrud(), new TTIriRef(IM.REPLACE_ALL_PREDICATES))) {
         if (entity.getPredicateMap().isEmpty())
           toCheck.computeIfAbsent(GRAPH.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
@@ -97,7 +92,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       if (transaction.getCrud() != null) {
         entity.setCrud(transaction.getCrud());
       } else
-        entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
+        entity.setCrud(new TTIriRef(IM.REPLACE_ALL_PREDICATES));
     }
   }
 
@@ -213,7 +208,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       for (TTEntity entity : document.getEntities()) {
         setEntityCrudOperation(document, entity);
 
-        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+        if (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
           continue;
 
         fileEntity(entity);
@@ -267,7 +262,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         filingProgress = Math.round((float) i / totalEntities * 100);
         setEntityCrudOperation(document, entity);
 
-        if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+        if (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
           continue;
 
         fileEntity(entity);
@@ -306,7 +301,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.has(iri(IM.HAS_SCHEME)) && entity.get(iri(IM.HAS_SCHEME)).asIriRef().getIri().equals(NAMESPACE.ODS.toString()))
+    if (entity.has(new TTIriRef(IM.HAS_SCHEME)) && entity.get(new TTIriRef(IM.HAS_SCHEME)).asIriRef().getIri().equals(NAMESPACE.ODS.toString()))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);
@@ -314,7 +309,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
   public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
-      if (entity.isType(iri(IM.CONCEPT_SET)) || entity.isType(iri(IM.VALUE_SET))) {
+      if (entity.isType(new TTIriRef(IM.CONCEPT_SET)) || entity.isType(new TTIriRef(IM.VALUE_SET))) {
         log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         log.info("Binding set {}", entity.getIri());
@@ -341,7 +336,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       isAs.computeIfAbsent(subclass, s -> new HashSet<>());
       isAs.get(subclass).add(subclass);
       for (String iriRef : EnumUtils.asArrayList(RDFS.SUBCLASS_OF, IM.LOCAL_SUBCLASS_OF)) {
-        if (entity.get(iri(iriRef)) != null) {
+        if (entity.get(new TTIriRef(iriRef)) != null) {
           processSuperClass(entity, iriRef, subclass);
         }
       }
@@ -351,7 +346,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void processSuperClass(TTEntity entity, String iriRef, String subclass) {
-    for (TTValue superClass : entity.get(iri(iriRef)).getElements()) {
+    for (TTValue superClass : entity.get(new TTIriRef(iriRef)).getElements()) {
       String iri = superClass.asIriRef().getIri();
       if (!done.contains(iri)) {
         isAs.get(subclass).add(iri);
@@ -396,7 +391,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       if (document.getEntities() != null) {
         int i = 0;
         for (TTEntity entity : document.getEntities()) {
-          if (entity.get(iri(IM.PRIVACY_LEVEL)) != null && (entity.get(iri(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+          if (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRef(IM.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
             continue;
           setEntityCrudOperation(document, entity);
           fileEntity(entity);

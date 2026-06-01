@@ -7,8 +7,8 @@ import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.EntityType;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +75,7 @@ public class CodeGenService {
 
   private TTIriRef getModelSummary(String iri) {
     SearchResultSummary summary = entityService.getSummary(iri);
-    return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
+    return new TTIriRef(summary.getIri(), summary.getName()).description(summary.getDescription());
   }
 
   private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {

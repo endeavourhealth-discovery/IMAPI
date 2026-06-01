@@ -42,16 +42,16 @@ public class IMQToOS {
       .replace("{", "")
       .replace("}", ""));
     switch (type) {
-      case exact -> {
+      case EXACT -> {
         return exactQuery();
       }
-      case autocomplete -> {
+      case AUTOCOMPLETE -> {
         return autocompleteQuery();
       }
-      case multiword -> {
+      case MULTIWORD -> {
         return multiWordQuery();
       }
-      case ngram -> {
+      case NGRAM -> {
         return nGramQuery(fuzziness);
       }
     }
@@ -192,7 +192,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
-      addFilterWithId("status", EnumUtils.asHashSet(IM.ACTIVE), Bool.and, boolBuilder);
+      addFilterWithId("status", EnumUtils.asHashSet(IM.ACTIVE), Bool.AND, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null) {
       if (!addMatch(boolBuilder, query))
@@ -245,7 +245,7 @@ public class IMQToOS {
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         if (prop.getIri() != null) {
-          switch (OPENSEARCH.Companion.decode(prop.getIri())) {
+          switch (OPENSEARCH.fromValue(prop.getIri())) {
             case OPENSEARCH.DESCRIPTION:
               sources.add("description");
               break;
@@ -293,21 +293,21 @@ public class IMQToOS {
 
   private void addFilterWithId(String property, Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
     TermsQueryBuilder tqr = new TermsQueryBuilder(property.equals("iri") ? property : (property + ".iri"), values);
-    if (Bool.and == bool) boolBldr.filter(tqr);
-    else if (Bool.or == bool) boolBldr.should(tqr);
+    if (Bool.AND == bool) boolBldr.filter(tqr);
+    else if (Bool.OR == bool) boolBldr.should(tqr);
   }
 
   private void addFilter(Set<String> values, Bool bool, BoolQueryBuilder boolBldr) {
     TermsQueryBuilder tqr = new TermsQueryBuilder("binding", values);
-    if (Bool.and == bool) boolBldr.filter(tqr);
-    else if (Bool.or == bool) boolBldr.should(tqr);
+    if (Bool.AND == bool) boolBldr.filter(tqr);
+    else if (Bool.OR == bool) boolBldr.should(tqr);
   }
 
   private boolean addMatch(BoolQueryBuilder boolBuilder, Match match) throws QueryException {
     if (match.getAnd() != null || match.getOr() != null)
       return false;
     if (match.getTypeOf() != null) {
-      addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.and, boolBuilder);
+      addFilterWithId("type", getIriFromAlias(match.getTypeOf()), Bool.AND, boolBuilder);
     }
 
     if (match.getIs() != null) {
@@ -321,7 +321,7 @@ public class IMQToOS {
       for (Path pathMatch : match.getPath()) {
         String w = pathMatch.getIri();
         if (IM.BINDING.toString().equals(w)) {
-          addBinding(match, match.getOr() != null ? Bool.or : Bool.and, boolBuilder);
+          addBinding(match, match.getOr() != null ? Bool.OR : Bool.AND, boolBuilder);
           return true;
         }
       }
@@ -333,7 +333,7 @@ public class IMQToOS {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
       if (!addBoolProperties(where, nestedBool)) return false;
       boolBuilder.filter(nestedBool);
-    } else return addProperty(where, Bool.and, boolBuilder);
+    } else return addProperty(where, Bool.AND, boolBuilder);
 
     return true;
   }
@@ -342,7 +342,7 @@ public class IMQToOS {
     String w = where.getIri();
     if (w == null && (where.getAnd() != null || where.getOr() != null)) {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-      if (bool == Bool.and) {
+      if (bool == Bool.AND) {
         boolBldr.must(nestedBool);
       } else boolBldr.should(nestedBool);
       if (!addBoolProperties(where, nestedBool)) return false;
@@ -371,7 +371,7 @@ public class IMQToOS {
     for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
       if (nested != null) {
         for (Where nestedWhere : nested) {
-          if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
+          if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.AND : Bool.OR, nestedBool)) return false;
         }
       }
     }
@@ -486,7 +486,7 @@ public class IMQToOS {
     }
     if (!instanceFilters.isEmpty()) {
       for (Map.Entry<String, Set<String>> entry : instanceFilters.entrySet()) {
-        addFilterWithId(entry.getKey(), entry.getValue(), Bool.and, boolBuilder);
+        addFilterWithId(entry.getKey(), entry.getValue(), Bool.AND, boolBuilder);
       }
     }
   }

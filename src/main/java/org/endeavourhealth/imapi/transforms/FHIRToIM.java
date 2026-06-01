@@ -18,19 +18,17 @@ import org.endeavourhealth.interfacemanager.model.RDFS;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class FHIRToIM {
 
   public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType, String folder) throws JsonProcessingException {
     TTEntity set = new TTEntity()
       .addType(setType)
       .setIri(valueSet.getURL())
-      .setScheme(iri(NAMESPACE.FHIR))
-      .setStatus(valueSet.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
+      .setScheme(new TTIriRef(NAMESPACE.FHIR))
+      .setStatus(valueSet.getStatus().equals("active") ? new TTIriRef(IM.ACTIVE) : new TTIriRef(IM.DRAFT))
       .setName("FHIR " + valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
-    set.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
+    set.addObject(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(folder));
     if (valueSet.getCompose() != null && valueSet.getCompose().getInclude() != null) {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
@@ -48,7 +46,7 @@ public class FHIRToIM {
           memberMatch.addIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }
       }
-      set.set(iri(IM.DEFINITION), TTLiteral.literal(query));
+      set.set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(query));
     }
 
 
@@ -59,24 +57,24 @@ public class FHIRToIM {
     List<TTEntity> concepts = new ArrayList<>();
     String iri = codeSystem.getUrl();
     TTEntity parent = new TTEntity()
-      .addType(iri(IM.CONCEPT))
+      .addType(new TTIriRef(IM.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
-      .setScheme(iri(NAMESPACE.FHIR))
-      .setStatus(codeSystem.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
+      .setScheme(new TTIriRef(NAMESPACE.FHIR))
+      .setStatus(codeSystem.getStatus().equals("active") ? new TTIriRef(IM.ACTIVE) : new TTIriRef(IM.DRAFT))
       .setName(codeSystem.getTitle() + "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
-    parent.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
+    parent.addObject(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(folder));
     concepts.add(parent);
     for (FHIRConcept fhirConcept : codeSystem.getConcept()) {
       TTEntity concept = new TTEntity()
-        .addType(iri(IM.CONCEPT))
+        .addType(new TTIriRef(IM.CONCEPT))
         .setName(fhirConcept.getDisplay() + " (" + parent.getName() + ")")
         .setDescription(fhirConcept.getDefinition())
         .setIri(parent.getIri() + "/" + fhirConcept.getCode())
-        .setScheme(iri(NAMESPACE.FHIR))
+        .setScheme(new TTIriRef(NAMESPACE.FHIR))
         .setCode(fhirConcept.getCode());
-      concept.addObject(iri(RDFS.SUBCLASS_OF), iri(parent.getIri()));
+      concept.addObject(new TTIriRef(RDFS.SUBCLASS_OF), new TTIriRef(parent.getIri()));
       concepts.add(concept);
     }
 

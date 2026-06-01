@@ -6,8 +6,8 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.ECLType;
+import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.util.*;
 
@@ -107,10 +107,10 @@ public class IMQToECL {
 
   public ECLType getEclType(Match match) {
     if (match.getWhere() != null)
-      return ECLType.refined;
+      return ECLType.REFINED;
     if (match.getAnd() != null || match.getOr() != null) {
-      return ECLType.compound;
-    } else return ECLType.simple;
+      return ECLType.COMPOUND;
+    } else return ECLType.SIMPLE;
   }
 
 
@@ -143,13 +143,13 @@ public class IMQToECL {
     ECLType matchType = getEclType(match);
     if (matchType == null)
       return;
-    if (matchType == ECLType.simple) {
+    if (matchType == ECLType.SIMPLE) {
       matchInstanceOf(match, ecl, includeNames);
-    } else if (matchType == ECLType.refined) {
+    } else if (matchType == ECLType.REFINED) {
       match(match, ecl, includeNames, true);
       addRefinementsToMatch(match, ecl, includeNames, false);
       ecl.append("\n");
-    } else if (matchType == ECLType.compound) {
+    } else if (matchType == ECLType.COMPOUND) {
       if (isNested) ecl.append("(");
       compound(match, ecl, includeNames);
       if (isNested) ecl.append(")");

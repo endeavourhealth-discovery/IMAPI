@@ -12,12 +12,14 @@ public class Update extends TTIriRef {
   private List<Delete> delete;
 
 
-  public Update setName(String name) {
+  @Override
+  public Update name(String name) {
     super.setName(name);
     return this;
   }
 
-  public Update setIri(String iri) {
+  @Override
+  public Update iri(String iri) {
     super.setIri(iri);
     return this;
   }
@@ -49,7 +51,8 @@ public class Update extends TTIriRef {
     return description;
   }
 
-  public Update setDescription(String description) {
+  @Override
+  public Update description(String description) {
     this.description = description;
     return this;
   }

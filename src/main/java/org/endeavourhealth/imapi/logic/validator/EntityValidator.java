@@ -20,15 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class EntityValidator {
   EntityService entityService;
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
     EntityValidationResponse response =
-      switch (VALIDATION.Companion.decode(request.getValidationIri())) {
+      switch (VALIDATION.fromValue(request.getValidationIri())) {
         case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
         case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
         case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
@@ -67,7 +65,7 @@ public class EntityValidator {
   }
 
   private boolean hasParameterAndAllAreTTIriRefs(TTEntity entity, String parameter) {
-    return entity.has(iri(parameter)) && !entity.get(iri(parameter)).isEmpty() && entity.get(iri(parameter)).getElements().stream().allMatch(this::isValidTTIriRef);
+    return entity.has(new TTIriRef(parameter)) && !entity.get(new TTIriRef(parameter)).isEmpty() && entity.get(new TTIriRef(parameter)).getElements().stream().allMatch(this::isValidTTIriRef);
   }
 
   private EntityValidationResponse isValidDefinition(TTEntity entity) {
@@ -139,8 +137,8 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("1 or more term codes are invalid");
-    if (entity.has(iri(IM.HAS_TERM_CODE))) {
-      if (entity.get(iri(IM.HAS_TERM_CODE)).getElements().stream().allMatch(this::isValidTermCode)) {
+    if (entity.has(new TTIriRef(IM.HAS_TERM_CODE))) {
+      if (entity.get(new TTIriRef(IM.HAS_TERM_CODE)).getElements().stream().allMatch(this::isValidTermCode)) {
         response.setValid(true);
         response.setMessage(null);
       }
@@ -153,28 +151,28 @@ public class EntityValidator {
 
   private boolean isValidTermCode(TTValue value) {
 
-    return value.asNode().has(iri(IM.CODE)) &&
-      value.asNode().has(iri(IM.HAS_STATUS)) &&
-      value.asNode().has(iri(RDFS.LABEL)) &&
-      !value.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().isEmpty() &&
-      value.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef() != null &&
-      !value.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue().isEmpty() && value.asNode().get(iri(IM.HAS_STATUS)).size() == 1 && value.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef() != null;
+    return value.asNode().has(new TTIriRef(IM.CODE)) &&
+      value.asNode().has(new TTIriRef(IM.HAS_STATUS)) &&
+      value.asNode().has(new TTIriRef(RDFS.LABEL)) &&
+      !value.asNode().get(new TTIriRef(IM.CODE)).get(0).asLiteral().getValue().isEmpty() &&
+      value.asNode().get(new TTIriRef(IM.HAS_STATUS)).get(0).asIriRef() != null &&
+      !value.asNode().get(new TTIriRef(RDFS.LABEL)).get(0).asLiteral().getValue().isEmpty() && value.asNode().get(new TTIriRef(IM.HAS_STATUS)).size() == 1 && value.asNode().get(new TTIriRef(IM.HAS_STATUS)).get(0).asIriRef() != null;
   }
 
   private EntityValidationResponse isValidProperties(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(true).setMessage(null);
-    TTArray properties = entity.get(iri(SHACL.PROPERTY));
+    TTArray properties = entity.get(new TTIriRef(SHACL.PROPERTY));
     if (properties == null || properties.isEmpty()) {
       response.setValid(false);
       response.setMessage("Data models must have at least 1 property");
     } else {
       for (TTValue property : properties.getElements()) {
-        if (!isValidIriOrIriList(property.asNode().get(iri(SHACL.PATH)), 1, 1)) response.setValid(false);
+        if (!isValidIriOrIriList(property.asNode().get(new TTIriRef(SHACL.PATH)), 1, 1)) response.setValid(false);
         if (
-          !isValidIriOrIriList(property.asNode().get(iri(SHACL.NODE)), 1, 1) &&
-            !isValidIriOrIriList(property.asNode().get(iri(SHACL.DATATYPE)), 1, 1) &&
-            !isValidIriOrIriList(property.asNode().get(iri(SHACL.CLASS)), 1, 1)
+          !isValidIriOrIriList(property.asNode().get(new TTIriRef(SHACL.NODE)), 1, 1) &&
+            !isValidIriOrIriList(property.asNode().get(new TTIriRef(SHACL.DATATYPE)), 1, 1) &&
+            !isValidIriOrIriList(property.asNode().get(new TTIriRef(SHACL.CLASS)), 1, 1)
         ) response.setValid(false);
       }
       if (!response.isValid()) response.setMessage("One or more invalid properties");
@@ -196,8 +194,8 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
     List<TTIriRef> schemes = entityService.getChildren(IM.ROOT_NAMESPACE.toString(), null, null, null, false);
-    if (entity.has(iri(IM.HAS_SCHEME)) && !entity.get(iri(IM.HAS_SCHEME)).isEmpty() && entity.get(iri(IM.HAS_SCHEME)).get(0).isIriRef()) {
-      if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
+    if (entity.has(new TTIriRef(IM.HAS_SCHEME)) && !entity.get(new TTIriRef(IM.HAS_SCHEME)).isEmpty() && entity.get(new TTIriRef(IM.HAS_SCHEME)).get(0).isIriRef()) {
+      if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(new TTIriRef(IM.HAS_SCHEME)).get(0).asIriRef().getIri()))) {
         response.setValid(true);
         response.setMessage(null);
       }
@@ -209,8 +207,8 @@ public class EntityValidator {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Status is invalid");
     List<TTIriRef> schemes = entityService.getChildren(IM.STATUS.toString(), null, null, null, false);
-    if (entity.has(iri(IM.HAS_STATUS)) && !entity.get(iri(IM.HAS_STATUS)).isEmpty() && entity.get(iri(IM.HAS_STATUS)).get(0).isIriRef()) {
-      if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(iri(IM.HAS_STATUS)).get(0).asIriRef().getIri()))) {
+    if (entity.has(new TTIriRef(IM.HAS_STATUS)) && !entity.get(new TTIriRef(IM.HAS_STATUS)).isEmpty() && entity.get(new TTIriRef(IM.HAS_STATUS)).get(0).isIriRef()) {
+      if (schemes.stream().anyMatch(s -> s.getIri().equals(entity.get(new TTIriRef(IM.HAS_STATUS)).get(0).asIriRef().getIri()))) {
         response.setValid(true);
         response.setMessage(null);
       }
@@ -221,9 +219,9 @@ public class EntityValidator {
   private EntityValidationResponse isValidRoleGroups(TTEntity entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(true).setMessage(null);
-    if (!entity.has(iri(IM.ROLE_GROUP))) return response;
-    for (TTValue group : entity.get(iri(IM.ROLE_GROUP)).getElements()) {
-      if (group.asNode().has(iri(IM.GROUP_NUMBER))) {
+    if (!entity.has(new TTIriRef(IM.ROLE_GROUP))) return response;
+    for (TTValue group : entity.get(new TTIriRef(IM.ROLE_GROUP)).getElements()) {
+      if (group.asNode().has(new TTIriRef(IM.GROUP_NUMBER))) {
         if (group.asNode().getPredicateMap().size() <= 1) {
           response.setValid(false);
           response.setMessage("1 or more role groups are invalid");

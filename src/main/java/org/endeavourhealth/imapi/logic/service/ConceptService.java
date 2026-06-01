@@ -8,10 +8,11 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class ConceptService {
@@ -62,7 +62,7 @@ public class ConceptService {
       return Collections.emptyList();
     TTBundle termsBundle = entityRepository.getBundle(iri, EnumUtils.asHashSet(IM.HAS_TERM_CODE));
     if (!includeInactive) filterOutInactiveTermCodes(termsBundle);
-    TTArray terms = termsBundle.getEntity().get(iri(IM.HAS_TERM_CODE));
+    TTArray terms = termsBundle.getEntity().get(new TTIriRef(IM.HAS_TERM_CODE));
     if (null == terms) return Collections.emptyList();
     List<SearchTermCode> termsSummary = new ArrayList<>();
     for (TTValue term : terms.getElements()) {
@@ -99,14 +99,14 @@ public class ConceptService {
 
 
   private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {
-    if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
+    if (null != term.asNode().get(new TTIriRef(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(new TTIriRef(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
       SearchTermCode newTerm = new SearchTermCode();
-      if (term.asNode().has(iri(IM.CODE)))
-        newTerm.setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue());
-      if (term.asNode().has(iri(RDFS.LABEL)))
-        newTerm.setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
-      if (term.asNode().has(iri(IM.HAS_STATUS)))
-        newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
+      if (term.asNode().has(new TTIriRef(IM.CODE)))
+        newTerm.setCode(term.asNode().get(new TTIriRef(IM.CODE)).get(0).asLiteral().getValue());
+      if (term.asNode().has(new TTIriRef(RDFS.LABEL)))
+        newTerm.setTerm(term.asNode().get(new TTIriRef(RDFS.LABEL)).get(0).asLiteral().getValue());
+      if (term.asNode().has(new TTIriRef(IM.HAS_STATUS)))
+        newTerm.setStatus(term.asNode().get(new TTIriRef(IM.HAS_STATUS)).get(0).asIriRef());
       termsSummary.add(
         newTerm
       );

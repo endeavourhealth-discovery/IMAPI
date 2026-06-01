@@ -26,13 +26,13 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotNullEntity() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(TTIriRef.iri(SHACL.PROPERTY), new TTArray().add(new TTNode()
-        .set(TTIriRef.iri(IM.INHERITED_FROM), new TTIriRef())
-        .set(TTIriRef.iri(SHACL.PATH), new TTIriRef())
-        .set(TTIriRef.iri(SHACL.CLASS), new TTIriRef())
-        .set(TTIriRef.iri(SHACL.DATATYPE), new TTIriRef())
-        .set(TTIriRef.iri(SHACL.MAXCOUNT), new TTLiteral())
-        .set(TTIriRef.iri(SHACL.MINCOUNT), new TTLiteral())
+      .set(new TTIriRef(SHACL.PROPERTY), new TTArray().add(new TTNode()
+        .set(new TTIriRef(IM.INHERITED_FROM), new TTIriRef())
+        .set(new TTIriRef(SHACL.PATH), new TTIriRef())
+        .set(new TTIriRef(SHACL.CLASS), new TTIriRef())
+        .set(new TTIriRef(SHACL.DATATYPE), new TTIriRef())
+        .set(new TTIriRef(SHACL.MAXCOUNT), new TTLiteral())
+        .set(new TTIriRef(SHACL.MINCOUNT), new TTLiteral())
       )));
     assertNotNull(actual);
   }
@@ -41,7 +41,7 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotInheritedFrom() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(TTIriRef.iri(SHACL.PROPERTY), new TTArray().add(new TTNode()))
+      .set(new TTIriRef(SHACL.PROPERTY), new TTArray().add(new TTNode()))
     );
     assertNotNull(actual);
   }

@@ -8,19 +8,15 @@ import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -53,15 +49,15 @@ public class ConceptServiceStepDefs {
   public void anEntityWithTermCodes() {
     TTArray termsArray = new TTArray();
     termsArray
-      .add(new TTNode().set(RDFS.LABEL, literal("Type 2 diabetes")).set(IM.CODE, literal(197761014)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("T2DM - diabetes mellitus type 2")).set(IM.CODE, literal(4571144010L)).set(IM.HAS_STATUS, iri(IM.ACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(12345)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(67890)).set(IM.HAS_STATUS, iri(IM.ACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type 2")).set(IM.CODE, literal(197763012)).set(IM.HAS_STATUS, iri(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type II")).set(IM.CODE, literal(73465010)).set(IM.HAS_STATUS, iri(IM.ACTIVE)));
+      .add(new TTNode().set(RDFS.LABEL, literal("Type 2 diabetes")).set(IM.CODE, literal(197761014)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("T2DM - diabetes mellitus type 2")).set(IM.CODE, literal(4571144010L)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(12345)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(67890)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type 2")).set(IM.CODE, literal(197763012)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
+      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type II")).set(IM.CODE, literal(73465010)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)));
 
     TTEntity entity = new TTEntity(entityIri);
-    entity.set(iri(IM.HAS_TERM_CODE), termsArray);
+    entity.set(new TTIriRef(IM.HAS_TERM_CODE), termsArray);
 
     TTBundle termsBundle = new TTBundle();
     termsBundle.setEntity(entity);

@@ -133,30 +133,30 @@ public class OSQuery {
     hitsNode.putArray("hits");
     SearchSourceBuilder builder;
     Set<String> found = new HashSet<>();
-    builder = converter.buildQuery(request, query, TextSearchStyle.exact);
+    builder = converter.buildQuery(request, query, TextSearchStyle.EXACT);
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) == 1)
       return fullResults;
 
-    builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
+    builder = converter.buildQuery(request, query, TextSearchStyle.AUTOCOMPLETE);
     if (builder == null)
       return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete && fullResults.get("totalCount").asInt() > 0)
+    if (request.getTextSearchStyle() == TextSearchStyle.AUTOCOMPLETE && fullResults.get("totalCount").asInt() > 0)
       return fullResults;
     if (getTotal(fullResults) >= request.getPage().getPageSize())
       return fullResults;
 
-    builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.ZERO);
+    builder = converter.buildQuery(request, query, TextSearchStyle.NGRAM, Fuzziness.ZERO);
     if (builder == null) return fullResults;
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) >= request.getPage().getPageSize())
       return fullResults;
-    builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
+    builder = converter.buildQuery(request, query, TextSearchStyle.MULTIWORD);
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) >= request.getPage().getPageSize())
       return fullResults;
-    builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
+    builder = converter.buildQuery(request, query, TextSearchStyle.NGRAM, Fuzziness.TWO);
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) >= request.getPage().getPageSize())
       return fullResults;
@@ -164,7 +164,7 @@ public class OSQuery {
       String corrected = spellingCorrection(request);
       if (corrected != null) {
         request.setTextSearch(corrected);
-        builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.autocomplete, Fuzziness.ZERO);
+        builder = new IMQToOS().buildQuery(request, query, TextSearchStyle.AUTOCOMPLETE, Fuzziness.ZERO);
         if (builder == null) return fullResults;
         runAndAddResults(fullResults, builder, found);
       }

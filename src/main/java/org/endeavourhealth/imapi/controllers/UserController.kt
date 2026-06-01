@@ -51,7 +51,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Preset.POST").use {
       log.debug("updateUserPreset")
-      val theme = PrimeVuePresetThemes.decode(preset)
+      val theme = PrimeVuePresetThemes.fromValue(preset)
       requireNotNull(theme)
       val user = securityService.getUser(request)
       user.theme = theme
@@ -75,7 +75,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.PrimaryColor.POST").use {
       log.debug("updateUserPrimaryColor")
-      val colorEnum = PrimeVueColors.decode(color)
+      val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
       val user = securityService.getUser(request)
       user.primaryColor = colorEnum
@@ -97,7 +97,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Surface.POST").use {
       log.debug("updateUserSurfaceColor")
-      val colorEnum = PrimeVueColors.decode(color)
+      val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
       val user = securityService.getUser(request)
       user.surfaceColor = colorEnum
@@ -141,7 +141,7 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.FontSize.POST").use {
       log.debug("updateUserFontSize")
-      val fontSizeEnum = FontSize.decode(fontSize)
+      val fontSizeEnum = FontSize.fromValue(fontSize)
       requireNotNull(fontSizeEnum)
       val user = securityService.getUser(request)
       user.fontSize = fontSizeEnum

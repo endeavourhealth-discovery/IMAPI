@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -58,7 +57,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_INT_JSON, TTLiteral.class);
 
     assertEquals("10", lit.getValue());
-    assertEquals(iri(XSD.INTEGER), lit.getType());
+    assertEquals(new TTIriRef(XSD.INTEGER), lit.getType());
   }
 
   @Test
@@ -74,7 +73,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_BOOL_JSON, TTLiteral.class);
 
     assertEquals("true", lit.getValue());
-    assertEquals(iri(XSD.BOOLEAN), lit.getType());
+    assertEquals(new TTIriRef(XSD.BOOLEAN), lit.getType());
   }
 
   @Test
@@ -90,7 +89,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_PAT_JSON, TTLiteral.class);
 
     assertEquals(".*", lit.getValue());
-    assertEquals(iri(XSD.PATTERN), lit.getType());
+    assertEquals(new TTIriRef(XSD.PATTERN), lit.getType());
   }
 
 }

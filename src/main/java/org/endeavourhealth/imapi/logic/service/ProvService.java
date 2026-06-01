@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Component
 public class ProvService {
 
@@ -33,26 +31,26 @@ public class ProvService {
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()
-      .setPersonInRole(TTIriRef.iri(uir))
-      .setParticipationType(iri(IM.AUTHOR_ROLE));
-    agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(iri(IM.ADD_QUADS));
+      .setPersonInRole(new TTIriRef(uir))
+      .setParticipationType(new TTIriRef(IM.AUTHOR_ROLE));
+    agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(new TTIriRef(IM.ADD_QUADS));
     return agent;
   }
 
   public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent, String usedEntityIri) {
     ProvActivity activity = new ProvActivity()
       .setIri("urn:uuid:" + UUID.randomUUID())
-      .setActivityType(iri(IM.PROV_CREATION))
+      .setActivityType(new TTIriRef(IM.PROV_CREATION))
       .setEffectiveDate(LocalDateTime.now().toString())
-      .addAgent(TTIriRef.iri(agent.getIri()))
-      .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
+      .addAgent(new TTIriRef(agent.getIri()))
+      .setTargetEntity(new TTIriRef(targetEntity.getIri()));
 
     if (null != usedEntityIri) {
-      activity.setActivityType(iri(IM.PROV_UPDATE));
-      activity.set(iri(IM.PROVENANCE_USED), TTIriRef.iri(usedEntityIri));
+      activity.setActivityType(new TTIriRef(IM.PROV_UPDATE));
+      activity.set(new TTIriRef(IM.PROVENANCE_USED), new TTIriRef(usedEntityIri));
     }
 
-    activity.setCrud(iri(IM.ADD_QUADS));
+    activity.setCrud(new TTIriRef(IM.ADD_QUADS));
     return activity;
   }
 
@@ -61,8 +59,8 @@ public class ProvService {
       return new TTEntity()
         .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
         .setName(usedEntity.getName())
-        .set(iri(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
-        .setCrud(iri(IM.ADD_QUADS));
+        .set(new TTIriRef(IM.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
+        .setCrud(new TTIriRef(IM.ADD_QUADS));
     }
   }
 

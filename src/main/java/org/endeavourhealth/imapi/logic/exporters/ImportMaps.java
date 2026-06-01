@@ -319,10 +319,10 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(TTIriRef.iri(NAMESPACE.VISION));
+          entity.setScheme(new TTIriRef(NAMESPACE.VISION));
           entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
-            entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomed));
+            entity.addObject(new TTIriRef(IM.MATCHED_TO), new TTIriRef(snomed));
           }
         }
       }
@@ -366,7 +366,7 @@ public class ImportMaps implements AutoCloseable {
             entity.setName(name);
             entity.setCode(code);
             entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
-            entity.addObject(TTIriRef.iri(IM.MATCHED_TO), TTIriRef.iri(snomedIri));
+            entity.addObject(new TTIriRef(IM.MATCHED_TO), new TTIriRef(snomedIri));
           }
         }
       }

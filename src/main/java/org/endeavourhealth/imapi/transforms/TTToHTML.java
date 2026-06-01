@@ -8,8 +8,6 @@ import org.endeavourhealth.interfacemanager.model.OWL;
 
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class TTToHTML {
   private TTToHTML() {
     throw new IllegalStateException("Utility class");
@@ -18,9 +16,9 @@ public class TTToHTML {
   public static String getExpressionText(TTNode expression) {
     StringBuilder html = new StringBuilder();
     boolean first = true;
-    if (expression.get(iri(OWL.INTERSECTION_OF)) != null) {
+    if (expression.get(new TTIriRef(OWL.INTERSECTION_OF)) != null) {
       html.append("<p class=\"intersection\">Intersection of</p>");
-      for (TTValue inter : expression.get(iri(OWL.INTERSECTION_OF)).iterator()) {
+      for (TTValue inter : expression.get(new TTIriRef(OWL.INTERSECTION_OF)).iterator()) {
         if (inter.isIriRef()) {
           if (!first)
             html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");

@@ -15,8 +15,6 @@ import org.endeavourhealth.interfacemanager.model.XSD;
 import java.io.Serializable;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonSerialize(using = TTLiteralSerializer.class)
 @JsonDeserialize(using = TTLiteralDeserializer.class)
@@ -35,7 +33,7 @@ public class TTLiteral implements TTValue, Serializable {
 
   public TTLiteral(String value, String type) {
     this.value = value;
-    this.type = iri(type);
+    this.type = new TTIriRef(type);
   }
 
   // Type specific constructors
@@ -46,27 +44,28 @@ public class TTLiteral implements TTValue, Serializable {
 
   public TTLiteral(Boolean value) {
     this.value = value.toString();
-    this.type = iri(XSD.BOOLEAN);
+    this.type = new TTIriRef(XSD.BOOLEAN);
   }
 
   public TTLiteral(Integer value) {
     this.value = value.toString();
-    this.type = iri(XSD.INTEGER);
+    this.type = new TTIriRef(XSD.INTEGER);
   }
 
   public TTLiteral(Long value) {
     this.value = value.toString();
-    this.type = iri(XSD.LONG);
+    this.type = new TTIriRef(XSD.LONG);
   }
 
   public TTLiteral(Pattern value) {
     this.value = value.toString();
-    this.type = iri(XSD.PATTERN);
+    this.type = new TTIriRef(XSD.PATTERN);
   }
+
   public TTLiteral(Object value) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       this.value = om.writeValueAsString(value);
-      this.type = iri(XSD.STRING);
+      this.type = new TTIriRef(XSD.STRING);
     }
   }
 

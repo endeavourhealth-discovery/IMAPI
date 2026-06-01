@@ -12,7 +12,6 @@ import org.endeavourhealth.interfacemanager.model.XSD;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
@@ -42,8 +41,8 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
         return literal(node.get(IM.VALUE.toString()).textValue());
     }
 
-    TTIriRef type = iri(helper == null ? node.get(IM.TYPE.toString()).asText() : helper.expand(node.get(IM.TYPE.toString()).asText()));
-    return switch (XSD.Companion.decode(type.getIri())) {
+    TTIriRef type = new TTIriRef(helper == null ? node.get(IM.TYPE.toString()).asText() : helper.expand(node.get(IM.TYPE.toString()).asText()));
+    return switch (XSD.fromValue(type.getIri())) {
       case XSD.STRING -> literal(node.get(IM.VALUE.toString()).textValue());
       case XSD.BOOLEAN -> literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
       case XSD.INTEGER -> literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));

@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -59,7 +58,7 @@ class EntityCacheTest {
     try (MockedStatic<PropertyRepository> mockedPropertyRepository = mockStatic(PropertyRepository.class)) {
       TTEntityMap propertyMap = new TTEntityMap();
       TTEntity property = new TTEntity("http://example.org/prop1");
-      property.set(iri("http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArray());
+      property.set(new TTIriRef("http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArray());
       propertyMap.getEntities().put(property.getIri(), property);
       mockedPropertyRepository.when(() -> PropertyRepository.getProperty(anyString())).thenReturn(propertyMap);
 
@@ -127,7 +126,7 @@ class EntityCacheTest {
   void cacheShapes_WithPredicateOrder() {
     TTEntityMap shapeMap = new TTEntityMap();
     TTEntity shape = new TTEntity("http://example.org/shape1");
-    shape.set(iri(SHACL.PROPERTY), new TTArray().add(new TTNode().set(iri(SHACL.PATH), iri("http://example.org/path1", "Path 1"))));
+    shape.set(new TTIriRef(SHACL.PROPERTY), new TTArray().add(new TTNode().set(new TTIriRef(SHACL.PATH), new TTIriRef("http://example.org/path1", "Path 1"))));
     shapeMap.getEntities().put(shape.getIri(), shape);
 
     EntityCache.cacheShapes(shapeMap);
@@ -140,10 +139,10 @@ class EntityCacheTest {
   @Test
   void getPredicatesFromNode() {
     TTNode node = new TTNode();
-    node.set(iri("http://example.org/p1"), iri("http://example.org/o1"));
+    node.set(new TTIriRef("http://example.org/p1"), new TTIriRef("http://example.org/o1"));
     TTNode nestedNode = new TTNode();
-    nestedNode.set(iri("http://example.org/p2"), iri("http://example.org/o2"));
-    node.addObject(iri("http://example.org/p3"), nestedNode);
+    nestedNode.set(new TTIriRef("http://example.org/p2"), new TTIriRef("http://example.org/o2"));
+    node.addObject(new TTIriRef("http://example.org/p3"), nestedNode);
 
     Set<TTIriRef> predicates = EntityCache.getPredicatesFromNode(node);
 
@@ -170,7 +169,7 @@ class EntityCacheTest {
     EntityCache.addPredicateName("http://example.org/p1", "Name 1");
     assertThat(EntityCache.getPredicateName("http://example.org/p1")).isEqualTo("Name 1");
 
-    List<TTIriRef> order = List.of(iri("http://example.org/p1"), iri("http://example.org/p2"));
+    List<TTIriRef> order = List.of(new TTIriRef("http://example.org/p1"), new TTIriRef("http://example.org/p2"));
     EntityCache.setPredicateOrder("http://example.org/e1", order);
     assertThat(EntityCache.getPredicateOrder("http://example.org/e1")).isEqualTo(order);
   }

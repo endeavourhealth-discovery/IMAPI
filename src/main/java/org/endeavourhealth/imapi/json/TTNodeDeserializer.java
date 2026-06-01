@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * DeSerializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument Deserializer
  */
@@ -58,9 +56,9 @@ public class TTNodeDeserializer {
         if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isArray()) {
-          result.set(iri(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
+          result.set(new TTIriRef(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
         } else {
-          result.set(iri(expand(key)), getJsonNodeAsValue(value));
+          result.set(new TTIriRef(expand(key)), getJsonNodeAsValue(value));
         }
       }
     }
@@ -88,9 +86,9 @@ public class TTNodeDeserializer {
     else if (node.isObject()) {
       if (node.has(IM.IRI.toString())) {
         if (node.has("name"))
-          return iri(expand(node.get(IM.IRI.toString()).asText()), node.get("name").asText());
+          return new TTIriRef(expand(node.get(IM.IRI.toString()).asText()), node.get("name").asText());
         else
-          return iri(expand(node.get(IM.IRI.toString()).asText()));
+          return new TTIriRef(expand(node.get(IM.IRI.toString()).asText()));
       } else {
         if (node.has(IM.VALUE.toString())) {
           return getJsonNodeAsLiteral(node);
@@ -112,8 +110,8 @@ public class TTNodeDeserializer {
     if (!node.has(IM.TYPE.toString()))
       return TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
 
-    TTIriRef type = iri(expand(node.get(IM.TYPE.toString()).asText()));
-    return switch (XSD.Companion.decode(type.getIri())) {
+    TTIriRef type = new TTIriRef(expand(node.get(IM.TYPE.toString()).asText()));
+    return switch (XSD.fromValue(type.getIri())) {
       case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
       case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
       case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));

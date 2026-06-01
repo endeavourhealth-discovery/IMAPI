@@ -13,20 +13,13 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.interfacemanager.model.RDF;
-import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.interfacemanager.model.DisplayMode;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.Order;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
@@ -42,10 +35,10 @@ public class QueryDescriptor {
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
       if (field.toLowerCase().contains("date")) {
-        if (property.getDirection() == Order.descending) orderDisplay = "latest ";
+        if (property.getDirection() == Order.DESCENDING) orderDisplay = "latest ";
         else orderDisplay = "earliest ";
       } else {
-        if (property.getDirection() == Order.descending) orderDisplay = "maximum ";
+        if (property.getDirection() == Order.DESCENDING) orderDisplay = "maximum ";
         else orderDisplay = "minimum ";
       }
     }
@@ -98,8 +91,8 @@ public class QueryDescriptor {
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    if (queryEntity.get(new TTIriRef(IM.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
     query = describeQuery(query, displayMode);
@@ -201,10 +194,10 @@ public class QueryDescriptor {
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if (entity.get(iri(NAMESPACE.IM + "plural")) == null) {
+          if (entity.get(new TTIriRef(NAMESPACE.IM + "plural")) == null) {
             term = new StringBuilder(Pluraliser.pluralise(term.toString()));
           } else {
-            term = new StringBuilder(entity.get(iri(NAMESPACE.IM + "plural")).asLiteral().getValue());
+            term = new StringBuilder(entity.get(new TTIriRef(NAMESPACE.IM + "plural")).asLiteral().getValue());
           }
         } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }

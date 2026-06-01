@@ -26,8 +26,6 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Component
 @Slf4j
 public class QueryService {
@@ -49,7 +47,7 @@ public class QueryService {
 
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (queryRequest.getQuery().getQueryType() == IMQType.INDICATOR) {
-      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(iri(IM.NUMERATOR).getIri(), iri(IM.DENOMINATOR).getIri(), iri(IM.HAS_DATASET).getIri()));
+      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(new TTIriRef(IM.NUMERATOR).getIri(), new TTIriRef(IM.DENOMINATOR).getIri(), new TTIriRef(IM.HAS_DATASET).getIri()));
       String denominator = bundle.getEntity().get(IM.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
       String numerator = bundle.getEntity().get(IM.NUMERATOR).getElements().getFirst().asIriRef().getIri();
       String dataset = bundle.getEntity().get(IM.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
@@ -74,12 +72,12 @@ public class QueryService {
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
       TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
-      if (queryEntity.isType(iri(IM.INDICATOR)))
+      if (queryEntity.isType(new TTIriRef(IM.INDICATOR)))
         return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
 
-      if (!queryEntity.has(iri(IM.DEFINITION)))
+      if (!queryEntity.has(new TTIriRef(IM.DEFINITION)))
         throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
-      query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      query = queryEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       query.setIri(queryEntity.getIri());
     } else {
       query = queryRequest.getQuery();
@@ -103,7 +101,7 @@ public class QueryService {
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
     if (cohort != null) {
-      Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query cohortQuery = cohort.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
       defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
@@ -112,13 +110,13 @@ public class QueryService {
 
   private TTEntity findFirstQuery(List<TTEntity> children) {
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.QUERY)) && child.get(iri(IM.DEFINITION)) != null) {
+      if (child.isType(new TTIriRef(IM.QUERY)) && child.get(new TTIriRef(IM.DEFINITION)) != null) {
         return child;
       }
 
     }
     for (TTEntity child : children) {
-      if (child.isType(iri(IM.FOLDER))) {
+      if (child.isType(new TTIriRef(IM.FOLDER))) {
         List<TTEntity> subchildren = entityRepository.getFolderChildren(NAMESPACE.IM + "DefaultCohorts", EnumUtils.asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
@@ -193,7 +191,7 @@ public class QueryService {
 
   private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
-      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(iri(where.getIri())));
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(new TTIriRef(where.getIri())));
     }
     if (null != where.getAnd()) {
       where.getAnd().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
@@ -219,7 +217,7 @@ public class QueryService {
 
   private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
     if (missingArguments.stream().noneMatch(missingArgument -> missingArgument.getParameter().equals(parameter))) {
-      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(iri(referenceIri)));
+      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(new TTIriRef(referenceIri)));
     }
   }
 

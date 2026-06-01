@@ -19,150 +19,174 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class CachedObjectMapperTest {
 
-    @Test
-    void shouldReadAndWriteValue() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            TestObject obj = new TestObject("test", 123);
-            String json = mapper.writeValueAsString(obj);
-            assertThat(json).contains("\"name\":\"test\"").contains("\"value\":123");
+  @Test
+  void shouldReadAndWriteValue() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      TestObject obj = new TestObject("test", 123);
+      String json = mapper.writeValueAsString(obj);
+      assertThat(json).contains("\"name\":\"test\"").contains("\"value\":123");
 
-            TestObject read = mapper.readValue(json, TestObject.class);
-            assertThat(read.getName()).isEqualTo("test");
-            assertThat(read.getValue()).isEqualTo(123);
-        }
+      TestObject read = mapper.readValue(json, TestObject.class);
+      assertThat(read.getName()).isEqualTo("test");
+      assertThat(read.getValue()).isEqualTo(123);
+    }
+  }
+
+  @Test
+  void shouldReadValueWithTypeReference() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      String json = "{\"key\":\"value\"}";
+      Map<String, String> map = mapper.readValue(json, new TypeReference<Map<String, String>>() {
+      });
+      assertThat(map).containsEntry("key", "value");
+    }
+  }
+
+  @Test
+  void shouldReadTree() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      String json = "{\"name\":\"test\"}";
+      JsonNode node = mapper.readTree(json);
+      assertThat(node.get("name").asText()).isEqualTo("test");
+    }
+  }
+
+  @Test
+  void shouldCreateNodes() {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      ObjectNode obj = mapper.createObjectNode();
+      assertThat(obj).isNotNull();
+
+      ArrayNode arr = mapper.createArrayNode();
+      assertThat(arr).isNotNull();
+    }
+  }
+
+  @Test
+  void shouldConvertValueToTree() {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      List<TTIriRef> iris = Arrays.asList(new TTIriRef("iri1"), new TTIriRef("iri2"));
+      JsonNode node = mapper.valueToTree(iris);
+      assertThat(node.isArray()).isTrue();
+      assertThat(node.size()).isEqualTo(2);
+    }
+  }
+
+  @Test
+  void shouldConvertStringArrayToTree() {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      List<String> strings = Arrays.asList("a", "b");
+      JsonNode node = mapper.stringArrayToTree(strings);
+      assertThat(node.isArray()).isTrue();
+      assertThat(node.size()).isEqualTo(2);
+    }
+  }
+
+  @Test
+  void shouldConvertTreeToValue() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      ObjectNode node = mapper.createObjectNode();
+      node.put("name", "test");
+      node.put("value", 123);
+
+      TestObject obj = mapper.treeToValue(node, TestObject.class);
+      assertThat(obj.getName()).isEqualTo("test");
+      assertThat(obj.getValue()).isEqualTo(123);
+    }
+  }
+
+  @Test
+  void shouldReadValueFromFile(@TempDir Path tempDir) throws IOException {
+    File file = tempDir.resolve("test.json").toFile();
+    Files.write(file.toPath(), "{\"name\":\"test\",\"value\":123}".getBytes());
+
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      TestObject obj = mapper.readValue(file, TestObject.class);
+      assertThat(obj.getName()).isEqualTo("test");
+      assertThat(obj.getValue()).isEqualTo(123);
+    }
+  }
+
+  @Test
+  void shouldSetSerializationInclusionAlways() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+      TestObjectAlways obj = new TestObjectAlways();
+      String json = mapper.writeValueAsString(obj);
+      assertThat(json).contains("\"name\":null");
+    }
+  }
+
+  @Test
+  void shouldSetSerializationInclusionNonEmpty() throws JsonProcessingException {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+      TestObjectNonEmpty obj = new TestObjectNonEmpty();
+      String json = mapper.writeValueAsString(obj);
+      assertThat(json).doesNotContain("\"name\"");
+    }
+  }
+
+  @Test
+  void shouldProvideWriterWithDefaultPrettyPrinter() {
+    try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+      assertThat(mapper.writerWithDefaultPrettyPrinter()).isNotNull();
+    }
+  }
+
+  public static class TestObjectAlways {
+    private String name;
+
+    public String getName() {
+      return name;
     }
 
-    @Test
-    void shouldReadValueWithTypeReference() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            String json = "{\"key\":\"value\"}";
-            Map<String, String> map = mapper.readValue(json, new TypeReference<Map<String, String>>() {});
-            assertThat(map).containsEntry("key", "value");
-        }
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public static class TestObjectNonEmpty {
+    private String name;
+
+    public String getName() {
+      return name;
     }
 
-    @Test
-    void shouldReadTree() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            String json = "{\"name\":\"test\"}";
-            JsonNode node = mapper.readTree(json);
-            assertThat(node.get("name").asText()).isEqualTo("test");
-        }
+    public void setName(String name) {
+      this.name = name;
+    }
+  }
+
+  public static class TestObject {
+    private String name;
+    private int value;
+
+    public TestObject() {
     }
 
-    @Test
-    void shouldCreateNodes() {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            ObjectNode obj = mapper.createObjectNode();
-            assertThat(obj).isNotNull();
-
-            ArrayNode arr = mapper.createArrayNode();
-            assertThat(arr).isNotNull();
-        }
+    public TestObject(String name, int value) {
+      this.name = name;
+      this.value = value;
     }
 
-    @Test
-    void shouldConvertValueToTree() {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            List<TTIriRef> iris = Arrays.asList(iri("iri1"), iri("iri2"));
-            JsonNode node = mapper.valueToTree(iris);
-            assertThat(node.isArray()).isTrue();
-            assertThat(node.size()).isEqualTo(2);
-        }
+    public String getName() {
+      return name;
     }
 
-    @Test
-    void shouldConvertStringArrayToTree() {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            List<String> strings = Arrays.asList("a", "b");
-            JsonNode node = mapper.stringArrayToTree(strings);
-            assertThat(node.isArray()).isTrue();
-            assertThat(node.size()).isEqualTo(2);
-        }
+    public void setName(String name) {
+      this.name = name;
     }
 
-    @Test
-    void shouldConvertTreeToValue() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            ObjectNode node = mapper.createObjectNode();
-            node.put("name", "test");
-            node.put("value", 123);
-
-            TestObject obj = mapper.treeToValue(node, TestObject.class);
-            assertThat(obj.getName()).isEqualTo("test");
-            assertThat(obj.getValue()).isEqualTo(123);
-        }
+    public int getValue() {
+      return value;
     }
 
-    @Test
-    void shouldReadValueFromFile(@TempDir Path tempDir) throws IOException {
-        File file = tempDir.resolve("test.json").toFile();
-        Files.write(file.toPath(), "{\"name\":\"test\",\"value\":123}".getBytes());
-
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            TestObject obj = mapper.readValue(file, TestObject.class);
-            assertThat(obj.getName()).isEqualTo("test");
-            assertThat(obj.getValue()).isEqualTo(123);
-        }
+    public void setValue(int value) {
+      this.value = value;
     }
-
-    @Test
-    void shouldSetSerializationInclusionAlways() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
-            TestObjectAlways obj = new TestObjectAlways();
-            String json = mapper.writeValueAsString(obj);
-            assertThat(json).contains("\"name\":null");
-        }
-    }
-
-    @Test
-    void shouldSetSerializationInclusionNonEmpty() throws JsonProcessingException {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-            TestObjectNonEmpty obj = new TestObjectNonEmpty();
-            String json = mapper.writeValueAsString(obj);
-            assertThat(json).doesNotContain("\"name\"");
-        }
-    }
-
-    public static class TestObjectAlways {
-        private String name;
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-    }
-
-    public static class TestObjectNonEmpty {
-        private String name;
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-    }
-
-    @Test
-    void shouldProvideWriterWithDefaultPrettyPrinter() {
-        try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-            assertThat(mapper.writerWithDefaultPrettyPrinter()).isNotNull();
-        }
-    }
-
-    public static class TestObject {
-        private String name;
-        private int value;
-
-        public TestObject() {}
-
-        public TestObject(String name, int value) {
-            this.name = name;
-            this.value = value;
-        }
-
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
-        public int getValue() { return value; }
-        public void setValue(int value) { this.value = value; }
-    }
+  }
 }

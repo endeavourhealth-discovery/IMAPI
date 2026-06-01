@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.interfacemanager.model.IM;
 
@@ -14,8 +15,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
   protected final TTContext context = new TTContext();
@@ -61,9 +60,9 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
         result.setCrud(helper.getJsonNodeAsValue(value).asIriRef());
       else if (!"context".equals(key)) {
         if (value.isArray())
-          result.set(iri(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));
+          result.set(new TTIriRef(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));
         else
-          result.set(iri(helper.expand(key)), helper.getJsonNodeAsValue(value));
+          result.set(new TTIriRef(helper.expand(key)), helper.getJsonNodeAsValue(value));
       }
     }
   }

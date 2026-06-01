@@ -28,7 +28,7 @@ public class FunctionService {
   private final SecurityService securityService = new SecurityService();
 
   public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
-    return switch (IMFUNCTION.Companion.decode(iri)) {
+    return switch (IMFUNCTION.fromValue(iri)) {
       case IMFUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IMFUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
       case IMFUNCTION.GET_LOGIC_OPTIONS -> getLogicOptions();
@@ -76,7 +76,7 @@ public class FunctionService {
       String schemeIri = iri.substring(0, iri.lastIndexOf("#") + 1);
       List<EntityReferenceNode> schemes = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), new ArrayList<>(), 1, 1000, false);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
-      List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
+      List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().iri(s.getIri()).name(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
       return om.valueToTree(schemesFilteredIriRef);
     }

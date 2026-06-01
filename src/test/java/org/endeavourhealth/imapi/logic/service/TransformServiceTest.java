@@ -9,17 +9,15 @@ import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.interfacemanager.model.FHIR;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.FHIR;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class TransformServiceTest {
 
@@ -34,13 +32,13 @@ class TransformServiceTest {
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
     TTEntity mapEntity = EntityCache.getEntity(NAMESPACE.MAP + "FHIR_2_PatientToIM").getEntity();
-    MapObject map = mapEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
+    MapObject map = mapEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());
 
     //Create transform request;
     TransformRequest request = new TransformRequest();
-    request.setTransformMap(TTIriRef.iri(mapEntity.getIri()));
+    request.setTransformMap(new TTIriRef(mapEntity.getIri()));
     request.setSourceFormat("JSON");
     request.setTargetFormat("JSON-LD");
 

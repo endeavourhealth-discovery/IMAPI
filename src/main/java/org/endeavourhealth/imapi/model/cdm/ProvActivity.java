@@ -9,8 +9,6 @@ import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.util.List;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * Class which sets and gets Provenance activity entry
  */
@@ -18,8 +16,8 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class ProvActivity extends Entry {
 
   public ProvActivity() {
-    this.addType(iri(IM.PROVENANCE_ACTIVITY));
-    this.setScheme(TTIriRef.iri(NAMESPACE.IM));
+    this.addType(new TTIriRef(IM.PROVENANCE_ACTIVITY));
+    this.setScheme(new TTIriRef(NAMESPACE.IM));
   }
 
   @Override
@@ -29,44 +27,44 @@ public class ProvActivity extends Entry {
   }
 
   public TTIriRef getTargetEntity() {
-    return get(iri(IM.PROVENANCE_TARGET)) == null ? null :
-      get(iri(IM.PROVENANCE_TARGET)).asIriRef();
+    return get(new TTIriRef(IM.PROVENANCE_TARGET)) == null ? null :
+      get(new TTIriRef(IM.PROVENANCE_TARGET)).asIriRef();
   }
 
   @JsonSetter
   public ProvActivity setTargetEntity(TTIriRef targetEntity) {
-    set(iri(IM.PROVENANCE_TARGET), targetEntity);
+    set(new TTIriRef(IM.PROVENANCE_TARGET), targetEntity);
     return this;
   }
 
   public TTIriRef getActivityType() {
-    return get(iri(IM.PROVENANCE_ACTIVITY_TYPE)) == null ? null :
-      get(iri(IM.PROVENANCE_ACTIVITY_TYPE)).asIriRef();
+    return get(new TTIriRef(IM.PROVENANCE_ACTIVITY_TYPE)) == null ? null :
+      get(new TTIriRef(IM.PROVENANCE_ACTIVITY_TYPE)).asIriRef();
   }
 
   @JsonSetter
   public ProvActivity setActivityType(TTIriRef activityType) {
-    set(iri(IM.PROVENANCE_ACTIVITY_TYPE), activityType);
+    set(new TTIriRef(IM.PROVENANCE_ACTIVITY_TYPE), activityType);
     return this;
   }
 
   public String getEffectiveDate() {
-    return get(iri(IM.EFFECTIVE_DATE)) == null ? null :
-      get(iri(IM.EFFECTIVE_DATE)).asLiteral().getValue();
+    return get(new TTIriRef(IM.EFFECTIVE_DATE)) == null ? null :
+      get(new TTIriRef(IM.EFFECTIVE_DATE)).asLiteral().getValue();
 
   }
 
   public ProvActivity setEffectiveDate(String effectiveDate) {
-    set(iri(IM.EFFECTIVE_DATE), TTLiteral.literal(effectiveDate));
+    set(new TTIriRef(IM.EFFECTIVE_DATE), TTLiteral.literal(effectiveDate));
     return this;
   }
 
   public String getStartTime() {
-    return (String) TTUtil.get(this, iri(IM.START_TIME), String.class);
+    return (String) TTUtil.get(this, new TTIriRef(IM.START_TIME), String.class);
   }
 
   public ProvActivity setStartTime(String startTime) {
-    set(iri(IM.START_TIME), TTLiteral.literal(startTime));
+    set(new TTIriRef(IM.START_TIME), TTLiteral.literal(startTime));
     return this;
   }
 
@@ -75,12 +73,12 @@ public class ProvActivity extends Entry {
   }
 
   public ProvActivity setAgent(TTArray agent) {
-    set(iri(IM.PROVENANCE_AGENT), agent);
+    set(new TTIriRef(IM.PROVENANCE_AGENT), agent);
     return this;
   }
 
   public ProvActivity addAgent(TTValue agent) {
-    TTUtil.add(this, iri(IM.PROVENANCE_AGENT), agent);
+    TTUtil.add(this, new TTIriRef(IM.PROVENANCE_AGENT), agent);
     return this;
   }
 
@@ -89,12 +87,12 @@ public class ProvActivity extends Entry {
   }
 
   public ProvActivity setUsed(TTArray used) {
-    set(iri(IM.PROVENANCE_USED), used);
+    set(new TTIriRef(IM.PROVENANCE_USED), used);
     return this;
   }
 
   public ProvActivity addUsed(TTIriRef used) {
-    TTUtil.add(this, iri(IM.PROVENANCE_USED), used);
+    TTUtil.add(this, new TTIriRef(IM.PROVENANCE_USED), used);
     return this;
   }
 }

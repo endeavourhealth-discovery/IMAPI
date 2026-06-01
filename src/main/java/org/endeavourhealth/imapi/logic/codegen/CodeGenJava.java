@@ -20,8 +20,6 @@ import java.util.Queue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Slf4j
 public class CodeGenJava {
   private final Queue<String> iris = new PriorityQueue<>();
@@ -106,7 +104,7 @@ public class CodeGenJava {
             ? bindSet.getValue("comment").stringValue()
             : null);
 
-          TTIriRef dataType = iri(
+          TTIriRef dataType = new TTIriRef(
             bindSet.getValue("type").stringValue(),
             bindSet.hasBinding("typeName")
               ? bindSet.getValue("typeName").stringValue()

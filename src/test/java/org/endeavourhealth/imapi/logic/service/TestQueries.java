@@ -9,14 +9,12 @@ import org.endeavourhealth.interfacemanager.model.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class TestQueries {
   public static QueryRequest pathQuery() {
     return new QueryRequest().setPathQuery(new PathQuery()
       .setName("DiabetesPath")
-      .setTarget(iri("http://snomed.info/sct#44054006"))
-      .setSource(iri(NAMESPACE.IM + "Patient")));
+      .setTarget(new TTIriRef("http://snomed.info/sct#44054006"))
+      .setSource(new TTIriRef(NAMESPACE.IM + "Patient")));
   }
 
 
@@ -55,10 +53,10 @@ public class TestQueries {
       .setQuery(query)
       .argument(a -> a
         .setParameter("myDataModel")
-        .setValueIri(TTIriRef.iri(NAMESPACE.IM + "Observation")))
+        .setValueIri(new TTIriRef(NAMESPACE.IM + "Observation")))
       .argument(a -> a
         .setParameter("myProperty")
-        .setValueIri(TTIriRef.iri(NAMESPACE.IM + "concept")));
+        .setValueIri(new TTIriRef(NAMESPACE.IM + "concept")));
 
   }
 
@@ -67,15 +65,15 @@ public class TestQueries {
       .setContext(TTManager.createBasicContext())
       .addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(TTIriRef.iri(NAMESPACE.IM + "recordOwner")))
+        .setValueIri(new TTIriRef(NAMESPACE.IM + "recordOwner")))
       .query(q -> q.setIri(NAMESPACE.IM + "Query_ObjectPropertyRangeSuggestions"));
 
   }
 
   public static QueryRequest getShaclProperty() {
     return new QueryRequest()
-      .argument(a -> a.setParameter("dataModel").setValueIri(TTIriRef.iri(NAMESPACE.IM + "Patient")))
-      .argument(a -> a.setParameter("property").setValueIri(TTIriRef.iri(NAMESPACE.IM + "age")))
+      .argument(a -> a.setParameter("dataModel").setValueIri(new TTIriRef(NAMESPACE.IM + "Patient")))
+      .argument(a -> a.setParameter("property").setValueIri(new TTIriRef(NAMESPACE.IM + "age")))
       .query(q -> q
         .setName("Shacl property predicates for a property is a data model")
         .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
@@ -117,7 +115,7 @@ public class TestQueries {
     qr.setContext(TTManager.createBasicContext());
     qr.addArgument(new Argument()
       .setParameter("this")
-      .setValueIri(TTIriRef.iri(NAMESPACE.IM + "Q_Queries")));
+      .setValueIri(new TTIriRef(NAMESPACE.IM + "Q_Queries")));
     Query query = new Query()
       .setName("Allowable child types for a folder")
       .setIri(NAMESPACE.IM + "Query_AllowableChildTypes");
@@ -130,7 +128,7 @@ public class TestQueries {
     return new QueryRequest()
       .addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(iri(NAMESPACE.QR)))
+        .setValueIri(new TTIriRef(NAMESPACE.QR)))
       .setUpdate(new Update()
         .setIri(NAMESPACE.IM + "DeleteSets")
         .setName("delete sets"));
@@ -142,8 +140,8 @@ public class TestQueries {
     return new QueryRequest()
       .addArgument(new Argument()
         .setParameter("this")
-        .addToValueIriList(TTIriRef.iri("http://snomed.info/sct#76661004"))
-        .addToValueIriList(TTIriRef.iri("http://snomed.info/sct#243640007")))
+        .addToValueIriList(new TTIriRef("http://snomed.info/sct#76661004"))
+        .addToValueIriList(new TTIriRef("http://snomed.info/sct#243640007")))
       .setQuery(new Query()
         .setName("Subtypes of concepts as a parameterised query")
         .return_(s -> s.setNodeRef("c").setIri(RDFS.LABEL))
@@ -180,7 +178,7 @@ public class TestQueries {
       .setTextSearch("thia")
       .addArgument(new Argument()
         .setParameter("this")
-        .addToValueIriList(TTIriRef.iri("http://snomed.info/sct#105590001")))
+        .addToValueIriList(new TTIriRef("http://snomed.info/sct#105590001")))
       .setQuery(new Query()
         .is(i -> i
           .setParameter("this")
@@ -257,7 +255,7 @@ public class TestQueries {
     return new QueryRequest().
       addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(TTIriRef.iri("http://snomed.info/sct#763158003")))
+        .setValueIri(new TTIriRef("http://snomed.info/sct#763158003")))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(NAMESPACE.IM + "Query_AllowableProperties")
@@ -270,7 +268,7 @@ public class TestQueries {
       .setTextSearch("has active")
       .addArgument(new Argument()
         .setParameter("entities")
-        .setValueIriList(entities.stream().map(TTIriRef::iri).collect(Collectors.toSet())))
+        .setValueIriList(entities.stream().map(TTIriRef::new).collect(Collectors.toSet())))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(QUERY.ENTITY_FILTER.toString())
@@ -281,10 +279,10 @@ public class TestQueries {
     return new QueryRequest().
       addArgument(new Argument()
         .setParameter("property")
-        .setValueIri(TTIriRef.iri("http://snomed.info/sct#363698007")))
+        .setValueIri(new TTIriRef("http://snomed.info/sct#363698007")))
       .addArgument(new Argument()
         .setParameter("concept")
-        .setValueIriList((Set.of(iri("http://snomed.info/sct#161891005")))))
+        .setValueIriList((Set.of(new TTIriRef("http://snomed.info/sct#161891005")))))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(QUERY.IS_VALID_PROPERTY.toString()));
@@ -321,7 +319,7 @@ public class TestQueries {
     qr.setQuery(new Query()
       .setIri(QUERY.ALLOWABLE_PROPERTIES.toString()));
     qr.argument(a -> a.setParameter("this")
-      .setValueIri(iri(NAMESPACE.SNOMED + "840539006")));
+      .setValueIri(new TTIriRef(NAMESPACE.SNOMED + "840539006")));
     return qr;
   }
 

@@ -20,15 +20,13 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * Various utility functions to support triple tree entities and documents.
  * Create document creates a document with default common prefixes.
  */
 @Slf4j
 public class TTManager implements AutoCloseable {
-  private static final TTIriRef[] jsonPredicates = {iri(IM.HAS_MAP)};
+  private static final TTIriRef[] jsonPredicates = {new TTIriRef(IM.HAS_MAP)};
   private Map<String, TTEntity> entityMap;
   private Map<String, TTEntity> nameMap;
   private TTDocument document;
@@ -92,19 +90,19 @@ public class TTManager implements AutoCloseable {
   }
 
   public static void addChildOf(TTEntity c, TTIriRef parent) {
-    if (c.get(iri(IM.IS_CHILD_OF)) == null)
-      c.set(iri(IM.IS_CHILD_OF), new TTArray());
-    c.get(iri(IM.IS_CHILD_OF)).add(parent);
+    if (c.get(new TTIriRef(IM.IS_CHILD_OF)) == null)
+      c.set(new TTIriRef(IM.IS_CHILD_OF), new TTArray());
+    c.get(new TTIriRef(IM.IS_CHILD_OF)).add(parent);
   }
 
   public static void addSuperClass(TTEntity entity, TTIriRef andOr, TTValue superClass) {
-    addESAxiom(entity, iri(RDFS.SUBCLASS_OF), andOr, superClass);
+    addESAxiom(entity, new TTIriRef(RDFS.SUBCLASS_OF), andOr, superClass);
 
   }
 
   private static void addESAxiom(TTEntity entity, TTIriRef axiom,
                                  TTIriRef andOr, TTValue newExpression) {
-    TTIriRef subType = entity.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
+    TTIriRef subType = entity.isType(new TTIriRef(RDF.PROPERTY)) ? new TTIriRef(RDFS.SUB_PROPERTY_OF) : new TTIriRef(RDFS.SUBCLASS_OF);
     if (entity.get(axiom) == null)
       entity.set(axiom, new TTArray());
     TTValue oldExpression;
@@ -130,12 +128,12 @@ public class TTManager implements AutoCloseable {
   }
 
   public static void addSimpleMap(TTEntity c, String target) {
-    c.addObject(iri(IM.MATCHED_TO), iri(target));
+    c.addObject(new TTIriRef(IM.MATCHED_TO), new TTIriRef(target));
   }
 
   public static TTNode addComplexMap(TTEntity c) {
     TTNode map = new TTNode();
-    c.addObject(iri(IM.HAS_MAP), map);
+    c.addObject(new TTIriRef(IM.HAS_MAP), map);
     return map;
   }
 
@@ -147,9 +145,9 @@ public class TTManager implements AutoCloseable {
   }
 
   public static boolean termUsed(TTEntity entity, String term) {
-    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
-        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term))
+    if (entity.get(new TTIriRef(IM.HAS_TERM_CODE)) != null) {
+      for (TTValue val : entity.get(new TTIriRef(IM.HAS_TERM_CODE)).getElements()) {
+        if (val.asNode().get(new TTIriRef(RDFS.LABEL)) != null && val.asNode().get(new TTIriRef(RDFS.LABEL)).asLiteral().getValue().equals(term))
           return true;
       }
     }
@@ -157,11 +155,11 @@ public class TTManager implements AutoCloseable {
   }
 
   public static boolean termCodeUsed(TTEntity entity, String term, String code) {
-    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      for (TTValue val : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
-        if (val.asNode().get(iri(RDFS.LABEL)) != null && val.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue().equals(term)) {
+    if (entity.get(new TTIriRef(IM.HAS_TERM_CODE)) != null) {
+      for (TTValue val : entity.get(new TTIriRef(IM.HAS_TERM_CODE)).getElements()) {
+        if (val.asNode().get(new TTIriRef(RDFS.LABEL)) != null && val.asNode().get(new TTIriRef(RDFS.LABEL)).asLiteral().getValue().equals(term)) {
           if (code != null) {
-            if (val.asNode().get(iri(IM.CODE)) != null && val.asNode().get(iri(IM.CODE)).asLiteral().getValue().equals(code)) {
+            if (val.asNode().get(new TTIriRef(IM.CODE)) != null && val.asNode().get(new TTIriRef(IM.CODE)).asLiteral().getValue().equals(code)) {
               return true;
             }
           } else return true;
@@ -181,13 +179,13 @@ public class TTManager implements AutoCloseable {
     if (!termCodeUsed(entity, term, code)) {
       TTNode termCode = new TTNode();
       if (status != null)
-        termCode.set(iri(IM.HAS_STATUS), status);
+        termCode.set(new TTIriRef(IM.HAS_STATUS), status);
       if (term != null) {
-        termCode.set(iri(RDFS.LABEL), TTLiteral.literal(term));
+        termCode.set(new TTIriRef(RDFS.LABEL), TTLiteral.literal(term));
       }
       if (code != null)
-        termCode.set(iri(IM.CODE), TTLiteral.literal(code));
-      entity.addObject(iri(IM.HAS_TERM_CODE), termCode);
+        termCode.set(new TTIriRef(IM.CODE), TTLiteral.literal(code));
+      entity.addObject(new TTIriRef(IM.HAS_TERM_CODE), termCode);
     }
     return entity;
   }
@@ -466,7 +464,7 @@ public class TTManager implements AutoCloseable {
       .setName(name)
       .setDescription(description)
       .setScheme(EnumUtils.asIri(namespace));
-    result.addObject(iri(RDFS.SUBCLASS_OF), EnumUtils.asIri(IM.ROOT_NAMESPACE));
+    result.addObject(new TTIriRef(RDFS.SUBCLASS_OF), EnumUtils.asIri(IM.ROOT_NAMESPACE));
     return result;
   }
 
@@ -604,9 +602,9 @@ public class TTManager implements AutoCloseable {
   }
 
   private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
-    if (TTIriRef.iri(descendant.getIri()).equals(ancestor))
+    if (new TTIriRef(descendant.getIri()).equals(ancestor))
       return true;
-    TTIriRef subType = descendant.isType(iri(RDF.PROPERTY)) ? iri(RDFS.SUB_PROPERTY_OF) : iri(RDFS.SUBCLASS_OF);
+    TTIriRef subType = descendant.isType(new TTIriRef(RDF.PROPERTY)) ? new TTIriRef(RDFS.SUB_PROPERTY_OF) : new TTIriRef(RDFS.SUBCLASS_OF);
     boolean isa = false;
     if (descendant.get(subType) != null)
       for (TTValue ref : descendant.get(subType).iterator())

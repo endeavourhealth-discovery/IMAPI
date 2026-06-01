@@ -85,7 +85,7 @@ public class WorkflowService {
   }
 
   public TTIriRef generateId() {
-    return TTIriRef.iri(workflowRepository.generateId());
+    return new TTIriRef(workflowRepository.generateId());
   }
 
   public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {

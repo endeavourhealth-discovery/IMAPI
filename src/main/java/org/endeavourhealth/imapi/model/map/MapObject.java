@@ -80,19 +80,19 @@ public class MapObject extends TTIriRef {
 
 
   @Override
-  public MapObject setDescription(String description) {
+  public MapObject description(String description) {
     super.setDescription(description);
     return this;
   }
 
   @Override
-  public MapObject setIri(String iri) {
+  public MapObject iri(String iri) {
     super.setIri(iri);
     return this;
   }
 
   @Override
-  public MapObject setName(String name) {
+  public MapObject name(String name) {
     super.setName(name);
     return this;
   }

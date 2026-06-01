@@ -17,7 +17,7 @@ public class PathQuery extends TTIriRef {
   }
 
   public PathQuery setSource(String source) {
-    this.source = new TTIriRef().setIri(source);
+    this.source = new TTIriRef().iri(source);
     return this;
   }
 
@@ -28,7 +28,7 @@ public class PathQuery extends TTIriRef {
   }
 
   public PathQuery setTarget(String target) {
-    this.target = new TTIriRef().setIri(target);
+    this.target = new TTIriRef().iri(target);
     return this;
   }
 
@@ -37,12 +37,14 @@ public class PathQuery extends TTIriRef {
     return this;
   }
 
-  public PathQuery setIri(String iri) {
+  @Override
+  public PathQuery iri(String iri) {
     super.setIri(iri);
     return this;
   }
 
-  public PathQuery setName(String name) {
+  @Override
+  public PathQuery name(String name) {
     super.setName(name);
     return this;
   }

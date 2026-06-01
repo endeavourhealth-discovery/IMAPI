@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class SetRepository {
@@ -232,7 +231,7 @@ public class SetRepository {
           Value type = bs.getValue(ENTITY_TYPE);
           Value typeName = bs.getValue(TYPE_NAME);
           if (null != type) {
-            cl.addType(iri(type.stringValue(), typeName.stringValue()));
+            cl.addType(new TTIriRef(type.stringValue(), typeName.stringValue()));
           }
         }
         Value im1Id = bs.getValue(IM_1_ID);
@@ -280,13 +279,13 @@ public class SetRepository {
       cl.setAlternativeCode(alternativeCode.stringValue());
     }
     if (null != scheme) {
-      cl.setScheme(iri(scheme.stringValue(), schemeName.stringValue()));
+      cl.setScheme(new TTIriRef(scheme.stringValue(), schemeName.stringValue()));
     }
     if (null != status) {
-      cl.setStatus(iri(status.stringValue(), statusName.stringValue()));
+      cl.setStatus(new TTIriRef(status.stringValue(), statusName.stringValue()));
     }
     if (null != type) {
-      cl.addType(iri(type.stringValue(), typeName.stringValue()));
+      cl.addType(new TTIriRef(type.stringValue(), typeName.stringValue()));
     }
     if (null != codeId) {
       cl.setCodeId(codeId.stringValue());
@@ -341,8 +340,8 @@ public class SetRepository {
     int blankCount = 0;
     for (TTNode dataModel : dataModels) {
       blankCount++;
-      String pathIri = dataModel.get(iri(SHACL.PATH)).asIriRef().getIri();
-      String nodeIri = dataModel.get(iri(SHACL.NODE)).asIriRef().getIri();
+      String pathIri = dataModel.get(new TTIriRef(SHACL.PATH)).asIriRef().getIri();
+      String nodeIri = dataModel.get(new TTIriRef(SHACL.NODE)).asIriRef().getIri();
       newBinding.add("""
         <%s> im:binding _:b%s .
         _:b%s sh:path <%s> .
@@ -446,8 +445,8 @@ public class SetRepository {
         if (lc != null) legacy.setCode(lc.stringValue());
         if (lt != null) legacy.setName(lt.stringValue());
         if (ls != null) {
-          if (lsn == null) legacy.setScheme(iri(ls.stringValue()));
-          else legacy.setScheme(iri(ls.stringValue(), lsn.stringValue()));
+          if (lsn == null) legacy.setScheme(new TTIriRef(ls.stringValue()));
+          else legacy.setScheme(new TTIriRef(ls.stringValue(), lsn.stringValue()));
         }
         if (codeId != null) {
           legacy.setCodeId(codeId.stringValue());
@@ -521,9 +520,10 @@ public class SetRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           TTNode dataModel = new TTNode();
-          dataModel.set(iri(SHACL.NODE), iri(bs.getValue("dataModel").stringValue()));
-          if (bs.getValue("path") != null) dataModel.set(iri(SHACL.PATH), iri(bs.getValue("path").stringValue()));
-          else dataModel.set(iri(SHACL.PATH), iri(IM.CONCEPT_PROPERTY));
+          dataModel.set(new TTIriRef(SHACL.NODE), new TTIriRef(bs.getValue("dataModel").stringValue()));
+          if (bs.getValue("path") != null)
+            dataModel.set(new TTIriRef(SHACL.PATH), new TTIriRef(bs.getValue("path").stringValue()));
+          else dataModel.set(new TTIriRef(SHACL.PATH), new TTIriRef(IM.CONCEPT_PROPERTY));
           result.add(dataModel);
         }
       }
@@ -708,12 +708,12 @@ public class SetRepository {
           node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
-            switch (IM.Companion.decode(entailment)) {
+            switch (IM.fromValue(entailment)) {
               case IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
               case IM.DESCENDANTS_OF -> node.setDescendantsOf(true);
               case IM.ANCESTORS_OF -> node.setAncestorsOf(true);
               case null -> throw new IllegalArgumentException("Failed to decode into IM enum");
-              default -> throw new IllegalStateException("Unexpected value: " + IM.Companion.decode(entailment));
+              default -> throw new IllegalStateException("Unexpected value: " + IM.fromValue(entailment));
             }
             if (bs.getValue("exclude") != null) {
               node.setExclude(true);

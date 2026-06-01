@@ -80,10 +80,10 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private TTIriRef getSchemeFromIri(String iri) throws TTFilerException {
     try {
       if (iri.contains("#"))
-        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("#") + 1));
+        return new TTIriRef(iri.substring(0, iri.lastIndexOf("#") + 1));
       if (iri.contains("/"))
-        return TTIriRef.iri(iri.substring(0, iri.lastIndexOf("/") + 1));
-      else return TTIriRef.iri(NAMESPACE.IM.toString());
+        return new TTIriRef(iri.substring(0, iri.lastIndexOf("/") + 1));
+      else return new TTIriRef(NAMESPACE.IM.toString());
     } catch (Exception e) {
       throw new TTFilerException("Unable to get scheme from iri: " + iri, e);
     }
@@ -91,20 +91,20 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.get(TTIriRef.iri(IM.HAS_SCHEME)) == null) {
-      entity.set(TTIriRef.iri(IM.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
+    if (entity.get(new TTIriRef(IM.HAS_SCHEME)) == null) {
+      entity.set(new TTIriRef(IM.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
     }
 
-    if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
-      && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
+    if (entity.get(new TTIriRef(RDFS.LABEL)) != null
+      && entity.get(new TTIriRef(IM.HAS_STATUS)) == null)
       entity.set(EnumUtils.asIri(IM.HAS_STATUS), EnumUtils.asIri(IM.ACTIVE));
-    if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) {
+    if (entity.getCrud().equals(new TTIriRef(IM.UPDATE_PREDICATES))) {
       updatePredicates(entity);
-    } else if (entity.getCrud().equals(TTIriRef.iri(IM.ADD_QUADS))) {
+    } else if (entity.getCrud().equals(new TTIriRef(IM.ADD_QUADS))) {
       addQuads(entity);
-    } else if (entity.getCrud().equals(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES))) {
+    } else if (entity.getCrud().equals(new TTIriRef(IM.REPLACE_ALL_PREDICATES))) {
       replaceAllPredicates(entity);
-    } else if (entity.getCrud().equals(TTIriRef.iri(IM.DELETE_ALL))) {
+    } else if (entity.getCrud().equals(new TTIriRef(IM.DELETE_ALL))) {
       deleteTriples(entity);
     } else {
       if (entity.getPredicateMap().isEmpty()) return;

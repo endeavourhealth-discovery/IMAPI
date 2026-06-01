@@ -17,20 +17,20 @@ public class TTTranslator implements SyntaxTranslator {
     if (((TTEntity) targetValue).getIri() != null)
       nodeValue.setIri(((TTEntity) targetValue).getIri());
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-      targetEntity.addObject(TTIriRef.iri(predicate), nodeValue);
+      targetEntity.addObject(new TTIriRef(predicate), nodeValue);
     }
   }
 
   private static void setPropertyValueTTValue(MapProperty rule, TTNode targetEntity, TTValue targetValue, String predicate) {
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-      targetEntity.addObject(TTIriRef.iri(predicate), targetValue);
+      targetEntity.addObject(new TTIriRef(predicate), targetValue);
     } else
-      targetEntity.set(TTIriRef.iri(predicate), targetValue);
+      targetEntity.set(new TTIriRef(predicate), targetValue);
   }
 
   public Object createEntity(String type) {
     TTEntity target = new TTEntity();
-    target.addType(TTIriRef.iri(type));
+    target.addType(new TTIriRef(type));
 
     return target;
   }
@@ -55,9 +55,9 @@ public class TTTranslator implements SyntaxTranslator {
           key = NAMESPACE.IM + key;
         Object value = convertToTargetSingle(entry.getValue());
         if (value instanceof TTArray valueTTArray)
-          result.set(TTIriRef.iri(key), valueTTArray);
+          result.set(new TTIriRef(key), valueTTArray);
         else if (value instanceof TTValue valueTTValue) {
-          result.set(TTIriRef.iri(key), valueTTValue);
+          result.set(new TTIriRef(key), valueTTValue);
         } else
           throw new IllegalArgumentException("Unknown sub node type in target map " + value.getClass().getSimpleName());
       }
@@ -106,14 +106,14 @@ public class TTTranslator implements SyntaxTranslator {
             for (Object item : targetValueList) {
               array.add((TTValue) convertToTargetSingle(item));
             }
-            ((TTNode) targetEntity).set(TTIriRef.iri(predicate), array);
+            ((TTNode) targetEntity).set(new TTIriRef(predicate), array);
           }
-          case TTArray targetValueTTArray -> ((TTNode) targetEntity).set(TTIriRef.iri(predicate), targetValueTTArray);
+          case TTArray targetValueTTArray -> ((TTNode) targetEntity).set(new TTIriRef(predicate), targetValueTTArray);
           case TTEntity targetValueTTEntity ->
             setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValueTTEntity, predicate);
           case TTValue targetValueTTValue ->
             setPropertyValueTTValue(rule, (TTNode) targetEntity, targetValueTTValue, predicate);
-          case null, default -> ((TTNode) targetEntity).set(TTIriRef.iri(predicate), TTLiteral.literal(targetValue));
+          case null, default -> ((TTNode) targetEntity).set(new TTIriRef(predicate), TTLiteral.literal(targetValue));
         }
       }
     } catch (JsonProcessingException e) {

@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
@@ -15,9 +16,6 @@ import org.endeavourhealth.interfacemanager.model.QueryType;
 import org.endeavourhealth.interfacemanager.model.RuleAction;
 
 import java.io.IOException;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 
 public class EqdPopToIMQ {
 
@@ -33,11 +31,11 @@ public class EqdPopToIMQ {
           .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
             .setIsCohort(true)
             .setName("Registered with GP for GMS services on the reference date")));
-      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
+      resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef((NAMESPACE.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(NAMESPACE.IM + "Q_RegisteredGMS"));
+        resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(NAMESPACE.IM + "Q_RegisteredGMS"));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -49,14 +47,14 @@ public class EqdPopToIMQ {
             .addIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
               .setIsCohort(true)
               .setName("Registered with GP for GMS services on the reference date")));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
+        resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef((NAMESPACE.IM + "Q_RegisteredGMS")));
       } else {
         query
           .addRule(new Match()
             .addIs(Node.iri(resources.getNamespace() + id)
               .setIsCohort(true)
               .setName(resources.reportNames.get(id))));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + id));
+        resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(resources.getNamespace() + id));
       }
     }
     if (query.getRule() != null) {

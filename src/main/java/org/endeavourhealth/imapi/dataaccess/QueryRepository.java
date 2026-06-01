@@ -87,7 +87,7 @@ public class QueryRepository {
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-      queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
+      queryRequest.setUpdate(updateEntity.get(new TTIriRef(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
@@ -113,12 +113,12 @@ public class QueryRepository {
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
     if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
-      if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
-        for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
+      if (entity.get(new TTIriRef(SHACL.PARAMETER)) != null) {
+        for (TTValue param : entity.get(new TTIriRef(SHACL.PARAMETER)).getElements()) {
           processParam(param, queryRequest);
         }
       }
-      TTArray definition = entity.get(TTIriRef.iri(IM.DEFINITION));
+      TTArray definition = entity.get(new TTIriRef(IM.DEFINITION));
 
       if (null == definition)
         throw new QueryException("Query: '" + query.getIri() + "' was not found");
@@ -136,19 +136,19 @@ public class QueryRepository {
   }
 
   private void processParam(TTValue param, QueryRequest queryRequest) throws QueryException {
-    if (param.asNode().get(TTIriRef.iri(SHACL.MINCOUNT)) == null) return;
-    String parameterName = param.asNode().get(TTIriRef.iri(RDFS.LABEL)).asLiteral().getValue();
+    if (param.asNode().get(new TTIriRef(SHACL.MINCOUNT)) == null) return;
+    String parameterName = param.asNode().get(new TTIriRef(RDFS.LABEL)).asLiteral().getValue();
     TTIriRef parameterType;
-    if (param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)) != null)
-      parameterType = param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)).asIriRef();
+    if (param.asNode().get(new TTIriRef(SHACL.DATATYPE)) != null)
+      parameterType = param.asNode().get(new TTIriRef(SHACL.DATATYPE)).asIriRef();
     else
-      parameterType = param.asNode().get(TTIriRef.iri(SHACL.CLASS)).asIriRef();
+      parameterType = param.asNode().get(new TTIriRef(SHACL.CLASS)).asIriRef();
     boolean found = false;
     for (Argument arg : queryRequest.getArgument())
       if (arg.getParameter().equals(parameterName)) {
         found = true;
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-        if (parameterType.equals(TTIriRef.iri(NAMESPACE.IM + "IriRef"))) {
+        if (parameterType.equals(new TTIriRef(NAMESPACE.IM + "IriRef"))) {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {

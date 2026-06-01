@@ -13,8 +13,6 @@ import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class SCGToTT {
   private final SCGLexer lexer;
   private final SCGParser parser;
@@ -48,7 +46,7 @@ public class SCGToTT {
   private void convertSubexpression(SCGParser.SubexpressionContext subexpression) throws DataFormatException {
     if (subexpression.focusconcept() != null) {
       for (SCGParser.ConceptreferenceContext concept : subexpression.focusconcept().conceptreference()) {
-        entity.addObject(iri(IM.IS_A), getConRef(concept.conceptid()));
+        entity.addObject(new TTIriRef(IM.IS_A), getConRef(concept.conceptid()));
       }
     }
     if (subexpression.refinement() != null && subexpression.refinement().attributeset() != null) {
@@ -79,9 +77,9 @@ public class SCGToTT {
     String code = conceptId.getText();
     if (code.matches("[0-9]+")) {
       if (code.contains("1000252"))
-        return TTIriRef.iri(NAMESPACE.IM + code);
+        return new TTIriRef(NAMESPACE.IM + code);
       else
-        return TTIriRef.iri(NAMESPACE.SNOMED + code);
+        return new TTIriRef(NAMESPACE.SNOMED + code);
     } else
       throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
   }

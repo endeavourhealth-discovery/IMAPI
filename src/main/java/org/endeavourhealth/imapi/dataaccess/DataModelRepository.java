@@ -27,11 +27,11 @@ public class DataModelRepository {
   private static void getPropertyValue(BindingSet bs, PropertyShape property) {
     Value hasValue = bs.getValue("hasValue");
     if (hasValue.isIRI()) {
-      property.setHasValue(TTIriRef.iri(hasValue.stringValue()).setName(bs.getValue("hasValueName").stringValue()));
-      property.setHasValueType(TTIriRef.iri(RDFS.RESOURCE));
+      property.setHasValue(new TTIriRef(hasValue.stringValue()).name(bs.getValue("hasValueName").stringValue()));
+      property.setHasValueType(new TTIriRef(RDFS.RESOURCE));
     } else {
       property.setHasValue(hasValue.stringValue());
-      property.setHasValueType(TTIriRef.iri(XSD.STRING));
+      property.setHasValueType(new TTIriRef(XSD.STRING));
     }
   }
 
@@ -117,7 +117,7 @@ public class DataModelRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           if (bs.getValue("subdatamodel") != null) {
-            dataModel.addSubType(TTIriRef.iri(bs.getValue("subdatamodel").stringValue()).setName(bs.getValue("subdatamodelname").stringValue()));
+            dataModel.addSubType(new TTIriRef(bs.getValue("subdatamodel").stringValue()).name(bs.getValue("subdatamodelname").stringValue()));
           }
         }
       }
@@ -159,14 +159,14 @@ public class DataModelRepository {
     }
     PropertyShape group = new PropertyShape();
     node.addProperty(group);
-    group.setPath(TTIriRef.iri(iri));
+    group.setPath(new TTIriRef(iri));
     return group;
   }
 
   private PropertyShape getGroupFromNode(BindingSet bs, NodeShape nodeShape) {
     String groupIri = bs.getValue("group").stringValue();
     PropertyShape group = getPropertyFromNode(nodeShape, groupIri);
-    group.setGroup(TTIriRef.iri(groupIri).setName(bs.getValue("groupName").stringValue()));
+    group.setGroup(new TTIriRef(groupIri).name(bs.getValue("groupName").stringValue()));
     group.setOrder(Integer.parseInt(bs.getValue("groupOrder").stringValue()));
     if (bs.getValue("highCardinality") != null) {
       if (group.getHighCardinality() != null) {
@@ -184,7 +184,7 @@ public class DataModelRepository {
       if (found.isPresent()) return found.get();
     }
     PropertyShape property = new PropertyShape();
-    property.setPath(TTIriRef.iri(iri));
+    property.setPath(new TTIriRef(iri));
     group.addProperty(property);
     return property;
 
@@ -200,13 +200,16 @@ public class DataModelRepository {
     property.getPath().setName(bs.getValue("pathName").stringValue());
 
     if (bs.getValue("class") != null) {
-      property.setClazz(new PropertyRange().setIri(bs.getValue("class").stringValue()).setName(bs.getValue("className").stringValue()).setType(TTIriRef.iri(bs.getValue("classType").stringValue()).setName(bs.getValue("classTypeName").stringValue())));
+      property.setClazz(new PropertyRange()
+        .iri(bs.getValue("class").stringValue())
+        .name(bs.getValue("className").stringValue())
+        .setType(new TTIriRef(bs.getValue("classType").stringValue()).name(bs.getValue("classTypeName").stringValue())));
     }
 
     if (bs.getValue("datatype") != null) {
       getPropertyDataType(bs, property);
     } else if (bs.getValue("node") != null) {
-      property.setNode(new PropertyRange().setIri(bs.getValue("node").stringValue()).setName(bs.getValue("nodeName").stringValue()).setType(TTIriRef.iri(bs.getValue("nodeType").stringValue()).setName(bs.getValue("nodeTypeName").stringValue())));
+      property.setNode(new PropertyRange().iri(bs.getValue("node").stringValue()).name(bs.getValue("nodeName").stringValue()).setType(new TTIriRef(bs.getValue("nodeType").stringValue()).name(bs.getValue("nodeTypeName").stringValue())));
     }
 
     if (bs.getValue("order") != null) {
@@ -220,7 +223,7 @@ public class DataModelRepository {
     }
     if (bs.getValue("definingProperty") != null) {
       property.setDefiningProperty(true);
-      node.setDefiningProperty(TTIriRef.iri(propertyIri));
+      node.setDefiningProperty(new TTIriRef(propertyIri));
     }
     if (bs.getValue("orderable") != null) {
       getPropertyOrderable(bs, property);
@@ -242,8 +245,8 @@ public class DataModelRepository {
       property.setHighCardinality(true);
     }
     if (bs.getValue("inversePath") != null) {
-      property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
-        .setName(bs.getValue("inversePathName").stringValue()));
+      property.setInversePath(new TTIriRef(bs.getValue("inversePath").stringValue())
+        .name(bs.getValue("inversePathName").stringValue()));
     }
     if (bs.getValue("genericRelationship") != null) {
       if (bs.getValue("genericRelationship").stringValue().equals("true")) {
@@ -256,7 +259,7 @@ public class DataModelRepository {
     PropertyRange datatype = property.getDatatype();
     if (datatype == null) {
       datatype = new PropertyRange();
-      datatype.setIri(bs.getValue("datatype").stringValue()).setName(bs.getValue("datatypeName").stringValue()).setType(TTIriRef.iri(bs.getValue("datatypeType").stringValue()).setName(bs.getValue("datatypeTypeName").stringValue()));
+      datatype.iri(bs.getValue("datatype").stringValue()).name(bs.getValue("datatypeName").stringValue()).setType(new TTIriRef(bs.getValue("datatypeType").stringValue()).name(bs.getValue("datatypeTypeName").stringValue()));
       property.setDatatype(datatype);
       if (bs.getValue("pattern") != null) {
         datatype.setPattern(bs.getValue("pattern").stringValue());
@@ -265,10 +268,10 @@ public class DataModelRepository {
         datatype.setRelativeValue("true".equalsIgnoreCase(bs.getValue("isRelativeValue").stringValue()));
       }
       if (bs.getValue("units") != null) {
-        datatype.setUnits(TTIriRef.iri(bs.getValue("units").stringValue()).setName(bs.getValue("unitsName").stringValue()));
+        datatype.setUnits(new TTIriRef(bs.getValue("units").stringValue()).name(bs.getValue("unitsName").stringValue()));
       }
       if (bs.getValue("operator") != null) {
-        datatype.setOperator(TTIriRef.iri(bs.getValue("operator").stringValue()).setName(bs.getValue("operatorName").stringValue()));
+        datatype.setOperator(new TTIriRef(bs.getValue("operator").stringValue()).name(bs.getValue("operatorName").stringValue()));
       }
     }
     if (bs.getValue("datatypeQualifier") != null) {
@@ -279,12 +282,12 @@ public class DataModelRepository {
   private void addParameter(PropertyShape property, BindingSet bs) {
     ParameterShape parameter = getParameterFromProperty(property, bs.getValue("parameterName").stringValue());
     parameter.setLabel(bs.getValue("parameterName").stringValue());
-    parameter.setType(TTIriRef.iri(bs.getValue("parameterType").stringValue()).setName(bs.getValue("parameterTypeName").stringValue()));
+    parameter.setType(new TTIriRef(bs.getValue("parameterType").stringValue()).name(bs.getValue("parameterTypeName").stringValue()));
     if (bs.getValue("parameterSubtype") != null) {
       if (parameter.getParameterSubType() == null) {
-        parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()).setName(bs.getValue("parameterSubtypeName").stringValue()));
-      } else if (!parameter.getParameterSubType().contains(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()))) {
-        parameter.addParameterSubType(TTIriRef.iri(bs.getValue("parameterSubtype").stringValue()).setName(bs.getValue("parameterSubtypeName").stringValue()));
+        parameter.addParameterSubType(new TTIriRef(bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
+      } else if (!parameter.getParameterSubType().contains(new TTIriRef(bs.getValue("parameterSubtype").stringValue()))) {
+        parameter.addParameterSubType(new TTIriRef(bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
       }
     }
 
@@ -293,12 +296,12 @@ public class DataModelRepository {
   private void addDataTypeQualifier(PropertyRange datatype, BindingSet bs) {
     String qualifierIri = bs.getValue("datatypeQualifier").stringValue();
     PropertyRange qualifier = getQualifierFromDataType(datatype, qualifierIri);
-    qualifier.setIri(bs.getValue("datatypeQualifier").stringValue()).setName(bs.getValue("qualifierName").stringValue());
+    qualifier.iri(bs.getValue("datatypeQualifier").stringValue()).name(bs.getValue("qualifierName").stringValue());
     if (bs.getValue("qualifierPattern") != null) {
       qualifier.setPattern(bs.getValue("qualifierPattern").stringValue());
     }
     if (bs.getValue("qualifierIntervalUnit") != null) {
-      qualifier.setIntervalUnit(TTIriRef.iri(bs.getValue("qualifierIntervalUnit").stringValue()));
+      qualifier.setIntervalUnit(new TTIriRef(bs.getValue("qualifierIntervalUnit").stringValue()));
     }
   }
 
@@ -637,7 +640,7 @@ public class DataModelRepository {
           NodeShape shape = iriMap.get(nodeShapeIri);
           PropertyShape property = new PropertyShape();
           shape.addProperty(property);
-          property.setPath(TTIriRef.iri(bs.getValue("path").stringValue()));
+          property.setPath(new TTIriRef(bs.getValue("path").stringValue()));
           property.getPath().setName(bs.getValue("pathLabel").stringValue());
         }
       }
@@ -662,7 +665,7 @@ public class DataModelRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
-          return TTIriRef.iri(bs.getValue("inversePath").stringValue()).setName(bs.getValue("pathLabel").stringValue());
+          return new TTIriRef(bs.getValue("inversePath").stringValue()).name(bs.getValue("pathLabel").stringValue());
         }
       }
     }

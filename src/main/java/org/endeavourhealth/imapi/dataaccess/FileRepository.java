@@ -93,7 +93,7 @@ public class FileRepository {
       }
       if (codeIds.get(scheme).get(codeId) != null) {
         Set<TTIriRef> result = new HashSet<>();
-        codeIds.get(scheme).get(codeId).forEach(c -> result.add(TTIriRef.iri(c)));
+        codeIds.get(scheme).get(codeId).forEach(c -> result.add(new TTIriRef(c)));
         return result;
       }
     }
@@ -112,7 +112,7 @@ public class FileRepository {
       fetchCoreTerms();
     }
     if (coreTerms.get(term) != null)
-      return TTIriRef.iri(coreTerms.get(term));
+      return new TTIriRef(coreTerms.get(term));
     else
       return null;
   }
@@ -153,7 +153,7 @@ public class FileRepository {
         if (codeCoreMap.get(scheme) == null)
           fetchCodeCoreMap(scheme);
         if (codeCoreMap.get(scheme).get(originalCode) != null) {
-          return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::iri).collect(Collectors.toSet());
+          return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::new).collect(Collectors.toSet());
         }
       }
       return Collections.emptySet();
@@ -167,7 +167,7 @@ public class FileRepository {
     if (termCoreMap.get(scheme) == null)
       fetchTermCoreMap(scheme);
     if (termCoreMap.get(scheme).get(originalTerm) != null)
-      return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::iri).collect(Collectors.toSet());
+      return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::new).collect(Collectors.toSet());
     else
       return Collections.emptySet();
   }

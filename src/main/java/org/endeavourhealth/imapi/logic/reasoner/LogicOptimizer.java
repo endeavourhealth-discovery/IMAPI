@@ -105,21 +105,21 @@ public class LogicOptimizer {
         }
         Bool op = getBoolOp(group);
         if (list.isEmpty()) {
-          if (op == Bool.and) group.setAnd(null);
+          if (op == Bool.AND) group.setAnd(null);
           else group.setOr(null);
         } else if (list.size() == 1 && parent != null) {
           Bool parentOp = getBoolOp(parent);
           Match only = list.getFirst();
-          if (parentOp == Bool.and) parent.getAnd().set(parentIndex, only);
-          else if (parentOp == Bool.or) parent.getOr().set(parentIndex, only);
+          if (parentOp == Bool.AND) parent.getAnd().set(parentIndex, only);
+          else if (parentOp == Bool.OR) parent.getOr().set(parentIndex, only);
         }
       }
     }
   }
 
   private static Bool getBoolOp(Match group) {
-    if (group.getAnd() != null) return Bool.and;
-    if (group.getOr() != null) return Bool.or;
+    if (group.getAnd() != null) return Bool.AND;
+    if (group.getOr() != null) return Bool.OR;
     else return null;
   }
 

@@ -33,7 +33,7 @@ public class WorkflowRepository {
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
-    if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty()) bugReport.setId(TTIriRef.iri(generateId()));
+    if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty()) bugReport.setId(new TTIriRef(generateId()));
     taskFilerRdf4j.fileBugReport(bugReport);
   }
 
@@ -306,7 +306,7 @@ public class WorkflowRepository {
 
   public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
     if (null == roleRequest.getId() || roleRequest.getId().getIri().isEmpty())
-      roleRequest.setId(TTIriRef.iri(generateId()));
+      roleRequest.setId(new TTIriRef(generateId()));
     taskFilerRdf4j.fileRoleRequest(roleRequest);
   }
 
@@ -343,7 +343,7 @@ public class WorkflowRepository {
 
   public void createNamespaceRequest(NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException {
     if (null == namespaceRequest.getId() || namespaceRequest.getId().getIri().isEmpty())
-      namespaceRequest.setId(TTIriRef.iri(generateId()));
+      namespaceRequest.setId(new TTIriRef(generateId()));
     taskFilerRdf4j.fileNamespaceRequest(namespaceRequest);
   }
 
@@ -411,7 +411,7 @@ public class WorkflowRepository {
 
   public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
     if (null == entityApproval.getId() || entityApproval.getId().getIri().isEmpty())
-      entityApproval.setId(TTIriRef.iri(generateId()));
+      entityApproval.setId(new TTIriRef(generateId()));
     taskFilerRdf4j.fileEntityApproval(entityApproval);
   }
 
@@ -481,7 +481,7 @@ public class WorkflowRepository {
       bugReport.setModule(TaskModule.valueOf(bs.getValue("moduleData").stringValue()));
     if (null != bs.getValue("versionData")) bugReport.setVersion(bs.getValue("versionData").stringValue());
     if (null != bs.getValue("osData"))
-      bugReport.setOs(OperatingSystem.Companion.decode(bs.getValue("osData").stringValue()));
+      bugReport.setOs(OperatingSystem.fromValue(bs.getValue("osData").stringValue()));
     if (null != bs.getValue("osOtherData")) bugReport.setOsOther(bs.getValue("osOtherData").stringValue());
     if (null != bs.getValue("browserData"))
       bugReport.setBrowser(Browser.valueOf(bs.getValue("browserData").stringValue()));
@@ -501,7 +501,7 @@ public class WorkflowRepository {
   }
 
   private void mapTaskFromBindingSet(Task task, BindingSet bs) throws UserNotFoundException {
-    task.setId(TTIriRef.iri(bs.getValue("s").stringValue()));
+    task.setId(new TTIriRef(bs.getValue("s").stringValue()));
     task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
 /*
     try {
@@ -542,6 +542,6 @@ public class WorkflowRepository {
   private void mapEntityApprovalFromBindingSet(EntityApproval entityApproval, BindingSet bs) throws UserNotFoundException {
     mapTaskFromBindingSet(entityApproval, bs);
     if (null != bs.getValue("approvalTypeData"))
-      entityApproval.setApprovalType(ApprovalType.Companion.decode(bs.getValue("approvalTypeData").stringValue()));
+      entityApproval.setApprovalType(ApprovalType.fromValue(bs.getValue("approvalTypeData").stringValue()));
   }
 }

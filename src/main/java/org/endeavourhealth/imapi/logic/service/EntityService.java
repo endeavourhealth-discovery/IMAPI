@@ -28,7 +28,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class EntityService {
@@ -56,22 +55,22 @@ public class EntityService {
   }
 
   protected static void filterOutInactiveTermCodes(TTBundle bundle) {
-    if (bundle.getEntity().get(iri(IM.HAS_TERM_CODE)) != null) {
-      List<TTValue> termCodes = bundle.getEntity().get(iri(IM.HAS_TERM_CODE)).getElements();
+    if (bundle.getEntity().get(new TTIriRef(IM.HAS_TERM_CODE)) != null) {
+      List<TTValue> termCodes = bundle.getEntity().get(new TTIriRef(IM.HAS_TERM_CODE)).getElements();
       TTArray activeTermCodes = new TTArray();
       for (TTValue value : termCodes) {
-        if (value.asNode().get(iri(IM.HAS_STATUS)) != null) {
-          if (value.asNode().get(EnumUtils.asIri(IM.HAS_STATUS)) != null && IM.ACTIVE.toString().equals(value.asNode().get(iri(IM.HAS_STATUS)).asIriRef().getIri())) {
+        if (value.asNode().get(new TTIriRef(IM.HAS_STATUS)) != null) {
+          if (value.asNode().get(EnumUtils.asIri(IM.HAS_STATUS)) != null && IM.ACTIVE.toString().equals(value.asNode().get(new TTIriRef(IM.HAS_STATUS)).asIriRef().getIri())) {
             activeTermCodes.add(value);
           }
         } else activeTermCodes.add(value);
       }
-      bundle.getEntity().set(iri(IM.HAS_TERM_CODE), activeTermCodes);
+      bundle.getEntity().set(new TTIriRef(IM.HAS_TERM_CODE), activeTermCodes);
     }
   }
 
   public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
-    Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    Query query = bundle.getEntity().get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(EnumUtils.asIri(IM.DEFINITION), mapper.writeValueAsString(query));
   }
@@ -420,7 +419,7 @@ public class EntityService {
     List<String> snomedCodes = codes.stream().map(code -> NAMESPACE.SNOMED + code).toList();
     List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RDFS.LABEL.toString(), IM.CODE.toString()));
     SetService setService = new SetService();
-    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> iri(e.getIri())).toList());
+    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> new TTIriRef(e.getIri())).toList());
     List<ValidatedEntity> validatedEntities = new ArrayList<>();
     for (TTEntity entity : entities) {
       ValidatedEntity validatedEntity = validateEntity(entity, needed);
@@ -469,22 +468,22 @@ public class EntityService {
       }
       TTNode loadMoreNode = new TTNode()
         .setIri(IM.LOAD_MORE.toString())
-        .set(iri(RDFS.LABEL), "Load more")
-        .set(iri(NAMESPACE.IM + "totalCount"), partialAndCount.getTotalCount());
+        .set(new TTIriRef(RDFS.LABEL), "Load more")
+        .set(new TTIriRef(NAMESPACE.IM + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
-      response.addPredicate(iri(IM.HAS_MEMBER));
-      response.getEntity().set(iri(IM.HAS_MEMBER), partialAsTTArray);
+      response.addPredicate(new TTIriRef(IM.HAS_MEMBER));
+      response.getEntity().set(new TTIriRef(IM.HAS_MEMBER), partialAsTTArray);
     } else {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
     }
-    response.getEntity().removeObject(iri(RDF.TYPE));
+    response.getEntity().removeObject(new TTIriRef(RDF.TYPE));
     return response;
   }
 
   public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
     Pageable<TTIriRef> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
     TTEntity entity = new TTEntity();
-    entity.addObject(iri(predicate), response.getTotalCount());
+    entity.addObject(new TTIriRef(predicate), response.getTotalCount());
     TTBundle bundle = new TTBundle();
     bundle.setEntity(entity);
     return bundle;

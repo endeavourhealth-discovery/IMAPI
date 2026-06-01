@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"iri", "name", "property","pattern","intervalUnit","qualifier"})
+@JsonPropertyOrder({"iri", "name", "property", "pattern", "intervalUnit", "qualifier"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class PropertyRange extends TTIriRef{
+public class PropertyRange extends TTIriRef {
   @Getter
   private TTIriRef type;
   @Getter
@@ -51,34 +51,34 @@ public class PropertyRange extends TTIriRef{
     this.qualifier = qualifier;
     return this;
   }
-  public PropertyRange addQualifier (PropertyRange qualifier){
-      if (this.qualifier == null) {
-        this.qualifier = new ArrayList<>();
-      }
-      this.qualifier.add(qualifier);
-      return this;
-    }
 
-    public PropertyRange qualifier (Consumer <PropertyRange> builder) {
-      PropertyRange qualifier = new PropertyRange();
-      addQualifier(qualifier);
-      builder.accept(qualifier);
-      return this;
+  public PropertyRange addQualifier(PropertyRange qualifier) {
+    if (this.qualifier == null) {
+      this.qualifier = new ArrayList<>();
     }
+    this.qualifier.add(qualifier);
+    return this;
+  }
+
+  public PropertyRange qualifier(Consumer<PropertyRange> builder) {
+    PropertyRange qualifier = new PropertyRange();
+    addQualifier(qualifier);
+    builder.accept(qualifier);
+    return this;
+  }
 
 
   @Override
-  public PropertyRange setIri(String iri) {
+  public PropertyRange iri(String iri) {
     super.setIri(iri);
     return this;
   }
 
   @Override
-  public PropertyRange setName(String name) {
+  public PropertyRange name(String name) {
     super.setName(name);
     return this;
   }
-
 
 
   public PropertyRange setPattern(String pattern) {
@@ -91,7 +91,6 @@ public class PropertyRange extends TTIriRef{
     this.intervalUnit = intervalUnit;
     return this;
   }
-
 
 
 }

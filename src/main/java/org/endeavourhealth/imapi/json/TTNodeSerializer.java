@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
@@ -49,9 +47,9 @@ public class TTNodeSerializer {
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(iri(RDF.TYPE), iri(RDFS.LABEL), iri(RDFS.COMMENT), iri(IM.HAS_STATUS)).toList();
-    if (node.get(iri(RDF.TYPE)) != null) {
-      for (TTValue type : node.get(iri(RDF.TYPE)).getElements()) {
+    List<TTIriRef> orderedPredicates = Stream.of(new TTIriRef(RDF.TYPE), new TTIriRef(RDFS.LABEL), new TTIriRef(RDFS.COMMENT), new TTIriRef(IM.HAS_STATUS)).toList();
+    if (node.get(new TTIriRef(RDF.TYPE)) != null) {
+      for (TTValue type : node.get(new TTIriRef(RDF.TYPE)).getElements()) {
         List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
         if (orderForType != null)
           orderedPredicates = orderForType;
@@ -126,7 +124,7 @@ public class TTNodeSerializer {
 
   public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
     if (literal.getType() != null) {
-      switch (XSD.Companion.decode(literal.getType().getIri())) {
+      switch (XSD.fromValue(literal.getType().getIri())) {
         case XSD.STRING -> gen.writeString(literal.getValue());
         case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
         case XSD.INTEGER -> gen.writeNumber(literal.intValue());

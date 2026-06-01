@@ -15,12 +15,14 @@ public class TTTypedRef extends TTIriRef {
     return this;
   }
 
-  public TTTypedRef setIri(String iri) {
+  @Override
+  public TTTypedRef iri(String iri) {
     super.setIri(iri);
     return this;
   }
 
-  public TTTypedRef setName(String name) {
+  @Override
+  public TTTypedRef name(String name) {
     super.setName(name);
     return this;
   }

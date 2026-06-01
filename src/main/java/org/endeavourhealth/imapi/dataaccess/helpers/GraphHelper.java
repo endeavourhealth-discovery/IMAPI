@@ -58,11 +58,11 @@ public class GraphHelper {
     if (predicate.equals(IM.PLABEL.toString())) {
       entityMap.addPredicate(subject, value);
     } else if (predicate.equals(IM.OLABEL.toString())) {
-      tripleMap.putIfAbsent(subject, TTIriRef.iri(subject));
+      tripleMap.putIfAbsent(subject, new TTIriRef(subject));
       tripleMap.get(subject).asIriRef().setName(value);
     } else {
       TTNode node;
-      tripleMap.putIfAbsent(predicate, TTIriRef.iri(predicate));
+      tripleMap.putIfAbsent(predicate, new TTIriRef(predicate));
       if (s.isIRI()) {
         entityMap.getEntities().putIfAbsent(subject, new TTEntity().setIri(subject));
         node = entityMap.getEntities().get(subject);
@@ -74,7 +74,7 @@ public class GraphHelper {
         tripleMap.putIfAbsent(value, new TTNode());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
-        tripleMap.putIfAbsent(value, TTIriRef.iri(value));
+        tripleMap.putIfAbsent(value, new TTIriRef(value));
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else {
         tripleMap.putIfAbsent(value, TTLiteral.literal(value));

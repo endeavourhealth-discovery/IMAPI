@@ -18,8 +18,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class XlsHelper {
   private final Workbook workbook;
   private final CellStyle headerStyle;
@@ -56,7 +54,7 @@ public class XlsHelper {
 
     for (TTIriRef predicate : predicates) {
       Cell cell = row.createCell(row.getLastCellNum());
-      TTArray value = summary.get(iri(predicate.getIri(), predicate.getName()));
+      TTArray value = summary.get(new TTIriRef(predicate.getIri(), predicate.getName()));
       if (value.isIriRef()) {
         cell.setCellValue(value.asIriRef().getName());
       } else if (value.isLiteral()) {

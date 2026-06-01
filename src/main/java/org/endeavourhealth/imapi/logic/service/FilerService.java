@@ -21,14 +21,12 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Component
 public class FilerService {
@@ -74,7 +72,7 @@ public class FilerService {
   private static boolean hasParents(TTEntity entity) {
     String[] parentPredicateArray = EnumUtils.asArray(IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF);
     for (String parentPredicate : parentPredicateArray) {
-      if (!hasParentPredicateAndIsValidIriRefList(entity, iri(parentPredicate))) return false;
+      if (!hasParentPredicateAndIsValidIriRefList(entity, new TTIriRef(parentPredicate))) return false;
     }
     return true;
   }
@@ -126,7 +124,7 @@ public class FilerService {
 
       entityFiler.updateIsAs(entity.getIri());
 
-      if (entity.isType(iri(IM.VALUE_SET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
+      if (entity.isType(new TTIriRef(IM.VALUE_SET)) || entity.isType((new TTIriRef(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         new SetBinder().bindSet(entity.getIri(), insertGraph);
       }
@@ -202,14 +200,14 @@ public class FilerService {
 
   public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
-    editRequest.getEntity().setCrud(iri(IM.ADD_QUADS)).setVersion(1);
+    editRequest.getEntity().setCrud(new TTIriRef(IM.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null);
     return editRequest.getEntity();
   }
 
   public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update");
-    entity.setCrud(iri(IM.REPLACE_ALL_PREDICATES));
+    entity.setCrud(new TTIriRef(IM.REPLACE_ALL_PREDICATES));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, agentName, usedEntity);

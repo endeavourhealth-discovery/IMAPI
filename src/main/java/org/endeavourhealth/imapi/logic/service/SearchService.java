@@ -36,7 +36,7 @@ public class SearchService {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
     highestUsageRequest.getQuery().addReturn(new Return().setIri(IM.USAGE_TOTAL));
-    OrderDirection od = new OrderDirection().setDirection(Order.descending);
+    OrderDirection od = new OrderDirection().setDirection(Order.DESCENDING);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
     highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
     return highestUsageRequest;

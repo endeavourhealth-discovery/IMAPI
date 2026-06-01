@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
@@ -71,9 +70,9 @@ public class GraphDtoServiceTest {
   @Test
   void getGraphData_ParentIsList() {
     TTEntity entity = new TTEntity()
-      .set(TTIriRef.iri(RDFS.SUBCLASS_OF), new TTArray()
-        .add(iri("http://endhealth.info/im#parent1", "Parent 1"))
-        .add(iri("http://endhealth.info/im#parent2", "Parent 2"))
+      .set(new TTIriRef(RDFS.SUBCLASS_OF), new TTArray()
+        .add(new TTIriRef("http://endhealth.info/im#parent1", "Parent 1"))
+        .add(new TTIriRef("http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 

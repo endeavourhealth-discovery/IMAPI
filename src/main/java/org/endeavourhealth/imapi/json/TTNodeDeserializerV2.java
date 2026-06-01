@@ -45,16 +45,16 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
         if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isTextual())
-          result.set(TTIriRef.iri(key), TTLiteral.literal(value.asText()));
+          result.set(new TTIriRef(key), TTLiteral.literal(value.asText()));
         else if (value.isArray())
-          result.set(TTIriRef.iri(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArray.class));
+          result.set(new TTIriRef(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArray.class));
         else if (value.isObject()) {
           if (value.has("iri"))
-            result.set(TTIriRef.iri(key), TTIriRef.iri(value.get("iri").asText()));
+            result.set(new TTIriRef(key), new TTIriRef(value.get("iri").asText()));
           else
-            result.set(TTIriRef.iri(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTNode.class));
+            result.set(new TTIriRef(key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTNode.class));
         } else
-          result.set(TTIriRef.iri(key), TTLiteral.literal(value.asText()));
+          result.set(new TTIriRef(key), TTLiteral.literal(value.asText()));
       }
     }
     return result;

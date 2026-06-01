@@ -29,7 +29,7 @@ public class TransformRequest {
     if (iri != null && !iri.isEmpty() && !iri.matches("[a-z]+[:].*")) {
       throw new DataFormatException("Invalid iri format : " + iri);
     } else {
-      this.transformMap = TTIriRef.iri(iri);
+      this.transformMap = new TTIriRef(iri);
       return this;
     }
   }

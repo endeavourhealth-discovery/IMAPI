@@ -7,8 +7,6 @@ import org.endeavourhealth.interfacemanager.model.SHACL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * Static methods for casting TT classes to business objects for use in builders
  */
@@ -36,7 +34,7 @@ public class TTUtil {
       int order = 0;
       if (node.get(predicate) != null)
         order = node.get(predicate).size();
-      value.asNode().set(iri(SHACL.ORDER), TTLiteral.literal(order));
+      value.asNode().set(new TTIriRef(SHACL.ORDER), TTLiteral.literal(order));
 
     }
     node.addObject(predicate, value);

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.ITTIriRef;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.io.Serializable;
@@ -14,21 +14,8 @@ import java.util.regex.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "TTIriRef", description = "Class representing an IRI")
-public class TTIriRef implements TTValue, Serializable {
+public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
   private static final Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
-
-  @Schema(description = "The actual iri")
-  private String iri;
-
-  @Getter
-  @JsonProperty()
-  @Schema(description = "The name of the concept the IRI represents")
-  private String name;
-
-  @Getter
-  @JsonProperty()
-  @Schema(description = "Longer/fuller description of the represented concept")
-  private String description;
 
   public TTIriRef() {
   }
@@ -37,18 +24,13 @@ public class TTIriRef implements TTValue, Serializable {
     setIri(iri);
   }
 
+  public TTIriRef(Enum<?> vocabEnum) {
+    setIri(EnumUtils.asIri(vocabEnum).getIri());
+  }
 
   public TTIriRef(String iri, String name) {
     setIri(iri);
     setName(name);
-  }
-
-  public static TTIriRef iri(String iri) {
-    return new TTIriRef(iri);
-  }
-
-  public static TTIriRef iri(Enum<?> vocabEnum) {
-    return EnumUtils.asIri(vocabEnum);
   }
 
   public static TTIriRef iri(String iri, String name) {
@@ -57,11 +39,12 @@ public class TTIriRef implements TTValue, Serializable {
 
   @JsonProperty(value = "iri", required = true)
   public String getIri() {
-    return this.iri;
+    return this.getIri();
   }
 
-  public TTIriRef setIri(String iri) {
-    this.iri = iri;
+  @Override
+  public TTIriRef iri(String iri) {
+    this.setIri(iri);
     if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()) {
       iri = NAMESPACE.IM + iri;
       if (!iriPattern.matcher(iri).matches())
@@ -71,20 +54,21 @@ public class TTIriRef implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTIriRef setIri(Enum<?> iri) {
-    return setIri(EnumUtils.asIri(iri).getIri());
+  public TTIriRef iri(Enum<?> iri) {
+    return iri(EnumUtils.asIri(iri).getIri());
   }
 
-  public TTIriRef setName(String name) {
+  @Override
+  public TTIriRef name(String name) {
     if (name != null && name.startsWith("null"))
       System.err.println("Its here!!!!");
-    this.name = name;
+    this.setName(name);
     return this;
   }
 
   @JsonIgnore
   public boolean hasName() {
-    return name != null && !name.isEmpty();
+    return this.getName() != null && !this.getName().isEmpty();
   }
 
   @Override
@@ -98,26 +82,26 @@ public class TTIriRef implements TTValue, Serializable {
     return true;
   }
 
-
-  public TTIriRef setDescription(String description) {
-    this.description = description;
+  @Override
+  public TTIriRef description(String description) {
+    this.setDescription(description);
     return this;
   }
 
   @JsonIgnore
   public boolean hasDescription() {
-    return description != null && !description.isEmpty();
+    return this.getDescription() != null && !this.getDescription().isEmpty();
   }
 
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof TTIriRef ttIriRef)) return false;
-    return iri.equals(ttIriRef.iri);
+    return this.getIri().equals(ttIriRef.getIri());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(iri);
+    return Objects.hash(this.getIri());
   }
 }

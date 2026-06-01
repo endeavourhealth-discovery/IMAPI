@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 public class REPOConverter implements Converter<String, REPO> {
   @Override
   public REPO convert(String source) {
-    return REPO.Companion.decode(source);
+    return REPO.fromValue(source);
   }
 }

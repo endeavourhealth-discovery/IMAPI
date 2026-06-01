@@ -19,8 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @Slf4j
 public class TTBulkFiler implements TTDocumentFiler {
   private static final Set<String> specialChildren = new HashSet<>(List.of(NAMESPACE.SNOMED + "92381000000106"));
@@ -47,8 +45,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private static void setStatus(TTEntity entity) {
-    if (entity.get(iri(RDFS.LABEL)) != null && entity.get(iri(IM.HAS_STATUS)) == null)
-      entity.set(iri(IM.HAS_STATUS), iri(IM.ACTIVE));
+    if (entity.get(new TTIriRef(RDFS.LABEL)) != null && entity.get(new TTIriRef(IM.HAS_STATUS)) == null)
+      entity.set(new TTIriRef(IM.HAS_STATUS), new TTIriRef(IM.ACTIVE));
   }
 
   public static void createRepository() throws TTFilerException {
@@ -296,8 +294,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addSubtypes(TTEntity entity) throws IOException {
-    for (TTIriRef relationship : List.of(iri(RDFS.SUBCLASS_OF), iri(RDFS.SUB_PROPERTY_OF),
-      iri(IM.LOCAL_SUBCLASS_OF))) {
+    for (TTIriRef relationship : List.of(new TTIriRef(RDFS.SUBCLASS_OF), new TTIriRef(RDFS.SUB_PROPERTY_OF),
+      new TTIriRef(IM.LOCAL_SUBCLASS_OF))) {
       if (entity.get(relationship) != null)
         for (TTValue parent : entity.get(relationship).getElements()) {
           subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
@@ -315,13 +313,13 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addCodeToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.fromValue(entity.getScheme().getIri());
     if (null == namespace)
       throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
-    if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
-      codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+    if (entity.get(new TTIriRef(IM.ALTERNATIVE_CODE)) != null) {
+      codeMap.write(namespace + entity.get(new TTIriRef(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
-        getCodeCoreMap(namespace).write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+        getCodeCoreMap(namespace).write(entity.get(new TTIriRef(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
         codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");
@@ -332,21 +330,21 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addCodeIdToMaps(TTEntity entity) throws IOException {
-    if (entity.get(iri(IM.CODE_ID)) != null) {
-      NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
-      for (TTValue codeId : entity.get(iri(IM.CODE_ID)).getElements()) {
+    if (entity.get(new TTIriRef(IM.CODE_ID)) != null) {
+      NAMESPACE namespace = NAMESPACE.fromValue(entity.getScheme().getIri());
+      for (TTValue codeId : entity.get(new TTIriRef(IM.CODE_ID)).getElements()) {
         getCodeIds(namespace).write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       }
     }
   }
 
   private void addTermCodeToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.fromValue(entity.getScheme().getIri());
 
-    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
-        if (tc.asNode().get(iri(IM.CODE)) != null) {
-          String code = tc.asNode().get(iri(IM.CODE)).asLiteral().getValue();
+    if (entity.get(new TTIriRef(IM.HAS_TERM_CODE)) != null) {
+      for (TTValue tc : entity.get(new TTIriRef(IM.HAS_TERM_CODE)).getElements()) {
+        if (tc.asNode().get(new TTIriRef(IM.CODE)) != null) {
+          String code = tc.asNode().get(new TTIriRef(IM.CODE)).asLiteral().getValue();
           assert namespace != null;
           if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
             getCodeCoreMap(namespace).write(code + "\t" + entity.getIri() + "\n");
@@ -356,16 +354,16 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addMatchToToMaps(TTEntity entity) throws IOException {
-    NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    NAMESPACE namespace = NAMESPACE.fromValue(entity.getScheme().getIri());
     if (null == namespace)
       throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
-    if (entity.get(iri(IM.MATCHED_TO)) != null) {
-      for (TTValue core : entity.get(iri(IM.MATCHED_TO)).getElements()) {
+    if (entity.get(new TTIriRef(IM.MATCHED_TO)) != null) {
+      for (TTValue core : entity.get(new TTIriRef(IM.MATCHED_TO)).getElements()) {
         if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED))) {
           legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
-          if (entity.get(iri(IM.CODE_ID)) != null)
-            getCodeIds(namespace).write(entity.get(iri(IM.CODE_ID)).asLiteral().getValue() + "\t" +
+          if (entity.get(new TTIriRef(IM.CODE_ID)) != null)
+            getCodeIds(namespace).write(entity.get(new TTIriRef(IM.CODE_ID)).asLiteral().getValue() + "\t" +
               core.asIriRef().getIri() + "\n");
         }
         getCodeCoreMap(namespace).write(entity.getCode() + "\t" + core.asIriRef().getIri() + "\n");
@@ -377,19 +375,19 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
-    if (entity.get(iri(IM.HAS_TERM_CODE)) != null) {
-      NAMESPACE namespace = NAMESPACE.Companion.decode(entity.getScheme().getIri());
+    if (entity.get(new TTIriRef(IM.HAS_TERM_CODE)) != null) {
+      NAMESPACE namespace = NAMESPACE.fromValue(entity.getScheme().getIri());
       if (null == namespace)
         throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
-      for (TTValue tc : entity.get(iri(IM.HAS_TERM_CODE)).getElements()) {
+      for (TTValue tc : entity.get(new TTIriRef(IM.HAS_TERM_CODE)).getElements()) {
         TTNode termCode = tc.asNode();
-        if (termCode.get(iri(IM.CODE)) != null) {
-          String code = termCode.get(iri(IM.CODE)).asLiteral().getValue();
+        if (termCode.get(new TTIriRef(IM.CODE)) != null) {
+          String code = termCode.get(new TTIriRef(IM.CODE)).asLiteral().getValue();
           getCodeCoreMap(namespace).write(code + "\t" + core.asIriRef().getIri() + "\n");
         }
-        if (termCode.get(iri(RDFS.LABEL)) != null) {
-          String term = termCode.get(iri(RDFS.LABEL)).asLiteral().getValue();
+        if (termCode.get(new TTIriRef(RDFS.LABEL)) != null) {
+          String term = termCode.get(new TTIriRef(RDFS.LABEL)).asLiteral().getValue();
           writeTermCoreMap(namespace, term, core.asIriRef().getIri() + "\n");
         }
       }

@@ -73,7 +73,7 @@ public class CacheRepository {
     IRI p = st.getPredicate();
     Value o = st.getObject();
     String subject = s.stringValue();
-    TTIriRef predicate = TTIriRef.iri(p.stringValue());
+    TTIriRef predicate = new TTIriRef(p.stringValue());
     String value = o.stringValue();
     TTNode node;
     if (s.isIRI()) {
@@ -90,7 +90,7 @@ public class CacheRepository {
     if (o.isLiteral()) {
       node.set(predicate, literal(value));
     } else if (o.isIRI()) {
-      node.addObject(predicate, TTIriRef.iri(value));
+      node.addObject(predicate, new TTIriRef(value));
     } else {
       valueMap.putIfAbsent(value, new TTNode());
       node.addObject(predicate, valueMap.get(value).asNode());

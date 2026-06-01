@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
@@ -59,13 +57,13 @@ public class TransformService {
     TTEntity mapEntity = EntityCache.getEntity(mapIri).getEntity();
 
     //Is it a graph map
-    if (mapEntity.get(iri(IM.ENTITY_MAP)) != null) {
+    if (mapEntity.get(new TTIriRef(IM.ENTITY_MAP)) != null) {
       return transformGraph(request, mapEntity);
-    } else if (mapEntity.get(TTIriRef.iri(IM.DEFINITION)) == null) {
+    } else if (mapEntity.get(new TTIriRef(IM.DEFINITION)) == null) {
       throw new IllegalStateException("IRI sent as graph map is not a graph map or entity map?");
     } else {
       //Must be entity map
-      MapObject mapObject = mapEntity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
+      MapObject mapObject = mapEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
       return transformEntities(request, mapObject);
     }
   }
@@ -90,9 +88,9 @@ public class TransformService {
   private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws JsonProcessingException {
     Transformer transform = new Transformer(request.getSourceFormat(), request.getTargetFormat());
     Set<Object> targetObjects = new HashSet<>();
-    for (TTValue map : graphMapEntity.get(TTIriRef.iri(IM.ENTITY_MAP)).getElements()) {
+    for (TTValue map : graphMapEntity.get(new TTIriRef(IM.ENTITY_MAP)).getElements()) {
       TTEntity mapEntity = EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
-      MapObject mapObject = mapEntity.get(TTIriRef.iri(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
+      MapObject mapObject = mapEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(MapObject.class);
 
       //Matches the entity map with the typed source map
       for (String sourceIri : request.getSource().keySet()) {

@@ -83,7 +83,7 @@ class OSQueryTest_IM {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .addArgument(new Argument().setParameter("isas").setValueIriList(
-        (Set.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
+        (Set.of(new TTIriRef("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
         .addIs(new Node().setParameter("$isas")

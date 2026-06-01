@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -9,8 +10,6 @@ import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.QueryType;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdAuditToIMQ {
   public static final String POPULATION = "population_";
@@ -31,7 +30,7 @@ public class EqdAuditToIMQ {
         .addIs(Node.iri(finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
-      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(finalPopId));
+      resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalPopId));
       Return populationReturn = new Return();
       popQuery.addReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);

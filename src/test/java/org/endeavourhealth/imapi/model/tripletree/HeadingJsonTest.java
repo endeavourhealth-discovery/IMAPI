@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HeadingJsonTest {
@@ -23,7 +22,7 @@ class HeadingJsonTest {
 
   @Test
   void testTTIriSerialization() throws JsonProcessingException {
-    TTIriRef ref = iri(IRI, NAME);
+    TTIriRef ref = new TTIriRef(IRI, NAME);
     String actual = om.writeValueAsString(ref);
 
     assertEquals(IRI_JSON, actual);

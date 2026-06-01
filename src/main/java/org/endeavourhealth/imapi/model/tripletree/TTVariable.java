@@ -11,6 +11,17 @@ public class TTVariable extends TTIriRef {
   private boolean isType;
 
 
+  public TTVariable(TTIriRef iri) {
+    super.setIri(iri.getIri());
+  }
+
+  public TTVariable() {
+  }
+
+  public TTVariable(String iri) {
+    super.setIri(iri);
+  }
+
   public boolean isType() {
     return isType;
   }
@@ -34,36 +45,12 @@ public class TTVariable extends TTIriRef {
     return this;
   }
 
-
-  public static TTVariable iri(String iri) {
-    return new TTVariable().setIri(iri);
-  }
-
-  public TTVariable(TTIriRef iri) {
-    super.setIri(iri.getIri());
-  }
-
   public String getVariable() {
     return variable;
   }
 
   public TTVariable setVariable(String variable) {
     this.variable = variable;
-    return this;
-  }
-
-
-  public TTVariable() {
-  }
-
-
-  public TTVariable setIri(String iri) {
-    super.setIri(iri);
-    return this;
-  }
-
-  public TTVariable setName(String name) {
-    super.setName(name);
     return this;
   }
 }

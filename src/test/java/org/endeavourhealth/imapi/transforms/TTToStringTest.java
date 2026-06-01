@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.OWL;
@@ -15,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TTToStringTest {
@@ -37,9 +33,9 @@ class TTToStringTest {
 
   public TTArray getTestArray() {
     return new TTArray()
-      .add(iri("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
-      .add(iri("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
-      .add(iri("http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"));
+      .add(new TTIriRef("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
+      .add(new TTIriRef("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
+      .add(new TTIriRef("http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"));
   }
 
   public TTNode getTestNode() {
@@ -60,60 +56,60 @@ class TTToStringTest {
         .set(EnumUtils.asIri(RDFS.SUBCLASS_OF), new TTArray()
           .add(new TTNode()
             .set(EnumUtils.asIri(OWL.INTERSECTION_OF), new TTArray()
-              .add(iri("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
-              .add(iri("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
-              .add(iri("http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"))
-              .add(iri("http://snomed.info/sct#85995004", "Autosomal recessive hereditary disorder (disorder)"))
+              .add(new TTIriRef("http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
+              .add(new TTIriRef("http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
+              .add(new TTIriRef("http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"))
+              .add(new TTIriRef("http://snomed.info/sct#85995004", "Autosomal recessive hereditary disorder (disorder)"))
               .add(new TTNode()
                 .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTNode()
                   .set(EnumUtils.asIri(OWL.INTERSECTION_OF), new TTArray()
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#31739005", "Lateral abnormal curvature (morphologic abnormality)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#31739005", "Lateral abnormal curvature (morphologic abnormality)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#289959001", "Musculoskeletal structure of spine (body structure)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#363698007", "Finding site (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#289959001", "Musculoskeletal structure of spine (body structure)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#363698007", "Finding site (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#370135005", "Pathological process (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#370135005", "Pathological process (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                   )
                 )
-                .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://endhealth.info/im#roleGroup", "role group"))
-                .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://endhealth.info/im#roleGroup", "role group"))
+                .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
               )
               .add(new TTNode()
                 .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTNode()
                   .set(EnumUtils.asIri(OWL.INTERSECTION_OF), new TTArray()
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#49755003", "Morphologically abnormal structure (morphologic abnormality)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#49755003", "Morphologically abnormal structure (morphologic abnormality)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#255399007", "Congenital (qualifier value)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#246454002", "Occurrence (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#255399007", "Congenital (qualifier value)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#246454002", "Occurrence (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#127954009", "Skeletal muscle structure (body structure)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#363698007", "Finding site (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#127954009", "Skeletal muscle structure (body structure)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#363698007", "Finding site (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                     .add(new TTNode()
-                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), iri("http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
-                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://snomed.info/sct#370135005", "Pathological process (attribute)"))
-                      .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                      .set(EnumUtils.asIri(OWL.SOME_VALUES_FROM), new TTIriRef("http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
+                      .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://snomed.info/sct#370135005", "Pathological process (attribute)"))
+                      .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
                   )
                 )
-                .set(EnumUtils.asIri(OWL.ON_PROPERTY), iri("http://endhealth.info/im#roleGroup", "role group"))
-                .set(EnumUtils.asIri(RDF.TYPE), iri("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
+                .set(EnumUtils.asIri(OWL.ON_PROPERTY), new TTIriRef("http://endhealth.info/im#roleGroup", "role group"))
+                .set(EnumUtils.asIri(RDF.TYPE), new TTIriRef("http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
               )
             )
           )

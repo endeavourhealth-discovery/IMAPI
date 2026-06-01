@@ -71,11 +71,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (definition.and != null) {
-      addMatchWiths(definition.and, definition, mySqlQuery, Bool.and)
+      addMatchWiths(definition.and, definition, mySqlQuery, Bool.AND)
     }
 
     if (definition.or != null) {
-      addMatchWiths(definition.or, definition, mySqlQuery, Bool.or)
+      addMatchWiths(definition.or, definition, mySqlQuery, Bool.OR)
     }
 
 
@@ -84,7 +84,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val newMySqlQuery = MySQLQuery()
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.addAll(getIsWiths(definition, newMySqlQuery))
-        addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.and)
+        addMatchWiths(listOf(columnGroup), definition, newMySqlQuery, Bool.AND)
         if (definition.`return` == null) {
           val lastCTE = newMySqlQuery.withs.last { !it.exclude }
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
@@ -222,12 +222,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (currentMatch.and != null) {
       for (m in currentMatch.and) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.and)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.AND)
       }
     }
     if (currentMatch.or != null) {
       for (m in currentMatch.or) {
-        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.or)
+        addMatchWithsRecursively(m, currentMatch, mySqlQuery, Bool.OR)
       }
     }
 
@@ -422,7 +422,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       alias = with.alias,
       selects = mutableListOf(MySQLSelect(if (match.notExists()) "${mySQLQuery.withs.last().alias}.*" else "sq.*")),
       wheres = mutableListOf(),
-      whereBool = Bool.and,
+      whereBool = Bool.AND,
       subQuery = with
     )
 
@@ -650,7 +650,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         currentTable,
         p.iri
       ).field ?: throw SQLConversionException("No field found for property ${p.iri}")
-      items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC", table = currentTable))
+      items.add(MySQLOrderByItem(field, if (p.direction == Order.DESCENDING) "DESC" else "ASC", table = currentTable))
     }
     return MySQLOrderBy(items, orderBy.limit)
   }
@@ -681,12 +681,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     where.and?.let { andList ->
       val boolWhere = MySQLBoolWhere()
       when (bool) {
-        Bool.and -> parentWhere
+        Bool.AND -> parentWhere
           ?.also { it.and = it.and ?: mutableListOf() }
           ?.and
           ?.add(boolWhere)
 
-        Bool.or -> parentWhere
+        Bool.OR -> parentWhere
           ?.also { it.or = it.or ?: mutableListOf() }
           ?.or
           ?.add(boolWhere)
@@ -694,7 +694,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         else -> with.wheres?.add(boolWhere)
       }
       andList.forEach {
-        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.and, table)
+        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.AND, table)
       }
       return
     }
@@ -702,12 +702,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     where.or?.let { orList ->
       val boolWhere = MySQLBoolWhere()
       when (bool) {
-        Bool.and -> parentWhere
+        Bool.AND -> parentWhere
           ?.also { it.and = it.and ?: mutableListOf() }
           ?.and
           ?.add(boolWhere)
 
-        Bool.or -> parentWhere
+        Bool.OR -> parentWhere
           ?.also { it.or = it.or ?: mutableListOf() }
           ?.or
           ?.add(boolWhere)
@@ -716,19 +716,19 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
 
       orList.forEach {
-        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.or, table)
+        addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.OR, table)
       }
       return
     }
 
     val leaf = getMySQLWhereFromWhere(where, variableToTableMap, with, table)
     when (bool) {
-      Bool.and -> parentWhere
+      Bool.AND -> parentWhere
         ?.also { it.and = it.and ?: mutableListOf() }
         ?.and
         ?.add(leaf)
 
-      Bool.or -> parentWhere
+      Bool.OR -> parentWhere
         ?.also { it.or = it.or ?: mutableListOf() }
         ?.or
         ?.add(leaf)
@@ -970,7 +970,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getUnitNameAndType(iri: String): Pair<String, String> {
-    return when (IM.decode(iri)) {
+    return when (IM.fromValue(iri)) {
       IM.YEARS -> "YEAR" to "Unit"
       IM.YEAR -> "YEAR" to "Qualifier"
       IM.MONTHS -> "MONTH" to "Unit"

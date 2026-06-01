@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import org.junit.jupiter.api.Test;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -10,15 +9,15 @@ class TTArrayUniqueTest {
   @Test
   void differentObjectDifferentValue_Iri() {
     TTArray actual = new TTArray();
-    actual.add(iri("http://example.org#SAME"));
-    actual.add(iri("http://example.org#DIFFERENT"));
+    actual.add(new TTIriRef("http://example.org#SAME"));
+    actual.add(new TTIriRef("http://example.org#DIFFERENT"));
 
     assertEquals(2, actual.size());
   }
 
   @Test
   void sameObjectSameValue_Iri() {
-    TTIriRef testIri = iri("http://example.org#SAME");
+    TTIriRef testIri = new TTIriRef("http://example.org#SAME");
 
     TTArray actual = new TTArray();
 
@@ -31,8 +30,8 @@ class TTArrayUniqueTest {
   @Test
   void differentObjectSameValue_Iri() {
     TTArray actual = new TTArray();
-    actual.add(iri("http://example.org#SAME"));
-    actual.add(iri("http://example.org#SAME"));
+    actual.add(new TTIriRef("http://example.org#SAME"));
+    actual.add(new TTIriRef("http://example.org#SAME"));
 
     assertEquals(1, actual.size());
   }

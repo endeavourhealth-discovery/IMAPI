@@ -11,8 +11,6 @@ import org.endeavourhealth.interfacemanager.model.SHACL;
 
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 /**
  * Class that holds the IM schema as a cache of static maps, including shapes, predicate display ordeers,
  * predicate names, domains and ranges
@@ -139,11 +137,11 @@ public class EntityCache implements Runnable {
       shapeMap.getPredicates().forEach(EntityCache::addPredicateName);
     for (Map.Entry<String, TTEntity> entry : shapeMap.getEntities().entrySet()) {
       EntityCache.addShape(entry.getValue());
-      if (entry.getValue().get(iri(SHACL.PROPERTY)) != null) {
+      if (entry.getValue().get(new TTIriRef(SHACL.PROPERTY)) != null) {
         List<TTIriRef> properties = entry
           .getValue()
-          .get(iri(SHACL.PROPERTY))
-          .stream().map(p -> p.asNode().get(iri(SHACL.PATH)).asIriRef())
+          .get(new TTIriRef(SHACL.PROPERTY))
+          .stream().map(p -> p.asNode().get(new TTIriRef(SHACL.PATH)).asIriRef())
           .toList();
         EntityCache.setPredicateOrder(entry.getKey(), properties);
         properties.forEach(p -> EntityCache.addPredicateName(p.getIri(), p.getName()));

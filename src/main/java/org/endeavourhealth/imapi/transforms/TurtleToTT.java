@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
   private final TurtliteParser parser;
   private final TurtliteLexer lexer;
@@ -98,9 +96,9 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
     for (TurtliteParser.PredicateObjectListContext po : poList) {
       TurtliteParser.VerbContext verb = po.verb();
       if (verb.getText().equals("a"))
-        predicate = iri(RDF.TYPE);
+        predicate = new TTIriRef(RDF.TYPE);
       else
-        predicate = TTIriRef.iri(getIri(verb.predicate().iri().getText()));
+        predicate = new TTIriRef(getIri(verb.predicate().iri().getText()));
       convertObjects(node, predicate, po.objectList());
     }
 
@@ -127,7 +125,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       else
         return TTLiteral.literal(object.literal().getText().replace("\"", ""));
     } else if (object.iri() != null) {
-      return TTIriRef.iri(getIri(object.iri().getText()));
+      return new TTIriRef(getIri(object.iri().getText()));
     } else if (object.BlankNode() != null) {
       return getBlankNode(object.BlankNode().getText());
     } else if (object.blankNodePropertyList() != null) {

@@ -43,8 +43,6 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @RestController
 @RequestMapping("api/filer/private")
 @CrossOrigin(origins = "*")
@@ -108,7 +106,7 @@ public class FilerController {
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
-      if (crud != null && !crud.isEmpty()) entity.setCrud(iri(crud));
+      if (crud != null && !crud.isEmpty()) entity.setCrud(new TTIriRef(crud));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
       return ResponseEntity.ok().build();
     }
@@ -140,23 +138,23 @@ public class FilerController {
       }
 
       TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-      if (!entity.has(iri(IM.IS_CONTAINED_IN))) {
+      if (!entity.has(new TTIriRef(IM.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
 
-      TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
-      if (!folders.contains(iri(oldFolderIri))) {
+      TTArray folders = entity.get(new TTIriRef(IM.IS_CONTAINED_IN));
+      if (!folders.contains(new TTIriRef(oldFolderIri))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
       }
 
-      if (entityService.isLinked(newFolderIri, iri(IM.IS_CONTAINED_IN), oldFolderIri)) {
+      if (entityService.isLinked(newFolderIri, new TTIriRef(IM.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
-      folders.remove(iri(oldFolderIri));
-      folders.add(iri(newFolderIri));
-      entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
+      folders.remove(new TTIriRef(oldFolderIri));
+      folders.add(new TTIriRef(newFolderIri));
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRef(IM.UPDATE_PREDICATES));
 
       User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
@@ -185,13 +183,13 @@ public class FilerController {
       }
 
       TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-      TTArray folders = entity.get(iri(IM.IS_CONTAINED_IN));
+      TTArray folders = entity.get(new TTIriRef(IM.IS_CONTAINED_IN));
       if (folders == null) folders = new TTArray();
-      folders.add(iri(folderIri));
+      folders.add(new TTIriRef(folderIri));
 
       User user = securityService.getUser(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
-      entity.setVersion(usedEntity.getVersion() + 1).setCrud(iri(IM.UPDATE_PREDICATES));
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRef(IM.UPDATE_PREDICATES));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
       return ResponseEntity.ok().build();
@@ -231,16 +229,16 @@ public class FilerController {
         .setQuery(query)
         .argument(a -> a
           .setParameter("this")
-          .setValueIri(TTIriRef.iri(container)));
+          .setValueIri(new TTIriRef(container)));
       JsonNode results = searchService.queryIM(queryRequest);
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
-        .setScheme(iri(GRAPH.IM))
-        .addType(iri(IM.FOLDER))
-        .set(iri(IM.IS_CONTAINED_IN), iri(container))
+        .setScheme(new TTIriRef(GRAPH.IM))
+        .addType(new TTIriRef(IM.FOLDER))
+        .set(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(container))
         .setVersion(1)
-        .setCrud(iri(IM.ADD_QUADS));
+        .setCrud(new TTIriRef(IM.ADD_QUADS));
 
       TTArray contentTypes = new TTArray();
       for (JsonNode j : results.get("entities")) {
@@ -249,7 +247,7 @@ public class FilerController {
         contentType.setName(j.get(RDFS.LABEL.toString()).asText());
         contentTypes.add(contentType);
       }
-      entity.set(iri(IM.CONTENT_TYPE), contentTypes);
+      entity.set(new TTIriRef(IM.CONTENT_TYPE), contentTypes);
 
       User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), null);

@@ -7,28 +7,26 @@ import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 import org.endeavourhealth.interfacemanager.model.IM;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public abstract class Entry extends TTEntity {
 
   public TTIriRef getDataController() {
 
-    return (TTIriRef) TTUtil.get(this, TTIriRef.iri("dataController"), TTIriRef.class);
+    return (TTIriRef) TTUtil.get(this, new TTIriRef("dataController"), TTIriRef.class);
   }
 
   @JsonSetter
   public Entry setDataController(TTIriRef dataController) {
-    set(TTIriRef.iri("dataController"), dataController);
+    set(new TTIriRef("dataController"), dataController);
     return this;
   }
 
   public String getDateOfEntry() {
 
-    return (String) TTUtil.get(this, iri(IM.DATE_OF_ENTRY), String.class);
+    return (String) TTUtil.get(this, new TTIriRef(IM.DATE_OF_ENTRY), String.class);
   }
 
   public Entry setDateOfEntry(String dateOfEntry) {
-    set(iri(IM.DATE_OF_ENTRY), TTLiteral.literal(dateOfEntry));
+    set(new TTIriRef(IM.DATE_OF_ENTRY), TTLiteral.literal(dateOfEntry));
     return this;
   }
 }

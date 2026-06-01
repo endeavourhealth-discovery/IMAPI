@@ -69,7 +69,7 @@ public class CodeGenRepository {
           try (CachedObjectMapper om = new CachedObjectMapper()) {
 
 
-            switch (CODETEMPLATE.Companion.decode(bs.getValue("p").stringValue())) {
+            switch (CODETEMPLATE.fromValue(bs.getValue("p").stringValue())) {
               case CODETEMPLATE.DATATYPE_MAP -> {
                 ObjectNode map = (ObjectNode) om.readTree(bs.getValue("o").stringValue());
                 for (Iterator<Map.Entry<String, JsonNode>> it = map.fields(); it.hasNext(); ) {
@@ -85,7 +85,7 @@ public class CodeGenRepository {
                 result.setComplexTypes(((Literal) bs.getValue("o")).booleanValue());
               case null -> throw new IllegalArgumentException("Failed to decode into CODETEMPLATE enum");
               default ->
-                throw new IllegalArgumentException("Invalid CODETEMPLATE found" + CODETEMPLATE.Companion.decode(bs.getValue("p").stringValue()));
+                throw new IllegalArgumentException("Invalid CODETEMPLATE found" + CODETEMPLATE.fromValue(bs.getValue("p").stringValue()));
             }
           } catch (JsonProcessingException e) {
             log.error("Unable to parse codeTemplate", e);

@@ -10,14 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 public class EnumUtils {
   private EnumUtils() {
   }
 
   public static TTIriRef asIri(Enum<?> value) {
-    return iri(
+    return new TTIriRef(
       value.toString(),
       Arrays.stream(value.name().split("_"))
         .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())

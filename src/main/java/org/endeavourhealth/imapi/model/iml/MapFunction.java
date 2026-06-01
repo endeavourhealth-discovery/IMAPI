@@ -29,7 +29,8 @@ public class MapFunction extends TTIriRef {
     return this;
   }
 
-  public MapFunction setIri(String iri) {
+  @Override
+  public MapFunction iri(String iri) {
     super.setIri(iri);
     return this;
   }
@@ -51,7 +52,7 @@ public class MapFunction extends TTIriRef {
   }
 
   @Override
-  public MapFunction setName(String name) {
+  public MapFunction name(String name) {
     super.setName(name);
     return this;
   }

@@ -8,13 +8,12 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.GRAPH;
 import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.util.Set;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class SetMemberGenerator {
@@ -36,7 +35,7 @@ public class SetMemberGenerator {
 
   public void generateMembers(String iri, GRAPH insertGraph) throws QueryException, JsonProcessingException {
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(IM.DEFINITION));
-    if (setDefinition.getEntity().get(iri(IM.DEFINITION)) == null) {
+    if (setDefinition.getEntity().get(new TTIriRef(IM.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
       if (!members.isEmpty()) {
         log.info("Expanding members {}", iri);
@@ -44,7 +43,7 @@ public class SetMemberGenerator {
       }
     } else {
       log.info("Expanding from definition {}", iri);
-      Query query = setDefinition.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query query = setDefinition.getEntity().get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       new SparqlOptimizer().optimizeQuery(query);
       Set<Concept> members = setRepo.getMembersFromDefinition(query);
       setRepo.updateMembers(iri, members, insertGraph);

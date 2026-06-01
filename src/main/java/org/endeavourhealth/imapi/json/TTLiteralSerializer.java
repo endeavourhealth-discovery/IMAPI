@@ -31,7 +31,7 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
     usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
     if (literal.getType() != null) {
-      switch (XSD.Companion.decode(literal.getType().getIri())) {
+      switch (XSD.fromValue(literal.getType().getIri())) {
         case XSD.STRING -> gen.writeString(literal.getValue());
         case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
         case XSD.INTEGER -> gen.writeNumber(literal.intValue());

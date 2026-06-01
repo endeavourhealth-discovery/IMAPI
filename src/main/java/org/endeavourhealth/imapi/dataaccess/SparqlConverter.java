@@ -210,7 +210,7 @@ public class SparqlConverter {
       subject = parent;
     String mainSubject = subject;
     if (match.getEntailment() != null) {
-      if (match.getEntailment() == Entail.descendantsOrSelfOf) {
+      if (match.getEntailment() == Entail.DESCENDANTS_OR_SELF_OF) {
         o++;
         whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
         subject = subject + o;
@@ -346,13 +346,13 @@ public class SparqlConverter {
       else if (!first)
         whereQl.append("UNION {");
       first = false;
-      if (entail == Entail.descendantsOrSelfOf) {
+      if (entail == Entail.DESCENDANTS_OR_SELF_OF) {
         processMatchIsDescendantsOrSelfOf(whereQl, subject, object, inList);
-      } else if (entail == Entail.descendantsOf) {
+      } else if (entail == Entail.DESCENDANTS_OF) {
         processMatchIsDescendantsOf(whereQl, subject, object, inList);
-      } else if (entail == Entail.ancestorsOf) {
+      } else if (entail == Entail.ANCESTORS_OF) {
         processMatchIsAncestorOf(whereQl, subject, object, inList);
-      } else if (entail == Entail.memberOf) {
+      } else if (entail == Entail.MEMBER_OF) {
         processMatchIsMemberOf(whereQl, subject, object, inList);
       } else
         processMatchEqual(whereQl, subject, inList);
@@ -367,15 +367,15 @@ public class SparqlConverter {
 
   private void sortInstances(List<Node> is, Map<Entail, List<Node>> inTypes, Map<Entail, List<Node>> outTypes) throws QueryException {
     for (Node instance : is) {
-      Entail entail = Entail.equal;
+      Entail entail = Entail.EQUAL;
       if (instance.isMemberOf())
-        entail = Entail.memberOf;
+        entail = Entail.MEMBER_OF;
       else if (instance.isDescendantsOrSelfOf())
-        entail = Entail.descendantsOrSelfOf;
+        entail = Entail.DESCENDANTS_OR_SELF_OF;
       else if (instance.isDescendantsOf())
-        entail = Entail.descendantsOf;
+        entail = Entail.DESCENDANTS_OF;
       else if (instance.isAncestorsOf())
-        entail = Entail.ancestorsOf;
+        entail = Entail.ANCESTORS_OF;
       if (instance.isExclude()) {
         outTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(instance);
       } else
@@ -708,7 +708,7 @@ public class SparqlConverter {
   private void generateOrderBy(StringBuilder selectQl, Match clause) throws QueryException {
     selectQl.append("Order by ");
     for (OrderDirection order : clause.getOrderBy().getProperty()) {
-      if (null != order.getDirection() && order.getDirection().equals(Order.descending))
+      if (null != order.getDirection() && order.getDirection().equals(Order.DESCENDING))
         selectQl.append("DESC(");
       else
         selectQl.append("ASC(");

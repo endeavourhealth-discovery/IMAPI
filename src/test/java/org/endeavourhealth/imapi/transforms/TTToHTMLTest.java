@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.OWL;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TTToHTMLTest {
@@ -15,16 +14,16 @@ class TTToHTMLTest {
   void getExpressionText() {
     TTNode exp = new TTNode();
     TTArray inters = new TTArray();
-    exp.set(iri(OWL.INTERSECTION_OF), inters);
+    exp.set(new TTIriRef(OWL.INTERSECTION_OF), inters);
     TTIriRef product = new TTIriRef()
-      .setIri(NAMESPACE.SNOMED + "763158003")
-      .setName("Medicinal product");
+      .iri(NAMESPACE.SNOMED + "763158003")
+      .name("Medicinal product");
     inters.add(product);
     TTNode roleGroup = new TTNode();
-    roleGroup.set(TTIriRef.iri(NAMESPACE.SNOMED + "127489000").setName("Has active ingredient (attribute)"),
-      TTIriRef.iri(NAMESPACE.SNOMED + "372665008").setName("Non-steroidal anti-inflammatory agent (substance)"));
-    roleGroup.set(TTIriRef.iri(NAMESPACE.SNOMED + "411116001").setName("Has manufactured dose form (attribute)"),
-      TTIriRef.iri(NAMESPACE.SNOMED + "385268001").setName("Oral dose form (dose form)"));
+    roleGroup.set(new TTIriRef(NAMESPACE.SNOMED + "127489000").name("Has active ingredient (attribute)"),
+      new TTIriRef(NAMESPACE.SNOMED + "372665008").name("Non-steroidal anti-inflammatory agent (substance)"));
+    roleGroup.set(new TTIriRef(NAMESPACE.SNOMED + "411116001").name("Has manufactured dose form (attribute)"),
+      new TTIriRef(NAMESPACE.SNOMED + "385268001").name("Oral dose form (dose form)"));
     inters.add(roleGroup);
     String html = TTToHTML.getExpressionText(exp);
     System.out.println(html);

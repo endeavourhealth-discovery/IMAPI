@@ -6,8 +6,8 @@ import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,8 +55,8 @@ public class ConceptModelServiceTest {
     SearchTermCode termCode = new SearchTermCode()
       .setCode("24951000252112")
       .setTerm("Adverse reaction to Testogel")
-      .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(TTIriRef.iri(IM.ACTIVE).getName()));
-    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", EnumUtils.asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
+      .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(new TTIriRef(IM.ACTIVE).getName()));
+    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", EnumUtils.asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(new TTIriRef(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(new TTIriRef(IM.CODE), new TTLiteral(termCode.getCode())).set(new TTIriRef(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(new TTIriRef(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }

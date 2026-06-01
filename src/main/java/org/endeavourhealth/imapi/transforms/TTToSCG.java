@@ -8,11 +8,10 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTToSCG {
-  private static final TTIriRef[] corePredicates = {iri(RDF.TYPE), iri(IM.IS_A), iri(IM.HAS_SCHEME), iri(IM.IS_CONTAINED_IN),
-    iri(IM.HAS_STATUS), iri(IM.DEFINITIONAL_STATUS)};
+  private static final TTIriRef[] corePredicates = {new TTIriRef(RDF.TYPE), new TTIriRef(IM.IS_A), new TTIriRef(IM.HAS_SCHEME), new TTIriRef(IM.IS_CONTAINED_IN),
+    new TTIriRef(IM.HAS_STATUS), new TTIriRef(IM.DEFINITIONAL_STATUS)};
   boolean refinedSet;
 
   private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
@@ -33,9 +32,9 @@ public class TTToSCG {
 
   public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {
     StringBuilder scg = new StringBuilder();
-    if (entity.get(iri(IM.IS_A)) != null) {
+    if (entity.get(new TTIriRef(IM.IS_A)) != null) {
       boolean first = true;
-      for (TTValue parent : entity.get(iri(IM.IS_A)).iterator()) {
+      for (TTValue parent : entity.get(new TTIriRef(IM.IS_A)).iterator()) {
         if (parent.isIriRef()) {
           if (!first)
             scg.append(" +");
@@ -50,11 +49,11 @@ public class TTToSCG {
   }
 
   private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) {
-    if (node.get(iri(IM.ROLE_GROUP)) != null) {
+    if (node.get(new TTIriRef(IM.ROLE_GROUP)) != null) {
       scg.append(":");
       this.refinedSet = true;
       boolean first = true;
-      for (TTValue group : node.get(iri(IM.ROLE_GROUP)).iterator()) {
+      for (TTValue group : node.get(new TTIriRef(IM.ROLE_GROUP)).iterator()) {
         if (!first)
           scg.append(" ,");
         scg.append("{");

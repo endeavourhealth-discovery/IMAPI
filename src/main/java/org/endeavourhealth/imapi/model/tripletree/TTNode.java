@@ -14,8 +14,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
@@ -43,7 +41,7 @@ public class TTNode implements TTValue, Serializable {
   @JsonIgnore
   public TTNode set(TTIriRef predicate, String value) {
     if (value.startsWith("http:"))
-      this.set(predicate, iri(value));
+      this.set(predicate, new TTIriRef(value));
     else
       this.set(predicate, TTLiteral.literal(value));
     return this;
@@ -75,7 +73,7 @@ public class TTNode implements TTValue, Serializable {
 
   @JsonIgnore
   public TTNode set(String predicate, TTValue value) {
-    this.set(iri(predicate), value);
+    this.set(new TTIriRef(predicate), value);
     return this;
   }
 
@@ -88,13 +86,13 @@ public class TTNode implements TTValue, Serializable {
 
   @JsonIgnore
   public TTNode set(String predicate, boolean value) {
-    this.set(iri(predicate), value);
+    this.set(new TTIriRef(predicate), value);
     return this;
   }
 
   @JsonIgnore
   public TTArray get(String predicate) {
-    return predicateValues.get(iri(predicate));
+    return predicateValues.get(new TTIriRef(predicate));
   }
 
   @JsonIgnore
@@ -177,7 +175,7 @@ public class TTNode implements TTValue, Serializable {
 
   public TTNode addObject(TTIriRef predicate, String value) {
     if (value.startsWith("http:"))
-      this.addObject(predicate, iri(value));
+      this.addObject(predicate, new TTIriRef(value));
     else
       this.addObject(predicate, TTLiteral.literal(value));
     return this;

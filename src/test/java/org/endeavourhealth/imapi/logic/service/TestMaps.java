@@ -4,10 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.interfacemanager.model.*;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TestMaps {
 
@@ -126,7 +125,7 @@ public class TestMaps {
           .propertyMap(m2 -> m2
             .setTarget("originalScheme")
             .setValueData("http://hl7.org/fhir/administrative-gender"))));
-    patientMapEntity.set(iri(IM.DEFINITION), TTLiteral.literal(patientMap));
+    patientMapEntity.set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(patientMap));
     EntityCache.addEntity(patientMapEntity);
   }
 }

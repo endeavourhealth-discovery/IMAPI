@@ -21,9 +21,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class TTLiteralTest {
   final EntityService entityService = new EntityService();
   private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
-    .set(TTIriRef.iri(RDFS.LABEL), "Test object")
-    .set(TTIriRef.iri(RDFS.COMMENT), "This is an entity to test object serialization")
-    .set(TTIriRef.iri(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRef.iri(IM.ACTIVE))));
+    .set(new TTIriRef(RDFS.LABEL), "Test object")
+    .set(new TTIriRef(RDFS.COMMENT), "This is an entity to test object serialization")
+    .set(new TTIriRef(IM.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(new TTIriRef(IM.ACTIVE))));
   private final String json = new StringJoiner(System.lineSeparator())
     .add("{")
     .add("  \"iri\" : \"http://endhealth.info/im#objectTest\",")
@@ -40,7 +40,7 @@ class TTLiteralTest {
   void saveTest() throws Exception {
     TTDocument doc = new TTDocument();
     doc.addEntity(testObject);
-    doc.setCrud(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES));
+    doc.setCrud(new TTIriRef(IM.REPLACE_ALL_PREDICATES));
 
     TTFilerFactory.getDocumentFiler(GRAPH.IM).fileDocument(doc);
   }
@@ -48,7 +48,7 @@ class TTLiteralTest {
   // @Test
   void loadTest() throws JsonProcessingException {
     TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null);
-    TTArray preds = bundle.getEntity().get(TTIriRef.iri(IM.QUERY));
+    TTArray preds = bundle.getEntity().get(new TTIriRef(IM.QUERY));
     assertEquals(1, preds.size());
 
     TTValue val = preds.get(0);
@@ -77,7 +77,7 @@ class TTLiteralTest {
     TTEntity entity = new ObjectMapper().readValue(json, TTEntity.class);
     assertEquals(entity.getIri(), testObject.getIri());
 
-    TTArray preds = entity.get(TTIriRef.iri(IM.QUERY));
+    TTArray preds = entity.get(new TTIriRef(IM.QUERY));
     assertEquals(1, preds.size());
 
     TTValue val = preds.get(0);

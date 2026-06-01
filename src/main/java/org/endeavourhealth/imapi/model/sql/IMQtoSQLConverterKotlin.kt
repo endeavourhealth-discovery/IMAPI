@@ -67,17 +67,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.typeOf == null || definition.typeOf.iri == null
     ) throw SQLConversionException("Query typeOf is null")
 
-    if (definition.`is` != null) {
-      mySqlQuery.withs.add(getIsWith(definition, mySqlQuery))
-    }
-
-    if (definition.and != null) {
-      addAnds(definition, mySqlQuery)
-    }
-
-    if (definition.or != null) {
-      addOrs(definition, mySqlQuery)
-    }
+    addMatchWithsRecursively(definition, mySqlQuery)
 
     if (definition.columnGroup != null) {
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
@@ -86,7 +76,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
         if (definition.`is` != null) newMySqlQuery.withs.add(getIsWith(definition, newMySqlQuery))
-        addMatchWithsRecursively(columnGroup, definition, newMySqlQuery)
+        addMatchWithsRecursively(columnGroup, newMySqlQuery)
+        if (columnGroup.and == null && columnGroup.or == null &&
+          columnGroup.any == null && columnGroup.`is` == null
+        ) {
+          val with = getMySQLWithFromMatch(columnGroup, newMySqlQuery)
+          if (columnGroup.orderBy == null && newMySqlQuery.withs.isNotEmpty()) {
+            with.joins.add(getJoinBetweenWiths(with, newMySqlQuery.withs.last()))
+          }
+          newMySqlQuery.withs.add(with)
+        }
         if (definition.`return` == null) {
           val lastCTE = newMySqlQuery.withs.last { !it.exclude }
           val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
@@ -206,7 +205,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addMatchWithsRecursively(
     currentMatch: Match,
-    parentMatch: Match,
     mySqlQuery: MySQLQuery,
   ) {
     if (currentMatch.and != null) {
@@ -221,21 +219,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       addOrs(currentMatch, mySqlQuery)
     }
 
-    val with = if (currentMatch.`is` != null) {
-      getIsWith(currentMatch, mySqlQuery)
-    } else {
-      getMySQLWithFromMatch(currentMatch, mySqlQuery)
+    if (currentMatch.`is` != null) {
+      mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
     }
-    mySqlQuery.withs.add(with)
   }
 
   private fun addAnys(currentMatch: Match, mySqlQuery: MySQLQuery) {
     for (match in currentMatch.any) {
-      addMatchWithsRecursively(match, currentMatch, mySqlQuery)
-      if (match.and == null && match.or == null && match.any == null) {
-        val with =
-          if (currentMatch.`is` != null) (getIsWith(currentMatch, mySqlQuery))
-          else (getMySQLWithFromMatch(currentMatch, mySqlQuery))
+      addMatchWithsRecursively(match, mySqlQuery)
+      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
+        val with = getMySQLWithFromMatch(match, mySqlQuery)
         mySqlQuery.withs.add(with)
       }
     }
@@ -243,12 +236,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addAnds(currentMatch: Match, mySqlQuery: MySQLQuery) {
     for (match in currentMatch.and) {
-      addMatchWithsRecursively(match, currentMatch, mySqlQuery)
-      if (match.and == null && match.or == null && match.any == null) {
-        val with =
-          if (currentMatch.`is` != null) (getIsWith(currentMatch, mySqlQuery))
-          else (getMySQLWithFromMatch(currentMatch, mySqlQuery))
-
+      addMatchWithsRecursively(match, mySqlQuery)
+      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
+        val with = getMySQLWithFromMatch(match, mySqlQuery)
         if (match.orderBy == null && mySqlQuery.withs.isNotEmpty()) {
           with.joins.add(getJoinBetweenWiths(with, mySqlQuery.withs.last()))
         }
@@ -271,7 +261,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (tempQuery.withs.isNotEmpty()) {
         branchQuery.withs.add(tempQuery.withs.last())
       }
-      addMatchWithsRecursively(match, currentMatch, branchQuery)
+      addMatchWithsRecursively(match, branchQuery)
 
       if (match.and == null && match.or == null && match.any == null) {
         if (match.`is` != null) mySqlQuery.withs.add(getIsWith(match, mySqlQuery))

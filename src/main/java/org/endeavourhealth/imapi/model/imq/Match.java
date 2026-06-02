@@ -41,7 +41,7 @@ public class Match extends IriLD implements HasPaths,Returnable {
   private boolean notExists;
   private String errorMessage;
   private boolean draft;
-  private Where then;
+  private Match then;
   private Having having;
 
 public List<Match> getAny() {
@@ -80,16 +80,16 @@ public Match any(Consumer<Match> builder) {
 
 
 
-  public Where getThen() {
+  public Match getThen() {
     return then;
   }
-  public Match setThen(Where then) {
+  public Match setThen(Match then) {
     this.then = then;
     return this;
   }
 
-  public Match then(Consumer<Where> builder) {
-    this.then = new Where();
+  public Match then(Consumer<Match> builder) {
+    this.then = new Match();
     builder.accept(this.then);
     return this;
   }

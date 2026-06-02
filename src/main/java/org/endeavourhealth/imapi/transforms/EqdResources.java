@@ -231,9 +231,9 @@ public class EqdResources {
     When scoreWhen= new When();
     scoreCase.addWhen(scoreWhen);
     scoreWhen.setExists(true);
-    scoreWhen.setThen(score);
+    scoreWhen.setThen(new Expression().setValue(score));
     match.addReturn(new Return().setCase(scoreCase).setAs("score"));
-    scoreCase.setElse("0");
+    scoreCase.else_(e->e.setValue("0"));
   }
 
   public Match getPopulationQuery(EQDOCCriteria eqCriteria) {
@@ -294,7 +294,7 @@ public class EqdResources {
       } else lastMatch = standardMatch;
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
-        lastMatch.setThen(testMatch.getWhere());
+        lastMatch.setThen(testMatch);
       }
     }
     if (lastMatch == null) {

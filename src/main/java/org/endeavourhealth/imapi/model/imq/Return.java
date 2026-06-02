@@ -29,6 +29,15 @@ public class Return implements Returnable{
   @JsonProperty("case")
   private Case case_;
   private String description;
+  private String value;
+
+  public String getValue() {
+    return value;
+  }
+  public Return setValue(String value){
+    this.value = value;
+    return this;
+  }
 
   public String getPathRef() {
     return pathRef;
@@ -131,9 +140,7 @@ public class Return implements Returnable{
   }
 
 
-  public Return setValue(String value) {
-    return this;
-  }
+
 
   public Return setIri(String iri) {
     this.iri = iri;

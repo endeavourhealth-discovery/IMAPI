@@ -114,8 +114,8 @@ public class EqdListToIMQ {
               .case_(c -> c
                 .when(w -> w
                   .setExists(true)
-                  .setThen("Y"))
-                .setElse("N")));
+                  .setThen(new Expression().setValue("Y")))
+                .setElse(new Expression().setValue("N"))));
         } else
           throw new QueryException("unmapped summary function : " + eqColGroup.getSummary().value());
       }

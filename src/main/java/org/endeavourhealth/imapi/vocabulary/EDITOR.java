@@ -23,6 +23,7 @@ public enum EDITOR implements VocabEnum {
     COHORT_QUERY_SHAPE(NAMESPACE.IM_EDITOR + "CohortQueryShape"),
     PROPERTY_SHAPE(NAMESPACE.IM_EDITOR + "PropertyShape"),
     INDICATOR_SHAPE(NAMESPACE.IM_EDITOR + "IndicatorShape"),
+    SEMANTIC_MAP_SHAPE(NAMESPACE.IM_EDITOR + "SemanticMapShape"),
     ;
 
     private final String value;

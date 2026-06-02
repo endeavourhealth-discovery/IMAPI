@@ -36,8 +36,7 @@ public class IriCollector {
     if (prop.getCase()!=null){
       if (prop.getCase().getWhen()!=null)
         for (When when:prop.getCase().getWhen()){
-          if (when.getWhere()!=null)
-            collectWhereIris(when.getWhere(),iriSet);
+            collectWhereIris(when,iriSet);
         }
     }
     if (prop.getFunction()!=null){
@@ -101,7 +100,7 @@ public class IriCollector {
     }
 
     if (match.getThen() != null) {
-      collectWhereIris(match.getThen(), iriSet);
+      collectMatchIris(match.getThen(), iriSet);
     }
     if (match.getReturn() != null) {
       for (Return prop : match.getReturn()) {

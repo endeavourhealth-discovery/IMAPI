@@ -438,14 +438,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     if (match.then != null) {
-      val properties = getPropsUsedInThen(match.then)
+      val properties = getPropsUsedInThen(match.then.where)
       for (property in properties) {
         val field = getPropertyNameByTableAndPropertyIri(with.table, property).field
           ?: throw SQLConversionException("No field found for property $property")
         with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field"))
       }
       val table = rnWith.table.copy(table = "sq")
-      addWheresRecursively(match.then, rnWith, mySQLQuery.nodeToTableMap, null, null, table)
+      addWheresRecursively(match.then.where, rnWith, mySQLQuery.nodeToTableMap, null, null, table)
     }
     return rnWith
   }

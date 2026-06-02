@@ -146,8 +146,7 @@ public class QueryDescriptor {
     }
     if (prop.getCase()!=null &&prop.getCase().getWhen()!=null){
       for (When when:prop.getCase().getWhen()){
-        if (when.getWhere()!=null)
-          describeWhere(when.getWhere(), null);
+          describeWhere(when, null);
       }
     }
   }
@@ -301,7 +300,7 @@ public class QueryDescriptor {
     }
 
     if (match.getThen() != null) {
-      describeWhere(match.getThen(), match);
+      describeThen(match.getThen(), match);
     }
   }
 
@@ -365,6 +364,12 @@ public class QueryDescriptor {
       if (set.getMatch() != null) {
         describeMatch(set.getMatch());
       }
+  }
+
+  private void describeThen(Match then, Match match) {
+    if (then.getWhere() != null) {
+      describeWhere(then.getWhere(), match);
+    }
   }
 
   private void describeWhere(Where where, Match match) {

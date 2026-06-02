@@ -143,9 +143,10 @@ open class UPRNController(
       securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
       val fileContent = String(file.bytes)
+      val filename = file.originalFilename!!.replace(" ", "_");
       val boundary = "---" + System.currentTimeMillis()
       val multipartBody = "--$boundary\r\n" +
-        "Content-Disposition: form-data; name=\"file\"; filename=\"${file.originalFilename}\"\r\n" +
+        "Content-Disposition: form-data; name=\"file\"; filename=\"${filename}\"\r\n" +
         "Content-Type: text/plain\r\n\r\n" +
         "$fileContent\r\n" +
         "--$boundary--\r\n"

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class FunctionClause extends IriLD {
-  private List<Argument> argument;
+  private List<ArgumentExtended> argument;
 
 
   public FunctionClause setIri(String iri) {
@@ -19,30 +19,29 @@ public class FunctionClause extends IriLD {
     return this;
   }
 
-  public List<Argument> getArgument() {
+  public List<ArgumentExtended> getArgument() {
     return argument;
   }
 
-  public FunctionClause setArgument(List<Argument> argument) {
+  public FunctionClause setArgument(List<ArgumentExtended> argument) {
     this.argument = argument;
     return this;
   }
 
 
-  public FunctionClause addArgument(Argument argument) {
+  public FunctionClause addArgument(ArgumentExtended argument) {
     if (this.argument == null)
       this.argument = new ArrayList<>();
     this.argument.add(argument);
     return this;
   }
 
-  public FunctionClause argument(Consumer<Argument> builder) {
-    Argument argument = new Argument();
+  public FunctionClause argument(Consumer<ArgumentExtended> builder) {
+    ArgumentExtended argument = new ArgumentExtended();
     addArgument(argument);
     builder.accept(argument);
     return this;
   }
-
 
 
 }

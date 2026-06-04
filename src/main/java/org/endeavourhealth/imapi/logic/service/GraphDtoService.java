@@ -3,10 +3,8 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.OWL;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -31,7 +29,8 @@ public class GraphDtoService {
   public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();
 
-    TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RDFS.SUBCLASS_OF, RDFS.LABEL)).getEntity();
+    TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfsVocab. SUBCLASS_OF, RdfsVocab.
+    LABEL)).getEntity();
 
     GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
     GraphDto graphParents = new GraphDto().setKey("0_0").setName("Is a");
@@ -103,18 +102,19 @@ public class GraphDtoService {
   }
 
   private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-    TTArray parent = entity.get(new TTIriRef(RDFS.SUBCLASS_OF));
+    TTArray parent = entity.get(new TTIriRefExtended(RdfsVocab. SUBCLASS_OF));
     if (parent == null) return Collections.emptyList();
     List<GraphDto> result = new ArrayList<>();
     parent.getElements().forEach(item -> {
-      if (!OWL.THING.toString().equals(item.asIriRef().getIri()))
-        result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName()).setPropertyType(new TTIriRef(RDFS.SUBCLASS_OF).getName()));
+      if (!OwlVocab.THING.toString().equals(item.asIriRef().getIri()))
+        result.add(new GraphDto().setIri(item.asIriRef().getIri()).setName(item.asIriRef().getName()).setPropertyType(new TTIriRefExtended(RdfsVocab.
+      SUBCLASS_OF).getName()));
     });
 
     return result;
   }
 
-  private List<TTIriRef> getDefinitionSubTypes(String iri) {
-    return entityService.getChildren(iri, null, null, null, false).stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
+  private List<TTIriRefExtended> getDefinitionSubTypes(String iri) {
+    return entityService.getChildren(iri, null, null, null, false).stream().map(t -> new TTIriRefExtended(t.getIri(), t.getName())).toList();
   }
 }

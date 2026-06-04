@@ -7,13 +7,11 @@ import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 public class ComplexECLTest {
   //@Test
   public void expanderTest() throws QueryException, JsonProcessingException {
-    new SetMemberGenerator().generateMembers(NAMESPACE.IM + "CSET_OralCorticosteroids", GRAPH.IM);
+    new SetMemberGenerator().generateMembers(NamespaceVocab.IM + "CSET_OralCorticosteroids", GraphVocab. IM);
   }
 
   //@Test

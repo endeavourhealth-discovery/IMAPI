@@ -3,13 +3,11 @@ package org.endeavourhealth.imapi.transforms;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.util.zip.DataFormatException;
 
@@ -36,7 +34,7 @@ public class SCGToTT {
 
   private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
     if (ctx.definitionstatus() != null && ctx.definitionstatus().equivalentto() != null) {
-      entity.set(EnumUtils.asIri(IM.DEFINITIONAL_STATUS), EnumUtils.asIri(IM.SUFFICIENTLY_DEFINED));
+      entity.set(EnumUtils.asIri(ImVocab.DEFINITIONAL_STATUS), EnumUtils.asIri(ImVocab.SUFFICIENTLY_DEFINED));
     }
     if (ctx.subexpression() != null)
       convertSubexpression(ctx.subexpression());
@@ -46,7 +44,7 @@ public class SCGToTT {
   private void convertSubexpression(SCGParser.SubexpressionContext subexpression) throws DataFormatException {
     if (subexpression.focusconcept() != null) {
       for (SCGParser.ConceptreferenceContext concept : subexpression.focusconcept().conceptreference()) {
-        entity.addObject(new TTIriRef(IM.IS_A), getConRef(concept.conceptid()));
+        entity.addObject(new TTIriRefExtended(ImVocab.IS_A), getConRef(concept.conceptid()));
       }
     }
     if (subexpression.refinement() != null && subexpression.refinement().attributeset() != null) {
@@ -61,9 +59,9 @@ public class SCGToTT {
   }
 
   private void convertAttribute(TTNode node, SCGParser.AttributeContext attribute) throws DataFormatException {
-    TTIriRef property = getConRef(attribute.attributename().conceptreference().conceptid());
+    TTIriRefExtended property = getConRef(attribute.attributename().conceptreference().conceptid());
     if (attribute.attributevalue().expressionvalue() != null) {
-      TTIriRef value = getConRef(attribute.attributevalue().expressionvalue().conceptreference().conceptid());
+      TTIriRefExtended value = getConRef(attribute.attributevalue().expressionvalue().conceptreference().conceptid());
       node.set(property, value);
     } else {
       TTNode value = new TTNode();
@@ -73,13 +71,13 @@ public class SCGToTT {
 
   }
 
-  private TTIriRef getConRef(SCGParser.ConceptidContext conceptId) throws DataFormatException {
+  private TTIriRefExtended getConRef(SCGParser.ConceptidContext conceptId) throws DataFormatException {
     String code = conceptId.getText();
     if (code.matches("[0-9]+")) {
       if (code.contains("1000252"))
-        return new TTIriRef(NAMESPACE.IM + code);
+        return new TTIriRefExtended(NamespaceVocab. IM + code);
       else
-        return new TTIriRef(NAMESPACE.SNOMED + code);
+      return new TTIriRefExtended(NamespaceVocab. SNOMED + code);
     } else
       throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
   }

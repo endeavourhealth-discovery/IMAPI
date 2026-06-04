@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.endeavourhealth.imapi.json.TTNodeSerializer;
 import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDF;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -92,9 +89,10 @@ class TTNodeJsonTest {
     TTNode node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
     TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRef(RDF.TYPE), new TTIriRef(RDFS.LABEL),
-      new TTIriRef(RDFS.COMMENT), new TTIriRef(IM.CODE), new TTIriRef(IM.HAS_SCHEME), new TTIriRef(IM.HAS_STATUS),
-      new TTIriRef(RDFS.SUBCLASS_OF)));
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL),
+      new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab. CODE),new TTIriRefExtended(ImVocab. HAS_SCHEME),new TTIriRefExtended(ImVocab.
+    HAS_STATUS),
+    new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);
@@ -117,9 +115,10 @@ class TTNodeJsonTest {
     TestHelper.checkEntity(node);
 
     TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRef(RDF.TYPE), new TTIriRef(RDFS.LABEL),
-      new TTIriRef(RDFS.COMMENT), new TTIriRef(IM.CODE), new TTIriRef(IM.HAS_SCHEME), new TTIriRef(IM.HAS_STATUS),
-      new TTIriRef(RDFS.SUBCLASS_OF)));
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL),
+      new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab. CODE),new TTIriRefExtended(ImVocab. HAS_SCHEME),new TTIriRefExtended(ImVocab.
+    HAS_STATUS),
+    new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);

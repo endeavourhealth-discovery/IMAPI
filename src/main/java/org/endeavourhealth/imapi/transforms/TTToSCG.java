@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDF;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.RdfVocab;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -10,11 +10,11 @@ import java.util.zip.DataFormatException;
 
 
 public class TTToSCG {
-  private static final TTIriRef[] corePredicates = {new TTIriRef(RDF.TYPE), new TTIriRef(IM.IS_A), new TTIriRef(IM.HAS_SCHEME), new TTIriRef(IM.IS_CONTAINED_IN),
-    new TTIriRef(IM.HAS_STATUS), new TTIriRef(IM.DEFINITIONAL_STATUS)};
+  private static final TTIriRefExtended[] corePredicates = {new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(ImVocab.IS_A), new TTIriRefExtended(ImVocab.HAS_SCHEME), new TTIriRefExtended(ImVocab.IS_CONTAINED_IN),
+    new TTIriRefExtended(ImVocab.HAS_STATUS), new TTIriRefExtended(ImVocab.DEFINITIONAL_STATUS)};
   boolean refinedSet;
 
-  private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
+  private static void addClass(TTIriRefExtended exp, StringBuilder scg, boolean includeName) {
     String iri = checkMember(exp.asIriRef().getIri());
     if (includeName) {
       scg.append(iri).append(" |").append(exp.asIriRef().getName()).append(" |");
@@ -32,9 +32,9 @@ public class TTToSCG {
 
   public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {
     StringBuilder scg = new StringBuilder();
-    if (entity.get(new TTIriRef(IM.IS_A)) != null) {
+    if (entity.get(new TTIriRefExtended(ImVocab.IS_A)) != null) {
       boolean first = true;
-      for (TTValue parent : entity.get(new TTIriRef(IM.IS_A)).iterator()) {
+      for (TTValue parent : entity.get(new TTIriRefExtended(ImVocab.IS_A)).iterator()) {
         if (parent.isIriRef()) {
           if (!first)
             scg.append(" +");
@@ -49,11 +49,11 @@ public class TTToSCG {
   }
 
   private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) {
-    if (node.get(new TTIriRef(IM.ROLE_GROUP)) != null) {
+    if (node.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)) != null) {
       scg.append(":");
       this.refinedSet = true;
       boolean first = true;
-      for (TTValue group : node.get(new TTIriRef(IM.ROLE_GROUP)).iterator()) {
+      for (TTValue group : node.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)).iterator()) {
         if (!first)
           scg.append(" ,");
         scg.append("{");
@@ -69,7 +69,7 @@ public class TTToSCG {
 
   private void refined(TTNode node, StringBuilder scg, Boolean includeName) {
     boolean first = true;
-    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
       if (!excludeCorePredicates(entry.getKey())) {
         if (!entry.getValue().isLiteral() && !refinedSet) {
           scg.append(": ");
@@ -92,7 +92,7 @@ public class TTToSCG {
     }
   }
 
-  private boolean excludeCorePredicates(TTIriRef predicate) {
+  private boolean excludeCorePredicates(TTIriRefExtended predicate) {
     return (Arrays.asList(corePredicates).contains(predicate));
   }
 }

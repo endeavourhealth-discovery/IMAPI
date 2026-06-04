@@ -17,7 +17,7 @@ import java.util.Map;
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
-  private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
+  private Map<TTIriRefExtended, TTArray> predicateValues = new HashMap<>();
   @Getter
   private String iri;
 
@@ -30,7 +30,7 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonSetter
-  public TTNode set(TTIriRef predicate, TTValue value) {
+  public TTNode set(TTIriRefExtended predicate, TTValue value) {
     if (value == null)
       predicateValues.remove(predicate);
     else
@@ -39,41 +39,41 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTNode set(TTIriRef predicate, String value) {
+  public TTNode set(TTIriRefExtended predicate, String value) {
     if (value.startsWith("http:"))
-      this.set(predicate, new TTIriRef(value));
+      this.set(predicate, new TTIriRefExtended(value));
     else
       this.set(predicate, TTLiteral.literal(value));
     return this;
   }
 
   @JsonIgnore
-  public TTNode set(TTIriRef predicate, Integer value) {
+  public TTNode set(TTIriRefExtended predicate, Integer value) {
     this.set(predicate, TTLiteral.literal(value));
     return this;
   }
 
   @JsonIgnore
-  public TTNode set(TTIriRef predicate, boolean value) {
+  public TTNode set(TTIriRefExtended predicate, boolean value) {
     this.set(predicate, TTLiteral.literal(value));
     return this;
   }
 
   @JsonIgnore
-  public TTNode set(TTIriRef predicate, Long value) {
+  public TTNode set(TTIriRefExtended predicate, Long value) {
     this.set(predicate, TTLiteral.literal(value));
     return this;
   }
 
   @JsonSetter
-  public TTNode set(TTIriRef predicate, TTArray value) {
+  public TTNode set(TTIriRefExtended predicate, TTArray value) {
     predicateValues.put(predicate, value);
     return this;
   }
 
   @JsonIgnore
   public TTNode set(String predicate, TTValue value) {
-    this.set(new TTIriRef(predicate), value);
+    this.set(new TTIriRefExtended(predicate), value);
     return this;
   }
 
@@ -86,13 +86,13 @@ public class TTNode implements TTValue, Serializable {
 
   @JsonIgnore
   public TTNode set(String predicate, boolean value) {
-    this.set(new TTIriRef(predicate), value);
+    this.set(new TTIriRefExtended(predicate), value);
     return this;
   }
 
   @JsonIgnore
   public TTArray get(String predicate) {
-    return predicateValues.get(new TTIriRef(predicate));
+    return predicateValues.get(new TTIriRefExtended(predicate));
   }
 
   @JsonIgnore
@@ -101,11 +101,11 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonGetter
-  public TTArray get(TTIriRef predicate) {
+  public TTArray get(TTIriRefExtended predicate) {
     return predicateValues.get(predicate);
   }
 
-  public boolean has(TTIriRef predicate) {
+  public boolean has(TTIriRefExtended predicate) {
     return predicateValues.containsKey(predicate);
   }
 
@@ -113,11 +113,11 @@ public class TTNode implements TTValue, Serializable {
     return predicateValues.containsKey(EnumUtils.asIri(predicate));
   }
 
-  public Map<TTIriRef, TTArray> getPredicateMap() {
+  public Map<TTIriRefExtended, TTArray> getPredicateMap() {
     return this.predicateValues;
   }
 
-  public TTNode setPredicateMap(Map<TTIriRef, TTArray> predicateMap) {
+  public TTNode setPredicateMap(Map<TTIriRefExtended, TTArray> predicateMap) {
     this.predicateValues = predicateMap;
     return this;
   }
@@ -134,19 +134,19 @@ public class TTNode implements TTValue, Serializable {
   }
 
   @JsonGetter
-  public TTLiteral getAsLiteral(TTIriRef predicate) {
+  public TTLiteral getAsLiteral(TTIriRefExtended predicate) {
     TTArray vals = get(predicate);
     return (vals == null) ? null : vals.asLiteral();
   }
 
   @JsonGetter
-  public TTIriRef getAsIriRef(TTIriRef predicate) {
+  public TTIriRefExtended getAsIriRef(TTIriRefExtended predicate) {
     TTArray vals = get(predicate);
     return (vals == null) ? null : vals.asIriRef();
   }
 
   @JsonGetter
-  public TTNode getAsNode(TTIriRef predicate) {
+  public TTNode getAsNode(TTIriRefExtended predicate) {
     TTArray vals = get(predicate);
     return (vals == null) ? null : vals.asNode();
   }
@@ -158,7 +158,7 @@ public class TTNode implements TTValue, Serializable {
    * @return the modified node with a predicate object as an array
    */
 
-  public TTNode addObject(TTIriRef predicate, TTValue object) {
+  public TTNode addObject(TTIriRefExtended predicate, TTValue object) {
     if (this.get(predicate) == null)
       this.set(predicate, new TTArray().add(object));
     else
@@ -173,9 +173,9 @@ public class TTNode implements TTValue, Serializable {
    * @return the modified node with a predicate object as an array
    */
 
-  public TTNode addObject(TTIriRef predicate, String value) {
+  public TTNode addObject(TTIriRefExtended predicate, String value) {
     if (value.startsWith("http:"))
-      this.addObject(predicate, new TTIriRef(value));
+      this.addObject(predicate, new TTIriRefExtended(value));
     else
       this.addObject(predicate, TTLiteral.literal(value));
     return this;
@@ -188,7 +188,7 @@ public class TTNode implements TTValue, Serializable {
    * @return the modified node with a predicate object as an array
    */
 
-  public TTNode addObject(TTIriRef predicate, Integer value) {
+  public TTNode addObject(TTIriRefExtended predicate, Integer value) {
     this.addObject(predicate, TTLiteral.literal(value));
     return this;
   }
@@ -200,7 +200,7 @@ public class TTNode implements TTValue, Serializable {
    * @return the modified node with a predicate object as an array
    */
 
-  public TTNode addObject(TTIriRef predicate, boolean value) {
+  public TTNode addObject(TTIriRefExtended predicate, boolean value) {
     this.addObject(predicate, TTLiteral.literal(value));
     return this;
   }
@@ -212,12 +212,12 @@ public class TTNode implements TTValue, Serializable {
    * @return the modified node with a predicate object as an array
    */
 
-  public TTNode addObject(TTIriRef predicate, Long value) {
+  public TTNode addObject(TTIriRefExtended predicate, Long value) {
     this.addObject(predicate, TTLiteral.literal(value));
     return this;
   }
 
-  public TTNode removeObject(TTIriRef predicate) {
+  public TTNode removeObject(TTIriRefExtended predicate) {
     if (this.get(predicate) != null) {
       this.predicateValues.remove(predicate);
     }

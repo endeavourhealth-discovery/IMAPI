@@ -6,10 +6,10 @@ import lombok.Setter;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.interfacemanager.model.DatabaseOption;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
 
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public class QueryRequest implements ContextMap {
   private Page page;
   private Map<String, String> context;
   private String textSearch;
-  private Set<Argument> argument;
+  private Set<ArgumentExtended> argument;
   @JsonProperty(required = true)
   private Query query;
   private PathQuery pathQuery;
@@ -33,7 +33,7 @@ public class QueryRequest implements ContextMap {
   private String queryStringDefinition;
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
-  private Set<TTIriRef> cohort;
+  private Set<TTIriRefExtended> cohort;
   @Setter
   private boolean includeNames;
   @Setter
@@ -44,12 +44,12 @@ public class QueryRequest implements ContextMap {
   public QueryRequest() {
   }
 
-  public QueryRequest setCohort(Set<TTIriRef> cohort) {
+  public QueryRequest setCohort(Set<TTIriRefExtended> cohort) {
     this.cohort = cohort;
     return this;
   }
 
-  public QueryRequest addToCohort(TTIriRef cohort) {
+  public QueryRequest addToCohort(TTIriRefExtended cohort) {
     if (this.cohort == null) {
       this.cohort = new HashSet<>();
     }
@@ -103,32 +103,32 @@ public class QueryRequest implements ContextMap {
   }
 
   @JsonSetter
-  public QueryRequest setArgument(Set<Argument> argument) {
+  public QueryRequest setArgument(Set<ArgumentExtended> argument) {
     this.argument = argument;
     return this;
   }
 
-  public QueryRequest addArgument(Argument argument) {
+  public QueryRequest addArgument(ArgumentExtended argument) {
     if (this.argument == null)
       this.argument = new HashSet<>();
     this.argument.add(argument);
     return this;
   }
 
-  public QueryRequest argument(Consumer<Argument> builder) {
-    Argument argument = new Argument();
+  public QueryRequest argument(Consumer<ArgumentExtended> builder) {
+    ArgumentExtended argument = new ArgumentExtended();
     addArgument(argument);
     builder.accept(argument);
     return this;
   }
 
   public QueryRequest addArgument(String parameter, Object value) {
-    Argument argument = new Argument();
+    ArgumentExtended argument = new ArgumentExtended();
     argument.setParameter(parameter);
     if (value instanceof String)
       argument.setValueData((String) value);
-    else if (value instanceof TTIriRef)
-      argument.setValueIri((TTIriRef) value);
+    else if (value instanceof TTIriRefExtended)
+      argument.setValueIri((TTIriRefExtended) value);
     else
       throw new IllegalArgumentException("Using add argument this way must include a string value or TTIref value");
     addArgument(argument);
@@ -139,7 +139,7 @@ public class QueryRequest implements ContextMap {
     if (this.argument == null)
       return null;
     else {
-      for (Argument arg : this.argument) {
+      for (ArgumentExtended arg : this.argument) {
         if (arg.getParameter().equals(parameter))
           return arg.getValueData();
       }
@@ -206,13 +206,13 @@ public class QueryRequest implements ContextMap {
 
   public QueryRequest setDefaultPrefixMap() {
     this.context = new HashMap<>();
-    context.put(NAMESPACE.IM.toString(), "im");
-    context.put(NAMESPACE.SNOMED.toString(), "sn");
-    context.put(NAMESPACE.OWL.toString(), "owl");
-    context.put(NAMESPACE.RDF.toString(), "rdf");
-    context.put(NAMESPACE.RDFS.toString(), "rdfs");
-    context.put(NAMESPACE.XSD.toString(), "xsd");
-    context.put(NAMESPACE.SHACL.toString(), "sh");
+    context.put(NamespaceVocab.IM.toString(), "im");
+    context.put(NamespaceVocab.SNOMED.toString(), "sn");
+    context.put(NamespaceVocab.OWL.toString(), "owl");
+    context.put(NamespaceVocab.RDF.toString(), "rdf");
+    context.put(NamespaceVocab.RDFS.toString(), "rdfs");
+    context.put(NamespaceVocab.XSD.toString(), "xsd");
+    context.put(NamespaceVocab.SHACL.toString(), "sh");
     return this;
   }
 
@@ -230,7 +230,7 @@ public class QueryRequest implements ContextMap {
   public int hashCode() {
     resolveArgs();
     StringBuilder hs = new StringBuilder();
-    for (Argument arg : argument) {
+    for (ArgumentExtended arg : argument) {
       String argumentString = arg.getHashString();
       hs.append(argumentString);
     }
@@ -250,7 +250,7 @@ public class QueryRequest implements ContextMap {
       boolean hasDate = this.argument.stream()
         .anyMatch(arg -> date.equals(arg.getParameter()));
       if (!hasDate)
-        this.argument.add(new Argument().setParameter(date).setValueData(LocalDate.now().toString()));
+        this.argument.add(new ArgumentExtended().parameter(date).valueData(LocalDate.now().toString()));
     }
   }
 }

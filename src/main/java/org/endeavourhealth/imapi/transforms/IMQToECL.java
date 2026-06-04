@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.interfacemanager.model.ECLType;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 
 import java.util.*;
 
@@ -409,7 +409,7 @@ public class IMQToECL {
       }
       name = names.get(iri);
     }
-    if (iri.startsWith(NAMESPACE.SNOMED.toString())) {
+    if (iri.startsWith(NamespaceVocab.SNOMED.toString())) {
       iri = iri.substring(iri.lastIndexOf("#") + 1);
     } else if (iri.contains("#")) {
       if (prefixes != null) {

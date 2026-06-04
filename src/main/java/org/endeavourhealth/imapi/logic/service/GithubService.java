@@ -11,7 +11,7 @@ import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException;
 import org.endeavourhealth.imapi.model.github.GithubDTO;
 import org.endeavourhealth.imapi.model.github.GithubRelease;
-import org.endeavourhealth.interfacemanager.model.CONFIG;
+import org.endeavourhealth.interfacemanager.model.ConfigVocab;
 import org.endeavourhealth.interfacemanager.model.REPO;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,7 +33,7 @@ public class GithubService {
   final ConfigManager configManager = new ConfigManager();
 
   public GithubRelease getGithubLatestRelease(REPO repo) throws ConfigException, JsonProcessingException {
-    CONFIG url = getLatestReleaseUrlFromRepo(repo);
+    ConfigVocab url = getLatestReleaseUrlFromRepo(repo);
     GithubRelease config = configManager.getConfig(url, new TypeReference<>() {
     });
     if (null == config)
@@ -46,12 +46,12 @@ public class GithubService {
     ObjectMapper mapper = new ObjectMapper();
     String gitHubReleaseJson = mapper.writeValueAsString(githubRelease);
     config.setData(gitHubReleaseJson);
-    CONFIG url = getLatestReleaseUrlFromRepo(repo);
+    ConfigVocab url = getLatestReleaseUrlFromRepo(repo);
     configManager.setConfig(url, config);
   }
 
   public List<GithubRelease> getGithubReleases(REPO repo) throws JsonProcessingException, ConfigException {
-    CONFIG url = getAllReleasesUrlFromRepo(repo);
+    ConfigVocab url = getAllReleasesUrlFromRepo(repo);
     List<GithubRelease> config = configManager.getConfig(url, new TypeReference<>() {
     });
     if (null == config)
@@ -59,17 +59,17 @@ public class GithubService {
     return config;
   }
 
-  private CONFIG getLatestReleaseUrlFromRepo(REPO repo) {
+  private ConfigVocab getLatestReleaseUrlFromRepo(REPO repo) {
     return switch (repo) {
-      case REPO.IM_DIRECTORY -> CONFIG.IMDIRECTORY_LATEST_RELEASE;
-      case REPO.IM_QUERY_RUNNER -> CONFIG.IMQUERY_RUNNER_LATEST_RELEASE;
+      case REPO.IM_DIRECTORY -> ConfigVocab.IMDIRECTORY_LATEST_RELEASE;
+      case REPO.IM_QUERY_RUNNER -> ConfigVocab.IMQUERY_RUNNER_LATEST_RELEASE;
     };
   }
 
-  private CONFIG getAllReleasesUrlFromRepo(REPO repo) {
+  private ConfigVocab getAllReleasesUrlFromRepo(REPO repo) {
     return switch (repo) {
-      case REPO.IM_DIRECTORY -> CONFIG.IMDIRECTORY_ALL_RELEASES;
-      case REPO.IM_QUERY_RUNNER -> CONFIG.IMQUERY_RUNNER_ALL_RELEASES;
+      case REPO.IM_DIRECTORY -> ConfigVocab.IMDIRECTORY_ALL_RELEASES;
+      case REPO.IM_QUERY_RUNNER -> ConfigVocab.IMQUERY_RUNNER_ALL_RELEASES;
     };
   }
 
@@ -96,7 +96,7 @@ public class GithubService {
     ObjectMapper mapper = new ObjectMapper();
     String gitHubReleaseJson = mapper.writeValueAsString(githubReleases);
     config.setData(gitHubReleaseJson);
-    CONFIG url = getAllReleasesUrlFromRepo(repo);
+    ConfigVocab url = getAllReleasesUrlFromRepo(repo);
     configManager.setConfig(url, config);
   }
 

@@ -9,8 +9,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -104,7 +103,7 @@ public class CodeGenJava {
             ? bindSet.getValue("comment").stringValue()
             : null);
 
-          TTIriRef dataType = new TTIriRef(
+          TTIriRefExtended dataType = new TTIriRefExtended(
             bindSet.getValue("type").stringValue(),
             bindSet.hasBinding("typeName")
               ? bindSet.getValue("typeName").stringValue()
@@ -328,9 +327,9 @@ public class CodeGenJava {
     return output.toString();
   }
 
-  String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
+  String getDataType(TTIriRefExtended dataType, boolean dataModel, boolean isArray) {
     String dataTypeName;
-    if (dataType.getIri().startsWith(NAMESPACE.XSD.toString())) {
+    if (dataType.getIri().startsWith(NamespaceVocab.XsdVocab.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));
     } else if (dataModel) {
       dataTypeName = "UUID";

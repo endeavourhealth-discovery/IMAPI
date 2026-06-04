@@ -1,14 +1,14 @@
 package org.endeavourhealth.imapi.model;
 
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class EntityReferenceNode extends TTIriRef implements Serializable {
+public class EntityReferenceNode extends TTIriRefExtended implements Serializable {
   private List<EntityReferenceNode> parents = new ArrayList<>();
   private List<EntityReferenceNode> children;
   private String moduleId;
@@ -20,7 +20,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   public EntityReferenceNode() {
   }
 
-  public EntityReferenceNode addType(TTIriRef type){
+  public EntityReferenceNode addType(TTIriRefExtended type){
     if (this.type == null)
       this.type = new TTArray();
     this.type.add(type);

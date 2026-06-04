@@ -4,10 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDF;
-import org.endeavourhealth.interfacemanager.model.RDFS;
-import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,10 +43,11 @@ public class TTNodeSerializer {
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen) throws IOException {
-    List<TTIriRef> orderedPredicates = Stream.of(new TTIriRef(RDF.TYPE), new TTIriRef(RDFS.LABEL), new TTIriRef(RDFS.COMMENT), new TTIriRef(IM.HAS_STATUS)).toList();
-    if (node.get(new TTIriRef(RDF.TYPE)) != null) {
-      for (TTValue type : node.get(new TTIriRef(RDF.TYPE)).getElements()) {
-        List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
+    List<TTIriRefExtended> orderedPredicates = Stream.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL), new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab.
+    HAS_STATUS)).toList();
+    if (node.get(new TTIriRefExtended(RdfVocab.TYPE)) != null) {
+      for (TTValue type : node.get(new TTIriRefExtended(RdfVocab.TYPE)).getElements()) {
+        List<TTIriRefExtended> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
         if (orderForType != null)
           orderedPredicates = orderForType;
       }
@@ -59,15 +56,15 @@ public class TTNodeSerializer {
   }
 
 
-  private void serializeOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
-    for (TTIriRef predicate : predicates) {
+  private void serializeOrdered(TTNode node, List<TTIriRefExtended> predicates, JsonGenerator gen) throws IOException {
+    for (TTIriRefExtended predicate : predicates) {
       if (node.get(predicate) != null) {
         serializeFieldValue(predicate.getIri(), node.get(predicate), gen);
       }
     }
-    Map<TTIriRef, TTArray> nodePredicates = node.getPredicateMap();
+    Map<TTIriRefExtended, TTArray> nodePredicates = node.getPredicateMap();
     if (nodePredicates != null && !nodePredicates.isEmpty()) {
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
         if (!predicates.contains(entry.getKey()))
           serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
       }
@@ -105,7 +102,7 @@ public class TTNodeSerializer {
 
   public void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
     if (value.isIriRef()) {
-      TTIriRef ref = value.asIriRef();
+      TTIriRefExtended ref = value.asIriRef();
       gen.writeStartObject();
       gen.writeStringField("iri", prefix(ref.getIri()));
       if (ref.getName() != null && !ref.getName().isEmpty())
@@ -124,12 +121,12 @@ public class TTNodeSerializer {
 
   public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
     if (literal.getType() != null) {
-      switch (XSD.fromValue(literal.getType().getIri())) {
-        case XSD.STRING -> gen.writeString(literal.getValue());
-        case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
-        case XSD.INTEGER -> gen.writeNumber(literal.intValue());
-        case XSD.LONG -> gen.writeNumber(literal.longValue());
-        case XSD.PATTERN -> {
+      switch (XsdVocab.fromValue(literal.getType().getIri())) {
+        case XsdVocab.STRING -> gen.writeString(literal.getValue());
+        case XsdVocab.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
+        case XsdVocab.INTEGER -> gen.writeNumber(literal.intValue());
+        case XsdVocab.LONG -> gen.writeNumber(literal.longValue());
+        case XsdVocab.PATTERN -> {
           gen.writeStartObject();
           gen.writeStringField("value", literal.getValue());
           gen.writeStringField("type", prefix(literal.getType().getIri()));

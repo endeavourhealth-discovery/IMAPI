@@ -4,40 +4,39 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @JsonPropertyOrder({"name", "cohort","query", "outputDefinition", "successAction","iri","query"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Indicator extends TTIriRef {
+public class Indicator extends TTIriRefExtended {
   @Getter
-  private List<TTIriRef> isSubIndicatorOf;
+  private List<TTIriRefExtended> isSubIndicatorOf;
   @Getter
-  private TTIriRef numerator;
+  private TTIriRefExtended numerator;
   @Getter
-  private TTIriRef dataset;
-  @Getter
-  @Setter
-  private List<TTIriRef> actionIfFalse;
+  private TTIriRefExtended dataset;
   @Getter
   @Setter
-  private List<TTIriRef> actionIfTrue;
+  private List<TTIriRefExtended> actionIfFalse;
   @Getter
-  private TTIriRef denominator;
+  @Setter
+  private List<TTIriRefExtended> actionIfTrue;
+  @Getter
+  private TTIriRefExtended denominator;
 
-  public Indicator setDataset(TTIriRef dataset) {
+  public Indicator setDataset(TTIriRefExtended dataset) {
     this.dataset = dataset;
     return this;
   }
-  public Indicator setDenominator(TTIriRef denominator) {
+  public Indicator setDenominator(TTIriRefExtended denominator) {
     this.denominator = denominator;
     return this;
   }
 
-  public Indicator setnumerator(TTIriRef numerator) {
+  public Indicator setnumerator(TTIriRefExtended numerator) {
     this.numerator = numerator;
     return this;
   }
@@ -46,12 +45,12 @@ public class Indicator extends TTIriRef {
 
 
 
-  public Indicator setIsSubIndicatorOf(List<TTIriRef> isSubIndicatorOf) {
+  public Indicator setIsSubIndicatorOf(List<TTIriRefExtended> isSubIndicatorOf) {
     this.isSubIndicatorOf = isSubIndicatorOf;
     return this;
   }
 
-  public Indicator addSubIndicatorOf(TTIriRef indicator) {
+  public Indicator addSubIndicatorOf(TTIriRefExtended indicator) {
     if (this.isSubIndicatorOf == null) {
       this.isSubIndicatorOf = new ArrayList<>();
     }

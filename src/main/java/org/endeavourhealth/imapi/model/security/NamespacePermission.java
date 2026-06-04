@@ -1,17 +1,7 @@
 package org.endeavourhealth.imapi.model.security;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespacePermissionJava;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class NamespacePermission {
-  private NAMESPACE iri;
-  private boolean read;
-  private boolean write;
+public class NamespacePermission extends NamespacePermissionJava {
+
 }

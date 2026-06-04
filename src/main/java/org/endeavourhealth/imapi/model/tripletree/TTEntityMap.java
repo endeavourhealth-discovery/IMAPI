@@ -36,7 +36,7 @@ public class TTEntityMap {
     return this;
   }
 
-  public TTEntityMap addPredicate(TTIriRef predicate) {
+  public TTEntityMap addPredicate(TTIriRefExtended predicate) {
     predicates.put(predicate.getIri(), predicate.getName());
     return this;
   }

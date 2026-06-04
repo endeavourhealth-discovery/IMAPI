@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.transformengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
 
 import java.util.Collection;
@@ -17,20 +16,20 @@ public class TTTranslator implements SyntaxTranslator {
     if (((TTEntity) targetValue).getIri() != null)
       nodeValue.setIri(((TTEntity) targetValue).getIri());
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-      targetEntity.addObject(new TTIriRef(predicate), nodeValue);
+      targetEntity.addObject(new TTIriRefExtended(predicate), nodeValue);
     }
   }
 
   private static void setPropertyValueTTValue(MapProperty rule, TTNode targetEntity, TTValue targetValue, String predicate) {
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
-      targetEntity.addObject(new TTIriRef(predicate), targetValue);
+      targetEntity.addObject(new TTIriRefExtended(predicate), targetValue);
     } else
-      targetEntity.set(new TTIriRef(predicate), targetValue);
+      targetEntity.set(new TTIriRefExtended(predicate), targetValue);
   }
 
   public Object createEntity(String type) {
     TTEntity target = new TTEntity();
-    target.addType(new TTIriRef(type));
+    target.addType(new TTIriRefExtended(type));
 
     return target;
   }
@@ -52,12 +51,13 @@ public class TTTranslator implements SyntaxTranslator {
       for (Map.Entry<?, ?> entry : fromMap.entrySet()) {
         String key = (String) entry.getKey();
         if (!key.contains(":"))
-          key = NAMESPACE.IM + key;
+          key = NamespaceVocab.
+            IM + key;
         Object value = convertToTargetSingle(entry.getValue());
         if (value instanceof TTArray valueTTArray)
-          result.set(new TTIriRef(key), valueTTArray);
+          result.set(new TTIriRefExtended(key), valueTTArray);
         else if (value instanceof TTValue valueTTValue) {
-          result.set(new TTIriRef(key), valueTTValue);
+          result.set(new TTIriRefExtended(key), valueTTValue);
         } else
           throw new IllegalArgumentException("Unknown sub node type in target map " + value.getClass().getSimpleName());
       }
@@ -99,21 +99,22 @@ public class TTTranslator implements SyntaxTranslator {
       else {
         String predicate = property;
         if (!property.contains(":"))
-          predicate = NAMESPACE.IM + property;
+          predicate = NamespaceVocab.
+            IM + property;
         switch (targetValue) {
           case List<?> targetValueList -> {
             TTArray array = new TTArray();
             for (Object item : targetValueList) {
               array.add((TTValue) convertToTargetSingle(item));
             }
-            ((TTNode) targetEntity).set(new TTIriRef(predicate), array);
+            ((TTNode) targetEntity).set(new TTIriRefExtended(predicate), array);
           }
-          case TTArray targetValueTTArray -> ((TTNode) targetEntity).set(new TTIriRef(predicate), targetValueTTArray);
+          case TTArray targetValueTTArray -> ((TTNode) targetEntity).set(new TTIriRefExtended(predicate), targetValueTTArray);
           case TTEntity targetValueTTEntity ->
             setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValueTTEntity, predicate);
           case TTValue targetValueTTValue ->
             setPropertyValueTTValue(rule, (TTNode) targetEntity, targetValueTTValue, predicate);
-          case null, default -> ((TTNode) targetEntity).set(new TTIriRef(predicate), TTLiteral.literal(targetValue));
+          case null, default -> ((TTNode) targetEntity).set(new TTIriRefExtended(predicate), TTLiteral.literal(targetValue));
         }
       }
     } catch (JsonProcessingException e) {

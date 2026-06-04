@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +11,19 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri", "name", "property", "pattern", "intervalUnit", "qualifier"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class PropertyRange extends TTIriRef {
+public class PropertyRange extends TTIriRefExtended {
   @Getter
-  private TTIriRef type;
+  private TTIriRefExtended type;
   @Getter
   private String pattern;
   @Getter
-  private TTIriRef intervalUnit;
+  private TTIriRefExtended intervalUnit;
   @Getter
   private List<PropertyRange> qualifier;
   @Getter
-  private TTIriRef units;
+  private TTIriRefExtended units;
   @Getter
-  private TTIriRef operator;
+  private TTIriRefExtended operator;
   @Getter
   private boolean isRelativeValue;
 
@@ -32,17 +32,17 @@ public class PropertyRange extends TTIriRef {
     return this;
   }
 
-  public PropertyRange setUnits(TTIriRef units) {
+  public PropertyRange setUnits(TTIriRefExtended units) {
     this.units = units;
     return this;
   }
 
-  public PropertyRange setOperator(TTIriRef operator) {
+  public PropertyRange setOperator(TTIriRefExtended operator) {
     this.operator = operator;
     return this;
   }
 
-  public PropertyRange setType(TTIriRef type) {
+  public PropertyRange setType(TTIriRefExtended type) {
     this.type = type;
     return this;
   }
@@ -87,7 +87,7 @@ public class PropertyRange extends TTIriRef {
   }
 
 
-  public PropertyRange setIntervalUnit(TTIriRef intervalUnit) {
+  public PropertyRange setIntervalUnit(TTIriRefExtended intervalUnit) {
     this.intervalUnit = intervalUnit;
     return this;
   }

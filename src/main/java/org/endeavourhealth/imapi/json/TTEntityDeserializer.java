@@ -6,9 +6,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,15 +53,16 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
       JsonNode value = field.getValue();
       if ("iri".equals(key))
         result.setIri(helper.expand(value.textValue()));
-      else if (IM.ID.toString().equals(key))
-        result.setIri(helper.expand(value.textValue()));
+      else if ( ImVocab.
+      ID.toString().equals(key))
+      result.setIri(helper.expand(value.textValue()));
       else if ("crud".equals(key))
         result.setCrud(helper.getJsonNodeAsValue(value).asIriRef());
       else if (!"context".equals(key)) {
         if (value.isArray())
-          result.set(new TTIriRef(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));
+          result.set(new TTIriRefExtended(helper.expand(key)), helper.getJsonNodeArrayAsValue(value));
         else
-          result.set(new TTIriRef(helper.expand(key)), helper.getJsonNodeAsValue(value));
+          result.set(new TTIriRefExtended(helper.expand(key)), helper.getJsonNodeAsValue(value));
       }
     }
   }

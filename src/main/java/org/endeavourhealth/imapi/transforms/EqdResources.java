@@ -7,9 +7,11 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.iml.EntityExtended;
+import org.endeavourhealth.imapi.model.imq.Assignable;
+import org.endeavourhealth.imapi.model.imq.Case;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ public class EqdResources {
   @Getter
   TTEntity queryEntity;
   @Getter
-  private NAMESPACE namespace;
+  private NamespaceVocab namespace;
   @Setter
   private String activeReport;
   @Getter
@@ -59,7 +61,7 @@ public class EqdResources {
   private int subRule = 0;
   private Map<String, Match> nodeRefMap;
 
-  public EqdResources(TTDocument document, Properties dataMap, NAMESPACE namespace) {
+  public EqdResources(TTDocument document, Properties dataMap, NamespaceVocab namespace) {
     this.dataMap = dataMap;
     this.document = document;
     this.namespace = namespace;
@@ -88,7 +90,7 @@ public class EqdResources {
     ++this.subRule;
   }
 
-  public EqdResources setNamespace(NAMESPACE namespace) {
+  public EqdResources setNamespace(NamespaceVocab namespace) {
     this.namespace = namespace;
     return this;
   }
@@ -127,10 +129,11 @@ public class EqdResources {
       }
       String finalParentId = this.namespace + parent;
       if (EqdToIMQ.gmsPatients.contains(parent)) {
-        finalParentId = NAMESPACE.IM + "Q_RegisteredGMS";
+        finalParentId = NamespaceVocab.
+          IM + "Q_RegisteredGMS";
       }
       match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
-      queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalParentId));
+      queryEntity.addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(finalParentId));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -260,10 +263,11 @@ public class EqdResources {
       .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
     String finalSearchId = namespace + searchId;
     if (EqdToIMQ.gmsPatients.contains(searchId)) {
-      finalSearchId = NAMESPACE.IM + "Q_RegisteredGMS";
+      finalSearchId = NamespaceVocab.
+        IM + "Q_RegisteredGMS";
     }
 
-    queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalSearchId));
+    queryEntity.addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(finalSearchId));
     if (score != null) {
       addScore(match, score);
     }
@@ -392,13 +396,13 @@ public class EqdResources {
       throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight = new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
-      relationRight.setIri(NAMESPACE.IM + "effectiveDate");
+      relationRight.setIri(NamespaceVocab.IM + "effectiveDate");
       injectPropertyReturn(parentMatch, relationRight.getIri());
       relationRight.setNodeRef(getNode(parentMatch));
       relationRight.setNodeRef(getKeepAs(parentMatch));
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
     } else if (eqRelationship.getParentColumn().contains("VALUE")) {
-      relationRight.setIri(NAMESPACE.IM + "value");
+      relationRight.setIri(NamespaceVocab.IM + "value");
       injectPropertyReturn(parentMatch, relationRight.getIri());
       relationRight.setNodeRef(parentMatch.getNode());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
@@ -406,11 +410,11 @@ public class EqdResources {
       relationRight.setNodeRef(parentMatch.getNode());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
       Path linkedMatchPath = new Path();
-      linkedMatchPath.setIri(NAMESPACE.IM + "patient");
+      linkedMatchPath.setIri(NamespaceVocab.IM + "patient");
       linkedMatchPath.setNode("patient");
-      linkedMatchPath.setTypeOf(NAMESPACE.IM + "Patient");
+      linkedMatchPath.setTypeOf(NamespaceVocab.IM + "Patient");
       linkedMatch.addPath(linkedMatchPath);
-      relationRight.setNodeRef("patient").setIri(NAMESPACE.IM + "dateOfBirth");
+      relationRight.setNodeRef("patient").setIri(NamespaceVocab.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
     if (eqRelationship.getRangeValue() != null) {
@@ -495,10 +499,10 @@ public class EqdResources {
     if (eqUnits == null) return null;
     TTIriRef units = getIMUnits(eqUnits);
     if (units == null) return null;
-    if (units.getIri().equals(IM.FISCAL_YEAR.toString())) {
+    if (units.getIri().equals(ImVocab.FISCAL_YEAR.toString())) {
       where.setQualifier(units);
       units = null;
-    } else if (units.getIri().equals(IM.QUARTER.toString())) {
+    } else if (units.getIri().equals(ImVocab.QUARTER.toString())) {
       where.setQualifier(units);
       units = null;
     }
@@ -736,7 +740,7 @@ public class EqdResources {
           path = path.substring(1);
         }
 
-        path = inverse + (path.startsWith("http") ? path : NAMESPACE.IM + path);
+        path = inverse + (path.startsWith("http") ? path : NamespaceVocab.IM + path);
         paths[i] = path;
       }
 
@@ -746,7 +750,8 @@ public class EqdResources {
 
 
   private String resolveIri(String iri) {
-    return iri.startsWith("http") ? iri : NAMESPACE.IM + iri;
+    return iri.startsWith("http") ? iri : NamespaceVocab.
+      IM + iri;
   }
 
   private Match convertTestCriterion(EQDOCCriterion eqCriterion) throws EQDException, IOException {
@@ -992,15 +997,15 @@ public class EqdResources {
   private TTIriRef getIMUnits(VocValueUnit units) throws EQDException {
     switch (units) {
       case YEAR:
-        return new TTIriRef(IM.YEARS);
+        return new TTIriRefExtended(ImVocab.YEARS);
       case MONTH:
-        return new TTIriRef(IM.MONTHS);
+        return new TTIriRefExtended(ImVocab.MONTHS);
       case DAY:
-        return new TTIriRef(IM.DAYS);
+        return new TTIriRefExtended(ImVocab.DAYS);
       case FISCALYEAR:
-        return new TTIriRef(IM.FISCAL_YEAR);
+        return new TTIriRefExtended(ImVocab.FISCAL_YEAR);
       case QUARTER:
-        return new TTIriRef(IM.QUARTER);
+        return new TTIriRefExtended(ImVocab.QUARTER);
       case DATE:
         break;
       default:
@@ -1012,9 +1017,9 @@ public class EqdResources {
 
   private TTIriRef getIMQualifier(VocValueUnit units) throws EQDException {
     return switch (units) {
-      case FISCALYEAR -> new TTIriRef(IM.FISCAL_YEAR);
-      case QUARTER -> new TTIriRef(IM.QUARTER);
-      case MONTH -> new TTIriRef(IM.MONTH);
+      case FISCALYEAR -> new TTIriRefExtended(ImVocab.FISCAL_YEAR);
+      case QUARTER -> new TTIriRefExtended(ImVocab.QUARTER);
+      case MONTH -> new TTIriRefExtended(ImVocab.MONTH);
       default -> throw new EQDException("unknown qualifier map: " + units);
     };
   }
@@ -1110,7 +1115,7 @@ public class EqdResources {
               String setIri = memberOrConcept.getIri();
               TTEntity usedIn = EqdToIMQ.setIriToEntity.get(setIri);
               if (usedIn == null) {
-                usedIn = (new TTEntity()).setIri(setIri).setCrud(new TTIriRef(IM.ADD_QUADS));
+                usedIn = (new TTEntity()).setIri(setIri).setCrud(new TTIriRefExtended(ImVocab.ADD_QUADS));
                 this.document.addEntity(usedIn);
                 EqdToIMQ.setIriToEntity.put(setIri, usedIn);
               }
@@ -1183,7 +1188,8 @@ public class EqdResources {
 
   private Query convertToEcl(VocCodeSystemEx scheme, Set<Node> setContent) throws EQDException {
     if (scheme == VocCodeSystemEx.SCT_CONST) {
-      String property = NAMESPACE.SNOMED + "127489000";
+      String property = NamespaceVocab.
+        SNOMED + "127489000";
       String name = null;
       Query eclQuery = (new Query());
       Where where = new Where();
@@ -1277,10 +1283,10 @@ public class EqdResources {
       throw new IllegalArgumentException("code scheme not recognised : " + scheme.value());
     } else {
       List<NAMESPACE> schemes = new ArrayList<>();
-      schemes.add(NAMESPACE.SNOMED);
-      schemes.add(NAMESPACE.EMIS);
-      schemes.add(NAMESPACE.IM);
-      schemes.add(NAMESPACE.BNF);
+      schemes.add(NamespaceVocab.SNOMED);
+      schemes.add(NamespaceVocab.EMIS);
+      schemes.add(NamespaceVocab.IM);
+      schemes.add(NamespaceVocab.BNF);
       Set<Node> snomed = valueMap.get(originalCode);
       if (snomed == null) {
         snomed = this.getValuesFromOriginal(originalCode, originalTerm, legacyCode, schemes);
@@ -1315,7 +1321,7 @@ public class EqdResources {
   }
 
   private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<NAMESPACE> schemes) {
-    Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes);
+    Set<EntityExtended> snomed = this.getCoreFromCode(originalCode, schemes);
     if (snomed == null && legacyCode != null) {
       snomed = this.getCoreFromCode(legacyCode, schemes);
     }
@@ -1337,35 +1343,35 @@ public class EqdResources {
         Node n = new Node();
         n.setIri(e.getIri());
         n.setName(e.getName());
-        if (Set.of(new TTIriRef(IM.CONCEPT_SET), new TTIriRef(IM.VALUE_SET)).stream().anyMatch(e.getType()::contains))
+        if (Set.of(new TTIriRefExtended(ImVocab.CONCEPT_SET), new TTIriRefExtended(ImVocab.VALUE_SET)).stream().anyMatch(e.getType()::contains))
           n.setMemberOf(true);
         return n;
       })
       .collect(Collectors.toSet());
   }
 
-  private Set<Entity> getLegacyFromTermCode(String originalCode) {
+  private Set<EntityExtended> getLegacyFromTermCode(String originalCode) {
     try {
-      return this.importMaps.getLegacyFromTermCode(originalCode, NAMESPACE.EMIS);
+      return this.importMaps.getLegacyFromTermCode(originalCode, NamespaceVocab.EMIS);
     } catch (Exception e) {
       log.error("unable to retrieve iri from term code {}", e.getMessage());
       return Collections.emptySet();
     }
   }
 
-  private Set<Entity> getCoreFromLegacyTerm(String originalTerm) {
+  private Set<EntityExtended> getCoreFromLegacyTerm(String originalTerm) {
     try {
       if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck")) {
         log.info("!!");
       }
-      return this.importMaps.getCoreFromLegacyTerm(originalTerm, NAMESPACE.EMIS);
+      return this.importMaps.getCoreFromLegacyTerm(originalTerm, NamespaceVocab.EMIS);
     } catch (Exception e) {
       log.error("unable to retrieve from term {}", e.getMessage());
       return Collections.emptySet();
     }
   }
 
-  private Set<Entity> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
+  private Set<EntityExtended> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
     return this.importMaps.getCoreFromCode(originalCode, schemes);
   }
 
@@ -1374,12 +1380,12 @@ public class EqdResources {
     if (EqdToIMQ.versionMap.containsKey(usedIn)) {
       usedIn = EqdToIMQ.versionMap.get(usedIn);
     }
-    queryEntity.addObject(new TTIriRef(IM.USES), new TTIriRef(set.getIri()));
+    queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(set.getIri()));
   }
 
   private void createLibraryValueSet(String iri, String name) {
-    TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(new TTIriRef(IM.CONCEPT_SET));
-    valueSet.setScheme(new TTIriRef(namespace));
+    TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(new TTIriRefExtended(ImVocab.CONCEPT_SET));
+    valueSet.setScheme(new TTIriRefExtended(namespace));
     this.addUsedIn(valueSet);
     this.document.addEntity(valueSet);
   }
@@ -1404,9 +1410,9 @@ public class EqdResources {
       TTEntity valueSet = new TTEntity()
         .setIri(namespace + vs.getId())
         .setName(name)
-        .setScheme(new TTIriRef(namespace))
-        .addType(new TTIriRef(IM.CONCEPT_SET))
-        .set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(definition));
+        .setScheme(new TTIriRefExtended(namespace))
+        .addType(new TTIriRefExtended(ImVocab.CONCEPT_SET))
+        .set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(definition));
       this.addUsedIn(valueSet);
       this.document.addEntity(valueSet);
       return valueSet;
@@ -1429,36 +1435,36 @@ public class EqdResources {
       return duplicate;
     } else {
       TTEntity valueSet = new TTEntity()
-        .setIri(namespace + vs.getId()).setName(name).addType(new TTIriRef(IM.CONCEPT_SET));
-      valueSet.setScheme(new TTIriRef(namespace));
+        .setIri(namespace + vs.getId()).setName(name).addType(new TTIriRefExtended(ImVocab.CONCEPT_SET));
+      valueSet.setScheme(new TTIriRefExtended(namespace));
       if (this.columnGroup != null) {
-        queryEntity.addObject(new TTIriRef(IM.USES), new TTIriRef(valueSet.getIri()));
+        queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(valueSet.getIri()));
       } else {
         String usedIn = activeReport;
         if (EqdToIMQ.versionMap.containsKey(usedIn)) {
           usedIn = EqdToIMQ.versionMap.get(usedIn);
         }
-        queryEntity.addObject(new TTIriRef(IM.USES), new TTIriRef(valueSet.getIri()));
+        queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(valueSet.getIri()));
       }
 
       for (Node node : setContent) {
         TTNode instance = new TTNode();
-        valueSet.addObject(new TTIriRef(IM.ENTAILED_MEMBER), instance);
-        instance.set(IM.IS.toString(), new TTIriRef(node.getIri()));
+        valueSet.addObject(new TTIriRefExtended(ImVocab.ENTAILED_MEMBER), instance);
+        instance.set(ImVocab.IS.toString(), new TTIriRefExtended(node.getIri()));
         if (node.isExclude()) {
-          instance.set(new TTIriRef(IM.EXCLUDE), TTLiteral.literal(true));
+          instance.set(new TTIriRefExtended(ImVocab.EXCLUDE), TTLiteral.literal(true));
         }
 
         if (node.isAncestorsOf()) {
-          instance.set(new TTIriRef(IM.ENTAILMENT), new TTIriRef(IM.ANCESTORS_OF));
+          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.ANCESTORS_OF));
         }
 
         if (node.isDescendantsOf()) {
-          instance.set(new TTIriRef(IM.ENTAILMENT), new TTIriRef(IM.DESCENDANTS_OF));
+          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.DESCENDANTS_OF));
         }
 
         if (node.isDescendantsOrSelfOf()) {
-          instance.set(new TTIriRef(IM.ENTAILMENT), new TTIriRef(IM.DESCENDANTS_OR_SELF_OF));
+          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.DESCENDANTS_OR_SELF_OF));
         }
       }
 

@@ -2,8 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.SHACL;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,13 +24,13 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotNullEntity() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRef(SHACL.PROPERTY), new TTArray().add(new TTNode()
-        .set(new TTIriRef(IM.INHERITED_FROM), new TTIriRef())
-        .set(new TTIriRef(SHACL.PATH), new TTIriRef())
-        .set(new TTIriRef(SHACL.CLASS), new TTIriRef())
-        .set(new TTIriRef(SHACL.DATATYPE), new TTIriRef())
-        .set(new TTIriRef(SHACL.MAXCOUNT), new TTLiteral())
-        .set(new TTIriRef(SHACL.MINCOUNT), new TTLiteral())
+      .set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray().add(new TTNode()
+        .set(new TTIriRefExtended(ImVocab. INHERITED_FROM),new TTIriRefExtended())
+        .set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended())
+      .set(new TTIriRefExtended(ShaclVocab.CLASS), new TTIriRefExtended())
+      .set(new TTIriRefExtended(ShaclVocab.DATATYPE), new TTIriRefExtended())
+      .set(new TTIriRefExtended(ShaclVocab.MAXCOUNT), new TTLiteral())
+      .set(new TTIriRefExtended(ShaclVocab.MINCOUNT), new TTLiteral())
       )));
     assertNotNull(actual);
   }
@@ -41,7 +39,7 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotInheritedFrom() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRef(SHACL.PROPERTY), new TTArray().add(new TTNode()))
+      .set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray().add(new TTNode()))
     );
     assertNotNull(actual);
   }

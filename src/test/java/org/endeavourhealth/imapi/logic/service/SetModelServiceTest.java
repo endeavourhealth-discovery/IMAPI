@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.model.set.SetOptions;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,11 +50,11 @@ public class SetModelServiceTest {
 
   @Test
   void getDistillation() {
-    List<TTIriRef> conceptList = new ArrayList<>();
-    conceptList.add(new TTIriRef().setIri("http://snomed.info/sct#73211009"));
-    conceptList.add(new TTIriRef().setIri("http://snomed.info/sct#46635009"));
-    conceptList.add(new TTIriRef().setIri("http://snomed.info/sct#44054006"));
-    conceptList.add(new TTIriRef().setIri("http://endhealth.info/im#Q_RegisteredGMS"));
+    List<TTIriRefExtended> conceptList = new ArrayList<>();
+    conceptList.add(new TTIriRefExtended().setIri("http://snomed.info/sct#73211009"));
+    conceptList.add(new TTIriRefExtended().setIri("http://snomed.info/sct#46635009"));
+    conceptList.add(new TTIriRefExtended().setIri("http://snomed.info/sct#44054006"));
+    conceptList.add(new TTIriRefExtended().setIri("http://endhealth.info/im#Q_RegisteredGMS"));
 
     String iris = "<http://snomed.info/sct#73211009> <http://snomed.info/sct#46635009> <http://snomed.info/sct#44054006> <http://endhealth.info/im#Q_RegisteredGMS>";
 
@@ -64,9 +64,9 @@ public class SetModelServiceTest {
     distList.add("http://snomed.info/sct#73211009");
     distList.add("http://endhealth.info/im#Q_RegisteredGMS");
 
-    List<TTIriRef> actual = setService.getDistillation(conceptList);
+    List<TTIriRefExtended> actual = setService.getDistillation(conceptList);
 
-    assertEquals(actual, distList.stream().map(distIri -> new TTIriRef().setIri(distIri)).toList());
+    assertEquals(actual, distList.stream().map(distIri -> new TTIriRefExtended().setIri(distIri)).toList());
 
   }
 }

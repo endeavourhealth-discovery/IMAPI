@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.interfacemanager.model.Order;
 
 import java.util.ArrayList;
@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 public class OrderBy {
   private String field;
   private Order direction;
-  private List<TTIriRef> iriValue;
+  private List<TTIriRefExtended> iriValue;
   private List<OrderBy> and;
   private List<String> textValue;
   private boolean not;
@@ -92,16 +92,16 @@ public class OrderBy {
     return this;
   }
 
-  public List<TTIriRef> getIriValue() {
+  public List<TTIriRefExtended> getIriValue() {
     return iriValue;
   }
 
-  public OrderBy setIriValue(List<TTIriRef> iriValue) {
+  public OrderBy setIriValue(List<TTIriRefExtended> iriValue) {
     this.iriValue = iriValue;
     return this;
   }
 
-  public OrderBy addIriValue(TTIriRef iriValue) {
+  public OrderBy addIriValue(TTIriRefExtended iriValue) {
     if (this.iriValue == null) {
       this.iriValue = new ArrayList<>();
     }

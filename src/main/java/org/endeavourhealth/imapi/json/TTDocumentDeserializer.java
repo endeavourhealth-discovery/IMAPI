@@ -42,7 +42,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     if (!prefixes.isEmpty())
       result.setContext(context);
     if (node.get(CRUD) != null)
-      result.setCrud(new TTIriRef(helper.expand(node.get(CRUD).get(ID).asText())));
+      result.setCrud(new TTIriRefExtended(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {
       result.setEntities(getEntities(node.withArray(ENTITIES)));
     }
@@ -65,12 +65,12 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
         Map.Entry<String, JsonNode> field = fields.next();
         switch (field.getKey()) {
           case ID -> entity.setIri(helper.expand(field.getValue().textValue()));
-          case CRUD -> entity.setCrud(new TTIriRef(helper.expand(field.getValue().get(ID).asText())));
+          case CRUD -> entity.setCrud(new TTIriRefExtended(helper.expand(field.getValue().get(ID).asText())));
           default -> {
             if (field.getValue().isArray())
-              entity.set(new TTIriRef(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
+              entity.set(new TTIriRefExtended(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
             else
-              entity.set(new TTIriRef(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+              entity.set(new TTIriRefExtended(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
           }
         }
       }

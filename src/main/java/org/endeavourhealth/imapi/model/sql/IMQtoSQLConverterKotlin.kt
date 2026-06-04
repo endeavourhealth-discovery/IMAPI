@@ -7,8 +7,8 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.interfacemanager.model.Bool
-import org.endeavourhealth.interfacemanager.model.IM
 import org.endeavourhealth.interfacemanager.model.IMQType
+import org.endeavourhealth.interfacemanager.model.ImVocab
 import org.endeavourhealth.interfacemanager.model.Order
 import java.util.Locale.getDefault
 
@@ -484,8 +484,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       where.iri?.let { properties.add(it) }
       where.and?.forEach { collect(it) }
       where.or?.forEach { collect(it) }
-      where.range?.from?.compare?.left?.iri?.let { properties.add(it) }
-      where.range?.from?.compare?.right?.iri?.let { properties.add(it) }
+      where.range?.from?.compareExtended?.left?.iri?.let { properties.add(it) }
+      where.range?.from?.compareExtended?.right?.iri?.let { properties.add(it) }
       where.compare?.left?.iri?.let { properties.add(it) }
       where.compare?.right?.iri?.let { properties.add(it) }
     }
@@ -553,7 +553,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (ret.iri != null)
         addSelectFromProperty(ret, selects, nodeToTableMap, table)
       else if (ret.function != null) {
-        if (ret.function.iri == IM.COUNT.toString()) selects.add(
+        if (ret.function.iri == ImVocab.COUNT.toString()) selects.add(
           MySQLSelect(
             "COUNT(*)",
             if (ret.`as` != null) "`${ret.`as`}`" else null
@@ -570,20 +570,20 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returnProperty: Return,
     nodeToTableMap: HashMap<String, Table>
   ): MySQLSelect {
-    if (returnProperty.function.iri != IM.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
+    if (returnProperty.function.iri != ImVocab.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     val concatenateFields = mutableListOf<String>()
     for (arg in returnProperty.function.argument) {
       if (arg.valuePath == null) throw SQLConversionException("Missing valuePath for concatenate function argument")
       var field = ""
-      if (arg.valuePath.nodeRef != null) {
-        val currentTable = nodeToTableMap[arg.valuePath.nodeRef]
-          ?: throw SQLConversionException("Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}")
+      if (arg.valuePath?.nodeRef != null && arg.valuePath?.iri != null) {
+        val currentTable = nodeToTableMap[arg.valuePath!!.nodeRef]
+          ?: throw SQLConversionException("Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath!!.nodeRef}")
         field = getPropertyNameByTableAndPropertyIri(
           currentTable,
-          arg.valuePath.iri
+          arg.valuePath!!.iri!!
         ).field
         field = "${currentTable.alias}.$field"
-      } else field = getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
+      } else field = getPropertyNameByTableAndPropertyIri(table, arg.valuePath!!.iri!!).field
       if (field.isEmpty()) throw SQLConversionException("No field found for concatenate function argument ${arg.valuePath}")
       concatenateFields.add(field)
     }
@@ -773,7 +773,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val from = where.range.from
       val to = where.range.to
 
-      val isDirectValue = from.compare == null && from.value != null
+      val isDirectValue = from.compareExtended == null && from.value != null
 
       val fromWhere: MySQLWhere
       val toWhere: MySQLWhere
@@ -792,23 +792,23 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
       } else {
-        val fromRight = from.compare?.right?.parameter ?: from.compare?.right?.propertyRef
+        val fromRight = from.compareExtended?.right?.parameter ?: from.compareExtended?.right?.propertyRef
         ?: getValueFromRelativeTo(from, variableToTableMap)
         ?: throw SQLConversionException("No value for range.from")
 
-        val toRight = to.compare?.right?.parameter ?: to.compare?.right?.propertyRef
+        val toRight = to.compareExtended?.right?.parameter ?: to.compareExtended?.right?.propertyRef
         ?: getValueFromRelativeTo(to, variableToTableMap)
         ?: throw SQLConversionException("No value for range.to")
 
         val (fromUnit, fromUnitType) =
           if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.from?.compare?.units?.iri != null) getUnitNameAndType(where.range.from.compare.units.iri)
+          else if (where.range?.from?.compareExtended?.units?.iri != null) getUnitNameAndType(where.range.from.compareExtended.units.iri)
           else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
           else null to null
 
         val (toUnit, toType) =
           if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.to?.compare?.units?.iri != null) getUnitNameAndType(where.range.to.compare.units.iri)
+          else if (where.range?.to?.compareExtended?.units?.iri != null) getUnitNameAndType(where.range.to.compareExtended.units.iri)
           else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
           else null to null
 
@@ -888,7 +888,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compare?.left?.iri
+    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compareExtended?.left?.iri
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
@@ -947,7 +947,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
-    val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
+    val conceptTable = getTableFromTypeAndProperty(ImVocab.CONCEPT.toString(), null)
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
@@ -958,7 +958,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
 
-    val conceptTCT = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "TCT", null)
+    val conceptTCT = getTableFromTypeAndProperty(ImVocab.CONCEPT.toString() + "TCT", null)
     joins.add(
       conceptTable.getJoinCondition(
         tableFrom = conceptTable,
@@ -970,18 +970,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getUnitNameAndType(iri: String): Pair<String, String> {
-    return when (IM.fromValue(iri)) {
-      IM.YEARS -> "YEAR" to "Unit"
-      IM.YEAR -> "YEAR" to "Qualifier"
-      IM.MONTHS -> "MONTH" to "Unit"
-      IM.MONTH -> "MONTH" to "Qualifier"
-      IM.DAYS -> "DAY" to "Unit"
-      IM.DAY -> "DAY" to "Qualifier"
-      IM.HOURS -> "HOUR" to "Unit"
-      IM.MINUTES -> "MINUTE" to "Unit"
-      IM.SECONDS -> "SECOND" to "Unit"
-      IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
-      IM.QUARTER -> "QUARTER" to "Qualifier"
+    return when (ImVocab.fromValue(iri)) {
+      ImVocab.YEARS -> "YEAR" to "Unit"
+      ImVocab.YEAR -> "YEAR" to "Qualifier"
+      ImVocab.MONTHS -> "MONTH" to "Unit"
+      ImVocab.MONTH -> "MONTH" to "Qualifier"
+      ImVocab.DAYS -> "DAY" to "Unit"
+      ImVocab.DAY -> "DAY" to "Qualifier"
+      ImVocab.HOURS -> "HOUR" to "Unit"
+      ImVocab.MINUTES -> "MINUTE" to "Unit"
+      ImVocab.SECONDS -> "SECOND" to "Unit"
+      ImVocab.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
+      ImVocab.QUARTER -> "QUARTER" to "Qualifier"
       else -> throw SQLConversionException("No unit name found for $iri")
     }
   }

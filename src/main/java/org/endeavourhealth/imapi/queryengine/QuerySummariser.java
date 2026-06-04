@@ -162,17 +162,17 @@ public class QuerySummariser {
     if (assignable.getValue() != null)
       summary.append(assignable.getValue()).append(" ");
 
-    if (assignable.getCompare() != null)
-      summariseCompare(assignable.getCompare());
+    if (assignable.getCompareExtended() != null)
+      summariseCompare(assignable.getCompareExtended());
   }
 
 
-  private void summariseCompare(Compare compare) {
-    summariseValueSource(compare.getLeft());
-    if (compare.getUnits() != null)
-      summary.append(compare.getUnits().getName()).append(" ");
+  private void summariseCompare(CompareExtended compareExtended) {
+    summariseValueSource(compareExtended.getLeft());
+    if (compareExtended.getUnits() != null)
+      summary.append(compareExtended.getUnits().getName()).append(" ");
     summary.append("relative to ");
-    summariseValueSource(compare.getRight());
+    summariseValueSource(compareExtended.getRight());
   }
 
   private void summariseValueSource(ValueSource source) {

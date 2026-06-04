@@ -1,17 +1,17 @@
 package org.endeavourhealth.imapi.model.dto;
 
 import lombok.Data;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
 public class FilterOptionsDto {
-  private List<TTIriRef> status;
-  private List<TTIriRef> schemes;
-  private List<TTIriRef> types;
-  private List<TTIriRef> sortFields;
-  private List<TTIriRef> sortDirections;
-  private Map<String,List<TTIriRef>> typeSchemes;
+  private List<TTIriRefExtended> status;
+  private List<TTIriRefExtended> schemes;
+  private List<TTIriRefExtended> types;
+  private List<TTIriRefExtended> sortFields;
+  private List<TTIriRefExtended> sortDirections;
+  private Map<String,List<TTIriRefExtended>> typeSchemes;
 }

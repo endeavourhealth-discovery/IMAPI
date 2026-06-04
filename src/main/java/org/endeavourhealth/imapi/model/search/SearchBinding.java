@@ -1,25 +1,25 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 public class SearchBinding {
-  private TTIriRef path;
-  private TTIriRef node;
+  private TTIriRefExtended path;
+  private TTIriRefExtended node;
 
-  public TTIriRef getPath() {
+  public TTIriRefExtended getPath() {
     return path;
   }
 
-  public SearchBinding setPath(TTIriRef path) {
+  public SearchBinding setPath(TTIriRefExtended path) {
     this.path = path;
     return this;
   }
 
-  public TTIriRef getNode() {
+  public TTIriRefExtended getNode() {
     return node;
   }
 
-  public SearchBinding setNode(TTIriRef node) {
+  public SearchBinding setNode(TTIriRefExtended node) {
     this.node = node;
     return this;
   }

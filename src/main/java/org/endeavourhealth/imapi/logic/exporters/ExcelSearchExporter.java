@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class ExcelSearchExporter {
     }
   }
 
-  private String iriToString(TTIriRef iri, boolean inArray) {
+  private String iriToString(TTIriRefExtended iri, boolean inArray) {
     if (inArray) return "\"" + iri.getName() + "\"";
     else return iri.getName();
   }
@@ -105,7 +105,7 @@ public class ExcelSearchExporter {
         Cell intCell = row.createCell(getLastCellNum(row), CellType.NUMERIC);
         intCell.setCellValue(valueAsInteger);
       }
-      case TTIriRef valueAsTTIriRef -> {
+      case TTIriRefExtended valueAsTTIriRef -> {
         Cell ttIriRefCell = row.createCell(getLastCellNum(row), CellType.STRING);
         ttIriRefCell.setCellValue(iriToString(valueAsTTIriRef, false));
       }
@@ -150,7 +150,7 @@ public class ExcelSearchExporter {
     if (item instanceof String itemAsString) stringJoiner.add(itemAsString);
     else if (item instanceof Integer itemAsInteger) {
       stringJoiner.add(itemAsInteger.toString());
-    } else if (item instanceof TTIriRef itemAsTTIriRef) {
+    } else if (item instanceof TTIriRefExtended itemAsTTIriRef) {
       stringJoiner.add(iriToString(itemAsTTIriRef, inArray));
     } else if (item instanceof ArrayList<?> itemAsList) {
       stringJoiner.add(listToString(itemAsList));

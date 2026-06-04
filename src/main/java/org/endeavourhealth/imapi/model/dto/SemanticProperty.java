@@ -1,28 +1,28 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.io.Serializable;
 
 public class SemanticProperty implements Serializable {
 
-  private TTIriRef property;
-  private TTIriRef type;
+  private TTIriRefExtended property;
+  private TTIriRefExtended type;
 
-  public TTIriRef getProperty() {
+  public TTIriRefExtended getProperty() {
     return property;
   }
 
-  public SemanticProperty setProperty(TTIriRef property) {
+  public SemanticProperty setProperty(TTIriRefExtended property) {
     this.property = property;
     return this;
   }
 
-  public TTIriRef getType() {
+  public TTIriRefExtended getType() {
     return type;
   }
 
-  public SemanticProperty setType(TTIriRef type) {
+  public SemanticProperty setType(TTIriRefExtended type) {
     this.type = type;
     return this;
   }

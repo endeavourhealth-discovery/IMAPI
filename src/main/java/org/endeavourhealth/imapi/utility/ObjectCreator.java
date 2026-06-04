@@ -7,16 +7,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 
 import java.util.Map;
 import java.util.regex.Pattern;
 
 public class ObjectCreator {
   public static Map<String, String> prefixMap = Map.of(
-    "im", NAMESPACE.IM.toString(),
-    "rdf", NAMESPACE.RDF.toString(),
-    "rdfs", NAMESPACE.RDFS.toString());
+    "im", NamespaceVocab.IM.toString(),
+    "rdf", NamespaceVocab.RDF.toString(),
+    "rdfs", NamespaceVocab.RDFS.toString());
   static Pattern BARE_IRI =
     Pattern.compile("(:\\s*)([a-zA-Z_][\\w-]*:[\\w-]+)");
   static Pattern BARE_IDENTIFIER =

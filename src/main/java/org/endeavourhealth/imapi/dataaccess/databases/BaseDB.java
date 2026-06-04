@@ -15,7 +15,7 @@ import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
 
 import java.io.File;
 import java.util.StringJoiner;
@@ -36,8 +36,8 @@ public abstract class BaseDB implements AutoCloseable {
   private final SimpleDataset dataset = new SimpleDataset();
   protected RepositoryConnection conn;
 
-  protected BaseDB(GRAPH... graphs) {
-    for (GRAPH graph : graphs) {
+  protected BaseDB(GraphVocab... graphs) {
+    for (GraphVocab graph : graphs) {
       if (graph == null)
         dataset.addDefaultGraph(null);
       else
@@ -136,7 +136,7 @@ public abstract class BaseDB implements AutoCloseable {
     return prepareSparql(sparql);
   }
 
-  public Update prepareInsertSparql(String sparql, GRAPH graph) {
+  public Update prepareInsertSparql(String sparql, GraphVocab graph) {
     sparql = sparql.trim();
     if (!sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This doesnt appear to be an INSERT statement");
@@ -150,7 +150,7 @@ public abstract class BaseDB implements AutoCloseable {
     return insert;
   }
 
-  public Update prepareUpdateSparql(String sparql, GRAPH graph) {
+  public Update prepareUpdateSparql(String sparql, GraphVocab graph) {
     sparql = sparql.trim();
     if (!sparql.toUpperCase().startsWith("DELETE") || !sparql.toUpperCase().contains("INSERT"))
       throw new DALException("This doesnt appear to be an UPDATE statement");

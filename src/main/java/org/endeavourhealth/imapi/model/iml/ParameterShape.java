@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,37 +8,37 @@ import java.util.function.Consumer;
 
 public class ParameterShape {
   private String label;
-  private TTIriRef type;
-  private List<TTIriRef> parameterSubType;
+  private TTIriRefExtended type;
+  private List<TTIriRefExtended> parameterSubType;
 
-  public List<TTIriRef> getParameterSubType() {
+  public List<TTIriRefExtended> getParameterSubType() {
     return parameterSubType;
   }
 
-  public ParameterShape setParameterSubType(List<TTIriRef> parameterSubType) {
+  public ParameterShape setParameterSubType(List<TTIriRefExtended> parameterSubType) {
     this.parameterSubType = parameterSubType;
     return this;
   }
-  public ParameterShape addParameterSubType (TTIriRef parameterSubType){
+  public ParameterShape addParameterSubType (TTIriRefExtended parameterSubType){
       if (this.parameterSubType == null) {
         this.parameterSubType = new ArrayList<>();
       }
       this.parameterSubType.add(parameterSubType);
       return this;
     }
-  public ParameterShape parameterSubType (Consumer< TTIriRef > builder) {
-      TTIriRef parameterSubType = new TTIriRef();
+  public ParameterShape parameterSubType (Consumer<TTIriRefExtended> builder) {
+      TTIriRefExtended parameterSubType = new TTIriRefExtended();
       addParameterSubType(parameterSubType);
       builder.accept(parameterSubType);
       return this;
     }
 
 
-  public TTIriRef getType() {
+  public TTIriRefExtended getType() {
     return type;
   }
 
-  public ParameterShape setType(TTIriRef type) {
+  public ParameterShape setType(TTIriRefExtended type) {
     this.type = type;
     return this;
   }

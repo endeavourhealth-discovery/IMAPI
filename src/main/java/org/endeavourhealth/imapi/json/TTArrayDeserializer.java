@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class TTArrayDeserializer extends StdDeserializer<TTArray> {
         throw new IOException("Cant deserialize array of arrays");
       else if (node.isObject()) {
         if (node.has("iri"))
-          result.add(new TTIriRef(node.get("iri").textValue()));
+          result.add(new TTIriRefExtended(node.get("iri").textValue()));
         else
           result.add(ctx.readValue(node.traverse(jsonParser.getCodec()), TTNode.class));
       } else

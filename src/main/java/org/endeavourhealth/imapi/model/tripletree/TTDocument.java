@@ -16,7 +16,7 @@ import java.util.Map;
 public class TTDocument extends TTNode {
   private TTContext context = new TTContext();
   private List<TTEntity> entities;
-  private TTIriRef crud;
+  private TTIriRefExtended crud;
   private Map<String, String> predicates = new HashMap<>();
 
   public Map<String, String> getPredicates() {
@@ -43,7 +43,7 @@ public class TTDocument extends TTNode {
   }
 
   @Override
-  public TTDocument set(TTIriRef predicate, TTValue value) {
+  public TTDocument set(TTIriRefExtended predicate, TTValue value) {
     super.set(predicate, value);
     return this;
   }
@@ -74,12 +74,12 @@ public class TTDocument extends TTNode {
     return this;
   }
 
-  public TTIriRef getCrud() {
+  public TTIriRefExtended getCrud() {
     return crud;
   }
 
   @JsonSetter
-  public TTDocument setCrud(TTIriRef crud) {
+  public TTDocument setCrud(TTIriRefExtended crud) {
     this.crud = crud;
     return this;
   }

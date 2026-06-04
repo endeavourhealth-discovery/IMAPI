@@ -189,12 +189,12 @@ public class QueryValidator {
   }
 
   private void validateCompare(Assignable assignable) throws QueryException {
-    Compare compare = assignable.getCompare();
-    if (compare.getUnits() != null) {
+    CompareExtended compareExtended = assignable.getCompare();
+    if (compareExtended.getUnits() != null) {
       if (assignable.getValue() == null)
         throw new QueryException("Value must be specified when units are provided");
     }
-    if (compare.getRight() != null) validateSource(compare.getRight());
+    if (compareExtended.getRight() != null) validateSource(compareExtended.getRight());
   }
 
   private void validateSource(ValueSource source) throws QueryException {

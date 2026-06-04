@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -56,9 +54,9 @@ public class TTNodeDeserializer {
         if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isArray()) {
-          result.set(new TTIriRef(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
+          result.set(new TTIriRefExtended(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
         } else {
-          result.set(new TTIriRef(expand(key)), getJsonNodeAsValue(value));
+          result.set(new TTIriRefExtended(expand(key)), getJsonNodeAsValue(value));
         }
       }
     }
@@ -84,13 +82,13 @@ public class TTNodeDeserializer {
     if (node.isValueNode())
       return TTLiteral.literal(node);
     else if (node.isObject()) {
-      if (node.has(IM.IRI.toString())) {
+      if (node.has(ImVocab.IRI.toString())) {
         if (node.has("name"))
-          return new TTIriRef(expand(node.get(IM.IRI.toString()).asText()), node.get("name").asText());
+          return new TTIriRefExtended(expand(node.get(ImVocab.IRI.toString()).asText()), node.get("name").asText());
         else
-          return new TTIriRef(expand(node.get(IM.IRI.toString()).asText()));
+          return new TTIriRefExtended(expand(node.get(ImVocab.IRI.toString()).asText()));
       } else {
-        if (node.has(IM.VALUE.toString())) {
+        if (node.has(ImVocab.VALUE.toString())) {
           return getJsonNodeAsLiteral(node);
         } else {
           TTNode result = new TTNode();
@@ -107,15 +105,15 @@ public class TTNodeDeserializer {
   }
 
   public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {
-    if (!node.has(IM.TYPE.toString()))
-      return TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
+    if (!node.has(ImVocab.TYPE.toString()))
+      return TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
 
-    TTIriRef type = new TTIriRef(expand(node.get(IM.TYPE.toString()).asText()));
-    return switch (XSD.fromValue(type.getIri())) {
-      case XSD.STRING -> TTLiteral.literal(node.get(IM.VALUE.toString()).textValue());
-      case XSD.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(IM.VALUE.toString()).asText()));
-      case XSD.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(IM.VALUE.toString()).asText()));
-      case XSD.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(IM.VALUE.toString()).textValue()));
+    TTIriRefExtended type = new TTIriRefExtended(expand(node.get(ImVocab.TYPE.toString()).asText()));
+    return switch (XsdVocab.fromValue(type.getIri())) {
+      case XsdVocab.STRING -> TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
+      case XsdVocab.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
+      case XsdVocab.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
+      case XsdVocab.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(ImVocab.VALUE.toString()).textValue()));
       case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
     };
   }

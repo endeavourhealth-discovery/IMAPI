@@ -8,10 +8,10 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
 
 import java.util.Set;
 
@@ -20,22 +20,23 @@ public class SetMemberGenerator {
   private final EntityRepository entityRepository = new EntityRepository();
   private final SetRepository setRepo = new SetRepository();
 
-  public void generateAllSetMembers(GRAPH insertGraph) throws JsonProcessingException, QueryException {
+  public void generateAllSetMembers(GraphVocab insertGraph) throws JsonProcessingException, QueryException {
     log.info("Getting value sets....");
     //First get the list of sets that dont have members already expanded
     Set<String> sets = setRepo.getSets();
     //for each set get their definition
     for (String iri : sets) {
-      if (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.ENTAILED_MEMBER, IM.DEFINITION))) {
+      if (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(ImVocab.ENTAILED_MEMBER, ImVocab.
+        DEFINITION))) {
         generateMembers(iri, insertGraph);
       }
     }
   }
 
 
-  public void generateMembers(String iri, GRAPH insertGraph) throws QueryException, JsonProcessingException {
-    TTBundle setDefinition = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(IM.DEFINITION));
-    if (setDefinition.getEntity().get(new TTIriRef(IM.DEFINITION)) == null) {
+  public void generateMembers(String iri, GraphVocab insertGraph) throws QueryException, JsonProcessingException {
+    TTBundle setDefinition = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(ImVocab.DEFINITION));
+    if (setDefinition.getEntity().get(new TTIriRefExtended(ImVocab.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
       if (!members.isEmpty()) {
         log.info("Expanding members {}", iri);
@@ -43,7 +44,8 @@ public class SetMemberGenerator {
       }
     } else {
       log.info("Expanding from definition {}", iri);
-      Query query = setDefinition.getEntity().get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query query = setDefinition.getEntity().get(new TTIriRefExtended(ImVocab.DEFINITION)).
+        asLiteral().objectValue(Query.class);
       new SparqlOptimizer().optimizeQuery(query);
       Set<Concept> members = setRepo.getMembersFromDefinition(query);
       setRepo.updateMembers(iri, members, insertGraph);

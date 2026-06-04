@@ -7,8 +7,8 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,15 +16,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeGenStepDefs {
-  private final CodeGenDto template = new CodeGenDto();
-  private TTIriRef model;
+  private final CodeGenDtoExtended template = new CodeGenDtoExtended();
+  private TTIriRefExtended model;
   private List<DataModelProperty> properties = new ArrayList<>();
   private String namespace;
   private String actual;
 
   @Given("a model with iri {string} and name {string} and description {string}")
   public void setModel(String arg0, String arg1, String arg2) {
-    this.model = new TTIriRef(arg0, arg1).setDescription(arg2);
+    this.model = new TTIriRefExtended(arg0, arg1).setDescription(arg2);
   }
 
   @Given("a template of")
@@ -50,7 +50,8 @@ public class CodeGenStepDefs {
   @Given("a datatype map")
   public void setDataTypeMap(String arg0) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {}));
+      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {
+      }));
     }
   }
 

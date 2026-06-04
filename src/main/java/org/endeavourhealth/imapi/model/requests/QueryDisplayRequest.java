@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.model.requests;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.interfacemanager.model.DisplayMode;
 
 @NoArgsConstructor
@@ -11,9 +11,9 @@ import org.endeavourhealth.interfacemanager.model.DisplayMode;
 public class QueryDisplayRequest {
   public Query query;
   public DisplayMode displayMode;
-  public TTIriRef graph;
+  public TTIriRefExtended graph;
 
-  public QueryDisplayRequest(Query query, DisplayMode displayMode, TTIriRef graph) {
+  public QueryDisplayRequest(Query query, DisplayMode displayMode, TTIriRefExtended graph) {
     this.query = query;
     this.displayMode = displayMode;
     this.graph = graph;
@@ -29,7 +29,7 @@ public class QueryDisplayRequest {
     return this;
   }
 
-  public QueryDisplayRequest setGraph(TTIriRef graph) {
+  public QueryDisplayRequest setGraph(TTIriRefExtended graph) {
     this.graph = graph;
     return this;
   }

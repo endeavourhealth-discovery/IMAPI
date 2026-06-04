@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.iml.EntityExtended;
 import org.endeavourhealth.imapi.model.iml.SetContent;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -25,14 +25,14 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.RdfsVocab;
 import org.hl7.fhir.r4.model.CanonicalType;
 import org.hl7.fhir.r4.model.Enumerations;
 import org.hl7.fhir.r4.model.ValueSet;
@@ -77,9 +77,9 @@ public class SetService {
   }
 
   private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
-    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(IM.DEFINITION)).getEntity();
-    if (null != entityDefinition.get(new TTIriRef(IM.DEFINITION))) {
-      filter.setValue(entityDefinition.get(new TTIriRef(IM.DEFINITION)).asLiteral().getValue());
+    TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(ImVocab.DEFINITION)).getEntity();
+    if (null != entityDefinition.get(new TTIriRefExtended(ImVocab.DEFINITION))) {
+      filter.setValue(entityDefinition.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
       includeConcept.setFilter(filters);
       includes.add(includeConcept);
@@ -118,10 +118,10 @@ public class SetService {
       }
     }
     List<Concept> membersAList = new ArrayList<>(List.copyOf(membersMap.values()));
-    membersAList.sort(Comparator.comparing(Entity::getName));
+    membersAList.sort(Comparator.comparing(EntityExtended::getName));
     setDiffObject.setMembersA(membersAList);
-    setDiffObject.getMembersB().sort(Comparator.comparing(Entity::getName));
-    setDiffObject.getSharedMembers().sort(Comparator.comparing(Entity::getName));
+    setDiffObject.getMembersB().sort(Comparator.comparing(EntityExtended::getName));
+    setDiffObject.getSharedMembers().sort(Comparator.comparing(EntityExtended::getName));
     return setDiffObject;
   }
 
@@ -155,15 +155,15 @@ public class SetService {
     SetContent result = new SetContent();
 
     log.trace("Fetching metadata for {}...", options.getSetIri());
-    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(RDFS.LABEL, RDFS.COMMENT, IM.HAS_STATUS, IM.VERSION, IM.DEFINITION)).getEntity();
+    TTEntity entity = new EntityRepository().getEntityPredicates(options.getSetIri(), EnumUtils.asHashSet(RdfsVocab.LABEL, RdfsVocab.COMMENT, ImVocab.HAS_STATUS, ImVocab.VERSION, ImVocab.DEFINITION)).getEntity();
 
     if (null != entity) {
       result.setName(entity.getName()).setDescription(entity.getDescription()).setVersion(entity.getVersion());
 
       if (null != entity.getStatus()) result.setStatus(entity.getStatus().getName());
 
-      if (options.includeDefinition() && null != entity.get(new TTIriRef(IM.DEFINITION))) {
-        Query qryDef = entity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      if (options.includeDefinition() && null != entity.get(new TTIriRefExtended(ImVocab.DEFINITION))) {
+        Query qryDef = entity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
         ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
         eclQueryRequest.setShowNames(true);
         eclQueryRequest.setQuery(qryDef);
@@ -174,7 +174,7 @@ public class SetService {
 
     if (options.includeSubsets()) {
       log.trace("Fetching subsets...");
-      result.setSubsets(setRepository.getSubsetIrisWithNames(options.getSetIri()).stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
+      result.setSubsets(setRepository.getSubsetIrisWithNames(options.getSetIri()).stream().map(TTIriRefExtended::getIri).collect(Collectors.toSet()));
     }
 
     if (options.includeCore() || options.includeLegacy() || options.includeSubsets()) {
@@ -232,11 +232,11 @@ public class SetService {
     return getExpandedSetMembers(iri, true, includeLegacy, includeSubset, schemes, subsumptions);
   }
 
-  public Set<TTIriRef> getSubsets(String iri) {
+  public Set<TTIriRefExtended> getSubsets(String iri) {
     return setRepository.getSubsetIrisWithNames(iri);
   }
 
-  public List<TTIriRef> getDistillation(List<TTIriRef> conceptList) {
+  public List<TTIriRefExtended> getDistillation(List<TTIriRefExtended> conceptList) {
     List<String> iriList = conceptList.stream().map(c -> "<" + c.getIri() + ">").toList();
     String iris = String.join(" ", iriList);
     Set<String> isas = setRepository.getDistillation(iris);
@@ -245,9 +245,9 @@ public class SetService {
   }
 
   private String getEcl(TTEntity entity) throws JsonProcessingException {
-    if (entity.get(new TTIriRef(IM.DEFINITION)) == null) return null;
+    if (entity.get(new TTIriRefExtended(ImVocab.DEFINITION)) == null) return null;
     ECLQueryRequest eclQueryRequest = new ECLQueryRequest();
-    eclQueryRequest.setQuery(entity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class));
+    eclQueryRequest.setQuery(entity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class));
     eclQueryRequest.setShowNames(true);
     new IMQToECL().getECLFromQuery(eclQueryRequest);
     return eclQueryRequest.getEcl();
@@ -260,7 +260,7 @@ public class SetService {
     if (null == format || format.isEmpty())
       throw new IllegalArgumentException("File type format needs to be set.");
 
-    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    TTEntity setEntity = entityRepository.getBundle(options.getSetIri(), EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION)).getEntity();
     String ecl = null;
 
     if (options.includeDefinition()) {
@@ -270,8 +270,8 @@ public class SetService {
     LinkedHashSet<Concept> concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(), options.getSchemes(),
       options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
     if (concepts.isEmpty()) {
-      if (setEntity.get(new TTIriRef(IM.DEFINITION)) != null) {
-        new SetMemberGenerator().generateMembers(options.getSetIri(), GRAPH.IM);
+      if (setEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)) != null) {
+        new SetMemberGenerator().generateMembers(options.getSetIri(), GraphVocab.IM);
         concepts = getExpandedSetMembers(options.getSetIri(), options.includeCore(), options.includeLegacy(), options.includeSubsets(),
           options.getSchemes(),
           options.getSubsumptions()).stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -307,9 +307,9 @@ public class SetService {
     List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
-    boolean hasMembers = entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.HAS_MEMBER));
-    if (!hasMembers && (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(IM.DEFINITION)))) {
-      new SetMemberGenerator().generateMembers(iri, GRAPH.IM);
+    boolean hasMembers = entityRepository.hasPredicates(iri, EnumUtils.asHashSet(ImVocab.HAS_MEMBER));
+    if (!hasMembers && (entityRepository.hasPredicates(iri, EnumUtils.asHashSet(ImVocab.DEFINITION)))) {
+      new SetMemberGenerator().generateMembers(iri, GraphVocab.IM);
     }
 
     Set<Concept> result = null;
@@ -331,9 +331,9 @@ public class SetService {
   private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result,
                              List<String> subsumptions) throws QueryException, JsonProcessingException {
     log.trace("Expanding subsets for {}...", iri);
-    Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri);
+    Set<TTIriRefExtended> subSetIris = setRepository.getSubsetIrisWithNames(iri);
     log.trace("Found {} subsets...", subSetIris.size());
-    for (TTIriRef subset : subSetIris) {
+    for (TTIriRefExtended subset : subSetIris) {
       Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes, subsumptions);
       if (null != subsetMembers && !subsetMembers.isEmpty()) {
         TTEntity subsetEntity = new TTEntity(subset.getIri()).setName(subset.getName());
@@ -347,31 +347,31 @@ public class SetService {
     }
   }
 
-  public void updateSubsetsFromSuper(String agentName, TTEntity entity, NAMESPACE updateNamespace) throws TTFilerException, JsonProcessingException {
-    TTArray subsets = entity.get(new TTIriRef(IM.HAS_SUBSET));
+  public void updateSubsetsFromSuper(String agentName, TTEntity entity, NamespaceVocab updateNamespace) throws TTFilerException, JsonProcessingException {
+    TTArray subsets = entity.get(new TTIriRefExtended(ImVocab.HAS_SUBSET));
     String entityIri = entity.getIri();
-    Set<TTIriRef> subsetsOriginal = getSubsets(entityIri);
-    List<TTIriRef> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
-    for (TTIriRef subset : subsetsArray) {
+    Set<TTIriRefExtended> subsetsOriginal = getSubsets(entityIri);
+    List<TTIriRefExtended> subsetsArray = subsets.stream().map(TTValue::asIriRef).toList();
+    for (TTIriRefExtended subset : subsetsArray) {
       TTEntity subsetEntity = entityRepository.getBundle(subset.getIri()).getEntity();
       if (null != subsetEntity) {
-        if (!(subsetEntity.isType(new TTIriRef(IM.VALUE_SET)) || subsetEntity.isType(new TTIriRef(IM.CONCEPT_SET))))
+        if (!(subsetEntity.isType(new TTIriRefExtended(ImVocab.VALUE_SET)) || subsetEntity.isType(new TTIriRefExtended(ImVocab.CONCEPT_SET))))
           throw new TTFilerException("Subsets must be of type valueSet or conceptSet. Type: " + subsetEntity.getType());
-        TTArray isSubsetOf = subsetEntity.get(new TTIriRef(IM.IS_SUBSET_OF));
+        TTArray isSubsetOf = subsetEntity.get(new TTIriRefExtended(ImVocab.IS_SUBSET_OF));
         if (null == isSubsetOf) {
-          subsetEntity.set(new TTIriRef(IM.IS_SUBSET_OF), new TTArray().add(new TTIriRef(entityIri)));
+          subsetEntity.set(new TTIriRefExtended(ImVocab.IS_SUBSET_OF), new TTArray().add(new TTIriRefExtended(entityIri)));
           filerService.updateEntity(subsetEntity, agentName);
         } else if (isSubsetOf.getElements().stream().noneMatch(i -> Objects.equals(i.asIriRef().getIri(), entityIri))) {
-          isSubsetOf.add(new TTIriRef(entityIri));
+          isSubsetOf.add(new TTIriRefExtended(entityIri));
           filerService.updateEntity(subsetEntity, agentName);
         }
       }
     }
-    for (TTIriRef subsetOriginal : subsetsOriginal) {
+    for (TTIriRefExtended subsetOriginal : subsetsOriginal) {
       if (subsetsArray.stream().noneMatch(s -> s.getIri().equals(subsetOriginal.getIri()))) {
         TTEntity subsetEntity = entityRepository.getBundle(subsetOriginal.getIri()).getEntity();
-        TTArray isSubsetOf = subsetEntity.get(new TTIriRef(IM.IS_SUBSET_OF));
-        isSubsetOf.remove(new TTIriRef(entityIri));
+        TTArray isSubsetOf = subsetEntity.get(new TTIriRefExtended(ImVocab.IS_SUBSET_OF));
+        isSubsetOf.remove(new TTIriRefExtended(entityIri));
         filerService.updateEntity(subsetEntity, agentName);
       }
     }
@@ -394,8 +394,8 @@ public class SetService {
 
   public void publishSetToIM1(String iri) throws QueryException, JsonProcessingException {
     log.trace("Looking up set...");
-    String name = entityRepository.getBundle(iri, EnumUtils.asHashSet(RDFS.LABEL)).getEntity().getName();
-    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), EnumUtils.asArrayList(IM.SUBSUMED_BY));
+    String name = entityRepository.getBundle(iri, EnumUtils.asHashSet(RdfsVocab.LABEL)).getEntity().getName();
+    Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), EnumUtils.asArrayList(ImVocab.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
   }
 }

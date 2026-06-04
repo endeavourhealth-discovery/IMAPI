@@ -14,26 +14,26 @@ class TTNodeTreeTest {
   @Test
   void testTTIriRefEquality() {
     // Same iri  - EQUAL
-    TTIriRef test1 = new TTIriRef("http://endhealth.info/im#11111");
-    TTIriRef test2 = new TTIriRef("http://endhealth.info/im#11111");
+    TTIriRefExtended test1 = new TTIriRefExtended("http://endhealth.info/im#11111");
+    TTIriRefExtended test2 = new TTIriRefExtended("http://endhealth.info/im#11111");
     assertEquals(test1, test2);
     assertEquals(test1.hashCode(), test2.hashCode());
 
     // Same iri, different name - EQUAL
-    test1 = new TTIriRef("http://endhealth.info/im#11111", "test1");
-    test2 = new TTIriRef("http://endhealth.info/im#11111", "test2");
+    test1 = new TTIriRefExtended("http://endhealth.info/im#11111", "test1");
+    test2 = new TTIriRefExtended("http://endhealth.info/im#11111", "test2");
     assertEquals(test1, test2);
     assertEquals(test1.hashCode(), test2.hashCode());
 
     // Different iri, same name - NOT EQUAL
-    test1 = new TTIriRef("http://endhealth.info/im#11111", "test1");
-    test2 = new TTIriRef("http://endhealth.info/im#22222", "test1");
+    test1 = new TTIriRefExtended("http://endhealth.info/im#11111", "test1");
+    test2 = new TTIriRefExtended("http://endhealth.info/im#22222", "test1");
     assertNotEquals(test1, test2);
     assertNotEquals(test1.hashCode(), test2.hashCode());
 
     // Different iri, different name - NOT EQUAL
-    test1 = new TTIriRef("http://endhealth.info/im#11111", "test1");
-    test2 = new TTIriRef("http://endhealth.info/im#22222", "test2");
+    test1 = new TTIriRefExtended("http://endhealth.info/im#11111", "test1");
+    test2 = new TTIriRefExtended("http://endhealth.info/im#22222", "test2");
     assertNotEquals(test1, test2);
     assertNotEquals(test1.hashCode(), test2.hashCode());
   }

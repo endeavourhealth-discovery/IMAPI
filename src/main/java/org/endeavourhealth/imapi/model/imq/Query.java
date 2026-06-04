@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.interfacemanager.model.IMQType;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class Query extends Match {
   private String imQuery;
   private JsonNode parentResult;
   @Getter
-  private TTIriRef persistentIri;
+  private TTIriRefExtended persistentIri;
 
   @Getter
   private String bindAs;
@@ -146,7 +146,7 @@ public class Query extends Match {
   }
 
 
-  public Query setPersistentIri(TTIriRef persistentIri) {
+  public Query setPersistentIri(TTIriRefExtended persistentIri) {
     this.persistentIri = persistentIri;
     return this;
   }

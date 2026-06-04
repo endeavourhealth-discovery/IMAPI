@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.iml;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,47 +10,47 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri", "name", "property"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class NodeShape extends TTIriRef {
-  private List<TTIriRef> subType;
+public class NodeShape extends TTIriRefExtended {
+  private List<TTIriRefExtended> subType;
   private List<PropertyShape> property;
-  private TTIriRef definingProperty;
-  private TTIriRef inverseProperty;
+  private TTIriRefExtended definingProperty;
+  private TTIriRefExtended inverseProperty;
 
-  public TTIriRef getInverseProperty() {
+  public TTIriRefExtended getInverseProperty() {
     return inverseProperty;
   }
-  public NodeShape setInverseProperty(TTIriRef inverseProperty) {
+  public NodeShape setInverseProperty(TTIriRefExtended inverseProperty) {
     this.inverseProperty = inverseProperty;
     return this;
   }
 
 
-  public TTIriRef getDefiningProperty() {
+  public TTIriRefExtended getDefiningProperty() {
     return definingProperty;
   }
-  public NodeShape setDefiningProperty(TTIriRef definingProperty) {
+  public NodeShape setDefiningProperty(TTIriRefExtended definingProperty) {
     this.definingProperty = definingProperty;
     return this;
   }
 
 
-  public List<TTIriRef> getSubType() {
+  public List<TTIriRefExtended> getSubType() {
     return subType;
   }
 
-  public NodeShape setSubType(List<TTIriRef> subType) {
+  public NodeShape setSubType(List<TTIriRefExtended> subType) {
     this.subType = subType;
     return this;
   }
-  public NodeShape addSubType (TTIriRef subType){
+  public NodeShape addSubType (TTIriRefExtended subType){
       if (this.subType == null) {
         this.subType = new ArrayList<>();
       }
       this.subType.add(subType);
       return this;
     }
-   public NodeShape subType (Consumer < TTIriRef > builder) {
-      TTIriRef subType = new TTIriRef();
+   public NodeShape subType (Consumer <TTIriRefExtended> builder) {
+      TTIriRefExtended subType = new TTIriRefExtended();
       addSubType(subType);
       builder.accept(subType);
       return this;

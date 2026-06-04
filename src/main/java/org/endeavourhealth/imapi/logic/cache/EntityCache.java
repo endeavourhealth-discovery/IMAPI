@@ -6,8 +6,8 @@ import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.SHACL;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.ShaclVocab;
 
 import java.util.*;
 
@@ -20,11 +20,11 @@ public class EntityCache implements Runnable {
 
   @Getter
   public static final TTContext defaultPrefixes = new TTContext()
-    .add(NAMESPACE.RDFS, "rdfs")
-    .add(NAMESPACE.RDF, "rdf")
-    .add(NAMESPACE.IM, "im")
-    .add(NAMESPACE.XSD, "xsd")
-    .add(NAMESPACE.SNOMED, "sn");
+    .add(NamespaceVocab.RDFS, "rdfs")
+    .add(NamespaceVocab.RDF, "rdf")
+    .add(NamespaceVocab.IM, "im")
+    .add(NamespaceVocab.XSD, "xsd")
+    .add(NamespaceVocab.SNOMED, "sn");
   public static final Object shapeLock = new Object();
   public static final Object propertyLock = new Object();
   public static final Object entityLock = new Object();
@@ -34,7 +34,7 @@ public class EntityCache implements Runnable {
   @Getter
   static final Map<String, TTEntity> properties = new HashMap<>();
   static final Map<String, TTEntity> entities = new HashMap<>();
-  static final Map<String, List<TTIriRef>> predicateOrder = new HashMap<>();
+  static final Map<String, List<TTIriRefExtended>> predicateOrder = new HashMap<>();
   @Getter
   static final Map<String, String> predicateNames = new HashMap<>();
 
@@ -70,7 +70,7 @@ public class EntityCache implements Runnable {
       property = properties.get(iri);
     }
 
-    Set<TTIriRef> predicates = getPredicatesFromNode(property);
+    Set<TTIriRefExtended> predicates = getPredicatesFromNode(property);
     TTBundle bundle = new TTBundle().setEntity(property);
     predicates.forEach(i -> bundle.getPredicates().put(i.getIri(), predicateNames.get(i.getIri())));
     return bundle;
@@ -100,7 +100,7 @@ public class EntityCache implements Runnable {
         }
       }
     }
-    Set<TTIriRef> predicates = getPredicatesFromNode(entity);
+    Set<TTIriRefExtended> predicates = getPredicatesFromNode(entity);
     TTBundle bundle = new TTBundle().setEntity(entity);
     predicates.forEach(i -> bundle.getPredicates().put(i.getIri(), predicateNames.get(i.getIri())));
     return bundle;
@@ -126,7 +126,7 @@ public class EntityCache implements Runnable {
         shape = shapes.get(iri);
       }
     }
-    Set<TTIriRef> predicates = getPredicatesFromNode(shape);
+    Set<TTIriRefExtended> predicates = getPredicatesFromNode(shape);
     TTBundle bundle = new TTBundle().setEntity(shape);
     predicates.forEach(i -> bundle.getPredicates().put(i.getIri(), predicateNames.get(i.getIri())));
     return bundle;
@@ -137,11 +137,11 @@ public class EntityCache implements Runnable {
       shapeMap.getPredicates().forEach(EntityCache::addPredicateName);
     for (Map.Entry<String, TTEntity> entry : shapeMap.getEntities().entrySet()) {
       EntityCache.addShape(entry.getValue());
-      if (entry.getValue().get(new TTIriRef(SHACL.PROPERTY)) != null) {
-        List<TTIriRef> properties = entry
+      if (entry.getValue().get(new TTIriRefExtended(ShaclVocab.PROPERTY)) != null) {
+        List<TTIriRefExtended> properties = entry
           .getValue()
-          .get(new TTIriRef(SHACL.PROPERTY))
-          .stream().map(p -> p.asNode().get(new TTIriRef(SHACL.PATH)).asIriRef())
+          .get(new TTIriRefExtended(ShaclVocab.PROPERTY))
+          .stream().map(p -> p.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef())
           .toList();
         EntityCache.setPredicateOrder(entry.getKey(), properties);
         properties.forEach(p -> EntityCache.addPredicateName(p.getIri(), p.getName()));
@@ -169,7 +169,7 @@ public class EntityCache implements Runnable {
   }
 
 
-  public static void setPredicateOrder(String iri, List<TTIriRef> properties) {
+  public static void setPredicateOrder(String iri, List<TTIriRefExtended> properties) {
     predicateOrder.put(iri, properties);
   }
 
@@ -200,7 +200,7 @@ public class EntityCache implements Runnable {
    * @param iri iri of the entity
    * @return an ordered list of predicates from the cache.
    */
-  public static List<TTIriRef> getPredicateOrder(String iri) {
+  public static List<TTIriRefExtended> getPredicateOrder(String iri) {
     return predicateOrder.get(iri);
   }
 
@@ -211,14 +211,14 @@ public class EntityCache implements Runnable {
    * @param node to retrieve the IRIs from
    * @return a set of iris
    */
-  public static Set<TTIriRef> getPredicatesFromNode(TTNode node) {
-    Set<TTIriRef> iris = new HashSet<>();
+  public static Set<TTIriRefExtended> getPredicatesFromNode(TTNode node) {
+    Set<TTIriRefExtended> iris = new HashSet<>();
     return addPredicatesFromNode(node, iris);
   }
 
-  private static Set<TTIriRef> addPredicatesFromNode(TTValue subject, Set<TTIriRef> iris) {
+  private static Set<TTIriRefExtended> addPredicatesFromNode(TTValue subject, Set<TTIriRefExtended> iris) {
     if (subject.asNode().getPredicateMap() != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRefExtended, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
         iris.add(entry.getKey());
         for (TTValue v : entry.getValue().getElements()) {
           if (v.isNode())

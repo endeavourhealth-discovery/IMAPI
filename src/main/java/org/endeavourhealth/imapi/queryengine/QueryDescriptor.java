@@ -7,13 +7,15 @@ import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Assignable;
+import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.interfacemanager.model.*;
+import org.endeavourhealth.interfacemanager.model.DisplayMode;
+import org.endeavourhealth.interfacemanager.model.Order;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -90,9 +92,9 @@ public class QueryDescriptor {
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(new TTIriRef(IM.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION)).getEntity();
+    if (queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
     query = describeQuery(query, displayMode);
@@ -155,7 +157,7 @@ public class QueryDescriptor {
         if (argument.getValueIri() != null)
           argument.getValueIri().setName(getTermInContext(argument.getValueIri().getIri(), Context.PATH));
         if (argument.getValueIriList() != null) {
-          for (TTIriRef valueIri : argument.getValueIriList()) {
+          for (TTIriRefExtended valueIri : argument.getValueIriList()) {
             valueIri.setName(getTermInContext(valueIri.getIri(), Context.PATH));
           }
         }
@@ -167,7 +169,7 @@ public class QueryDescriptor {
   private void setIriNames(Match match) throws QueryException {
     Set<String> iriSet = IriCollector.collectIris(match);
     try {
-      iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(IM.PREPOSITION, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL));
+      iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(ImVocab.PREPOSITION, ImVocab.CODE, RdfVocab.TYPE, ImVocab.DISPLAY_LABEL));
     } catch (Exception e) {
       throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
     }
@@ -177,7 +179,7 @@ public class QueryDescriptor {
     Set<String> iriSet = IriCollector.collectIris(query);
     if (!iriSet.isEmpty()) {
       try {
-        iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(IM.PREPOSITION, RDF.TYPE, IM.CODE, RDF.TYPE, IM.DISPLAY_LABEL, IM.ALTERNATIVE_CODE));
+        iriContext = repo.getEntitiesWithPredicates(iriSet, EnumUtils.asHashSet(ImVocab.PREPOSITION, RdfVocab.TYPE, ImVocab.CODE, RdfVocab.TYPE, ImVocab.DISPLAY_LABEL, ImVocab.ALTERNATIVE_CODE));
       } catch (Exception e) {
         throw new QueryException(e.getMessage() + " Query content error found by query Descriptor", e);
       }
@@ -194,10 +196,10 @@ public class QueryDescriptor {
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if (entity.get(new TTIriRef(NAMESPACE.IM + "plural")) == null) {
+          if ( entity.get(new TTIriRefExtended(NamespaceVocab. IM + "plural")) ==null){
             term = new StringBuilder(Pluraliser.pluralise(term.toString()));
-          } else {
-            term = new StringBuilder(entity.get(new TTIriRef(NAMESPACE.IM + "plural")).asLiteral().getValue());
+          } else{
+            term = new StringBuilder(entity.get(new TTIriRefExtended(NamespaceVocab. IM + "plural")).asLiteral().getValue());
           }
         } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }

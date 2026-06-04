@@ -12,15 +12,15 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class EqdToIMQ {
   private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
   private final boolean versionIndependent;
-  private NAMESPACE namespace;
+  private NamespaceVocab namespace;
   private EqdResources resources;
   private TTDocument document;
   @Getter
@@ -91,7 +91,7 @@ public class EqdToIMQ {
   }
 
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, NAMESPACE namespace) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, NamespaceVocab namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
@@ -141,14 +141,14 @@ public class EqdToIMQ {
 
   private void assignLibraryClauses() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
-      if (entity.isType(new TTIriRef(IM.QUERY))) {
-        Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+      if (entity.isType(new TTIriRefExtended(ImVocab.QUERY))) {
+        Query query = entity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
         if (query.getRule() != null) {
           for (Match rule : query.getRule()) {
             assignLibraryClausesToRule(rule);
           }
         }
-        entity.set(IM.DEFINITION, TTLiteral.literal(query));
+        entity.set(ImVocab.DEFINITION, TTLiteral.literal(query));
       }
     }
   }
@@ -180,10 +180,10 @@ public class EqdToIMQ {
       match.setName(name);
       TTEntity entity = new TTEntity()
         .setIri(namespace + hash)
-        .addType(new TTIriRef(IM.QUERY))
-        .setScheme(new TTIriRef(namespace))
+        .addType(new TTIriRefExtended(ImVocab.QUERY))
+        .setScheme(new TTIriRefExtended(namespace))
         .setName(name)
-        .set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(match));
+        .set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(match));
       document.addEntity(entity);
     }
   }
@@ -191,8 +191,8 @@ public class EqdToIMQ {
 
   private void createLibrary() throws JsonProcessingException {
     for (TTEntity entity : this.document.getEntities()) {
-      if (entity.isType(new TTIriRef(IM.QUERY))) {
-        createLibrary(entity.getIri(), entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
+      if (entity.isType(new TTIriRefExtended(ImVocab.QUERY))) {
+        createLibrary(entity.getIri(), entity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class));
       }
     }
     for (Map.Entry<String, Match> entry : criteriaLibrary.entrySet()) {
@@ -201,10 +201,10 @@ public class EqdToIMQ {
       if (criteriaLibraryCount.get(libraryIri) > 1) {
         TTEntity entity = new TTEntity()
           .setIri(libraryIri)
-          .addType(new TTIriRef(IM.QUERY))
-          .setScheme(new TTIriRef(namespace))
+          .addType(new TTIriRefExtended(ImVocab.QUERY))
+          .setScheme(new TTIriRefExtended(namespace))
           .setName(match.getDescription())
-          .set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(match));
+          .set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(match));
         document.addEntity(entity);
       }
     }
@@ -269,10 +269,10 @@ public class EqdToIMQ {
 
     if (this.document.getEntities() != null) {
       for (TTEntity report : this.document.getEntities()) {
-        if (report.get(IM.DEFINITION) != null) {
-          Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+        if (report.get(ImVocab.DEFINITION) != null) {
+          Query query = report.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
-          report.set(EnumUtils.asIri(IM.DEFINITION), TTLiteral.literal(query));
+          report.set(EnumUtils.asIri(ImVocab.DEFINITION), TTLiteral.literal(query));
         }
       }
     }
@@ -310,7 +310,8 @@ public class EqdToIMQ {
     if (match.getIs() != null) {
       for (Node node : match.getIs()) {
         if (gmsPatients.contains(node.getIri())) {
-          node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+          node.setIri(NamespaceVocab. IM + "Q_RegisteredGMS").
+          setName("Registered with GP for GMS services on the reference date");
         }
       }
     }
@@ -328,10 +329,10 @@ public class EqdToIMQ {
             throw new EQDException("No folder name");
           }
 
-          TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(new TTIriRef(IM.FOLDER)).setName(eqFolder.getName());
-          folder.setScheme(new TTIriRef(namespace));
+          TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(new TTIriRefExtended(ImVocab.FOLDER)).setName(eqFolder.getName());
+          folder.setScheme(new TTIriRefExtended(namespace));
           if (eqFolder.getParentFolder() != null) {
-            folder.addObject(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(this.namespace + eqFolder.getParentFolder()));
+            folder.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(this.namespace + eqFolder.getParentFolder()));
           }
 
           this.document.addEntity(folder);
@@ -352,24 +353,24 @@ public class EqdToIMQ {
     TTEntity queryEntity = new TTEntity();
     queryEntity.setIri(this.namespace + id);
     queryEntity.setName(eqReport.getName());
-    queryEntity.setScheme(new TTIriRef(this.namespace));
+    queryEntity.setScheme(new TTIriRefExtended(this.namespace));
     resources.setQueryEntity(queryEntity);
     queryEntity.setDescription(eqReport.getDescription().replace("\n", "<p>"));
     if (eqReport.getFolder() != null) {
-      queryEntity.addObject(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(this.namespace + eqReport.getFolder()).name(eqReport.getName()));
+      queryEntity.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(this.namespace + eqReport.getFolder()).name(eqReport.getName()));
     }
 
     Query qry = new Query();
     qry.setIri(queryEntity.getIri());
     qry.setName(queryEntity.getName());
     if (eqReport.getPopulation() != null) {
-      queryEntity.addType(new TTIriRef(IM.QUERY));
+      queryEntity.addType(new TTIriRefExtended(ImVocab.QUERY));
       qry = (new EqdPopToIMQ()).convertPopulation(eqReport, qry, this.resources);
     } else if (eqReport.getListReport() != null) {
-      queryEntity.addType(new TTIriRef(IM.QUERY));
+      queryEntity.addType(new TTIriRefExtended(ImVocab.QUERY));
       (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
     } else if (eqReport.getAuditReport() != null) {
-      queryEntity.addType(new TTIriRef(IM.QUERY));
+      queryEntity.addType(new TTIriRefExtended(ImVocab.QUERY));
       (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);
     } else if (eqReport.getAggregateReport() != null) {
       System.err.println("Aggregate reports not supported");
@@ -380,7 +381,7 @@ public class EqdToIMQ {
       return null;
     } else {
       flattenRules(qry);
-      queryEntity.addType(new TTIriRef(IM.QUERY));
+      queryEntity.addType(new TTIriRefExtended(ImVocab.QUERY));
       if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");
         eqReport.setName(eqReport.getName() + " -report");
@@ -388,7 +389,7 @@ public class EqdToIMQ {
 
       //this.flattenRules(qry);
       //(new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
-      queryEntity.set(new TTIriRef(IM.DEFINITION), TTLiteral.literal(qry));
+      queryEntity.set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(qry));
       return queryEntity;
     }
   }

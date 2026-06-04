@@ -3,13 +3,12 @@ package org.endeavourhealth.imapi.dataaccess.databases;
 import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.repository.Repository;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 public class ConfigDB extends BaseDB {
   private static final Repository repository = BaseDB.getRepository("config");
 
   private ConfigDB() {
-    super(GRAPH.CONFIG);
+    super(GraphVocab. CONFIG);
     conn = repository.getConnection();
   }
 
@@ -22,6 +21,6 @@ public class ConfigDB extends BaseDB {
   }
 
   public Update prepareInsertSparql(String sparql) {
-    return super.prepareInsertSparql(sparql, GRAPH.CONFIG);
+    return super.prepareInsertSparql(sparql, GraphVocab. CONFIG);
   }
 }

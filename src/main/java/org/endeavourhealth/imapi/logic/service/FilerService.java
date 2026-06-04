@@ -14,16 +14,16 @@ import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.EditRequest;
-import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.EntityDocumentExtended;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.RdfsVocab;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -35,14 +35,15 @@ public class FilerService {
   private final EntityService entityService;
   private final OpenSearchService openSearchService;
   private final TTEntityFiler entityProvFiler;
-  private final GRAPH insertGraph = GRAPH.IM;
+  private final GraphVocab insertGraph = GraphVocab.
+    IM;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
   private IMDB imdb;
 
   public FilerService() {
     ProvDB provDB = ProvDB.getConnection();
-    entityProvFiler = new TTEntityFilerRdf4j(provDB, GRAPH.PROV);
+    entityProvFiler = new TTEntityFilerRdf4j(provDB, GraphVocab.PROV);
     provService = new ProvService();
     entityService = new EntityService();
     openSearchService = new OpenSearchService();
@@ -70,18 +71,18 @@ public class FilerService {
   }
 
   private static boolean hasParents(TTEntity entity) {
-    String[] parentPredicateArray = EnumUtils.asArray(IM.IS_A, IM.IS_CONTAINED_IN, RDFS.SUBCLASS_OF, IM.IS_SUBSET_OF);
+    String[] parentPredicateArray = EnumUtils.asArray(ImVocab.IS_A, ImVocab.IS_CONTAINED_IN, RdfsVocab.SUBCLASS_OF, ImVocab.IS_SUBSET_OF);
     for (String parentPredicate : parentPredicateArray) {
-      if (!hasParentPredicateAndIsValidIriRefList(entity, new TTIriRef(parentPredicate))) return false;
+      if (!hasParentPredicateAndIsValidIriRefList(entity, new TTIriRefExtended(parentPredicate))) return false;
     }
     return true;
   }
 
-  private static boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRef predicate) {
+  private static boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRefExtended predicate) {
     return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
-  private void setupDocumentFiler(GRAPH insertGraph) {
+  private void setupDocumentFiler(GraphVocab insertGraph) {
     if (null == this.documentFiler) {
       this.documentFiler = new TTTransactionFiler(insertGraph);
     }
@@ -113,7 +114,7 @@ public class FilerService {
   }
 
   public Integer getTaskProgress(String taskId) {
-    setupDocumentFiler(GRAPH.IM);
+    setupDocumentFiler(GraphVocab.IM);
     return documentFiler.getFilingProgress(taskId);
   }
 
@@ -124,7 +125,7 @@ public class FilerService {
 
       entityFiler.updateIsAs(entity.getIri());
 
-      if (entity.isType(new TTIriRef(IM.VALUE_SET)) || entity.isType((new TTIriRef(IM.CONCEPT_SET)))) {
+      if (entity.isType(new TTIriRefExtended(ImVocab.VALUE_SET)) || entity.isType((new TTIriRefExtended(ImVocab.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         new SetBinder().bindSet(entity.getIri(), insertGraph);
       }
@@ -191,7 +192,7 @@ public class FilerService {
 
   private void fileOpenSearch(String iri) throws TTFilerException {
     try {
-      EntityDocument doc = entityService.getOSDocument(iri);
+      EntityDocumentExtended doc = entityService.getOSDocument(iri);
       openSearchService.fileDocument(doc);
     } catch (Exception e) {
       throw new TTFilerException("Unable to file opensearch", e);
@@ -200,14 +201,14 @@ public class FilerService {
 
   public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
-    editRequest.getEntity().setCrud(new TTIriRef(IM.ADD_QUADS)).setVersion(1);
+    editRequest.getEntity().setCrud(new TTIriRefExtended(ImVocab.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null);
     return editRequest.getEntity();
   }
 
   public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update");
-    entity.setCrud(new TTIriRef(IM.REPLACE_ALL_PREDICATES));
+    entity.setCrud(new TTIriRefExtended(ImVocab.REPLACE_ALL_PREDICATES));
     TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, agentName, usedEntity);
@@ -233,7 +234,7 @@ public class FilerService {
     }
   }
 
-  public boolean userCanFile(User user, GRAPH graph) throws JsonProcessingException {
+  public boolean userCanFile(User user, GraphVocab graph) throws JsonProcessingException {
     return graph != null && user.getNamespaces().stream().anyMatch(o -> o.getIri().equals(graph.toString()));
   }
 

@@ -3,9 +3,6 @@ package org.endeavourhealth.imapi.filer.rdf4j;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.filer.TCGenerator;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,7 +10,7 @@ import java.util.*;
 
 @Slf4j
 public class ClosureGeneratorBulk implements TCGenerator {
-  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", IM.CONCEPT.toString(), "http://snomed.info/sct#370115009"};
+  private static final String[] topConcepts = {"http://snomed.info/sct#138875005", ImVocab.CONCEPT.toString(), "http://snomed.info/sct#370115009"};
   private final Set<String> blockingIris = new HashSet<>();
   private Map<String, Map<String, Set<String>>> relationshipMap;
   private HashMap<String, Set<String>> closureMap;
@@ -49,7 +46,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
     log.debug("Generating closure map for subclasses");
     int c = 0;
     counter = 0;
-    for (Map.Entry<String, Set<String>> row : relationshipMap.get(RDFS.SUBCLASS_OF.toString()).entrySet()) {
+    for (Map.Entry<String, Set<String>> row : relationshipMap.get(RdfsVocab.SUBCLASS_OF.toString()).entrySet()) {
       c++;
       String child = row.getKey();
       if (closureMap.get(child) == null) {
@@ -64,7 +61,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
 
   private Set<String> generateClosure(String child) {
     Set<String> closures = closureMap.computeIfAbsent(child, k -> new HashSet<>());
-    String relationship = RDFS.SUBCLASS_OF.toString();
+    String relationship = RdfsVocab.SUBCLASS_OF.toString();
 
     // Add self
     closures.add(child);
@@ -105,7 +102,7 @@ public class ClosureGeneratorBulk implements TCGenerator {
         TTBulkFiler.setStatementCount(TTBulkFiler.getStatementCount() + 1);
         if (counter % 1_000_000 == 0)
           log.info("Written {} isas ", counter);
-        fw.write("<" + entry.getKey() + "> <" + IM.IS_A + "> <" + closure + "> <" + NAMESPACE.IM + ">.\n");
+        fw.write("<" + entry.getKey() + "> <" + ImVocab.IS_A + "> <" + closure + "> <" + NamespaceVocab. IM + ">.\n");
       }
     }
     fw.close();

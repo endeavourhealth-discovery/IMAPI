@@ -11,8 +11,8 @@ import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.config.Config;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.CONFIG;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
+import org.endeavourhealth.interfacemanager.model.ConfigVocab;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
 import org.springframework.context.annotation.Configuration;
 
 import static org.eclipse.rdf4j.model.util.Values.literal;
@@ -20,7 +20,7 @@ import static org.eclipse.rdf4j.model.util.Values.literal;
 @Slf4j
 @Configuration
 public class ConfigManager {
-  public <T> T getConfig(CONFIG iri, TypeReference<T> resultType) throws JsonProcessingException {
+  public <T> T getConfig(ConfigVocab iri, TypeReference<T> resultType) throws JsonProcessingException {
     log.debug("getConfig<TypeReference>");
 
     try (CachedObjectMapper om = new CachedObjectMapper()) {
@@ -31,7 +31,7 @@ public class ConfigManager {
     }
   }
 
-  public Config getConfig(CONFIG config) {
+  public Config getConfig(ConfigVocab config) {
     String sql = """
       SELECT ?name ?data
       WHERE {
@@ -43,8 +43,8 @@ public class ConfigManager {
     try (ConfigDB conn = ConfigDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", EnumUtils.asDbIri(config));
-      qry.setBinding("label", EnumUtils.asDbIri(CONFIG.LABEL));
-      qry.setBinding("config", EnumUtils.asDbIri(CONFIG.HAS_CONFIG));
+      qry.setBinding("label", EnumUtils.asDbIri(ConfigVocab.LABEL));
+      qry.setBinding("config", EnumUtils.asDbIri(ConfigVocab.HAS_CONFIG));
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -58,13 +58,13 @@ public class ConfigManager {
     }
   }
 
-  public void setConfig(CONFIG iri, Config config) {
-    insert(iri, CONFIG.LABEL, config.getName());
-    insert(iri, CONFIG.COMMENT, config.getComment());
-    insert(iri, CONFIG.HAS_CONFIG, config.getData());
+  public void setConfig(ConfigVocab iri, Config config) {
+    insert(iri, ConfigVocab.LABEL, config.getName());
+    insert(iri, ConfigVocab.COMMENT, config.getComment());
+    insert(iri, ConfigVocab.HAS_CONFIG, config.getData());
   }
 
-  private void insert(CONFIG subject, Enum<?> predicate, String object) {
+  private void insert(ConfigVocab subject, Enum<?> predicate, String object) {
     if (null == subject || null == predicate)
       throw new IllegalArgumentException("Subject or Predicate cannot be null");
     try (CachedObjectMapper om = new CachedObjectMapper();
@@ -83,7 +83,7 @@ public class ConfigManager {
         ? "WHERE {}"
         : "WHERE { ?s ?p ?oAny }";
 
-      Update qry = conn.prepareUpdateSparql(query, GRAPH.CONFIG);
+      Update qry = conn.prepareUpdateSparql(query, GraphVocab.CONFIG);
       qry.setBinding("s", EnumUtils.asDbIri(subject));
       qry.setBinding("p", EnumUtils.asDbIri(predicate));
       qry.setBinding("o", literal(object));

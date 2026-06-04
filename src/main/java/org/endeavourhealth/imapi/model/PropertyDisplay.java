@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 public class PropertyDisplay {
   private int order;
-  private TTIriRef group;
-  private List<TTIriRef> property;
-  private List<TTIriRef> type;
+  private TTIriRefExtended group;
+  private List<TTIriRefExtended> property;
+  private List<TTIriRefExtended> type;
   private String cardinality;
   private boolean isOr;
   private boolean isType;
@@ -28,17 +28,17 @@ public class PropertyDisplay {
     return this;
   }
 
-  public PropertyDisplay setGroup(TTIriRef group) {
+  public PropertyDisplay setGroup(TTIriRefExtended group) {
     this.group = group;
     return this;
   }
 
-  public PropertyDisplay setProperty(List<TTIriRef> property) {
+  public PropertyDisplay setProperty(List<TTIriRefExtended> property) {
     this.property = property;
     return this;
   }
 
-  public PropertyDisplay addProperty(TTIriRef property) {
+  public PropertyDisplay addProperty(TTIriRefExtended property) {
     if (this.property == null) {
       this.property = new ArrayList<>();
     }
@@ -46,12 +46,12 @@ public class PropertyDisplay {
     return this;
   }
 
-  public PropertyDisplay setType(List<TTIriRef> type) {
+  public PropertyDisplay setType(List<TTIriRefExtended> type) {
     this.type = type;
     return this;
   }
 
-  public PropertyDisplay addType(TTIriRef type) {
+  public PropertyDisplay addType(TTIriRefExtended type) {
     if (this.type == null) {
       this.type = new ArrayList<>();
     }

@@ -9,13 +9,15 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
@@ -23,6 +25,7 @@ import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
+import java.lang.Exception;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,10 +50,10 @@ public class QueryService {
 
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (queryRequest.getQuery().getQueryType() == IMQType.INDICATOR) {
-      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(new TTIriRef(IM.NUMERATOR).getIri(), new TTIriRef(IM.DENOMINATOR).getIri(), new TTIriRef(IM.HAS_DATASET).getIri()));
-      String denominator = bundle.getEntity().get(IM.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
-      String numerator = bundle.getEntity().get(IM.NUMERATOR).getElements().getFirst().asIriRef().getIri();
-      String dataset = bundle.getEntity().get(IM.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
+      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(new TTIriRefExtended(ImVocab.NUMERATOR).getIri(), new TTIriRefExtended(ImVocab.DENOMINATOR).getIri(), new TTIriRefExtended(ImVocab.HAS_DATASET).getIri()));
+      String denominator = bundle.getEntity().get(ImVocab.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
+      String numerator = bundle.getEntity().get(ImVocab.NUMERATOR).getElements().getFirst().asIriRef().getIri();
+      String dataset = bundle.getEntity().get(ImVocab.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
       return new IMQtoSQLConverterKotlin(queryRequest, new ObjectMapper(), denominator, numerator, dataset).getSql();
     }
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
@@ -71,13 +74,13 @@ public class QueryService {
     }
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
-      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(IM.DEFINITION, RDF.TYPE)).getEntity();
-      if (queryEntity.isType(new TTIriRef(IM.INDICATOR)))
+      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(ImVocab.DEFINITION, RdfVocab.TYPE)).getEntity();
+      if (queryEntity.isType(new TTIriRefExtended(ImVocab.INDICATOR)))
         return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
 
-      if (!queryEntity.has(new TTIriRef(IM.DEFINITION)))
+      if (!queryEntity.has(new TTIriRefExtended(ImVocab.DEFINITION)))
         throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
-      query = queryEntity.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      query = queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
       query.setIri(queryEntity.getIri());
     } else {
       query = queryRequest.getQuery();
@@ -94,14 +97,15 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(NAMESPACE.IM + "Q_DefaultCohorts", EnumUtils.asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+    List<TTEntity> children = entityRepository.getFolderChildren(NamespaceVocab.
+      IM + "Q_DefaultCohorts", EnumUtils.asArray(ShaclVocab.ORDER, RdfVocab.TYPE, RdfsVocab.LABEL, ImVocab.DEFINITION));
     if (children.isEmpty()) {
-      return new Query().setTypeOf(NAMESPACE.IM + "Patient");
+      return new Query().setTypeOf(NamespaceVocab.IM + "Patient");
     }
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
     if (cohort != null) {
-      Query cohortQuery = cohort.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query cohortQuery = cohort.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
       defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
@@ -110,14 +114,15 @@ public class QueryService {
 
   private TTEntity findFirstQuery(List<TTEntity> children) {
     for (TTEntity child : children) {
-      if (child.isType(new TTIriRef(IM.QUERY)) && child.get(new TTIriRef(IM.DEFINITION)) != null) {
+      if (child.isType(new TTIriRefExtended(ImVocab.QUERY)) && child.get(new TTIriRefExtended(ImVocab.DEFINITION)) != null) {
         return child;
       }
 
     }
     for (TTEntity child : children) {
-      if (child.isType(new TTIriRef(IM.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(NAMESPACE.IM + "DefaultCohorts", EnumUtils.asArray(SHACL.ORDER, RDF.TYPE, RDFS.LABEL, IM.DEFINITION));
+      if (child.isType(new TTIriRefExtended(ImVocab.FOLDER))) {
+        List<TTEntity> subchildren = entityRepository.getFolderChildren(NamespaceVocab.
+          IM + "DefaultCohorts", EnumUtils.asArray(ShaclVocab.ORDER, RdfVocab.TYPE, RdfsVocab.LABEL, ImVocab.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
@@ -139,8 +144,8 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
-    Query query = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(ImVocab.DEFINITION.toString())).getEntity();
+    Query query = queryEntity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
     new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
     return query;
   }
@@ -153,7 +158,7 @@ public class QueryService {
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {
       for (ArgumentReference argument : missingArguments) {
-        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
+        TTIriRefExtended dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
         if (null != dataType) argument.setDataType(dataType);
       }
     }
@@ -191,7 +196,7 @@ public class QueryService {
 
   private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
-      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(new TTIriRef(where.getIri())));
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(new TTIriRefExtended(where.getIri())));
     }
     if (null != where.getAnd()) {
       where.getAnd().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
@@ -217,11 +222,11 @@ public class QueryService {
 
   private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
     if (missingArguments.stream().noneMatch(missingArgument -> missingArgument.getParameter().equals(parameter))) {
-      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(new TTIriRef(referenceIri)));
+      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(new TTIriRefExtended(referenceIri)));
     }
   }
 
-  public TTIriRef getArgumentType(String referenceIri) {
+  public TTIriRefExtended getArgumentType(String referenceIri) {
     if (null == referenceIri) {
       throw new IllegalArgumentException("referenceIri is null");
     }
@@ -249,23 +254,23 @@ public class QueryService {
 
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
-    TTEntity entity = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(RDFS.LABEL, RDFS.COMMENT,
-      IM.IS_SUBINDICATOR_OF, IM.DENOMINATOR, IM.NUMERATOR, IM.HAS_DATASET)).getEntity();
+    TTEntity entity = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(RdfsVocab.LABEL, RdfsVocab.COMMENT,
+      ImVocab.IS_SUBINDICATOR_OF, ImVocab.DENOMINATOR, ImVocab.NUMERATOR, ImVocab.HAS_DATASET)).getEntity();
     Indicator indicator = new Indicator();
     indicator.setIri(entity.getIri());
     indicator.setName(entity.getName());
     indicator.setDescription(entity.getDescription());
-    if (entity.get(IM.DENOMINATOR) != null) {
-      indicator.setDenominator(entity.get(IM.DENOMINATOR).asIriRef());
+    if (entity.get(ImVocab.DENOMINATOR) != null) {
+      indicator.setDenominator(entity.get(ImVocab.DENOMINATOR).asIriRef());
     }
-    if (entity.get(IM.NUMERATOR) != null) {
-      indicator.setnumerator(entity.get(IM.NUMERATOR).asIriRef());
+    if (entity.get(ImVocab.NUMERATOR) != null) {
+      indicator.setnumerator(entity.get(ImVocab.NUMERATOR).asIriRef());
     }
-    if (entity.get(IM.HAS_DATASET) != null) {
-      indicator.setDataset(entity.get(IM.HAS_DATASET).asIriRef());
+    if (entity.get(ImVocab.HAS_DATASET) != null) {
+      indicator.setDataset(entity.get(ImVocab.HAS_DATASET).asIriRef());
     }
-    if (entity.get(IM.IS_SUBINDICATOR_OF) != null) {
-      indicator.setIsSubIndicatorOf(entity.get(IM.IS_SUBINDICATOR_OF).getElements()
+    if (entity.get(ImVocab.IS_SUBINDICATOR_OF) != null) {
+      indicator.setIsSubIndicatorOf(entity.get(ImVocab.IS_SUBINDICATOR_OF).getElements()
         .stream().map(TTValue::asIriRef).collect(Collectors.toList()));
     }
     return indicator;

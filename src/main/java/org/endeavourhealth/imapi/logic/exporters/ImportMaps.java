@@ -13,13 +13,10 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
-import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.iml.EntityExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.io.IOException;
 import java.util.*;
@@ -37,7 +34,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      return fileRepo.getCodeCoreMap(NamespaceVocab.EMIS);
     return importEmisToSnomedRdf4j();
   }
 
@@ -70,7 +67,7 @@ public class ImportMaps implements AutoCloseable {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
+  public TTIriRefExtended getReferenceFromCoreTerm(String term) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
@@ -113,7 +110,7 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<Entity> getCoreFromCode(String code, List<NAMESPACE> schemes) {
+  public Set<EntityExtended> getCoreFromCode(String code, List<NAMESPACE> schemes) {
     return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
@@ -124,7 +121,7 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getAllMatchedLegacy();
   }
 
-  public Set<Entity> getCoreFromLegacyTerm(String term, NAMESPACE scheme) {
+  public Set<EntityExtended> getCoreFromLegacyTerm(String term, NAMESPACE scheme) {
     return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
 
   }
@@ -172,7 +169,7 @@ public class ImportMaps implements AutoCloseable {
   public Map<String, Set<String>> importReadToSnomed() throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      return fileRepo.getCodeCoreMap(NamespaceVocab.EMIS);
     }
     return importReadToSnomedRdf4j(readToSnomed);
   }
@@ -202,11 +199,11 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
       qry.setBinding("concept", valueFactory.createIRI(concept));
-      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
-      qry.setBinding("subClassOf", EnumUtils.asDbIri(RDFS.SUBCLASS_OF));
-      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NamespaceVocab.SNOMED));
+      qry.setBinding("subClassOf", EnumUtils.asDbIri(RdfsVocab.SUBCLASS_OF));
+      qry.setBinding("label", EnumUtils.asDbIri(RdfsVocab.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -235,7 +232,7 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("rdfLabel", EnumUtils.asDbIri(RDFS.LABEL));
+      qry.setBinding("rdfLabel", EnumUtils.asDbIri(RdfsVocab.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -259,9 +256,9 @@ public class ImportMaps implements AutoCloseable {
           ?concept ?code ?snomed}
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
-      qry.setBinding("code", EnumUtils.asDbIri(IM.CODE));
-      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
+      qry.setBinding("code", EnumUtils.asDbIri(ImVocab.CODE));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NamespaceVocab.SNOMED));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -289,11 +286,11 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
-      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
-      qry.setBinding("vision", EnumUtils.asDbIri(NAMESPACE.VISION));
-      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
-      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NamespaceVocab.SNOMED));
+      qry.setBinding("vision", EnumUtils.asDbIri(NamespaceVocab.VISION));
+      qry.setBinding("imCode", EnumUtils.asDbIri(ImVocab.CODE));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(ImVocab.MATCHED_TO));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -311,7 +308,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
     if (TTFilerFactory.isBulk()) {
-      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(NamespaceVocab.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();
@@ -319,10 +316,10 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(new TTIriRef(NAMESPACE.VISION));
-          entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
+          entity.setScheme(new TTIriRefExtended(NamespaceVocab.VISION));
+          entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
-            entity.addObject(new TTIriRef(IM.MATCHED_TO), new TTIriRef(snomed));
+            entity.addObject(new TTIriRefExtended(ImVocab.MATCHED_TO), new TTIriRefExtended(snomed));
           }
         }
       }
@@ -348,12 +345,12 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
-      qry.setBinding("emis", EnumUtils.asDbIri(NAMESPACE.EMIS));
-      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
-      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
-      qry.setBinding("hasTermCode", EnumUtils.asDbIri(IM.HAS_TERM_CODE));
-      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
+      qry.setBinding("emis", EnumUtils.asDbIri(NamespaceVocab.EMIS));
+      qry.setBinding("label", EnumUtils.asDbIri(RdfsVocab.LABEL));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(ImVocab.MATCHED_TO));
+      qry.setBinding("hasTermCode", EnumUtils.asDbIri(ImVocab.HAS_TERM_CODE));
+      qry.setBinding("imCode", EnumUtils.asDbIri(ImVocab.CODE));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -365,8 +362,8 @@ public class ImportMaps implements AutoCloseable {
             TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
             entity.setName(name);
             entity.setCode(code);
-            entity.setIri(NAMESPACE.VISION + code.replace(".", ""));
-            entity.addObject(new TTIriRef(IM.MATCHED_TO), new TTIriRef(snomedIri));
+            entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));
+            entity.addObject(new TTIriRefExtended(ImVocab.MATCHED_TO), new TTIriRefExtended(snomedIri));
           }
         }
       }
@@ -397,12 +394,12 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
-      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
-      qry.setBinding("emis", EnumUtils.asDbIri(NAMESPACE.EMIS));
-      qry.setBinding("imCode", EnumUtils.asDbIri(IM.CODE));
-      qry.setBinding("matchedTo", EnumUtils.asDbIri(IM.MATCHED_TO));
-      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NamespaceVocab.SNOMED));
+      qry.setBinding("emis", EnumUtils.asDbIri(NamespaceVocab.EMIS));
+      qry.setBinding("imCode", EnumUtils.asDbIri(ImVocab.CODE));
+      qry.setBinding("matchedTo", EnumUtils.asDbIri(ImVocab.MATCHED_TO));
+      qry.setBinding("label", EnumUtils.asDbIri(RdfsVocab.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -437,8 +434,8 @@ public class ImportMaps implements AutoCloseable {
         }
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
-      qry.setBinding("scheme", EnumUtils.asDbIri(IM.HAS_SCHEME));
-      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NAMESPACE.SNOMED));
+      qry.setBinding("scheme", EnumUtils.asDbIri(ImVocab.HAS_SCHEME));
+      qry.setBinding("snomedNamespace", EnumUtils.asDbIri(NamespaceVocab.SNOMED));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -452,7 +449,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<Entity> getLegacyFromTermCode(String originalCode, NAMESPACE scheme) {
+  public Set<EntityExtended> getLegacyFromTermCode(String originalCode, NAMESPACE scheme) {
     return new EntityRepository().getReferenceFromTermCode(originalCode, scheme);
   }
 

@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.logic.service.QueryService
 import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.utility.EnumUtils
-import org.endeavourhealth.interfacemanager.model.IM
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -32,7 +31,7 @@ class IMQtoSQLFullTest {
     for (entity in entities) {
       val iri = entity.iri
       val name = entity.name
-      val definition = entity.get(EnumUtils.asIri(IM.DEFINITION))
+      val definition = entity.get(EnumUtils.asIri(ImVocab. DEFINITION))
 
       if (definition != null) {
 //                log.info("Converting entity: $iri")

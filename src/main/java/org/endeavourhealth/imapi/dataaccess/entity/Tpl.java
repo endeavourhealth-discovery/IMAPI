@@ -11,22 +11,22 @@ import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 public class Tpl {
   private int dbid;
   private Integer parent;
-  private TTIriRef predicate;
-  private TTIriRef object;
+  private TTIriRefExtended predicate;
+  private TTIriRefExtended object;
   private String literal;
   private boolean functional = true;
 
   public Tpl() {
   }
 
-  public Tpl(int dbid, Integer parent, TTIriRef predicate, boolean functional) {
+  public Tpl(int dbid, Integer parent, TTIriRefExtended predicate, boolean functional) {
     this.dbid = dbid;
     this.parent = parent;
     this.predicate = predicate;
     this.functional = functional;
   }
 
-  public Tpl(int dbid, Integer parent, TTIriRef predicate, TTIriRef object, boolean functional) {
+  public Tpl(int dbid, Integer parent, TTIriRefExtended predicate, TTIriRefExtended object, boolean functional) {
     this.dbid = dbid;
     this.parent = parent;
     this.predicate = predicate;
@@ -34,7 +34,7 @@ public class Tpl {
     this.functional = functional;
   }
 
-  public Tpl(int dbid, Integer parent, TTIriRef predicate, TTIriRef object, String literal, boolean functional) {
+  public Tpl(int dbid, Integer parent, TTIriRefExtended predicate, TTIriRefExtended object, String literal, boolean functional) {
     this.dbid = dbid;
     this.parent = parent;
     this.predicate = predicate;
@@ -61,20 +61,20 @@ public class Tpl {
     return this;
   }
 
-  public TTIriRef getPredicate() {
+  public TTIriRefExtended getPredicate() {
     return predicate;
   }
 
-  public Tpl setPredicate(TTIriRef predicate) {
+  public Tpl setPredicate(TTIriRefExtended predicate) {
     this.predicate = predicate;
     return this;
   }
 
-  public TTIriRef getObject() {
+  public TTIriRefExtended getObject() {
     return object;
   }
 
-  public Tpl setObject(TTIriRef object) {
+  public Tpl setObject(TTIriRefExtended object) {
     this.object = object;
     return this;
   }

@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.List;
 
@@ -8,12 +8,12 @@ public class UnassignedEntity {
 
   private String iri;
   private String name;
-  private List<TTIriRef> suggestions;
+  private List<TTIriRefExtended> suggestions;
 
   public UnassignedEntity() {
   }
 
-  public UnassignedEntity(String iri, String name, List<TTIriRef> suggestions) {
+  public UnassignedEntity(String iri, String name, List<TTIriRefExtended> suggestions) {
     this.iri = iri;
     this.name = name;
     this.suggestions = suggestions;
@@ -37,11 +37,11 @@ public class UnassignedEntity {
     return this;
   }
 
-  public List<TTIriRef> getSuggestions() {
+  public List<TTIriRefExtended> getSuggestions() {
     return suggestions;
   }
 
-  public UnassignedEntity setSuggestions(List<TTIriRef> suggestions) {
+  public UnassignedEntity setSuggestions(List<TTIriRefExtended> suggestions) {
     this.suggestions = suggestions;
     return this;
   }

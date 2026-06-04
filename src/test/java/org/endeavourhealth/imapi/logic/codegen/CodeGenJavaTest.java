@@ -6,7 +6,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -73,27 +73,27 @@ class CodeGenJavaTest {
   @Test
   void getDataType_ShouldReturnXsdType() {
     CodeGenJava codeGen = new CodeGenJava();
-    assertEquals("String", codeGen.getDataType(new TTIriRef("http://www.w3.org/2001/XMLSchema#string"), false, false));
-    assertEquals("Integer", codeGen.getDataType(new TTIriRef("http://www.w3.org/2001/XMLSchema#integer"), false, false));
+    assertEquals("String", codeGen.getDataType(new TTIriRefExtended("http://www.w3.org/2001/XMLSchema#string"), false, false));
+    assertEquals("Integer", codeGen.getDataType(new TTIriRefExtended("http://www.w3.org/2001/XMLSchema#integer"), false, false));
   }
 
   @Test
   void getDataType_ShouldReturnUUIDForDataModel() {
     CodeGenJava codeGen = new CodeGenJava();
-    assertEquals("UUID", codeGen.getDataType(new TTIriRef("http://endhealth.info/im#SomeModel"), true, false));
+    assertEquals("UUID", codeGen.getDataType(new TTIriRefExtended("http://endhealth.info/im#SomeModel"), true, false));
   }
 
   @Test
   void getDataType_ShouldReturnList() {
     CodeGenJava codeGen = new CodeGenJava();
-    assertEquals("List<String>", codeGen.getDataType(new TTIriRef("http://www.w3.org/2001/XMLSchema#string"), false, true));
+    assertEquals("List<String>", codeGen.getDataType(new TTIriRefExtended("http://www.w3.org/2001/XMLSchema#string"), false, true));
   }
 
   @Test
   void getDataType_ShouldHandleSpecialIris() {
     CodeGenJava codeGen = new CodeGenJava();
-    assertEquals("String", codeGen.getDataType(new TTIriRef("http://endhealth.info/im#Status"), false, false));
-    assertEquals("PartialDateTime", codeGen.getDataType(new TTIriRef("http://endhealth.info/im#DateTime"), false, false));
+    assertEquals("String", codeGen.getDataType(new TTIriRefExtended("http://endhealth.info/im#Status"), false, false));
+    assertEquals("PartialDateTime", codeGen.getDataType(new TTIriRefExtended("http://endhealth.info/im#DateTime"), false, false));
   }
 
   @Test

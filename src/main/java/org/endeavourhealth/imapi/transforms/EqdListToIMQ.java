@@ -5,8 +5,6 @@ import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.QueryType;
 
 import java.io.IOException;
@@ -17,13 +15,14 @@ public class EqdListToIMQ {
   public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
-    query.setTypeOf(new Node().setIri(NAMESPACE.IM + "Patient"));
+    query.setTypeOf(new Node().setIri(NamespaceVocab.IM + "Patient"));
     String id;
     if (eqReport.getParent().getSearchIdentifier() != null) {
       id = eqReport.getParent().getSearchIdentifier().getReportGuid();
       id = resources.getNamespace() + EqdToIMQ.versionMap.getOrDefault(id, id);
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
-      id = NAMESPACE.IM + "Q_RegisteredGMS";
+      id = NamespaceVocab.
+        IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
     query.addIs(Node.iri(id)
       .setIsCohort(true)
@@ -98,7 +97,7 @@ public class EqdListToIMQ {
     subQuery.setReturn(null);
     subQuery.setTypeOf(resources.getIMPath(eqTable));
     Return patRet = new Return();
-    patRet.setIri(NAMESPACE.IM + (eqTable.equals("PATIENTS") ? "id" : "patient"));
+    patRet.setIri(NamespaceVocab.IM + (eqTable.equals("PATIENTS") ? "id" : "patient"));
     patRet.setAs("patient");
     subQuery.addReturn(patRet);
     if (eqColGroup.getColumnar() == null) {
@@ -107,7 +106,7 @@ public class EqdListToIMQ {
           Return aReturn = new Return();
           subQuery.addReturn(aReturn);
           aReturn.function(f -> f
-            .setIri(IM.COUNT.toString()));
+            .setIri(ImVocab.COUNT.toString()));
         } else if (eqColGroup.getSummary() == VocListGroupSummary.EXISTS) {
           subQuery
             .return_(p -> p
@@ -158,14 +157,14 @@ public class EqdListToIMQ {
     property.setFunction(function);
     if (as != null)
       property.setAs(as);
-    function.setIri(IM.CONCATENATE.toString());
+    function.setIri(ImVocab.CONCATENATE.toString());
     String concats = eqPaths.substring(eqPaths.indexOf("$concat(") + 8, eqPaths.length() - 1);
     for (String eqPath : concats.split(" ")) {
       String eqURL = eqTable + "/" + eqPath;
       String columnPath = resources.getIMPath(eqURL);
       String[] subPath = (columnPath).trim().split(" ");
       String nodeRef = getNodeRef(subQuery, subPath, 0);
-      Argument arg = new Argument();
+      ArgumentExtended arg = new ArgumentExtended();
       function.addArgument(arg);
       Path argPath = new Path();
       argPath.setNodeRef(nodeRef);

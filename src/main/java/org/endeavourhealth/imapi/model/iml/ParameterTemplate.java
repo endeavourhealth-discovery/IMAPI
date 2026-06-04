@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ParameterTemplate extends Entity {
+public class ParameterTemplate extends EntityExtended {
   private String label;
   private Integer order;
   private List<ValueTemplate> valueTemplate;

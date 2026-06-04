@@ -7,8 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.CONFIG;
+import org.endeavourhealth.interfacemanager.model.ConfigVocab;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,17 +39,17 @@ public class ConfigController {
   public String getMonitoring() throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Monitoring.GET")) {
       log.debug("getMonitoring");
-      return configManager.getConfig(CONFIG.MONITORING, new TypeReference<>() {
+      return configManager.getConfig(ConfigVocab.MONITORING, new TypeReference<>() {
       });
     }
   }
 
   @GetMapping(value = "/namespaces")
   @Operation(summary = "Get the list of available namespaces")
-  public List<NAMESPACE> getNamespaces() {
+  public List<NamespaceVocab> getNamespaces() {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.Namespaces.GET")) {
       log.debug("getNamespaces");
-      List<NAMESPACE> namespaces = new ArrayList<>(EnumSet.allOf(NAMESPACE.class));
+      List<NamespaceVocab> namespaces = new ArrayList<>(EnumSet.allOf(NamespaceVocab.class));
       return namespaces;
     }
   }

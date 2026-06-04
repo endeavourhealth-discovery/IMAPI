@@ -19,9 +19,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDF;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
 
 import java.net.URI;
@@ -44,7 +41,7 @@ public class OSQuery {
       ObjectNode osResult = om.treeToValue(hit.get("_source"), ObjectNode.class);
 
       resultNode.set("iri", osResult.get("iri"));
-      resultNode.set(RDFS.LABEL.toString(), osResult.get("name"));
+      resultNode.set(RdfsVocab.LABEL.toString(), osResult.get("name"));
       processBestMatch(hit, resultNode);
       processNodeResultReturn(request, osResult, resultNode);
     }
@@ -54,13 +51,13 @@ public class OSQuery {
     JsonNode innerHits = hit.get("inner_hits");
     if (innerHits != null) {
       if (innerHits.get("termCode") != null && !innerHits.get("termCode").get("hits").get("hits").isEmpty()) {
-        String name = resultNode.get(RDFS.LABEL.toString()).asText();
+        String name = resultNode.get(RdfsVocab.LABEL.toString()).asText();
         JsonNode bestHit = innerHits.get("termCode").get("hits").get("hits").get(0).get("_source").get("term");
         String bestTerm = bestHit.asText();
         if (!bestTerm.endsWith(")") && name.endsWith(")") && name.contains("(")) {
           bestTerm = bestTerm + " " + name.substring(name.lastIndexOf("("));
         }
-        resultNode.put(IM.BEST_MATCH.toString(), bestTerm);
+        resultNode.put(ImVocab. BEST_MATCH.toString(), bestTerm);
       }
     }
   }
@@ -75,7 +72,11 @@ public class OSQuery {
   }
 
   private static void processSourceReturns(ObjectNode osResult, ObjectNode resultNode) {
-    Set<String> sources = EnumUtils.asHashSet(RDFS.LABEL, IM.PREFERRED_NAME, IM.CODE, IM.USAGE_TOTAL, RDF.TYPE, IM.HAS_SCHEME, IM.HAS_STATUS);
+    Set<String> sources = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab. PREFERRED_NAME, ImVocab.
+    CODE, ImVocab.
+    USAGE_TOTAL, RdfVocab.TYPE, ImVocab.
+    HAS_SCHEME, ImVocab.
+    HAS_STATUS);
     sources.add("iri");
     for (String field : sources) {
       String osField = field.substring(field.lastIndexOf("#") + 1);

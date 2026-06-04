@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +16,7 @@ public class ECLQueryRequest {
   private ECLStatus status;
   private boolean includeLegacy;
   private int limit = 1000;
-  private Set<TTIriRef> statusFilter = new HashSet<>();
+  private Set<TTIriRefExtended> statusFilter = new HashSet<>();
   private int page = 1;
   private int size = 20;
 
@@ -29,11 +29,11 @@ public class ECLQueryRequest {
     return this;
   }
 
-  public Set<TTIriRef> getStatusFilter() {
+  public Set<TTIriRefExtended> getStatusFilter() {
     return statusFilter;
   }
 
-  public ECLQueryRequest setStatusFilter(Set<TTIriRef> statusFilter) {
+  public ECLQueryRequest setStatusFilter(Set<TTIriRefExtended> statusFilter) {
     this.statusFilter = statusFilter;
     return this;
   }

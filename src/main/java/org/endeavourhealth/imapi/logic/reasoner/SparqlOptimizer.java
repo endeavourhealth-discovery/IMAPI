@@ -10,11 +10,8 @@ import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -173,16 +170,16 @@ public class SparqlOptimizer {
     Query setQuery = new Query();
     setQuery.setIs(is);
     TTEntity setEntity = new TTEntity();
-    String setIri = NAMESPACE.IM + "ASET_" + getHash(is);
+    String setIri = NamespaceVocab.IM + "ASET_" + getHash(is);
     if (setIris.contains(setIri)) return setIri;
     if (!repo.iriExists(setIri)) {
       TTDocument document = new TTDocument();
       setEntity
         .setIri(setIri)
-        .addType(new TTIriRef(IM.CONCEPT_SET))
-        .set(IM.DEFINITION, TTLiteral.literal(setQuery));
+        .addType(new TTIriRefExtended(ImVocab.CONCEPT_SET))
+        .set(ImVocab.DEFINITION, TTLiteral.literal(setQuery));
       document.addEntity(setEntity);
-      try (TTTransactionFiler filer = new TTTransactionFiler(GRAPH.IM)) {
+      try (TTTransactionFiler filer = new TTTransactionFiler(GraphVocab. IM)){
         TTTransactionFiler.disableIm1Deltas();
         filer.fileDocument(document);
         TTTransactionFiler.enableIm1Deltas();

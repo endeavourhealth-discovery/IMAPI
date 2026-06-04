@@ -24,7 +24,7 @@ public interface TTValue extends Serializable {
     return null;
   }
 
-  default TTIriRef asIriRef() {
+  default TTIriRefExtended asIriRef() {
     return null;
   }
 

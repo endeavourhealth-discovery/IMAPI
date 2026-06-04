@@ -2,15 +2,13 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Argument;
+import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -52,8 +50,8 @@ class OSQueryTest_IM {
       .setQuery(new Query()
         .setWhere(
           new Where()
-            .setIri(IM.HAS_SCHEME)
-            .setIs(List.of(new Node().setIri(NAMESPACE.SNOMED.toString())))
+            .setIri(ImVocab.HAS_SCHEME)
+            .setIs(List.of(new Node().setIri(NamespaceVocab.SNOMED.toString())))
         )
       );
 
@@ -82,8 +80,8 @@ class OSQueryTest_IM {
   void imQuery_term_multiIsA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
-      .addArgument(new Argument().setParameter("isas").setValueIriList(
-        (Set.of(new TTIriRef("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
+      .addArgument(new ArgumentExtended().setParameter("isas").setValueIriList(
+        (Set.of(new TTIriRefExtended("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
         .addIs(new Node().setParameter("$isas")
@@ -102,7 +100,7 @@ class OSQueryTest_IM {
       .setTextSearch("FOXG1")
       .setQuery(new Query()
         .setWhere(new Where()
-          .setIri(IM.HAS_MEMBER)
+          .setIri(ImVocab.HAS_MEMBER)
           .setInverse(true)
           .setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD")))
         )

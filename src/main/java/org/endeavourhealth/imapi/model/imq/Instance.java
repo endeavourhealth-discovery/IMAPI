@@ -1,15 +1,15 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 public class Instance extends IriLD{
-  private TTIriRef entailment;
+  private TTIriRefExtended entailment;
 
-  public TTIriRef getEntailment() {
+  public TTIriRefExtended getEntailment() {
     return entailment;
   }
 
-  public Instance setEntailment(TTIriRef entailment) {
+  public Instance setEntailment(TTIriRefExtended entailment) {
     this.entailment = entailment;
     return this;
   }

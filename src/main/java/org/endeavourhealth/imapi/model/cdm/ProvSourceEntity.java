@@ -1,35 +1,34 @@
 package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
-import org.endeavourhealth.interfacemanager.model.IM;
 
 public class ProvSourceEntity extends Entry {
 
   public ProvSourceEntity() {
-    this.addType(new TTIriRef(IM.PROVENANCE_SOURCE_ENTITY));
+    this.addType(new TTIriRefExtended(ImVocab. PROVENANCE_SOURCE_ENTITY));
   }
 
-  public TTIriRef getDerivationType() {
+  public TTIriRefExtended getDerivationType() {
     return
-      (TTIriRef) TTUtil.get(this, new TTIriRef(IM.DERIVATION_TYPE), TTIriRef.class);
+      (TTIriRefExtended) TTUtil.get(this, new TTIriRefExtended(ImVocab. DERIVATION_TYPE), TTIriRefExtended.class);
   }
 
   @JsonSetter
-  public ProvSourceEntity setDerivationType(TTIriRef derivationType) {
-    set(new TTIriRef(IM.DERIVATION_TYPE), derivationType);
+  public ProvSourceEntity setDerivationType(TTIriRefExtended derivationType) {
+    set(new TTIriRefExtended(ImVocab. DERIVATION_TYPE),derivationType);
     return this;
   }
 
-  public TTIriRef getEntityIdentifier() {
-    return (TTIriRef)
-      TTUtil.get(this, new TTIriRef(IM.ENTITY_IDENTIFIER), TTIriRef.class);
+  public TTIriRefExtended getEntityIdentifier() {
+    return (TTIriRefExtended)
+      TTUtil.get(this, new TTIriRefExtended(ImVocab. ENTITY_IDENTIFIER), TTIriRefExtended.class);
   }
 
   @JsonSetter
-  public ProvSourceEntity setEntityIdentifier(TTIriRef entityIdentifier) {
-    set(new TTIriRef(IM.ENTITY_IDENTIFIER), entityIdentifier);
+  public ProvSourceEntity setEntityIdentifier(TTIriRefExtended entityIdentifier) {
+    set(new TTIriRefExtended(ImVocab. ENTITY_IDENTIFIER),entityIdentifier);
     return this;
   }
 }

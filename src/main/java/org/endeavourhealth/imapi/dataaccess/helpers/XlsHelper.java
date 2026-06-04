@@ -41,10 +41,10 @@ public class XlsHelper {
     if (summary.getIri() == null) {
       return;
     }
-    Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
+    Set<TTIriRefExtended> predicates = summary.getPredicateMap().keySet();
     List<String> predicateNames = new ArrayList<>();
     predicateNames.add("Iri");
-    predicateNames.addAll(predicates.stream().map(TTIriRef::getName).toList());
+    predicateNames.addAll(predicates.stream().map(TTIriRefExtended::getName).toList());
     Sheet sheet = workbook.createSheet("Concept summary");
     addHeaders(sheet, 10000, predicateNames);
     Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -52,9 +52,9 @@ public class XlsHelper {
     Cell iriCell = row.createCell(row.getLastCellNum() + 1);
     iriCell.setCellValue(summary.getIri());
 
-    for (TTIriRef predicate : predicates) {
+    for (TTIriRefExtended predicate : predicates) {
       Cell cell = row.createCell(row.getLastCellNum());
-      TTArray value = summary.get(new TTIriRef(predicate.getIri(), predicate.getName()));
+      TTArray value = summary.get(new TTIriRefExtended(predicate.getIri(), predicate.getName()));
       if (value.isIriRef()) {
         cell.setCellValue(value.asIriRef().getName());
       } else if (value.isLiteral()) {

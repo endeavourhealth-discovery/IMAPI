@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.utility;
 
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-
 import java.util.List;
 
 public class ThreadContext {
@@ -12,7 +10,7 @@ public class ThreadContext {
 
   public static List<GRAPH> getUserGraphs() {
     if (userGraphs.get() == null)
-      userGraphs.set(List.of(GRAPH.IM));
+      userGraphs.set(List.of(GraphVocab. IM));
 
     return userGraphs.get();
   }

@@ -2,13 +2,13 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 
 @Getter
 public class EditRequest {
   private TTEntity entity;
   private String hostUrl;
-  private NAMESPACE namespace;
+  private NamespaceVocab namespace;
   private String crud;
 
   public EditRequest(TTEntity entity, String hostUrl) {
@@ -30,7 +30,7 @@ public class EditRequest {
     return this;
   }
 
-  public EditRequest setNamespace(NAMESPACE namespace) {
+  public EditRequest setNamespace(NamespaceVocab namespace) {
     this.namespace = namespace;
     return this;
   }

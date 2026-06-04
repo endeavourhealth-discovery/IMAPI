@@ -4,11 +4,11 @@ import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
-import org.endeavourhealth.imapi.model.dto.CodeGenDto;
+import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.interfacemanager.model.EntityType;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.EntityTypeVocab;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +43,7 @@ public class CodeGenService {
     return codeGenRepository.getCodeTemplateList();
   }
 
-  public CodeGenDto getCodeTemplate(String name) {
+  public CodeGenDtoExtended getCodeTemplate(String name) {
     return codeGenRepository.getCodeTemplate(name);
   }
 
@@ -51,34 +51,34 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
-    TTIriRef model = getModelSummary(modelIri);
+  public String generateCodeForModel(String modelIri, CodeGenDtoExtended template, String namespace) {
+    TTIriRefExtended model = getModelSummary(modelIri);
     return generateCodeForModel(template, model, namespace);
   }
 
   public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
-    List<TTIriRef> models = (iri == null || iri.isEmpty())
+    List<TTIriRefExtended> models = (iri == null || iri.isEmpty())
       ? getIMModels()
       : Collections.singletonList(getModelSummary(iri));
 
-    CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
+    CodeGenDtoExtended template = codeGenRepository.getCodeTemplate(templateName);
 
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRef> getIMModels() {
-    List<TTIriRef> models = entityService.getEntitiesByType(EntityType.NODESHAPE);
+  private List<TTIriRefExtended> getIMModels() {
+    List<TTIriRefExtended> models = entityService.getEntitiesByType(EntityTypeVocab.NODESHAPE);
     return models.stream()
-      .filter(m -> m.getIri().startsWith(NAMESPACE.IM.toString()))
+      .filter(m -> m.getIri().startsWith(NamespaceVocab.IM.toString()))
       .toList();
   }
 
-  private TTIriRef getModelSummary(String iri) {
+  private TTIriRefExtended getModelSummary(String iri) {
     SearchResultSummary summary = entityService.getSummary(iri);
-    return new TTIriRef(summary.getIri(), summary.getName()).description(summary.getDescription());
+    return new TTIriRefExtended(summary.getIri(), summary.getName()).description(summary.getDescription());
   }
 
-  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {
+  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRefExtended> models, CodeGenDtoExtended template) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(baos)) {
       addModelsToZip(namespace, models, template, zos);
@@ -92,8 +92,8 @@ public class CodeGenService {
     return new HttpEntity<>(baos.toByteArray(), headers);
   }
 
-  private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos) throws IOException {
-    for (TTIriRef model : models) {
+  private void addModelsToZip(String namespace, List<TTIriRefExtended> models, CodeGenDtoExtended template, ZipOutputStream zos) throws IOException {
+    for (TTIriRefExtended model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
       ZipEntry entry = new ZipEntry(clean(toTitleCase(codify(model.getName()))) + template.getExtension());
@@ -104,12 +104,12 @@ public class CodeGenService {
     }
   }
 
-  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, String namespace) {
+  protected String generateCodeForModel(CodeGenDtoExtended template, TTIriRefExtended model, String namespace) {
     List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri(), template.getComplexTypes());
     return generateCodeForModel(template, model, properties, namespace);
   }
 
-  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, List<DataModelProperty> properties, String namespace) {
+  protected String generateCodeForModel(CodeGenDtoExtended template, TTIriRefExtended model, List<DataModelProperty> properties, String namespace) {
     StringBuilder code = new StringBuilder();
 
     CodeGenTemplate t = splitTemplate(template.getTemplate());
@@ -166,11 +166,11 @@ public class CodeGenService {
   }
 
   private String replacePropertyTokens(
-    CodeGenDto template,
+    CodeGenDtoExtended template,
     String property,
     String collectionProperty,
     String namespace,
-    TTIriRef model,
+    TTIriRefExtended model,
     DataModelProperty prop
   ) {
     if (prop.isArray())
@@ -179,7 +179,7 @@ public class CodeGenService {
     return replaceTokens(template, property, namespace, model, prop);
   }
 
-  private String replaceTokens(CodeGenDto template, String subTemplate, String namespace, TTIriRef model, DataModelProperty prop) {
+  private String replaceTokens(CodeGenDtoExtended template, String subTemplate, String namespace, TTIriRefExtended model, DataModelProperty prop) {
     String result = subTemplate;
 
     if (namespace != null) result = replaceVariants(result, "NAME SPACE", namespace);
@@ -209,7 +209,7 @@ public class CodeGenService {
     return result;
   }
 
-  private String replaceArrayPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+  private String replaceArrayPropertyTokens(CodeGenDtoExtended template, DataModelProperty prop, String result) {
     if (!template.hasCollectionWrapper())
       return result;
 
@@ -227,7 +227,7 @@ public class CodeGenService {
     return result;
   }
 
-  private String replaceTypedPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+  private String replaceTypedPropertyTokens(CodeGenDtoExtended template, DataModelProperty prop, String result) {
     String basePropertyType = template.getDataType(prop.getType().getIri());
     String propertyType =
       prop.isArray() && template.hasCollectionWrapper() ? replace(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.interfacemanager.model.XSD;
+import org.endeavourhealth.interfacemanager.model.XsdVocab;
 
 import java.io.IOException;
 
@@ -31,12 +31,13 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
     usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
     if (literal.getType() != null) {
-      switch (XSD.fromValue(literal.getType().getIri())) {
-        case XSD.STRING -> gen.writeString(literal.getValue());
-        case XSD.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
-        case XSD.INTEGER -> gen.writeNumber(literal.intValue());
-        case XSD.LONG -> gen.writeNumber(literal.longValue());
-        case XSD.PATTERN -> {
+      switch (XsdVocab.
+        fromValue(literal.getType().getIri())) {
+        case XsdVocab.STRING -> gen.writeString(literal.getValue());
+        case XsdVocab.BOOLEAN -> gen.writeBoolean(literal.booleanValue());
+        case XsdVocab.INTEGER -> gen.writeNumber(literal.intValue());
+        case XsdVocab.LONG -> gen.writeNumber(literal.longValue());
+        case XsdVocab.PATTERN -> {
           gen.writeStartObject();
           gen.writeStringField("value", literal.getValue());
           gen.writeStringField("type", usePrefixes

@@ -10,7 +10,6 @@ import org.endeavourhealth.imapi.config.ConfigManager;
 import org.endeavourhealth.imapi.model.config.Metrics;
 import org.endeavourhealth.imapi.model.config.MetricsConsole;
 import org.endeavourhealth.imapi.model.config.MetricsGraphite;
-import org.endeavourhealth.interfacemanager.model.CONFIG;
 
 import java.io.BufferedReader;
 import java.io.IOException;

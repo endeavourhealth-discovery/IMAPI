@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -126,7 +125,7 @@ class SearchServiceTest {
         wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
     } else if (dataSet.getUpdate() != null) {
-      searchService.updateIM(dataSet, GRAPH.IM);
+      searchService.updateIM(dataSet, GraphVocab. IM);
     }
 
 
@@ -142,7 +141,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", GRAPH.IM);
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", GraphVocab. IM);
   }
 }
 

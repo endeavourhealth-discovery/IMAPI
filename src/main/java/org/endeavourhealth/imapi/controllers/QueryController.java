@@ -20,7 +20,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.interfacemanager.model.DatabaseOption;
@@ -275,7 +275,7 @@ public class QueryController {
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
-  public List<ArgumentReference> findRequestMissingArguments(
+  public List<ArgumentReferenceExtended> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
   ) throws QueryException, JsonProcessingException {
@@ -288,7 +288,7 @@ public class QueryController {
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
-  public TTIriRef getArgumentType(
+  public TTIriRefExtended getArgumentType(
     HttpServletRequest request,
     @RequestParam String referenceIri
   ) {

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri", "name", "description", "sourceType", "where", "targetType", "propertyMap"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class MapObject extends TTIriRef {
+public class MapObject extends TTIriRefExtended {
   private Match where;
   private String sourceType;
   private String targetType;

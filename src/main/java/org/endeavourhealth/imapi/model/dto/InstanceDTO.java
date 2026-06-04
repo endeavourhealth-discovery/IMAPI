@@ -1,14 +1,14 @@
 package org.endeavourhealth.imapi.model.dto;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.List;
 
 public class InstanceDTO {
 
   private TTEntity entity;
-  private List<TTIriRef> predicates;
+  private List<TTIriRefExtended> predicates;
 
   public TTEntity getEntity() {
     return entity;
@@ -19,11 +19,11 @@ public class InstanceDTO {
     return this;
   }
 
-  public List<TTIriRef> getPredicates() {
+  public List<TTIriRefExtended> getPredicates() {
     return predicates;
   }
 
-  public InstanceDTO setPredicates(List<TTIriRef> predicates) {
+  public InstanceDTO setPredicates(List<TTIriRefExtended> predicates) {
     this.predicates = predicates;
     return this;
   }

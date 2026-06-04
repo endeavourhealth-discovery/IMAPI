@@ -42,10 +42,10 @@ public class TTToSPARQL {
 
   private void setPredicateObjects(TTNode node) {
     int nodeCount = 1;
-    Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
+    Map<TTIriRefExtended, TTArray> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
-        TTIriRef predicate = entry.getKey();
+      for (Map.Entry<TTIriRefExtended, TTArray> entry : predicateObjectList.entrySet()) {
+        TTIriRefExtended predicate = entry.getKey();
         TTArray value = entry.getValue();
         if (value != null && !value.isEmpty()) {
           outputPredicateObject(predicate, entry.getValue(), nodeCount);
@@ -55,7 +55,7 @@ public class TTToSPARQL {
     }
   }
 
-  private void outputPredicateObject(TTIriRef predicate, TTArray object, int nodeCount) {
+  private void outputPredicateObject(TTIriRefExtended predicate, TTArray object, int nodeCount) {
     if (nodeCount > 1) {
       append(";");
       nl();

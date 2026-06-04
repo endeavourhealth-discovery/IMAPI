@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.requests;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,17 +10,17 @@ import java.util.Map;
 import java.util.zip.DataFormatException;
 
 public class TransformRequest {
-  private TTIriRef transformMap;
+  private TTIriRefExtended transformMap;
   private String sourceFormat;
   private String targetFormat;
   private Map<String, List<Object>> source;
 
-  public TTIriRef getTransformMap() {
+  public TTIriRefExtended getTransformMap() {
     return transformMap;
   }
 
   @JsonSetter
-  public TransformRequest setTransformMap(TTIriRef transformMap) {
+  public TransformRequest setTransformMap(TTIriRefExtended transformMap) {
     this.transformMap = transformMap;
     return this;
   }
@@ -29,7 +29,7 @@ public class TransformRequest {
     if (iri != null && !iri.isEmpty() && !iri.matches("[a-z]+[:].*")) {
       throw new DataFormatException("Invalid iri format : " + iri);
     } else {
-      this.transformMap = new TTIriRef(iri);
+      this.transformMap = new TTIriRefExtended(iri);
       return this;
     }
   }

@@ -2,13 +2,11 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 import org.endeavourhealth.interfacemanager.model.QueryType;
 
 public class EqdAuditToIMQ {
@@ -21,7 +19,8 @@ public class EqdAuditToIMQ {
       if (EqdToIMQ.versionMap.containsKey(popId))
         finalPopId = resources.getNamespace() + EqdToIMQ.versionMap.get(popId);
       if (EqdToIMQ.gmsPatients.contains(popId) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
-        finalPopId = NAMESPACE.IM + "Q_RegisteredGMS";
+        finalPopId = NamespaceVocab.
+        IM + "Q_RegisteredGMS";
       }
       Match popQuery = new Match();
       query.addColumnGroup(popQuery);
@@ -30,14 +29,14 @@ public class EqdAuditToIMQ {
         .addIs(Node.iri(finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
-      resources.getQueryEntity().addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalPopId));
+      resources.getQueryEntity().addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(finalPopId));
       Return populationReturn = new Return();
       popQuery.addReturn(populationReturn);
       populationReturn.setNodeRef(POPULATION);
       if (eqReport.getAuditReport().getStandard() != null) {
         if (eqReport.getAuditReport().getStandard() == VocStandardAuditReportType.COUNTS) {
           populationReturn.function(f -> f
-            .setIri(IM.COUNT.toString()));
+            .setIri(ImVocab.COUNT.toString()));
         }
       } else if (eqReport.getAuditReport().getCustomAggregate() != null) {
         EQDOCAggregateReport agg = eqReport.getAuditReport().getCustomAggregate();
@@ -50,15 +49,15 @@ public class EqdAuditToIMQ {
             if (pathMap.length > 1) {
               Path path = new Path();
               popQuery.addPath(path);
-              path.setIri(NAMESPACE.IM + pathMap[1]);
-              path.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[1]));
+              path.setIri(NamespaceVocab. IM + pathMap[1]);
+              path.setTypeOf(new Node().setIri(NamespaceVocab. IM + pathMap[1]));
               path.setNode(resources.getAcronym(path.getIri()) + "_" + eqColumn);
               for (int i = 2; i < pathMap.length - 1; i++) {
                 Path subPath = new Path();
                 path.addPath(subPath);
-                subPath.setIri(NAMESPACE.IM + pathMap[i]);
+                subPath.setIri(NamespaceVocab. IM + pathMap[i]);
                 subPath.setNode(resources.getAcronym(path.getIri()));
-                subPath.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[i + 1]));
+                subPath.setTypeOf(new Node().setIri(NamespaceVocab. IM + pathMap[i + 1]));
                 path = subPath;
               }
               popQuery.addReturn(new Return()

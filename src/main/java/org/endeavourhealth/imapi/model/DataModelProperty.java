@@ -2,20 +2,20 @@ package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.io.Serializable;
 
 public class DataModelProperty implements Serializable {
 
-  private TTIriRef property;
-  private TTIriRef type;
+  private TTIriRefExtended property;
+  private TTIriRefExtended type;
   private String minInclusive;
   private String minExclusive;
   private String maxInclusive;
   private String maxExclusive;
   private String pattern;
-  private TTIriRef inheritedFrom;
+  private TTIriRefExtended inheritedFrom;
   private int order;
 
 
@@ -28,11 +28,11 @@ public class DataModelProperty implements Serializable {
     return this;
   }
 
-  public TTIriRef getProperty() {
+  public TTIriRefExtended getProperty() {
     return property;
   }
 
-  public DataModelProperty setProperty(TTIriRef property) {
+  public DataModelProperty setProperty(TTIriRefExtended property) {
     this.property = property;
     return this;
   }
@@ -51,12 +51,12 @@ public class DataModelProperty implements Serializable {
     return this;
   }
 
-  public TTIriRef getType() {
+  public TTIriRefExtended getType() {
     return type;
   }
 
   @JsonSetter
-  public DataModelProperty setType(TTIriRef objectType) {
+  public DataModelProperty setType(TTIriRefExtended objectType) {
     this.type = objectType;
     return this;
   }
@@ -102,13 +102,13 @@ public class DataModelProperty implements Serializable {
     return this;
   }
 
-  public TTIriRef getInheritedFrom() {
-    if (null == inheritedFrom) return new TTIriRef();
+  public TTIriRefExtended getInheritedFrom() {
+    if (null == inheritedFrom) return new TTIriRefExtended();
     return inheritedFrom;
   }
 
   @JsonSetter
-  public DataModelProperty setInheritedFrom(TTIriRef inheritedFrom) {
+  public DataModelProperty setInheritedFrom(TTIriRefExtended inheritedFrom) {
     this.inheritedFrom = inheritedFrom;
     return this;
   }

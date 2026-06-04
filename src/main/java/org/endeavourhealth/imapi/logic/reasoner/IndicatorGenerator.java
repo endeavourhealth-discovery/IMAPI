@@ -1,10 +1,8 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
 
 public class IndicatorGenerator {
 
@@ -18,13 +16,13 @@ public class IndicatorGenerator {
       .setName(name)
       .setDescription(description)
       .setScheme(EnumUtils.asIri(namespace))
-      .addType(new TTIriRef(IM.INDICATOR));
+      .addType(new TTIriRefExtended(ImVocab. INDICATOR));
     if (denominator != null)
-      indicator.set(new TTIriRef(IM.DENOMINATOR).toString(), new TTIriRef(denominator));
+      indicator.set(new TTIriRefExtended(ImVocab. DENOMINATOR).toString(), new TTIriRefExtended(denominator));
     if (numerator != null)
-      indicator.set(IM.NUMERATOR, new TTIriRef(numerator));
+      indicator.set(ImVocab. NUMERATOR, new TTIriRefExtended(numerator));
     if (dataset != null)
-      indicator.set(IM.HAS_DATASET, dataset.get(IM.DEFINITION).asLiteral());
+      indicator.set(ImVocab. HAS_DATASET, dataset.get(ImVocab. DEFINITION).asLiteral());
     return indicator;
 
   }

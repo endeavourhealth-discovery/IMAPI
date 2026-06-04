@@ -16,7 +16,7 @@ import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -56,7 +56,7 @@ public class SetRepository {
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, Set<TTIriRefExtended> statusFilter, List<String> schemeFilter, Page page
   ) throws QueryException {
     setReturn(imQuery, false);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
@@ -74,101 +74,101 @@ public class SetRepository {
     imQuery
       .path(p -> p
         .setOptional(true)
-        .setIri(IM.HAS_SCHEME.toString())
-        .setTypeOf(IM.CONCEPT.toString())
+        .setIri(ImVocab.HAS_SCHEME.toString())
+        .setTypeOf(ImVocab.CONCEPT.toString())
         .setNode("scheme"))
       .path(p -> p
         .setOptional(true)
-        .setIri(IM.HAS_STATUS.toString())
-        .setTypeOf(IM.CONCEPT.toString())
+        .setIri(ImVocab.HAS_STATUS.toString())
+        .setTypeOf(ImVocab.CONCEPT.toString())
         .setNode("status"))
       .path(p -> p
         .setOptional(true)
-        .setIri(RDF.TYPE.toString())
-        .setTypeOf(IM.CONCEPT.toString())
+        .setIri(RdfVocab.TYPE.toString())
+        .setTypeOf(ImVocab.CONCEPT.toString())
         .setNode(ENTITY_TYPE))
       .return_(r -> r.setNodeRef("entity"))
       .return_(r -> r.setNodeRef(ENTITY_TYPE))
       .return_(s -> s
-        .setIri(RDFS.LABEL).as("term"))
+        .setIri(RdfsVocab.LABEL).as("term"))
       .return_(s -> s
-        .setIri(IM.CODE).as("code"))
+        .setIri(ImVocab.CODE).as("code"))
       .return_(r -> r.setNodeRef("scheme"))
       .return_(s -> s
         .setNodeRef("scheme")
-        .setIri(RDFS.LABEL)
+        .setIri(RdfsVocab.LABEL)
         .as("schemeName"))
       .return_(s -> s
-        .setIri(IM.USAGE_TOTAL)
+        .setIri(ImVocab.USAGE_TOTAL)
         .as("usage"))
       .return_(s -> s
-        .setIri(IM.IM_1_ID)
+        .setIri(ImVocab.IM_1_ID)
         .as(IM_1_ID))
       .return_(r -> r.setNodeRef("status"))
       .return_(s -> s
         .setNodeRef("status")
-        .setIri(RDFS.LABEL)
+        .setIri(RdfsVocab.LABEL)
         .as("statusName"))
       .return_(s -> s
         .setNodeRef(ENTITY_TYPE)
-        .setIri(RDFS.LABEL)
+        .setIri(RdfsVocab.LABEL)
         .as(TYPE_NAME))
       .return_(s -> s
-        .setIri(IM.CODE_ID)
+        .setIri(ImVocab.CODE_ID)
         .as("codeId"))
       .return_(s -> s
-        .setIri(IM.ALTERNATIVE_CODE)
+        .setIri(ImVocab.ALTERNATIVE_CODE)
         .as("alternativeCode"));
 
     if (includeLegacy) {
       imQuery
         .path(p -> p
           .setOptional(true)
-          .setIri(IM.MATCHED_TO.toString())
+          .setIri(ImVocab.MATCHED_TO.toString())
           .setNode("legacy")
           .setInverse(true)
-          .setTypeOf(IM.CONCEPT.toString()))
+          .setTypeOf(ImVocab.CONCEPT.toString()))
         .path(p -> p
           .setOptional(true)
-          .setIri(IM.HAS_SCHEME.toString())
-          .setTypeOf(IM.CONCEPT.toString())
+          .setIri(ImVocab.HAS_SCHEME.toString())
+          .setTypeOf(ImVocab.CONCEPT.toString())
           .setNode("legacyScheme"))
         .return_(r -> r.setNodeRef("legacy"))
         .return_(r -> r.setNodeRef("legacyScheme"))
-        .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))
+        .return_(s -> s.setNodeRef("legacy").setIri(RdfsVocab.LABEL).as("legacyTerm"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.CODE).as("legacyCode"))
         .return_(p1 -> p1
           .setNodeRef("legacyScheme")
-          .setIri(RDFS.LABEL)
+          .setIri(RdfsVocab.LABEL)
           .as("legacySchemeName"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.USAGE_TOTAL).as("legacyUse"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE_ID).as("legacyCodeId"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.IM_1_ID).as("legacyIm1Id"));
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.USAGE_TOTAL).as("legacyUse"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.CODE_ID).as("legacyCodeId"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.IM_1_ID).as("legacyIm1Id"));
       imQuery
         .path(p -> p
           .setOptional(true)
-          .setIri(IM.LOCAL_SUBCLASS_OF.toString())
+          .setIri(ImVocab.LOCAL_SUBCLASS_OF.toString())
           .setNode("legacy")
           .setInverse(true)
-          .setTypeOf(IM.CONCEPT.toString()))
+          .setTypeOf(ImVocab.CONCEPT.toString()))
         .path(p -> p
           .setOptional(true)
-          .setIri(IM.HAS_SCHEME.toString())
-          .setTypeOf(IM.CONCEPT.toString())
+          .setIri(ImVocab.HAS_SCHEME.toString())
+          .setTypeOf(ImVocab.CONCEPT.toString())
           .setNode("legacyScheme"))
         .return_(r -> r.setNodeRef("legacy"))
         .return_(r -> r.setNodeRef("legacyScheme"))
-        .return_(s -> s.setNodeRef("legacy").setIri(RDFS.LABEL).as("legacyTerm"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE).as("legacyCode"))
-        .return_(p1 -> p1.setNodeRef("legacyScheme").setIri(RDFS.LABEL).as("legacySchemeName"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.USAGE_TOTAL).as("legacyUse"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.CODE_ID).as("legacyCodeId"))
-        .return_(s -> s.setNodeRef("legacy").setIri(IM.IM_1_ID).as("legacyIm1Id"));
+        .return_(s -> s.setNodeRef("legacy").setIri(RdfsVocab.LABEL).as("legacyTerm"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.CODE).as("legacyCode"))
+        .return_(p1 -> p1.setNodeRef("legacyScheme").setIri(RdfsVocab.LABEL).as("legacySchemeName"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.USAGE_TOTAL).as("legacyUse"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.CODE_ID).as("legacyCodeId"))
+        .return_(s -> s.setNodeRef("legacy").setIri(ImVocab.IM_1_ID).as("legacyIm1Id"));
     }
   }
 
 
-  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter) throws QueryException {
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRefExtended> statusFilter) throws QueryException {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
@@ -179,8 +179,8 @@ public class SetRepository {
     }
   }
 
-  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
-    Set<TTIriRef> result = new HashSet<>();
+  public Set<TTIriRefExtended> getSubsetIrisWithNames(String iri) {
+    Set<TTIriRefExtended> result = new HashSet<>();
 
     String sql = """
       SELECT ?subset ?name
@@ -193,15 +193,15 @@ public class SetRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("set", Values.iri(iri));
-      qry.setBinding("isSubset", EnumUtils.asDbIri(IM.IS_SUBSET_OF));
-      qry.setBinding("label", EnumUtils.asDbIri(RDFS.LABEL));
+      qry.setBinding("isSubset", EnumUtils.asDbIri(ImVocab.IS_SUBSET_OF));
+      qry.setBinding("label", EnumUtils.asDbIri(RdfsVocab.LABEL));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String subsetIri = bs.getValue("subset").stringValue();
           String subsetName = bs.getValue("name").stringValue();
           try {
-            TTIriRef subset = new TTIriRef(subsetIri, subsetName);
+            TTIriRefExtended subset = new TTIriRefExtended(subsetIri, subsetName);
             result.add(subset);
           } catch (IllegalArgumentException ignored) {
             log.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
@@ -215,7 +215,7 @@ public class SetRepository {
 
   private Set<Concept> expand(TupleQuery qry, boolean includeLegacy, boolean subsumedBy, List<String> schemes, String entityVariable) {
     Set<Concept> result = new HashSet<>();
-    Set<String> coreSchemes = EnumUtils.asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM);
+    Set<String> coreSchemes = EnumUtils.asHashSet(NamespaceVocab.SNOMED, NamespaceVocab.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -231,7 +231,7 @@ public class SetRepository {
           Value type = bs.getValue(ENTITY_TYPE);
           Value typeName = bs.getValue(TYPE_NAME);
           if (null != type) {
-            cl.addType(new TTIriRef(type.stringValue(), typeName.stringValue()));
+            cl.addType(new TTIriRefExtended(type.stringValue(), typeName.stringValue()));
           }
         }
         Value im1Id = bs.getValue(IM_1_ID);
@@ -279,13 +279,13 @@ public class SetRepository {
       cl.setAlternativeCode(alternativeCode.stringValue());
     }
     if (null != scheme) {
-      cl.setScheme(new TTIriRef(scheme.stringValue(), schemeName.stringValue()));
+      cl.setScheme(new TTIriRefExtended(scheme.stringValue(), schemeName.stringValue()));
     }
     if (null != status) {
-      cl.setStatus(new TTIriRef(status.stringValue(), statusName.stringValue()));
+      cl.setStatus(new TTIriRefExtended(status.stringValue(), statusName.stringValue()));
     }
     if (null != type) {
-      cl.addType(new TTIriRef(type.stringValue(), typeName.stringValue()));
+      cl.addType(new TTIriRefExtended(type.stringValue(), typeName.stringValue()));
     }
     if (null != codeId) {
       cl.setCodeId(codeId.stringValue());
@@ -327,7 +327,7 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, GRAPH insertGraph) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, GraphVocab insertGraph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
@@ -340,8 +340,8 @@ public class SetRepository {
     int blankCount = 0;
     for (TTNode dataModel : dataModels) {
       blankCount++;
-      String pathIri = dataModel.get(new TTIriRef(SHACL.PATH)).asIriRef().getIri();
-      String nodeIri = dataModel.get(new TTIriRef(SHACL.NODE)).asIriRef().getIri();
+      String pathIri = dataModel.get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef().getIri();
+      String nodeIri = dataModel.get(new TTIriRefExtended(ShaclVocab.NODE)).asIriRef().getIri();
       newBinding.add("""
         <%s> im:binding _:b%s .
         _:b%s sh:path <%s> .
@@ -355,7 +355,7 @@ public class SetRepository {
       Update upd = conn.prepareDeleteSparql(deleteBinding);
       upd.setBinding(CONCEPT, Values.iri(iri));
       upd.execute();
-      upd = conn.prepareInsertSparql(newBinding.toString(), GRAPH.IM);
+      upd = conn.prepareInsertSparql(newBinding.toString(), GraphVocab.IM);
       upd.execute();
       conn.commit();
     }
@@ -383,7 +383,7 @@ public class SetRepository {
     return setIris;
   }
 
-  public void updateMembers(String iri, Set<Concept> members, GRAPH graph) {
+  public void updateMembers(String iri, Set<Concept> members, GraphVocab graph) {
     try (IMDB conn = IMDB.getConnection()) {
       String spq = """
         DELETE { ?concept im:hasMember ?x.}
@@ -414,8 +414,8 @@ public class SetRepository {
   }
 
 
-  private void sendUp(StringJoiner sj, IMDB conn, GRAPH graph) {
-    Update upd = conn.prepareInsertSparql(sj.toString(), GRAPH.IM);
+  private void sendUp(StringJoiner sj, IMDB conn, GraphVocab graph) {
+    Update upd = conn.prepareInsertSparql(sj.toString(), GraphVocab.IM);
     upd.setBinding("g", EnumUtils.asDbIri(graph));
     conn.begin();
     upd.execute();
@@ -441,12 +441,12 @@ public class SetRepository {
         String legacyStatus = bs.getValue(LEGACY_STATUS) != null ? bs.getValue(LEGACY_STATUS).stringValue() : null;
         String legacyStatusName = bs.getValue(LEGACY_STATUS_NAME) != null ? bs.getValue(LEGACY_STATUS_NAME).stringValue() : null;
         if (null != legacyStatus && null != legacyStatusName)
-          legacy.setStatus(new TTIriRef(legacyStatus, legacyStatusName));
+          legacy.setStatus(new TTIriRefExtended(legacyStatus, legacyStatusName));
         if (lc != null) legacy.setCode(lc.stringValue());
         if (lt != null) legacy.setName(lt.stringValue());
         if (ls != null) {
-          if (lsn == null) legacy.setScheme(new TTIriRef(ls.stringValue()));
-          else legacy.setScheme(new TTIriRef(ls.stringValue(), lsn.stringValue()));
+          if (lsn == null) legacy.setScheme(new TTIriRefExtended(ls.stringValue()));
+          else legacy.setScheme(new TTIriRefExtended(ls.stringValue(), lsn.stringValue()));
         }
         if (codeId != null) {
           legacy.setCodeId(codeId.stringValue());
@@ -520,10 +520,10 @@ public class SetRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           TTNode dataModel = new TTNode();
-          dataModel.set(new TTIriRef(SHACL.NODE), new TTIriRef(bs.getValue("dataModel").stringValue()));
+          dataModel.set(new TTIriRefExtended(ShaclVocab.NODE), new TTIriRefExtended(bs.getValue("dataModel").stringValue()));
           if (bs.getValue("path") != null)
-            dataModel.set(new TTIriRef(SHACL.PATH), new TTIriRef(bs.getValue("path").stringValue()));
-          else dataModel.set(new TTIriRef(SHACL.PATH), new TTIriRef(IM.CONCEPT_PROPERTY));
+            dataModel.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended(bs.getValue("path").stringValue()));
+          else dataModel.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended(ImVocab.CONCEPT_PROPERTY));
           result.add(dataModel);
         }
       }
@@ -629,7 +629,7 @@ public class SetRepository {
         FILTER (?child != ?parent)}
         """.formatted(iris, iris);
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      qry.setBinding("isA", EnumUtils.asDbIri(IM.IS_A));
+      qry.setBinding("isA", EnumUtils.asDbIri(ImVocab.IS_A));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -645,10 +645,10 @@ public class SetRepository {
   public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, IM.ENTAILED_MEMBER.toString(), pageNumber, pageSize);
+      Pageable<Node> result = getMemberWithPredicate(iri, ImVocab.ENTAILED_MEMBER.toString(), pageNumber, pageSize);
       if (result.getTotalCount() > 0) return result;
     }
-    return getMemberWithPredicate(iri, IM.HAS_MEMBER.toString(), pageNumber, pageSize);
+    return getMemberWithPredicate(iri, ImVocab.HAS_MEMBER.toString(), pageNumber, pageSize);
   }
 
   private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
@@ -671,7 +671,7 @@ public class SetRepository {
     }
     String offset = Integer.toString((pageNumber - 1) * pageSize);
     if (result.getTotalCount() == 0) return result;
-    if (predicate.equals(IM.ENTAILED_MEMBER.toString())) {
+    if (predicate.equals(ImVocab.ENTAILED_MEMBER.toString())) {
       sql = """
         Select ?member ?entailment ?name  ?exclude
         where {
@@ -708,12 +708,12 @@ public class SetRepository {
           node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
-            switch (IM.fromValue(entailment)) {
-              case IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
-              case IM.DESCENDANTS_OF -> node.setDescendantsOf(true);
-              case IM.ANCESTORS_OF -> node.setAncestorsOf(true);
+            switch (ImVocab.fromValue(entailment)) {
+              case ImVocab.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true);
+              case ImVocab.DESCENDANTS_OF -> node.setDescendantsOf(true);
+              case ImVocab.ANCESTORS_OF -> node.setAncestorsOf(true);
               case null -> throw new IllegalArgumentException("Failed to decode into IM enum");
-              default -> throw new IllegalStateException("Unexpected value: " + IM.fromValue(entailment));
+              default -> throw new IllegalStateException("Unexpected value: " + ImVocab.fromValue(entailment));
             }
             if (bs.getValue("exclude") != null) {
               node.setExclude(true);

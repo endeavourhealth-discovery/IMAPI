@@ -9,7 +9,7 @@ import lombok.Getter;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +20,14 @@ import java.util.function.Consumer;
 @Getter
 public class FormGenerator {
   private String iri;
-  private TTIriRef status;
-  private TTIriRef scheme;
+  private TTIriRefExtended status;
+  private TTIriRefExtended scheme;
   private String label;
   private String comment;
-  private List<TTIriRef> type;
-  private TTIriRef targetShape;
+  private List<TTIriRefExtended> type;
+  private TTIriRefExtended targetShape;
   private List<TTEntity> isContainedIn;
-  private List<TTIriRef> subClassOf;
+  private List<TTIriRefExtended> subClassOf;
   private List<PropertyShape> property;
 
   public FormGenerator setIri(String iri) {
@@ -36,18 +36,18 @@ public class FormGenerator {
   }
 
   @JsonSetter
-  public FormGenerator setStatus(TTIriRef status) {
+  public FormGenerator setStatus(TTIriRefExtended status) {
     this.status = status;
     return this;
   }
 
   @JsonSetter
-  public FormGenerator setScheme(TTIriRef scheme) {
+  public FormGenerator setScheme(TTIriRefExtended scheme) {
     this.scheme = scheme;
     return this;
   }
 
-  public FormGenerator setType(List<TTIriRef> type) {
+  public FormGenerator setType(List<TTIriRefExtended> type) {
     this.type = type;
     return this;
   }
@@ -57,7 +57,7 @@ public class FormGenerator {
     return this;
   }
 
-  public FormGenerator setSubClassOf(List<TTIriRef> subClassOf) {
+  public FormGenerator setSubClassOf(List<TTIriRefExtended> subClassOf) {
     this.subClassOf = subClassOf;
     return this;
   }
@@ -74,7 +74,7 @@ public class FormGenerator {
 
 
   @JsonSetter
-  public FormGenerator setTargetShape(TTIriRef targetShape) {
+  public FormGenerator setTargetShape(TTIriRefExtended targetShape) {
     this.targetShape = targetShape;
     return this;
   }

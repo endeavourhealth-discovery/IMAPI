@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.Objects;
 
@@ -9,7 +9,7 @@ public class EntitySummary {
   private String iri;
   private String name;
   private String code;
-  private TTIriRef scheme;
+  private TTIriRefExtended scheme;
 
   public String getIri() {
     return iri;
@@ -38,12 +38,12 @@ public class EntitySummary {
     return this;
   }
 
-  public TTIriRef getScheme() {
+  public TTIriRefExtended getScheme() {
     return scheme;
   }
 
   @JsonSetter
-  public EntitySummary setScheme(TTIriRef scheme) {
+  public EntitySummary setScheme(TTIriRefExtended scheme) {
     this.scheme = scheme;
     return this;
   }

@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.set;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,15 +8,15 @@ import java.util.Collection;
 import java.util.List;
 
 public class ExportSet implements Serializable {
-  private TTIriRef valueSet;
+  private TTIriRefExtended valueSet;
   private List<SetMember> members = new ArrayList<>();
   private boolean limited = false;
 
-  public TTIriRef getValueSet() {
+  public TTIriRefExtended getValueSet() {
     return valueSet;
   }
 
-  public ExportSet setValueSet(TTIriRef valueSet) {
+  public ExportSet setValueSet(TTIriRefExtended valueSet) {
     this.valueSet = valueSet;
     return this;
   }

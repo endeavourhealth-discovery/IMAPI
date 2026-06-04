@@ -2,10 +2,9 @@ package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.interfacemanager.model.Entail;
-import org.endeavourhealth.interfacemanager.model.IM;
 import org.endeavourhealth.interfacemanager.model.Operator;
 import org.endeavourhealth.interfacemanager.model.Order;
 
@@ -19,7 +18,7 @@ public class SparqlConverter {
   String mainEntity;
   private Match query;
   private Update update;
-  private Set<TTIriRef> statusFilter;
+  private Set<TTIriRefExtended> statusFilter;
 
 
   public SparqlConverter(QueryRequest queryRequest) throws QueryException {
@@ -49,7 +48,7 @@ public class SparqlConverter {
   public String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
     value = value.replace("$", "");
     if (null != queryRequest.getArgument()) {
-      for (Argument argument : queryRequest.getArgument()) {
+      for (ArgumentExtended argument : queryRequest.getArgument()) {
         String res = processArgument(queryRequest, argument, value);
         if (res != null) return res;
       }
@@ -57,7 +56,7 @@ public class SparqlConverter {
     return value;
   }
 
-  private String processArgument(QueryRequest queryRequest, Argument argument, String value) throws QueryException {
+  private String processArgument(QueryRequest queryRequest, ArgumentExtended argument, String value) throws QueryException {
     if (argument.getParameter().equals(value)) {
       if (null != argument.getValueData())
         return argument.getValueData();
@@ -87,7 +86,7 @@ public class SparqlConverter {
    *
    * @return String of SPARQL
    **/
-  public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
+  public String getSelectSparql(Set<TTIriRefExtended> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     this.statusFilter = statusFilter;
     return getFullSelectSparql(this.query, countOnly, highestUsage);
   }
@@ -97,7 +96,7 @@ public class SparqlConverter {
   }
 
 
-  public String getSelectSparql(Match match, Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
+  public String getSelectSparql(Match match, Set<TTIriRefExtended> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     this.statusFilter = statusFilter;
 
     return getFullSelectSparql(match, countOnly, highestUsage);
@@ -127,7 +126,7 @@ public class SparqlConverter {
 
   }
 
-  public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException {
+  public String getAskSparql(Set<TTIriRefExtended> statusFilter) throws QueryException {
 
     StringBuilder askQl = new StringBuilder();
 
@@ -166,7 +165,7 @@ public class SparqlConverter {
 
     if (null != statusFilter && !statusFilter.isEmpty()) {
       List<String> statusStrings = new ArrayList<>();
-      for (TTIriRef status : statusFilter) {
+      for (TTIriRefExtended status : statusFilter) {
         statusStrings.add("<" + status.getIri() + ">");
       }
       whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
@@ -184,7 +183,7 @@ public class SparqlConverter {
     sparql.append(whereQl).append("\n");
   }
 
-  public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {
+  public String getCountSparql(Set<TTIriRefExtended> statusFilter) throws QueryException {
     return getSelectSparql(this.query, statusFilter, true, false);
   }
 
@@ -212,7 +211,8 @@ public class SparqlConverter {
     if (match.getEntailment() != null) {
       if (match.getEntailment() == Entail.DESCENDANTS_OR_SELF_OF) {
         o++;
-        whereQl.append("?").append(subject).append(" <").append(IM.IS_A).append("> ?").append(subject).append(o).append(".\n");
+        whereQl.append("?").append(subject).append(" <").append(ImVocab.IS_A).
+          append("> ?").append(subject).append(o).append(".\n");
         subject = subject + o;
       } else {
         throw new QueryException("Match entailment " + match.getEntailment() + " is not yet supported");
@@ -384,7 +384,8 @@ public class SparqlConverter {
   }
 
   private void processMatchIsMemberOf(StringBuilder whereQl, String subject, String object, String inList) {
-    whereQl.append("?").append(subject).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ").append("?").append(object).append("\n");
+    whereQl.append("?").append(subject).append(" ^").append("<").append(ImVocab.HAS_MEMBER).
+      append("> ").append("?").append(object).append("\n");
     if (inList != null)
       whereQl.append("Values ").append("?").append(object).append(" {").append(inList).append(" }\n");
 
@@ -628,7 +629,8 @@ public class SparqlConverter {
     } else if (membersOf) {
       String memberObject = "member" + o;
       whereQl.append(" ?").append(object).append(".\n");
-      whereQl.append(" ?").append(object).append(" ^").append("<").append(IM.HAS_MEMBER).append("> ?").append(memberObject).append(".\n");
+      whereQl.append(" ?").append(object).append(" ^").append("<").append(ImVocab.HAS_MEMBER).
+        append("> ?").append(memberObject).append(".\n");
       whereQl.append("VALUES ?").append(memberObject).append(" { ").append(inString).append("}").append("\n");
     } else {
       if (inString.contains(" ")) {

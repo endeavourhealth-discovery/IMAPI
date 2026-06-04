@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -9,7 +9,7 @@ import java.util.Objects;
 public class SearchTermCode implements Comparable<SearchTermCode> {
   String term;
   String code;
-  TTIriRef status;
+  TTIriRefExtended status;
   Integer length;
   String keyTerm;
 
@@ -49,12 +49,12 @@ public class SearchTermCode implements Comparable<SearchTermCode> {
     return this;
   }
 
-  public TTIriRef getStatus() {
+  public TTIriRefExtended getStatus() {
     return status;
   }
 
   @JsonSetter
-  public SearchTermCode setStatus(TTIriRef status) {
+  public SearchTermCode setStatus(TTIriRefExtended status) {
     this.status = status;
     return this;
   }

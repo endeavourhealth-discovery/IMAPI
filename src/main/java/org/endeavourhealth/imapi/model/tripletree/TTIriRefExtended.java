@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.ITTIriRef;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -14,27 +14,27 @@ import java.util.regex.Pattern;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "TTIriRef", description = "Class representing an IRI")
-public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
+public class TTIriRefExtended extends TTIriRef implements TTValue, Serializable {
   private static final Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 
-  public TTIriRef() {
+  public TTIriRefExtended() {
   }
 
-  public TTIriRef(String iri) {
+  public TTIriRefExtended(String iri) {
     setIri(iri);
   }
 
-  public TTIriRef(Enum<?> vocabEnum) {
+  public TTIriRefExtended(Enum<?> vocabEnum) {
     setIri(EnumUtils.asIri(vocabEnum).getIri());
   }
 
-  public TTIriRef(String iri, String name) {
+  public TTIriRefExtended(String iri, String name) {
     setIri(iri);
     setName(name);
   }
 
-  public static TTIriRef iri(String iri, String name) {
-    return new TTIriRef(iri, name);
+  public static TTIriRefExtended iri(String iri, String name) {
+    return new TTIriRefExtended(iri, name);
   }
 
   @JsonProperty(value = "iri", required = true)
@@ -42,11 +42,10 @@ public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
     return this.getIri();
   }
 
-  @Override
-  public TTIriRef iri(String iri) {
+  public TTIriRefExtended iri(String iri) {
     this.setIri(iri);
     if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()) {
-      iri = NAMESPACE.IM + iri;
+      iri = NamespaceVocab.IM + iri;
       if (!iriPattern.matcher(iri).matches())
         Thread.dumpStack();
     }
@@ -54,12 +53,11 @@ public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
   }
 
   @JsonIgnore
-  public TTIriRef iri(Enum<?> iri) {
+  public TTIriRefExtended iri(Enum<?> iri) {
     return iri(EnumUtils.asIri(iri).getIri());
   }
 
-  @Override
-  public TTIriRef name(String name) {
+  public TTIriRefExtended name(String name) {
     if (name != null && name.startsWith("null"))
       System.err.println("Its here!!!!");
     this.setName(name);
@@ -72,7 +70,7 @@ public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
   }
 
   @Override
-  public TTIriRef asIriRef() {
+  public TTIriRefExtended asIriRef() {
     return this;
   }
 
@@ -82,8 +80,7 @@ public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
     return true;
   }
 
-  @Override
-  public TTIriRef description(String description) {
+  public TTIriRefExtended description(String description) {
     this.setDescription(description);
     return this;
   }
@@ -96,7 +93,7 @@ public class TTIriRef extends ITTIriRef implements TTValue, Serializable {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof TTIriRef ttIriRef)) return false;
+    if (!(o instanceof TTIriRefExtended ttIriRef)) return false;
     return this.getIri().equals(ttIriRef.getIri());
   }
 

@@ -1,11 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class ValueSource {
   private String parameter;

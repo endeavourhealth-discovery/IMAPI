@@ -23,7 +23,7 @@ import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -36,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.Exception;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -66,7 +67,7 @@ public class FilerController {
       String taskId = UUID.randomUUID().toString();
       Map<String, String> response = new HashMap<>();
 
-      if (!filerService.userCanFile(user, GRAPH.IM))
+      if (!filerService.userCanFile(user, GraphVocab.IM))
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
       try {
@@ -106,7 +107,7 @@ public class FilerController {
         entity.setVersion(usedEntity.getVersion() + 1);
       }
 
-      if (crud != null && !crud.isEmpty()) entity.setCrud(new TTIriRef(crud));
+      if (crud != null && !crud.isEmpty()) entity.setCrud(new TTIriRefExtended(crud));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
       return ResponseEntity.ok().build();
     }
@@ -118,7 +119,7 @@ public class FilerController {
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "oldFolder") String oldFolderIri,
     @RequestParam(name = "newFolder") String newFolderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NamespaceVocab namespace,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
@@ -137,24 +138,24 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-      if (!entity.has(new TTIriRef(IM.IS_CONTAINED_IN))) {
+      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
+      if (!entity.has(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
 
-      TTArray folders = entity.get(new TTIriRef(IM.IS_CONTAINED_IN));
-      if (!folders.contains(new TTIriRef(oldFolderIri))) {
+      TTArray folders = entity.get(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN));
+      if (!folders.contains(new TTIriRefExtended(oldFolderIri))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
       }
 
-      if (entityService.isLinked(newFolderIri, new TTIriRef(IM.IS_CONTAINED_IN), oldFolderIri)) {
+      if (entityService.isLinked(newFolderIri, new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
-      folders.remove(new TTIriRef(oldFolderIri));
-      folders.add(new TTIriRef(newFolderIri));
-      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRef(IM.UPDATE_PREDICATES));
+      folders.remove(new TTIriRefExtended(oldFolderIri));
+      folders.add(new TTIriRefExtended(newFolderIri));
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRefExtended(ImVocab.UPDATE_PREDICATES));
 
       User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
@@ -168,7 +169,7 @@ public class FilerController {
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NamespaceVocab namespace,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
@@ -182,14 +183,14 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(IM.IS_CONTAINED_IN, IM.HAS_SCHEME)).getEntity();
-      TTArray folders = entity.get(new TTIriRef(IM.IS_CONTAINED_IN));
+      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
+      TTArray folders = entity.get(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN));
       if (folders == null) folders = new TTArray();
-      folders.add(new TTIriRef(folderIri));
+      folders.add(new TTIriRefExtended(folderIri));
 
       User user = securityService.getUser(request);
       TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
-      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRef(IM.UPDATE_PREDICATES));
+      entity.setVersion(usedEntity.getVersion() + 1).setCrud(new TTIriRefExtended(ImVocab.UPDATE_PREDICATES));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
       return ResponseEntity.ok().build();
@@ -201,7 +202,7 @@ public class FilerController {
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NamespaceVocab namespace,
     HttpServletRequest request
   ) throws Exception {
     securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.CREATOR), List.of(new NamespacePermission(namespace, true, true))), request);
@@ -216,7 +217,7 @@ public class FilerController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot create, container does not exist");
       }
 
-      String iri = NAMESPACE.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
+      String iri = NamespaceVocab.IM + "FLDR_" + URLEncoder.encode(name.replaceAll(" ", ""), StandardCharsets.UTF_8);
       if (entityService.iriExists(iri)) {
         log.error("Entity with that name already exists");
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Entity with that name already exists");
@@ -224,30 +225,30 @@ public class FilerController {
 
       Query query = new Query()
         .setName("Allowable child types for a folder")
-        .setIri(NAMESPACE.IM + "Query_AllowableChildTypes");
+        .setIri(NamespaceVocab.IM + "Query_AllowableChildTypes");
       QueryRequest queryRequest = new QueryRequest()
         .setQuery(query)
         .argument(a -> a
           .setParameter("this")
-          .setValueIri(new TTIriRef(container)));
+          .setValueIri(new TTIriRefExtended(container)));
       JsonNode results = searchService.queryIM(queryRequest);
 
       TTEntity entity = new TTEntity(iri)
         .setName(name)
-        .setScheme(new TTIriRef(GRAPH.IM))
-        .addType(new TTIriRef(IM.FOLDER))
-        .set(new TTIriRef(IM.IS_CONTAINED_IN), new TTIriRef(container))
+        .setScheme(new TTIriRefExtended(GraphVocab.IM))
+        .addType(new TTIriRefExtended(ImVocab.FOLDER))
+        .set(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(container))
         .setVersion(1)
-        .setCrud(new TTIriRef(IM.ADD_QUADS));
+        .setCrud(new TTIriRefExtended(ImVocab.ADD_QUADS));
 
       TTArray contentTypes = new TTArray();
       for (JsonNode j : results.get("entities")) {
-        TTIriRef contentType = new TTIriRef();
+        TTIriRefExtended contentType = new TTIriRefExtended();
         contentType.setIri(j.get("iri").asText());
-        contentType.setName(j.get(RDFS.LABEL.toString()).asText());
+        contentType.setName(j.get(RdfsVocab.LABEL.toString()).asText());
         contentTypes.add(contentType);
       }
-      entity.set(new TTIriRef(IM.CONTENT_TYPE), contentTypes);
+      entity.set(new TTIriRefExtended(ImVocab.CONTENT_TYPE), contentTypes);
 
       User user = securityService.getUser(request);
       filerService.fileEntity(entity, user.getUsername(), null);

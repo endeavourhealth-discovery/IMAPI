@@ -17,7 +17,7 @@ public class ModelDocument {
   @Getter
   private TTContext context;
   @Getter
-  private List<Entity> folder;
+  private List<EntityExtended> folder;
   @Getter
   private List<ConceptSet> conceptSet;
   private List<MapFunction> functionClause;
@@ -45,12 +45,12 @@ public class ModelDocument {
     return this;
   }
 
-  public ModelDocument setFolder(List<Entity> folder) {
+  public ModelDocument setFolder(List<EntityExtended> folder) {
     this.folder = folder;
     return this;
   }
 
-  public ModelDocument addFolder(Entity folder) {
+  public ModelDocument addFolder(EntityExtended folder) {
     if (this.folder == null)
       this.folder = new ArrayList<>();
     this.folder.add(folder);

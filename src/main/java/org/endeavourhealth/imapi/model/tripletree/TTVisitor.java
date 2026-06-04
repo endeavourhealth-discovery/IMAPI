@@ -5,23 +5,23 @@ import java.util.Map;
 
 public class TTVisitor {
   public interface ITTLiteralVisitor {
-    void visit(TTIriRef predicate, TTLiteral literal);
+    void visit(TTIriRefExtended predicate, TTLiteral literal);
   }
 
   public interface ITTIriRefVisitor {
-    void visit(TTIriRef predicate, TTIriRef iriRef);
+    void visit(TTIriRefExtended predicate, TTIriRefExtended iriRef);
   }
 
   public interface ITTNodeVisitor {
-    void visit(TTIriRef predicate, TTNode node);
+    void visit(TTIriRefExtended predicate, TTNode node);
   }
 
   public interface ITTListVisitor {
-    void visit(TTIriRef predicate, TTArray node);
+    void visit(TTIriRefExtended predicate, TTArray node);
   }
 
   public interface ITTPredicateVisitor {
-    void visit(TTIriRef predicate);
+    void visit(TTIriRefExtended predicate);
   }
 
   private ITTLiteralVisitor literalVisitor = (predicate, literal) -> {
@@ -82,14 +82,14 @@ public class TTVisitor {
     visit(null, array);
   }
 
-  public void visit(TTIriRef predicate, TTNode node) {
+  public void visit(TTIriRefExtended predicate, TTNode node) {
     if (predicate != null)
       predicateVisitor.visit(predicate);
 
     nodeVisitor.visit(predicate, node);
-    Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
-    for (Map.Entry<TTIriRef, TTArray> entry : predicateMap.entrySet()) {
-      TTIriRef p = entry.getKey();
+    Map<TTIriRefExtended, TTArray> predicateMap = node.getPredicateMap();
+    for (Map.Entry<TTIriRefExtended, TTArray> entry : predicateMap.entrySet()) {
+      TTIriRefExtended p = entry.getKey();
       TTArray v = entry.getValue();
 
       visit(p, v);
@@ -97,7 +97,7 @@ public class TTVisitor {
     nodeExitVisitor.visit(predicate, node);
   }
 
-  public void visit(TTIriRef predicate, TTValue value) {
+  public void visit(TTIriRefExtended predicate, TTValue value) {
     if (value.isLiteral()) {
       if (predicate != null)
         predicateVisitor.visit(predicate);
@@ -111,7 +111,7 @@ public class TTVisitor {
     }
   }
 
-  public void visit(TTIriRef predicate, TTArray array) {
+  public void visit(TTIriRefExtended predicate, TTArray array) {
     if (predicate != null)
       predicateVisitor.visit(predicate);
     listVisitor.visit(predicate, array);

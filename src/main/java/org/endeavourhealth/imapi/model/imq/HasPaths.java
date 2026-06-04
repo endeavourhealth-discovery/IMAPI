@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.List;
 
 public interface HasPaths {

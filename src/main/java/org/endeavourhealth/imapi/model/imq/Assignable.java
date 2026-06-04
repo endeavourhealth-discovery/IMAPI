@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.interfacemanager.model.Operator;
 
 public interface Assignable {
@@ -20,9 +20,9 @@ public interface Assignable {
 
   Assignable setDescription(String description);
 
-  Compare getCompare();
+  CompareExtended getCompare();
 
-  Assignable setCompare(Compare compare);
+  Assignable setCompare(CompareExtended compareExtended);
 
   boolean isInvalid();
 
@@ -32,8 +32,8 @@ public interface Assignable {
 
   Assignable setValueTerm(String valueTerm);
 
-  TTIriRef getUnits();
+  TTIriRefExtended getUnits();
 
-  Assignable setUnits(TTIriRef units);
+  Assignable setUnits(TTIriRefExtended units);
 
 }

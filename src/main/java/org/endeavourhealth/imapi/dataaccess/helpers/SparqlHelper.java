@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.dataaccess.helpers;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.query.BindingSet;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,7 +55,12 @@ public class SparqlHelper {
       PREFIX sh: <%s>
       PREFIX xsd: <%s>
       
-      """.formatted(NAMESPACE.RDFS, NAMESPACE.IM, NAMESPACE.RDF, NAMESPACE.SNOMED, NAMESPACE.SHACL, NAMESPACE.XSD);
+      """.formatted(NamespaceVocab.RDFS, NamespaceVocab.
+      IM, NamespaceVocab.
+      RDF, NamespaceVocab.
+      SNOMED, NamespaceVocab.
+      SHACL, NamespaceVocab.
+      XSD);
     StringJoiner sj = new StringJoiner(System.lineSeparator());
     sj.add(prefixes);
     sj.add(sparql);

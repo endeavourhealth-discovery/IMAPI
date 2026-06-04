@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class LuceneIndexer {
 
-  public void buildIndexes(GRAPH insertGraph) {
+  public void buildIndexes(GraphVocab insertGraph) {
     try (IMDB conn = IMDB.getConnection()) {
       dropIndex(conn, insertGraph);
       String sql = """
@@ -52,14 +52,19 @@ public class LuceneIndexer {
             }
           ''' .
         }
-        """.formatted(RDFS.LABEL, IM.CODE, IM.CONCEPT, IM.FOLDER, IM.FORM_GENERATOR, IM.FUNCTION, IM.QUERY, SHACL.NODESHAPE, RDFS.CLASS, RDF.PROPERTY);
+        """.formatted(RdfsVocab.LABEL, ImVocab.CODE, ImVocab.
+        CONCEPT, ImVocab.
+        FOLDER, ImVocab.
+        FORM_GENERATOR, ImVocab.
+        FUNCTION, ImVocab.
+        QUERY, ShaclVocab.NODESHAPE, RdfsVocab.CLASS, RdfVocab.PROPERTY);
       log.info("Building lucene index... This will take an hour or so...");
       Update upd = conn.prepareInsertSparql(sql, insertGraph);
       upd.execute();
     }
   }
 
-  private void dropIndex(IMDB conn, GRAPH graph) {
+  private void dropIndex(IMDB conn, GraphVocab graph) {
     String checkList = """
         PREFIX luc: <http://www.ontotext.com/connectors/lucene#>
       

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.CodeGenService;
-import org.endeavourhealth.imapi.model.dto.CodeGenDto;
+import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.http.HttpEntity;
@@ -36,8 +36,8 @@ public class CodeGenController {
 
   @Operation(summary = "Get a specific code template", description = "Retrieve a specific code template by its name.")
   @GetMapping(value = "/codeTemplate", produces = "application/json")
-  public CodeGenDto getCodeTemplate(HttpServletRequest request,
-                                    @Parameter(description = "The name of the code template to retrieve") @RequestParam("templateName") String templateName) {
+  public CodeGenDtoExtended getCodeTemplate(HttpServletRequest request,
+                                            @Parameter(description = "The name of the code template to retrieve") @RequestParam("templateName") String templateName) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.GET")) {
       log.debug("getCodeTemplate");
       return codeGenService.getCodeTemplate(templateName);
@@ -49,11 +49,11 @@ public class CodeGenController {
   @ResponseStatus(HttpStatus.ACCEPTED)
   public void updateCodeTemplate(
     HttpServletRequest request,
-    @Parameter(description = "The CodeGenDto object containing the details of the code template to update") @RequestBody CodeGenDto codeGenDto
+    @Parameter(description = "The CodeGenDto object containing the details of the code template to update") @RequestBody CodeGenDtoExtended codeGenDtoExtended
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.CodeTemplate.POST")) {
       log.debug("updateCodeTemplate");
-      codeGenService.updateCodeTemplate(codeGenDto.getName(), codeGenDto.getExtension(), codeGenDto.getCollectionWrapper(), codeGenDto.getDatatypeMap(), codeGenDto.getTemplate(), codeGenDto.getComplexTypes());
+      codeGenService.updateCodeTemplate(codeGenDtoExtended.getName(), codeGenDtoExtended.getExtension(), codeGenDtoExtended.getCollectionWrapper(), codeGenDtoExtended.getDatatypeMap(), codeGenDtoExtended.getTemplate(), codeGenDtoExtended.getComplexTypes());
     }
   }
 
@@ -76,7 +76,7 @@ public class CodeGenController {
   public String generateCodePreview(HttpServletRequest request,
                                     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
                                     @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,
-                                    @Parameter(description = "The template data to use") @RequestBody CodeGenDto template
+                                    @Parameter(description = "The template data to use") @RequestBody CodeGenDtoExtended template
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCodePreview");

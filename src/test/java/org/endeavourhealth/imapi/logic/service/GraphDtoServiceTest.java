@@ -6,8 +6,7 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,9 +69,9 @@ public class GraphDtoServiceTest {
   @Test
   void getGraphData_ParentIsList() {
     TTEntity entity = new TTEntity()
-      .set(new TTIriRef(RDFS.SUBCLASS_OF), new TTArray()
-        .add(new TTIriRef("http://endhealth.info/im#parent1", "Parent 1"))
-        .add(new TTIriRef("http://endhealth.info/im#parent2", "Parent 2"))
+      .set(new TTIriRefExtended(RdfsVocab. SUBCLASS_OF),new TTArray()
+      .add(new TTIriRefExtended("http://endhealth.info/im#parent1", "Parent 1"))
+      .add(new TTIriRefExtended("http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 

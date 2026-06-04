@@ -2,17 +2,17 @@ package org.endeavourhealth.imapi.model.iml;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Getter
-public class Concept extends Entity {
+public class Concept extends EntityExtended {
 
   private String code;
   private String im1Id;
-  private Set<TTIriRef> subClassOf;
+  private Set<TTIriRefExtended> subClassOf;
   private Set<Concept> matchedFrom;
   private Integer usage;
   private String codeId;
@@ -32,12 +32,12 @@ public class Concept extends Entity {
     return this;
   }
 
-  public Concept setSubClassOf(Set<TTIriRef> subClassOf) {
+  public Concept setSubClassOf(Set<TTIriRefExtended> subClassOf) {
     this.subClassOf = subClassOf;
     return this;
   }
 
-  public Concept addSubClassOf(TTIriRef superClass) {
+  public Concept addSubClassOf(TTIriRefExtended superClass) {
     if (this.subClassOf == null)
       this.subClassOf = new HashSet<>();
     this.subClassOf.add(superClass);
@@ -71,7 +71,7 @@ public class Concept extends Entity {
   }
 
 
-  public Concept setScheme(TTIriRef scheme) {
+  public Concept setScheme(TTIriRefExtended scheme) {
     super.setScheme(scheme);
     return this;
   }

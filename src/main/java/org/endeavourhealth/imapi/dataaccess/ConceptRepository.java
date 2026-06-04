@@ -8,8 +8,6 @@ import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Context;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 
 import java.util.*;
 
@@ -149,18 +147,18 @@ public class ConceptRepository {
         """;
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       qry.setBinding("concept", iri(iri));
-      qry.setBinding("imConcept", EnumUtils.asDbIri(IM.CONCEPT));
-      qry.setBinding("imHasMap", EnumUtils.asDbIri(IM.HAS_MAP));
-      qry.setBinding("rdfsLabel", EnumUtils.asDbIri(RDFS.LABEL));
-      qry.setBinding("imContextNode", EnumUtils.asDbIri(IM.CONTEXT_NODE));
-      qry.setBinding("imTargetProperty", EnumUtils.asDbIri(IM.TARGET_PROPERTY));
-      qry.setBinding("imSourcePublisher", EnumUtils.asDbIri(IM.SOURCE_PUBLISHER));
-      qry.setBinding("imSourceSystem", EnumUtils.asDbIri(IM.SOURCE_SYSTEM));
-      qry.setBinding("imSourceSchema", EnumUtils.asDbIri(IM.SOURCE_SCHEMA));
-      qry.setBinding("imSourceTable", EnumUtils.asDbIri(IM.SOURCE_TABLE));
-      qry.setBinding("imSourceField", EnumUtils.asDbIri(IM.SOURCE_FIELD));
-      qry.setBinding("imSourceValue", EnumUtils.asDbIri(IM.SOURCE_VALUE));
-      qry.setBinding("imSourceRegex", EnumUtils.asDbIri(IM.SOURCE_REGEX));
+      qry.setBinding("imConcept", EnumUtils.asDbIri(ImVocab.CONCEPT));
+      qry.setBinding("imHasMap", EnumUtils.asDbIri(ImVocab.HAS_MAP));
+      qry.setBinding("rdfsLabel", EnumUtils.asDbIri(RdfsVocab.LABEL));
+      qry.setBinding("imContextNode", EnumUtils.asDbIri(ImVocab.CONTEXT_NODE));
+      qry.setBinding("imTargetProperty", EnumUtils.asDbIri(ImVocab.TARGET_PROPERTY));
+      qry.setBinding("imSourcePublisher", EnumUtils.asDbIri(ImVocab.SOURCE_PUBLISHER));
+      qry.setBinding("imSourceSystem", EnumUtils.asDbIri(ImVocab.SOURCE_SYSTEM));
+      qry.setBinding("imSourceSchema", EnumUtils.asDbIri(ImVocab.SOURCE_SCHEMA));
+      qry.setBinding("imSourceTable", EnumUtils.asDbIri(ImVocab.SOURCE_TABLE));
+      qry.setBinding("imSourceField", EnumUtils.asDbIri(ImVocab.SOURCE_FIELD));
+      qry.setBinding("imSourceValue", EnumUtils.asDbIri(ImVocab.SOURCE_VALUE));
+      qry.setBinding("imSourceRegex", EnumUtils.asDbIri(ImVocab.SOURCE_REGEX));
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();

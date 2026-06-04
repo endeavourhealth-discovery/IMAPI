@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteBaseVisitor;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteLexer;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteParser;
-import org.endeavourhealth.interfacemanager.model.RDF;
 
 import java.util.HashMap;
 import java.util.List;
@@ -92,19 +91,19 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
   }
 
   private void convertPredicates(TTNode node, List<TurtliteParser.PredicateObjectListContext> poList) throws DataFormatException {
-    TTIriRef predicate;
+    TTIriRefExtended predicate;
     for (TurtliteParser.PredicateObjectListContext po : poList) {
       TurtliteParser.VerbContext verb = po.verb();
       if (verb.getText().equals("a"))
-        predicate = new TTIriRef(RDF.TYPE);
+        predicate = new TTIriRefExtended(RdfVocab. TYPE);
       else
-        predicate = new TTIriRef(getIri(verb.predicate().iri().getText()));
+      predicate = new TTIriRefExtended(getIri(verb.predicate().iri().getText()));
       convertObjects(node, predicate, po.objectList());
     }
 
   }
 
-  private void convertObjects(TTNode node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
+  private void convertObjects(TTNode node, TTIriRefExtended predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
     for (TurtliteParser.ObjectContext object : objectList.object()) {
       if (object.collection() != null) {
         for (TurtliteParser.ObjectContext member : object.collection().object()) {
@@ -125,7 +124,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       else
         return TTLiteral.literal(object.literal().getText().replace("\"", ""));
     } else if (object.iri() != null) {
-      return new TTIriRef(getIri(object.iri().getText()));
+      return new TTIriRefExtended(getIri(object.iri().getText()));
     } else if (object.BlankNode() != null) {
       return getBlankNode(object.BlankNode().getText());
     } else if (object.blankNodePropertyList() != null) {

@@ -1,84 +1,28 @@
 package org.endeavourhealth.imapi.model.workflow;
 
-import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.TaskHistory;
 import org.endeavourhealth.interfacemanager.model.TaskState;
 import org.endeavourhealth.interfacemanager.model.TaskType;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.OffsetDateTime;
 import java.util.List;
 
-@Getter
-public class Task {
+public interface Task {
 
-  private TTIriRef id;
-  private String createdBy;
-  private TaskType type;
-  private TaskState state;
-  private String assignedTo;
-  private LocalDateTime dateCreated;
-  private List<TaskHistory> history;
-  private String hostUrl;
+  TTIriRef getId();
 
-  public Task(TTIriRef id, String createdBy, TaskType type, TaskState state, String assignedTo, LocalDateTime dateCreated, List<TaskHistory> history, String hostUrl) {
-    this.id = id;
-    this.createdBy = createdBy;
-    this.type = type;
-    this.state = state;
-    this.assignedTo = assignedTo;
-    this.dateCreated = dateCreated;
-    this.history = history;
-    this.hostUrl = hostUrl;
-  }
+  String getCreatedBy();
 
-  public Task() {
-  }
+  TaskType getType();
 
-  public Task setId(TTIriRef id) {
-    this.id = id;
-    return this;
-  }
+  TaskState getState();
 
-  public Task setCreatedBy(String createdBy) {
-    this.createdBy = createdBy;
-    return this;
-  }
+  String getAssignedTo();
 
-  public Task setType(TaskType type) {
-    this.type = type;
-    return this;
-  }
+  OffsetDateTime getDateCreated();
 
-  public Task setState(TaskState state) {
-    this.state = state;
-    return this;
-  }
+  List<TaskHistory> getHistory();
 
-  public Task setAssignedTo(String assignedTo) {
-    this.assignedTo = assignedTo;
-    return this;
-  }
-
-  public Task setDateCreated(LocalDateTime dateCreated) {
-    this.dateCreated = dateCreated;
-    return this;
-  }
-
-  public Task setHistory(List<TaskHistory> history) {
-    this.history = history;
-    return this;
-  }
-
-  public Task addTaskHistory(TaskHistory taskHistory) {
-    if (null == this.history) this.history = new ArrayList<>();
-    this.history.add(taskHistory);
-    return this;
-  }
-
-  public Task setHostUrl(String hostUrl) {
-    this.hostUrl = hostUrl;
-    return this;
-  }
+  String getHostUrl();
 }

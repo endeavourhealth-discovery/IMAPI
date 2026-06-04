@@ -7,7 +7,6 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.interfacemanager.model.IM;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -55,14 +54,14 @@ public class GraphHelper {
     String subject = s.stringValue();
     String predicate = p.stringValue();
     String value = o.stringValue();
-    if (predicate.equals(IM.PLABEL.toString())) {
+    if ( predicate.equals(ImVocab. PLABEL.toString())){
       entityMap.addPredicate(subject, value);
-    } else if (predicate.equals(IM.OLABEL.toString())) {
-      tripleMap.putIfAbsent(subject, new TTIriRef(subject));
+    } else if ( predicate.equals(ImVocab. OLABEL.toString())){
+      tripleMap.putIfAbsent(subject, new TTIriRefExtended(subject));
       tripleMap.get(subject).asIriRef().setName(value);
-    } else {
+    } else{
       TTNode node;
-      tripleMap.putIfAbsent(predicate, new TTIriRef(predicate));
+      tripleMap.putIfAbsent(predicate, new TTIriRefExtended(predicate));
       if (s.isIRI()) {
         entityMap.getEntities().putIfAbsent(subject, new TTEntity().setIri(subject));
         node = entityMap.getEntities().get(subject);
@@ -74,7 +73,7 @@ public class GraphHelper {
         tripleMap.putIfAbsent(value, new TTNode());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
-        tripleMap.putIfAbsent(value, new TTIriRef(value));
+        tripleMap.putIfAbsent(value, new TTIriRefExtended(value));
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else {
         tripleMap.putIfAbsent(value, TTLiteral.literal(value));

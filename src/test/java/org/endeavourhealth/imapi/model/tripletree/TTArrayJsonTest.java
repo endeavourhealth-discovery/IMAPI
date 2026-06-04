@@ -35,11 +35,11 @@ class TTArrayJsonTest {
 
   private TTArray getTestArray() {
     return new TTArray()
-      .add(new TTIriRef("http://snomed.info/sct#371186005", "Amputation of toe (procedure)"))
-      .add(new TTIriRef("http://snomed.info/sct#732214009", "Amputation of left lower limb"))
+      .add(new TTIriRefExtended("http://snomed.info/sct#371186005", "Amputation of toe (procedure)"))
+      .add(new TTIriRefExtended("http://snomed.info/sct#732214009", "Amputation of left lower limb"))
       .add(new TTNode()
-        .set(new TTIriRef("http://snomed.info/sct#260686004", "Method"), new TTIriRef("http://snomed.info/sct#129309007", "Amputation - action"))
-        .set(new TTIriRef("http://snomed.info/sct#405813007", "Procedure site - Direct"), new TTIriRef("http://snomed.info/sct#732939008", "Part of toe of left foot"))
+        .set(new TTIriRefExtended("http://snomed.info/sct#260686004", "Method"), new TTIriRefExtended("http://snomed.info/sct#129309007", "Amputation - action"))
+        .set(new TTIriRefExtended("http://snomed.info/sct#405813007", "Procedure site - Direct"), new TTIriRefExtended("http://snomed.info/sct#732939008", "Part of toe of left foot"))
       );
   }
 
@@ -69,20 +69,20 @@ class TTArrayJsonTest {
     assertEquals(3, array.size());
 
     assertTrue(array.get(0).isIriRef());
-    assertEquals(new TTIriRef("http://snomed.info/sct#371186005", "Amputation of toe (procedure)"), array.get(0));
+    assertEquals(new TTIriRefExtended("http://snomed.info/sct#371186005", "Amputation of toe (procedure)"), array.get(0));
 
     assertTrue(array.get(1).isIriRef());
-    assertEquals(new TTIriRef("http://snomed.info/sct#732214009", "Amputation of left lower limb"), array.get(1));
+    assertEquals(new TTIriRefExtended("http://snomed.info/sct#732214009", "Amputation of left lower limb"), array.get(1));
 
     assertTrue(array.get(2).isNode());
     TTNode node = array.get(2).asNode();
 
-    assertTrue(node.has(new TTIriRef("http://snomed.info/sct#260686004", "Method")));
-    assertTrue(node.get(new TTIriRef("http://snomed.info/sct#260686004", "Method")).isIriRef());
-    assertEquals(new TTIriRef("http://snomed.info/sct#129309007", "Amputation - action"), node.get(new TTIriRef("http://snomed.info/sct#260686004", "Method")).asIriRef());
+    assertTrue(node.has(new TTIriRefExtended("http://snomed.info/sct#260686004", "Method")));
+    assertTrue(node.get(new TTIriRefExtended("http://snomed.info/sct#260686004", "Method")).isIriRef());
+    assertEquals(new TTIriRefExtended("http://snomed.info/sct#129309007", "Amputation - action"), node.get(new TTIriRefExtended("http://snomed.info/sct#260686004", "Method")).asIriRef());
 
-    assertTrue(node.has(new TTIriRef("http://snomed.info/sct#405813007", "Procedure site - Direct")));
-    assertTrue(node.get(new TTIriRef("http://snomed.info/sct#405813007", "Procedure site - Direct")).isIriRef());
-    assertEquals(new TTIriRef("http://snomed.info/sct#732939008", "Part of toe of left foot"), node.get(new TTIriRef("http://snomed.info/sct#405813007", "Procedure site - Direct")).asIriRef());
+    assertTrue(node.has(new TTIriRefExtended("http://snomed.info/sct#405813007", "Procedure site - Direct")));
+    assertTrue(node.get(new TTIriRefExtended("http://snomed.info/sct#405813007", "Procedure site - Direct")).isIriRef());
+    assertEquals(new TTIriRefExtended("http://snomed.info/sct#732939008", "Part of toe of left foot"), node.get(new TTIriRefExtended("http://snomed.info/sct#405813007", "Procedure site - Direct")).asIriRef());
   }
 }

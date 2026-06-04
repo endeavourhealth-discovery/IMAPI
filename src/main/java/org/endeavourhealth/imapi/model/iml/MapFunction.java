@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,17 +14,17 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"iri", "name", "argument"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class MapFunction extends TTIriRef {
-  List<Argument> argument;
+public class MapFunction extends TTIriRefExtended {
+  List<ArgumentExtended> argument;
   private Map<String, String> conceptMap;
-  private TTIriRef defaultValue;
+  private TTIriRefExtended defaultValue;
 
-  public TTIriRef getDefaultValue() {
+  public TTIriRefExtended getDefaultValue() {
     return defaultValue;
   }
 
   @JsonSetter
-  public MapFunction setDefaultValue(TTIriRef defaultValue) {
+  public MapFunction setDefaultValue(TTIriRefExtended defaultValue) {
     this.defaultValue = defaultValue;
     return this;
   }
@@ -57,41 +57,41 @@ public class MapFunction extends TTIriRef {
     return this;
   }
 
-  public List<Argument> getArgument() {
+  public List<ArgumentExtended> getArgument() {
     return argument;
   }
 
-  public MapFunction setArgument(List<Argument> argument) {
+  public MapFunction setArgument(List<ArgumentExtended> argument) {
     this.argument = argument;
     return this;
   }
 
-  public MapFunction addArgument(Argument argument) {
+  public MapFunction addArgument(ArgumentExtended argument) {
     if (this.argument == null)
       this.argument = new ArrayList<>();
     this.argument.add(argument);
     return this;
   }
 
-  public MapFunction argument(Consumer<Argument> builder) {
-    Argument argument = new Argument();
+  public MapFunction argument(Consumer<ArgumentExtended> builder) {
+    ArgumentExtended argument = new ArgumentExtended();
     addArgument(argument);
     builder.accept(argument);
     return this;
   }
 
 
-  public Argument addArgument() {
+  public ArgumentExtended addArgument() {
     if (this.argument == null)
       this.argument = new ArrayList<>();
-    Argument newArg = new Argument();
+    ArgumentExtended newArg = new ArgumentExtended();
     this.argument.add(newArg);
     return newArg;
   }
 
 
   @JsonSetter
-  public MapFunction setIri(TTIriRef iri) {
+  public MapFunction setIri(TTIriRefExtended iri) {
     super.setIri(iri.getIri());
     return this;
   }

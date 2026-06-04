@@ -8,10 +8,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
-import org.endeavourhealth.imapi.model.iml.ArrayButtons;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.web.bind.annotation.*;
@@ -84,7 +83,7 @@ public class DataModelController {
     description = "Returns a list of data models that reference the given property IRI."
   )
   @GetMapping(value = "/dataModels")
-  public List<TTIriRef> getDataModelsFromProperty(
+  public List<TTIriRefExtended> getDataModelsFromProperty(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property")
     @RequestParam(name = "propIri") String propIri
@@ -129,7 +128,7 @@ public class DataModelController {
     summary = "gets the inverse path between source and target",
     description = "for a known source tye ad target type whats the reverse property e.g. patient "
   )
-  public TTIriRef getInversePath(
+  public TTIriRefExtended getInversePath(
     HttpServletRequest request,
     @RequestParam(name = "source") String source,
     @RequestParam(name = "target") String target) {

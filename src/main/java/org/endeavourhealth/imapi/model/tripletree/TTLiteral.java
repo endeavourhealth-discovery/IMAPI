@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTLiteralDeserializer;
 import org.endeavourhealth.imapi.json.TTLiteralSerializer;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.interfacemanager.model.XSD;
 
 import java.io.Serializable;
 import java.util.regex.Pattern;
@@ -20,20 +19,20 @@ import java.util.regex.Pattern;
 @JsonDeserialize(using = TTLiteralDeserializer.class)
 public class TTLiteral implements TTValue, Serializable {
   private String value;
-  private TTIriRef type;
+  private TTIriRefExtended type;
 
   // General constructors
   public TTLiteral() {
   }
 
-  public TTLiteral(String value, TTIriRef type) {
+  public TTLiteral(String value, TTIriRefExtended type) {
     this.value = value;
     this.type = type;
   }
 
   public TTLiteral(String value, String type) {
     this.value = value;
-    this.type = new TTIriRef(type);
+    this.type = new TTIriRefExtended(type);
   }
 
   // Type specific constructors
@@ -44,33 +43,33 @@ public class TTLiteral implements TTValue, Serializable {
 
   public TTLiteral(Boolean value) {
     this.value = value.toString();
-    this.type = new TTIriRef(XSD.BOOLEAN);
+    this.type = new TTIriRefExtended(XsdVocab. BOOLEAN);
   }
 
   public TTLiteral(Integer value) {
     this.value = value.toString();
-    this.type = new TTIriRef(XSD.INTEGER);
+    this.type = new TTIriRefExtended(XsdVocab. INTEGER);
   }
 
   public TTLiteral(Long value) {
     this.value = value.toString();
-    this.type = new TTIriRef(XSD.LONG);
+    this.type = new TTIriRefExtended(XsdVocab. LONG);
   }
 
   public TTLiteral(Pattern value) {
     this.value = value.toString();
-    this.type = new TTIriRef(XSD.PATTERN);
+    this.type = new TTIriRefExtended(XsdVocab. PATTERN);
   }
 
   public TTLiteral(Object value) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       this.value = om.writeValueAsString(value);
-      this.type = new TTIriRef(XSD.STRING);
+      this.type = new TTIriRefExtended(XsdVocab. STRING);
     }
   }
 
   // Static helpers
-  public static TTLiteral literal(String value, TTIriRef type) {
+  public static TTLiteral literal(String value, TTIriRefExtended type) {
     return new TTLiteral(value, type);
   }
 
@@ -148,12 +147,12 @@ public class TTLiteral implements TTValue, Serializable {
     }
   }
 
-  public TTIriRef getType() {
+  public TTIriRefExtended getType() {
     return type;
   }
 
   @JsonSetter
-  public TTLiteral setType(TTIriRef type) {
+  public TTLiteral setType(TTIriRefExtended type) {
     this.type = type;
     return this;
   }

@@ -14,8 +14,8 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
 import org.endeavourhealth.interfacemanager.model.Order;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    highestUsageRequest.getQuery().addReturn(new Return().setIri(IM.USAGE_TOTAL));
+    highestUsageRequest.getQuery().addReturn(new Return().setIri(ImVocab.USAGE_TOTAL));
     OrderDirection od = new OrderDirection().setDirection(Order.DESCENDING);
     highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
     highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
@@ -92,7 +92,7 @@ public class SearchService {
         if (imResults != null && !imResults.isEmpty()) {
           Query query = queryRequest.getQuery();
           Where where = new Where();
-          where.setIri(IM.IM_IRI.toString());
+          where.setIri(ImVocab.IM_IRI.toString());
           for (String iri : imResults) {
             where.addIs(new Node().setIri(iri));
           }
@@ -196,7 +196,7 @@ public class SearchService {
    * @param queryRequest Query inside a request with parameters
    * @throws QueryException if query format is invalid
    */
-  public void updateIM(QueryRequest queryRequest, GRAPH insertGraph) throws JsonProcessingException, QueryException {
+  public void updateIM(QueryRequest queryRequest, GraphVocab insertGraph) throws JsonProcessingException, QueryException {
     new QueryRepository().updateIM(queryRequest, insertGraph);
   }
 

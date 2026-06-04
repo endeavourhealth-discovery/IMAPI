@@ -12,7 +12,7 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.EntityDocumentExtended;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -26,7 +26,7 @@ public class OpenSearchService {
   private final String osAuth = System.getenv("OPENSEARCH_AUTH");
   private final String index = System.getenv("OPENSEARCH_INDEX");
 
-  public EntityDocument getOSDocument(String iri) throws OpenSearchException {
+  public EntityDocumentExtended getOSDocument(String iri) throws OpenSearchException {
     if (osUrl == null)
       throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
 
@@ -66,16 +66,16 @@ public class OpenSearchService {
         return null;
 
       String entityJson = root.at("/hits/hits/0/_source").toString();
-      return om.readValue(entityJson, EntityDocument.class);
+      return om.readValue(entityJson, EntityDocumentExtended.class);
 
     } catch (Exception e) {
       throw new OpenSearchException("Error retrieving document from OpenSearch", e);
     }
   }
 
-  public void fileDocument(EntityDocument entityDocument) throws OpenSearchException {
+  public void fileDocument(EntityDocumentExtended entityDocument) throws OpenSearchException {
     log.debug("Loading OS document");
-    EntityDocument osDoc = getOSDocument(entityDocument.getIri());
+    EntityDocumentExtended osDoc = getOSDocument(entityDocument.getIri());
     if (osDoc == null)
       addOSDocument(entityDocument);
     else {
@@ -84,12 +84,12 @@ public class OpenSearchService {
     }
   }
 
-  public void addOSDocument(EntityDocument entityDocument) throws OpenSearchException {
+  public void addOSDocument(EntityDocumentExtended entityDocument) throws OpenSearchException {
     entityDocument.setId(getMaxDocument() + 1);
     updateOSDocument(entityDocument);
   }
 
-  public void updateOSDocument(EntityDocument entityDocument) throws OpenSearchException {
+  public void updateOSDocument(EntityDocumentExtended entityDocument) throws OpenSearchException {
     log.debug("Sending OS document");
     WebTarget target = client.target(osUrl).path(index + "/_doc/" + entityDocument.getId());
 

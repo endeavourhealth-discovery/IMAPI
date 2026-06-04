@@ -10,8 +10,6 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.RDFS;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -49,20 +47,27 @@ public class ConceptServiceStepDefs {
   public void anEntityWithTermCodes() {
     TTArray termsArray = new TTArray();
     termsArray
-      .add(new TTNode().set(RDFS.LABEL, literal("Type 2 diabetes")).set(IM.CODE, literal(197761014)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("T2DM - diabetes mellitus type 2")).set(IM.CODE, literal(4571144010L)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(12345)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("")).set(IM.CODE, literal(67890)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type 2")).set(IM.CODE, literal(197763012)).set(IM.HAS_STATUS, new TTIriRef(IM.INACTIVE)))
-      .add(new TTNode().set(RDFS.LABEL, literal("Diabetes mellitus type II")).set(IM.CODE, literal(73465010)).set(IM.HAS_STATUS, new TTIriRef(IM.ACTIVE)));
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("Type 2 diabetes")).set(ImVocab. CODE, literal(197761014)).set(ImVocab.
+    HAS_STATUS, new TTIriRefExtended(ImVocab. INACTIVE)))
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("T2DM - diabetes mellitus type 2")).set(ImVocab.
+    CODE, literal(4571144010L)).set(ImVocab. HAS_STATUS, new TTIriRefExtended(ImVocab. ACTIVE)))
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("")).set(ImVocab. CODE, literal(12345)).set(ImVocab.
+    HAS_STATUS, new TTIriRefExtended(ImVocab. INACTIVE)))
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("")).set(ImVocab. CODE, literal(67890)).set(ImVocab.
+    HAS_STATUS, new TTIriRefExtended(ImVocab. ACTIVE)))
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("Diabetes mellitus type 2")).set(ImVocab. CODE, literal(197763012)).
+    set(ImVocab. HAS_STATUS, new TTIriRefExtended(ImVocab. INACTIVE)))
+      .add(new TTNode().set(RdfsVocab.LABEL, literal("Diabetes mellitus type II")).set(ImVocab. CODE, literal(73465010)).
+    set(ImVocab. HAS_STATUS, new TTIriRefExtended(ImVocab. ACTIVE)));
 
     TTEntity entity = new TTEntity(entityIri);
-    entity.set(new TTIriRef(IM.HAS_TERM_CODE), termsArray);
+    entity.set(new TTIriRefExtended(ImVocab. HAS_TERM_CODE),termsArray);
 
     TTBundle termsBundle = new TTBundle();
     termsBundle.setEntity(entity);
 
-    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), EnumUtils.asHashSet(IM.HAS_TERM_CODE))).thenReturn(termsBundle);
+    when(entityRepository.getBundle(termsBundle.getEntity().getIri(), EnumUtils.asHashSet(ImVocab. HAS_TERM_CODE))).
+    thenReturn(termsBundle);
   }
 
 

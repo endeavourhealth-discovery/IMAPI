@@ -18,10 +18,10 @@ import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.GRAPH;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
-import org.endeavourhealth.interfacemanager.model.RDFS;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.RdfsVocab;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -35,13 +35,14 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private final Map<String, String> prefixMap;
   private final Update deleteTriples;
   private final BaseDB conn;
-  private final GRAPH graph;
-  private final String blockers = "<http://snomed.info/sct#138875005>,<" + NAMESPACE.IM + "Concept>";
+  private final GraphVocab graph;
+  private final String blockers = "<http://snomed.info/sct#138875005>,<" + NamespaceVocab.IM + "Concept>";
 
-  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, GRAPH graph) {
+  public TTEntityFilerRdf4j(BaseDB conn, Map<String, String> prefixMap, GraphVocab graph) {
     this.conn = conn;
     this.prefixMap = prefixMap;
-    this.graph = GRAPH.IM;
+    this.graph = GraphVocab.
+      IM;
     String sparql = """
       DELETE {
         ?concept ?p1 ?o1.
@@ -73,17 +74,17 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     deleteTriples = conn.prepareDeleteSparql(sparql);
   }
 
-  public TTEntityFilerRdf4j(BaseDB conn, GRAPH graph) {
+  public TTEntityFilerRdf4j(BaseDB conn, GraphVocab graph) {
     this(conn, new HashMap<>(), graph);
   }
 
-  private TTIriRef getSchemeFromIri(String iri) throws TTFilerException {
+  private TTIriRefExtended getSchemeFromIri(String iri) throws TTFilerException {
     try {
       if (iri.contains("#"))
-        return new TTIriRef(iri.substring(0, iri.lastIndexOf("#") + 1));
+        return new TTIriRefExtended(iri.substring(0, iri.lastIndexOf("#") + 1));
       if (iri.contains("/"))
-        return new TTIriRef(iri.substring(0, iri.lastIndexOf("/") + 1));
-      else return new TTIriRef(NAMESPACE.IM.toString());
+        return new TTIriRefExtended(iri.substring(0, iri.lastIndexOf("/") + 1));
+      else return new TTIriRefExtended(NamespaceVocab.IM.toString());
     } catch (Exception e) {
       throw new TTFilerException("Unable to get scheme from iri: " + iri, e);
     }
@@ -91,20 +92,20 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.get(new TTIriRef(IM.HAS_SCHEME)) == null) {
-      entity.set(new TTIriRef(IM.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
+    if (entity.get(new TTIriRefExtended(ImVocab.HAS_SCHEME)) == null) {
+      entity.set(new TTIriRefExtended(ImVocab.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
     }
 
-    if (entity.get(new TTIriRef(RDFS.LABEL)) != null
-      && entity.get(new TTIriRef(IM.HAS_STATUS)) == null)
-      entity.set(EnumUtils.asIri(IM.HAS_STATUS), EnumUtils.asIri(IM.ACTIVE));
-    if (entity.getCrud().equals(new TTIriRef(IM.UPDATE_PREDICATES))) {
+    if (entity.get(new TTIriRefExtended(RdfsVocab.LABEL)) != null
+      && entity.get(new TTIriRefExtended(ImVocab.HAS_STATUS)) == null)
+      entity.set(EnumUtils.asIri(ImVocab.HAS_STATUS), EnumUtils.asIri(ImVocab.ACTIVE));
+    if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.UPDATE_PREDICATES))) {
       updatePredicates(entity);
-    } else if (entity.getCrud().equals(new TTIriRef(IM.ADD_QUADS))) {
+    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.ADD_QUADS))) {
       addQuads(entity);
-    } else if (entity.getCrud().equals(new TTIriRef(IM.REPLACE_ALL_PREDICATES))) {
+    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.REPLACE_ALL_PREDICATES))) {
       replaceAllPredicates(entity);
-    } else if (entity.getCrud().equals(new TTIriRef(IM.DELETE_ALL))) {
+    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.DELETE_ALL))) {
       deleteTriples(entity);
     } else {
       if (entity.getPredicateMap().isEmpty()) return;
@@ -168,7 +169,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
         }
         """;
       Update deleteIsas = conn.prepareDeleteSparql(deleteSql);
-      deleteIsas.setBinding("isA", EnumUtils.asDbIri(IM.IS_A));
+      deleteIsas.setBinding("isA", EnumUtils.asDbIri(ImVocab.IS_A));
       deleteIsas.setBinding("entity", iri(entity));
       deleteIsas.execute();
     }
@@ -192,7 +193,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
             ?entity rdfs:subClassOf+ ?newSuper .
           }
       """.formatted("<" + entity + ">");
-    Update update = conn.prepareUpdateSparql(sql, GRAPH.IM);
+    Update update = conn.prepareUpdateSparql(sql, GraphVocab.IM);
     update.execute();
     sql = """
       DELETE {
@@ -215,19 +216,19 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
           }
       }
       """.formatted(entity, entity);
-    update = conn.prepareUpdateSparql(sql, GRAPH.IM);
+    update = conn.prepareUpdateSparql(sql, GraphVocab.IM);
     update.execute();
     sql = """
       insert data {<%s> im:isA <%s>}
       """.formatted(entity, entity);
-    Update insert = conn.prepareInsertSparql(sql, GRAPH.IM);
+    Update insert = conn.prepareInsertSparql(sql, GraphVocab.IM);
     insert.execute();
   }
 
   public Set<String> getIsAs(String superClass) {
     Set<String> isAs = new HashSet<>();
     StringJoiner getIsas = new StringJoiner("\n");
-    getIsas.add("Select distinct ?ancestor").add("Where {").add("<" + superClass + "> <" + IM.IS_A + "> ?ancestor").add("filter (?ancestor not in (" + blockers + "))}");
+    getIsas.add("Select distinct ?ancestor").add("Where {").add("<" + superClass + "> <" + ImVocab.IS_A + "> ?ancestor").add("filter (?ancestor not in (" + blockers + "))}");
     TupleQuery qry = conn.prepareTupleSparql(getIsas.toString());
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
@@ -245,7 +246,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       count++;
       StringJoiner addSql = new StringJoiner("\n").add("INSERT DATA {");
       for (String ancestor : isAs.get(child.getKey())) {
-        addSql.add("<" + child.getKey() + "> <" + IM.IS_A + "> <" + ancestor + ">.");
+        addSql.add("<" + child.getKey() + "> <" + ImVocab.IS_A + "> <" + ancestor + ">.");
       }
       addSql.add("}");
       Update addIsAs = conn.prepareInsertSparql(addSql.toString(), graph);
@@ -266,7 +267,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     try {
       ModelBuilder builder = new ModelBuilder();
       builder.namedGraph(EnumUtils.asDbIri(graph));
-      for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRefExtended, TTArray> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }
       conn.add(builder.build());
@@ -290,8 +291,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private void deletePredicates(TTEntity entity) throws TTFilerException {
     StringBuilder predList = new StringBuilder();
     int i = 0;
-    Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
-    for (Map.Entry<TTIriRef, TTArray> po : predicates.entrySet()) {
+    Map<TTIriRefExtended, TTArray> predicates = entity.getPredicateMap();
+    for (Map.Entry<TTIriRefExtended, TTArray> po : predicates.entrySet()) {
       String predicateIri = po.getKey().getIri();
       i++;
       if (i > 1) predList.append(", ");
@@ -356,7 +357,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       TTNode node = value.asNode();
       BNode bNode = bnode();
       builder.add(subject, predicate, bNode);
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
         addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
       }
     } else {

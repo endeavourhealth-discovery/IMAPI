@@ -1,36 +1,35 @@
 package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
-import org.endeavourhealth.interfacemanager.model.IM;
 
 public class ProvAgent extends Entry {
 
   public ProvAgent() {
-    this.addType(new TTIriRef(IM.PROVENANCE_AGENT));
+    this.addType(new TTIriRefExtended(ImVocab. PROVENANCE_AGENT));
   }
 
 
-  public TTIriRef getParticipationType() {
+  public TTIriRefExtended getParticipationType() {
 
-    return (TTIriRef) TTUtil.get(this, new TTIriRef(IM.PARTICIPATION_TYPE), TTIriRef.class);
+    return (TTIriRefExtended) TTUtil.get(this, new TTIriRefExtended(ImVocab. PARTICIPATION_TYPE), TTIriRefExtended.class);
   }
 
   @JsonSetter
-  public ProvAgent setParticipationType(TTIriRef participationType) {
-    set(new TTIriRef(IM.PARTICIPATION_TYPE), participationType);
+  public ProvAgent setParticipationType(TTIriRefExtended participationType) {
+    set(new TTIriRefExtended(ImVocab. PARTICIPATION_TYPE),participationType);
     return this;
   }
 
-  public TTIriRef getPersonInRole() {
+  public TTIriRefExtended getPersonInRole() {
     return
-      (TTIriRef) TTUtil.get(this, new TTIriRef(IM.PERSON_IN_ROLE), TTIriRef.class);
+      (TTIriRefExtended) TTUtil.get(this, new TTIriRefExtended(ImVocab. PERSON_IN_ROLE), TTIriRefExtended.class);
   }
 
   @JsonSetter
-  public ProvAgent setPersonInRole(TTIriRef personInRole) {
-    set(new TTIriRef(IM.PERSON_IN_ROLE), personInRole);
+  public ProvAgent setPersonInRole(TTIriRefExtended personInRole) {
+    set(new TTIriRefExtended(ImVocab. PERSON_IN_ROLE),personInRole);
     return this;
   }
 }

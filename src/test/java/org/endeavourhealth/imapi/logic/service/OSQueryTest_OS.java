@@ -6,8 +6,7 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.interfacemanager.model.IM;
-import org.endeavourhealth.interfacemanager.model.NAMESPACE;
+import org.endeavourhealth.interfacemanager.model.NamespaceVocab.
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -45,8 +44,8 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .query(q -> q
         .where(w -> w
-          .setIri(IM.HAS_SCHEME)
-          .is(is -> is.setIri(NAMESPACE.SNOMED.toString()))));
+          .setIri(ImVocab.HAS_SCHEME)
+          .is(is -> is.setIri(NamespaceVocab. SNOMED.toString()))));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());

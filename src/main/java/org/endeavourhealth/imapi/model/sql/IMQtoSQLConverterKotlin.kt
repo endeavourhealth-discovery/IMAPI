@@ -121,7 +121,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       lastWith.selects.first().name.contains("*")
     ) {
       if (lastWith.subQuery != null) {
-        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == ("rn") }
+        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == "rn" }
       } else {
         newMySqlQuery.withs
           .dropLast(1)
@@ -135,20 +135,24 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (selects == null) throw SQLConversionException("No selects found in last with")
 
-    val jsonObject = buildString {
+    return buildString {
       append("JSON_OBJECT(\n")
       append(
         selects
           .filterNot { it.alias == "id" }
           .joinToString(",\n") { select ->
-            val key = (select.alias ?: select.name).replace("`", "\"")
-            val value = select.alias ?: select.name
-            "  $key, $value"
+            val rawAliasOrName = (select.alias ?: select.name).replace("`", "")
+            val key = "\"$rawAliasOrName\""
+            val value = if (select.alias != null) {
+              "`${rawAliasOrName}`"
+            } else {
+              select.name
+            }
+            " $key, $value"
           }
       )
       append("\n)")
     }
-    return jsonObject
   }
 
   private fun getIsWith(match: Match, mySqlQuery: MySQLQuery): MySQLWith {
@@ -511,20 +515,168 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
     val selects = mutableListOf<MySQLSelect>()
     val joins = mutableListOf<MySQLJoin>()
+
     for (ret in returx) {
-      if (ret.iri != null)
-        addSelectFromProperty(ret, selects, nodeToTableMap, table)
-      else if (ret.function != null) {
-        if (ret.function.iri == IM.COUNT.toString()) selects.add(
-          MySQLSelect(
-            "COUNT(*)",
-            if (ret.`as` != null) "`${ret.`as`}`" else null
-          )
-        )
-        else if (ret.function != null) selects.add(getFunctionSelect(table, ret, nodeToTableMap))
-      } else throw SQLConversionException("Unsupported return $returx")
+      when {
+        ret.iri != null -> addSelectFromProperty(ret, selects, nodeToTableMap, table)
+
+        ret.function != null -> {
+          if (ret.function.iri == IM.COUNT.toString()) {
+            selects.add(MySQLSelect("COUNT(*)", ret.`as`))
+          } else {
+            selects.add(getFunctionSelect(table, ret, nodeToTableMap))
+          }
+        }
+
+        ret.case != null -> {
+          selects.add(getCaseSelect(ret, table, currentWithAlias, nodeToTableMap))
+        }
+
+        ret.value != null -> {
+          selects.add(MySQLSelect(toSqlLiteral(ret.value), ret.`as`))
+        }
+
+        else -> throw SQLConversionException("Unsupported return $ret")
+      }
     }
     return Pair(selects, joins)
+  }
+
+  private fun getCaseSelect(
+    returnProperty: Return,
+    table: Table,
+    currentWithAlias: String,
+    nodeToTableMap: HashMap<String, Table>
+  ): MySQLSelect {
+    val caseClause = returnProperty.case
+      ?: throw SQLConversionException("Return.case is null")
+
+    val whenClauses = caseClause.`when`
+      ?: throw SQLConversionException("Case.when is null")
+
+    if (whenClauses.isEmpty()) {
+      throw SQLConversionException("Case.when must contain at least one branch")
+    }
+
+    if (
+      whenClauses.size == 1 &&
+      whenClauses.first().isExists &&
+      caseClause.`else` != null
+    ) {
+      return MySQLSelect(
+        getExpressionSql(whenClauses.first().then, table, nodeToTableMap),
+        returnProperty.`as`
+      )
+    }
+
+    val sql = buildString {
+      append("CASE ")
+
+      for (whenClause in whenClauses) {
+        append("WHEN ")
+        append(getWhenConditionSql(whenClause, table, currentWithAlias, nodeToTableMap))
+        append(" THEN ")
+        append(getExpressionSql(whenClause.then, table, nodeToTableMap))
+        append(" ")
+      }
+
+      caseClause.`else`?.let {
+        append("ELSE ")
+        append(getExpressionSql(it, table, nodeToTableMap))
+        append(" ")
+      }
+
+      append("END")
+    }
+
+    return MySQLSelect(sql, returnProperty.`as`)
+  }
+
+  private fun getWhenConditionSql(
+    whenClause: When,
+    currentTable: Table,
+    currentWithAlias: String,
+    nodeToTableMap: HashMap<String, Table>
+  ): String {
+    if (whenClause.isExists) {
+      val existenceField = if (currentTable.dataModel == queryTypeOfTable.dataModel) {
+        "$currentWithAlias.${queryTypeOfTable.primaryKey}"
+      } else {
+        val fk = currentTable.foreignKeyTo(queryTypeOfTable).first
+          ?: throw SQLConversionException("No relationship from ${currentTable.table} to ${queryTypeOfTable.table}")
+        "$currentWithAlias.$fk"
+      }
+      return "$existenceField IS NOT NULL"
+    }
+
+    if (whenClause.iri != null) {
+      val sourceTable = if (whenClause.nodeRef != null) {
+        nodeToTableMap[whenClause.nodeRef]
+          ?: throw SQLConversionException("No table found for nodeRef ${whenClause.nodeRef}")
+      } else {
+        currentTable
+      }
+
+      val field = if (whenClause.propertyRef != null) {
+        whenClause.propertyRef
+      } else {
+        getPropertyNameByTableAndPropertyIri(sourceTable, whenClause.iri).field
+      } ?: throw SQLConversionException("No field found for when clause ${whenClause.iri}")
+
+      val tableAlias = sourceTable.alias ?: currentWithAlias
+      val operator = whenClause.operator?.value ?: "="
+      val value = whenClause.value ?: throw SQLConversionException("When clause value is null")
+
+      return "$tableAlias.$field $operator ${toSqlLiteral(value)}"
+    }
+
+    if (whenClause.compare != null || whenClause.range != null || whenClause.and != null || whenClause.or != null || whenClause.`is` != null || whenClause.isNull) {
+      throw SQLConversionException("Not yet implemented")
+    }
+
+    throw SQLConversionException("Unsupported CASE WHEN clause")
+  }
+
+  private fun getExpressionSql(
+    expression: Expression?,
+    currentTable: Table,
+    nodeToTableMap: HashMap<String, Table>
+  ): String {
+    if (expression == null) {
+      throw SQLConversionException("CASE expression branch is null")
+    }
+
+    expression.value?.let {
+      return toSqlLiteral(it)
+    }
+
+    val sourceTable = if (expression.nodeRef != null) {
+      nodeToTableMap[expression.nodeRef]
+        ?: throw SQLConversionException("No table found for nodeRef ${expression.nodeRef}")
+    } else {
+      currentTable
+    }
+
+    if (expression.propertyRef != null) {
+      val tableAlias = sourceTable.alias ?: sourceTable.table
+      return "$tableAlias.${expression.propertyRef}"
+    }
+
+    if (expression.iri != null) {
+      val field = getPropertyNameByTableAndPropertyIri(sourceTable, expression.iri).field
+      val tableAlias = sourceTable.alias ?: sourceTable.table
+      return "$tableAlias.$field"
+    }
+
+    throw SQLConversionException("Unsupported CASE expression branch")
+  }
+
+  private fun toSqlLiteral(value: String): String {
+    return if (value.toBigDecimalOrNull() != null) {
+      value
+    } else {
+      "'${value.replace("'", "''")}'"
+    }
   }
 
   private fun getFunctionSelect(
@@ -532,26 +684,36 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     returnProperty: Return,
     nodeToTableMap: HashMap<String, Table>
   ): MySQLSelect {
-    if (returnProperty.function.iri != IM.CONCATENATE.toString()) throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
+    if (returnProperty.function.iri != IM.CONCATENATE.toString()) {
+      throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
+    }
+
     val concatenateFields = mutableListOf<String>()
     for (arg in returnProperty.function.argument) {
-      if (arg.valuePath == null) throw SQLConversionException("Missing valuePath for concatenate function argument")
-      var field = ""
-      if (arg.valuePath.nodeRef != null) {
+      if (arg.valuePath == null) {
+        throw SQLConversionException("Missing valuePath for concatenate function argument")
+      }
+
+      val field = if (arg.valuePath.nodeRef != null) {
         val currentTable = nodeToTableMap[arg.valuePath.nodeRef]
-          ?: throw SQLConversionException("Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}")
-        field = getPropertyNameByTableAndPropertyIri(
-          currentTable,
-          arg.valuePath.iri
-        ).field
-        field = "${currentTable.alias}.$field"
-      } else field = getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
-      if (field.isEmpty()) throw SQLConversionException("No field found for concatenate function argument ${arg.valuePath}")
+          ?: throw SQLConversionException(
+            "Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}"
+          )
+        val resolved = getPropertyNameByTableAndPropertyIri(currentTable, arg.valuePath.iri).field
+        "${currentTable.alias}.$resolved"
+      } else {
+        getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
+      }
+
+      if (field.isEmpty()) {
+        throw SQLConversionException("No field found for concatenate function argument ${arg.valuePath}")
+      }
       concatenateFields.add(field)
     }
+
     return MySQLSelect(
       "CONCAT(${concatenateFields.joinToString(", ")})",
-      if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null
+      returnProperty.`as`
     )
   }
 
@@ -563,16 +725,19 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   ) {
     val currentTable =
       if (returnProperty.nodeRef != null) nodeToTableMap[returnProperty.nodeRef] else currentWithTable
-    if (currentTable == null) throw SQLConversionException("No table exists for ${returnProperty.iri}")
-    val property = getPropertyNameByTableAndPropertyIri(
-      currentTable,
-      returnProperty.iri
-    )
+
+    if (currentTable == null) {
+      throw SQLConversionException("No table exists for ${returnProperty.iri}")
+    }
+
+    val property = getPropertyNameByTableAndPropertyIri(currentTable, returnProperty.iri)
     val field = "${currentTable.alias ?: currentTable.table}.${property.field}"
+
     if (returnProperty.nodeRef != null) {
       currentWithTable.fields[returnProperty.iri] = property
     }
-    selects.add(MySQLSelect(field, if (returnProperty.`as` != null) "`${returnProperty.`as`}`" else null))
+
+    selects.add(MySQLSelect(field, returnProperty.`as`))
   }
 
   private fun findToTable(

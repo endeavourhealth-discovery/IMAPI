@@ -280,7 +280,8 @@
         "http://endhealth.info/im#problemEpisode": {"field": "episodicity_concept_id", "type": "iri"},
         "http://endhealth.info/im#text": {"field": "result_text", "type": "string"},
         "http://endhealth.info/im#units": {"field": "result_value_units", "type": "string"},
-        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
+        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"},
+        "http://endhealth.info/im#id": {"field": "id", "type": "string"}
       },
       "relationships": {
         "http://endhealth.info/im#Patient": {"fromField": "patient_id", "toField": "id"},

@@ -104,7 +104,6 @@ public class QueryController {
     }
   }
 
-
   @GetMapping(value = "/queryDisplay", produces = "application/json")
   @Operation(
     summary = "Describe a query",
@@ -143,13 +142,12 @@ public class QueryController {
   )
   public Query expandCohort(
     HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri,
     @RequestParam(name = "cohortIri") String cohortIri,
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("expandCohort");
-      return queryService.expandCohort(queryIri, cohortIri, displayMode);
+      return queryService.expandCohort(cohortIri, displayMode);
     }
   }
 
@@ -189,7 +187,6 @@ public class QueryController {
     }
   }
 
-
   @PostMapping("/flattenBooleans")
   @Operation(
     summary = "optimises logical boolean of query",
@@ -218,7 +215,6 @@ public class QueryController {
     }
   }
 
-
   @PostMapping("/matchDisplayFromMatch")
   @Operation(
     summary = "Describe query content",
@@ -233,7 +229,6 @@ public class QueryController {
       return queryService.describeMatch(matchDisplayRequest.getMatch());
     }
   }
-
 
   @PostMapping("/sql")
   @Operation(
@@ -262,7 +257,6 @@ public class QueryController {
       return queryService.getSQLFromIMQIri(queryIri, lang);
     }
   }
-
 
   @GetMapping(value = "/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")

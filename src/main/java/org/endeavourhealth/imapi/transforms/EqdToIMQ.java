@@ -107,12 +107,18 @@ public class EqdToIMQ {
       this.addReportNames(eqd);
       this.setVersionMap(eqd);
       for (EQDOCReport eqReport : eqd.getReport()) {
-        if (eqReport.getId() != null) {
-          if (eqReport.getId().equals(this.singleEntity)) {
+        boolean found=false;
+        String versionIndependentId = eqReport.getVersionIndependentGUID();
+        if (versionIndependentId!=null && versionIndependentId.equals(this.singleEntity)) found= true;
+        if (eqReport.getId() != null &&eqReport.getId().equals(this.singleEntity)) found=true;
+        if (found){
             log.info(eqReport.getName() + " found");
             TTEntity qry = this.convertReport(eqReport);
             if (eqReport.getVersionIndependentGUID() != null) {
               qry.setIri(this.namespace + eqReport.getVersionIndependentGUID());
+              Query query = qry.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+              query.setIri(qry.getIri());
+              qry.set(IM.DEFINITION, TTLiteral.literal(query));
             }
             if (qry != null) {
               this.document.addEntity(qry);
@@ -120,7 +126,6 @@ public class EqdToIMQ {
           }
         }
       }
-    }
     // addLibraryEntities();
     // assignLibraryClauses();
   }
@@ -308,12 +313,11 @@ public class EqdToIMQ {
 
   private void checkGms(Match match) {
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
+      Node node =match.getIs();
         if (gmsPatients.contains(node.getIri())) {
           node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
         }
       }
-    }
   }
 
   private void convertFolders(EnquiryDocument eqd) throws EQDException {

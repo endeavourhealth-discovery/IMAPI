@@ -129,8 +129,8 @@ public class EqdResources {
       if (EqdToIMQ.gmsPatients.contains(parent)) {
         finalParentId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
-      match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
-      queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalParentId));
+      match.setIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
+      queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), iri(finalParentId));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -160,20 +160,10 @@ public class EqdResources {
 
   private Match getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
-    if (groupCriteria.size() <= 1) {
-      EQDOCCriteria eqCriteria = groupCriteria.getFirst();
-      if (isNegatedCriteria(eqCriteria)) {
-        Match match = convertCriteria(eqCriteria);
-        match.setNotExists(true);
-        return match;
-      } else return convertCriteria(groupCriteria.getFirst());
-    } else {
       Match boolMatch = new Match();
       if (memberOp == null) {
         memberOp = VocMemberOperator.OR;
       }
-
-
       for (EQDOCCriteria eqCriteria : groupCriteria) {
         Match match = this.convertCriteria(eqCriteria);
         if (isNegatedCriteria(eqCriteria)) {
@@ -183,9 +173,8 @@ public class EqdResources {
           boolMatch.addAnd(match);
         } else boolMatch.addOr(match);
       }
-
       return boolMatch;
-    }
+
   }
 
   private boolean isNegatedCriteria(EQDOCCriteria criteria) {
@@ -218,9 +207,9 @@ public class EqdResources {
         if (!libraryItems.containsKey(libraryId)) {
           System.err.println("Library item not found: " + libraryId);
           Match libraryMatch = new Match();
-          libraryMatch.addIs(new Node().setIri(this.namespace + libraryId));
-          if (score != null)
-            addScore(libraryMatch, score);
+          libraryMatch.setIs(new Node().setIri(this.namespace + libraryId));
+          if (score!=null)
+            addScore(libraryMatch,score);
 
           return libraryMatch;
         } else {
@@ -239,9 +228,9 @@ public class EqdResources {
     When scoreWhen = new When();
     scoreCase.addWhen(scoreWhen);
     scoreWhen.setExists(true);
-    scoreWhen.setThen(score);
+    scoreWhen.setThen(new Expression().setValue(score));
     match.addReturn(new Return().setCase(scoreCase).setAs("score"));
-    scoreCase.setElse("0");
+    scoreCase.else_(e->e.setValue("0"));
   }
 
   public Match getPopulationQuery(EQDOCCriteria eqCriteria) {
@@ -256,7 +245,7 @@ public class EqdResources {
       searchId = EqdToIMQ.versionMap.get(searchId);
     }
     Match match = new Match();
-    match.addIs(new Node().setIri(namespace + searchId)
+    match.setIs(new Node().setIri(namespace + searchId)
       .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
     String finalSearchId = namespace + searchId;
     if (EqdToIMQ.gmsPatients.contains(searchId)) {
@@ -302,7 +291,7 @@ public class EqdResources {
       } else lastMatch = standardMatch;
       if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
         testMatch = this.convertTestCriterion(eqCriterion);
-        lastMatch.setThen(testMatch.getWhere());
+        lastMatch.setThen(testMatch);
       }
     }
     if (lastMatch == null) {
@@ -405,12 +394,14 @@ public class EqdResources {
       parentMatch.setNode(parentMatch.getNode() + "_VAL");
       relationRight.setNodeRef(parentMatch.getNode());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
-      Path linkedMatchPath = new Path();
-      linkedMatchPath.setIri(NAMESPACE.IM + "patient");
-      linkedMatchPath.setNode("patient");
-      linkedMatchPath.setTypeOf(NAMESPACE.IM + "Patient");
-      linkedMatch.addPath(linkedMatchPath);
-      relationRight.setNodeRef("patient").setIri(NAMESPACE.IM + "dateOfBirth");
+        Path linkedMatchPath = new Path();
+        linkedMatchPath.setIri(NAMESPACE.IM+"patient");
+        matchCounter++;
+        String node="patient_"+matchCounter;
+        linkedMatchPath.setNode(node);
+        linkedMatchPath.setTypeOf(NAMESPACE.IM+"Patient");
+        linkedMatch.addPath(linkedMatchPath);
+      relationRight.setNodeRef(node).setIri(NAMESPACE.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
     if (eqRelationship.getRangeValue() != null) {
@@ -620,7 +611,9 @@ public class EqdResources {
       match.addPath(pathMatch);
       pathMatch.setIri(pathIri);
       pathMatch.setInverse(inverse);
-      pathMatch.setNode(getAcronym(paths[2]));
+      matchCounter++;
+      String node= getAcronym(paths[2])+"_"+matchCounter;
+      pathMatch.setNode(node);
       ;
       pathMatch.setTypeOf((new Node()).setIri(paths[2]));
       return paths.length == 4 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 3);
@@ -666,7 +659,9 @@ public class EqdResources {
     pathMatch.addPath(subPathMatch);
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
-    subPathMatch.setNode(getAcronym(paths[offset + 1]));
+    matchCounter++;
+    String node= paths[offset+1]+"_"+matchCounter;
+    subPathMatch.setNode(node);
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
     return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
@@ -1196,6 +1191,7 @@ public class EqdResources {
       for (Node node : setContent) {
         if (node.isExclude()) {
           notWhere.addIs(node);
+          node.setExclude(false);
         } else where.addIs(node);
         if (node.getName() != null && name == null) {
           name = this.getShortName(node.getName(), null);
@@ -1545,7 +1541,8 @@ public class EqdResources {
     } else if (match.getNodeRef() != null) {
       keepAs.append(createKeepAs(nodeRefMap.get(match.getNodeRef())));
     }
-    return keepAs.toString();
+    matchCounter++;
+    return keepAs.toString()+"_"+matchCounter;
   }
 
   private void setKeepMatchNode(Match match, String affix) {
@@ -1563,7 +1560,8 @@ public class EqdResources {
         matchCounter++;
         match.setNode("m_" + matchCounter);
       } else {
-        match.setNode(keepAs + (affix != null ? affix : ""));
+        matchCounter++;
+        match.setNode(keepAs + "_"+ matchCounter+"_"+ (affix != null ? affix : ""));
       }
     } else if (match.getNodeRef() != null) {
       match.setNode(createKeepAs(nodeRefMap.get(match.getNodeRef()))

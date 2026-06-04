@@ -103,7 +103,7 @@ public class QueryService {
     if (cohort != null) {
       Query cohortQuery = cohort.get(new TTIriRef(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
+      defaultQuery.setIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
     } else return null;
   }
@@ -169,12 +169,10 @@ public class QueryService {
       addMissingArgument(missingArguments, match.getParameter(), match.getIri());
     }
     if (null != match.getIs()) {
-      List<Node> instances = match.getIs();
-      instances.forEach(instance -> {
-        if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
-          addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
-        }
-      });
+      Node instance = match.getIs();
+      if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
+        addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
+      }
     }
     if (null != match.getAnd()) {
       List<Match> matches = match.getAnd();
@@ -241,8 +239,8 @@ public class QueryService {
     }
   }
 
-  public Query expandCohort(String queryIri, String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    Query query = new QueryRepository().expandCohort(queryIri, cohortIri, displayMode);
+  public Query expandCohort(String cohortIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    Query query = new QueryRepository().expandCohort(cohortIri, displayMode);
     query = new QueryDescriptor().describeQuery(query, displayMode);
     return query;
   }

@@ -365,8 +365,7 @@ public class SparqlConverter {
     if (negation) whereQl.append("}");
   }
 
-  private void sortInstances(List<Node> is, Map<Entail, List<Node>> inTypes, Map<Entail, List<Node>> outTypes) throws QueryException {
-    for (Node instance : is) {
+  private void sortInstances(Node instance, Map<Entail, List<Node>> inTypes, Map<Entail, List<Node>> outTypes) {
       Entail entail = Entail.EQUAL;
       if (instance.isMemberOf())
         entail = Entail.MEMBER_OF;
@@ -380,7 +379,6 @@ public class SparqlConverter {
         outTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(instance);
       } else
         inTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(instance);
-    }
   }
 
   private void processMatchIsMemberOf(StringBuilder whereQl, String subject, String object, String inList) {

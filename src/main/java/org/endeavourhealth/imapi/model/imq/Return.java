@@ -28,6 +28,15 @@ public class Return implements Returnable {
   @JsonProperty("case")
   private Case case_;
   private String description;
+  private String value;
+
+  public String getValue() {
+    return value;
+  }
+  public Return setValue(String value){
+    this.value = value;
+    return this;
+  }
 
   public String getPathRef() {
     return pathRef;
@@ -35,6 +44,11 @@ public class Return implements Returnable {
 
   public Return setPathRef(String pathRef) {
     this.pathRef = pathRef;
+    return this;
+  }
+
+  public Return setName(String name) {
+    this.name = name;
     return this;
   }
 
@@ -62,6 +76,12 @@ public class Return implements Returnable {
     this.dataType = dataType;
     return this;
   }
+
+  public Return setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
+  }
+
 
   @JsonProperty("return")
   public List<Return> getReturn() {
@@ -100,6 +120,13 @@ public class Return implements Returnable {
   public Return setValue(String value) {
     return this;
   }
+  public Return setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+
+
 
   public String getIri() {
     return iri;

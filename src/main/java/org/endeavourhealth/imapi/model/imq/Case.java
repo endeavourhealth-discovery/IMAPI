@@ -8,9 +8,18 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class Case {
+  private String nodeRef;
+  private String iri;
   private List<When> when;
-  private String else_;
+  private Expression else_;
 
+  public String getNodeRef() {
+    return nodeRef;
+  }
+  public Case setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
+  }
   public List<When> getWhen() {
     return when;
   }
@@ -35,13 +44,20 @@ public class Case {
   }
 
   @JsonProperty("else")
-  public String getElse() {
+  public Expression getElse() {
     return this.else_;
   }
 
   @JsonProperty("else")
-  public Case setElse(String else_) {
+  public Case setElse(Expression else_) {
     this.else_ = else_;
+    return this;
+  }
+
+  public Case else_(Consumer<Expression> builder){
+    Expression expression = new Expression();
+    setElse(expression);
+    builder.accept(expression);
     return this;
   }
 

@@ -84,9 +84,19 @@ public class Query extends Match {
     return this;
   }
 
+  public Query setAny(List<Match> any) {
+    super.setAny(any);
+    return this;
+  }
+  public Query addAny(Match any) {
+    super.addAny(any);
+    return this;
+  }
 
-  public Query addIs(Node is) {
-    super.addIs(is);
+  public Query any(Consumer<Match> builder) {
+    Match match = new Match();
+    addAny(match);
+    builder.accept(match);
     return this;
   }
 
@@ -95,7 +105,7 @@ public class Query extends Match {
     return this;
   }
 
-  public Query setIs(List<Node> is) {
+  public Query setIs(Node is) {
     super.setIs(is);
     return this;
   }

@@ -38,12 +38,11 @@ public class DataModelController {
   public NodeShape getDataModelProperties(
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
-    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
-    @RequestParam(name="excludeGeneric",required= false, defaultValue= "false") boolean excludeGeneric
+    @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
     }
   }
 
@@ -62,6 +61,21 @@ public class DataModelController {
     }
   }
 
+
+  @Operation(
+    summary = "Fetches properties of a type and its linked types",
+    description = "Returns a list of properties displayed and linked types for the given IRI."
+  )
+  @GetMapping(value = "/relatedTypes")
+  public NodeShape getRelatedTypes(
+    HttpServletRequest request,
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.RelatedTypes.GET")) {
+      log.debug("getRelatedTypes for "+ iri);
+      return dataModelService.getRelatedTypes(iri);
+    }
+  }
 
   @Operation(
     summary = "Retrieve UI property for query builder",

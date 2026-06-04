@@ -233,11 +233,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       }
       if (match == null && node != null && !nested) {
         match = new Match();
-        match.addIs(node);
+        match.setIs(node);
         return match;
       } else if (match != null && node != null && nested) {
         Match outerMatch = new Match();
-        outerMatch.addIs(node);
+        outerMatch.setIs(node);
         node.setMatch(match);
         return outerMatch;
       } else if (match != null) {
@@ -535,7 +535,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         }
         if (result instanceof Match asMatch) {
           if (where == null) {
-            Node node = (asMatch).getIs().getFirst();
+            Node node = (asMatch).getIs();
             where = new Where();
             where.setIri(node.getIri());
             where.setName(node.getName());
@@ -553,11 +553,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
               Where andWhere = new Where();
               for (Match subMatch : asMatch.getAnd()) {
                 andWhere.addAnd(new Where().setIri(where.getIri())
-                  .addIs(new Node().setIri(subMatch.getIs().getFirst().getIri())));
+                  .addIs(new Node().setIri(subMatch.getIs().getIri())));
               }
               where = andWhere;
             } else {
-              Node node = (asMatch).getIs().getFirst();
+              Node node = (asMatch).getIs();
               where.addIs(node);
               if (reverseFlag)
                 where.setInverse(reverseFlag);
@@ -573,7 +573,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   private void getWhereFromMatch(Match match, Where where) {
     if (match.getOr() != null) {
       for (Match subMatch : match.getOr()) {
-        where.addIs(subMatch.getIs().getFirst());
+        where.addIs(subMatch.getIs());
       }
     }
 

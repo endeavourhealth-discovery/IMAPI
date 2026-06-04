@@ -31,11 +31,12 @@ public class IriCollector {
 
   private static void collectReturnIris(Return prop, Set<String> iriSet) {
     if (prop.getIri() != null) iriSet.add(prop.getIri());
+    if (prop.getUnits()!=null)
+      iriSet.add(prop.getUnits().getIri());
     if (prop.getCase()!=null){
       if (prop.getCase().getWhen()!=null)
         for (When when:prop.getCase().getWhen()){
-          if (when.getWhere()!=null)
-            collectWhereIris(when.getWhere(),iriSet);
+            collectWhereIris(when,iriSet);
         }
     }
     if (prop.getFunction()!=null){
@@ -71,12 +72,11 @@ public class IriCollector {
       }
     }
     if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getMatch()!=null)
-          collectMatchIris(node.getMatch(),iriSet);
-        else if (node.getIri()!=null)
-          iriSet.add(node.getIri());
-      }
+      Node node = match.getIs();
+      if (node.getMatch()!=null)
+        collectMatchIris(node.getMatch(),iriSet);
+      else if (node.getIri()!=null)
+        iriSet.add(node.getIri());
     }
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
@@ -100,7 +100,7 @@ public class IriCollector {
     }
 
     if (match.getThen() != null) {
-      collectWhereIris(match.getThen(), iriSet);
+      collectMatchIris(match.getThen(), iriSet);
     }
     if (match.getReturn() != null) {
       for (Return prop : match.getReturn()) {

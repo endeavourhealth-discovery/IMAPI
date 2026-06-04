@@ -25,7 +25,7 @@ public class EqdListToIMQ {
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       id = NAMESPACE.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
-    query.addIs(Node.iri(id)
+    query.setIs(Node.iri(id)
       .setIsCohort(true)
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -115,8 +115,8 @@ public class EqdListToIMQ {
               .case_(c -> c
                 .when(w -> w
                   .setExists(true)
-                  .setThen("Y"))
-                .setElse("N")));
+                  .setThen(new Expression().setValue("Y")))
+                .setElse(new Expression().setValue("N"))));
         } else
           throw new QueryException("unmapped summary function : " + eqColGroup.getSummary().value());
       }

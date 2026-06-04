@@ -15,6 +15,50 @@ public class NodeShape extends TTIriRef {
   private List<PropertyShape> property;
   private TTIriRef definingProperty;
   private TTIriRef inverseProperty;
+  private List<NodeShape> folder;
+  private List<NodeShape> type;
+
+  public List<NodeShape> getType() {
+    return type;
+  }
+  public NodeShape setType(List<NodeShape> type) {
+    this.type = type;
+    return this;
+  }
+  public NodeShape addType (NodeShape type){
+      if (this.type == null) {
+        this.type = new ArrayList<>();
+      }
+      this.type.add(type);
+      return this;
+  }
+  public NodeShape type (Consumer < NodeShape > builder) {
+      NodeShape type = new NodeShape();
+      addType(type);
+      builder.accept(type);
+      return this;
+  }
+
+  public List<NodeShape> getFolder() {
+    return folder;
+  }
+  public NodeShape setFolder(List<NodeShape> folder) {
+    this.folder = folder;
+    return this;
+  }
+  public NodeShape addFolder (NodeShape folder){
+      if (this.folder == null) {
+        this.folder = new ArrayList<>();
+      }
+      this.folder.add(folder);
+      return this;
+  }
+  public NodeShape folder (Consumer < NodeShape > builder) {
+      NodeShape folder = new NodeShape();
+      addFolder(folder);
+      builder.accept(folder);
+      return this;
+  }
 
   public TTIriRef getInverseProperty() {
     return inverseProperty;

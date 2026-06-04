@@ -16,7 +16,6 @@ public class Match extends IriLD implements HasPaths, Returnable {
   private String description;
   private String nodeRef;
   private boolean optional;
-
   private Node typeOf;
   private String parameter;
   private String name;
@@ -33,9 +32,10 @@ public class Match extends IriLD implements HasPaths, Returnable {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
+  private List<Match> any;
   private String libraryItem;
   private boolean invalid;
-  private List<Node> is;
+  private Node is;
   private List<GroupBy> groupBy;
   private String node;
   private OrderLimit orderBy;
@@ -43,8 +43,29 @@ public class Match extends IriLD implements HasPaths, Returnable {
   private boolean notExists;
   private String errorMessage;
   private boolean draft;
-  private Where then;
+  private Match then;
   private Having having;
+
+public List<Match> getAny() {
+  return any;
+}
+
+public Match setAny(List<Match> any) {
+  this.any = any;
+  return this;
+}
+public Match addAny(Match any) {
+  if (this.any == null)
+    this.any = new ArrayList<>();
+  this.any.add(any);
+  return this;
+}
+public Match any(Consumer<Match> builder) {
+  Match any = new Match();
+  addAny(any);
+  builder.accept(any);
+  return this;
+}
 
   public Having getHaving() {
     return having;
@@ -62,17 +83,17 @@ public class Match extends IriLD implements HasPaths, Returnable {
   }
 
 
-  public Where getThen() {
+
+  public Match getThen() {
     return then;
   }
-
-  public Match setThen(Where then) {
+  public Match setThen(Match then) {
     this.then = then;
     return this;
   }
 
-  public Match then(Consumer<Where> builder) {
-    this.then = new Where();
+  public Match then(Consumer<Match> builder) {
+    this.then = new Match();
     builder.accept(this.then);
     return this;
   }
@@ -289,7 +310,7 @@ public class Match extends IriLD implements HasPaths, Returnable {
     this.invalid = invalid;
   }
 
-  public List<Node> getIs() {
+  public Node getIs() {
     return is;
   }
 
@@ -343,6 +364,24 @@ public class Match extends IriLD implements HasPaths, Returnable {
     GroupBy group = new GroupBy();
     addGroupBy(group);
     builder.accept(group);
+    return this;
+  }
+
+
+  @JsonSetter
+  public Match setIs(Node is) {
+    this.is = is;
+    return this;
+  }
+
+
+  public Match setLibraryItem(String libraryItem) {
+    this.libraryItem = libraryItem;
+    return this;
+  }
+
+  public Match setWhere(Where where) {
+    this.where = where;
     return this;
   }
 
@@ -447,18 +486,11 @@ public class Match extends IriLD implements HasPaths, Returnable {
     return this;
   }
 
-  public Match addIs(Node is) {
-    if (this.is == null) {
-      this.is = new ArrayList<>();
-    }
-    this.is.add(is);
-    return this;
-  }
+
 
   @JsonIgnore
   public Match is(Consumer<Node> builder) {
-    Node is = new Node();
-    addIs(is);
+    this.is = new Node();
     builder.accept(is);
     return this;
   }

@@ -20,6 +20,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+
 @Component
 public class DataModelService {
   private final EntityRepository entityRepository;
@@ -38,18 +41,6 @@ public class DataModelService {
     entityService = new EntityService(entityRepository);
   }
 
-  private static String getCardinality(TTValue ttProperty) {
-    int minCount = 0;
-    if (ttProperty.asNode().has(new TTIriRef(SHACL.MINCOUNT))) {
-      minCount = ttProperty.asNode().get(new TTIriRef(SHACL.MINCOUNT)).asLiteral().intValue();
-    }
-    int maxCount = 0;
-    if (ttProperty.asNode().has(new TTIriRef(SHACL.MAXCOUNT))) {
-      maxCount = ttProperty.asNode().get(new TTIriRef(SHACL.MAXCOUNT)).asLiteral().intValue();
-    }
-    return minCount + " : " + (maxCount == 0 ? "*" : maxCount);
-  }
-
   public List<TTIriRef> getDataModelsFromProperty(String propIri) {
     return dataModelRepository.findDataModelsFromProperty(propIri);
   }
@@ -62,8 +53,13 @@ public class DataModelService {
     return dataModelRepository.getProperties();
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
-    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly, excludeGeneric);
+
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
+    return dataModelRepository.getDataModelDisplayProperties(iri, pathsOnly);
+  }
+
+  public NodeShape getRelatedTypes(String iri) {
+    return dataModelRepository.getRelatedTypes(iri);
   }
 
   public List<DataModelProperty> getDataModelProperties(String iri) {
@@ -172,6 +168,18 @@ public class DataModelService {
       }
     }
     return propertyList;
+  }
+
+  private static String getCardinality(TTValue ttProperty) {
+    int minCount = 0;
+    if (ttProperty.asNode().has(new TTIriRef(SHACL.MINCOUNT))) {
+      minCount = ttProperty.asNode().get(new TTIriRef(SHACL.MINCOUNT)).asLiteral().intValue();
+    }
+    int maxCount = 0;
+    if (ttProperty.asNode().has(new TTIriRef(SHACL.MAXCOUNT))) {
+      maxCount = ttProperty.asNode().get(new TTIriRef(SHACL.MAXCOUNT)).asLiteral().intValue();
+    }
+    return minCount + " : " + (maxCount == 0 ? "*" : maxCount);
   }
 
   private String getReverseCardinality(TTValue ttProperty, Set<String> predicates, String newCardinality, String entityIri) {

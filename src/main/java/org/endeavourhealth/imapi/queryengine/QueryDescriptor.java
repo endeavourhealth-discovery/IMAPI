@@ -133,14 +133,15 @@ public class QueryDescriptor {
 
   private void describeReturn(Return prop, Match match) {
     if (prop.getIri() != null) prop.setName(getTermInContext(prop.getIri(), Context.PATH));
+    if (prop.getUnits()!=null &&prop.getUnits().getIri()!=null)
+      prop.getUnits().setName(getTermInContext(prop.getUnits().getIri(), Context.PLURAL));
     if (prop.getAs() == null) prop.setAs(prop.getName());
     if (prop.getFunction() != null) {
       describeFunction(prop.getFunction());
     }
-    if (prop.getCase() != null && prop.getCase().getWhen() != null) {
-      for (When when : prop.getCase().getWhen()) {
-        if (when.getWhere() != null)
-          describeWhere(when.getWhere(), null);
+    if (prop.getCase()!=null &&prop.getCase().getWhen()!=null){
+      for (When when:prop.getCase().getWhen()){
+          describeWhere(when, null);
       }
     }
   }
@@ -265,12 +266,7 @@ public class QueryDescriptor {
     if (match.getIs() != null) {
       describeIs(match.getIs());
     }
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null)
-          node.setName(getTermInContext(node.getIri(), Context.MATCH));
-      }
-    }
+
 
     if (match.getRule() != null) {
       for (Match subMatch : match.getRule()) {
@@ -299,7 +295,7 @@ public class QueryDescriptor {
     }
 
     if (match.getThen() != null) {
-      describeWhere(match.getThen(), match);
+      describeThen(match.getThen(), match);
     }
   }
 
@@ -349,8 +345,7 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeIs(List<Node> inSets) {
-    for (Node set : inSets) {
+  private void describeIs(Node set) {
       String qualifier = "";
       if (set.isExclude()) {
         qualifier = "but not ";
@@ -364,6 +359,11 @@ public class QueryDescriptor {
       if (set.getMatch() != null) {
         describeMatch(set.getMatch());
       }
+  }
+
+  private void describeThen(Match then, Match match) {
+    if (then.getWhere() != null) {
+      describeWhere(then.getWhere(), match);
     }
   }
 

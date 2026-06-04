@@ -22,7 +22,7 @@ public class TestQueries {
     Query query = new Query()
       .setName("Data model property range")
       .setDescription("get node, class or datatype value (range)  of property objects for specific data model and property")
-      .addIs(new Node()
+      .setIs(new Node()
         .setParameter("myDataModel"))
       .path(p -> p
         .setIri("http://www.w3.org/ns/shacl#property")
@@ -77,7 +77,7 @@ public class TestQueries {
       .query(q -> q
         .setName("Shacl property predicates for a property is a data model")
         .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
-        .addIs(new Node()
+        .setIs(new Node()
           .setParameter("$dataModel"))
         .path(p -> p
           .setIri(SHACL.PROPERTY.toString())
@@ -146,7 +146,7 @@ public class TestQueries {
         .setName("Subtypes of concepts as a parameterised query")
         .return_(s -> s.setNodeRef("c").setIri(RDFS.LABEL))
         .setNode("c")
-        .addIs(new Node()
+        .setIs(new Node()
           .setParameter("this")
           .setDescendantsOrSelfOf(true)));
   }
@@ -157,10 +157,12 @@ public class TestQueries {
       .setTextSearch("FOXG1")
       .query(q -> q
         .setName("Filter concept subtypes that are members of value sets")
-        .addIs(new Node().setIri(NAMESPACE.SNOMED + "57148006")
-          .setDescendantsOrSelfOf(true))
-        .addIs(new Node().setIri(NAMESPACE.SNOMED + "11164009")
-          .setDescendantsOrSelfOf(true))
+        .or(m->m
+        .setIs(new Node().setIri(NAMESPACE.SNOMED + "57148006")
+          .setDescendantsOrSelfOf(true)))
+        .or(m->m
+        .setIs(new Node().setIri(NAMESPACE.SNOMED + "11164009")
+          .setDescendantsOrSelfOf(true)))
         .where(w -> w
           .setIri(IM.HAS_MEMBER)
           .setInverse(true)
@@ -243,7 +245,7 @@ public class TestQueries {
     Query query = new Query()
       .setName("AsthmaSubTypesCore");
     query
-      .addIs(new Node()
+      .setIs(new Node()
         .setIri(NAMESPACE.SNOMED + "195967001").setDescendantsOrSelfOf(true))
       .return_(p -> p.setIri(RDFS.LABEL))
       .return_(p -> p.setIri(IM.CODE));
@@ -306,7 +308,7 @@ public class TestQueries {
       .query(q -> q
         .setName("All subtypes of an entity, active only")
         .setActiveOnly(true)
-        .addIs(new Node().setParameter("this").setDescendantsOrSelfOf(true))
+        .setIs(new Node().setParameter("this").setDescendantsOrSelfOf(true))
         .return_(r -> r.setIri(RDFS.LABEL)));
     qr.addArgument("this", NAMESPACE.SNOMED + "417928002");
     return qr;
@@ -326,8 +328,8 @@ public class TestQueries {
   public static QueryRequest oralNsaids() {
     Query query = new Query()
       .setName("oral none steroidals")
-      .return_(s -> s.setIri(RDFS.LABEL))
-      .addIs(new Node().setIri(NAMESPACE.SNOMED + "763158003").setDescendantsOrSelfOf(true))
+        .return_(s -> s.setIri(RDFS.LABEL))
+      .setIs(new Node().setIri(NAMESPACE.SNOMED + "763158003").setDescendantsOrSelfOf(true))
       .where(and -> and
         .and(a1 -> a1
           .setIri(NAMESPACE.SNOMED + "127489000")

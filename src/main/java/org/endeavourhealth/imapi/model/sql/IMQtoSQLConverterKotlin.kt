@@ -6,9 +6,10 @@ import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.imapi.model.tripletree.TTEntity
 import org.endeavourhealth.imapi.vocabulary.IM
-import java.util.Locale
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.util.Locale.getDefault
 
 @Slf4j
@@ -24,7 +25,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val MAX_ALIAS_LENGTH = 64  // DB limit for MySQL
   private var longAliasCounter = 1
   private val usedAliases = mutableSetOf<String>()
-
+  private val DATE_FORMATS = listOf(
+    DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+    DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+    DateTimeFormatter.ofPattern("MM/dd/yyyy"),
+    DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+    DateTimeFormatter.ofPattern("MM-dd-yyyy"),
+    DateTimeFormatter.ofPattern("d/M/yyyy"),
+    DateTimeFormatter.ofPattern("yyyy/MM/dd"),
+  )
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
@@ -671,12 +680,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     throw SQLConversionException("Unsupported CASE expression branch")
   }
 
-  private fun toSqlLiteral(value: String): String {
-    return if (value.toBigDecimalOrNull() != null) {
-      value
-    } else {
-      "'${value.replace("'", "''")}'"
+
+  private val SQL_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+  private fun tryParseDate(value: String): LocalDate? {
+    for (formatter in DATE_FORMATS) {
+      try {
+        return LocalDate.parse(value, formatter)
+      } catch (_: DateTimeParseException) {
+        continue
+      }
     }
+    return null
+  }
+
+  private fun toSqlLiteral(value: String): String {
+    if (value.toBigDecimalOrNull() != null) return value
+
+    val date = tryParseDate(value)
+    if (date != null) return "'${date.format(SQL_DATE_FORMAT)}'"
+
+    return "'${value.replace("'", "''")}'"
   }
 
   private fun getFunctionSelect(
@@ -909,13 +933,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         fromWhere = MySQLPropertyValueWhere(
           property = field,
           operator = from.operator.value,
-          value = "'${from.value}'",
+          value = toSqlLiteral("${from.value}"),
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
         toWhere = MySQLPropertyValueWhere(
           property = field,
           operator = to.operator.value,
-          value = "'${to.value}'",
+          value = toSqlLiteral("${to.value}"),
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
       } else {
@@ -943,7 +967,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = from.operator.value,
           right = fromRight,
-          value = from.value,
+          value = toSqlLiteral(from.value),
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
           units = if (fromUnitType == "Unit") fromUnit else null,
           qualifier = if (fromUnitType == "Qualifier") fromUnit else null,
@@ -953,7 +977,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = to.operator.value,
           right = toRight,
-          value = to.value,
+          value = toSqlLiteral(to.value),
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
           units = if (toType == "Unit") toUnit else null,
           qualifier = if (toType == "Qualifier") toUnit else null,
@@ -1001,7 +1025,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
-        where.value,
+        toSqlLiteral(where.value),
         not = where.isNot,
         table = currentTable.alias ?: currentTable.table,
       )

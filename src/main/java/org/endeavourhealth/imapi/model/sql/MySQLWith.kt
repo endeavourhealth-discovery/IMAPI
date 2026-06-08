@@ -21,7 +21,7 @@ data class MySQLWith(
 ) {
   private fun toSqlBody(): String {
     val selectSql = selects.joinToString(", ") { sel ->
-      sel.alias?.let { "${sel.name} AS $it" } ?: sel.name
+      sel.toSql()
     }
 
     val whereSql = wheres

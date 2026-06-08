@@ -118,7 +118,7 @@ public class LogicOptimizer {
     for (int i = 0; i < list.size(); i++) {
       Match match = list.get(i);
       if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
-        && match.getAny() == null && match.getReturn() == null) {
+        && match.getAny() == null && match.getReturn() == null && match.getIs() == null) {
         list.remove(i);
         i--;
       } else cleanBooleans(match);

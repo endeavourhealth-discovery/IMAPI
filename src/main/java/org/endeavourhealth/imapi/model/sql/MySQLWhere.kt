@@ -121,11 +121,13 @@ class MySQLPropertyValueWhere(
       val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base = if (qualifier != null) {
         when (qualifier) {
-          "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value))"
+          "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value)))"
           "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) $operator (YEAR(DATE_SUB($value, INTERVAL 3 MONTH)) + 1)"
           else -> "$qualifier($prop) $operator $qualifier($value)"
         }
-      } else return "$prop $operator $value"
+      } else {
+        "$prop $operator $value"
+      }
       return if (not == true) "NOT ($base)" else base
     }
 }

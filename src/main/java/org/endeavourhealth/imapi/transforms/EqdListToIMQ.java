@@ -4,6 +4,7 @@ package org.endeavourhealth.imapi.transforms;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
@@ -29,6 +30,7 @@ public class EqdListToIMQ {
       .setName(resources.reportNames.get(id)));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
+      resources.getQueryEntity().addObject(TTIriRef.iri(IM.DEPENDENT_ON), TTIriRef.iri(id));
       Match subQuery = new Match();
       subQuery.setIri(resources.getNamespace() + eqColGroup.getId());
       query.addColumnGroup(convertListGroup(eqColGroup));

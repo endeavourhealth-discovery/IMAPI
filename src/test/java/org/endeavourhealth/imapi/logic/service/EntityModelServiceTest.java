@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.library.model.EntityReferenceNode;
+import org.endeavourhealth.library.model.search.SearchResultSummary;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDF;
+import org.endeavourhealth.library.vocabulary.SHACL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,15 +20,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class EntityModelServiceTest {
-  @Mock EntityRepository entityRepository;
+  @Mock
+  EntityRepository entityRepository;
 
   EntityService entityService;
 

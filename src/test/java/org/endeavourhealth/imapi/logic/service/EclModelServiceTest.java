@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
-import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.library.model.imq.ECLQueryRequest;
+import org.endeavourhealth.library.model.imq.QueryException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

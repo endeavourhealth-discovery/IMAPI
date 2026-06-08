@@ -3,10 +3,10 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTValue;
 
 import java.util.*;
 
@@ -266,17 +266,17 @@ public class IMQToECL {
   }
 
   private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-      if (match.getIs().getIri() == null && match.getIs().getMatch() == null && match.getWhere() == null)
-        throw new QueryException("Must have concept if no refinement");
-      if (match.getIs().isInvalid())
-        setErrorStatus(ecl, "unknown concept");
-      if (match.getIs().getMatch() != null) {
-        ecl.append(getSubsumption(match.getIs()));
-        ecl.append("(");
-        expressionMatch(match.getIs().getMatch(), ecl, includeNames, false);
-        ecl.append(")");
-      } else
-        addClass(match.getIs(), ecl, includeNames);
+    if (match.getIs().getIri() == null && match.getIs().getMatch() == null && match.getWhere() == null)
+      throw new QueryException("Must have concept if no refinement");
+    if (match.getIs().isInvalid())
+      setErrorStatus(ecl, "unknown concept");
+    if (match.getIs().getMatch() != null) {
+      ecl.append(getSubsumption(match.getIs()));
+      ecl.append("(");
+      expressionMatch(match.getIs().getMatch(), ecl, includeNames, false);
+      ecl.append(")");
+    } else
+      addClass(match.getIs(), ecl, includeNames);
 
   }
 

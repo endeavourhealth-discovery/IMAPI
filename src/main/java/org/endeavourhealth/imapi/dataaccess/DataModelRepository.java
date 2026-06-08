@@ -1,19 +1,15 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.iml.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.library.vocabulary.XSD;
+import org.endeavourhealth.library.model.iml.*;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
 
 import java.util.*;
 
@@ -129,8 +125,8 @@ public class DataModelRepository {
 
 
   public NodeShape getRelatedTypes(String iri) {
-    NodeShape result= getDataModelDisplayProperties(iri,false);
-    String sql= """
+    NodeShape result = getDataModelDisplayProperties(iri, false);
+    String sql = """
       Select distinct ?folderOrder ?folder  ?folderName ?type ?typeName  \s
       where {
           Values ?c {%s}
@@ -150,26 +146,26 @@ public class DataModelRepository {
           ?type rdfs:label ?typeName.
       }
       order by ?folderOrder ?folder ?typeName
-      """.formatted("<"+iri+">");
-    Map<String,NodeShape> folderMap=new HashMap<>();
+      """.formatted("<" + iri + ">");
+    Map<String, NodeShape> folderMap = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          String folderIri=bs.getValue("folder").stringValue();
-          String folderName=bs.getValue("folderName").stringValue();
-          String typeName=bs.getValue("typeName").stringValue();
-          String typeIri=bs.getValue("type").stringValue();
-          NodeShape folder=folderMap.get(folderIri);
-          if (folder==null) {
-            folder= new NodeShape();
+          String folderIri = bs.getValue("folder").stringValue();
+          String folderName = bs.getValue("folderName").stringValue();
+          String typeName = bs.getValue("typeName").stringValue();
+          String typeIri = bs.getValue("type").stringValue();
+          NodeShape folder = folderMap.get(folderIri);
+          if (folder == null) {
+            folder = new NodeShape();
             folder.setIri(folderIri);
             folder.setName(folderName);
-            folderMap.put(folderIri,folder);
+            folderMap.put(folderIri, folder);
             result.addFolder(folder);
           }
-          NodeShape type= new NodeShape();
+          NodeShape type = new NodeShape();
           type.setIri(typeIri);
           type.setName(typeName);
           folder.addType(type);

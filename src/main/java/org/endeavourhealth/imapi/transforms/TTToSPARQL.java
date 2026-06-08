@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.library.model.tripletree.*;
 
 import java.util.Map;
 

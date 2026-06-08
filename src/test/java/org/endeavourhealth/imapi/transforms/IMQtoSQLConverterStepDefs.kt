@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.transforms
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.endeavourhealth.imapi.logic.service.QueryService
-import org.endeavourhealth.imapi.model.imq.Query
-import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.library.model.imq.Query
+import org.endeavourhealth.library.model.requests.QueryRequest
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired

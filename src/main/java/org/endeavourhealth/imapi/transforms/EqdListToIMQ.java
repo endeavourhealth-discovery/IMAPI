@@ -2,11 +2,11 @@ package org.endeavourhealth.imapi.transforms;
 
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.tripletree.TTDocument;
 
 import java.io.IOException;
 

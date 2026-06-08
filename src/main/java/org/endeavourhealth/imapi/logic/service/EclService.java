@@ -2,14 +2,14 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.logic.reasoner.SparqlOptimizer;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.transforms.ECLToIMQ;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
+import org.endeavourhealth.library.model.iml.Concept;
+import org.endeavourhealth.library.model.iml.Page;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.responses.SearchResponse;
+import org.endeavourhealth.library.model.search.SearchResultSummary;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public class EclService {
   public SearchResponse eclSearch(ECLQueryRequest request) throws QueryException {
     new SparqlOptimizer().optimizeQuery(request.getQuery());
     int totalCount = 0;
-    if (request.getPage()==1)
+    if (request.getPage() == 1)
       totalCount = getEclSearchTotalCount(request);
     Set<Concept> evaluated = evaluateECLQuery(request);
     List<SearchResultSummary> evaluatedAsSummary = evaluated
@@ -97,7 +97,7 @@ public class EclService {
       new QueryDescriptor().describeQuery(eclQuery.getQuery(), DisplayMode.ORIGINAL);
       new IMQToECL().getECLFromQuery(eclQuery);
     } catch (Exception e) {
-      throw new QueryException(e.getMessage(),e);
+      throw new QueryException(e.getMessage(), e);
 
     }
     return eclQuery;

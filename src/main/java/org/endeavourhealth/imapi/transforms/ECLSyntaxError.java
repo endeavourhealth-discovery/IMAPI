@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.imq.ECLStatus;
+import org.endeavourhealth.library.model.imq.ECLStatus;
 
 import java.util.UnknownFormatConversionException;
 

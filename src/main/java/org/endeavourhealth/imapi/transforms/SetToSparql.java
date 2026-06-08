@@ -1,16 +1,16 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.library.vocabulary.SHACL;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 public class SetToSparql {
   private final EntityRepository entityRepository = new EntityRepository();

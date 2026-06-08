@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.library.model.imq.*;
 
 import java.util.*;
 
@@ -96,7 +96,6 @@ public class LogicOptimizer {
   }
 
 
-
   public static void cleanBooleans(Match group) {
     List<Match> matches = group.getAnd();
     if (matches != null) {
@@ -116,17 +115,15 @@ public class LogicOptimizer {
   }
 
   private static void flatten(List<Match> list) {
-      for (int i = 0; i < list.size(); i++) {
-        Match match = list.get(i);
-        if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
-          && match.getAny() == null&&match.getReturn()==null) {
-          list.remove(i);
-          i--;
-        }
-        else cleanBooleans(match);
-      }
+    for (int i = 0; i < list.size(); i++) {
+      Match match = list.get(i);
+      if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
+        && match.getAny() == null && match.getReturn() == null) {
+        list.remove(i);
+        i--;
+      } else cleanBooleans(match);
+    }
   }
-
 
 
   private static void flattenWhere(Where where) {
@@ -266,11 +263,11 @@ public class LogicOptimizer {
   }
 
   private void flattenMatch(Match match) {
-    if (match.getOr() != null&&!match.isNotExists()) {
+    if (match.getOr() != null && !match.isNotExists()) {
       List<Match> flatOrs = new ArrayList<>();
       flattenOrs(match, flatOrs);
       if (!flatOrs.isEmpty()) match.setOr(flatOrs);
-    } else if (match.getAnd() != null&&!match.isNotExists()) {
+    } else if (match.getAnd() != null && !match.isNotExists()) {
       List<Match> flatAnds = new ArrayList<>();
       flattenAnds(match, flatAnds);
       if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
@@ -283,10 +280,9 @@ public class LogicOptimizer {
         flatAnds.add(subMatch);
         flattenMatch(subMatch);
       } else {
-        if (subMatch.isNotExists()){
+        if (subMatch.isNotExists()) {
           flatAnds.add(subMatch);
-        }
-        else flattenAnds(subMatch, flatAnds);
+        } else flattenAnds(subMatch, flatAnds);
       }
     }
   }
@@ -297,10 +293,9 @@ public class LogicOptimizer {
         flatOrs.add(subMatch);
         flattenMatch(subMatch);
       } else {
-        if (subMatch.isNotExists()){
+        if (subMatch.isNotExists()) {
           flatOrs.add(subMatch);
-        }
-        else flattenOrs(subMatch, flatOrs);
+        } else flattenOrs(subMatch, flatOrs);
       }
     }
   }

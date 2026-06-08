@@ -7,34 +7,35 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.library.model.search.SearchTermCode;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTBundle;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDFS;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 public class ConceptServiceStepDefs {
-  private AutoCloseable mocks;
   private final String entityIri = "http://snomed.info/sct#44054006";
+  private AutoCloseable mocks;
   private List<SearchTermCode> entityTermCodes;
 
   private ConceptService conceptService;
 
-  @Mock private EntityRepository entityRepository;
-  @Mock private ConceptRepository conceptRepository;
+  @Mock
+  private EntityRepository entityRepository;
+  @Mock
+  private ConceptRepository conceptRepository;
 
   @Before
   public void initMocks() {

@@ -3,9 +3,9 @@ package org.endeavourhealth.imapi.filer.rdf4j;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.FileRepository;
 import org.endeavourhealth.imapi.filer.TCGenerator;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.vocabulary.RDFS;
 
 import java.io.FileWriter;
 import java.io.IOException;

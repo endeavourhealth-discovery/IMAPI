@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.filer;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
 
 import java.util.Map;
 import java.util.Set;

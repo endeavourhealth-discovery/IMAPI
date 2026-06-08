@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.library.model.tripletree.TTValue;
 
 /**
  * Uitilities to compare Triple tree objects examning only predicates and values, ignoring entity IRI

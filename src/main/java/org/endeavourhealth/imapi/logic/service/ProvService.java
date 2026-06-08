@@ -2,21 +2,20 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.dataaccess.ProvRepository;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.logic.CachedObjectMapper;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTLiteral;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 @Component
 public class ProvService {
@@ -33,7 +32,7 @@ public class ProvService {
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()
-      .setPersonInRole(TTIriRef.iri(uir))
+      .setPersonInRole(iri(uir))
       .setParticipationType(iri(IM.AUTHOR_ROLE));
     agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(iri(IM.ADD_QUADS));
     return agent;
@@ -44,12 +43,12 @@ public class ProvService {
       .setIri("urn:uuid:" + UUID.randomUUID())
       .setActivityType(iri(IM.PROV_CREATION))
       .setEffectiveDate(LocalDateTime.now().toString())
-      .addAgent(TTIriRef.iri(agent.getIri()))
-      .setTargetEntity(TTIriRef.iri(targetEntity.getIri()));
+      .addAgent(iri(agent.getIri()))
+      .setTargetEntity(iri(targetEntity.getIri()));
 
     if (null != usedEntityIri) {
       activity.setActivityType(iri(IM.PROV_UPDATE));
-      activity.set(iri(IM.PROVENANCE_USED), TTIriRef.iri(usedEntityIri));
+      activity.set(iri(IM.PROVENANCE_USED), iri(usedEntityIri));
     }
 
     activity.setCrud(iri(IM.ADD_QUADS));

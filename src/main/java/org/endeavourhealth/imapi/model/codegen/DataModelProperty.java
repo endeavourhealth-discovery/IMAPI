@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.codegen;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
 
 public class DataModelProperty {
 

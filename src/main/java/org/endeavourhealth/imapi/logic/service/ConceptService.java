@@ -2,15 +2,15 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.ConceptContextMap;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.library.model.ConceptContextMap;
+import org.endeavourhealth.library.model.Namespace;
+import org.endeavourhealth.library.model.dto.SimpleMap;
+import org.endeavourhealth.library.model.search.SearchTermCode;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTBundle;
+import org.endeavourhealth.library.model.tripletree.TTValue;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,8 +20,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.logic.service.EntityService.filterOutInactiveTermCodes;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class ConceptService {

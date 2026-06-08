@@ -2,14 +2,14 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.library.vocabulary.XSD;
+import org.endeavourhealth.library.model.tripletree.TTLiteral;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 

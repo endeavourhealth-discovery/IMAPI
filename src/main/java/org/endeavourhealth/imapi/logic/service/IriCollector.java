@@ -1,25 +1,26 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class IriCollector {
 
-  public static Set<String> collectIris(Query query){
+  public static Set<String> collectIris(Query query) {
     Set<String> iris = new HashSet<>();
     collectQueryIris(query, iris);
     return iris;
   }
-  public static Set<String> collectIris(Match match){
+
+  public static Set<String> collectIris(Match match) {
     Set<String> iris = new HashSet<>();
     collectMatchIris(match, iris);
     return iris;
   }
 
-  private static void collectQueryIris(Query query, Set<String> iris){
+  private static void collectQueryIris(Query query, Set<String> iris) {
     if (query.getColumnGroup() != null) {
       for (Match subQuery : query.getColumnGroup()) {
         collectMatchIris(subQuery, iris);
@@ -31,23 +32,23 @@ public class IriCollector {
 
   private static void collectReturnIris(Return prop, Set<String> iriSet) {
     if (prop.getIri() != null) iriSet.add(prop.getIri());
-    if (prop.getUnits()!=null)
+    if (prop.getUnits() != null)
       iriSet.add(prop.getUnits().getIri());
-    if (prop.getCase()!=null){
-      if (prop.getCase().getWhen()!=null)
-        for (When when:prop.getCase().getWhen()){
-            collectWhereIris(when,iriSet);
+    if (prop.getCase() != null) {
+      if (prop.getCase().getWhen() != null)
+        for (When when : prop.getCase().getWhen()) {
+          collectWhereIris(when, iriSet);
         }
     }
-    if (prop.getFunction()!=null){
-      collectFunctionIris(prop.getFunction(),iriSet);
+    if (prop.getFunction() != null) {
+      collectFunctionIris(prop.getFunction(), iriSet);
     }
   }
 
   private static void collectPathIris(Path path, Set<String> iriSet) {
     if (path.getIri() != null)
       iriSet.add(path.getIri());
-    if (path.getTypeOf()!=null){
+    if (path.getTypeOf() != null) {
       iriSet.add(path.getTypeOf().getIri());
     }
     if (path.getPath() != null) {
@@ -73,9 +74,9 @@ public class IriCollector {
     }
     if (match.getIs() != null) {
       Node node = match.getIs();
-      if (node.getMatch()!=null)
-        collectMatchIris(node.getMatch(),iriSet);
-      else if (node.getIri()!=null)
+      if (node.getMatch() != null)
+        collectMatchIris(node.getMatch(), iriSet);
+      else if (node.getIri() != null)
         iriSet.add(node.getIri());
     }
     if (match.getRule() != null) {
@@ -107,13 +108,13 @@ public class IriCollector {
         collectReturnIris(prop, iriSet);
       }
     }
-    if (match.getOrderBy()!=null){
-      collectOrderByIris(match.getOrderBy(),iriSet);
+    if (match.getOrderBy() != null) {
+      collectOrderByIris(match.getOrderBy(), iriSet);
     }
   }
 
   private static void collectOrderByIris(OrderLimit orderBy, Set<String> iriSet) {
-    if (orderBy.getProperty()!=null){
+    if (orderBy.getProperty() != null) {
       for (OrderDirection property : orderBy.getProperty()) {
         iriSet.add(property.getIri());
       }
@@ -159,14 +160,14 @@ public class IriCollector {
     }
   }
 
-  private static void collectFunctionIris(FunctionClause function,Set<String> iriSet) {
+  private static void collectFunctionIris(FunctionClause function, Set<String> iriSet) {
     if (function.getIri() != null) {
       iriSet.add(function.getIri());
     }
     if (function.getArgument() != null) {
       for (Argument argument : function.getArgument()) {
-        if (argument.getValuePath()!=null){
-          collectPathIris(argument.getValuePath(),iriSet);
+        if (argument.getValuePath() != null) {
+          collectPathIris(argument.getValuePath(), iriSet);
         }
         if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
         if (argument.getValueIriList() != null) {
@@ -185,14 +186,14 @@ public class IriCollector {
   }
 
   private static void collectCompareIris(Compare compare, Set<String> iriSet) {
-    collectValueSourceIris(compare.getLeft(),iriSet);
-    collectValueSourceIris(compare.getRight(),iriSet);
-    if (compare.getUnits()!=null)
+    collectValueSourceIris(compare.getLeft(), iriSet);
+    collectValueSourceIris(compare.getRight(), iriSet);
+    if (compare.getUnits() != null)
       iriSet.add(compare.getUnits().getIri());
   }
 
-  private static void collectValueSourceIris(ValueSource source,Set<String> iriSet) {
-    if (source.getIri()!=null){
+  private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {
+    if (source.getIri() != null) {
       iriSet.add(source.getIri());
     }
 

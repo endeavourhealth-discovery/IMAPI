@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.vocabulary.OWL;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.transforms.TTToTurtle;
 import org.junit.jupiter.api.Test;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TTToTurtleTest {

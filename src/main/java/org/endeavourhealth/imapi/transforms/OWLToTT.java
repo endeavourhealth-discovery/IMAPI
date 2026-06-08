@@ -2,15 +2,15 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSBaseVisitor;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSLexer;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSParser;
-import org.endeavourhealth.imapi.vocabulary.OWL;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.vocabulary.OWL;
+import org.endeavourhealth.library.vocabulary.RDF;
+import org.endeavourhealth.library.vocabulary.RDFS;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 /**
  * Converts Functional syntax to Endeavour/ Discovery syntax using an ANTLR parser

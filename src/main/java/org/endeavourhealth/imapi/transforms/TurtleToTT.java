@@ -2,18 +2,19 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteBaseVisitor;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteLexer;
 import org.endeavourhealth.imapi.parser.turtle.TurtliteParser;
-import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.transforms.TTManager;
+import org.endeavourhealth.library.vocabulary.RDF;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
   private final TurtliteParser parser;
@@ -100,7 +101,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       if (verb.getText().equals("a"))
         predicate = iri(RDF.TYPE);
       else
-        predicate = TTIriRef.iri(getIri(verb.predicate().iri().getText()));
+        predicate = iri(getIri(verb.predicate().iri().getText()));
       convertObjects(node, predicate, po.objectList());
     }
 
@@ -127,7 +128,7 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       else
         return TTLiteral.literal(object.literal().getText().replace("\"", ""));
     } else if (object.iri() != null) {
-      return TTIriRef.iri(getIri(object.iri().getText()));
+      return iri(getIri(object.iri().getText()));
     } else if (object.BlankNode() != null) {
       return getBlankNode(object.BlankNode().getText());
     } else if (object.blankNodePropertyList() != null) {

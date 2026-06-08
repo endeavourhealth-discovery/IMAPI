@@ -7,15 +7,15 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.transforms.TTManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
 
 /**
  * A data access class with methods for extracting entities for the caching mechanism

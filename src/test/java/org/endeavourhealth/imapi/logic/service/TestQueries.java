@@ -1,16 +1,15 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.requests.QueryRequest;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.transforms.TTManager;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 public class TestQueries {
   public static QueryRequest pathQuery() {
@@ -50,8 +49,8 @@ public class TestQueries {
             .setIri(SHACL.DATATYPE)
             .setNode("propType"))))
       .return_(r -> r
-          .setNodeRef("propType")
-          .setIri(RDFS.LABEL));
+        .setNodeRef("propType")
+        .setIri(RDFS.LABEL));
     return new QueryRequest()
       .setQuery(query)
       .argument(a -> a
@@ -91,25 +90,25 @@ public class TestQueries {
           .is(in -> in.setParameter("$property")))
         .return_(s -> s
           .setNodeRef("shaclProperty")
-            .setIri(SHACL.CLASS)
-            .return_(n -> n
-                .setIri(RDFS.LABEL)))
+          .setIri(SHACL.CLASS)
+          .return_(n -> n
+            .setIri(RDFS.LABEL)))
         .return_(p -> p
           .setNodeRef("shaclProperty")
-            .setIri(SHACL.NODE)
-            .return_(n -> n
-                .setIri(RDFS.LABEL)))
-          .return_(p -> p
-            .setNodeRef("shaclProperty")
-            .setIri(SHACL.DATATYPE)
-            .return_(n -> n
-              .setIri(RDFS.LABEL)))
-          .return_(p -> p
-            .setNodeRef("shaclProperty")
-            .setIri(SHACL.MAXCOUNT))
-          .return_(p -> p
-            .setNodeRef("shaclProperty")
-            .setIri(SHACL.MINCOUNT)));
+          .setIri(SHACL.NODE)
+          .return_(n -> n
+            .setIri(RDFS.LABEL)))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(SHACL.DATATYPE)
+          .return_(n -> n
+            .setIri(RDFS.LABEL)))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(SHACL.MAXCOUNT))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(SHACL.MINCOUNT)));
   }
 
 
@@ -160,12 +159,12 @@ public class TestQueries {
       .setTextSearch("FOXG1")
       .query(q -> q
         .setName("Filter concept subtypes that are members of value sets")
-        .or(m->m
-        .setIs(new Node().setIri(NAMESPACE.SNOMED + "57148006")
-          .setDescendantsOrSelfOf(true)))
-        .or(m->m
-        .setIs(new Node().setIri(NAMESPACE.SNOMED + "11164009")
-          .setDescendantsOrSelfOf(true)))
+        .or(m -> m
+          .setIs(new Node().setIri(NAMESPACE.SNOMED + "57148006")
+            .setDescendantsOrSelfOf(true)))
+        .or(m -> m
+          .setIs(new Node().setIri(NAMESPACE.SNOMED + "11164009")
+            .setDescendantsOrSelfOf(true)))
         .where(w -> w
           .setIri(IM.HAS_MEMBER)
           .setInverse(true)
@@ -173,9 +172,9 @@ public class TestQueries {
             .setIri(NAMESPACE.IM + "VSET_Conditions"))
           .is(n -> n
             .setIri(NAMESPACE.IM + "VSET_ASD")))
-          .return_(p -> p.setIri(RDFS.LABEL))
-          .return_(p -> p.setIri(IM.HAS_TERM_CODE)
-            .return_(p1 -> p1.setIri(RDFS.LABEL))));
+        .return_(p -> p.setIri(RDFS.LABEL))
+        .return_(p -> p.setIri(IM.HAS_TERM_CODE)
+          .return_(p1 -> p1.setIri(RDFS.LABEL))));
   }
 
   public static QueryRequest substanceTextSearch() {
@@ -188,9 +187,9 @@ public class TestQueries {
         .is(i -> i
           .setParameter("this")
           .setDescendantsOrSelfOf(true))
-          .return_(p -> p.setIri(RDFS.LABEL))
-          .return_(p -> p.setIri(IM.HAS_TERM_CODE)
-            .return_(p1 -> p1.setIri(RDFS.LABEL)))
+        .return_(p -> p.setIri(RDFS.LABEL))
+        .return_(p -> p.setIri(IM.HAS_TERM_CODE)
+          .return_(p1 -> p1.setIri(RDFS.LABEL)))
         .setName("substances starting with 'thia'"));
   }
 
@@ -203,17 +202,17 @@ public class TestQueries {
         .setIri(IM.HAS_MEMBER)
         .setInverse(true)
         .addIs(new Node().setIri(NAMESPACE.IM + "VSET_FamilyHistory")))
-        .return_(p -> p
+      .return_(p -> p
+        .setIri(RDFS.LABEL))
+      .return_(p -> p
+        .setIri(IM.CODE))
+      .return_(p -> p
+        .setIri(IM.MATCHED_TO)
+        .setInverse(true)
+        .return_(p1 -> p1
           .setIri(RDFS.LABEL))
-        .return_(p -> p
-          .setIri(IM.CODE))
-        .return_(p -> p
-          .setIri(IM.MATCHED_TO)
-          .setInverse(true)
-            .return_(p1 -> p1
-              .setIri(RDFS.LABEL))
-            .return_(p1 -> p1
-              .setIri(IM.CODE)));
+        .return_(p1 -> p1
+          .setIri(IM.CODE)));
     return new QueryRequest().setQuery(query);
   }
 
@@ -231,14 +230,14 @@ public class TestQueries {
         .setNodeRef("shaclProperty")
         .setIri(SHACL.PATH)
         .addIs(NAMESPACE.IM + "dateOfBirth"))
-        .return_(p -> p
-          .setIri(SHACL.PROPERTY)
-            .return_(s1 -> s1.setIri(SHACL.PATH))
-            .return_(s1 -> s1.setIri(SHACL.NODE))
-            .return_(s1 -> s1.setIri(SHACL.MINCOUNT))
-            .return_(s1 -> s1.setIri(SHACL.MAXCOUNT))
-            .return_(s1 -> s1.setIri(SHACL.CLASS))
-            .return_(s1 -> s1.setIri(SHACL.DATATYPE)));
+      .return_(p -> p
+        .setIri(SHACL.PROPERTY)
+        .return_(s1 -> s1.setIri(SHACL.PATH))
+        .return_(s1 -> s1.setIri(SHACL.NODE))
+        .return_(s1 -> s1.setIri(SHACL.MINCOUNT))
+        .return_(s1 -> s1.setIri(SHACL.MAXCOUNT))
+        .return_(s1 -> s1.setIri(SHACL.CLASS))
+        .return_(s1 -> s1.setIri(SHACL.DATATYPE)));
     return new QueryRequest().setQuery(query);
   }
 
@@ -250,8 +249,8 @@ public class TestQueries {
     query
       .setIs(new Node()
         .setIri(NAMESPACE.SNOMED + "195967001").setDescendantsOrSelfOf(true))
-        .return_(p -> p.setIri(RDFS.LABEL))
-        .return_(p -> p.setIri(IM.CODE));
+      .return_(p -> p.setIri(RDFS.LABEL))
+      .return_(p -> p.setIri(IM.CODE));
     return new QueryRequest().setQuery(query);
   }
 
@@ -271,7 +270,7 @@ public class TestQueries {
   public static QueryRequest entityFilter(Set<String> entities) {
     return new QueryRequest()
       .setTextSearch("has active")
-    .addArgument(new Argument()
+      .addArgument(new Argument()
         .setParameter("entities")
         .setValueIriList(entities.stream().map(TTIriRef::iri).collect(Collectors.toSet())))
       .setQuery(new Query()
@@ -294,17 +293,15 @@ public class TestQueries {
   }
 
 
-
-
   public static QueryRequest getConcepts() {
     return new QueryRequest()
       .query(q -> q
         .setActiveOnly(true)
         .setName("Search for concepts")
         .setTypeOf(IM.CONCEPT.toString())
-          .return_(p -> p.setIri(RDFS.LABEL))
-          .return_(p -> p.setIri(IM.HAS_TERM_CODE)
-            .return_(p1 -> p1.setIri(RDFS.LABEL))))
+        .return_(p -> p.setIri(RDFS.LABEL))
+        .return_(p -> p.setIri(IM.HAS_TERM_CODE)
+          .return_(p1 -> p1.setIri(RDFS.LABEL))))
       .setTextSearch("chest pain");
   }
 
@@ -333,7 +330,7 @@ public class TestQueries {
   public static QueryRequest oralNsaids() {
     Query query = new Query()
       .setName("oral none steroidals")
-        .return_(s -> s.setIri(RDFS.LABEL))
+      .return_(s -> s.setIri(RDFS.LABEL))
       .setIs(new Node().setIri(NAMESPACE.SNOMED + "763158003").setDescendantsOrSelfOf(true))
       .where(and -> and
         .and(a1 -> a1

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.library.model.iml.Concept;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;

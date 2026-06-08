@@ -6,21 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.library.model.imq.Match;
 
 public class LogicComparer {
-
-  @JsonFilter("matchLogicFilter")
-  abstract static class MatchMixin {
-  }
-
 
   public static boolean compareMatches(Match from, Match to) throws JsonProcessingException {
     String fromString = serializeMatchLogic(from);
     String toString = serializeMatchLogic(to);
     return fromString.equals(toString);
   }
-
 
   public static String serializeMatchLogic(Match match) throws JsonProcessingException {
     ObjectMapper mapper = new ObjectMapper();
@@ -31,6 +25,10 @@ public class LogicComparer {
     FilterProvider filters = new SimpleFilterProvider()
       .addFilter("matchLogicFilter", SimpleBeanPropertyFilter.serializeAllExcept("iri"));
     return mapper.writer(filters).writeValueAsString(match);
+  }
+
+  @JsonFilter("matchLogicFilter")
+  abstract static class MatchMixin {
   }
 
 }

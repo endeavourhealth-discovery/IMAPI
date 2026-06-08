@@ -2,16 +2,14 @@ package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.iml.ListMode;
-import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
 import org.endeavourhealth.imapi.model.map.MapObject;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.FHIR;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import org.endeavourhealth.library.vocabulary.FHIR;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.model.iml.ListMode;
+import org.endeavourhealth.library.model.iml.TargetUpdateMode;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTLiteral;
 
 public class TestMaps {
 

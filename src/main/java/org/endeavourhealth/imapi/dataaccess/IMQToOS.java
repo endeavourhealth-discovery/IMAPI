@@ -12,14 +12,14 @@ import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.requests.QueryRequest;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.vocabulary.*;
 
 import java.util.*;
 
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 public class IMQToOS {
   private static final String SCHEME = "scheme";
@@ -339,12 +339,11 @@ public class IMQToOS {
 
   private boolean addProperty(Where where, Bool bool, BoolQueryBuilder boolBldr) throws QueryException {
     String w = where.getIri();
-    if (w==null &&(where.getAnd()!=null||where.getOr()!=null)) {
+    if (w == null && (where.getAnd() != null || where.getOr() != null)) {
       BoolQueryBuilder nestedBool = new BoolQueryBuilder();
-      if (bool ==Bool.and){
+      if (bool == Bool.and) {
         boolBldr.must(nestedBool);
-      }
-      else boolBldr.should(nestedBool);
+      } else boolBldr.should(nestedBool);
       if (!addBoolProperties(where, nestedBool)) return false;
       else return true;
     }

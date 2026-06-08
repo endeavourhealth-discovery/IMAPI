@@ -314,12 +314,6 @@ public Match any(Consumer<Match> builder) {
     return is;
   }
 
-  @JsonSetter
-  public Match setIs(List<Node> is) {
-    this.is = is;
-    return this;
-  }
-
   public String getAsDescription() {
     return asDescription;
   }
@@ -371,17 +365,6 @@ public Match any(Consumer<Match> builder) {
   @JsonSetter
   public Match setIs(Node is) {
     this.is = is;
-    return this;
-  }
-
-
-  public Match setLibraryItem(String libraryItem) {
-    this.libraryItem = libraryItem;
-    return this;
-  }
-
-  public Match setWhere(Where where) {
-    this.where = where;
     return this;
   }
 

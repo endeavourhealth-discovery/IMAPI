@@ -33,6 +33,7 @@ public class Return implements Returnable {
   public String getValue() {
     return value;
   }
+
   public Return setValue(String value){
     this.value = value;
     return this;
@@ -117,16 +118,10 @@ public class Return implements Returnable {
     return this;
   }
 
-  public Return setValue(String value) {
-    return this;
-  }
   public Return setInverse(boolean inverse) {
     this.inverse = inverse;
     return this;
   }
-
-
-
 
   public String getIri() {
     return iri;
@@ -146,18 +141,8 @@ public class Return implements Returnable {
     return nodeRef;
   }
 
-  public Return setNodeRef(String nodeRef) {
-    this.nodeRef = nodeRef;
-    return this;
-  }
-
   public String getName() {
     return name;
-  }
-
-  public Return setName(String name) {
-    this.name = name;
-    return this;
   }
 
   public String getPropertyRef() {
@@ -173,10 +158,6 @@ public class Return implements Returnable {
     return inverse;
   }
 
-  public Return setInverse(boolean inverse) {
-    this.inverse = inverse;
-    return this;
-  }
 
   public FunctionClause getFunction() {
     return function;

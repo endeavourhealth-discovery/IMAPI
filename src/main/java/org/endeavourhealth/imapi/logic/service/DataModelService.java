@@ -20,9 +20,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
-
 @Component
 public class DataModelService {
   private final EntityRepository entityRepository;

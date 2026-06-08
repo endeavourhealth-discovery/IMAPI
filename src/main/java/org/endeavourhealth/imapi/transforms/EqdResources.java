@@ -130,7 +130,7 @@ public class EqdResources {
         finalParentId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
       match.setIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
-      queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), iri(finalParentId));
+      queryEntity.addObject(new TTIriRef(IM.DEPENDENT_ON), new TTIriRef(finalParentId));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();

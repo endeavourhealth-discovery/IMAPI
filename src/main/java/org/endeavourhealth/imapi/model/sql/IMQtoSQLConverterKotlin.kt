@@ -34,6 +34,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     DateTimeFormatter.ofPattern("d/M/yyyy"),
     DateTimeFormatter.ofPattern("yyyy/MM/dd"),
   )
+  private val SQL_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
 
   init {
     require(queryRequest.query != null) { "Query request must have a query body" }
@@ -681,7 +683,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
 
-  private val SQL_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   private fun tryParseDate(value: String): LocalDate? {
     for (formatter in DATE_FORMATS) {

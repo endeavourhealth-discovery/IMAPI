@@ -478,6 +478,26 @@
         "value": "NAMESPACE.IM + \"sourceText\""
       },
       {
+        "name": "MAP_TYPE",
+        "value": "NAMESPACE.IM + \"MapType\""
+      },
+      {
+        "name": "HAS_MAP_TYPE",
+        "value": "NAMESPACE.IM + \"mapType\""
+      },
+      {
+        "name": "DIRECT_MAP",
+        "value": "NAMESPACE.IM + \"DirectMap\""
+      },
+      {
+        "name": "RANGE_VALUE_MAP",
+        "value": "NAMESPACE.IM + \"RangeValueMap\""
+      },
+      {
+        "name": "EXACT_VALUE_MAP",
+        "value": "NAMESPACE.IM + \"ExactValueMap\""
+      },
+      {
         "name": "SOURCE_ENTITY",
         "value": "NAMESPACE.IM + \"sourceEntity\""
       },
@@ -1130,6 +1150,10 @@
         "value": "NAMESPACE.IM + \"defaultValue\""
       },
       {
+        "name": "DEFAULT_TEXT",
+        "value": "NAMESPACE.IM + \"defaultText\""
+      },
+      {
         "name": "LOAD_MORE",
         "value": "NAMESPACE.IM + \"loadMore\""
       },
@@ -1296,6 +1320,10 @@
       {
         "name": "GET_ADDITIONAL_ALLOWABLE_TYPES",
         "value": "NAMESPACE.FUNCTION + \"GetAdditionalAllowableTypes\""
+      },
+      {
+        "name": "GET_MAP_TYPES",
+        "value": "NAMESPACE.FUNCTION + \"GetMapTypes\""
       },
       {
         "name": "GET_LOGIC_OPTIONS",
@@ -2154,6 +2182,10 @@
       {
         "name": "ROLE_GROUP_BUILDER",
         "value": "NAMESPACE.IM_COMPONENT + \"roleGroupBuilder\""
+      },
+      {
+        "name": "MAP_ENTRY_BUILDER",
+        "value": "NAMESPACE.IM_COMPONENT + \"mapEntryBuilder\""
       },
       {
         "name": "TERM_CODE_EDITOR",

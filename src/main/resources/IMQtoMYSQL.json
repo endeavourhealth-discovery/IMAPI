@@ -418,10 +418,12 @@
       "dataModels": [
         "http://endhealth.info/im#ConceptTCT"
       ],
-      "table": "concept_tct",
-      "primaryKey": "im1id",
-      "relationships": {
-        "http://endhealth.info/im#Concept": {"fromField": "im1id", "toField": "id"}
+      "table": "dataset.concept_tct",
+      "primaryKey": "dbid",
+      "fields": {
+        "http://endhealth.info/im#parent": {"field": "parent"},
+        "http://endhealth.info/im#im1dbid": {"field": "im1dbid"},
+        "http://endhealth.info/im#self": {"field": "self"}
       }
     }
   ],

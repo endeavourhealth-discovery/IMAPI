@@ -1099,23 +1099,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
-    val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(
-      table.getJoinCondition(
-        tableFromAlias = table.alias,
-        tableTo = conceptTable,
-        tableToAlias = "concept_property",
-        fromField = fromField,
-        toField = "dbid"
-      )
-    )
 
     val conceptTCT = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "TCT", null)
     joins.add(
-      conceptTable.getJoinCondition(
-        tableFrom = conceptTable,
-        tableFromAlias = "concept_property",
+      table.getJoinCondition(
+        tableFromAlias = table.alias,
         tableTo = conceptTCT,
+        fromField = fromField,
+        toField = "im1dbid"
       )
     )
     return joins

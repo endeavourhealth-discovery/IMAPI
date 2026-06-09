@@ -77,11 +77,11 @@ public class SetMemberExport {
   private static void executeConcept(StringBuilder builder, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(builder, conn, """
-        select ?set ?member ?im1Id
+        select ?set ?member ?im1Dbid
         where {
             ?set rdf:type im:Concept ;
                 ^rdfs:subClassOf* ?member .
-            ?member im:im1Id ?im1Id .
+            ?member im:im1Dbid ?im1Dbid .
         }
         """, iri);
     }
@@ -90,11 +90,11 @@ public class SetMemberExport {
   private static void executeConceptSet(StringBuilder builder, String iri) {
     try (IMDB conn = IMDB.getConnection()) {
       SetMemberExport.runExport(builder, conn, """
-        select ?set ?member ?im1Id
+        select ?set ?member ?im1Dbid
         where {
             ?set rdf:type im:ConceptSet ;
                 im:hasMember ?member .
-            ?member im:im1Id ?im1Id .
+            ?member im:im1Dbid ?im1Dbid .
         }
         """, iri);
     }
@@ -125,9 +125,9 @@ public class SetMemberExport {
       BindingSet bs = rs.next();
       String set = bs.getValue("set").stringValue();
       String member = bs.getValue("member").stringValue();
-      String im1Id = bs.getValue("im1Id") == null ? "" : bs.getValue("im1Id").stringValue();
+      String im1Dbid = bs.getValue("im1Dbid") == null ? "" : bs.getValue("im1Dbid").stringValue();
 
-      builder.append(set).append("\t").append(member).append("\t").append(im1Id).append("\n");
+      builder.append(set).append("\t").append(member).append("\t").append(im1Dbid).append("\n");
 
       if (++members % 100_000 == 0)
         log.info("Exported {} members...", members);

@@ -120,6 +120,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
+      injectOrgFilterCte(mySqlQuery)
       return mySqlQuery.toSql()
     }
   }
@@ -333,8 +334,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (match.orderBy != null) {
       with = getOrderByWith(with, match, mySQLQuery)
     }
-
-    return with;
+    return with
   }
 
   private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
@@ -382,6 +382,53 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     return join
   }
+
+  private fun injectOrgFilterCte(mySqlQuery: MySQLQuery) {
+    val orgId = getArgumentValue("\$organisationId") ?: return
+
+    val orgAlias = ensureUniqueAlias(
+      getCteAliasFromTypeAndProperty(queryTypeOfTable.dataModel, null)
+    )
+    val lastCTE = mySqlQuery.withs.last { !it.exclude }
+    val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
+      queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
+    else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+
+    val orgCte = MySQLWith(
+      table = queryTypeOfTable,
+      alias = orgAlias,
+      selects = mutableListOf(MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}")),
+      joins = mutableListOf(
+        MySQLJoin(
+          join = "JOIN",
+          tableFrom = queryTypeOfTable.table,
+          tableTo = lastCTE.alias,
+          tableToAlias = lastCTE.alias,
+          fromProperty = queryTypeOfTable.primaryKey,
+          toProperty = fk,
+          reference = true
+        )
+      ),
+      wheres = mutableListOf(
+        MySQLPropertyValueWhere(
+          property = "organization_id",
+          operator = "=",
+          value = "\$organisationId",
+          table = queryTypeOfTable.table
+        )
+      )
+    )
+    mySqlQuery.withs.add(orgCte)
+
+    mySqlQuery.selects.replaceAll { select ->
+      if (select.name == "${lastCTE.alias}.$fk")
+        MySQLSelect("${orgAlias}.${queryTypeOfTable.primaryKey}", select.alias)
+      else select
+    }
+  }
+
+  private fun getArgumentValue(parameter: String): String? =
+    queryRequest.getArgumentDataValue(parameter) as? String
 
   private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     val (fk, pk) = if (with.table.table == queryTypeOfTable.table) with.table.primaryKey to with.table.primaryKey else with.table.foreignKeyTo(

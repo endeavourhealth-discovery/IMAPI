@@ -120,6 +120,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
+//      TODO: always add org join and return, then if org argument apply org filter
       injectOrgFilterCte(mySqlQuery)
       return mySqlQuery.toSql()
     }
@@ -384,7 +385,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun injectOrgFilterCte(mySqlQuery: MySQLQuery) {
-    val orgId = getArgumentValue("\$organisationId") ?: return
+    val orgWhere = getOrgFilterWhere() ?: return
 
     val orgAlias = ensureUniqueAlias(
       getCteAliasFromTypeAndProperty(queryTypeOfTable.dataModel, null)
@@ -409,14 +410,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           reference = true
         )
       ),
-      wheres = mutableListOf(
-        MySQLPropertyValueWhere(
-          property = "organization_id",
-          operator = "=",
-          value = "\$organisationId",
-          table = queryTypeOfTable.table
-        )
-      )
+      wheres = mutableListOf(orgWhere)
     )
     mySqlQuery.withs.add(orgCte)
 
@@ -427,8 +421,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getArgumentValue(parameter: String): String? =
-    queryRequest.getArgumentDataValue(parameter) as? String
+  private fun getOrgFilterWhere(): MySQLWhere? {
+    val orgIds = queryRequest.getArgumentDataList("\$organisationId")
+    if (!orgIds.isNullOrEmpty()) {
+      return MySQLPropertyValueWhere(
+        property = "organization_id",
+        operator = if (orgIds.size == 1) "=" else "IN",
+        value = "\$organisationId",
+        table = queryTypeOfTable.table
+      )
+    }
+    return null
+  }
 
   private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
     val (fk, pk) = if (with.table.table == queryTypeOfTable.table) with.table.primaryKey to with.table.primaryKey else with.table.foreignKeyTo(
@@ -728,7 +732,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     throw SQLConversionException("Unsupported CASE expression branch")
   }
-
 
 
   private fun tryParseDate(value: String): LocalDate? {

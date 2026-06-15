@@ -120,6 +120,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
+//      TODO: always add org join and return, then if org argument apply org filter
       injectOrgFilterCte(mySqlQuery)
       return mySqlQuery.toSql()
     }
@@ -421,11 +422,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getOrgFilterWhere(): MySQLWhere? {
-    val multipleIds = queryRequest.getArgumentDataList("\$organisationId")
-    if (!multipleIds.isNullOrEmpty()) {
+    val orgIds = queryRequest.getArgumentDataList("\$organisationId")
+    if (!orgIds.isNullOrEmpty()) {
       return MySQLPropertyValueWhere(
         property = "organization_id",
-        operator = "IN",
+        operator = if (orgIds.size == 1) "=" else "IN",
         value = "\$organisationId",
         table = queryTypeOfTable.table
       )

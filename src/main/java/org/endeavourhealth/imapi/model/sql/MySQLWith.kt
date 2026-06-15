@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.model.imq.Bool
 data class MySQLWith(
   var table: Table = Table(),
   var alias: String = "",
-  var wheres: MutableList<MySQLWhere>? = mutableListOf(),
+  var wheres: MutableList<MySQLWhere> = mutableListOf(),
   val selects: MutableList<MySQLSelect> = mutableListOf(),
   var joins: MutableList<MySQLJoin> = mutableListOf(),
   val whereBool: Bool = Bool.and,

@@ -434,8 +434,8 @@ public class EqdResources {
           toValue = null;
           toUnits = null;
         }
-        from.setOperator(toOperator);
-        from.setValue(toValue);
+        to.setOperator(toOperator);
+        to.setValue(toValue);
         buildCompare(to, toUnits, relationLeft, relationRight);
 
       } else if (eqRelationship.getRangeValue().getRangeFrom() != null) {

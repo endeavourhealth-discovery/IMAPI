@@ -108,6 +108,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
+        injectOrgReturnAndFilter(newMySqlQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
@@ -120,6 +121,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
+      injectOrgReturnAndFilter(mySqlQuery)
       return mySqlQuery.toSql()
     }
   }
@@ -333,8 +335,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (match.orderBy != null) {
       with = getOrderByWith(with, match, mySQLQuery)
     }
-
-    return with;
+    return with
   }
 
   private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
@@ -381,6 +382,39 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
 
     return join
+  }
+
+  private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {
+    val joinTable = getTableFromTypeAndProperty(queryTypeOfTable.dataModel, null)
+    val lastCTE = mySqlQuery.withs.last { !it.exclude }
+    val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
+      queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
+    else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+
+    val orgJoin = MySQLJoin(
+      join = "JOIN",
+      tableFrom = lastCTE.alias,
+      tableTo = joinTable.table,
+      fromProperty = fk,
+      toProperty = joinTable.primaryKey,
+      reference = true,
+    )
+    getOrgFilterWhere()?.let { orgJoin.wheres.add(it) }
+    mySqlQuery.joins.add(orgJoin)
+    mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}.organization_id", "entity_org_id"))
+  }
+
+  private fun getOrgFilterWhere(): MySQLWhere? {
+    val orgIds = queryRequest.getArgumentDataList("\$organisationId")
+    if (!orgIds.isNullOrEmpty()) {
+      return MySQLPropertyValueWhere(
+        property = "organization_id",
+        operator = if (orgIds.size == 1) "=" else "IN",
+        value = "\$organisationId",
+        table = queryTypeOfTable.table
+      )
+    }
+    return null
   }
 
   private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
@@ -1098,23 +1132,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
-    val conceptTable = getTableFromTypeAndProperty(IM.CONCEPT.toString(), null)
-    joins.add(
-      table.getJoinCondition(
-        tableFromAlias = table.alias,
-        tableTo = conceptTable,
-        tableToAlias = "concept_property",
-        fromField = fromField,
-        toField = "dbid"
-      )
-    )
 
     val conceptTCT = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "TCT", null)
     joins.add(
-      conceptTable.getJoinCondition(
-        tableFrom = conceptTable,
-        tableFromAlias = "concept_property",
+      table.getJoinCondition(
+        tableFromAlias = table.alias,
         tableTo = conceptTCT,
+        fromField = fromField,
+        toField = "im1dbid"
       )
     )
     return joins

@@ -108,6 +108,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
+        injectOrgReturnAndFilter(newMySqlQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
@@ -120,8 +121,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
-//      TODO: always add org join and return, then if org argument apply org filter
-      injectOrgFilterCte(mySqlQuery)
+      injectOrgReturnAndFilter(mySqlQuery)
       return mySqlQuery.toSql()
     }
   }
@@ -384,41 +384,24 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return join
   }
 
-  private fun injectOrgFilterCte(mySqlQuery: MySQLQuery) {
-    val orgWhere = getOrgFilterWhere() ?: return
-
-    val orgAlias = ensureUniqueAlias(
-      getCteAliasFromTypeAndProperty(queryTypeOfTable.dataModel, null)
-    )
+  private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {
+    val joinTable = getTableFromTypeAndProperty(queryTypeOfTable.dataModel, null)
     val lastCTE = mySqlQuery.withs.last { !it.exclude }
     val (fk, pk) = if (lastCTE.table.table == queryTypeOfTable.table)
       queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
     else lastCTE.table.foreignKeyTo(queryTypeOfTable)
 
-    val orgCte = MySQLWith(
-      table = queryTypeOfTable,
-      alias = orgAlias,
-      selects = mutableListOf(MySQLSelect("${queryTypeOfTable.table}.${queryTypeOfTable.primaryKey}")),
-      joins = mutableListOf(
-        MySQLJoin(
-          join = "JOIN",
-          tableFrom = queryTypeOfTable.table,
-          tableTo = lastCTE.alias,
-          tableToAlias = lastCTE.alias,
-          fromProperty = queryTypeOfTable.primaryKey,
-          toProperty = fk,
-          reference = true
-        )
-      ),
-      wheres = mutableListOf(orgWhere)
+    val orgJoin = MySQLJoin(
+      join = "JOIN",
+      tableFrom = lastCTE.alias,
+      tableTo = joinTable.table,
+      fromProperty = fk,
+      toProperty = joinTable.primaryKey,
+      reference = true,
     )
-    mySqlQuery.withs.add(orgCte)
-
-    mySqlQuery.selects.replaceAll { select ->
-      if (select.name == "${lastCTE.alias}.$fk")
-        MySQLSelect("${orgAlias}.${queryTypeOfTable.primaryKey}", select.alias)
-      else select
-    }
+    getOrgFilterWhere()?.let { orgJoin.wheres.add(it) }
+    mySqlQuery.joins.add(orgJoin)
+    mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}.organization_id", "entity_org_id"))
   }
 
   private fun getOrgFilterWhere(): MySQLWhere? {

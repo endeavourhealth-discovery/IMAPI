@@ -9,10 +9,7 @@ import org.endeavourhealth.library.model.EntityReferenceNode;
 import org.endeavourhealth.library.model.imq.Argument;
 import org.endeavourhealth.library.model.security.User;
 import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.IM_FUNCTION;
-import org.endeavourhealth.library.vocabulary.RDF;
-import org.endeavourhealth.library.vocabulary.SHACL;
+import org.endeavourhealth.library.vocabulary.*;
 
 import java.util.ArrayList;
 import java.util.List;

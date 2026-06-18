@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+
 class TransformServiceTest {
 
   //@Test
@@ -38,7 +40,7 @@ class TransformServiceTest {
 
     //Create transform request;
     TransformRequest request = new TransformRequest();
-    request.setTransformMap(TTIriRef.iri(mapEntity.getIri()));
+    request.setTransformMap(iri(mapEntity.getIri()));
     request.setSourceFormat("JSON");
     request.setTargetFormat("JSON-LD");
 

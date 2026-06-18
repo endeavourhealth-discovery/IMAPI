@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;

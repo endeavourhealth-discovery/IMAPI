@@ -8,17 +8,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.library.logic.CachedObjectMapper;
+import org.endeavourhealth.library.model.iml.Page;
+import org.endeavourhealth.library.model.imq.Query;
+import org.endeavourhealth.library.model.imq.QueryException;
+import org.endeavourhealth.library.model.imq.Return;
+import org.endeavourhealth.library.model.imq.TextSearchStyle;
+import org.endeavourhealth.library.model.requests.QueryRequest;
+import org.endeavourhealth.library.model.responses.SearchResponse;
+import org.endeavourhealth.library.model.search.SearchResultSummary;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDF;
+import org.endeavourhealth.library.vocabulary.RDFS;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -29,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class OSQuery {
@@ -97,27 +100,28 @@ public class OSQuery {
   }
 
   private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
-    JsonNode results= runQuery(builder);
+    JsonNode results = runQuery(builder);
     if (results.get("hits").get("hits").isEmpty()) return;
-    fullResults.put("totalCount", fullResults.get("totalCount").asInt()+ results.get("hits").get("total").get("value").asInt());
-    ObjectNode hitsObject= (ObjectNode) fullResults.get("hits");
+    fullResults.put("totalCount", fullResults.get("totalCount").asInt() + results.get("hits").get("total").get("value").asInt());
+    ObjectNode hitsObject = (ObjectNode) fullResults.get("hits");
     ArrayNode hitsArray = (ArrayNode) hitsObject.get("hits");
     for (JsonNode hit : results.get("hits").get("hits")) {
-      String entityIri= hit.get("_source").get("iri").textValue();
+      String entityIri = hit.get("_source").get("iri").textValue();
       if (!found.contains(entityIri)) {
         hitsArray.add(hit);
         found.add(entityIri);
-        hitsObject.put("total", hitsObject.get("total").asInt()+1);
+        hitsObject.put("total", hitsObject.get("total").asInt() + 1);
       }
     }
   }
+
   private Integer getTotal(JsonNode results) {
     return results.get("hits").get("total").asInt();
   }
 
   private ObjectNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
     Query query = request.getQuery();
-    if (request.getPage()==null){
+    if (request.getPage() == null) {
       request.setPage(new Page()
         .setPageSize(20)
         .setPageNumber(1));
@@ -129,29 +133,30 @@ public class OSQuery {
     hitsNode.put("total", 0);
     hitsNode.putArray("hits");
     SearchSourceBuilder builder;
-    Set<String> found= new HashSet<>();
+    Set<String> found = new HashSet<>();
     builder = converter.buildQuery(request, query, TextSearchStyle.exact);
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)==1)
+    if (getTotal(fullResults) == 1)
       return fullResults;
 
     builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
     if (builder == null)
-        return fullResults;
+      return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete&&fullResults.get("totalCount").asInt()>0) return fullResults;
+    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete && fullResults.get("totalCount").asInt() > 0)
+      return fullResults;
     if (getTotal(fullResults) >= request.getPage().getPageSize())
-        return fullResults;
+      return fullResults;
 
     builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.ZERO);
     if (builder == null) return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)>= request.getPage().getPageSize())
-        return fullResults;
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+      return fullResults;
     builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)>= request.getPage().getPageSize())
-        return fullResults;
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+      return fullResults;
     builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) >= request.getPage().getPageSize())

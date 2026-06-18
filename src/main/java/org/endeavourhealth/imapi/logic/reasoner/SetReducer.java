@@ -7,14 +7,17 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.library.model.tripletree.TTValue;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.SHACL;
 
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class SetReducer {
@@ -56,7 +59,7 @@ public class SetReducer {
         set.set(iri(IM.DEFINITION), ors);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          ors.addObject(iri(SHACL.OR), TTIriRef.iri(bs.getValue("member").stringValue()));
+          ors.addObject(iri(SHACL.OR), iri(bs.getValue("member").stringValue()));
         }
         set.getPredicateMap().remove(iri(IM.HAS_MEMBER));
         int newSize = set.get(iri(IM.DEFINITION)).asNode().get(iri(SHACL.OR)).size();

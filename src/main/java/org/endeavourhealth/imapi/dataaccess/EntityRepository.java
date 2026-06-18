@@ -9,17 +9,17 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Pageable;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.model.EntityReferenceNode;
+import org.endeavourhealth.library.model.Pageable;
+import org.endeavourhealth.library.model.dto.ParentDto;
+import org.endeavourhealth.library.model.iml.Entity;
+import org.endeavourhealth.library.model.search.EntityDocument;
+import org.endeavourhealth.library.model.search.SearchResultSummary;
+import org.endeavourhealth.library.model.search.SearchTermCode;
+import org.endeavourhealth.library.model.sql.SubQueryDependency;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.transforms.TTManager;
+import org.endeavourhealth.library.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
@@ -1669,8 +1669,8 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public List<org.endeavourhealth.imapi.model.Namespace> findNamespaces() {
-    List<org.endeavourhealth.imapi.model.Namespace> result = new ArrayList<>();
+  public List<org.endeavourhealth.library.model.Namespace> findNamespaces() {
+    List<org.endeavourhealth.library.model.Namespace> result = new ArrayList<>();
 
     String sql = """
        select *
@@ -1687,7 +1687,7 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          org.endeavourhealth.imapi.model.Namespace namespace = new org.endeavourhealth.imapi.model.Namespace()
+          org.endeavourhealth.library.model.Namespace namespace = new org.endeavourhealth.library.model.Namespace()
             .setIri(iri)
             .setName(bs.getValue("name").stringValue())
             .setPrefix(getPrefixFromIri(iri));

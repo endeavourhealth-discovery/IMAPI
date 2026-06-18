@@ -1,7 +1,5 @@
 package org.endeavourhealth.imapi.model.sql
 
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-
 data class MySQLQuery(
   var withs: MutableList<MySQLWith> = ArrayList(),
   var selects: MutableList<MySQLSelect> = ArrayList(),

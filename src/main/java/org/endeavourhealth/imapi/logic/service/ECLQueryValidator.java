@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.library.model.imq.*;
 
 import java.util.*;
 
@@ -14,7 +14,7 @@ public class ECLQueryValidator {
   public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
-    if (iris.isEmpty()){
+    if (iris.isEmpty()) {
       ECLStatus status = new ECLStatus();
       status.setValid(false);
       status.setMessage("No concepts in query");
@@ -35,11 +35,11 @@ public class ECLQueryValidator {
     if (match.getIs() != null) {
       Node node = match.getIs();
       if (node.getIri() != null) {
-          if (!validConcepts.get(node.getIri())) {
-            node.setInvalid(true);
-            invalid = true;
-          }
+        if (!validConcepts.get(node.getIri())) {
+          node.setInvalid(true);
+          invalid = true;
         }
+      }
     }
     if (match.getWhere() != null) {
       Set<String> focusConcepts = new HashSet<>();
@@ -111,7 +111,7 @@ public class ECLQueryValidator {
 
   private void getFocusConcepts(Match match, Set<String> focusConcepts) {
     if (match.getIs() != null) {
-      Node node =match.getIs();
+      Node node = match.getIs();
       if (node.getIri() != null) {
         focusConcepts.add(node.getIri());
       }

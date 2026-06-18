@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
 
 import java.util.Objects;
 

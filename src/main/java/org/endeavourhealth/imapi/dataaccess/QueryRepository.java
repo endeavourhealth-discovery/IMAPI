@@ -13,20 +13,19 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.model.requests.QueryRequest;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTValue;
+import org.endeavourhealth.library.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -343,7 +342,7 @@ public class QueryRepository {
   }
 
   public Query expandCohort(String cohortIri, DisplayMode displayMode) throws JsonProcessingException {
-    Query cohort=null;
+    Query cohort = null;
     String sql = """
       select ?cohort
       where {

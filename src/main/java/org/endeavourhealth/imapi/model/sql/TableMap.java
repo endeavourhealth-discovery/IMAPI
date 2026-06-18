@@ -1,9 +1,8 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import lombok.*;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
+import lombok.NoArgsConstructor;
+import org.endeavourhealth.library.errorhandling.SQLConversionException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,38 +11,42 @@ import java.util.Map;
 @NoArgsConstructor
 public class TableMap {
   private List<MappingProperty> properties;
+  private Map<String, Table> tables;
+  private Map<String, String> functions;
+  private Map<List<String>, PropertyMapItem> propertiesMap;
 
   public Map<String, Table> getTables() {
     return tables;
-  }
-
-  public Map<String, String> getFunctions() {
-    return functions;
-  }
-
-  public List<MappingProperty> getProperties() {
-    return properties;
   }
 
   public void setTables(Map<String, Table> tables) {
     this.tables = tables;
   }
 
+  public Map<String, String> getFunctions() {
+    return functions;
+  }
+
   public void setFunctions(Map<String, String> functions) {
     this.functions = functions;
   }
 
-  public void setPropertiesMap(Map<List<String>, PropertyMapItem> propertiesMap) {
-    this.propertiesMap = propertiesMap;
+  public List<MappingProperty> getProperties() {
+    return properties;
   }
 
-  private Map<String, Table> tables;
-  private Map<String, String> functions;
-  private Map<List<String>, PropertyMapItem> propertiesMap;
+  public void setProperties(List<MappingProperty> properties) {
+    this.properties = properties;
+    buildPropertiesMap();
+  }
 
   public Map<List<String>, PropertyMapItem> getPropertiesMap() {
     if (propertiesMap == null) buildPropertiesMap();
     return propertiesMap;
+  }
+
+  public void setPropertiesMap(Map<List<String>, PropertyMapItem> propertiesMap) {
+    this.propertiesMap = propertiesMap;
   }
 
   private void buildPropertiesMap() {
@@ -54,11 +57,6 @@ public class TableMap {
         propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), new Condition(p.getCondition().getField(), p.getCondition().getValue())));
       else propertiesMap.put(List.copyOf(p.getPath()), new PropertyMapItem(p.getDataModel(), null));
     }
-  }
-
-  public void setProperties(List<MappingProperty> properties) {
-    this.properties = properties;
-    buildPropertiesMap();
   }
 
   public Table getTableFromDataModel(String iri) throws SQLConversionException {

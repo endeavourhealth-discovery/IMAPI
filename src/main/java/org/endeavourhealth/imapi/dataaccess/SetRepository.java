@@ -8,21 +8,23 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.Pageable;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.model.Pageable;
+import org.endeavourhealth.library.model.iml.Concept;
+import org.endeavourhealth.library.model.iml.Page;
+import org.endeavourhealth.library.model.imq.Node;
+import org.endeavourhealth.library.model.imq.Query;
+import org.endeavourhealth.library.model.imq.QueryException;
+import org.endeavourhealth.library.model.requests.QueryRequest;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.library.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class SetRepository {
@@ -411,8 +413,8 @@ public class SetRepository {
     }
   }
 
-  public void updateMemberCount(String iri,GRAPH graph){
-    int count=0;
+  public void updateMemberCount(String iri, GRAPH graph) {
+    int count = 0;
     try (IMDB conn = IMDB.getConnection()) {
       String sql = """
         Select (count(?member) as ?count)
@@ -421,13 +423,13 @@ public class SetRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         if (rs.hasNext()) {
-          count = ((Literal)rs.next().getValue("count")).intValue();
+          count = ((Literal) rs.next().getValue("count")).intValue();
 
         }
       }
-      sql= """
+      sql = """
         INSERT DATA {<%s>  im:memberCount %s}
-        """.formatted(iri,count);
+        """.formatted(iri, count);
       org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sql, GRAPH.IM);
       conn.begin();
       upd.execute();

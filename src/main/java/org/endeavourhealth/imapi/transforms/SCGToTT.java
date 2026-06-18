@@ -2,17 +2,17 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.NAMESPACE;
 
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 public class SCGToTT {
   private final SCGLexer lexer;
@@ -78,9 +78,9 @@ public class SCGToTT {
     String code = conceptId.getText();
     if (code.matches("[0-9]+")) {
       if (code.contains("1000252"))
-        return TTIriRef.iri(NAMESPACE.IM + code);
+        return iri(NAMESPACE.IM + code);
       else
-        return TTIriRef.iri(NAMESPACE.SNOMED + code);
+        return iri(NAMESPACE.SNOMED + code);
     } else
       throw new DataFormatException("ECL converter can only be used for snomed codes at this stage");
   }

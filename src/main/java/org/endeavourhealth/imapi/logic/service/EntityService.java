@@ -6,30 +6,30 @@ import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
-import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
-import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.iml.Entity;
-import org.endeavourhealth.imapi.model.imq.DisplayMode;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
-import org.endeavourhealth.imapi.model.search.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.model.EntityReferenceNode;
+import org.endeavourhealth.library.model.Namespace;
+import org.endeavourhealth.library.model.Pageable;
+import org.endeavourhealth.library.model.dto.FilterOptionsDto;
+import org.endeavourhealth.library.model.dto.ParentDto;
+import org.endeavourhealth.library.model.iml.Entity;
+import org.endeavourhealth.library.model.imq.DisplayMode;
+import org.endeavourhealth.library.model.imq.Query;
+import org.endeavourhealth.library.model.imq.QueryException;
+import org.endeavourhealth.library.model.requests.EntityValidationRequest;
+import org.endeavourhealth.library.model.responses.EntityValidationResponse;
+import org.endeavourhealth.library.model.search.EntityDocument;
+import org.endeavourhealth.library.model.search.SearchResultSummary;
+import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.library.vocabulary.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparingInt;
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class EntityService {
@@ -87,7 +87,7 @@ public class EntityService {
     return bundle.getEntity();
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException{
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
@@ -456,7 +456,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException{
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;

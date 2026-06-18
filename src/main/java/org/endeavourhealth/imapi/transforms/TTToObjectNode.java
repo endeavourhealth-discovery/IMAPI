@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.library.logic.CachedObjectMapper;
+import org.endeavourhealth.library.model.tripletree.*;
 
 import java.util.Map;
 

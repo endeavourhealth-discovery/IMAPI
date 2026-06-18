@@ -2,14 +2,17 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.library.vocabulary.SHACL;
+import org.endeavourhealth.library.vocabulary.VALIDATION;
+import org.endeavourhealth.library.model.imq.Query;
+import org.endeavourhealth.library.model.requests.EntityValidationRequest;
+import org.endeavourhealth.library.model.responses.EntityValidationResponse;
+import org.endeavourhealth.library.model.tripletree.TTArray;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTValue;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -17,25 +20,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 
 public class EntityValidator {
   EntityService entityService;
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
-    EntityValidationResponse response=
-    switch (VALIDATION.from(request.getValidationIri())) {
-      case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
-      case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
-      case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
-      case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
-      case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
-      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
-      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
-      case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
-      default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
-    };
+    EntityValidationResponse response =
+      switch (VALIDATION.from(request.getValidationIri())) {
+        case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
+        case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
+        case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
+        case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
+        case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
+        case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
+        case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
+        case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
+        default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
+      };
     System.out.println(response);
     return response;
   }

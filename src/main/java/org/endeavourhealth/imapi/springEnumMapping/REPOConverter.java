@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.springEnumMapping;
 
-import org.endeavourhealth.imapi.model.github.REPO;
+import org.endeavourhealth.library.model.github.REPO;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 

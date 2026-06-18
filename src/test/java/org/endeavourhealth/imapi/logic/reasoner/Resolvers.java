@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.library.vocabulary.GRAPH;
 
 public class Resolvers {
   // @Test

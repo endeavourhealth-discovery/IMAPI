@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
 import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;

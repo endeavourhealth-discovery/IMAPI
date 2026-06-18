@@ -10,6 +10,7 @@ import org.endeavourhealth.library.model.tripletree.TTEntity;
 import org.endeavourhealth.library.model.tripletree.TTNode;
 import org.endeavourhealth.library.transforms.TTManager;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

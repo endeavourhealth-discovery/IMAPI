@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.regex.Pattern;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

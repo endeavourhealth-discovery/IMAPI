@@ -11,6 +11,8 @@ import org.endeavourhealth.library.model.iml.TargetUpdateMode;
 import org.endeavourhealth.library.model.tripletree.TTEntity;
 import org.endeavourhealth.library.model.tripletree.TTLiteral;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+
 public class TestMaps {
 
 

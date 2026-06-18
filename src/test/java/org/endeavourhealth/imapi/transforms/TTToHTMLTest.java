@@ -6,6 +6,7 @@ import org.endeavourhealth.library.model.tripletree.TTArray;
 import org.endeavourhealth.library.model.tripletree.TTIriRef;
 import org.endeavourhealth.library.model.tripletree.TTNode;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class TTToHTMLTest {
@@ -20,10 +21,10 @@ class TTToHTMLTest {
       .setName("Medicinal product");
     inters.add(product);
     TTNode roleGroup = new TTNode();
-    roleGroup.set(TTIriRef.iri(NAMESPACE.SNOMED + "127489000").setName("Has active ingredient (attribute)"),
-      TTIriRef.iri(NAMESPACE.SNOMED + "372665008").setName("Non-steroidal anti-inflammatory agent (substance)"));
-    roleGroup.set(TTIriRef.iri(NAMESPACE.SNOMED + "411116001").setName("Has manufactured dose form (attribute)"),
-      TTIriRef.iri(NAMESPACE.SNOMED + "385268001").setName("Oral dose form (dose form)"));
+    roleGroup.set(iri(NAMESPACE.SNOMED + "127489000").setName("Has active ingredient (attribute)"),
+      iri(NAMESPACE.SNOMED + "372665008").setName("Non-steroidal anti-inflammatory agent (substance)"));
+    roleGroup.set(iri(NAMESPACE.SNOMED + "411116001").setName("Has manufactured dose form (attribute)"),
+      iri(NAMESPACE.SNOMED + "385268001").setName("Oral dose form (dose form)"));
     inters.add(roleGroup);
     String html = TTToHTML.getExpressionText(exp);
     System.out.println(html);

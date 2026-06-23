@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.library.vocabulary.IM;
 
 import java.util.*;
 
@@ -451,5 +452,61 @@ public class LogicOptimizer {
     query.setAnd(null);
     query.setOr(null);
   }
+
+  public static Operator invertComparisonOperator(String op) {
+    return switch (op) {
+      case ">=" -> Operator.lte;
+      case ">" -> Operator.lt;
+      case "<=" -> Operator.gte;
+      case "<" -> Operator.gt;
+      case "=" -> Operator.eq;
+      default -> throw new IllegalArgumentException("Invalid comparison operator: " + op);
+    };
+  }
+
+  public static void optimiseAgeWheres(Match match) {
+    if (match.getAnd() != null)
+      for (Match child : match.getAnd()) optimiseAgeWheres(child);
+    if (match.getOr() != null)
+      for (Match child : match.getOr()) optimiseAgeWheres(child);
+    if (match.getAny() != null)
+      for (Match child : match.getAny()) optimiseAgeWheres(child);
+
+    if (match.getWhere() != null)
+      match.setWhere(rewriteAgeWhere(match.getWhere()));
+  }
+
+  private static Where rewriteAgeWhere(Where where) {
+    if (where.getAnd() != null)
+      where.getAnd().replaceAll(LogicOptimizer::rewriteAgeWhere);
+    if (where.getOr() != null)
+      where.getOr().replaceAll(LogicOptimizer::rewriteAgeWhere);
+
+    if (!"http://endhealth.info/im#age".equals(where.getIri())) return where;
+    if (where.getUnits() == null) return where;
+    if (where.getValue() == null) return where;
+    if (where.getOperator() == null) return where;
+
+    Where rewritten = new Where();
+    rewritten.setOperator(invertComparisonOperator(where.getOperator().getValue()));
+    rewritten.setValue(where.getValue());
+    rewritten.setNot(where.isNot());
+
+    ValueSource left = new ValueSource();
+    left.setIri("http://endhealth.info/im#dateOfBirth");
+
+    ValueSource right = new ValueSource();
+    right.setParameter("$searchDate");
+
+    Compare compare = new Compare();
+    compare.setLeft(left);
+    compare.setRight(right);
+    compare.setUnits(where.getUnits());
+
+    rewritten.setCompare(compare);
+
+    return rewritten;
+  }
+
 
 }

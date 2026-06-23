@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.sql
 
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer
 import org.endeavourhealth.library.model.imq.Node
 import org.endeavourhealth.library.errorhandling.SQLConversionException
 
@@ -85,12 +86,12 @@ class MySQLCompareWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-//      TODO: instead of property.startsWith("TIMESTAMPDIFF") check if function
       val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base =
         if (units != null) {
           when (units) {
-            "DAY", "MONTH", "YEAR" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            "DAY", "MONTH", "YEAR" ->
+              "($prop) $operator DATE_SUB($right, INTERVAL $value $units)"
             else -> throw SQLConversionException("Unsupported unit $units")
           }
         } else if (qualifier != null) {

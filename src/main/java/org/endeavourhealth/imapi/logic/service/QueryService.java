@@ -87,6 +87,7 @@ public class QueryService {
     }
     try {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+      LogicOptimizer.optimiseAgeWheres(query);
     } catch (Exception e) {
       throw new SQLConversionException(e.getMessage(), e);
     }

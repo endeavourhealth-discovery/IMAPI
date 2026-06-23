@@ -922,7 +922,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-
   private fun getMySQLWhereFromWhere(
     where: Where,
     variableToTableMap: HashMap<String, Table>,
@@ -1170,14 +1169,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    val table =
-      IMtoMySQLMap.getTableFromProperty(listOf(propertyIri))
-        ?: IMtoMySQLMap.getTableFromDataModel(
-          typeIri
-        ) ?: throw SQLConversionException(
-          "Type $typeIri not found in table map"
-        )
-    return table
+    return IMtoMySQLMap.getTableFromProperty(listOfNotNull(propertyIri))
+      ?: IMtoMySQLMap.getTableFromDataModel(typeIri)
+      ?: throw SQLConversionException("Type $typeIri not found in table map")
   }
 
   private fun ensureUniqueAlias(baseAlias: String): String {

@@ -483,9 +483,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val or = mutableListOf<MySQLWhere>()
       or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
       or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
-      rnWith.wheres?.add(MySQLBoolWhere(or = or))
+      rnWith.wheres.add(MySQLBoolWhere(or = or))
     } else {
-      rnWith.wheres?.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
+      rnWith.wheres.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
     }
 
     if (match.then != null) {
@@ -876,7 +876,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           ?.or
           ?.add(boolWhere)
 
-        else -> with.wheres?.add(boolWhere)
+        else -> with.wheres.add(boolWhere)
       }
       andList.forEach {
         addWheresRecursively(it, with, variableToTableMap, boolWhere, Bool.and, table)
@@ -897,7 +897,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           ?.or
           ?.add(boolWhere)
 
-        else -> with.wheres?.add(boolWhere)
+        else -> with.wheres.add(boolWhere)
       }
 
       orList.forEach {
@@ -918,9 +918,17 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         ?.or
         ?.add(leaf)
 
-      else -> with.wheres?.add(leaf)
+      else -> with.wheres.add(leaf)
     }
   }
+
+  private fun resolveUnitAndTypeFromWhere(where: Where, rangeEndUnitsIri: String? = null): Pair<String?, String?> =
+    when {
+      where.compare?.units?.iri != null -> getUnitNameAndType(where.compare.units.iri)
+      rangeEndUnitsIri != null -> getUnitNameAndType(rangeEndUnitsIri)
+      where.qualifier?.iri != null -> getUnitNameAndType(where.qualifier.iri)
+      else -> null to null
+    }
 
   private fun getMySQLWhereFromWhere(
     where: Where,
@@ -928,35 +936,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     with: MySQLWith,
     table: Table? = null,
   ): MySQLWhere {
-    var (currentTable, field) = if (table != null && where.iri != null) table to getPropertyNameByTableAndPropertyIri(
-      table,
-      where.iri
-    ).field
+    var (currentTable, field) = if (table != null && where.iri != null)
+      table to getPropertyNameByTableAndPropertyIri(table, where.iri).field
     else
-      getTableAndField(
-        with,
-        where,
-        variableToTableMap
-      )
+      getTableAndField(with, where, variableToTableMap)
+
     if (table != null) currentTable = table
     if (where.propertyRef != null) field = where.propertyRef
-    val where = if (where.`is` != null) {
+
+    val tableRef = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
+
+    val result = if (where.`is` != null) {
       for (join in addWhereConceptJoin(currentTable, field)) {
-        if (!with.joins.contains(join))
-          with.joins.add(join)
+        if (!with.joins.contains(join)) with.joins.add(join)
       }
       MySQLPropertyIsWhere(
         field,
         where.`is`,
         "=",
         not = where.isNot,
-        table = currentTable.alias ?: currentTable.table,
+        table = tableRef,
       )
     } else if (where.range != null) {
-
       val from = where.range.from
       val to = where.range.to
-
       val isDirectValue = from.compare == null && from.value != null
 
       val fromWhere: MySQLWhere
@@ -967,13 +970,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = from.operator.value,
           value = toSqlLiteral("${from.value}"),
-          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
+          table = tableRef
         )
         toWhere = MySQLPropertyValueWhere(
           property = field,
           operator = to.operator.value,
           value = toSqlLiteral("${to.value}"),
-          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
+          table = tableRef
         )
       } else {
         val fromRight = from.compare?.right?.parameter ?: from.compare?.right?.propertyRef
@@ -984,24 +987,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         ?: getValueFromRelativeTo(to, variableToTableMap)
         ?: throw SQLConversionException("No value for range.to")
 
-        val (fromUnit, fromUnitType) =
-          if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.from?.compare?.units?.iri != null) getUnitNameAndType(where.range.from.compare.units.iri)
-          else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
-          else null to null
-
-        val (toUnit, toType) =
-          if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.to?.compare?.units?.iri != null) getUnitNameAndType(where.range.to.compare.units.iri)
-          else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
-          else null to null
+        val (fromUnit, fromUnitType) = resolveUnitAndTypeFromWhere(where, where.range.from.compare?.units?.iri)
+        val (toUnit, toType) = resolveUnitAndTypeFromWhere(where, where.range.to.compare?.units?.iri)
 
         fromWhere = MySQLCompareWhere(
           property = field,
           operator = from.operator.value,
           right = fromRight,
           value = toSqlLiteral(from.value),
-          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
+          table = tableRef,
           units = if (fromUnitType == "Unit") fromUnit else null,
           qualifier = if (fromUnitType == "Qualifier") fromUnit else null,
         )
@@ -1011,31 +1005,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           operator = to.operator.value,
           right = toRight,
           value = toSqlLiteral(to.value),
-          table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table,
+          table = tableRef,
           units = if (toType == "Unit") toUnit else null,
           qualifier = if (toType == "Qualifier") toUnit else null,
         )
       }
 
-      MySQLBoolWhere(
-        and = mutableListOf(fromWhere, toWhere)
-      )
+      MySQLBoolWhere(and = mutableListOf(fromWhere, toWhere))
+
     } else if (where.isNull) {
       MySQLPropertyIsNullWhere(
         field,
         not = where.isNot,
-        table = currentTable.alias ?: currentTable.table,
+        table = tableRef,
       )
     } else if (where.compare != null) {
-      val (name, type) =
-        if (where.compare.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-        else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
-        else null to null
-      val compareValue = where.compare.right.parameter ?: where.compare.right.propertyRef ?: getValueFromRelativeTo(
-        where,
-        variableToTableMap
-      )
+      val (name, type) = resolveUnitAndTypeFromWhere(where)
+      val compareValue = where.compare.right.parameter ?: where.compare.right.propertyRef
+      ?: getValueFromRelativeTo(where, variableToTableMap)
       ?: throw SQLConversionException("No value provided for where $where")
+
       if (where.value != null)
         MySQLCompareWhere(
           property = field,
@@ -1060,10 +1049,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         where.operator.value,
         toSqlLiteral(where.value),
         not = where.isNot,
-        table = currentTable.alias ?: currentTable.table,
+        table = tableRef,
       )
     }
-    return where
+    return result
   }
 
   private fun getTableAndField(
@@ -1178,7 +1167,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     fun normalize(a: String) =
       a.replace("`", "").lowercase()
 
-    var alias = baseAlias.replace("`", "")
+    val alias = baseAlias.replace("`", "")
 
     if (alias.length > MAX_ALIAS_LENGTH) {
       var newAlias: String

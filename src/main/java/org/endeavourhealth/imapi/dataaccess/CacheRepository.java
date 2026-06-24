@@ -50,7 +50,7 @@ public class CacheRepository {
           processStatement(shapes, valueMap, subjectMap, st);
         }
       }
-      Set<TTIriRefExtended> iris = new HashSet<>();
+      Set<TTIriRef> iris = new HashSet<>();
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
       EntityRepository.getIriNames(conn, iris);
       Set<TTBundle> result = new HashSet<>();
@@ -58,8 +58,8 @@ public class CacheRepository {
         TTBundle bundle = new TTBundle();
         bundle.setEntity(shape);
         result.add(bundle);
-        Set<TTIriRefExtended> shapeIris = TTManager.getIrisFromNode(shape);
-        for (TTIriRefExtended iri : shapeIris) {
+        Set<TTIriRef> shapeIris = TTManager.getIrisFromNode(shape);
+        for (TTIriRef iri : shapeIris) {
           bundle.addPredicate(iri);
         }
       }
@@ -73,7 +73,7 @@ public class CacheRepository {
     IRI p = st.getPredicate();
     Value o = st.getObject();
     String subject = s.stringValue();
-    TTIriRefExtended predicate = new TTIriRefExtended(p.stringValue());
+    TTIriRef predicate = TTIriRefExtensionsKt.iri(new TTIriRef(), p.stringValue());
     String value = o.stringValue();
     TTNode node;
     if (s.isIRI()) {
@@ -90,7 +90,7 @@ public class CacheRepository {
     if (o.isLiteral()) {
       node.set(predicate, literal(value));
     } else if (o.isIRI()) {
-      node.addObject(predicate, new TTIriRefExtended(value));
+      node.addObject(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
     } else {
       valueMap.putIfAbsent(value, new TTNode());
       node.addObject(predicate, valueMap.get(value).asNode());

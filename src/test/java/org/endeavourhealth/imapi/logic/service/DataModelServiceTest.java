@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.interfacemanager.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,13 +24,13 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotNullEntity() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray().add(new TTNode()
-        .set(new TTIriRefExtended(ImVocab. INHERITED_FROM),new TTIriRefExtended())
-        .set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended())
-      .set(new TTIriRefExtended(ShaclVocab.CLASS), new TTIriRefExtended())
-      .set(new TTIriRefExtended(ShaclVocab.DATATYPE), new TTIriRefExtended())
-      .set(new TTIriRefExtended(ShaclVocab.MAXCOUNT), new TTLiteral())
-      .set(new TTIriRefExtended(ShaclVocab.MINCOUNT), new TTLiteral())
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArray().add(new TTNode()
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INHERITED_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), ))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), ))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS), TTIriRefExtensionsKt.iri(new TTIriRef(), ))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), ))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MAXCOUNT), new TTLiteral())
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MINCOUNT), new TTLiteral())
       )));
     assertNotNull(actual);
   }
@@ -39,7 +39,7 @@ public class DataModelServiceTest {
   void getDataModelProperties_NotInheritedFrom() {
     List<DataModelProperty> actual = dataModelService.getDataModelProperties(new TTEntity()
       .setIri("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray().add(new TTNode()))
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArray().add(new TTNode()))
     );
     assertNotNull(actual);
   }

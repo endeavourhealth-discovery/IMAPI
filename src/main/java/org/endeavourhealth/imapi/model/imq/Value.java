@@ -2,8 +2,10 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.Compare;
+import org.endeavourhealth.interfacemanager.model.FunctionClause;
 import org.endeavourhealth.interfacemanager.model.Operator;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.function.Consumer;
 
@@ -18,10 +20,10 @@ public class Value implements Assignable {
   private String valueParameter;
   private FunctionClause function;
   private String description;
-  private TTIriRefExtended units;
+  private TTIriRef units;
   private boolean invalid;
   private String valueTerm;
-  private CompareExtended compareExtended;
+  private Compare compare;
 
 
   public boolean isInvalid() {
@@ -45,11 +47,11 @@ public class Value implements Assignable {
     return this;
   }
 
-  public TTIriRefExtended getUnits() {
+  public TTIriRef getUnits() {
     return this.units;
   }
 
-  public Value setUnits(TTIriRefExtended units) {
+  public Value setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }
@@ -102,18 +104,18 @@ public class Value implements Assignable {
     return this;
   }
 
-  public CompareExtended getCompareExtended() {
-    return this.compareExtended;
+  public Compare getCompare() {
+    return this.compare;
   }
 
-  public Value setCompareExtended(CompareExtended compareExtended) {
-    this.compareExtended = compareExtended;
+  public Value setCompare(Compare compare) {
+    this.compare = compare;
     return this;
   }
 
-  public Value compare(Consumer<CompareExtended> builder) {
-    this.compareExtended = new CompareExtended();
-    builder.accept(this.compareExtended);
+  public Value compare(Consumer<Compare> builder) {
+    this.compare = new Compare();
+    builder.accept(this.compare);
     return this;
   }
 

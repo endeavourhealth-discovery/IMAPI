@@ -2,13 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
-import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.Node;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -80,8 +79,8 @@ class OSQueryTest_IM {
   void imQuery_term_multiIsA() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
-      .addArgument(new ArgumentExtended().setParameter("isas").setValueIriList(
-        (Set.of(new TTIriRefExtended("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
+      .addArgument(new Argument().setParameter("isas").setValueIriList(
+        (Set.of(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
         .addIs(new Node().setParameter("$isas")

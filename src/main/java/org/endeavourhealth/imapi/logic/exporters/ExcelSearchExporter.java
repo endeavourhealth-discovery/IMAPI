@@ -7,14 +7,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.DownloadByQueryOptions;
+import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
+import org.endeavourhealth.interfacemanager.model.Page;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +71,7 @@ public class ExcelSearchExporter {
     }
   }
 
-  private String iriToString(TTIriRefExtended iri, boolean inArray) {
+  private String iriToString(TTIriRef iri, boolean inArray) {
     if (inArray) return "\"" + iri.getName() + "\"";
     else return iri.getName();
   }
@@ -105,7 +105,7 @@ public class ExcelSearchExporter {
         Cell intCell = row.createCell(getLastCellNum(row), CellType.NUMERIC);
         intCell.setCellValue(valueAsInteger);
       }
-      case TTIriRefExtended valueAsTTIriRef -> {
+      case TTIriRef valueAsTTIriRef -> {
         Cell ttIriRefCell = row.createCell(getLastCellNum(row), CellType.STRING);
         ttIriRefCell.setCellValue(iriToString(valueAsTTIriRef, false));
       }
@@ -150,7 +150,7 @@ public class ExcelSearchExporter {
     if (item instanceof String itemAsString) stringJoiner.add(itemAsString);
     else if (item instanceof Integer itemAsInteger) {
       stringJoiner.add(itemAsInteger.toString());
-    } else if (item instanceof TTIriRefExtended itemAsTTIriRef) {
+    } else if (item instanceof TTIriRef itemAsTTIriRef) {
       stringJoiner.add(iriToString(itemAsTTIriRef, inArray));
     } else if (item instanceof ArrayList<?> itemAsList) {
       stringJoiner.add(listToString(itemAsList));

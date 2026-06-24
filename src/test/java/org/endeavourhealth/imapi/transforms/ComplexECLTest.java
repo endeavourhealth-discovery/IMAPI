@@ -3,15 +3,15 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.logic.service.EclService;
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
 
 public class ComplexECLTest {
   //@Test
   public void expanderTest() throws QueryException, JsonProcessingException {
-    new SetMemberGenerator().generateMembers(NamespaceVocab.IM + "CSET_OralCorticosteroids", GraphVocab. IM);
+    new SetMemberGenerator().generateMembers(NamespaceVocab.IM + "CSET_OralCorticosteroids", GraphVocab.IM);
   }
 
   //@Test

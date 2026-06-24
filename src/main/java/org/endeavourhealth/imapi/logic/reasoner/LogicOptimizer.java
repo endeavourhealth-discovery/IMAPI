@@ -2,9 +2,13 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Path;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.interfacemanager.model.Bool;
 import org.endeavourhealth.interfacemanager.model.DisplayMode;
+import org.endeavourhealth.interfacemanager.model.Match;
 import org.endeavourhealth.interfacemanager.model.RuleAction;
 
 import java.util.*;
@@ -82,7 +86,7 @@ public class LogicOptimizer {
     match.setIs(nestedMatch.getIs());
     match.setOr(nestedMatch.getOr());
     match.setAnd(nestedMatch.getAnd());
-    match.setNotExists(nestedMatch.notExists());
+    match.setNotExists(nestedMatch.getNotExists());
     if (nestedMatch.getWhere() != null) {
       if (match.getWhere() == null) match.setWhere(nestedMatch.getWhere());
       else {
@@ -214,42 +218,42 @@ public class LogicOptimizer {
       switch (ifTrue + "_" + ifFalse) {
         case "SELECT_REJECT":
           if (topOr != null) {
-            topOr.addOr(subMatch);
+            topOr.addOrItem(subMatch);
             topOr = null;
-          } else match.addAnd(subMatch);
+          } else match.addAndItem(subMatch);
           break;
         case "SELECT_NEXT":
-          if (topOr != null) topOr.addOr(subMatch);
+          if (topOr != null) topOr.addOrItem(subMatch);
           else {
             topOr = new Match();
-            match.addAnd(topOr);
-            topOr.addOr(subMatch);
+            match.addAndItem(topOr);
+            topOr.addOrItem(subMatch);
           }
           break;
         case "REJECT_SELECT":
           subMatch.setNotExists(true);
           if (topOr != null) {
-            topOr.addOr(subMatch);
+            topOr.addOrItem(subMatch);
             topOr = null;
-          } else match.addAnd(subMatch);
+          } else match.addAndItem(subMatch);
           break;
         case "REJECT_NEXT":
           subMatch.setNotExists(true);
-          match.addAnd(subMatch);
+          match.addAndItem(subMatch);
           break;
         case "NEXT_SELECT":
           subMatch.setNotExists(true);
           if (topOr != null) {
-            topOr.addOr(subMatch);
+            topOr.addOrItem(subMatch);
             topOr = null;
           } else {
             topOr = new Match();
-            match.addAnd(topOr);
-            topOr.addOr(subMatch);
+            match.addAndItem(topOr);
+            topOr.addOrItem(subMatch);
           }
           break;
         case "NEXT_REJECT":
-          match.addAnd(subMatch);
+          match.addAndItem(subMatch);
           break;
       }
     }
@@ -324,7 +328,7 @@ public class LogicOptimizer {
             match.setOr(and.getOr());
             match.setAnd(null);
             match.setReturn(and.getReturn());
-            match.setNotExists(and.notExists());
+            match.setNotExists(and.getNotExists());
           } else if (and.getAnd() != null) {
             match.setAnd(and.getAnd());
             match.setOr(null);
@@ -351,7 +355,7 @@ public class LogicOptimizer {
           for (Match andMatch : orMatch.getAnd()) {
             String content = LogicComparer.serializeMatchLogic(andMatch);
             if (!commonMatches.contains(content)) {
-              newOr.addAnd(andMatch);
+              newOr.addAndItem(andMatch);
             }
           }
         }
@@ -360,7 +364,7 @@ public class LogicOptimizer {
         match.setAnd(optimisedAnds);
         if (!optimisedOrs.isEmpty()) {
           Match topOr = new Match();
-          match.addAnd(topOr);
+          match.addAndItem(topOr);
           topOr.setOr(optimisedOrs);
         }
       }
@@ -407,7 +411,7 @@ public class LogicOptimizer {
     if (query.getAnd() != null) {
       for (Match match : query.getAnd()) {
         query.addRule(match);
-        if (match.notExists()) {
+        if (match.getNotExists()) {
           match.setIfTrue(RuleAction.REJECT);
           match.setIfFalse(RuleAction.NEXT);
         } else {
@@ -433,10 +437,10 @@ public class LogicOptimizer {
       orRule.setIfTrue(RuleAction.NEXT);
       orRule.setIfFalse(RuleAction.REJECT);
       for (Match match : query.getOr()) {
-        orRule.addOr(match);
+        orRule.addOrItem(match);
       }
       Match lastRule = orRule.getRule().getLast();
-      if (lastRule.notExists()) {
+      if (lastRule.getNotExists()) {
         lastRule.setIfTrue(RuleAction.REJECT);
         lastRule.setIfFalse(RuleAction.SELECT);
       } else {

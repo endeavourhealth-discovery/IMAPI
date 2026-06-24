@@ -41,12 +41,12 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
   }
 
-  private void addType(TTEntity entity, TTIriRefExtended type) {
-    if ( entity.get(new TTIriRefExtended(RdfVocab. TYPE)) ==null){
+  private void addType(TTEntity entity, TTIriRef type) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)) == null) {
       TTArray types = new TTArray();
-      entity.set(new TTIriRefExtended(RdfVocab. TYPE),types);
-    } else{
-      TTArray types = entity.get(new TTIriRefExtended(RdfVocab. TYPE));
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), types);
+    } else {
+      TTArray types = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE));
       types.add(type);
     }
   }
@@ -60,9 +60,9 @@ public class OWLToTT extends OWLFSBaseVisitor {
     else if (ctx.subObjectPropertyOf() != null)
       return visitSubObjectPropertyOf(ctx.subObjectPropertyOf());
     else if (ctx.reflexiveObjectProperty() != null) {
-      addType(entity, new TTIriRefExtended(OwlVocab.REFLEXIVE));
+      addType(entity, TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.REFLEXIVE));
     } else if (ctx.transitiveObjectProperty() != null) {
-      addType(entity, new TTIriRefExtended(OwlVocab.TRANSITIVE));
+      addType(entity, TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.TRANSITIVE));
     }
 
     return null;
@@ -71,13 +71,13 @@ public class OWLToTT extends OWLFSBaseVisitor {
   @Override
   public Object visitSubClassOf(OWLFSParser.SubClassOfContext ctx) {
     if (!isGCI(ctx)) {
-      TTArray subClassOf = addArrayAxiom(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF));
+      TTArray subClassOf = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
       subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
     }
     return this.defaultResult();
   }
 
-  private TTArray addArrayAxiom(TTIriRefExtended predicate) {
+  private TTArray addArrayAxiom(TTIriRef predicate) {
     if (entity.get(predicate) == null) {
       TTArray array = new TTArray();
       entity.set(predicate, array);
@@ -87,7 +87,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
   @Override
   public Object visitEquivalentClasses(OWLFSParser.EquivalentClassesContext ctx) {
-    TTArray equivalent = addArrayAxiom(new TTIriRefExtended(OwlVocab.EQUIVALENT_CLASS));
+    TTArray equivalent = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS));
     equivalent.add(convertClassExpression(ctx.classExpression().get(1)));
     return null;
   }
@@ -96,11 +96,11 @@ public class OWLToTT extends OWLFSBaseVisitor {
   public Object visitSubObjectPropertyOf(OWLFSParser.SubObjectPropertyOfContext ctx) {
 
     if (ctx.subObjectPropertyExpression().propertyExpressionChain() != null) {
-      entity.set(new TTIriRefExtended(OwlVocab.PROPERTY_CHAIN),
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN),
         convertPropertyChain(ctx.subObjectPropertyExpression().propertyExpressionChain()));
     } else {
-      TTArray superProp = addArrayAxiom(new TTIriRefExtended(RdfsVocab.SUB_PROPERTY_OF));
-      superProp.add(new TTIriRefExtended(expand(ctx.superObjectPropertyExpression()
+      TTArray superProp = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF));
+      superProp.add(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.superObjectPropertyExpression()
         .objectPropertyExpression()
         .objectProperty()
         .iri()
@@ -112,31 +112,31 @@ public class OWLToTT extends OWLFSBaseVisitor {
   private TTArray convertPropertyChain(OWLFSParser.PropertyExpressionChainContext chainContext) {
     TTArray chain = new TTArray();
     for (OWLFSParser.ObjectPropertyExpressionContext opcs : chainContext.objectPropertyExpression()) {
-      chain.add(new TTIriRefExtended(expand(opcs.objectProperty().iri().getText())));
+      chain.add(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(opcs.objectProperty().iri().getText())));
     }
     return chain;
   }
 
   private TTValue convertClassExpression(OWLFSParser.ClassExpressionContext ctx) {
     if (ctx.iri() != null)
-      return new TTIriRefExtended(expand(ctx.getText()));
+      return TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.getText()));
     else if (ctx.objectIntersectionOf() != null) {
       TTNode exp = new TTNode();
       TTArray inters = new TTArray();
-      exp.set(new TTIriRefExtended(OwlVocab.INTERSECTION_OF), inters);
+      exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF), inters);
       for (OWLFSParser.ClassExpressionContext ctxInter : ctx.objectIntersectionOf().classExpression()) {
         inters.add(convertClassExpression(ctxInter));
       }
       return exp;
     } else if (ctx.objectSomeValuesFrom() != null) {
       TTNode exp = new TTNode();
-      exp.set(new TTIriRefExtended(RdfVocab. TYPE),new TTIriRefExtended(OwlVocab.RESTRICTION));
-      exp.set(new TTIriRefExtended(OwlVocab.ON_PROPERTY), new TTIriRefExtended(expand(ctx.objectSomeValuesFrom()
+      exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.RESTRICTION));
+      exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.objectSomeValuesFrom()
         .objectPropertyExpression()
         .objectProperty()
         .iri()
         .getText())));
-      exp.set(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM),
+      exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM),
         convertClassExpression(ctx.objectSomeValuesFrom().classExpression()));
       return exp;
     } else

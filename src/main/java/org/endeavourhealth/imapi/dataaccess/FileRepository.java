@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.dataaccess;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,16 +21,16 @@ public class FileRepository {
 
 
   private final Map<NAMESPACE, Map<String, Set<String>>> codeCoreMap = new EnumMap<>(NamespaceVocab.
-  class);
+    class);
   private final Map<NAMESPACE, Map<String, Set<String>>> termCoreMap = new EnumMap<>(NamespaceVocab.
-  class);
+    class);
   private final Map<NAMESPACE, Map<String, Set<String>>> codes = new EnumMap<>(NamespaceVocab.
-  class);
+    class);
   private final Map<String, String> coreTerms = new HashMap<>();
   private final Map<NAMESPACE, Map<String, String>> termCodes = new EnumMap<>(NamespaceVocab.
-  class);
+    class);
   private final Map<NAMESPACE, Map<String, Set<String>>> codeIds = new EnumMap<>(NamespaceVocab.
-  class);
+    class);
   private final Map<String, String> coreIris = new HashMap<>();
   @Setter
   @Getter
@@ -88,14 +88,14 @@ public class FileRepository {
     }
   }
 
-  public Set<TTIriRefExtended> getCoreFromCodeId(String codeId, List<NAMESPACE> schemes) throws IOException {
+  public Set<TTIriRef> getCoreFromCodeId(String codeId, List<NAMESPACE> schemes) throws IOException {
     for (NAMESPACE scheme : schemes) {
       if (codeIds.get(scheme) == null) {
         fetchCodeIds(scheme);
       }
       if (codeIds.get(scheme).get(codeId) != null) {
-        Set<TTIriRefExtended> result = new HashSet<>();
-        codeIds.get(scheme).get(codeId).forEach(c -> result.add(new TTIriRefExtended(c)));
+        Set<TTIriRef> result = new HashSet<>();
+        codeIds.get(scheme).get(codeId).forEach(c -> result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), c)));
         return result;
       }
     }
@@ -109,12 +109,12 @@ public class FileRepository {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRefExtended getReferenceFromCoreTerm(String term) throws IOException {
+  public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
     if (coreTerms.isEmpty()) {
       fetchCoreTerms();
     }
     if (coreTerms.get(term) != null)
-      return new TTIriRefExtended(coreTerms.get(term));
+      return TTIriRefExtensionsKt.iri(new TTIriRef(), coreTerms.get(term));
     else
       return null;
   }
@@ -149,13 +149,13 @@ public class FileRepository {
     readFileToStringMap(fileName, coreTerms);
   }
 
-  public Set<TTIriRefExtended> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
+  public Set<TTIriRef> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
     try {
       for (NAMESPACE scheme : schemes) {
         if (codeCoreMap.get(scheme) == null)
           fetchCodeCoreMap(scheme);
         if (codeCoreMap.get(scheme).get(originalCode) != null) {
-          return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRefExtended::new).collect(Collectors.toSet());
+          return codeCoreMap.get(scheme).get(originalCode).stream().map(TTIriRef::new).collect(Collectors.toSet());
         }
       }
       return Collections.emptySet();
@@ -165,11 +165,11 @@ public class FileRepository {
     }
   }
 
-  public Set<TTIriRefExtended> getCoreFromLegacyTerm(String originalTerm, NAMESPACE scheme) throws IOException {
+  public Set<TTIriRef> getCoreFromLegacyTerm(String originalTerm, NAMESPACE scheme) throws IOException {
     if (termCoreMap.get(scheme) == null)
       fetchTermCoreMap(scheme);
     if (termCoreMap.get(scheme).get(originalTerm) != null)
-      return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRefExtended::new).collect(Collectors.toSet());
+      return termCoreMap.get(scheme).get(originalTerm).stream().map(TTIriRef::new).collect(Collectors.toSet());
     else
       return Collections.emptySet();
   }

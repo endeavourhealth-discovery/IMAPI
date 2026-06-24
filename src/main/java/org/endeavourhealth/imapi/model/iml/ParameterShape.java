@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,37 +8,39 @@ import java.util.function.Consumer;
 
 public class ParameterShape {
   private String label;
-  private TTIriRefExtended type;
-  private List<TTIriRefExtended> parameterSubType;
+  private TTIriRef type;
+  private List<TTIriRef> parameterSubType;
 
-  public List<TTIriRefExtended> getParameterSubType() {
+  public List<TTIriRef> getParameterSubType() {
     return parameterSubType;
   }
 
-  public ParameterShape setParameterSubType(List<TTIriRefExtended> parameterSubType) {
+  public ParameterShape setParameterSubType(List<TTIriRef> parameterSubType) {
     this.parameterSubType = parameterSubType;
     return this;
   }
-  public ParameterShape addParameterSubType (TTIriRefExtended parameterSubType){
-      if (this.parameterSubType == null) {
-        this.parameterSubType = new ArrayList<>();
-      }
-      this.parameterSubType.add(parameterSubType);
-      return this;
+
+  public ParameterShape addParameterSubType(TTIriRef parameterSubType) {
+    if (this.parameterSubType == null) {
+      this.parameterSubType = new ArrayList<>();
     }
-  public ParameterShape parameterSubType (Consumer<TTIriRefExtended> builder) {
-      TTIriRefExtended parameterSubType = new TTIriRefExtended();
-      addParameterSubType(parameterSubType);
-      builder.accept(parameterSubType);
-      return this;
-    }
+    this.parameterSubType.add(parameterSubType);
+    return this;
+  }
+
+  public ParameterShape parameterSubType(Consumer<TTIriRef> builder) {
+    TTIriRef parameterSubType = TTIriRefExtensionsKt.iri(new TTIriRef(), );
+    addParameterSubType(parameterSubType);
+    builder.accept(parameterSubType);
+    return this;
+  }
 
 
-  public TTIriRefExtended getType() {
+  public TTIriRef getType() {
     return type;
   }
 
-  public ParameterShape setType(TTIriRefExtended type) {
+  public ParameterShape setType(TTIriRef type) {
     this.type = type;
     return this;
   }

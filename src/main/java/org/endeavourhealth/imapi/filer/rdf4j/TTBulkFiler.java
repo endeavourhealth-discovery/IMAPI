@@ -41,8 +41,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private static void setStatus(TTEntity entity) {
-    if (entity.get(new TTIriRefExtended(RdfsVocab.LABEL)) != null && entity.get(new TTIriRefExtended(ImVocab.HAS_STATUS)) == null)
-      entity.set(new TTIriRefExtended(ImVocab.HAS_STATUS), new TTIriRefExtended(ImVocab.ACTIVE));
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null && entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)) == null)
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE));
   }
 
   public static void createRepository() throws TTFilerException {
@@ -182,9 +182,9 @@ public class TTBulkFiler implements TTDocumentFiler {
           continue;
 
         allEntities.write(entity.getIri() + "\n");
-        if ( GraphVocab.
-        ImVocab.equals(graph))
-        coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
+        if (GraphVocab.
+          ImVocab.equals(graph))
+          coreIris.write(entity.getIri() + "\t" + entity.getName() + "\n");
         if (entity.getScheme() == null) {
           transformAndWriteQuads(converter, entity, graph);
         } else {
@@ -291,8 +291,8 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addSubtypes(TTEntity entity) throws IOException {
-    for (TTIriRefExtended relationship : List.of(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), new TTIriRefExtended(RdfsVocab.SUB_PROPERTY_OF),
-      new TTIriRefExtended(ImVocab.LOCAL_SUBCLASS_OF))) {
+    for (TTIriRef relationship : List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.LOCAL_SUBCLASS_OF))) {
       if (entity.get(relationship) != null)
         for (TTValue parent : entity.get(relationship).getElements()) {
           subtypes.write(entity.getIri() + "\t" + relationship.getIri() + "\t" + parent.asIriRef().getIri() + "\n");
@@ -313,10 +313,10 @@ public class TTBulkFiler implements TTDocumentFiler {
     NAMESPACE namespace = NamespaceVocab.fromValue(entity.getScheme().getIri());
     if (null == namespace)
       throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
-    if (entity.get(new TTIriRefExtended(ImVocab.ALTERNATIVE_CODE)) != null) {
-      codeMap.write(namespace + entity.get(new TTIriRefExtended(ImVocab.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ALTERNATIVE_CODE)) != null) {
+      codeMap.write(namespace + entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       if (namespace.equals(NamespaceVocab.IM) || (namespace.equals(NamespaceVocab.SNOMED)))
-        getCodeCoreMap(namespace).write(entity.get(new TTIriRefExtended(ImVocab.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+        getCodeCoreMap(namespace).write(entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
         codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");
@@ -327,9 +327,9 @@ public class TTBulkFiler implements TTDocumentFiler {
   }
 
   private void addCodeIdToMaps(TTEntity entity) throws IOException {
-    if (entity.get(new TTIriRefExtended(ImVocab.CODE_ID)) != null) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE_ID)) != null) {
       NAMESPACE namespace = NamespaceVocab.fromValue(entity.getScheme().getIri());
-      for (TTValue codeId : entity.get(new TTIriRefExtended(ImVocab.CODE_ID)).getElements()) {
+      for (TTValue codeId : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE_ID)).getElements()) {
         getCodeIds(namespace).write(codeId.asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       }
     }
@@ -338,10 +338,10 @@ public class TTBulkFiler implements TTDocumentFiler {
   private void addTermCodeToMaps(TTEntity entity) throws IOException {
     NAMESPACE namespace = NamespaceVocab.fromValue(entity.getScheme().getIri());
 
-    if (entity.get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)) != null) {
-      for (TTValue tc : entity.get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)).getElements()) {
-        if (tc.asNode().get(new TTIriRefExtended(ImVocab.CODE)) != null) {
-          String code = tc.asNode().get(new TTIriRefExtended(ImVocab.CODE)).asLiteral().getValue();
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
+      for (TTValue tc : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements()) {
+        if (tc.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE)) != null) {
+          String code = tc.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE)).asLiteral().getValue();
           assert namespace != null;
           if (namespace.equals(NamespaceVocab.IM) || (namespace.equals(NamespaceVocab.SNOMED)))
             getCodeCoreMap(namespace).write(code + "\t" + entity.getIri() + "\n");
@@ -355,12 +355,12 @@ public class TTBulkFiler implements TTDocumentFiler {
     if (null == namespace)
       throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
-    if (entity.get(new TTIriRefExtended(ImVocab.MATCHED_TO)) != null) {
-      for (TTValue core : entity.get(new TTIriRefExtended(ImVocab.MATCHED_TO)).getElements()) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MATCHED_TO)) != null) {
+      for (TTValue core : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MATCHED_TO)).getElements()) {
         if (namespace.equals(NamespaceVocab.IM) || (namespace.equals(NamespaceVocab.SNOMED))) {
           legacyCore.write(entity.getIri() + "\t" + core.asIriRef().getIri() + "\n");
-          if (entity.get(new TTIriRefExtended(ImVocab.CODE_ID)) != null)
-            getCodeIds(namespace).write(entity.get(new TTIriRefExtended(ImVocab.CODE_ID)).asLiteral().getValue() + "\t" +
+          if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE_ID)) != null)
+            getCodeIds(namespace).write(entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE_ID)).asLiteral().getValue() + "\t" +
               core.asIriRef().getIri() + "\n");
         }
         getCodeCoreMap(namespace).write(entity.getCode() + "\t" + core.asIriRef().getIri() + "\n");
@@ -372,19 +372,19 @@ public class TTBulkFiler implements TTDocumentFiler {
 
   private void addMatchToHasTermCode(TTEntity entity, TTValue core) throws IOException {
 
-    if (entity.get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)) != null) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
       NAMESPACE namespace = NamespaceVocab.fromValue(entity.getScheme().getIri());
       if (null == namespace)
         throw new IllegalArgumentException("Failed to decode into NAMESPACE enum: " + entity.getScheme().getIri());
 
-      for (TTValue tc : entity.get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)).getElements()) {
+      for (TTValue tc : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements()) {
         TTNode termCode = tc.asNode();
-        if (termCode.get(new TTIriRefExtended(ImVocab.CODE)) != null) {
-          String code = termCode.get(new TTIriRefExtended(ImVocab.CODE)).asLiteral().getValue();
+        if (termCode.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE)) != null) {
+          String code = termCode.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE)).asLiteral().getValue();
           getCodeCoreMap(namespace).write(code + "\t" + core.asIriRef().getIri() + "\n");
         }
-        if (termCode.get(new TTIriRefExtended(RdfsVocab.LABEL)) != null) {
-          String term = termCode.get(new TTIriRefExtended(RdfsVocab.LABEL)).asLiteral().getValue();
+        if (termCode.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null) {
+          String term = termCode.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue();
           writeTermCoreMap(namespace, term, core.asIriRef().getIri() + "\n");
         }
       }

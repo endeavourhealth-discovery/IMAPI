@@ -22,7 +22,7 @@ class HeadingJsonTest {
 
   @Test
   void testTTIriSerialization() throws JsonProcessingException {
-    TTIriRefExtended ref = new TTIriRefExtended(IRI, NAME);
+    TTIriRef ref = TTIriRefExtensionsKt.iri(new TTIriRef(), IRI, NAME);
     String actual = om.writeValueAsString(ref);
 
     assertEquals(IRI_JSON, actual);
@@ -30,7 +30,7 @@ class HeadingJsonTest {
 
   @Test
   void testTTIriDeserialization() throws JsonProcessingException {
-    TTIriRefExtended ref = om.readValue(IRI_JSON, TTIriRefExtended.class);
+    TTIriRef ref = om.readValue(IRI_JSON, TTIriRef.class);
 
     assertEquals(IRI, ref.getIri());
     assertEquals(NAME, ref.getName());

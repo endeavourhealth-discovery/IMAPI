@@ -5,6 +5,9 @@ import lombok.Getter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.interfacemanager.model.Compare;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.util.HashMap;
 import java.util.List;
@@ -162,17 +165,17 @@ public class QuerySummariser {
     if (assignable.getValue() != null)
       summary.append(assignable.getValue()).append(" ");
 
-    if (assignable.getCompareExtended() != null)
-      summariseCompare(assignable.getCompareExtended());
+    if (assignable.getCompare() != null)
+      summariseCompare(assignable.getCompare());
   }
 
 
-  private void summariseCompare(CompareExtended compareExtended) {
-    summariseValueSource(compareExtended.getLeft());
-    if (compareExtended.getUnits() != null)
-      summary.append(compareExtended.getUnits().getName()).append(" ");
+  private void summariseCompare(Compare compare) {
+    summariseValueSource(compare.getLeft());
+    if (compare.getUnits() != null)
+      summary.append(compare.getUnits().getName()).append(" ");
     summary.append("relative to ");
-    summariseValueSource(compareExtended.getRight());
+    summariseValueSource(compare.getRight());
   }
 
   private void summariseValueSource(ValueSource source) {

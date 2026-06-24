@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.model.requests;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,15 +10,15 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class SetDistillationRequest {
-  private List<TTIriRefExtended> conceptList;
+  private List<TTIriRef> conceptList;
   private GRAPH graph;
 
-  public SetDistillationRequest setConceptList(List<TTIriRefExtended> conceptList) {
+  public SetDistillationRequest setConceptList(List<TTIriRef> conceptList) {
     this.conceptList = conceptList;
     return this;
   }
 
-  public void addToConceptList(TTIriRefExtended concept) {
+  public void addToConceptList(TTIriRef concept) {
     if (null == conceptList) {
       conceptList = new ArrayList<>();
     }

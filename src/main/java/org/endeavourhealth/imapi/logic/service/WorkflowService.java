@@ -6,13 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
-import org.endeavourhealth.imapi.model.workflow.*;
-import org.endeavourhealth.interfacemanager.model.TaskState;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,41 +23,41 @@ public class WorkflowService {
   private final SecurityService securityService = new SecurityService();
   private final ObjectMapper objectMapper = new ObjectMapper();
 
-  public void createBugReport(BugReportExtended bugReportExtended) throws TaskFilerException, UserNotFoundException {
+  public void createBugReport(BugReport bugReportExtended) throws TaskFilerException, UserNotFoundException {
     bugReportExtended.setId(generateId());
     workflowRepository.createBugReport(bugReportExtended);
   }
 
-  public BugReportExtended getBugReport(String id) throws UserNotFoundException {
+  public BugReport getBugReport(String id) throws UserNotFoundException {
     return workflowRepository.getBugReport(id);
   }
 
-  public void updateBugReport(BugReportExtended bugReportExtended, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    if (!user.getUsername().equals(bugReportExtended.getCreatedBy()))
+    if (!user.getUsername().equals(bugReport.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update bug report");
-    BugReportExtended originalBugReportExtended = getBugReport(bugReportExtended.getId().getIri());
-    if (!originalBugReportExtended.getProduct().equals(bugReportExtended.getProduct()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.RELATED_PRODUCT, originalBugReportExtended.getProduct(), bugReportExtended.getProduct(), user.getId());
-    if (!originalBugReportExtended.getModule().equals(bugReportExtended.getModule()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.RELATED_MODULE, originalBugReportExtended.getModule().toString(), bugReportExtended.getModule().toString(), user.getId());
-    if (!originalBugReportExtended.getOs().equals(bugReportExtended.getOs()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.OPERATING_SYSTEM, originalBugReportExtended.getOs().toString(), bugReportExtended.getOs().toString(), user.getId());
-    if (!Objects.equals(originalBugReportExtended.getOsOther(), bugReportExtended.getOsOther()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.OPERATING_SYSTEM_OTHER, originalBugReportExtended.getOsOther(), bugReportExtended.getOsOther(), user.getId());
-    if (!originalBugReportExtended.getBrowser().equals(bugReportExtended.getBrowser()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.BROWSER, originalBugReportExtended.getBrowser().toString(), bugReportExtended.getBrowser().toString(), user.getId());
-    if (!Objects.equals(originalBugReportExtended.getBrowserOther(), bugReportExtended.getBrowserOther()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.BROWSER_OTHER, originalBugReportExtended.getBrowserOther(), bugReportExtended.getBrowserOther(), user.getId());
-    if (!originalBugReportExtended.getDescription().equals(bugReportExtended.getDescription()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), RdfsVocab.COMMENT, originalBugReportExtended.getDescription(), bugReportExtended.getDescription(), user.getId());
-    if (!originalBugReportExtended.getReproduceSteps().equals(bugReportExtended.getReproduceSteps()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.REPRODUCE_STEPS, originalBugReportExtended.getReproduceSteps(), bugReportExtended.getReproduceSteps(), user.getId());
-    if (!originalBugReportExtended.getExpectedResult().equals(bugReportExtended.getExpectedResult()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.EXPECTED_RESULT, originalBugReportExtended.getExpectedResult(), bugReportExtended.getExpectedResult(), user.getId());
-    if (!originalBugReportExtended.getActualResult().equals(bugReportExtended.getActualResult()))
-      workflowRepository.update(bugReportExtended.getId().getIri(), WorkflowVocab.ACTUAL_RESULT, originalBugReportExtended.getActualResult(), bugReportExtended.getActualResult(), user.getId());
-    updateTask(bugReportExtended, user.getId());
+    BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
+    if (!originalBugReport.getProduct().equals(bugReport.getProduct()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.RELATED_PRODUCT, originalBugReport.getProduct(), bugReport.getProduct(), user.getId());
+    if (!originalBugReport.getModule().equals(bugReport.getModule()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.RELATED_MODULE, originalBugReport.getModule().toString(), bugReport.getModule().toString(), user.getId());
+    if (!originalBugReport.getOs().equals(bugReport.getOs()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.OPERATING_SYSTEM, originalBugReport.getOs().toString(), bugReport.getOs().toString(), user.getId());
+    if (!Objects.equals(originalBugReport.getOsOther(), bugReport.getOsOther()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.OPERATING_SYSTEM_OTHER, originalBugReport.getOsOther(), bugReport.getOsOther(), user.getId());
+    if (!originalBugReport.getBrowser().equals(bugReport.getBrowser()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.BROWSER, originalBugReport.getBrowser().toString(), bugReport.getBrowser().toString(), user.getId());
+    if (!Objects.equals(originalBugReport.getBrowserOther(), bugReport.getBrowserOther()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.BROWSER_OTHER, originalBugReport.getBrowserOther(), bugReport.getBrowserOther(), user.getId());
+    if (!originalBugReport.getDescription().equals(bugReport.getDescription()))
+      workflowRepository.update(bugReport.getId().getIri(), RdfsVocab.COMMENT, originalBugReport.getDescription(), bugReport.getDescription(), user.getId());
+    if (!originalBugReport.getReproduceSteps().equals(bugReport.getReproduceSteps()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.REPRODUCE_STEPS, originalBugReport.getReproduceSteps(), bugReport.getReproduceSteps(), user.getId());
+    if (!originalBugReport.getExpectedResult().equals(bugReport.getExpectedResult()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.EXPECTED_RESULT, originalBugReport.getExpectedResult(), bugReport.getExpectedResult(), user.getId());
+    if (!originalBugReport.getActualResult().equals(bugReport.getActualResult()))
+      workflowRepository.update(bugReport.getId().getIri(), WorkflowVocab.ACTUAL_RESULT, originalBugReport.getActualResult(), bugReport.getActualResult(), user.getId());
+    updateTask(bugReport, user.getId());
   }
 
   public WorkflowResponse getTasksByCreatedBy(WorkflowRequest request) throws UserNotFoundException {
@@ -81,106 +80,106 @@ public class WorkflowService {
     workflowRepository.deleteTask(id);
   }
 
-  public TTIriRefExtended generateId() {
-    return new TTIriRefExtended(workflowRepository.generateId());
+  public TTIriRef generateId() {
+    return TTIriRefExtensionsKt.iri(new TTIriRef(), workflowRepository.generateId());
   }
 
-  public void createRoleRequest(RoleRequestExtended roleRequestExtended) throws TaskFilerException, UserNotFoundException {
-    roleRequestExtended.setId(generateId());
-    workflowRepository.createRoleRequest(roleRequestExtended);
+  public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
+    roleRequest.setId(generateId());
+    workflowRepository.createRoleRequest(roleRequest);
   }
 
-  public RoleRequestExtended getRoleRequest(String id) throws UserNotFoundException {
+  public RoleRequest getRoleRequest(String id) throws UserNotFoundException {
     return workflowRepository.getRoleRequest(id);
   }
 
-  public void updateRoleRequest(RoleRequestExtended roleRequestExtended, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    if (!user.getUsername().equals(roleRequestExtended.getCreatedBy()))
+    if (!user.getUsername().equals(roleRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update role request");
-    RoleRequestExtended originalRoleRequestExtended = getRoleRequest(roleRequestExtended.getId().getIri());
-    if (!originalRoleRequestExtended.getRole().equals(roleRequestExtended.getRole()))
-      workflowRepository.update(roleRequestExtended.getId().getIri(), WorkflowVocab.REQUESTED_ROLE, originalRoleRequestExtended.getRole().toString(), roleRequestExtended.getRole().toString(), user.getId());
-    updateTask(roleRequestExtended, user.getId());
+    RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
+    if (!originalRoleRequest.getRole().equals(roleRequest.getRole()))
+      workflowRepository.update(roleRequest.getId().getIri(), WorkflowVocab.REQUESTED_ROLE, originalRoleRequest.getRole().toString(), roleRequest.getRole().toString(), user.getId());
+    updateTask(roleRequest, user.getId());
   }
 
-  public void approveRoleRequest(HttpServletRequest request, RoleRequestExtended roleRequestExtended) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
-    workflowRepository.update(roleRequestExtended.getId().getIri(), WorkflowVocab.STATE, roleRequestExtended.getState().toString(), TaskState.APPROVED.toString(), user.getId());
-    workflowRepository.update(roleRequestExtended.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
+    workflowRepository.update(roleRequest.getId().getIri(), WorkflowVocab.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
+    workflowRepository.update(roleRequest.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectRoleRequest(HttpServletRequest request, RoleRequestExtended roleRequestExtended) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    workflowRepository.update(roleRequestExtended.getId().getIri(), WorkflowVocab.STATE, roleRequestExtended.getState().toString(), TaskState.REJECTED.toString(), user.getId());
+    workflowRepository.update(roleRequest.getId().getIri(), WorkflowVocab.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
-  public void createNamespaceRequest(NamespaceRequestExtended namespaceRequestExtended) throws TaskFilerException, UserNotFoundException {
-    namespaceRequestExtended.setId(generateId());
-    workflowRepository.createNamespaceRequest(namespaceRequestExtended);
+  public void createNamespaceRequest(NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException {
+    namespaceRequest.setId(generateId());
+    workflowRepository.createNamespaceRequest(namespaceRequest);
   }
 
-  public NamespaceRequestExtended getNamespaceRequest(String id) throws UserNotFoundException, JsonProcessingException {
+  public NamespaceRequest getNamespaceRequest(String id) throws UserNotFoundException, JsonProcessingException {
     return workflowRepository.getNamespaceRequest(id);
   }
 
-  public void updateNamespaceRequest(NamespaceRequestExtended namespaceRequestExtended, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void updateNamespaceRequest(NamespaceRequest namespaceRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    if (!user.getUsername().equals(namespaceRequestExtended.getCreatedBy()))
+    if (!user.getUsername().equals(namespaceRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update namespace request");
-    NamespaceRequestExtended originalNamespaceRequestExtended = getNamespaceRequest(namespaceRequestExtended.getId().getIri());
-    if (!originalNamespaceRequestExtended.getNamespacePermission().getIri().equals(namespaceRequestExtended.getNamespacePermission().getIri()) || !originalNamespaceRequestExtended.getNamespacePermission().isRead() == namespaceRequestExtended.getNamespacePermission().isRead() || !originalNamespaceRequestExtended.getNamespacePermission().isWrite() == namespaceRequestExtended.getNamespacePermission().isWrite())
-      workflowRepository.update(namespaceRequestExtended.getId().getIri(), WorkflowVocab.REQUESTED_NAMESPACE, objectMapper.writeValueAsString(originalNamespaceRequestExtended.getNamespacePermission()), objectMapper.writeValueAsString(namespaceRequestExtended.getNamespacePermission()), user.getId());
-    updateTask(namespaceRequestExtended, user.getId());
+    NamespaceRequest originalNamespaceRequest = getNamespaceRequest(namespaceRequest.getId().getIri());
+    if (!originalNamespaceRequest.getNamespacePermission().getIri().equals(namespaceRequest.getNamespacePermission().getIri()) || !originalNamespaceRequest.getNamespacePermission().isRead() == namespaceRequest.getNamespacePermission().isRead() || !originalNamespaceRequest.getNamespacePermission().isWrite() == namespaceRequest.getNamespacePermission().isWrite())
+      workflowRepository.update(namespaceRequest.getId().getIri(), WorkflowVocab.REQUESTED_NAMESPACE, objectMapper.writeValueAsString(originalNamespaceRequest.getNamespacePermission()), objectMapper.writeValueAsString(namespaceRequest.getNamespacePermission()), user.getId());
+    updateTask(namespaceRequest, user.getId());
   }
 
-  public void approveNamespaceRequest(HttpServletRequest request, NamespaceRequestExtended namespaceRequestExtended) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void approveNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
     List<NamespacePermission> namespaces = user.getNamespaces();
-    if (!namespaces.contains(namespaceRequestExtended.getNamespacePermission())) {
-      namespaces.add(namespaceRequestExtended.getNamespacePermission());
+    if (!namespaces.contains(namespaceRequest.getNamespacePermission())) {
+      namespaces.add(namespaceRequest.getNamespacePermission());
       securityService.updateUserNamespaces(user.getId(), namespaces, request);
     }
-    workflowRepository.update(namespaceRequestExtended.getId().getIri(), WorkflowVocab.STATE, namespaceRequestExtended.getState().toString(), TaskState.APPROVED.toString(), user.getId());
-    workflowRepository.update(namespaceRequestExtended.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
+    workflowRepository.update(namespaceRequest.getId().getIri(), WorkflowVocab.STATE, namespaceRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
+    workflowRepository.update(namespaceRequest.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectNamespaceRequest(HttpServletRequest request, NamespaceRequestExtended namespaceRequestExtended) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void rejectNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    workflowRepository.update(namespaceRequestExtended.getId().getIri(), WorkflowVocab.STATE, namespaceRequestExtended.getState().toString(), TaskState.REJECTED.toString(), user.getId());
+    workflowRepository.update(namespaceRequest.getId().getIri(), WorkflowVocab.STATE, namespaceRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
-  public void createEntityApproval(EntityApprovalExtended entityApprovalExtended) throws TaskFilerException, UserNotFoundException {
-    entityApprovalExtended.setId(generateId());
-    workflowRepository.createEntityApproval(entityApprovalExtended);
+  public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
+    entityApproval.setId(generateId());
+    workflowRepository.createEntityApproval(entityApproval);
   }
 
-  public EntityApprovalExtended getEntityApproval(String id) throws UserNotFoundException {
+  public EntityApproval getEntityApproval(String id) throws UserNotFoundException {
     return workflowRepository.getEntityApproval(id);
   }
 
-  public void updateEntityApproval(EntityApprovalExtended entityApprovalExtended, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
-    if (!user.getUsername().equals(entityApprovalExtended.getCreatedBy()))
+    if (!user.getUsername().equals(entityApproval.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update entity approval");
-    EntityApprovalExtended originalEntityApprovalExtended = getEntityApproval(entityApprovalExtended.getId().getIri());
-    if (!originalEntityApprovalExtended.getApprovalType().equals(entityApprovalExtended.getApprovalType()))
-      workflowRepository.update(entityApprovalExtended.getId().getIri(), WorkflowVocab.APPROVAL_TYPE, originalEntityApprovalExtended.getApprovalType().toString(), entityApprovalExtended.getApprovalType().toString(), user.getId());
-    updateTask(entityApprovalExtended, user.getId());
+    EntityApproval originalEntityApproval = getEntityApproval(entityApproval.getId().getIri());
+    if (!originalEntityApproval.getApprovalType().equals(entityApproval.getApprovalType()))
+      workflowRepository.update(entityApproval.getId().getIri(), WorkflowVocab.APPROVAL_TYPE, originalEntityApproval.getApprovalType().toString(), entityApproval.getApprovalType().toString(), user.getId());
+    updateTask(entityApproval, user.getId());
   }
 
-  public void approveEntityApproval(HttpServletRequest request, EntityApprovalExtended entityApprovalExtended) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
+  public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     User user = securityService.getUser(request);
     //TODO entity draft replace active
-    workflowRepository.update(entityApprovalExtended.getId().getIri(), WorkflowVocab.STATE, entityApprovalExtended.getState().toString(), TaskState.APPROVED.toString(), user.getId());
-    workflowRepository.update(entityApprovalExtended.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
+    workflowRepository.update(entityApproval.getId().getIri(), WorkflowVocab.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), user.getId());
+    workflowRepository.update(entityApproval.getId().getIri(), WorkflowVocab.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
-  public void rejectEntityApproval(HttpServletRequest request, EntityApprovalExtended entityApprovalExtended) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
+  public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
     User user = securityService.getUser(request);
-    workflowRepository.update(entityApprovalExtended.getId().getIri(), WorkflowVocab.STATE, entityApprovalExtended.getState().toString(), TaskState.REJECTED.toString(), user.getId());
+    workflowRepository.update(entityApproval.getId().getIri(), WorkflowVocab.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
   public void updateTask(Task task, String userId) throws TaskFilerException, UserNotFoundException {

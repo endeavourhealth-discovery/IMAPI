@@ -13,7 +13,7 @@ import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.Bool;
 import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
@@ -192,7 +192,7 @@ public class IMQToOS {
     if (query == null)
       return true;
     if (query.isActiveOnly()) {
-      addFilterWithId("status", EnumUtils.asHashSet(ImVocab. ACTIVE),Bool.AND, boolBuilder);
+      addFilterWithId("status", EnumUtils.asHashSet(ImVocab.ACTIVE), Bool.AND, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null) {
       if (!addMatch(boolBuilder, query))
@@ -320,8 +320,8 @@ public class IMQToOS {
     if (match.getPath() != null) {
       for (Path pathMatch : match.getPath()) {
         String w = pathMatch.getIri();
-        if ( ImVocab.
-        BINDING.toString().equals(w)){
+        if (ImVocab.
+          BINDING.toString().equals(w)) {
           addBinding(match, match.getOr() != null ? Bool.OR : Bool.AND, boolBuilder);
           return true;
         }
@@ -349,28 +349,28 @@ public class IMQToOS {
       if (!addBoolProperties(where, nestedBool)) return false;
       else return true;
     }
-    if ( ImVocab.
-    HAS_SCHEME.toString().equals(w)){
+    if (ImVocab.
+      HAS_SCHEME.toString().equals(w)) {
       return addIsFilter("scheme", where, bool, boolBldr);
-    } else if ( ImVocab.
-    IS_MEMBER_OF.toString().equals(w)){
+    } else if (ImVocab.
+      IS_MEMBER_OF.toString().equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    } else if ( ImVocab.
-    HAS_MEMBER.toString().equals(w) && where.isInverse()){
+    } else if (ImVocab.
+      HAS_MEMBER.toString().equals(w) && where.isInverse()) {
       return addIsFilter("memberOf", where, bool, boolBldr);
-    } else if ( ImVocab.
-    HAS_STATUS.toString().equals(w)){
+    } else if (ImVocab.
+      HAS_STATUS.toString().equals(w)) {
       return addIsFilter("status", where, bool, boolBldr);
     } else if (RdfVocab.TYPE.toString().equals(w)) {
       return addIsFilter("type", where, bool, boolBldr);
-    } else if ( ImVocab.
-    IS_A.toString().equals(w)){
+    } else if (ImVocab.
+      IS_A.toString().equals(w)) {
       return addIsFilter("isA", where, bool, boolBldr);
-    } else if ( ImVocab.
-    CONTENT_TYPE.toString().equals(w)){
+    } else if (ImVocab.
+      CONTENT_TYPE.toString().equals(w)) {
       return addIsFilter("contentType", where, bool, boolBldr);
-    } else if ( ImVocab.
-    IM_IRI.toString().equals(w)){
+    } else if (ImVocab.
+      IM_IRI.toString().equals(w)) {
       return addIsFilter("iri", where, bool, boolBldr);
     } else return RdfsVocab.DOMAIN.toString().equals(w);
   }
@@ -424,7 +424,7 @@ public class IMQToOS {
           } else if (null != argument.getValueIriList()) {
             if (argument.getValueIriList().isEmpty())
               throw new QueryException("Argument parameter " + value + " valueIriList cannot be empty");
-            for (TTIriRefExtended ttIriRef : argument.getValueIriList()) {
+            for (TTIriRef ttIriRef : argument.getValueIriList()) {
               iris.add(ttIriRef.getIri());
             }
           } else if (null != argument.getValueDataList()) {

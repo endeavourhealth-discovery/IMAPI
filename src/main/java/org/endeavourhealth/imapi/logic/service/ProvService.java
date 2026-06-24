@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.springframework.stereotype.Component;
 
@@ -26,31 +26,31 @@ public class ProvService {
       root = targetEntity.getScheme().getIri();
     else
       root = NamespaceVocab.
-    ImVocab.
-    toString();
+        ImVocab.
+        toString();
 
     String uir = getPerson(agentName, root);
     ProvAgent agent = new ProvAgent()
-      .setPersonInRole(new TTIriRefExtended(uir))
-      .setParticipationType(new TTIriRefExtended(ImVocab. AUTHOR_ROLE));
-    agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(new TTIriRefExtended(ImVocab. ADD_QUADS));
+      .setPersonInRole(TTIriRefExtensionsKt.iri(new TTIriRef(), uir))
+      .setParticipationType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.AUTHOR_ROLE));
+    agent.setName(agentName).setIri(uir.replace("uir.", "agent.")).setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
     return agent;
   }
 
   public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent, String usedEntityIri) {
     ProvActivity activity = new ProvActivity()
       .setIri("urn:uuid:" + UUID.randomUUID())
-      .setActivityType(new TTIriRefExtended(ImVocab. PROV_CREATION))
+      .setActivityType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROV_CREATION))
       .setEffectiveDate(LocalDateTime.now().toString())
-      .addAgent(new TTIriRefExtended(agent.getIri()))
-      .setTargetEntity(new TTIriRefExtended(targetEntity.getIri()));
+      .addAgent(TTIriRefExtensionsKt.iri(new TTIriRef(), agent.getIri()))
+      .setTargetEntity(TTIriRefExtensionsKt.iri(new TTIriRef(), targetEntity.getIri()));
 
     if (null != usedEntityIri) {
-      activity.setActivityType(new TTIriRefExtended(ImVocab. PROV_UPDATE));
-      activity.set(new TTIriRefExtended(ImVocab. PROVENANCE_USED),new TTIriRefExtended(usedEntityIri));
+      activity.setActivityType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROV_UPDATE));
+      activity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_USED), TTIriRefExtensionsKt.iri(new TTIriRef(), usedEntityIri));
     }
 
-    activity.setCrud(new TTIriRefExtended(ImVocab. ADD_QUADS));
+    activity.setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
     return activity;
   }
 
@@ -59,8 +59,8 @@ public class ProvService {
       return new TTEntity()
         .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
         .setName(usedEntity.getName())
-        .set(new TTIriRefExtended(ImVocab. DEFINITION),new TTLiteral(om.writeValueAsString(usedEntity)))
-        .setCrud(new TTIriRefExtended(ImVocab. ADD_QUADS));
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
+        .setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
     }
   }
 

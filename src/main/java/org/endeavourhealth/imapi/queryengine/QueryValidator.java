@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.queryengine;
 
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.interfacemanager.model.Compare;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Node;
 import org.endeavourhealth.interfacemanager.model.VarType;
 
 import java.util.*;
@@ -189,12 +192,12 @@ public class QueryValidator {
   }
 
   private void validateCompare(Assignable assignable) throws QueryException {
-    CompareExtended compareExtended = assignable.getCompare();
-    if (compareExtended.getUnits() != null) {
+    Compare compare = assignable.getCompare();
+    if (compare.getUnits() != null) {
       if (assignable.getValue() == null)
         throw new QueryException("Value must be specified when units are provided");
     }
-    if (compareExtended.getRight() != null) validateSource(compareExtended.getRight());
+    if (compare.getRight() != null) validateSource(compare.getRight());
   }
 
   private void validateSource(ValueSource source) throws QueryException {

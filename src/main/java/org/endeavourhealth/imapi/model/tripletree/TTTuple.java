@@ -3,23 +3,23 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class TTTuple {
-  private TTIriRefExtended predicate;
+  private TTIriRef predicate;
   private TTValue value;
 
   public TTTuple() {
   }
 
-  public TTTuple(TTIriRefExtended predicate, TTValue value) {
+  public TTTuple(TTIriRef predicate, TTValue value) {
     this.predicate = predicate;
     this.value = value;
   }
 
-  public TTIriRefExtended getPredicate() {
+  public TTIriRef getPredicate() {
     return predicate;
   }
 
   @JsonSetter
-  public TTTuple setPredicate(TTIriRefExtended predicate) {
+  public TTTuple setPredicate(TTIriRef predicate) {
     this.predicate = predicate;
     return this;
   }

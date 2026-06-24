@@ -9,14 +9,16 @@ import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.PathQuery;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.interfacemanager.model.GraphVocab;
-import org.endeavourhealth.interfacemanager.model.ImVocab;
-import org.endeavourhealth.interfacemanager.model.Order;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,10 +37,10 @@ public class SearchService {
   private static QueryRequest getHighestUseRequestFromQuery(QueryRequest queryRequest, ObjectMapper om, QueryRepository repo) throws JsonProcessingException, QueryException {
     QueryRequest highestUsageRequest = om.readValue(om.writeValueAsString(queryRequest), QueryRequest.class);
     repo.unpackQueryRequest(highestUsageRequest, om.createObjectNode());
-    highestUsageRequest.getQuery().addReturn(new Return().setIri(ImVocab.USAGE_TOTAL));
-    OrderDirection od = new OrderDirection().setDirection(Order.DESCENDING);
-    highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addProperty(od));
-    highestUsageRequest.setPage(new Page().setPageNumber(1).setPageSize(1));
+    highestUsageRequest.getQuery().addReturnItem(new Return().setIri(ImVocab.USAGE_TOTAL));
+    OrderDirection od = new OrderDirection().direction(Order.DESCENDING);
+    highestUsageRequest.getQuery().setOrderBy(new OrderLimit().addPropertyItem(od));
+    highestUsageRequest.setPage(new Page().pageNumber(1).pageSize(1));
     return highestUsageRequest;
   }
 
@@ -94,10 +96,10 @@ public class SearchService {
           Where where = new Where();
           where.setIri(ImVocab.IM_IRI.toString());
           for (String iri : imResults) {
-            where.addIs(new Node().setIri(iri));
+            where.addIs(new Node().iri(iri));
           }
           if (query.getWhere() != null) {
-            query.getWhere().addAnd(where);
+            query.getWhere().addAndItem(where);
           } else
             query.setWhere(where);
         } else return new SearchResponse();

@@ -54,9 +54,9 @@ public class TTNodeDeserializer {
         if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isArray()) {
-          result.set(new TTIriRefExtended(expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(key)), getArrayNodeAsTripleTreeArray((ArrayNode) value));
         } else {
-          result.set(new TTIriRefExtended(expand(key)), getJsonNodeAsValue(value));
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(key)), getJsonNodeAsValue(value));
         }
       }
     }
@@ -84,9 +84,9 @@ public class TTNodeDeserializer {
     else if (node.isObject()) {
       if (node.has(ImVocab.IRI.toString())) {
         if (node.has("name"))
-          return new TTIriRefExtended(expand(node.get(ImVocab.IRI.toString()).asText()), node.get("name").asText());
+          return TTIriRefExtensionsKt.iri(new TTIriRef(), expand(node.get(ImVocab.IRI.toString()).asText()), node.get("name").asText());
         else
-          return new TTIriRefExtended(expand(node.get(ImVocab.IRI.toString()).asText()));
+          return TTIriRefExtensionsKt.iri(new TTIriRef(), expand(node.get(ImVocab.IRI.toString()).asText()));
       } else {
         if (node.has(ImVocab.VALUE.toString())) {
           return getJsonNodeAsLiteral(node);
@@ -108,7 +108,7 @@ public class TTNodeDeserializer {
     if (!node.has(ImVocab.TYPE.toString()))
       return TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
 
-    TTIriRefExtended type = new TTIriRefExtended(expand(node.get(ImVocab.TYPE.toString()).asText()));
+    TTIriRef type = TTIriRefExtensionsKt.iri(new TTIriRef(), expand(node.get(ImVocab.TYPE.toString()).asText()));
     return switch (XsdVocab.fromValue(type.getIri())) {
       case XsdVocab.STRING -> TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
       case XsdVocab.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(ImVocab.VALUE.toString()).asText()));

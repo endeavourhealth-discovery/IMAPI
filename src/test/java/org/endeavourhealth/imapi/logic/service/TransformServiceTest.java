@@ -7,7 +7,7 @@ import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.io.File;
@@ -29,13 +29,13 @@ class TransformServiceTest {
     ObjectMapper om = new ObjectMapper();
     //Adds map to the IM cache so it can be accessed by the service
     TTEntity mapEntity = EntityCache.getEntity(NamespaceVocab.MAP + "FHIR_2_PatientToIM").getEntity();
-    MapObject map = mapEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(MapObject.class);
+    MapObject map = mapEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(MapObject.class);
     writeObject(testMaps, "DSTUToIMPatient", map);
     System.out.println("Map written to" + testMaps + "\\" + mapEntity.getName());
 
     //Create transform request;
     TransformRequest request = new TransformRequest();
-    request.setTransformMap(new TTIriRefExtended(mapEntity.getIri()));
+    request.setTransformMap(TTIriRefExtensionsKt.iri(new TTIriRef(), mapEntity.getIri()));
     request.setSourceFormat("JSON");
     request.setTargetFormat("JSON-LD");
 

@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.endeavourhealth.interfacemanager.model.Case;
 
 import java.util.function.Consumer;
 

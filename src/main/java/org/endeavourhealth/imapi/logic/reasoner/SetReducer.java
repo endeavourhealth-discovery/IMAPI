@@ -29,17 +29,17 @@ public class SetReducer {
   public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
     String sql;
     int originalSize;
-    if ( set.get(new TTIriRefExtended(ImVocab. DEFINITION)) !=null){
+    if (set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) != null) {
       sql = getOrSql(set);
       if (sql == null)
         throw new InvalidAttributesException("Complex ecl. Cannot reduce");
       else
-        originalSize = set.get(new TTIriRefExtended(ImVocab. DEFINITION)).asNode().get(new TTIriRefExtended(ShaclVocab.OR)).size();
-    } else if ( set.get(new TTIriRefExtended(ImVocab. HAS_MEMBER)) ==null){
+        originalSize = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).size();
+    } else if (set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER)) == null) {
       throw new InvalidAttributesException("No set members to reduce");
-    } else{
+    } else {
       sql = getMemberSql();
-      originalSize = set.get(new TTIriRefExtended(ImVocab. HAS_MEMBER)).size();
+      originalSize = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER)).size();
     }
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -49,13 +49,13 @@ public class SetReducer {
           throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
 
         TTNode ors = new TTNode();
-        set.set(new TTIriRefExtended(ImVocab. DEFINITION),ors);
+        set.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), ors);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          ors.addObject(new TTIriRefExtended(ShaclVocab.OR), new TTIriRefExtended(bs.getValue("member").stringValue()));
+          ors.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR), TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("member").stringValue()));
         }
-        set.getPredicateMap().remove(new TTIriRefExtended(ImVocab. HAS_MEMBER));
-        int newSize = set.get(new TTIriRefExtended(ImVocab. DEFINITION)).asNode().get(new TTIriRefExtended(ShaclVocab.OR)).size();
+        set.getPredicateMap().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER));
+        int newSize = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).size();
         log.info("for set {} original size = {} new size {} removed {} members", set.getIri(), originalSize, newSize, (originalSize - newSize));
       }
     }
@@ -79,15 +79,15 @@ public class SetReducer {
 
   private String getOrSql(TTEntity set) {
 
-    TTArray definition = set.get(new TTIriRefExtended(ImVocab. DEFINITION));
+    TTArray definition = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
     if (definition.isIriRef()) {
       return null;
     }
     if (!definition.isNode())
       return null;
-    if (definition.asNode().get(new TTIriRefExtended(ShaclVocab.OR)) == null)
+    if (definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)) == null)
       return null;
-    for (TTValue value : definition.asNode().get(new TTIriRefExtended(ShaclVocab.OR)).getElements()) {
+    for (TTValue value : definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).getElements()) {
       if (!value.isIriRef())
         return null;
     }

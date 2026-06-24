@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.interfacemanager.model.DatabaseOption;
 import org.endeavourhealth.interfacemanager.model.EntityType;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +18,9 @@ public class QueryServiceTest {
 
   //  @Test
   void testCohortQueriesToSQL() {
-    List<TTIriRefExtended> queries = entityService.getEntitiesByType(EntityType.QUERY);
+    List<TTIriRef> queries = entityService.getEntitiesByType(EntityType.QUERY);
     System.out.println("Queries: " + queries.size());
-    for (TTIriRefExtended ref : queries) {
+    for (TTIriRef ref : queries) {
       System.out.println("Testing " + ref.getName() + " " + ref.getIri());
       try {
         String sql = queryService.getSQLFromIMQIri(ref.getIri(), DatabaseOption.MYSQL);

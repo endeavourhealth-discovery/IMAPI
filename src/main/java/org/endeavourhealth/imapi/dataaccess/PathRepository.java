@@ -4,7 +4,12 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Path;
+import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.PathQuery;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +106,7 @@ public class PathRepository {
           String pathIri = bs.getValue("path").stringValue();
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
           Path pathMatch = new Path().setIri(pathIri).setName(bs.getValue("pathLabel").stringValue());
-          match.addPath(pathMatch);
+          match.addPathItem(pathMatch);
         }
         if (bs.getValue("path2") != null) {
           String pathIri = bs.getValue("path2").stringValue();
@@ -112,7 +117,7 @@ public class PathRepository {
           match.setWhere(new Where()
             .setIri(bs.getValue("where").stringValue())
             .setName(bs.getValue("whereLabel").stringValue())
-            .addIs(new Node().setIri(target).setName(bs.getValue("targetName").stringValue())
+            .addIs(new Node().iri(target).name(bs.getValue("targetName").stringValue())
               .setDescendantsOrSelfOf(true)));
           if (pathVariable != null && match.getWhere() != null)
             match.getWhere().setNodeRef(pathVariable);

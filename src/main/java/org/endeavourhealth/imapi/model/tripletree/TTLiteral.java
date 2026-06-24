@@ -19,20 +19,20 @@ import java.util.regex.Pattern;
 @JsonDeserialize(using = TTLiteralDeserializer.class)
 public class TTLiteral implements TTValue, Serializable {
   private String value;
-  private TTIriRefExtended type;
+  private TTIriRef type;
 
   // General constructors
   public TTLiteral() {
   }
 
-  public TTLiteral(String value, TTIriRefExtended type) {
+  public TTLiteral(String value, TTIriRef type) {
     this.value = value;
     this.type = type;
   }
 
   public TTLiteral(String value, String type) {
     this.value = value;
-    this.type = new TTIriRefExtended(type);
+    this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), type);
   }
 
   // Type specific constructors
@@ -43,33 +43,33 @@ public class TTLiteral implements TTValue, Serializable {
 
   public TTLiteral(Boolean value) {
     this.value = value.toString();
-    this.type = new TTIriRefExtended(XsdVocab. BOOLEAN);
+    this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.BOOLEAN);
   }
 
   public TTLiteral(Integer value) {
     this.value = value.toString();
-    this.type = new TTIriRefExtended(XsdVocab. INTEGER);
+    this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.INTEGER);
   }
 
   public TTLiteral(Long value) {
     this.value = value.toString();
-    this.type = new TTIriRefExtended(XsdVocab. LONG);
+    this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.LONG);
   }
 
   public TTLiteral(Pattern value) {
     this.value = value.toString();
-    this.type = new TTIriRefExtended(XsdVocab. PATTERN);
+    this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.PATTERN);
   }
 
   public TTLiteral(Object value) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       this.value = om.writeValueAsString(value);
-      this.type = new TTIriRefExtended(XsdVocab. STRING);
+      this.type = TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.STRING);
     }
   }
 
   // Static helpers
-  public static TTLiteral literal(String value, TTIriRefExtended type) {
+  public static TTLiteral literal(String value, TTIriRef type) {
     return new TTLiteral(value, type);
   }
 
@@ -147,12 +147,12 @@ public class TTLiteral implements TTValue, Serializable {
     }
   }
 
-  public TTIriRefExtended getType() {
+  public TTIriRef getType() {
     return type;
   }
 
   @JsonSetter
-  public TTLiteral setType(TTIriRefExtended type) {
+  public TTLiteral setType(TTIriRef type) {
     this.type = type;
     return this;
   }

@@ -6,12 +6,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 @JsonPropertyOrder({"inverse", "iri", "name", "variable"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class TTVariable extends TTIriRefExtended {
+public class TTVariable extends TTIriRef {
   private String variable;
   private boolean isType;
 
 
-  public TTVariable(TTIriRefExtended iri) {
+  public TTVariable(TTIriRef iri) {
     super.setIri(iri.getIri());
   }
 
@@ -33,7 +33,7 @@ public class TTVariable extends TTIriRefExtended {
   }
 
   @JsonSetter
-  public TTVariable setType(TTIriRefExtended type) {
+  public TTVariable setType(TTIriRef type) {
     setIri(type.getIri());
     if (type.getName() != null) setName(type.getName());
     isType = true;

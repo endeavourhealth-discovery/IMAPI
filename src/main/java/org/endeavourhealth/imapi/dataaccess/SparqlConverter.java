@@ -1,12 +1,14 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Path;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.Update;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.interfacemanager.model.Entail;
-import org.endeavourhealth.interfacemanager.model.Operator;
-import org.endeavourhealth.interfacemanager.model.Order;
+import org.endeavourhealth.interfacemanager.model.*;
+import org.endeavourhealth.interfacemanager.model.OrderDirection;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,7 +20,7 @@ public class SparqlConverter {
   String mainEntity;
   private Match query;
   private Update update;
-  private Set<TTIriRefExtended> statusFilter;
+  private Set<TTIriRef> statusFilter;
 
 
   public SparqlConverter(QueryRequest queryRequest) throws QueryException {
@@ -48,7 +50,7 @@ public class SparqlConverter {
   public String resolveReference(String value, QueryRequest queryRequest) throws QueryException {
     value = value.replace("$", "");
     if (null != queryRequest.getArgument()) {
-      for (ArgumentExtended argument : queryRequest.getArgument()) {
+      for (Argument argument : queryRequest.getArgument()) {
         String res = processArgument(queryRequest, argument, value);
         if (res != null) return res;
       }
@@ -56,7 +58,7 @@ public class SparqlConverter {
     return value;
   }
 
-  private String processArgument(QueryRequest queryRequest, ArgumentExtended argument, String value) throws QueryException {
+  private String processArgument(QueryRequest queryRequest, Argument argument, String value) throws QueryException {
     if (argument.getParameter().equals(value)) {
       if (null != argument.getValueData())
         return argument.getValueData();
@@ -86,7 +88,7 @@ public class SparqlConverter {
    *
    * @return String of SPARQL
    **/
-  public String getSelectSparql(Set<TTIriRefExtended> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
+  public String getSelectSparql(Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     this.statusFilter = statusFilter;
     return getFullSelectSparql(this.query, countOnly, highestUsage);
   }
@@ -96,7 +98,7 @@ public class SparqlConverter {
   }
 
 
-  public String getSelectSparql(Match match, Set<TTIriRefExtended> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
+  public String getSelectSparql(Match match, Set<TTIriRef> statusFilter, boolean countOnly, boolean highestUsage) throws QueryException {
     this.statusFilter = statusFilter;
 
     return getFullSelectSparql(match, countOnly, highestUsage);
@@ -126,7 +128,7 @@ public class SparqlConverter {
 
   }
 
-  public String getAskSparql(Set<TTIriRefExtended> statusFilter) throws QueryException {
+  public String getAskSparql(Set<TTIriRef> statusFilter) throws QueryException {
 
     StringBuilder askQl = new StringBuilder();
 
@@ -165,7 +167,7 @@ public class SparqlConverter {
 
     if (null != statusFilter && !statusFilter.isEmpty()) {
       List<String> statusStrings = new ArrayList<>();
-      for (TTIriRefExtended status : statusFilter) {
+      for (TTIriRef status : statusFilter) {
         statusStrings.add("<" + status.getIri() + ">");
       }
       whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
@@ -183,7 +185,7 @@ public class SparqlConverter {
     sparql.append(whereQl).append("\n");
   }
 
-  public String getCountSparql(Set<TTIriRefExtended> statusFilter) throws QueryException {
+  public String getCountSparql(Set<TTIriRef> statusFilter) throws QueryException {
     return getSelectSparql(this.query, statusFilter, true, false);
   }
 
@@ -262,7 +264,7 @@ public class SparqlConverter {
     }
     if (!subselects.toString().isEmpty())
       whereQl.append(subselects);
-    if (match.notExists()) {
+    if (match.getNotExists()) {
       whereQl.append("}\n");
     }
   }
@@ -368,15 +370,15 @@ public class SparqlConverter {
   private void sortInstances(List<Node> is, Map<Entail, List<Node>> inTypes, Map<Entail, List<Node>> outTypes) throws QueryException {
     for (Node instance : is) {
       Entail entail = Entail.EQUAL;
-      if (instance.isMemberOf())
+      if (instance.getMemberOf())
         entail = Entail.MEMBER_OF;
-      else if (instance.isDescendantsOrSelfOf())
+      else if (instance.getDescendantsOrSelfOf())
         entail = Entail.DESCENDANTS_OR_SELF_OF;
-      else if (instance.isDescendantsOf())
+      else if (instance.getDescendantsOf())
         entail = Entail.DESCENDANTS_OF;
-      else if (instance.isAncestorsOf())
+      else if (instance.getAncestorsOf())
         entail = Entail.ANCESTORS_OF;
-      if (instance.isExclude()) {
+      if (instance.getExclude()) {
         outTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(instance);
       } else
         inTypes.computeIfAbsent(entail, m -> new ArrayList<>()).add(instance);
@@ -428,12 +430,12 @@ public class SparqlConverter {
 
   private void processTypeOf(StringBuilder whereQl, Node type, String subject) throws QueryException {
     String typeIris = iriFromAlias(type);
-    if (type.isDescendantsOrSelfOf()) {
+    if (type.getDescendantsOrSelfOf()) {
       o++;
       String supertype = "supertype" + o;
       whereQl.append("?").append(subject).append(" im:isA ?").append(supertype).append(".\n");
       whereQl.append(" VALUES ?").append(supertype).append(" {").append(typeIris).append(" }\n");
-    } else if (type.isDescendantsOf()) {
+    } else if (type.getDescendantsOf()) {
       o++;
       String supertype = "supertype" + o;
       whereQl.append("?").append(subject).append(" im:isA ?").append(supertype).append(".\n");
@@ -531,10 +533,10 @@ public class SparqlConverter {
     } else propertyIris = iriFromAlias(where);
     String inverse = where.isInverse() ? "^" : "";
     o++;
-    if (where.isInverse() && (where.getParameter() != null || where.getPropertyVariable() != null || where.isDescendantsOrSelfOf() || where.isAncestorsOf())) {
+    if (where.isInverse() && (where.getParameter() != null || where.getPropertyVariable() != null || where.getDescendantsOrSelfOf() || where.getAncestorsOf())) {
       throw new QueryException("Inverse propertyPath with parameters or variables or entailments are not supported\"");
     }
-    if (where.isDescendantsOrSelfOf()) {
+    if (where.getDescendantsOrSelfOf()) {
       if (propertyIris == null)
         throw new QueryException("Descendants or self of requires a property IRI");
       String superProperty = "superProperty" + o;
@@ -543,7 +545,7 @@ public class SparqlConverter {
       whereQl.append("VALUES ?").append(superProperty).append(" {").append(propertyIris).append("}").append("\n.");
       whereQl.append("?").append(propertyVariable).append(" im:isA ?").append(superProperty).append(".\n");
       whereQl.append("?").append(subject).append(" ?").append(propertyVariable);
-    } else if (where.isAncestorsOf()) {
+    } else if (where.getAncestorsOf()) {
       if (propertyIris == null)
         throw new QueryException("Ancestors or self of requires a property IRI");
       String subProperty = "subProperty" + o;
@@ -590,19 +592,19 @@ public class SparqlConverter {
     boolean superTypes = false;
     boolean membersOf = false;
     for (Node item : in) {
-      if (item.isDescendantsOrSelfOf()) {
+      if (item.getDescendantsOrSelfOf()) {
         subTypes = true;
         break;
       }
     }
     for (Node item : in) {
-      if (item.isMemberOf()) {
+      if (item.getMemberOf()) {
         membersOf = true;
         break;
       }
     }
     for (Node item : in) {
-      if (item.isAncestorsOf()) {
+      if (item.getAncestorsOf()) {
         superTypes = true;
         break;
       }

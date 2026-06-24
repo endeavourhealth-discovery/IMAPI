@@ -1,7 +1,11 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.interfacemanager.model.ECLStatus;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Node;
 import org.endeavourhealth.interfacemanager.model.ValidationLevel;
 
 import java.util.*;

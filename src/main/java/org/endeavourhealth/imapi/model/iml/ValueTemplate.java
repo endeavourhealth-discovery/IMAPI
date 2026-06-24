@@ -1,23 +1,23 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ValueTemplate extends EntityExtended {
+public class ValueTemplate extends Entity {
   private String parameter;
   private Integer order;
   private String label;
-  private TTIriRefExtended valueType;
+  private TTIriRef valueType;
   private Object defaultValue;
   private List<Object> valueOption;
 
-  public TTIriRefExtended getValueType() {
+  public TTIriRef getValueType() {
     return valueType;
   }
 
-  public ValueTemplate setValueType(TTIriRefExtended valueType) {
+  public ValueTemplate setValueType(TTIriRef valueType) {
     this.valueType = valueType;
     return this;
   }

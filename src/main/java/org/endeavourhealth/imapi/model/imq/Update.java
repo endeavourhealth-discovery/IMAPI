@@ -1,12 +1,14 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.Delete;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class Update extends TTIriRefExtended {
+public class Update extends TTIriRef {
   private String description;
   private List<Match> match;
   private List<Delete> delete;

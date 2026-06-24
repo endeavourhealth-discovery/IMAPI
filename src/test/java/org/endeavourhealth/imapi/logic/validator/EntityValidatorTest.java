@@ -2,12 +2,12 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.interfacemanager.model.EntityValidationRequest;
+import org.endeavourhealth.interfacemanager.model.EntityValidationResponse;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,7 @@ public class EntityValidatorTest {
     @Test
     void isValidIriAndData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(ImVocab.QueryVocab.toString(), "Query"));
+      actual.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QueryVocab.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -31,7 +31,7 @@ public class EntityValidatorTest {
     @Test
     void isInvalidIriAndData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(new TTIriRefExtended(NamespaceVocab.IM + "foo"), new TTIriRefExtended(ImVocab.QueryVocab.toString(), "Query"));
+      actual.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "foo"), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QueryVocab.toString(), "Query"));
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -40,7 +40,7 @@ public class EntityValidatorTest {
     @Test
     void isValidIriAndInvalidData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), "foo");
+      actual.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), "foo");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -49,7 +49,7 @@ public class EntityValidatorTest {
     @Test
     void isInvalidIriAndInvalidData() throws ValidationException {
       TTEntity actual = new TTEntity();
-      actual.addObject(new TTIriRefExtended(NamespaceVocab.IM + "foo"), "bar");
+      actual.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "foo"), "bar");
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.HAS_PARENT).setEntity(actual);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -127,7 +127,7 @@ public class EntityValidatorTest {
     @Test
     void failsIfNoProperties() throws ValidationException {
       TTEntity entity = new TTEntity();
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray());
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArray());
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("Data models must have at least 1 property");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -138,7 +138,7 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       ttArray.add(new TTNode());
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -149,9 +149,9 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTNode().setIri("Some iri"));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTNode().setIri("Some iri"));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -162,9 +162,9 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -175,10 +175,10 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")).add(new TTNode().setIri("Some other iri")));
-      ttNode.set(new TTIriRefExtended(ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")).add(new TTNode().setIri("Some other iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -189,10 +189,10 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTNode().setIri("Some iri"));
-      ttNode.set(new TTIriRefExtended(ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")).add(new TTNode().setIri("Some other iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTNode().setIri("Some iri"));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")).add(new TTNode().setIri("Some other iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(false).setMessage("One or more invalid properties");
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -203,10 +203,10 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
-      ttNode.set(new TTIriRefExtended(ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE), new TTArray().add(new TTNode().setIri("Some iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -217,10 +217,10 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
-      ttNode.set(new TTIriRefExtended(ShaclVocab.CLASS), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS), new TTArray().add(new TTNode().setIri("Some iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);
@@ -231,10 +231,10 @@ public class EntityValidatorTest {
       TTEntity entity = new TTEntity();
       TTArray ttArray = new TTArray();
       TTNode ttNode = new TTNode();
-      ttNode.set(new TTIriRefExtended(ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
-      ttNode.set(new TTIriRefExtended(ShaclVocab.DATATYPE), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), new TTArray().add(new TTNode().setIri("Some iri")));
+      ttNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE), new TTArray().add(new TTNode().setIri("Some iri")));
       ttArray.add(ttNode);
-      entity.set(new TTIriRefExtended(ShaclVocab.PROPERTY), ttArray);
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), ttArray);
       EntityValidationRequest request = new EntityValidationRequest().setValidationIri(ValidationVocab.IS_PROPERTY).setEntity(entity);
       EntityValidationResponse response = new EntityValidationResponse().setValid(true).setMessage(null);
       assertThat(entityValidator.validate(request, entityService)).usingRecursiveComparison().isEqualTo(response);

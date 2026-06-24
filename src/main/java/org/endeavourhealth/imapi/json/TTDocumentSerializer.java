@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.IOException;
 
@@ -30,7 +30,7 @@ public class TTDocumentSerializer extends StdSerializer<TTDocument> {
     }
   }
 
-  private static void outputIri(JsonGenerator gen, String fieldName, TTIriRefExtended ref, TTNodeSerializer helper) throws IOException {
+  private static void outputIri(JsonGenerator gen, String fieldName, TTIriRef ref, TTNodeSerializer helper) throws IOException {
     gen.writeFieldName(fieldName);
     gen.writeStartObject();
     gen.writeStringField("iri", helper.prefix(ref.getIri()));

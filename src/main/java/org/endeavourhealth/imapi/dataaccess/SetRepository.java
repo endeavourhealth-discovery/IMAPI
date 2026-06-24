@@ -9,14 +9,10 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.Pageable;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -49,14 +45,14 @@ public class SetRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.add(new Concept().setIri(bs.getValue(ENTITY).stringValue()));
+          result.add(new Concept().iri(bs.getValue(ENTITY).stringValue()));
         }
       }
     }
     return result;
   }
 
-  public Set<Concept> getSetExpansionFromQuery(Query imQuery, Set<TTIriRefExtended> statusFilter, List<String> schemeFilter, Page page
+  public Set<Concept> getSetExpansionFromQuery(Query imQuery, Set<TTIriRef> statusFilter, List<String> schemeFilter, Page page
   ) throws QueryException {
     setReturn(imQuery, false);
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
@@ -168,7 +164,7 @@ public class SetRepository {
   }
 
 
-  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRefExtended> statusFilter) throws QueryException {
+  public int getSetExpansionTotalCount(Query imQuery, Set<TTIriRef> statusFilter) throws QueryException {
     //add scheme filter
     QueryRequest newRequest = new QueryRequest().setQuery(imQuery);
     String sql = new SparqlConverter(newRequest).getCountSparql(statusFilter);
@@ -179,8 +175,8 @@ public class SetRepository {
     }
   }
 
-  public Set<TTIriRefExtended> getSubsetIrisWithNames(String iri) {
-    Set<TTIriRefExtended> result = new HashSet<>();
+  public Set<TTIriRef> getSubsetIrisWithNames(String iri) {
+    Set<TTIriRef> result = new HashSet<>();
 
     String sql = """
       SELECT ?subset ?name
@@ -201,7 +197,7 @@ public class SetRepository {
           String subsetIri = bs.getValue("subset").stringValue();
           String subsetName = bs.getValue("name").stringValue();
           try {
-            TTIriRefExtended subset = new TTIriRefExtended(subsetIri, subsetName);
+            TTIriRef subset = TTIriRefExtensionsKt.iri(new TTIriRef(), subsetIri, subsetName);
             result.add(subset);
           } catch (IllegalArgumentException ignored) {
             log.warn("Invalid subset iri [{}] for set [{}]", subsetIri, iri);
@@ -231,7 +227,7 @@ public class SetRepository {
           Value type = bs.getValue(ENTITY_TYPE);
           Value typeName = bs.getValue(TYPE_NAME);
           if (null != type) {
-            cl.addType(new TTIriRefExtended(type.stringValue(), typeName.stringValue()));
+            cl.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), type.stringValue(), typeName.stringValue()));
           }
         }
         Value im1Id = bs.getValue(IM_1_ID);
@@ -279,13 +275,13 @@ public class SetRepository {
       cl.setAlternativeCode(alternativeCode.stringValue());
     }
     if (null != scheme) {
-      cl.setScheme(new TTIriRefExtended(scheme.stringValue(), schemeName.stringValue()));
+      cl.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), scheme.stringValue(), schemeName.stringValue()));
     }
     if (null != status) {
-      cl.setStatus(new TTIriRefExtended(status.stringValue(), statusName.stringValue()));
+      cl.setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), status.stringValue(), statusName.stringValue()));
     }
     if (null != type) {
-      cl.addType(new TTIriRefExtended(type.stringValue(), typeName.stringValue()));
+      cl.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), type.stringValue(), typeName.stringValue()));
     }
     if (null != codeId) {
       cl.setCodeId(codeId.stringValue());
@@ -340,8 +336,8 @@ public class SetRepository {
     int blankCount = 0;
     for (TTNode dataModel : dataModels) {
       blankCount++;
-      String pathIri = dataModel.get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef().getIri();
-      String nodeIri = dataModel.get(new TTIriRefExtended(ShaclVocab.NODE)).asIriRef().getIri();
+      String pathIri = dataModel.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef().getIri();
+      String nodeIri = dataModel.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)).asIriRef().getIri();
       newBinding.add("""
         <%s> im:binding _:b%s .
         _:b%s sh:path <%s> .
@@ -441,12 +437,12 @@ public class SetRepository {
         String legacyStatus = bs.getValue(LEGACY_STATUS) != null ? bs.getValue(LEGACY_STATUS).stringValue() : null;
         String legacyStatusName = bs.getValue(LEGACY_STATUS_NAME) != null ? bs.getValue(LEGACY_STATUS_NAME).stringValue() : null;
         if (null != legacyStatus && null != legacyStatusName)
-          legacy.setStatus(new TTIriRefExtended(legacyStatus, legacyStatusName));
+          legacy.setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), legacyStatus, legacyStatusName));
         if (lc != null) legacy.setCode(lc.stringValue());
         if (lt != null) legacy.setName(lt.stringValue());
         if (ls != null) {
-          if (lsn == null) legacy.setScheme(new TTIriRefExtended(ls.stringValue()));
-          else legacy.setScheme(new TTIriRefExtended(ls.stringValue(), lsn.stringValue()));
+          if (lsn == null) legacy.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), ls.stringValue()));
+          else legacy.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), ls.stringValue(), lsn.stringValue()));
         }
         if (codeId != null) {
           legacy.setCodeId(codeId.stringValue());
@@ -520,10 +516,11 @@ public class SetRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           TTNode dataModel = new TTNode();
-          dataModel.set(new TTIriRefExtended(ShaclVocab.NODE), new TTIriRefExtended(bs.getValue("dataModel").stringValue()));
+          dataModel.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE), TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("dataModel").stringValue()));
           if (bs.getValue("path") != null)
-            dataModel.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended(bs.getValue("path").stringValue()));
-          else dataModel.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended(ImVocab.CONCEPT_PROPERTY));
+            dataModel.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("path").stringValue()));
+          else
+            dataModel.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_PROPERTY));
           result.add(dataModel);
         }
       }
@@ -642,17 +639,17 @@ public class SetRepository {
   }
 
 
-  public Pageable<Node> getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
+  public NodePageable getMembers(String iri, boolean entailed, Integer pageNumber, Integer pageSize) {
 
     if (entailed) {
-      Pageable<Node> result = getMemberWithPredicate(iri, ImVocab.ENTAILED_MEMBER.toString(), pageNumber, pageSize);
+      NodePageable result = getMemberWithPredicate(iri, ImVocab.ENTAILED_MEMBER.toString(), pageNumber, pageSize);
       if (result.getTotalCount() > 0) return result;
     }
     return getMemberWithPredicate(iri, ImVocab.HAS_MEMBER.toString(), pageNumber, pageSize);
   }
 
-  private Pageable<Node> getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
-    Pageable<Node> result = new Pageable<>();
+  private NodePageable getMemberWithPredicate(String iri, String predicate, Integer pageNumber, Integer pageSize) {
+    NodePageable result = new NodePageable();
     result.setTotalCount(0);
     String sql = """
       Select (count(distinct ?instance) as ?count)
@@ -705,7 +702,7 @@ public class SetRepository {
           BindingSet bs = rs.next();
           Node node = new Node();
           resultSet.add(node);
-          node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue());
+          node.iri(bs.getValue("member").stringValue()).name(bs.getValue("name").stringValue());
           if (bs.getValue("entailment") != null) {
             String entailment = bs.getValue("entailment").stringValue();
             switch (ImVocab.fromValue(entailment)) {
@@ -779,7 +776,7 @@ public class SetRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          expansion.add(new Concept().setIri(bs.getValue("member").stringValue()));
+          expansion.add(new Concept().iri(bs.getValue("member").stringValue()));
         }
       }
     }

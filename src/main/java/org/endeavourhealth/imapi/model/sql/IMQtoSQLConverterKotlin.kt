@@ -6,11 +6,17 @@ import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.interfacemanager.model.Bool
-import org.endeavourhealth.interfacemanager.model.IMQType
-import org.endeavourhealth.interfacemanager.model.ImVocab
-import org.endeavourhealth.interfacemanager.model.Order
+import org.endeavourhealth.interfacemanager.model.*
+import org.endeavourhealth.interfacemanager.model.Match
 import java.util.Locale.getDefault
+import kotlin.and
+import kotlin.collections.first
+import kotlin.collections.forEach
+import kotlin.collections.get
+import kotlin.or
+import kotlin.ranges.first
+import kotlin.sequences.first
+import kotlin.text.first
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
@@ -484,8 +490,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       where.iri?.let { properties.add(it) }
       where.and?.forEach { collect(it) }
       where.or?.forEach { collect(it) }
-      where.range?.from?.compareExtended?.left?.iri?.let { properties.add(it) }
-      where.range?.from?.compareExtended?.right?.iri?.let { properties.add(it) }
+      where.range?.from?.compare?.left?.iri?.let { properties.add(it) }
+      where.range?.from?.compare?.right?.iri?.let { properties.add(it) }
       where.compare?.left?.iri?.let { properties.add(it) }
       where.compare?.right?.iri?.let { properties.add(it) }
     }
@@ -773,7 +779,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val from = where.range.from
       val to = where.range.to
 
-      val isDirectValue = from.compareExtended == null && from.value != null
+      val isDirectValue = from.compare == null && from.value != null
 
       val fromWhere: MySQLWhere
       val toWhere: MySQLWhere
@@ -792,23 +798,23 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           table = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
         )
       } else {
-        val fromRight = from.compareExtended?.right?.parameter ?: from.compareExtended?.right?.propertyRef
+        val fromRight = from.compare?.right?.parameter ?: from.compare?.right?.propertyRef
         ?: getValueFromRelativeTo(from, variableToTableMap)
         ?: throw SQLConversionException("No value for range.from")
 
-        val toRight = to.compareExtended?.right?.parameter ?: to.compareExtended?.right?.propertyRef
+        val toRight = to.compare?.right?.parameter ?: to.compare?.right?.propertyRef
         ?: getValueFromRelativeTo(to, variableToTableMap)
         ?: throw SQLConversionException("No value for range.to")
 
         val (fromUnit, fromUnitType) =
           if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.from?.compareExtended?.units?.iri != null) getUnitNameAndType(where.range.from.compareExtended.units.iri)
+          else if (where.range?.from?.compare?.units?.iri != null) getUnitNameAndType(where.range.from.compare.units.iri)
           else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
           else null to null
 
         val (toUnit, toType) =
           if (where.compare?.units?.iri != null) getUnitNameAndType(where.compare.units.iri)
-          else if (where.range?.to?.compareExtended?.units?.iri != null) getUnitNameAndType(where.range.to.compareExtended.units.iri)
+          else if (where.range?.to?.compare?.units?.iri != null) getUnitNameAndType(where.range.to.compare.units.iri)
           else if (where.qualifier?.iri != null) getUnitNameAndType(where.qualifier.iri)
           else null to null
 
@@ -888,7 +894,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compareExtended?.left?.iri
+    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compare?.left?.iri
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
@@ -1060,15 +1066,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return match
     }
 
-    if (match.and != null) {
-      for (child in match.and) {
+    match.and?.let { and ->
+      for (child in and) {
         val result = findMatchByKeepAs(child, keepAs)
         if (result != null) return result
       }
     }
 
-    if (match.or != null) {
-      for (child in match.or) {
+    match.or?.let { or ->
+      for (child in or) {
         val result = findMatchByKeepAs(child, keepAs)
         if (result != null) return result
       }

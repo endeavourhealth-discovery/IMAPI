@@ -53,12 +53,12 @@ public class ConceptModelServiceTest {
     SearchTermCode termCode = new SearchTermCode()
       .setCode("24951000252112")
       .setTerm("Adverse reaction to Testogel")
-      .setStatus(new TTIriRefExtended().setIri(ImVocab. ACTIVE).setName(new TTIriRefExtended(ImVocab. ACTIVE).getName()));
+      .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri(ImVocab.ACTIVE).setName(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE).getName()));
     when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", EnumUtils.asHashSet(ImVocab.
-    HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(new TTIriRefExtended(ImVocab. HAS_TERM_CODE),
-    new TTArray().add(new TTNode().set(new TTIriRefExtended(ImVocab. CODE),new TTLiteral(termCode.getCode())).
-    set(new TTIriRefExtended(RdfsVocab.LABEL), new TTLiteral(termCode.getTerm())).set(new TTIriRefExtended(ImVocab. HAS_STATUS),
-    new TTArray().add(termCode.getStatus()))))));
+      HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE),
+      new TTArray().add(new TTNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), new TTLiteral(termCode.getCode())).
+        set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS),
+          new TTArray().add(termCode.getStatus()))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }

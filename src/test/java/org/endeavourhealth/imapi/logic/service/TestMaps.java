@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.interfacemanager.model.ListMode;
 import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
@@ -15,67 +15,67 @@ public class TestMaps {
   public static void patientDSTU2() throws JsonProcessingException {
     TTEntity patientMapEntity = new TTEntity();
     patientMapEntity
-      .setIri(NamespaceVocab. MAP + "FHIR_2_PatientToIM")
+      .setIri(NamespaceVocab.MAP + "FHIR_2_PatientToIM")
       .setName("FHIR DSTU2 Patient to IM Patient transformMap")
       .setDescription("Maps a FHIR DSTU2 Patient resource to IM Patient entity");
     MapObject patientMap = new MapObject();
     patientMap
       .setIri(patientMapEntity.getIri())
       .setSourceType(FHIR.DSTU2 + "Patient")
-      .setTargetType(NamespaceVocab. IM + "Patient")
+      .setTargetType(NamespaceVocab.IM + "Patient")
       .propertyMap(r -> r
-      .setSource("id")
-      .setSourceVariable("fhirId")
-      .setTarget("iri")
-      .function(f -> f
-        .setIri(NamespaceVocab. IM + "Concatenate")
+        .setSource("id")
+        .setSourceVariable("fhirId")
+        .setTarget("iri")
+        .function(f -> f
+          .setIri(NamespaceVocab.IM + "Concatenate")
           .argument(a -> a
-      .setValueData("urn:uuid:"))
-      .argument(a -> a
-        .setValueParameter("fhirId"))))
+            .setValueData("urn:uuid:"))
+          .argument(a -> a
+            .setValueParameter("fhirId"))))
       .propertyMap(m -> m
-      .setSource("identifier")
-      .propertyMap(m1 -> m1
-        .setSource("value")
-        .where(w -> w
-          .where(p -> p
-            .setIri(NamespaceVocab. IM + "system")
+        .setSource("identifier")
+        .propertyMap(m1 -> m1
+          .setSource("value")
+          .where(w -> w
+            .where(p -> p
+              .setIri(NamespaceVocab.IM + "system")
               .setValue("http://fhir.nhs.net/Id/nhs-number"))))
         .setTarget("nhsNumber"))
       .propertyMap(m -> m
-      .setSource("name")
-      .propertyMap(m1 -> m1
-        .setSource("family")
-        .setTarget("familyName"))
-      .propertyMap(m1 -> m1
-        .setSource("given")
-        .setListMode(ListMode.FIRST)
-        .setTarget("callingName"))
-      .propertyMap(m1 -> m1
-        .setSource("given")
-        .setSourceVariable("fhirGiven")
-        .setListMode(ListMode.ALL)
-        .setTarget("forenames")
-        .function(f -> f
-          .setIri(NamespaceVocab. IM + "StringJoin")
+        .setSource("name")
+        .propertyMap(m1 -> m1
+          .setSource("family")
+          .setTarget("familyName"))
+        .propertyMap(m1 -> m1
+          .setSource("given")
+          .setListMode(ListMode.FIRST)
+          .setTarget("callingName"))
+        .propertyMap(m1 -> m1
+          .setSource("given")
+          .setSourceVariable("fhirGiven")
+          .setListMode(ListMode.ALL)
+          .setTarget("forenames")
+          .function(f -> f
+            .setIri(NamespaceVocab.IM + "StringJoin")
             .argument(a -> a
-      .setParameter("delimiter")
-      .setValueData(" "))
-      .argument(a -> a
-        .setParameter("elements")
-        .setValueParameter("fhirGiven")))))
+              .setParameter("delimiter")
+              .setValueData(" "))
+            .argument(a -> a
+              .setParameter("elements")
+              .setValueParameter("fhirGiven")))))
       .propertyMap(m -> m
-      .setSource("address")
-      .setTarget("homeAddress")
-      .objectMap(m1 -> m1
-        .where(w -> w
-          .where(p -> p
-            .setIri(NamespaceVocab. IM + "use")
+        .setSource("address")
+        .setTarget("homeAddress")
+        .objectMap(m1 -> m1
+          .where(w -> w
+            .where(p -> p
+              .setIri(NamespaceVocab.IM + "use")
               .setValue("home")))))
-      .setTargetType(NamespaceVocab. IM + "Address")
+      .setTargetType(NamespaceVocab.IM + "Address")
       .propertyMap(m2 -> m2
-      .setSource("line")
-      .setTarget("addressLine"))
+        .setSource("line")
+        .setTarget("addressLine"))
       .propertyMap(m2 -> m2
         .setSource("postalCode")
         .setTarget("postCode"))
@@ -89,28 +89,28 @@ public class TestMaps {
           .setSource("value")
           .where(w -> w
             .where(w1 -> w1
-              .setIri(NamespaceVocab. IM + "system")
+              .setIri(NamespaceVocab.IM + "system")
               .setValue("phone"))
             .where(w1 -> w1
-      .setIri(NamespaceVocab. IM + "use")
+              .setIri(NamespaceVocab.IM + "use")
               .setValue("mobile")))
           .setTarget("mobileTelephoneNumber")))
       .propertyMap(m -> m
-      .setSource("telecom")
-      .propertyMap(m1 -> m1
-        .setSource("value"))
-      .where(w -> w
-        .where(w1 -> w1
-          .setIri(NamespaceVocab. IM + "system")
+        .setSource("telecom")
+        .propertyMap(m1 -> m1
+          .setSource("value"))
+        .where(w -> w
+          .where(w1 -> w1
+            .setIri(NamespaceVocab.IM + "system")
             .setValue("phone")
           )
           .where(w1 -> w1
-      .setIri(NamespaceVocab. IM + "use")
+            .setIri(NamespaceVocab.IM + "use")
             .setValue("home")))
         .setTarget("homeTelephoneNumber"))
       .propertyMap(m -> m
-      .setSource("birthDate")
-      .setTarget("dateOfBirth"))
+        .setSource("birthDate")
+        .setTarget("dateOfBirth"))
       .propertyMap(m -> m
         .setSource("managingOrganization")
         .propertyMap(m1 -> m1
@@ -119,14 +119,14 @@ public class TestMaps {
       .propertyMap(m -> m
         .setTarget("administrativeGender")
         .objectMap(m1 -> m1
-          .setTargetType(NamespaceVocab. IM + "CodeableConcept")
+          .setTargetType(NamespaceVocab.IM + "CodeableConcept")
           .propertyMap(m2 -> m2
-      .setSource("gender")
-      .setTarget("originalCode"))
-      .propertyMap(m2 -> m2
-        .setTarget("originalScheme")
-        .setValueData("http://hl7.org/fhir/administrative-gender"))));
-    patientMapEntity.set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(patientMap));
+            .setSource("gender")
+            .setTarget("originalCode"))
+          .propertyMap(m2 -> m2
+            .setTarget("originalScheme")
+            .setValueData("http://hl7.org/fhir/administrative-gender"))));
+    patientMapEntity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(patientMap));
     EntityCache.addEntity(patientMapEntity);
   }
 }

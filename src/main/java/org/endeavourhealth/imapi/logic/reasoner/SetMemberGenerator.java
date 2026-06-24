@@ -4,14 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.Concept;
 import org.endeavourhealth.interfacemanager.model.GraphVocab;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.Set;
 
@@ -36,7 +36,7 @@ public class SetMemberGenerator {
 
   public void generateMembers(String iri, GraphVocab insertGraph) throws QueryException, JsonProcessingException {
     TTBundle setDefinition = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(ImVocab.DEFINITION));
-    if (setDefinition.getEntity().get(new TTIriRefExtended(ImVocab.DEFINITION)) == null) {
+    if (setDefinition.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) == null) {
       Set<Concept> members = setRepo.getExpansionFromEntailedMembers(iri); //might be an instance member definition
       if (!members.isEmpty()) {
         log.info("Expanding members {}", iri);
@@ -44,7 +44,7 @@ public class SetMemberGenerator {
       }
     } else {
       log.info("Expanding from definition {}", iri);
-      Query query = setDefinition.getEntity().get(new TTIriRefExtended(ImVocab.DEFINITION)).
+      Query query = setDefinition.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).
         asLiteral().objectValue(Query.class);
       new SparqlOptimizer().optimizeQuery(query);
       Set<Concept> members = setRepo.getMembersFromDefinition(query);

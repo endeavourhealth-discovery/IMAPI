@@ -8,11 +8,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
-import org.endeavourhealth.imapi.model.iml.NodeShape;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.interfacemanager.model.NodeShape;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -38,11 +38,11 @@ public class DataModelController {
     HttpServletRequest request,
     @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri,
     @RequestParam(name = "pathsOnly", required = false, defaultValue = "false") boolean pathsOnly,
-    @RequestParam(name="excludeGeneric",required= false, defaultValue= "false") boolean excludeGeneric
+    @RequestParam(name = "excludeGeneric", required = false, defaultValue = "false") boolean excludeGeneric
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
       log.debug("getDataModelProperties " + (pathsOnly ? "paths only" : "") + "for " + iri);
-      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly,excludeGeneric);
+      return dataModelService.getDataModelDisplayProperties(iri, pathsOnly, excludeGeneric);
     }
   }
 
@@ -83,7 +83,7 @@ public class DataModelController {
     description = "Returns a list of data models that reference the given property IRI."
   )
   @GetMapping(value = "/dataModels")
-  public List<TTIriRefExtended> getDataModelsFromProperty(
+  public List<TTIriRef> getDataModelsFromProperty(
     HttpServletRequest request,
     @Parameter(description = "IRI of the property")
     @RequestParam(name = "propIri") String propIri
@@ -128,7 +128,7 @@ public class DataModelController {
     summary = "gets the inverse path between source and target",
     description = "for a known source tye ad target type whats the reverse property e.g. patient "
   )
-  public TTIriRefExtended getInversePath(
+  public TTIriRef getInversePath(
     HttpServletRequest request,
     @RequestParam(name = "source") String source,
     @RequestParam(name = "target") String target) {

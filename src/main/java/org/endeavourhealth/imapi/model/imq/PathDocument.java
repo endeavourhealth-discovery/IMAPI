@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.endeavourhealth.interfacemanager.model.Match;
 
 import java.util.ArrayList;
 import java.util.List;

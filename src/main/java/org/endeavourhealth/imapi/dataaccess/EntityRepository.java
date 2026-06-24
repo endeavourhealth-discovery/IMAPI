@@ -11,15 +11,16 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
+import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.Namespace;
+import org.endeavourhealth.interfacemanager.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
-import org.endeavourhealth.imapi.model.search.EntityDocumentExtended;
+import org.endeavourhealth.interfacemanager.model.Entity;
+import org.endeavourhealth.interfacemanager.model.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
-import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.interfacemanager.model.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -43,31 +44,32 @@ public class EntityRepository {
   private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
   private int row = 0;
 
-  private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocumentExtended entityDocument, TupleQueryResult qr) {
+  private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
     BindingSet rs = qr.next();
     entityDocument.setName(rs.getValue("name").stringValue());
-    entityDocument.addTermCode(entityDocument.getName(), null, null, null);
+    entityDocument.addTermCodeItem(entityDocument.getName(), null, null, null);
 
     if (rs.hasBinding("preferredName")) entityDocument.setPreferredName(rs.getValue("preferredName").stringValue());
 
     if (rs.hasBinding("code")) entityDocument.setCode(rs.getValue("code").stringValue());
 
-    if (rs.hasBinding("scheme")) entityDocument.setScheme(new TTIriRefExtended(rs.getValue("scheme").stringValue()));
+    if (rs.hasBinding("scheme"))
+      entityDocument.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("scheme").stringValue()));
 
     if (rs.hasBinding("status")) {
-      TTIriRefExtended status = new TTIriRefExtended(rs.getValue("status").stringValue());
+      TTIriRef status = TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("status").stringValue());
       if (rs.hasBinding("statusName")) status.setName(rs.getValue("statusName").stringValue());
       entityDocument.setStatus(status);
     }
 
-    TTIriRefExtended type = new TTIriRefExtended(rs.getValue("type").stringValue());
+    TTIriRef type = TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("type").stringValue());
     if (rs.hasBinding("typeName")) type.setName(rs.getValue("typeName").stringValue());
-    entityDocument.addType(type);
+    entityDocument.addTypeItem(type);
 
     if (rs.hasBinding("extraType")) {
-      TTIriRefExtended extraType = new TTIriRefExtended(rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
+      TTIriRef extraType = TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("extraType").stringValue(), rs.getValue("extraTypeName").stringValue());
       entityDocument.addType(extraType);
-      if (extraType.equals(new TTIriRefExtended(NamespaceVocab.IM + "DataModelEntity"))) {
+      if (extraType.equals(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "DataModelEntity"))) {
         int usageTotal = 2000000;
         entityDocument.setUsageTotal(usageTotal);
       }
@@ -77,7 +79,7 @@ public class EntityRepository {
     }
   }
 
-  public static void getIriNames(IMDB conn, Set<TTIriRefExtended> iris) {
+  public static void getIriNames(IMDB conn, Set<TTIriRef> iris) {
 
     if (iris == null || iris.isEmpty()) return;
 
@@ -106,7 +108,7 @@ public class EntityRepository {
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        TTIriRefExtended iri = new TTIriRefExtended(bs.getValue("iri").stringValue());
+        TTIriRef iri = TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("iri").stringValue());
         iris.stream().filter(i -> i.equals(iri)).findFirst().ifPresent(i -> {
           i.setName(bs.getValue("label").stringValue());
           iriNameCache.put(i.getIri(), i.getName());
@@ -118,8 +120,8 @@ public class EntityRepository {
     }
   }
 
-  public TTIriRefExtended getEntityReferenceByIri(String iri) {
-    TTIriRefExtended result = new TTIriRefExtended();
+  public TTIriRef getEntityReferenceByIri(String iri) {
+    TTIriRef result = TTIriRefExtensionsKt.iri(new TTIriRef(), );
     String sql = """
       SELECT ?sname
       WHERE {
@@ -168,19 +170,19 @@ public class EntityRepository {
           TTEntity entity = entities.get(iri);
           Value object = bs.getValue("folder");
           if (object.isIRI()) {
-            entity.addObject(new TTIriRefExtended(bs.getValue("predicate").stringValue()), new TTIriRefExtended(object.stringValue()));
+            entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue()));
           } else if (object.isBNode()) {
-            if (entity.get(new TTIriRefExtended(bs.getValue("predicate").stringValue())) == null) {
-              entity.set(new TTIriRefExtended(bs.getValue("predicate").stringValue()), new TTNode());
+            if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue())) == null) {
+              entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), new TTNode());
             }
             Value object2 = bs.getValue("object2");
             if (object2.isIRI()) {
-              entity.get(new TTIriRefExtended(bs.getValue("predicate").stringValue()))
-                .asNode().addObject(new TTIriRefExtended(bs.getValue("predicate2").stringValue()), new TTIriRefExtended(object2.stringValue()));
-            } else entity.get(new TTIriRefExtended(bs.getValue("predicate").stringValue()))
-              .asNode().addObject(new TTIriRefExtended(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
+              entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()))
+                .asNode().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate2").stringValue()), TTIriRefExtensionsKt.iri(new TTIriRef(), object2.stringValue()));
+            } else entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()))
+              .asNode().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
           } else {
-            entity.addObject(new TTIriRefExtended(bs.getValue("predicate").stringValue()), TTLiteral.literal(object.stringValue()));
+            entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), TTLiteral.literal(object.stringValue()));
           }
         }
       }
@@ -188,8 +190,8 @@ public class EntityRepository {
     return new ArrayList<>(entities.values());
   }
 
-  public Map<String, Set<TTIriRefExtended>> getTypesByIris(Set<String> stringIris) {
-    Map<String, Set<TTIriRefExtended>> iriToTypesMap = new HashMap<>();
+  public Map<String, Set<TTIriRef>> getTypesByIris(Set<String> stringIris) {
+    Map<String, Set<TTIriRef>> iriToTypesMap = new HashMap<>();
 
     String sql = """
       SELECT ?s ?o ?oname
@@ -207,7 +209,7 @@ public class EntityRepository {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
           if (!iriToTypesMap.containsKey(iri)) iriToTypesMap.put(iri, new HashSet<>());
-          iriToTypesMap.get(iri).add(new TTIriRefExtended(bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
+          iriToTypesMap.get(iri).add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("o").stringValue(), bs.getValue("oname").stringValue()));
         }
       }
     }
@@ -236,7 +238,7 @@ public class EntityRepository {
       }
       """.formatted(getIriLine(stringIris));
 
-    Map<String, Set<TTIriRefExtended>> iriToTypesMap = getTypesByIris(stringIris);
+    Map<String, Set<TTIriRef>> iriToTypesMap = getTypesByIris(stringIris);
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
@@ -244,15 +246,15 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          Set<TTIriRefExtended> types = iriToTypesMap.get(iri);
+          Set<TTIriRef> types = iriToTypesMap.get(iri);
           SearchResultSummary summary = new SearchResultSummary();
           summary
             .setIri(iri)
             .setName(bs.getValue("sname").stringValue())
             .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-            .setScheme(new TTIriRefExtended(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
+            .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
             .setType(types)
-            .setStatus(new TTIriRefExtended(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
             .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
@@ -305,23 +307,23 @@ public class EntityRepository {
           if (result.getName() == null) {
             result.setIri(iri).setName(bs.getValue("sname").stringValue())
               .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-              .setStatus(new TTIriRefExtended(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+              .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
               .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
           if (bs.hasBinding("type")) {
-            result.addType(new TTIriRefExtended(bs.getValue("type").stringValue())
+            result.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("type").stringValue())
               .name(bs.getValue("typeName").stringValue()));
           }
 
           if (bs.hasBinding("sscheme")) {
-            result.setScheme(new TTIriRefExtended(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
+            result.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
           }
           if (bs.hasBinding("intervalUnit")) {
-            result.addIntervalUnit(new TTIriRefExtended(bs.getValue("intervalUnit").stringValue())
+            result.addIntervalUnit(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("intervalUnit").stringValue())
               .name(bs.getValue("intervalUnitName").stringValue()));
           }
           if (bs.hasBinding("qualifier")) {
-            TTIriRefExtended qualifier = new TTIriRefExtended(bs.getValue("qualifier").stringValue())
+            TTIriRef qualifier = TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("qualifier").stringValue())
               .name(bs.getValue("qualifierName").stringValue());
             if (result.getQualifier() == null || (!result.getQualifier().contains(qualifier))) {
               result.addQualifier(qualifier);
@@ -403,7 +405,7 @@ public class EntityRepository {
     return results;
   }
 
-  public boolean predicatePathExists(String subject, TTIriRefExtended predicate, String object) {
+  public boolean predicatePathExists(String subject, TTIriRef predicate, String object) {
     try (IMDB conn = IMDB.getConnection()) {
       String sprql = """
           ASK {
@@ -418,8 +420,8 @@ public class EntityRepository {
     }
   }
 
-  public EntityDocumentExtended getOSDocument(String iri) {
-    EntityDocumentExtended result = new EntityDocumentExtended().setIri(iri);
+  public EntityDocument getOSDocument(String iri) {
+    EntityDocument result = new EntityDocument().setIri(iri);
     hydrateCoreProperties(result);
     hydrateTerms(result);
     hydrateIsAs(result);
@@ -427,7 +429,7 @@ public class EntityRepository {
     return result;
   }
 
-  private void hydrateCoreProperties(EntityDocumentExtended entityDocument) {
+  private void hydrateCoreProperties(EntityDocument entityDocument) {
     String spql = """
       SELECT ?iri ?name ?preferredName ?status ?statusName ?code ?scheme ?schemeName ?type ?typeName ?usageTotal ?extraType ?extraTypeName
       WHERE {
@@ -464,7 +466,7 @@ public class EntityRepository {
     }
   }
 
-  private void hydrateTerms(EntityDocumentExtended entityDocument) {
+  private void hydrateTerms(EntityDocument entityDocument) {
     String sparql = """
       SELECT ?termCode ?synonym ?termCodeStatus
       WHERE {
@@ -483,11 +485,11 @@ public class EntityRepository {
           BindingSet rs = qr.next();
           String termCode = null;
           String synonym = null;
-          TTIriRefExtended status = null;
+          TTIriRef status = null;
           if (rs.hasBinding("synonym")) synonym = rs.getValue("synonym").stringValue().toLowerCase();
           if (rs.hasBinding("termCode")) termCode = rs.getValue("termCode").stringValue();
           if (rs.hasBinding("termCodeStatus"))
-            status = new TTIriRefExtended(rs.getValue("termCodeStatus").stringValue());
+            status = TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("termCodeStatus").stringValue());
 
           if (synonym != null) {
             SearchTermCode tc = getTermCode(entityDocument, synonym);
@@ -506,7 +508,7 @@ public class EntityRepository {
     }
   }
 
-  private void hydrateSubsumptionCount(EntityDocumentExtended entityDocument) {
+  private void hydrateSubsumptionCount(EntityDocument entityDocument) {
     String sparql = """
       SELECT (count(?subType) as ?subsumptions)
       WHERE {
@@ -527,21 +529,21 @@ public class EntityRepository {
     }
   }
 
-  private SearchTermCode getTermCode(EntityDocumentExtended blob, String term) {
+  private SearchTermCode getTermCode(EntityDocument blob, String term) {
     for (SearchTermCode tc : blob.getTermCode()) {
       if (tc.getTerm() != null && tc.getTerm().equals(term)) return tc;
     }
     return null;
   }
 
-  private SearchTermCode getTermCodeFromCode(EntityDocumentExtended blob, String code) {
+  private SearchTermCode getTermCodeFromCode(EntityDocument blob, String code) {
     for (SearchTermCode tc : blob.getTermCode()) {
       if (tc.getCode() != null && tc.getCode().equals(code)) return tc;
     }
     return null;
   }
 
-  private void hydrateIsAs(EntityDocumentExtended entityDocument) {
+  private void hydrateIsAs(EntityDocument entityDocument) {
     String spql = """
       SELECT ?superType
       WHERE {
@@ -555,7 +557,7 @@ public class EntityRepository {
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
-          entityDocument.getIsA().add(new TTIriRefExtended(rs.getValue("superType").stringValue()));
+          entityDocument.getIsA().add(TTIriRefExtensionsKt.iri(new TTIriRef(), rs.getValue("superType").stringValue()));
         }
       }
     }
@@ -582,8 +584,8 @@ public class EntityRepository {
     return predicates;
   }
 
-  public List<TTIriRefExtended> findAncestorsByType(String childIri, Enum<?> relationshipIri, List<String> candidateAncestorIris) {
-    List<TTIriRefExtended> result = new ArrayList<>();
+  public List<TTIriRef> findAncestorsByType(String childIri, Enum<?> relationshipIri, List<String> candidateAncestorIris) {
+    List<TTIriRef> result = new ArrayList<>();
     String sql = """
       SELECT ?aname
       WHERE {
@@ -602,7 +604,7 @@ public class EntityRepository {
         try (TupleQueryResult rs = qry.evaluate()) {
           if (rs.hasNext()) {
             BindingSet bs = rs.next();
-            result.add(new TTIriRefExtended().iri(candidate).name(bs.getValue("aname").stringValue()));
+            result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).iri(candidate).name(bs.getValue("aname").stringValue()));
           }
         }
       }
@@ -661,10 +663,10 @@ public class EntityRepository {
         for (org.eclipse.rdf4j.model.Statement st : gs) {
           processStatement(bundle, valueMap, iri, st);
         }
-        Set<TTIriRefExtended> iris = TTManager.getIrisFromNode(bundle.getEntity());
+        Set<TTIriRef> iris = TTManager.getIrisFromNode(bundle.getEntity());
         getIriNames(conn, iris);
         HashMap<String, String> iriToName = new HashMap<>();
-        for (TTIriRefExtended ttIriRef : iris) {
+        for (TTIriRef ttIriRef : iris) {
           iriToName.put(ttIriRef.getIri(), ttIriRef.getName());
         }
         setNames(bundle.getEntity(), iriToName);
@@ -678,7 +680,7 @@ public class EntityRepository {
     if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
       subject.asIriRef().setName(iriToName.get(subject.asIriRef().getIri()));
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
         for (TTValue value : entry.getValue().getElements()) {
           if (value.isIriRef() && (value.asIriRef().getName() == null || value.asIriRef().getName().isEmpty()))
             value.asIriRef().setName(iriToName.get(value.asIriRef().getIri()));
@@ -689,7 +691,7 @@ public class EntityRepository {
     }
   }
 
-  public void getNames(Set<TTIriRefExtended> iris) {
+  public void getNames(Set<TTIriRef> iris) {
     try (IMDB conn = IMDB.getConnection()) {
       getIriNames(conn, iris);
     }
@@ -733,7 +735,7 @@ public class EntityRepository {
    * @param code the code or description id or term code
    * @return iri and name of entity
    */
-  public Set<EntityExtended> getCoreFromCode(String code, List<NamespaceVocab> namespaces) {
+  public Set<Entity> getCoreFromCode(String code, List<NamespaceVocab> namespaces) {
     List<String> schemes = namespaces.stream().map(NamespaceVocab::toString).toList();
 
     String sql = """
@@ -788,7 +790,7 @@ public class EntityRepository {
    * @param namespace the legacy scheme of the term
    * @return iri and name of entity
    */
-  public Set<EntityExtended> getCoreFromLegacyTerm(String term, NamespaceVocab namespace) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, NamespaceVocab namespace) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -814,7 +816,7 @@ public class EntityRepository {
    * @param namespace the scheme of the term
    * @return set of iris and name of entity
    */
-  public Set<EntityExtended> getReferenceFromTermCode(String code, NamespaceVocab namespace) {
+  public Set<Entity> getReferenceFromTermCode(String code, NamespaceVocab namespace) {
     String sql = """
       SELECT ?concept ?label ?type
       WHERE {
@@ -885,7 +887,7 @@ public class EntityRepository {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRefExtended getReferenceFromCoreTerm(String term) {
+  public TTIriRef getReferenceFromCoreTerm(String term) {
     List<String> schemes = EnumUtils.asArrayList(NamespaceVocab.IM, NamespaceVocab.
       SNOMED);
     String sql = """
@@ -921,7 +923,7 @@ public class EntityRepository {
     Map<String, Set<String>> maps = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
-      TTIriRefExtended concept = new TTIriRefExtended();
+      TTIriRef concept = TTIriRefExtensionsKt.iri(new TTIriRef(), );
       try (TupleQueryResult gs = qry.evaluate()) {
         while (gs.hasNext()) {
           BindingSet bs = gs.next();
@@ -936,12 +938,12 @@ public class EntityRepository {
     return maps;
   }
 
-  private TTIriRefExtended getConceptRefFromResult(TupleQuery qry) {
-    TTIriRefExtended concept = null;
+  private TTIriRef getConceptRefFromResult(TupleQuery qry) {
+    TTIriRef concept = null;
     try (TupleQueryResult gs = qry.evaluate()) {
       while (gs.hasNext()) {
         BindingSet bs = gs.next();
-        concept = new TTIriRefExtended(bs.getValue("concept").stringValue());
+        concept = TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("concept").stringValue());
         if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
 
       }
@@ -949,8 +951,8 @@ public class EntityRepository {
     return concept;
   }
 
-  private Set<EntityExtended> getConceptRefsFromResult(TupleQuery qry) {
-    Set<EntityExtended> results = null;
+  private Set<Entity> getConceptRefsFromResult(TupleQuery qry) {
+    Set<Entity> results = null;
     Set<String> iris = new HashSet<>();
     try (TupleQueryResult gs = qry.evaluate()) {
       while (gs.hasNext()) {
@@ -959,8 +961,8 @@ public class EntityRepository {
         String iri = bs.getValue("concept").stringValue();
         if (!iris.contains(iri)) {
           iris.add(iri);
-          EntityExtended concept = new EntityExtended().setIri(iri);
-          concept.addType(new TTIriRefExtended(bs.getValue("type").stringValue()));
+          Entity concept = new Entity().setIri(iri);
+          concept.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("type").stringValue()));
           if (bs.getValue("label") != null) concept.setName(bs.getValue("label").stringValue());
           if (bs.getValue("legacyLabel") != null)
             concept.setName(bs.getValue("legacyLabel").stringValue());
@@ -1025,7 +1027,7 @@ public class EntityRepository {
         predNames.put(predicate, tripleMap.get(predicate).asIriRef().getName());
       } else predNames.put(predicate, predicate);
     } else {
-      tripleMap.putIfAbsent(predicate, new TTIriRefExtended(predicate));
+      tripleMap.putIfAbsent(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), predicate));
       predNames.put(predicate, predicate);
     }
     TTNode node;
@@ -1034,7 +1036,7 @@ public class EntityRepository {
         if (subject.equals(entityIri)) {
           entity.setName(value);
         } else {
-          tripleMap.putIfAbsent(subject, new TTIriRefExtended(subject));
+          tripleMap.putIfAbsent(subject, TTIriRefExtensionsKt.iri(new TTIriRef(), subject));
           tripleMap.get(subject).asIriRef().setName(value);
           predNames.computeIfPresent(subject, (k, v) -> value);
         }
@@ -1053,7 +1055,7 @@ public class EntityRepository {
         tripleMap.putIfAbsent(value, new TTNode());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
-        tripleMap.putIfAbsent(value, new TTIriRefExtended(value));
+        tripleMap.putIfAbsent(value, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else {
         tripleMap.putIfAbsent(value, TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
@@ -1081,7 +1083,7 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
 
-          result.add(new TTIriRefExtended().iri(bs.getValue("o").stringValue()).name(bs.getValue("oname").stringValue())
+          result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).iri(bs.getValue("o").stringValue()).name(bs.getValue("oname").stringValue())
 
           );
         }
@@ -1095,8 +1097,8 @@ public class EntityRepository {
     return getBundle(iri, predicates, false);
   }
 
-  public List<TTIriRefExtended> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize) {
-    List<TTIriRefExtended> result = new ArrayList<>();
+  public List<TTIriRef> getConceptUsages(String objectIri, Integer rowNumber, Integer pageSize) {
+    List<TTIriRef> result = new ArrayList<>();
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
       SELECT DISTINCT ?s ?name
@@ -1126,7 +1128,7 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.add(new TTIriRefExtended().iri(bs.getValue("s").stringValue()).name(bs.getValue("name").stringValue()));
+          result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).iri(bs.getValue("s").stringValue()).name(bs.getValue("name").stringValue()));
         }
       }
     }
@@ -1204,7 +1206,7 @@ public class EntityRepository {
             refNode = new EntityReferenceNode(iri).setType(new TTArray());
             iriMap.put(iri, refNode);
           }
-          refNode.getType().add(new TTIriRefExtended(bs.getValue("typeIri").stringValue())
+          refNode.getType().add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("typeIri").stringValue())
             .name(bs.getValue("typeName").stringValue()));
           if (bs.hasBinding("contextOrder"))
             refNode.setOrderNumber((((Literal) bs.getValue("contextOrder")).intValue()));
@@ -1260,7 +1262,7 @@ public class EntityRepository {
             refNode.setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue());
           }
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
-            refNode.addType(new TTIriRefExtended(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+            refNode.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
         }
       }
     }
@@ -1309,11 +1311,11 @@ public class EntityRepository {
           result.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
 
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
-            types.add(new TTIriRefExtended(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+            types.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
 
           while (rs.hasNext()) {
             bs = rs.next();
-            types.add(new TTIriRefExtended(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+            types.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
           }
         } else throw new IllegalArgumentException("Iri does not exist: " + iri);
       }
@@ -1322,7 +1324,7 @@ public class EntityRepository {
     return result;
   }
 
-  public Pageable<TTIriRefExtended> findImmediateChildrenPagedByIriWithTotalCount(
+  public TTIriRefPageable findImmediateChildrenPagedByIriWithTotalCount(
     String parentIri,
     List<String> schemeIris,
     Integer rowNumber,
@@ -1330,8 +1332,8 @@ public class EntityRepository {
     boolean inactive,
     List<String> entityTypes
   ) {
-    List<TTIriRefExtended> children = new ArrayList<>();
-    Pageable<TTIriRefExtended> result = new Pageable<>();
+    List<TTIriRef> children = new ArrayList<>();
+    TTIriRefPageable result = new TTIriRefPageable();
 
     StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .");
     if (!inactive) {
@@ -1372,7 +1374,7 @@ public class EntityRepository {
         result.setPageSize(pageSize);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          children.add(new TTIriRefExtended(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
+          children.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
         }
         result.setResult(children);
       }
@@ -1382,9 +1384,9 @@ public class EntityRepository {
   }
 
 
-  public Pageable<TTIriRefExtended> findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRefExtended> children = new ArrayList<>();
-    Pageable<TTIriRefExtended> result = new Pageable<>();
+  public TTIriRefPageable findPartialWithTotalCount(String parentIri, String predicateIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    List<TTIriRef> children = new ArrayList<>();
+    TTIriRefPageable result = new TTIriRefPageable();
 
     StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?p) as ?count)").add("WHERE {").add("  ?c ?pr ?p .");
     if (!inactive) {
@@ -1424,7 +1426,7 @@ public class EntityRepository {
         result.setPageSize(pageSize);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          children.add(new TTIriRefExtended(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
+          children.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
         }
         result.setResult(children);
       }
@@ -1432,8 +1434,8 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRefExtended> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRefExtended> result = new ArrayList<>();
+  public List<TTIriRef> findImmediateChildrenByIri(String parentIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    List<TTIriRef> result = new ArrayList<>();
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add("SELECT DISTINCT ?c ?cname")
@@ -1459,7 +1461,7 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.add(new TTIriRefExtended(bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
+          result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("c").stringValue(), bs.getValue("cname").stringValue()));
         }
       }
     }
@@ -1467,8 +1469,8 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRefExtended> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
-    List<TTIriRefExtended> result = new ArrayList<>();
+  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+    List<TTIriRef> result = new ArrayList<>();
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add("SELECT DISTINCT ?p ?pname")
@@ -1499,7 +1501,7 @@ public class EntityRepository {
         log.debug("Retrieving 'findImmediateParentsByIri'...");
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          result.add(new TTIriRefExtended(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
+          result.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("p").stringValue(), bs.getValue("pname").stringValue()));
         }
         log.debug("Finished ({} rows)", result.size());
       }
@@ -1529,14 +1531,14 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          Tpl tpl = new Tpl().setDbid(row++).setParent(parent).setPredicate(new TTIriRefExtended(getString(bs, "p"), getString(bs, "pname")));
+          Tpl tpl = new Tpl().setDbid(row++).setParent(parent).setPredicate(TTIriRefExtensionsKt.iri(new TTIriRef(), getString(bs, "p"), getString(bs, "pname")));
 
           triples.add(tpl);
           Value object = bs.getValue("o");
           if (object.isIRI()) {
-            tpl.setObject(new TTIriRefExtended(object.stringValue(), getString(bs, "oname")));
+            tpl.setObject(TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue(), getString(bs, "oname")));
           } else if (object.isLiteral()) {
-            tpl.setLiteral(object.stringValue()).setObject(new TTIriRefExtended(((Literal) object).getDatatype().stringValue()));
+            tpl.setLiteral(object.stringValue()).setObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ((Literal) object).getDatatype().stringValue()));
           } else if (object.isBNode()) {
             addTriples(triples, (BNode) object, row - 1);
           } else {
@@ -1547,7 +1549,7 @@ public class EntityRepository {
     }
   }
 
-  public TTIriRefExtended findParentFolderRef(String iri) {
+  public TTIriRef findParentFolderRef(String iri) {
     String sql = """
       SELECT ?p ?pname
       WHERE {
@@ -1565,7 +1567,7 @@ public class EntityRepository {
         log.debug("Retrieving 'findParentFolderRef'...");
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
-          return new TTIriRefExtended(bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());
+          return TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("p").stringValue(), bs.getValue("pname").stringValue());
         }
       }
     }
@@ -1629,9 +1631,9 @@ public class EntityRepository {
             result.get(predicate).setName(bs.getValue("predicateLabel").stringValue());
             Value object = bs.getValue("object");
             if (object.isIRI()) {
-              TTIriRefExtended ttIriRef = new TTIriRefExtended(object.stringValue());
+              TTIriRef ttIriRef = TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue());
               if (null != bs.getValue("objectLabel")) ttIriRef.setName(bs.getValue("objectLabel").stringValue());
-              entity.addObject(new TTIriRefExtended(predicate), ttIriRef);
+              entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), ttIriRef);
             } else if (object.isBNode()) {
               bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
               TTNode blank = bnodeMap.get(object.stringValue());
@@ -1641,11 +1643,12 @@ public class EntityRepository {
                 result.get(subPredicate).setName(bs.getValue("subPredicateLabel").stringValue());
                 Value subObject = bs.getValue("subObject");
                 if (subObject.isIRI()) {
-                  blank.addObject(new TTIriRefExtended(subPredicate), new TTIriRefExtended(subObject.stringValue()).name(bs.getValue("subObjectLabel").stringValue()));
-                } else blank.addObject(new TTIriRefExtended(subPredicate), TTLiteral.literal(subObject.stringValue()));
+                  blank.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), subPredicate), TTIriRefExtensionsKt.iri(new TTIriRef(), subObject.stringValue()).name(bs.getValue("subObjectLabel").stringValue()));
+                } else
+                  blank.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), subPredicate), TTLiteral.literal(subObject.stringValue()));
               }
             } else
-              entity.addObject(new TTIriRefExtended(predicate), TTLiteral.literal(object.stringValue()));
+              entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), TTLiteral.literal(object.stringValue()));
           }
         }
       }
@@ -1654,7 +1657,7 @@ public class EntityRepository {
   }
 
 
-  public List<TTIriRefExtended> findEntitiesByType(EntityTypeVocab typeIri) {
+  public List<TTIriRef> findEntitiesByType(EntityTypeVocab typeIri) {
     String sparqlString =
       """
         select *
@@ -1663,7 +1666,7 @@ public class EntityRepository {
               ?s rdfs:label ?name .
           }
         """;
-    ArrayList<TTIriRefExtended> iriRefs = new ArrayList<>();
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparqlString);
@@ -1671,7 +1674,7 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          iriRefs.add(new TTIriRefExtended(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+          iriRefs.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
         }
       }
     }
@@ -1740,7 +1743,7 @@ public class EntityRepository {
     return results;
   }
 
-  public List<TTIriRefExtended> findInvertedIsas(String iri) {
+  public List<TTIriRef> findInvertedIsas(String iri) {
     String sparqlString =
       """
           select *
@@ -1749,7 +1752,7 @@ public class EntityRepository {
             ?s rdfs:label ?name .
           }
         """;
-    ArrayList<TTIriRefExtended> iriRefs = new ArrayList<>();
+    ArrayList<TTIriRef> iriRefs = new ArrayList<>();
 
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparqlString);
@@ -1757,7 +1760,7 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          iriRefs.add(new TTIriRefExtended(bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
+          iriRefs.add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("s").stringValue(), bs.getValue("name").stringValue()));
         }
       }
     }
@@ -1813,14 +1816,14 @@ public class EntityRepository {
           TTEntity entity = entities.get(bs.getValue("entity").stringValue());
           entity.setIri(bs.getValue("entity").stringValue());
           Value object = bs.getValue("object");
-          TTValue ttValue = object.isIRI() ? new TTIriRefExtended(object.stringValue()) : TTLiteral.literal(object.stringValue());
-          entity.addObject(new TTIriRefExtended(bs.getValue("predicate").stringValue()), ttValue);
+          TTValue ttValue = object.isIRI() ? TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue()) : TTLiteral.literal(object.stringValue());
+          entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), ttValue);
         }
       }
     }
     return entities.values().stream()
       .sorted(Comparator.comparingInt(entity ->
-        entity.get(new TTIriRefExtended(ShaclVocab.ORDER)).asLiteral().intValue()
+        entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER)).asLiteral().intValue()
       ))
       .toList();
   }
@@ -1869,11 +1872,11 @@ public class EntityRepository {
             result.add(child);
           }
           if (bs.getValue("path") != null) {
-            child.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended()
+            child.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), )
               .iri(bs.getValue("path").stringValue())
               .name(bs.getValue("pathLabel").stringValue()));
           } else {
-            child.set(new TTIriRefExtended(ShaclVocab.PATH), new TTIriRefExtended(ImVocab.IS_CONTAINED_IN).name("is contained in"));
+            child.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN).name("is contained in"));
           }
         }
       }
@@ -2201,14 +2204,14 @@ public class EntityRepository {
     return valuelist;
   }
 
-  public Map<String, EntityExtended> getIriDetails(Set<String> iris) {
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
     String spq = """
       SELECT ?s ?name ?type WHERE {
         VALUES ?s {%s}
         ?s rdf:type ?type .
         ?s rdfs:label ?name .
       }""".formatted(getIriLine(iris));
-    Map<String, EntityExtended> results = new HashMap<>();
+    Map<String, Entity> results = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -2217,9 +2220,9 @@ public class EntityRepository {
           String iri = bs.getValue("s").stringValue();
           String name = bs.getValue("name").stringValue();
           String type = bs.getValue("type").stringValue();
-          TTIriRefExtended typeRef = new TTIriRefExtended(type);
+          TTIriRef typeRef = TTIriRefExtensionsKt.iri(new TTIriRef(), type);
           if (!results.containsKey(bs.getValue("s").stringValue())) {
-            EntityExtended entity = new EntityExtended().setIri(iri).setName(name).setName(name).setType(Set.of(typeRef));
+            Entity entity = new Entity().setIri(iri).setName(name).setName(name).setType(Set.of(typeRef));
             results.put(iri, entity);
           } else {
             results.get(iri).getType().add(typeRef);
@@ -2230,14 +2233,14 @@ public class EntityRepository {
     return results;
   }
 
-  public Map<String, List<TTIriRefExtended>> getTypeSchemeDefaults() {
+  public Map<String, List<TTIriRef>> getTypeSchemeDefaults() {
     String spq = """
       select ?type ?scheme ?schemeLabel
       where {
       ?type im:defaultScheme ?scheme.
       ?scheme rdfs:label ?schemeLabel.}
       """;
-    Map<String, List<TTIriRefExtended>> results = new HashMap<>();
+    Map<String, List<TTIriRef>> results = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -2245,7 +2248,7 @@ public class EntityRepository {
           BindingSet bs = rs.next();
           String type = bs.getValue("type").stringValue();
           results.computeIfAbsent(type, k -> new ArrayList<>())
-            .add(new TTIriRefExtended(bs.getValue("scheme").stringValue())
+            .add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("scheme").stringValue())
               .name(bs.getValue("schemeLabel").stringValue()));
         }
       }

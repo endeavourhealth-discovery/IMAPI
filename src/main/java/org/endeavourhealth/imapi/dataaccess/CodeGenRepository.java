@@ -11,7 +11,6 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 
@@ -51,8 +50,8 @@ public class CodeGenRepository {
     return result;
   }
 
-  public CodeGenDtoExtended getCodeTemplate(String name) {
-    CodeGenDtoExtended result = new CodeGenDtoExtended();
+  public CodeGenDto getCodeTemplate(String name) {
+    CodeGenDto result = new CodeGenDto();
     String sparql = """
       SELECT ?p ?o
       WHERE {

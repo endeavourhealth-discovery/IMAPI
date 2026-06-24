@@ -9,15 +9,15 @@ class TTArrayUniqueTest {
   @Test
   void differentObjectDifferentValue_Iri() {
     TTArray actual = new TTArray();
-    actual.add(new TTIriRefExtended("http://example.org#SAME"));
-    actual.add(new TTIriRefExtended("http://example.org#DIFFERENT"));
+    actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
+    actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#DIFFERENT"));
 
     assertEquals(2, actual.size());
   }
 
   @Test
   void sameObjectSameValue_Iri() {
-    TTIriRefExtended testIri = new TTIriRefExtended("http://example.org#SAME");
+    TTIriRef testIri = TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME");
 
     TTArray actual = new TTArray();
 
@@ -30,8 +30,8 @@ class TTArrayUniqueTest {
   @Test
   void differentObjectSameValue_Iri() {
     TTArray actual = new TTArray();
-    actual.add(new TTIriRefExtended("http://example.org#SAME"));
-    actual.add(new TTIriRefExtended("http://example.org#SAME"));
+    actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
+    actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
 
     assertEquals(1, actual.size());
   }

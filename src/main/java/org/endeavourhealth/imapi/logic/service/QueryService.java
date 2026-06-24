@@ -8,16 +8,12 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
-import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
@@ -25,7 +21,6 @@ import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
 
-import java.lang.Exception;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +45,7 @@ public class QueryService {
 
   public String getSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (queryRequest.getQuery().getQueryType() == IMQType.INDICATOR) {
-      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(new TTIriRefExtended(ImVocab.NUMERATOR).getIri(), new TTIriRefExtended(ImVocab.DENOMINATOR).getIri(), new TTIriRefExtended(ImVocab.HAS_DATASET).getIri()));
+      TTBundle bundle = entityRepository.getBundle(queryRequest.getQuery().getIri(), Set.of(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.NUMERATOR).getIri(), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DENOMINATOR).getIri(), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_DATASET).getIri()));
       String denominator = bundle.getEntity().get(ImVocab.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
       String numerator = bundle.getEntity().get(ImVocab.NUMERATOR).getElements().getFirst().asIriRef().getIri();
       String dataset = bundle.getEntity().get(ImVocab.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
@@ -75,12 +70,12 @@ public class QueryService {
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
       TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(ImVocab.DEFINITION, RdfVocab.TYPE)).getEntity();
-      if (queryEntity.isType(new TTIriRefExtended(ImVocab.INDICATOR)))
+      if (queryEntity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INDICATOR)))
         return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
 
-      if (!queryEntity.has(new TTIriRefExtended(ImVocab.DEFINITION)))
+      if (!queryEntity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)))
         throw new SQLConversionException("Query: " + queryRequest.getQuery().getIri() + " not found.");
-      query = queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
+      query = queryEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
       query.setIri(queryEntity.getIri());
     } else {
       query = queryRequest.getQuery();
@@ -105,7 +100,7 @@ public class QueryService {
     TTEntity cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
     if (cohort != null) {
-      Query cohortQuery = cohort.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
+      Query cohortQuery = cohort.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
       defaultQuery.addIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
       return defaultQuery;
@@ -114,13 +109,13 @@ public class QueryService {
 
   private TTEntity findFirstQuery(List<TTEntity> children) {
     for (TTEntity child : children) {
-      if (child.isType(new TTIriRefExtended(ImVocab.QUERY)) && child.get(new TTIriRefExtended(ImVocab.DEFINITION)) != null) {
+      if (child.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY)) && child.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) != null) {
         return child;
       }
 
     }
     for (TTEntity child : children) {
-      if (child.isType(new TTIriRefExtended(ImVocab.FOLDER))) {
+      if (child.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FOLDER))) {
         List<TTEntity> subchildren = entityRepository.getFolderChildren(NamespaceVocab.
           IM + "DefaultCohorts", EnumUtils.asArray(ShaclVocab.ORDER, RdfVocab.TYPE, RdfsVocab.LABEL, ImVocab.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
@@ -158,7 +153,7 @@ public class QueryService {
     recursivelyCheckQueryArguments(query, missingArguments, arguments);
     if (!missingArguments.isEmpty()) {
       for (ArgumentReference argument : missingArguments) {
-        TTIriRefExtended dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
+        TTIriRef dataType = dataModelRepository.getPathDatatype(argument.getReferenceIri().getIri());
         if (null != dataType) argument.setDataType(dataType);
       }
     }
@@ -196,7 +191,7 @@ public class QueryService {
 
   private void recursivelyCheckWhereArguments(Where where, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
     if (null != where.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(where.getParameter()))) {
-      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(new TTIriRefExtended(where.getIri())));
+      missingArguments.add(new ArgumentReference().setParameter(where.getParameter()).setReferenceIri(TTIriRefExtensionsKt.iri(new TTIriRef(), where.getIri())));
     }
     if (null != where.getAnd()) {
       where.getAnd().forEach(and -> recursivelyCheckWhereArguments(and, missingArguments, arguments));
@@ -222,11 +217,11 @@ public class QueryService {
 
   private void addMissingArgument(List<ArgumentReference> missingArguments, String parameter, String referenceIri) {
     if (missingArguments.stream().noneMatch(missingArgument -> missingArgument.getParameter().equals(parameter))) {
-      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(new TTIriRefExtended(referenceIri)));
+      missingArguments.add(new ArgumentReference().setParameter(parameter).setReferenceIri(TTIriRefExtensionsKt.iri(new TTIriRef(), referenceIri)));
     }
   }
 
-  public TTIriRefExtended getArgumentType(String referenceIri) {
+  public TTIriRef getArgumentType(String referenceIri) {
     if (null == referenceIri) {
       throw new IllegalArgumentException("referenceIri is null");
     }

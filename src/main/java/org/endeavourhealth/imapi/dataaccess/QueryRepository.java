@@ -13,6 +13,7 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Return;
@@ -20,7 +21,6 @@ import org.endeavourhealth.imapi.model.imq.Update;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.utility.EnumUtils;
@@ -90,7 +90,7 @@ public class QueryRepository {
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-      queryRequest.setUpdate(updateEntity.get(new TTIriRefExtended(ImVocab.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
+      queryRequest.setUpdate(updateEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
@@ -116,12 +116,12 @@ public class QueryRepository {
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
     if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
-      if (entity.get(new TTIriRefExtended(ShaclVocab.PARAMETER)) != null) {
-        for (TTValue param : entity.get(new TTIriRefExtended(ShaclVocab.PARAMETER)).getElements()) {
+      if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PARAMETER)) != null) {
+        for (TTValue param : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PARAMETER)).getElements()) {
           processParam(param, queryRequest);
         }
       }
-      TTArray definition = entity.get(new TTIriRefExtended(ImVocab.DEFINITION));
+      TTArray definition = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
 
       if (null == definition)
         throw new QueryException("Query: '" + query.getIri() + "' was not found");
@@ -139,19 +139,19 @@ public class QueryRepository {
   }
 
   private void processParam(TTValue param, QueryRequest queryRequest) throws QueryException {
-    if (param.asNode().get(new TTIriRefExtended(ShaclVocab.MINCOUNT)) == null) return;
-    String parameterName = param.asNode().get(new TTIriRefExtended(RdfsVocab.LABEL)).asLiteral().getValue();
-    TTIriRefExtended parameterType;
-    if (param.asNode().get(new TTIriRefExtended(ShaclVocab.DATATYPE)) != null)
-      parameterType = param.asNode().get(new TTIriRefExtended(ShaclVocab.DATATYPE)).asIriRef();
+    if (param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MINCOUNT)) == null) return;
+    String parameterName = param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue();
+    TTIriRef parameterType;
+    if (param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE)) != null)
+      parameterType = param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE)).asIriRef();
     else
-      parameterType = param.asNode().get(new TTIriRefExtended(ShaclVocab.CLASS)).asIriRef();
+      parameterType = param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS)).asIriRef();
     boolean found = false;
     for (Argument arg : queryRequest.getArgument())
       if (arg.getParameter().equals(parameterName)) {
         found = true;
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-        if (parameterType.equals(new TTIriRefExtended(NamespaceVocab.IM + "IriRef"))) {
+        if (parameterType.equals(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "IriRef"))) {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
@@ -382,9 +382,9 @@ public class QueryRepository {
     }
   }
 
-  public List<String> getSubtypeProperties(Set<TTIriRefExtended> iris) {
+  public List<String> getSubtypeProperties(Set<TTIriRef> iris) {
     List<String> properties = new ArrayList<>();
-    String iriList = "<" + iris.stream().map(TTIriRefExtended::getIri).collect(Collectors.joining("> <")) + ">";
+    String iriList = "<" + iris.stream().map(TTIriRef::getIri).collect(Collectors.joining("> <")) + ">";
     String spq = """
       SELECT distinct ?property
       WHERE {

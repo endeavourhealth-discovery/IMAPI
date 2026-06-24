@@ -1,8 +1,10 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.Element;
+import org.endeavourhealth.interfacemanager.model.Node;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,7 @@ public class Path extends Element implements HasPaths {
   private List<Path> path;
   private String pathVariable;
   private Node typeOf;
-  private TTIriRefExtended qualifier;
+  private TTIriRef qualifier;
   private String node;
 
   public String getNode() {
@@ -45,11 +47,11 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public TTIriRefExtended getQualifier() {
+  public TTIriRef getQualifier() {
     return qualifier;
   }
 
-  public Path setQualifier(TTIriRefExtended qualifier) {
+  public Path setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }

@@ -6,14 +6,14 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.DownloadByQueryOptions;
+import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
+import org.endeavourhealth.interfacemanager.model.Page;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.List;
 import java.util.Set;
@@ -70,7 +70,7 @@ public class SearchTextFileExporter {
     results.add(line.toString());
   }
 
-  private String iriToString(TTIriRefExtended iri, boolean inArray) {
+  private String iriToString(TTIriRef iri, boolean inArray) {
     if (inArray) return "\"" + iri.getName() + "\"";
     else return iri.getName();
   }
@@ -97,7 +97,7 @@ public class SearchTextFileExporter {
     switch (item) {
       case String string -> stringJoiner.add("\"" + string + "\"");
       case Integer integer -> stringJoiner.add(integer.toString());
-      case TTIriRefExtended ttIriRef -> stringJoiner.add(iriToString(ttIriRef, inArray));
+      case TTIriRef ttIriRef -> stringJoiner.add(iriToString(ttIriRef, inArray));
       case List<?> list -> stringJoiner.add(arrayToString(list));
       case Set<?> subSet -> stringJoiner.add(setToString(subSet));
       case null -> stringJoiner.add("");

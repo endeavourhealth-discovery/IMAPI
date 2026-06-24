@@ -10,11 +10,11 @@ import java.util.zip.DataFormatException;
 
 
 public class TTToSCG {
-  private static final TTIriRefExtended[] corePredicates = {new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(ImVocab.IS_A), new TTIriRefExtended(ImVocab.HAS_SCHEME), new TTIriRefExtended(ImVocab.IS_CONTAINED_IN),
-    new TTIriRefExtended(ImVocab.HAS_STATUS), new TTIriRefExtended(ImVocab.DEFINITIONAL_STATUS)};
+  private static final TTIriRef[] corePredicates = {TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN),
+    TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITIONAL_STATUS)};
   boolean refinedSet;
 
-  private static void addClass(TTIriRefExtended exp, StringBuilder scg, boolean includeName) {
+  private static void addClass(TTIriRef exp, StringBuilder scg, boolean includeName) {
     String iri = checkMember(exp.asIriRef().getIri());
     if (includeName) {
       scg.append(iri).append(" |").append(exp.asIriRef().getName()).append(" |");
@@ -32,9 +32,9 @@ public class TTToSCG {
 
   public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {
     StringBuilder scg = new StringBuilder();
-    if (entity.get(new TTIriRefExtended(ImVocab.IS_A)) != null) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A)) != null) {
       boolean first = true;
-      for (TTValue parent : entity.get(new TTIriRefExtended(ImVocab.IS_A)).iterator()) {
+      for (TTValue parent : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A)).iterator()) {
         if (parent.isIriRef()) {
           if (!first)
             scg.append(" +");
@@ -49,11 +49,11 @@ public class TTToSCG {
   }
 
   private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) {
-    if (node.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)) != null) {
+    if (node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)) != null) {
       scg.append(":");
       this.refinedSet = true;
       boolean first = true;
-      for (TTValue group : node.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)).iterator()) {
+      for (TTValue group : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).iterator()) {
         if (!first)
           scg.append(" ,");
         scg.append("{");
@@ -69,7 +69,7 @@ public class TTToSCG {
 
   private void refined(TTNode node, StringBuilder scg, Boolean includeName) {
     boolean first = true;
-    for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
       if (!excludeCorePredicates(entry.getKey())) {
         if (!entry.getValue().isLiteral() && !refinedSet) {
           scg.append(": ");
@@ -92,7 +92,7 @@ public class TTToSCG {
     }
   }
 
-  private boolean excludeCorePredicates(TTIriRefExtended predicate) {
+  private boolean excludeCorePredicates(TTIriRef predicate) {
     return (Arrays.asList(corePredicates).contains(predicate));
   }
 }

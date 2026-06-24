@@ -54,14 +54,14 @@ public class GraphHelper {
     String subject = s.stringValue();
     String predicate = p.stringValue();
     String value = o.stringValue();
-    if ( predicate.equals(ImVocab. PLABEL.toString())){
+    if (predicate.equals(ImVocab.PLABEL.toString())) {
       entityMap.addPredicate(subject, value);
-    } else if ( predicate.equals(ImVocab. OLABEL.toString())){
-      tripleMap.putIfAbsent(subject, new TTIriRefExtended(subject));
+    } else if (predicate.equals(ImVocab.OLABEL.toString())) {
+      tripleMap.putIfAbsent(subject, TTIriRefExtensionsKt.iri(new TTIriRef(), subject));
       tripleMap.get(subject).asIriRef().setName(value);
-    } else{
+    } else {
       TTNode node;
-      tripleMap.putIfAbsent(predicate, new TTIriRefExtended(predicate));
+      tripleMap.putIfAbsent(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), predicate));
       if (s.isIRI()) {
         entityMap.getEntities().putIfAbsent(subject, new TTEntity().setIri(subject));
         node = entityMap.getEntities().get(subject);
@@ -73,7 +73,7 @@ public class GraphHelper {
         tripleMap.putIfAbsent(value, new TTNode());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
-        tripleMap.putIfAbsent(value, new TTIriRefExtended(value));
+        tripleMap.putIfAbsent(value, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else {
         tripleMap.putIfAbsent(value, TTLiteral.literal(value));

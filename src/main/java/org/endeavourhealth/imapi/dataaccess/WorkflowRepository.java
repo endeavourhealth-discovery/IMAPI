@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.task.TaskHistoryExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -33,7 +33,7 @@ public class WorkflowRepository {
 
   public void createBugReport(BugReport bugReport) throws TaskFilerException, UserNotFoundException {
     if (null == bugReport.getId() || bugReport.getId().getIri().isEmpty())
-      bugReport.setId(new TTIriRefExtended(generateId()));
+      bugReport.setId(TTIriRefExtensionsKt.iri(new TTIriRef(), generateId()));
     taskFilerRdf4j.fileBugReport(bugReport);
   }
 
@@ -306,7 +306,7 @@ public class WorkflowRepository {
 
   public void createRoleRequest(RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException {
     if (null == roleRequest.getId() || roleRequest.getId().getIri().isEmpty())
-      roleRequest.setId(new TTIriRefExtended(generateId()));
+      roleRequest.setId(TTIriRefExtensionsKt.iri(new TTIriRef(), generateId()));
     taskFilerRdf4j.fileRoleRequest(roleRequest);
   }
 
@@ -343,7 +343,7 @@ public class WorkflowRepository {
 
   public void createNamespaceRequest(NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException {
     if (null == namespaceRequest.getId() || namespaceRequest.getId().getIri().isEmpty())
-      namespaceRequest.setId(new TTIriRefExtended(generateId()));
+      namespaceRequest.setId(TTIriRefExtensionsKt.iri(new TTIriRef(), generateId()));
     taskFilerRdf4j.fileNamespaceRequest(namespaceRequest);
   }
 
@@ -411,7 +411,7 @@ public class WorkflowRepository {
 
   public void createEntityApproval(EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException {
     if (null == entityApproval.getId() || entityApproval.getId().getIri().isEmpty())
-      entityApproval.setId(new TTIriRefExtended(generateId()));
+      entityApproval.setId(TTIriRefExtensionsKt.iri(new TTIriRef(), generateId()));
     taskFilerRdf4j.fileEntityApproval(entityApproval);
   }
 
@@ -502,7 +502,7 @@ public class WorkflowRepository {
   }
 
   private void mapTaskFromBindingSet(Task task, BindingSet bs) throws UserNotFoundException {
-    task.setId(new TTIriRefExtended(bs.getValue("s").stringValue()));
+    task.setId(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("s").stringValue()));
     task.setType(TaskType.valueOf(bs.getValue("typeData").stringValue()));
 /*
     try {

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 public class OpenApiGenerator {
   @Test
-  public void EntityExtended() {
+  public void Entity() {
     Entity entity = new Entity();
     EntityExtensionKt.test(entity, "hello", "world");
   }

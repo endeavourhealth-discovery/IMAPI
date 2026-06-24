@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +14,12 @@ public class UIProperty {
   private int maxCount;
   private int number;
   private String intervalUnitIri;
-  private List<TTIriRefExtended> intervalUnitOptions;
+  private List<TTIriRef> intervalUnitOptions;
   private String unitIri;
-  private List<TTIriRefExtended> unitOptions;
+  private List<TTIriRef> unitOptions;
   private String operatorIri;
   private List<String> operatorOptions;
-  private List<TTIriRefExtended> qualifierOptions;
+  private List<TTIriRef> qualifierOptions;
   private Integer setMemberCount;
 
   public UIProperty() {
@@ -88,11 +88,11 @@ public class UIProperty {
     return this;
   }
 
-  public List<TTIriRefExtended> getIntervalUnitOptions() {
+  public List<TTIriRef> getIntervalUnitOptions() {
     return intervalUnitOptions;
   }
 
-  public UIProperty setIntervalUnitOptions(List<TTIriRefExtended> intervalUnitOptions) {
+  public UIProperty setIntervalUnitOptions(List<TTIriRef> intervalUnitOptions) {
     this.intervalUnitOptions = intervalUnitOptions;
     return this;
   }
@@ -106,11 +106,11 @@ public class UIProperty {
     return this;
   }
 
-  public List<TTIriRefExtended> getUnitOptions() {
+  public List<TTIriRef> getUnitOptions() {
     return unitOptions;
   }
 
-  public UIProperty setUnitOptions(List<TTIriRefExtended> unitOptions) {
+  public UIProperty setUnitOptions(List<TTIriRef> unitOptions) {
     this.unitOptions = unitOptions;
     return this;
   }
@@ -133,11 +133,11 @@ public class UIProperty {
     return this;
   }
 
-  public List<TTIriRefExtended> getQualifierOptions() {
+  public List<TTIriRef> getQualifierOptions() {
     return qualifierOptions;
   }
 
-  public UIProperty setQualifierOptions(List<TTIriRefExtended> qualifierOptions) {
+  public UIProperty setQualifierOptions(List<TTIriRef> qualifierOptions) {
     this.qualifierOptions = qualifierOptions;
     return this;
   }
@@ -164,7 +164,7 @@ public class UIProperty {
     if (this.qualifierOptions == null) {
       this.qualifierOptions = new ArrayList<>();
     }
-    this.qualifierOptions.add(new TTIriRefExtended(iri, name));
+    this.qualifierOptions.add(TTIriRefExtensionsKt.iri(new TTIriRef(), iri, name));
     return this;
   }
 }

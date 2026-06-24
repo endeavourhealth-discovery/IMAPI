@@ -6,18 +6,12 @@ import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
-import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
-import org.endeavourhealth.imapi.model.search.EntityDocumentExtended;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
@@ -60,22 +54,22 @@ public class EntityService {
   }
 
   protected static void filterOutInactiveTermCodes(TTBundle bundle) {
-    if (bundle.getEntity().get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)) != null) {
-      List<TTValue> termCodes = bundle.getEntity().get(new TTIriRefExtended(ImVocab.HAS_TERM_CODE)).getElements();
+    if (bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
+      List<TTValue> termCodes = bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements();
       TTArray activeTermCodes = new TTArray();
       for (TTValue value : termCodes) {
-        if (value.asNode().get(new TTIriRefExtended(ImVocab.HAS_STATUS)) != null) {
-          if (value.asNode().get(EnumUtils.asIri(ImVocab.HAS_STATUS)) != null && ImVocab.ACTIVE.toString().equals(value.asNode().get(new TTIriRefExtended(ImVocab.HAS_STATUS)).asIriRef().getIri())) {
+        if (value.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)) != null) {
+          if (value.asNode().get(EnumUtils.asIri(ImVocab.HAS_STATUS)) != null && ImVocab.ACTIVE.toString().equals(value.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)).asIriRef().getIri())) {
             activeTermCodes.add(value);
           }
         } else activeTermCodes.add(value);
       }
-      bundle.getEntity().set(new TTIriRefExtended(ImVocab.HAS_TERM_CODE), activeTermCodes);
+      bundle.getEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE), activeTermCodes);
     }
   }
 
   public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
-    Query query = bundle.getEntity().get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
+    Query query = bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(EnumUtils.asIri(ImVocab.DEFINITION), mapper.writeValueAsString(query));
   }
@@ -110,13 +104,13 @@ public class EntityService {
     return entities;
   }
 
-  public TTIriRefExtended getEntityReference(String iri) {
+  public TTIriRef getEntityReference(String iri) {
     if (iri == null || iri.isEmpty()) return null;
     return entityRepository.getEntityReferenceByIri(iri);
   }
 
 
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(
+  public EntityReferenceNodePageable getEntityChildrenPagedWithTotalCount(
     String iri,
     List<String> schemeIris,
     Integer page,
@@ -129,16 +123,16 @@ public class EntityService {
     int rowNumber = 0;
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
-    Pageable<TTIriRefExtended> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes);
+    TTIriRefPageable childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes);
     return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri);
   }
 
 
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+  public EntityReferenceNodePageable getEntityChildrenPagedWithTotalCount(String iri, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
     return getEntityChildrenPagedWithTotalCount(iri, schemeIris, page, size, inactive, null);
   }
 
-  public Pageable<TTIriRefExtended> getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
+  public TTIriRefPageable getPartialWithTotalCount(String iri, String predicateList, List<String> schemeIris, Integer page, Integer size, boolean inactive) {
     if (iri == null || iri.isEmpty()) return null;
 
     int rowNumber = 0;
@@ -163,14 +157,14 @@ public class EntityService {
     return parents;
   }
 
-  private List<TTIriRefExtended> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
+  private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
 
     return entityRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
-  public List<TTIriRefExtended> isWhichType(String iri, List<String> candidates) {
+  public List<TTIriRef> isWhichType(String iri, List<String> candidates) {
     if (iri == null || iri.isEmpty() || candidates == null || candidates.isEmpty()) return Collections.emptyList();
-    return entityRepository.findAncestorsByType(iri, RdfsVocab.SUBCLASS_OF, candidates).stream().sorted(Comparator.comparing(TTIriRefExtended::getName)).toList();
+    return entityRepository.findAncestorsByType(iri, RdfsVocab.SUBCLASS_OF, candidates).stream().sorted(Comparator.comparing(TTIriRef::getName)).toList();
   }
 
   public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) {
@@ -183,10 +177,10 @@ public class EntityService {
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = pageIndex * pageSize;
 
-    List<TTIriRefExtended> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize).stream().sorted(Comparator.comparing(TTIriRefExtended::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
+    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
 
     usageRefs = usageRefs.stream().filter(usage -> !usage.getIri().equals(iri)).toList();
-    for (TTIriRefExtended usage : usageRefs) {
+    for (TTIriRef usage : usageRefs) {
       TTArray type = getBundle(usage.getIri(), Collections.singleton(RdfVocab.TYPE.toString())).getEntity().getType();
       usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
     }
@@ -245,54 +239,54 @@ public class EntityService {
     return document;
   }
 
-  public List<TTIriRefExtended> getParentPath(String iri) {
+  public List<TTIriRef> getParentPath(String iri) {
     TTEntity entity = getBundle(iri, new HashSet<>(List.of(RdfsVocab.LABEL.toString()))).getEntity();
-    List<TTIriRefExtended> parents = new ArrayList<>();
+    List<TTIriRef> parents = new ArrayList<>();
     getParentPathRecursive(iri, parents);
     Collections.reverse(parents);
-    parents.add(new TTIriRefExtended(iri, entity.getName()));
+    parents.add(TTIriRefExtensionsKt.iri(new TTIriRef(), iri, entity.getName()));
     return parents;
   }
 
-  private void getParentPathRecursive(String iri, List<TTIriRefExtended> parents) {
-    TTIriRefExtended parent = entityRepository.findParentFolderRef(iri);
+  private void getParentPathRecursive(String iri, List<TTIriRef> parents) {
+    TTIriRef parent = entityRepository.findParentFolderRef(iri);
     if (parent != null) {
       parents.add(parent);
       getParentPathRecursive(parent.getIri(), parents);
     }
   }
 
-  public Set<TTIriRefExtended> getNames(Set<String> iris) {
-    Set<TTIriRefExtended> result = iris.stream().map(TTIriRefExtended::new).collect(Collectors.toSet());
+  public Set<TTIriRef> getNames(Set<String> iris) {
+    Set<TTIriRef> result = iris.stream().map(i -> TTIriRefExtensionsKt.iri(new TTIriRef(), i)).collect(Collectors.toSet());
     entityRepository.getNames(result);
     return result;
   }
 
-  public List<List<TTIriRefExtended>> getParentHierarchies(String iri) {
+  public List<List<TTIriRef>> getParentHierarchies(String iri) {
     ParentDto parentHierarchy = new ParentDto(iri, null, null);
     addParentHierarchiesRecursively(parentHierarchy, new HashSet<>());
     return getParentHierarchiesFlatLists(parentHierarchy);
   }
 
-  public List<List<TTIriRefExtended>> getParentHierarchiesFlatLists(ParentDto parent) {
-    List<List<TTIriRefExtended>> parentHierarchies = new ArrayList<>();
+  public List<List<TTIriRef>> getParentHierarchiesFlatLists(ParentDto parent) {
+    List<List<TTIriRef>> parentHierarchies = new ArrayList<>();
     parentHierarchies.add(new ArrayList<>());
     addParentHierarchiesRecursively(parentHierarchies, parentHierarchies.getFirst(), parent);
     return parentHierarchies;
   }
 
-  private void addParentHierarchiesRecursively(List<List<TTIriRefExtended>> parentHierarchies, List<TTIriRefExtended> currentPath, ParentDto parent) {
+  private void addParentHierarchiesRecursively(List<List<TTIriRef>> parentHierarchies, List<TTIriRef> currentPath, ParentDto parent) {
     if (parent != null && parent.hasMultipleParents()) {
       parentHierarchies.remove(currentPath);
       for (ParentDto parentsParent : parent.getParents()) {
-        List<TTIriRefExtended> path = new ArrayList<>(currentPath);
-        path.add(new TTIriRefExtended(parentsParent.getIri(), parentsParent.getName()));
+        List<TTIriRef> path = new ArrayList<>(currentPath);
+        path.add(TTIriRefExtensionsKt.iri(new TTIriRef(), parentsParent.getIri(), parentsParent.getName()));
         parentHierarchies.add(path);
         addParentHierarchiesRecursively(parentHierarchies, path, parentsParent);
       }
     } else if (parent != null && parent.hasSingleParent()) {
       for (ParentDto parentsParent : parent.getParents()) {
-        currentPath.add(new TTIriRefExtended(parentsParent.getIri(), parentsParent.getName()));
+        currentPath.add(TTIriRefExtensionsKt.iri(new TTIriRef(), parentsParent.getIri(), parentsParent.getName()));
         addParentHierarchiesRecursively(parentHierarchies, currentPath, parentsParent);
       }
     }
@@ -311,9 +305,9 @@ public class EntityService {
     }
   }
 
-  public List<TTIriRefExtended> getShortestPathBetweenNodes(String ancestor, String descendant) {
-    List<TTIriRefExtended> shortestPath = new ArrayList<>();
-    List<List<TTIriRefExtended>> paths = getParentHierarchies(descendant);
+  public List<TTIriRef> getShortestPathBetweenNodes(String ancestor, String descendant) {
+    List<TTIriRef> shortestPath = new ArrayList<>();
+    List<List<TTIriRef>> paths = getParentHierarchies(descendant);
     paths = paths.stream().filter(list -> indexOf(list, ancestor) != -1).collect(Collectors.toList());
 
     paths.sort((a1, a2) ->
@@ -328,7 +322,7 @@ public class EntityService {
     return shortestPath;
   }
 
-  private int indexOf(List<TTIriRefExtended> iriRefs, String iri) {
+  private int indexOf(List<TTIriRef> iriRefs, String iri) {
     boolean found = false;
     int i = 0;
     while (!found && i < iriRefs.size()) {
@@ -349,11 +343,11 @@ public class EntityService {
     return entityRepository.getEntityReferenceByIri(iri).getName();
   }
 
-  public boolean isLinked(String subject, TTIriRefExtended predicate, String object) {
+  public boolean isLinked(String subject, TTIriRef predicate, String object) {
     return entityRepository.predicatePathExists(subject, predicate, object);
   }
 
-  public EntityDocumentExtended getOSDocument(String iri) {
+  public EntityDocument getOSDocument(String iri) {
     return entityRepository.getOSDocument(iri);
   }
 
@@ -365,13 +359,13 @@ public class EntityService {
     return entityRepository.getIM1SchemeOptions();
   }
 
-  protected Pageable<EntityReferenceNode> iriRefPageableToEntityReferenceNodePageable(Pageable<TTIriRefExtended> iriRefPageable, List<String> schemeIris, boolean inactive, String parentContext) {
-    Pageable<EntityReferenceNode> result = new Pageable<>();
+  protected EntityReferenceNodePageable iriRefPageableToEntityReferenceNodePageable(TTIriRefPageable iriRefPageable, List<String> schemeIris, boolean inactive, String parentContext) {
+    EntityReferenceNodePageable result = new EntityReferenceNodePageable();
     result.setTotalCount(iriRefPageable.getTotalCount());
 
     if (result.getTotalCount() > 0) {
       Set<String> iris = new HashSet<>();
-      for (TTIriRefExtended entity : iriRefPageable.getResult()) {
+      for (TTIriRef entity : iriRefPageable.getResult()) {
         iris.add(entity.getIri());
       }
       List<EntityReferenceNode> nodes = entityRepository.getEntityReferenceNodes(iris, schemeIris, inactive, parentContext);
@@ -392,7 +386,7 @@ public class EntityService {
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
 
-    for (TTIriRefExtended c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
+    for (TTIriRef c : getChildren(iri, schemeIris, rowNumber, pageSize, inactive)) {
       result.add(getEntityAsEntityReferenceNode(c.getIri()));
     }
 
@@ -401,7 +395,7 @@ public class EntityService {
     return result;
   }
 
-  public List<TTIriRefExtended> getChildren(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> getChildren(String iri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
     return entityRepository.findImmediateChildrenByIri(iri, schemeIris, rowNumber, pageSize, inactive);
   }
 
@@ -424,7 +418,7 @@ public class EntityService {
     List<String> snomedCodes = codes.stream().map(code -> NamespaceVocab.SNOMED + code).toList();
     List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RdfsVocab.LABEL.toString(), ImVocab.CODE.toString()));
     SetService setService = new SetService();
-    List<TTIriRefExtended> needed = setService.getDistillation(entities.stream().map(e -> new TTIriRefExtended(e.getIri())).toList());
+    List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> TTIriRefExtensionsKt.iri(new TTIriRef(), e.getIri())).toList());
     List<ValidatedEntity> validatedEntities = new ArrayList<>();
     for (TTEntity entity : entities) {
       ValidatedEntity validatedEntity = validateEntity(entity, needed);
@@ -436,14 +430,14 @@ public class EntityService {
     return validatedEntities;
   }
 
-  private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRefExtended> needed) {
+  private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRef> needed) {
     ValidatedEntity validatedEntity = new ValidatedEntity();
     validatedEntity
       .setIri(entity.getIri())
       .setName(entity.getName())
       .setCode(entity.getCode());
     boolean isInvalid = !entity.getIri().isEmpty() && !entity.getName().isEmpty() && !entity.getCode().isEmpty();
-    TTIriRefExtended found = needed.stream().filter(n -> n.getIri().equals(validatedEntity.getIri())).findFirst().orElse(null);
+    TTIriRef found = needed.stream().filter(n -> n.getIri().equals(validatedEntity.getIri())).findFirst().orElse(null);
     if (isInvalid) {
       validatedEntity.setValidationCode("Invalid");
       validatedEntity.setValidationLabel("Not an entity");
@@ -466,29 +460,29 @@ public class EntityService {
     if (entityPredicates.contains(ImVocab.HAS_MEMBER.toString())) {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
       excludedPredicates.add(ImVocab.HAS_MEMBER.toString());
-      Pageable<TTIriRefExtended> partialAndCount = getPartialWithTotalCount(iri, ImVocab.HAS_MEMBER.toString(), null, 1, 10, false);
+      TTIriRefPageable partialAndCount = getPartialWithTotalCount(iri, ImVocab.HAS_MEMBER.toString(), null, 1, 10, false);
       TTArray partialAsTTArray = new TTArray();
-      for (TTIriRefExtended partial : partialAndCount.getResult()) {
+      for (TTIriRef partial : partialAndCount.getResult()) {
         partialAsTTArray.add(partial);
       }
       TTNode loadMoreNode = new TTNode()
         .setIri(ImVocab.LOAD_MORE.toString())
-        .set(new TTIriRefExtended(RdfsVocab.LABEL), "Load more")
-        .set(new TTIriRefExtended(NamespaceVocab.IM + "totalCount"), partialAndCount.getTotalCount());
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), "Load more")
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "totalCount"), partialAndCount.getTotalCount());
       partialAsTTArray.add(loadMoreNode);
-      response.addPredicate(new TTIriRefExtended(ImVocab.HAS_MEMBER));
-      response.getEntity().set(new TTIriRefExtended(ImVocab.HAS_MEMBER), partialAsTTArray);
+      response.addPredicate(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER));
+      response.getEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER), partialAsTTArray);
     } else {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
     }
-    response.getEntity().removeObject(new TTIriRefExtended(RdfVocab.TYPE));
+    response.getEntity().removeObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE));
     return response;
   }
 
   public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
-    Pageable<TTIriRefExtended> response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
+    TTIriRefPageable response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
     TTEntity entity = new TTEntity();
-    entity.addObject(new TTIriRefExtended(predicate), response.getTotalCount());
+    entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), response.getTotalCount());
     TTBundle bundle = new TTBundle();
     bundle.setEntity(entity);
     return bundle;
@@ -499,7 +493,7 @@ public class EntityService {
     return validator.validate(request, this);
   }
 
-  public List<TTIriRefExtended> getEntitiesByType(EntityTypeVocab typeIri) {
+  public List<TTIriRef> getEntitiesByType(EntityTypeVocab typeIri) {
     return entityRepository.findEntitiesByType(typeIri);
   }
 
@@ -508,7 +502,7 @@ public class EntityService {
   }
 
 
-  public List<TTIriRefExtended> getIsas(String iri) {
+  public List<TTIriRef> getIsas(String iri) {
     return entityRepository.findInvertedIsas(iri);
   }
 
@@ -546,20 +540,20 @@ public class EntityService {
     return filterOptions;
   }
 
-  private List<TTIriRefExtended> getDefaultSchemes(FilterOptionsDto filterOptions) {
-    List<TTIriRefExtended> schemes = new ArrayList<>();
+  private List<TTIriRef> getDefaultSchemes(FilterOptionsDto filterOptions) {
+    List<TTIriRef> schemes = new ArrayList<>();
     filterOptions.getTypes().forEach(type -> {
-      for (TTIriRefExtended iri : filterOptions.getTypeSchemes().get(type.getIri()))
+      for (TTIriRef iri : filterOptions.getTypeSchemes().get(type.getIri()))
         if (!schemes.contains(iri)) schemes.add(iri);
     });
     return schemes;
   }
 
-  private Map<String, List<TTIriRefExtended>> getAllTypeSchemes() {
+  private Map<String, List<TTIriRef>> getAllTypeSchemes() {
     return entityRepository.getTypeSchemeDefaults();
   }
 
-  private List<TTIriRefExtended> getAllChildren(Enum<?> iri) {
+  private List<TTIriRef> getAllChildren(Enum<?> iri) {
     return getChildren(EnumUtils.asIri(iri).getIri(), null, null, null, false);
   }
 
@@ -579,7 +573,7 @@ public class EntityService {
     return entityRepository.getEntityFromTerm(term, schemes);
   }
 
-  public Map<String, EntityExtended> getIriDetails(Set<String> iris) {
+  public Map<String, Entity> getIriDetails(Set<String> iris) {
     return entityRepository.getIriDetails(iris);
   }
 }

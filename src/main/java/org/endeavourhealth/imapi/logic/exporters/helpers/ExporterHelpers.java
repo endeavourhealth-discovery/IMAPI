@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.exporters.helpers;
 
-import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.interfacemanager.model.Concept;
 
 public class ExporterHelpers {
   private ExporterHelpers() {

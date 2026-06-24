@@ -89,10 +89,10 @@ class TTNodeJsonTest {
     TTNode node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
     TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL),
-      new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab. CODE),new TTIriRefExtended(ImVocab. HAS_SCHEME),new TTIriRefExtended(ImVocab.
-    HAS_STATUS),
-    new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)));
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
+        HAS_STATUS),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);
@@ -115,10 +115,10 @@ class TTNodeJsonTest {
     TestHelper.checkEntity(node);
 
     TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL),
-      new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab. CODE),new TTIriRefExtended(ImVocab. HAS_SCHEME),new TTIriRefExtended(ImVocab.
-    HAS_STATUS),
-    new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)));
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
+        HAS_STATUS),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
     mod.addSerializer(TTEntity.class, ser);

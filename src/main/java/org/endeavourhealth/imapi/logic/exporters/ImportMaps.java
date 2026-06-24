@@ -13,10 +13,9 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.IOException;
 import java.util.*;
@@ -67,7 +66,7 @@ public class ImportMaps implements AutoCloseable {
    * @param term the code or description id or term code
    * @return iri and name of entity
    */
-  public TTIriRefExtended getReferenceFromCoreTerm(String term) throws IOException {
+  public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
     if (TTFilerFactory.isBulk())
       return fileRepo.getReferenceFromCoreTerm(term);
     else
@@ -110,7 +109,7 @@ public class ImportMaps implements AutoCloseable {
     return codes;
   }
 
-  public Set<EntityExtended> getCoreFromCode(String code, List<NAMESPACE> schemes) {
+  public Set<Entity> getCoreFromCode(String code, List<NAMESPACE> schemes) {
     return new EntityRepository().getCoreFromCode(code, schemes);
   }
 
@@ -121,7 +120,7 @@ public class ImportMaps implements AutoCloseable {
       return new EntityRepository().getAllMatchedLegacy();
   }
 
-  public Set<EntityExtended> getCoreFromLegacyTerm(String term, NAMESPACE scheme) {
+  public Set<Entity> getCoreFromLegacyTerm(String term, NAMESPACE scheme) {
     return new EntityRepository().getCoreFromLegacyTerm(term, scheme);
 
   }
@@ -316,10 +315,10 @@ public class ImportMaps implements AutoCloseable {
           code = (code + ".....").substring(0, 5);
           TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
           entity.setCode(code);
-          entity.setScheme(new TTIriRefExtended(NamespaceVocab.VISION));
+          entity.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.VISION));
           entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));
           for (String snomed : entry.getValue()) {
-            entity.addObject(new TTIriRefExtended(ImVocab.MATCHED_TO), new TTIriRefExtended(snomed));
+            entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MATCHED_TO), TTIriRefExtensionsKt.iri(new TTIriRef(), snomed));
           }
         }
       }
@@ -363,7 +362,7 @@ public class ImportMaps implements AutoCloseable {
             entity.setName(name);
             entity.setCode(code);
             entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));
-            entity.addObject(new TTIriRefExtended(ImVocab.MATCHED_TO), new TTIriRefExtended(snomedIri));
+            entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MATCHED_TO), TTIriRefExtensionsKt.iri(new TTIriRef(), snomedIri));
           }
         }
       }
@@ -449,7 +448,7 @@ public class ImportMaps implements AutoCloseable {
   }
 
 
-  public Set<EntityExtended> getLegacyFromTermCode(String originalCode, NAMESPACE scheme) {
+  public Set<Entity> getLegacyFromTermCode(String originalCode, NAMESPACE scheme) {
     return new EntityRepository().getReferenceFromTermCode(originalCode, scheme);
   }
 

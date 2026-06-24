@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.set;
 
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.Set;
 
@@ -9,9 +9,9 @@ public class SetAsObject {
   private String iri;
   private String name;
   private TTArray included;
-  private Set<TTIriRefExtended> subsets;
+  private Set<TTIriRef> subsets;
 
-  public SetAsObject(String iri, String name, TTArray included, Set<TTIriRefExtended> subsets) {
+  public SetAsObject(String iri, String name, TTArray included, Set<TTIriRef> subsets) {
     this.iri = iri;
     this.name = name;
     this.included = included;
@@ -30,11 +30,11 @@ public class SetAsObject {
     return this;
   }
 
-  public Set<TTIriRefExtended> getSubsets() {
+  public Set<TTIriRef> getSubsets() {
     return subsets;
   }
 
-  public SetAsObject setSubsets(Set<TTIriRefExtended> subsets) {
+  public SetAsObject setSubsets(Set<TTIriRef> subsets) {
     this.subsets = subsets;
     return this;
   }

@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import java.util.Set;
+import org.endeavourhealth.interfacemanager.model.Concept;
 
+import java.util.Set;
 
 public class SetContent {
   private String name;

@@ -35,20 +35,20 @@ public class Reasoner {
   private static TTNode copyNode(TTNode node) {
     TTNode result = new TTNode();
     if (node.getPredicateMap() != null) {
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
         result.set(entry.getKey(), entry.getValue());
       }
     }
     return result;
   }
 
-  private static boolean hasProperty(TTArray subProperties, TTIriRefExtended path) {
+  private static boolean hasProperty(TTArray subProperties, TTIriRef path) {
     if (subProperties != null) {
       for (TTValue prop : subProperties.getElements()) {
-        if (prop.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)) != null) {
-          if (prop.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef().equals(path))
+        if (prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)) != null) {
+          if (prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef().equals(path))
             return true;
-        } else if (prop.asNode().get(new TTIriRefExtended(ShaclVocab.INVERSEPATH)) != null && prop.asNode().get(new TTIriRefExtended(ShaclVocab.INVERSEPATH)).asIriRef().equals(path))
+        } else if (prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.INVERSEPATH)) != null && prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.INVERSEPATH)).asIriRef().equals(path))
           return true;
       }
     }
@@ -58,8 +58,8 @@ public class Reasoner {
   private boolean hasParameter(TTArray subProperties, String parameterName) {
     if (subProperties != null) {
       for (TTValue prop : subProperties.getElements()) {
-        if (prop.asNode().get(new TTIriRefExtended(RdfsVocab.LABEL)) != null) {
-          if (prop.asNode().get(new TTIriRefExtended(RdfsVocab.LABEL)).asLiteral().getValue().equals(parameterName))
+        if (prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null) {
+          if (prop.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue().equals(parameterName))
             return true;
         }
       }
@@ -77,59 +77,59 @@ public class Reasoner {
     classify(document);
     addDocumentRoles();
     for (TTEntity c : inferred.getEntities()) {
-      if (c.isType(new TTIriRefExtended(OwlVocab.CLASS))) {
+      if (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.CLASS))) {
         TTArray types = c.getType();
         List<TTValue> oldTypes = types.getElements();
-        oldTypes.remove(new TTIriRefExtended(OwlVocab.CLASS));
-        oldTypes.add(new TTIriRefExtended(RdfsVocab.CLASS));
+        oldTypes.remove(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.CLASS));
+        oldTypes.add(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.CLASS));
         c.setType(new TTArray());
         for (TTValue type : oldTypes)
           c.getType().add(type);
       }
       simplifyDomains(c);
       reformChains(c);
-      if (c.isType(new TTIriRefExtended(OwlVocab.OBJECT_PROPERTY))) {
-        c.addType(new TTIriRefExtended(RdfVocab.PROPERTY));
-        c.getType().remove(new TTIriRefExtended(OwlVocab.OBJECT_PROPERTY));
+      if (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.OBJECT_PROPERTY))) {
+        c.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY));
+        c.getType().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.OBJECT_PROPERTY));
       }
-      if (c.isType(new TTIriRefExtended(OwlVocab.DATATYPE_PROPERTY))) {
-        c.addType(new TTIriRefExtended(RdfVocab.PROPERTY));
-        c.getType().remove(new TTIriRefExtended(OwlVocab.DATATYPE_PROPERTY));
+      if (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.DATATYPE_PROPERTY))) {
+        c.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY));
+        c.getType().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.DATATYPE_PROPERTY));
       }
 
-      c.getPredicateMap().remove(new TTIriRefExtended(OwlVocab.EQUIVALENT_CLASS));
-      c.getPredicateMap().remove(new TTIriRefExtended(OwlVocab.PROPERTY_CHAIN));
+      c.getPredicateMap().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS));
+      c.getPredicateMap().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN));
     }
 
     return inferred;
   }
 
   private void reformChains(TTEntity entity) {
-    if (entity.get(new TTIriRefExtended(OwlVocab.PROPERTY_CHAIN)) != null) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN)) != null) {
       int i = 1;
       TTNode node = entity;
-      for (TTValue property : entity.get(new TTIriRefExtended(OwlVocab.PROPERTY_CHAIN)).iterator()) {
-        if (i < entity.get(new TTIriRefExtended(OwlVocab.PROPERTY_CHAIN)).size()) {
+      for (TTValue property : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN)).iterator()) {
+        if (i < entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN)).size()) {
           node.set(property.asIriRef(), new TTNode());
           node = node.get(property.asIriRef()).asNode();
           i++;
         } else
-          node.set(property.asIriRef(), new TTIriRefExtended(ImVocab.CONCEPT));
+          node.set(property.asIriRef(), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT));
       }
     }
   }
 
   private void simplifyDomains(TTEntity entity) {
 
-    if (entity.get(new TTIriRefExtended(RdfsVocab.DOMAIN)) == null)
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN)) == null)
       return;
 
     TTArray newDomains = new TTArray();
-    for (TTValue oldDomain : entity.get(new TTIriRefExtended(RdfsVocab.DOMAIN)).iterator()) {
+    for (TTValue oldDomain : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN)).iterator()) {
       if (oldDomain.isIriRef()) {
         newDomains.add(oldDomain);
-      } else if (oldDomain.isNode() && oldDomain.asNode().get(new TTIriRefExtended(OwlVocab.UNION_OF)) != null) {
-        for (TTValue subDomain : oldDomain.asNode().get(new TTIriRefExtended(OwlVocab.UNION_OF)).iterator()) {
+      } else if (oldDomain.isNode() && oldDomain.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)) != null) {
+        for (TTValue subDomain : oldDomain.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)).iterator()) {
           if (!subDomain.isIriRef()) {
             log.debug("Sub domains and ranges must be iris");
           } else {
@@ -138,7 +138,7 @@ public class Reasoner {
         }
       }
     }
-    entity.set(new TTIriRefExtended(RdfsVocab.DOMAIN), newDomains);
+    entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN), newDomains);
   }
 
   private void addDocumentRoles() {
@@ -150,15 +150,15 @@ public class Reasoner {
   }
 
   private void addEntityRoles(TTEntity entity) {
-    if (entity.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)) != null) {
-      for (TTValue superClass : entity.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).iterator()) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)) != null) {
+      for (TTValue superClass : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).iterator()) {
         if (!superClass.isIriRef()) {
           addExpression(entity, superClass);
         }
       }
     }
-    if (entity.get(new TTIriRefExtended(OwlVocab.EQUIVALENT_CLASS)) != null) {
-      for (TTValue equClass : entity.get(new TTIriRefExtended(OwlVocab.EQUIVALENT_CLASS)).iterator()) {
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS)) != null) {
+      for (TTValue equClass : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS)).iterator()) {
         if (!equClass.isIriRef()) {
           addExpressionRoles(entity, equClass);
         }
@@ -174,13 +174,13 @@ public class Reasoner {
 
   private void addExpression(TTNode node, TTValue expression) {
     if (expression.isIriRef()) {
-      node.addObject(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), expression);
+      node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), expression);
     } else if (expression.isNode()) {
-      if (expression.asNode().get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)) != null) {
+      if (expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) != null) {
         addExpressionIntersection(node, expression);
-      } else if (expression.asNode().get(new TTIriRefExtended(OwlVocab.UNION_OF)) != null) {
+      } else if (expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)) != null) {
         addExpressionUnion(node, expression);
-      } else if (expression.asNode().get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)) != null) {
+      } else if (expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)) != null) {
         addRole(node, expression.asNode());
       } else
         log.debug("Only one level of nesting supported. ");
@@ -189,43 +189,43 @@ public class Reasoner {
   }
 
   private void addExpressionIntersection(TTNode node, TTValue expression) {
-    for (TTValue subExp : expression.asNode().get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)).iterator()) {
+    for (TTValue subExp : expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
       if (subExp.isNode()) {
-        if (subExp.asNode().get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)) != null) {
+        if (subExp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)) != null) {
           addRole(node, subExp.asNode());
         } else
           addExpression(node, subExp);
-      } else if (subExp.isIriRef() && !node.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).contains(subExp) && !(node instanceof TTEntity)) {
-        node.addObject(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), subExp);
+      } else if (subExp.isIriRef() && !node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).contains(subExp) && !(node instanceof TTEntity)) {
+        node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), subExp);
       }
     }
   }
 
   private void addExpressionUnion(TTNode node, TTValue expression) {
-    node.set(new TTIriRefExtended(ShaclVocab.OR), new TTArray());
+    node.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR), new TTArray());
     TTNode union = new TTNode();
-    node.addObject(new TTIriRefExtended(ShaclVocab.OR), union);
-    addExpression(union, expression.asNode().get(new TTIriRefExtended(OwlVocab.UNION_OF)));
+    node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR), union);
+    addExpression(union, expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)));
   }
 
   private void addExpressionRoles(TTEntity entity, TTValue expression) {
-    if (!expression.isNode() || expression.asNode().get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)) == null)
+    if (!expression.isNode() || expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) == null)
       return;
 
-    for (TTValue subExp : expression.asNode().get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)).iterator()) {
-      if (subExp.isNode() && subExp.asNode().get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)) != null) {
-        TTIriRefExtended property = subExp.asNode().get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)).asIriRef();
-        TTArray value = subExp.asNode().get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM));
-        if (entity.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)) == null) {
+    for (TTValue subExp : expression.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
+      if (subExp.isNode() && subExp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)) != null) {
+        TTIriRef property = subExp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)).asIriRef();
+        TTArray value = subExp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM));
+        if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)) == null) {
           TTNode roleGroup = new TTNode();
-          roleGroup.set(new TTIriRefExtended(ImVocab.GROUP_NUMBER), TTLiteral.literal(1));
-          entity.addObject(new TTIriRefExtended(ImVocab.ROLE_GROUP), roleGroup);
+          roleGroup.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.GROUP_NUMBER), TTLiteral.literal(1));
+          entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP), roleGroup);
         }
         if (value.isIriRef()) {
-          entity.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)).asNode().set(property, value);
+          entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).asNode().set(property, value);
         } else {
           TTNode subGroup = new TTNode();
-          entity.get(new TTIriRefExtended(ImVocab.ROLE_GROUP)).asNode().set(property, subGroup);
+          entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).asNode().set(property, subGroup);
           addSubRole(subGroup, value.asNode());
         }
       }
@@ -233,17 +233,17 @@ public class Reasoner {
   }
 
   private void addSubRole(TTNode subGroup, TTNode subExp) {
-    if (subExp.get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)) != null) {
-      for (TTValue and : subExp.get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)).getElements()) {
+    if (subExp.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) != null) {
+      for (TTValue and : subExp.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).getElements()) {
         if (and.isNode()) {
           addSubRole(subGroup, and.asNode());
         }
       }
     } else {
 
-      TTIriRefExtended property = subExp.get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)).asIriRef();
+      TTIriRef property = subExp.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)).asIriRef();
 
-      TTArray value = subExp.asNode().get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM));
+      TTArray value = subExp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM));
       if (value.isIriRef()) {
         subGroup.set(property, value);
       } else {
@@ -256,13 +256,13 @@ public class Reasoner {
   }
 
   private void addRole(TTNode node, TTNode restriction) {
-    TTIriRefExtended property = restriction.get(new TTIriRefExtended(OwlVocab.ON_PROPERTY)).asIriRef();
-    if (restriction.get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM)) != null) {
-      if (restriction.get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM)).isIriRef()) {
-        node.set(property, restriction.get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM)));
-      } else if (restriction.get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM)).isNode()) {
+    TTIriRef property = restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)).asIriRef();
+    if (restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM)) != null) {
+      if (restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM)).isIriRef()) {
+        node.set(property, restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM)));
+      } else if (restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM)).isNode()) {
         TTNode subRole = new TTNode();
-        subRole(subRole, restriction.get(new TTIriRefExtended(OwlVocab.SOME_VALUES_FROM)).asNode());
+        subRole(subRole, restriction.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.SOME_VALUES_FROM)).asNode());
         node.set(property, subRole);
       } else {
         throw new IllegalArgumentException("unknown property construct");
@@ -273,22 +273,22 @@ public class Reasoner {
   }
 
   private void subRole(TTNode subRole, TTNode node) {
-    if (subRole.asNode().get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)) != null) {
-      for (TTValue subExp : subRole.get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)).iterator()) {
+    if (subRole.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) != null) {
+      for (TTValue subExp : subRole.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
         if (subExp.isIriRef())
-          node.addObject(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), subExp);
+          node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), subExp);
         else
           addRole(node, subExp.asNode());
       }
     }
-    if (subRole.asNode().get(new TTIriRefExtended(OwlVocab.UNION_OF)) != null) {
-      node.set(new TTIriRefExtended(ShaclVocab.OR), new TTArray());
-      for (TTValue subExp : subRole.get(new TTIriRefExtended(OwlVocab.UNION_OF)).iterator()) {
+    if (subRole.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)) != null) {
+      node.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR), new TTArray());
+      for (TTValue subExp : subRole.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.UNION_OF)).iterator()) {
         if (subExp.isIriRef())
-          node.addObject(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), subExp);
+          node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), subExp);
         else {
           TTNode union = new TTNode();
-          node.get(new TTIriRefExtended(ShaclVocab.OR)).add(union);
+          node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).add(union);
           addRole(union, subExp.asNode());
         }
       }
@@ -334,13 +334,13 @@ public class Reasoner {
     OWLDataFactory dataFactory = new OWLDataFactoryImpl();
     for (TTEntity c : document.getEntities()) {
       inferred.addEntity(c);
-      c.getPredicateMap().remove(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF));
-      c.getPredicateMap().remove(new TTIriRefExtended(RdfsVocab.SUB_PROPERTY_OF));
-      if (c.get(new TTIriRefExtended(OwlVocab.EQUIVALENT_CLASS)) != null)
-        c.set(new TTIriRefExtended(ImVocab.DEFINITIONAL_STATUS), new TTIriRefExtended(ImVocab.SUFFICIENTLY_DEFINED));
-      if (c.isType(new TTIriRefExtended(OwlVocab.OBJECT_PROPERTY)) || c.isType(new TTIriRefExtended(RdfVocab.PROPERTY)) || c.isType(new TTIriRefExtended(OwlVocab.DATATYPE_PROPERTY))) {
+      c.getPredicateMap().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
+      c.getPredicateMap().remove(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF));
+      if (c.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS)) != null)
+        c.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITIONAL_STATUS), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.SUFFICIENTLY_DEFINED));
+      if (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.OBJECT_PROPERTY)) || c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY)) || c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.DATATYPE_PROPERTY))) {
         classifyObjectProperty(owlReasoner, dataFactory, c);
-      } else if (c.isType(new TTIriRefExtended(RdfVocab.PROPERTY)) || (c.isType(new TTIriRefExtended(OwlVocab.DATATYPE_PROPERTY)))) {
+      } else if (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY)) || (c.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.DATATYPE_PROPERTY)))) {
         classifyDataProperty(owlReasoner, dataFactory, c);
       } else {
         classifySuperClasses(owlReasoner, dataFactory, c);
@@ -357,9 +357,9 @@ public class Reasoner {
           String iriName = sob.getRepresentativeElement().asOWLObjectProperty()
             .getIRI().toString();
           if (!iriName.equals(NamespaceVocab.OWL + "topObjectProperty") && (!iriName.contains("_TOP_"))) {
-            addSubClassOf(c, new TTIriRefExtended(iriName));
+            addSubClassOf(c, TTIriRefExtensionsKt.iri(new TTIriRef(), iriName));
           } else {
-            addSubClassOf(c, new TTIriRefExtended(RdfVocab.PROPERTY));
+            addSubClassOf(c, TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY));
           }
         }
       });
@@ -375,9 +375,9 @@ public class Reasoner {
           String iriName = sob.getRepresentativeElement().asOWLDataProperty()
             .getIRI().toString();
           if (!iriName.equals(NamespaceVocab.OWL + "topDataProperty") && (!iriName.contains("_TOP_"))) {
-            addSubClassOf(c, new TTIriRefExtended(iriName));
+            addSubClassOf(c, TTIriRefExtensionsKt.iri(new TTIriRef(), iriName));
           } else {
-            addSubClassOf(c, new TTIriRefExtended(RdfVocab.PROPERTY));
+            addSubClassOf(c, TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY));
           }
         }
       });
@@ -389,7 +389,7 @@ public class Reasoner {
     NodeSet<OWLClass> superClasses = owlReasoner.getSuperClasses(owlClass, true);
     if (superClasses != null) {
       superClasses.forEach(sup -> {
-          TTIriRef iri = new TTIriRefExtended(sup.getRepresentativeElement()
+          TTIriRef iri = TTIriRefExtensionsKt.iri(new TTIriRef(), sup.getRepresentativeElement()
             .asOWLClass()
             .getIRI()
             .toString());
@@ -401,9 +401,9 @@ public class Reasoner {
   }
 
   private void addSubClassOf(TTEntity entity, TTIriRef parent) {
-    if (entity.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)) == null)
-      entity.set(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), new TTArray());
-    entity.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).add(parent);
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)) == null)
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), new TTArray());
+    entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).add(parent);
   }
 
   public void inheritDomRans(TTEntity property, TTEntityMap propertyMap) {
@@ -413,22 +413,22 @@ public class Reasoner {
   }
 
   private void inheritRanges(TTEntity property, TTEntityMap propertyMap) {
-    for (TTValue superProp : property.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).getElements()) {
+    for (TTValue superProp : property.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).getElements()) {
       TTIriRef superIri = superProp.asIriRef();
       TTEntity superEntity = propertyMap.getEntity(superIri.getIri());
       inheritDomains(superEntity, propertyMap);
-      if (superEntity.get(new TTIriRefExtended(RdfsVocab.RANGE)) != null)
-        superEntity.get(new TTIriRefExtended(RdfsVocab.RANGE)).getElements().forEach(dom -> property.addObject(new TTIriRefExtended(RdfsVocab.RANGE), dom));
+      if (superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.RANGE)) != null)
+        superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.RANGE)).getElements().forEach(dom -> property.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.RANGE), dom));
     }
   }
 
   private void inheritDomains(TTEntity property, TTEntityMap propertyMap) {
-    for (TTValue superProp : property.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).getElements()) {
+    for (TTValue superProp : property.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).getElements()) {
       TTIriRef superIri = superProp.asIriRef();
       TTEntity superEntity = propertyMap.getEntity(superIri.getIri());
       inheritDomains(superEntity, propertyMap);
-      if (superEntity.get(new TTIriRefExtended(RdfsVocab.DOMAIN)) != null)
-        superEntity.get(new TTIriRefExtended(RdfsVocab.DOMAIN)).getElements().forEach(dom -> property.addObject(new TTIriRefExtended(RdfsVocab.DOMAIN), dom));
+      if (superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN)) != null)
+        superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN)).getElements().forEach(dom -> property.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.DOMAIN), dom));
     }
   }
 
@@ -437,9 +437,9 @@ public class Reasoner {
     done = new HashSet<>();
     manager.setDocument(document);
     for (TTEntity entity : document.getEntities()) {
-      if (entity.isType(new TTIriRefExtended(ShaclVocab.FUNCTION)))
+      if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.FUNCTION)))
         inheritProperties(ShaclVocab.PARAMETER, entity);
-      if (entity.isType(new TTIriRefExtended(ShaclVocab.NODESHAPE))) {
+      if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODESHAPE))) {
         inheritProperties(ShaclVocab.PROPERTY, entity);
         inheritTemplates(entity);
       }
@@ -449,30 +449,30 @@ public class Reasoner {
   }
 
   private void inheritTemplates(TTEntity shape) {
-    if (shape.get(new TTIriRefExtended(ImVocab.FUNCTION_TEMPLATE)) != null)
+    if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FUNCTION_TEMPLATE)) != null)
       return;
-    if (shape.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)) != null) {
-      for (TTValue superIri : shape.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).getElements()) {
+    if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)) != null) {
+      for (TTValue superIri : shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).getElements()) {
         TTEntity superEntity = manager.getEntity(superIri.asIriRef().getIri());
-        if (superEntity != null && superEntity.isType(new TTIriRefExtended(ShaclVocab.NODESHAPE))) {
+        if (superEntity != null && superEntity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODESHAPE))) {
           inheritTemplates(superEntity);
-          if (superEntity.get(new TTIriRefExtended(ImVocab.FUNCTION_TEMPLATE)) != null)
-            shape.set(new TTIriRefExtended(ImVocab.FUNCTION_TEMPLATE), superEntity.get(new TTIriRefExtended(ImVocab.FUNCTION_TEMPLATE)));
+          if (superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FUNCTION_TEMPLATE)) != null)
+            shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FUNCTION_TEMPLATE), superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FUNCTION_TEMPLATE)));
         }
       }
     }
   }
 
   private void processSuperClasses(SHACL predicate, TTArray properties, List<TTValue> mergedProperties, TTEntity shape) {
-    for (TTValue superClass : shape.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)).getElements()) {
+    for (TTValue superClass : shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)).getElements()) {
       TTEntity superEntity = manager.getEntity(superClass.asIriRef().getIri());
       if (superEntity != null) {
         mergeInheritedProperties(predicate, properties, mergedProperties, superClass, superEntity);
-        if (shape.get(new TTIriRefExtended(ImVocab.CONCEPT)) == null && superEntity.get(new TTIriRefExtended(ImVocab.CONCEPT)) != null) {
-          shape.set(new TTIriRefExtended(ImVocab.CONCEPT), superEntity.get(new TTIriRefExtended(ImVocab.CONCEPT)));
+        if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT)) == null && superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT)) != null) {
+          shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT), superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT)));
         }
-        if (shape.get(new TTIriRefExtended(ShaclVocab.GROUP)) == null && superEntity.get(new TTIriRefExtended(ShaclVocab.GROUP)) != null) {
-          shape.set(new TTIriRefExtended(ShaclVocab.GROUP), superEntity.get(new TTIriRefExtended(ShaclVocab.GROUP)));
+        if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP)) == null && superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP)) != null) {
+          shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP), superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP)));
         }
       }
     }
@@ -483,22 +483,22 @@ public class Reasoner {
     if (done.contains(shape.getIri()))
       return;
     TTArray properties = null;
-    if (shape.get(new TTIriRefExtended(predicate)) != null)
-      properties = shape.get(new TTIriRefExtended(predicate));
+    if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate)) != null)
+      properties = shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate));
     List<TTValue> mergedProperties = new ArrayList<>();
-    if (shape.get(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF)) != null) {
+    if (shape.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)) != null) {
       processSuperClasses(predicate, properties, mergedProperties, shape);
       if (properties != null) {
         for (TTValue p : properties.getElements()) {
-          if (p.asNode().get(new TTIriRefExtended(ShaclVocab.ORDER)) == null) {
-            p.asNode().set(new TTIriRefExtended(ShaclVocab.ORDER), TTLiteral.literal(1000));
+          if (p.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER)) == null) {
+            p.asNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER), TTLiteral.literal(1000));
           }
         }
         mergedProperties.addAll(properties.getElements());
       }
       TTArray newValue = new TTArray();
       mergedProperties.forEach(newValue::add);
-      shape.set(new TTIriRefExtended(predicate), newValue);
+      shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), newValue);
       done.add(shape.getIri());
     }
   }
@@ -506,23 +506,23 @@ public class Reasoner {
 
   public void mergeInheritedProperties(SHACL predicate, TTArray properties, List<TTValue> mergedProperties, TTValue superClass, TTEntity superEntity) {
     inheritProperties(predicate, superEntity);
-    if (superEntity.get(new TTIriRefExtended(predicate)) != null) {
-      for (TTValue superP : superEntity.get(new TTIriRefExtended(predicate)).getElements()) {
+    if (superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate)) != null) {
+      for (TTValue superP : superEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate)).getElements()) {
         if (predicate == ShaclVocab.PARAMETER) {
-          if (!hasParameter(properties, superP.asNode().get(new TTIriRefExtended(RdfsVocab.LABEL)).asLiteral().getValue())) {
+          if (!hasParameter(properties, superP.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue())) {
             TTNode inherited = copyNode(superP.asNode());
-            inherited.set(new TTIriRefExtended(ImVocab.INHERITED_FROM), superClass);
+            inherited.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INHERITED_FROM), superClass);
             mergedProperties.add(inherited);
           }
         }
-        if (superP.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)) != null) {
-          if (!hasProperty(properties, superP.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef())
-            && !hasPath(mergedProperties, superP.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef())) {
-            if (superP.asNode().get(new TTIriRefExtended(ShaclVocab.ORDER)) == null) {
-              superP.asNode().set(new TTIriRefExtended(ShaclVocab.ORDER), TTLiteral.literal(1000));
+        if (superP.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)) != null) {
+          if (!hasProperty(properties, superP.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef())
+            && !hasPath(mergedProperties, superP.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef())) {
+            if (superP.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER)) == null) {
+              superP.asNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER), TTLiteral.literal(1000));
             }
             TTNode inherited = copyNode(superP.asNode());
-            inherited.set(new TTIriRefExtended(ImVocab.INHERITED_FROM), superClass);
+            inherited.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INHERITED_FROM), superClass);
             mergedProperties.add(inherited);
           }
         }
@@ -535,7 +535,7 @@ public class Reasoner {
       return false;
     }
     for (TTValue p : mergedProperties) {
-      if (p.asNode().get(new TTIriRefExtended(ShaclVocab.PATH)).asIriRef().equals(iri)) {
+      if (p.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef().equals(iri)) {
         return true;
       }
     }

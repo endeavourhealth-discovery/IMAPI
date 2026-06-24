@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.List;
 
@@ -10,9 +10,9 @@ public class EntityDefinitionDto {
   private String name;
   private String description;
   private String status;
-  private List<TTIriRefExtended> types;
-  private List<TTIriRefExtended> isa;
-  private List<TTIriRefExtended> subtypes;
+  private List<TTIriRef> types;
+  private List<TTIriRef> isa;
+  private List<TTIriRef> subtypes;
 
   public String getIri() {
     return iri;
@@ -50,29 +50,29 @@ public class EntityDefinitionDto {
     return this;
   }
 
-  public List<TTIriRefExtended> getTypes() {
+  public List<TTIriRef> getTypes() {
     return types;
   }
 
-  public EntityDefinitionDto setTypes(List<TTIriRefExtended> types) {
+  public EntityDefinitionDto setTypes(List<TTIriRef> types) {
     this.types = types;
     return this;
   }
 
-  public List<TTIriRefExtended> getIsa() {
+  public List<TTIriRef> getIsa() {
     return isa;
   }
 
-  public EntityDefinitionDto setIsa(List<TTIriRefExtended> isa) {
+  public EntityDefinitionDto setIsa(List<TTIriRef> isa) {
     this.isa = isa;
     return this;
   }
 
-  public List<TTIriRefExtended> getSubtypes() {
+  public List<TTIriRef> getSubtypes() {
     return subtypes;
   }
 
-  public EntityDefinitionDto setSubtypes(List<TTIriRefExtended> subtypes) {
+  public EntityDefinitionDto setSubtypes(List<TTIriRef> subtypes) {
     this.subtypes = subtypes;
     return this;
   }

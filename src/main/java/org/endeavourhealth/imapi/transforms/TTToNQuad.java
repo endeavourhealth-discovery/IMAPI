@@ -25,9 +25,9 @@ public class TTToNQuad {
   }
 
   private void setPredicateObjects(String subject, TTNode node, GRAPH graph) {
-    Map<TTIriRefExtended, TTArray> predicateObjectList = node.getPredicateMap();
+    Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : predicateObjectList.entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
         String predicate = "<" + entry.getKey().getIri() + "> ";
         TTArray value = entry.getValue();
         if ((value != null) && (!value.isEmpty())) {

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.responses;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.workflow.Task;
+import org.endeavourhealth.interfacemanager.model.Task;
 
 import java.util.ArrayList;
 import java.util.List;

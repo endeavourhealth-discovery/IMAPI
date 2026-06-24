@@ -3,10 +3,13 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.imapi.model.imq.Prefix;
+import org.endeavourhealth.imapi.model.imq.Prefixes;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -64,7 +67,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       query.setOr(match.getOr());
     if (match.getWhere() != null)
       query.setWhere(match.getWhere());
-    if ( match.getTypeOf() != null && match.getTypeOf().getIri().equals(ImVocab. CONCEPT.toString())){
+    if (match.getTypeOf() != null && match.getTypeOf().getIri().equals(ImVocab.CONCEPT.toString())) {
       query.setTypeOf(match.getTypeOf());
     }
   }
@@ -131,7 +134,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         } else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();
-            match.setTypeOf(new Node().setIri(ImVocab. CONCEPT.toString()));
+            match.setTypeOf(new Node().setIri(ImVocab.CONCEPT.toString()));
           }
           match.setWhere(asWhere);
         }
@@ -160,7 +163,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
         if (result instanceof Match asMatch)
-          match.addAnd(asMatch);
+          match.addAndItem(asMatch);
       }
     }
     return match;
@@ -174,7 +177,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
         if (result instanceof Match asMatch)
-          match.addOr(asMatch);
+          match.addOrItem(asMatch);
       }
     }
     return match;
@@ -188,10 +191,10 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         Object result = visit(child);
         if (result instanceof Match asMatch) {
           if (match.getAnd() == null)
-            match.addAnd(asMatch);
+            match.addAndItem(asMatch);
           else {
             asMatch.setNotExists(true);
-            match.addAnd(asMatch);
+            match.addAndItem(asMatch);
           }
         }
       }
@@ -218,7 +221,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
           }
           if (result instanceof Node asNode) {
             node = asNode;
-          } else if (result instanceof TTIriRefExtended iri) {
+          } else if (result instanceof TTIriRef iri) {
             if (node == null) {
               node = new Node();
             }
@@ -262,7 +265,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitEclconceptreference(IMECLParser.EclconceptreferenceContext ctx) {
-    TTIriRefExtended iri = new TTIriRefExtended();
+    TTIriRef iri = new TTIriRef();
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
@@ -297,7 +300,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
   @Override
   public Object visitSctid(IMECLParser.SctidContext ctx) {
     return NamespaceVocab.
-    SNOMED + ctx.getText();
+      SNOMED + ctx.getText();
   }
 
 

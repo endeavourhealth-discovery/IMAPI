@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.Assignable;
 import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
@@ -93,8 +93,8 @@ public class QueryDescriptor {
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION)).getEntity();
-    if (queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(new TTIriRefExtended(ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
+    if (queryEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
       query.setIri(queryIri);
     query = describeQuery(query, displayMode);
@@ -157,7 +157,7 @@ public class QueryDescriptor {
         if (argument.getValueIri() != null)
           argument.getValueIri().setName(getTermInContext(argument.getValueIri().getIri(), Context.PATH));
         if (argument.getValueIriList() != null) {
-          for (TTIriRefExtended valueIri : argument.getValueIriList()) {
+          for (TTIriRef valueIri : argument.getValueIriList()) {
             valueIri.setName(getTermInContext(valueIri.getIri(), Context.PATH));
           }
         }
@@ -196,10 +196,10 @@ public class QueryDescriptor {
     for (Context context : contexts) {
       if (context == Context.PLURAL) {
         if (entity != null) {
-          if ( entity.get(new TTIriRefExtended(NamespaceVocab. IM + "plural")) ==null){
+          if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "plural")) == null) {
             term = new StringBuilder(Pluraliser.pluralise(term.toString()));
-          } else{
-            term = new StringBuilder(entity.get(new TTIriRefExtended(NamespaceVocab. IM + "plural")).asLiteral().getValue());
+          } else {
+            term = new StringBuilder(entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "plural")).asLiteral().getValue());
           }
         } else term = new StringBuilder(Pluraliser.pluralise(term.toString()));
       }

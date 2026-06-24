@@ -25,7 +25,7 @@ public class TTBundle {
     return this;
   }
 
-  public TTBundle addPredicate(TTIriRefExtended predicate) {
+  public TTBundle addPredicate(TTIriRef predicate) {
     if (null == this.predicates)
       this.predicates = new HashMap<>();
 

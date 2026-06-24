@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -103,7 +103,7 @@ public class CodeGenJava {
             ? bindSet.getValue("comment").stringValue()
             : null);
 
-          TTIriRefExtended dataType = new TTIriRefExtended(
+          TTIriRef dataType = TTIriRefExtensionsKt.iri(new TTIriRef(),
             bindSet.getValue("type").stringValue(),
             bindSet.hasBinding("typeName")
               ? bindSet.getValue("typeName").stringValue()
@@ -170,7 +170,7 @@ public class CodeGenJava {
       os.write("""
         package org.endeavourhealth.imapi.logic.codegen;
         
-        import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+        import org.endeavourhealth.interfacemanager.model.TTIriRef;
         
         import java.util.UUID;
         
@@ -327,7 +327,7 @@ public class CodeGenJava {
     return output.toString();
   }
 
-  String getDataType(TTIriRefExtended dataType, boolean dataModel, boolean isArray) {
+  String getDataType(TTIriRef dataType, boolean dataModel, boolean isArray) {
     String dataTypeName;
     if (dataType.getIri().startsWith(NamespaceVocab.XsdVocab.toString())) {
       dataTypeName = capitalise(getSuffix(dataType.getIri()));

@@ -43,11 +43,11 @@ public class TTNodeSerializer {
   }
 
   private void serializePredicates(TTNode node, JsonGenerator gen) throws IOException {
-    List<TTIriRefExtended> orderedPredicates = Stream.of(new TTIriRefExtended(RdfVocab.TYPE), new TTIriRefExtended(RdfsVocab.LABEL), new TTIriRefExtended(RdfsVocab.COMMENT), new TTIriRefExtended(ImVocab.
-    HAS_STATUS)).toList();
-    if (node.get(new TTIriRefExtended(RdfVocab.TYPE)) != null) {
-      for (TTValue type : node.get(new TTIriRefExtended(RdfVocab.TYPE)).getElements()) {
-        List<TTIriRefExtended> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
+    List<TTIriRef> orderedPredicates = Stream.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
+      HAS_STATUS)).toList();
+    if (node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)) != null) {
+      for (TTValue type : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)).getElements()) {
+        List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
         if (orderForType != null)
           orderedPredicates = orderForType;
       }
@@ -56,15 +56,15 @@ public class TTNodeSerializer {
   }
 
 
-  private void serializeOrdered(TTNode node, List<TTIriRefExtended> predicates, JsonGenerator gen) throws IOException {
-    for (TTIriRefExtended predicate : predicates) {
+  private void serializeOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
+    for (TTIriRef predicate : predicates) {
       if (node.get(predicate) != null) {
         serializeFieldValue(predicate.getIri(), node.get(predicate), gen);
       }
     }
-    Map<TTIriRefExtended, TTArray> nodePredicates = node.getPredicateMap();
+    Map<TTIriRef, TTArray> nodePredicates = node.getPredicateMap();
     if (nodePredicates != null && !nodePredicates.isEmpty()) {
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
         if (!predicates.contains(entry.getKey()))
           serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
       }
@@ -102,7 +102,7 @@ public class TTNodeSerializer {
 
   public void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
     if (value.isIriRef()) {
-      TTIriRefExtended ref = value.asIriRef();
+      TTIriRef ref = value.asIriRef();
       gen.writeStartObject();
       gen.writeStringField("iri", prefix(ref.getIri()));
       if (ref.getName() != null && !ref.getName().isEmpty())

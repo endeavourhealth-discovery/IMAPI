@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
@@ -15,9 +15,9 @@ public class TTToHTML {
   public static String getExpressionText(TTNode expression) {
     StringBuilder html = new StringBuilder();
     boolean first = true;
-    if (expression.get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)) != null) {
+    if (expression.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) != null) {
       html.append("<p class=\"intersection\">Intersection of</p>");
-      for (TTValue inter : expression.get(new TTIriRefExtended(OwlVocab.INTERSECTION_OF)).iterator()) {
+      for (TTValue inter : expression.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
         if (inter.isIriRef()) {
           if (!first)
             html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");
@@ -37,7 +37,7 @@ public class TTToHTML {
   }
 
   public static void setRoleGroup(TTNode roleGroup, StringBuilder html, int tab) {
-    for (Map.Entry<TTIriRefExtended, TTArray> entry : roleGroup.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArray> entry : roleGroup.getPredicateMap().entrySet()) {
       html.append("<p class=\"role-group\" style=\"margin-left: ").append(tab).append("px\">");
       html.append(entry.getKey().getName()).append("->");
       if (entry.getValue().isIriRef()) {

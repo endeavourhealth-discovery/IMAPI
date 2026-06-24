@@ -78,13 +78,13 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     this(conn, new HashMap<>(), graph);
   }
 
-  private TTIriRefExtended getSchemeFromIri(String iri) throws TTFilerException {
+  private TTIriRef getSchemeFromIri(String iri) throws TTFilerException {
     try {
       if (iri.contains("#"))
-        return new TTIriRefExtended(iri.substring(0, iri.lastIndexOf("#") + 1));
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), iri.substring(0, iri.lastIndexOf("#") + 1));
       if (iri.contains("/"))
-        return new TTIriRefExtended(iri.substring(0, iri.lastIndexOf("/") + 1));
-      else return new TTIriRefExtended(NamespaceVocab.IM.toString());
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), iri.substring(0, iri.lastIndexOf("/") + 1));
+      else return TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM.toString());
     } catch (Exception e) {
       throw new TTFilerException("Unable to get scheme from iri: " + iri, e);
     }
@@ -92,20 +92,20 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   @Override
   public void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.get(new TTIriRefExtended(ImVocab.HAS_SCHEME)) == null) {
-      entity.set(new TTIriRefExtended(ImVocab.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)) == null) {
+      entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
     }
 
-    if (entity.get(new TTIriRefExtended(RdfsVocab.LABEL)) != null
-      && entity.get(new TTIriRefExtended(ImVocab.HAS_STATUS)) == null)
+    if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null
+      && entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)) == null)
       entity.set(EnumUtils.asIri(ImVocab.HAS_STATUS), EnumUtils.asIri(ImVocab.ACTIVE));
-    if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.UPDATE_PREDICATES))) {
+    if (entity.getCrud().equals(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.UPDATE_PREDICATES))) {
       updatePredicates(entity);
-    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.ADD_QUADS))) {
+    } else if (entity.getCrud().equals(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS))) {
       addQuads(entity);
-    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.REPLACE_ALL_PREDICATES))) {
+    } else if (entity.getCrud().equals(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.REPLACE_ALL_PREDICATES))) {
       replaceAllPredicates(entity);
-    } else if (entity.getCrud().equals(new TTIriRefExtended(ImVocab.DELETE_ALL))) {
+    } else if (entity.getCrud().equals(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DELETE_ALL))) {
       deleteTriples(entity);
     } else {
       if (entity.getPredicateMap().isEmpty()) return;
@@ -267,7 +267,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     try {
       ModelBuilder builder = new ModelBuilder();
       builder.namedGraph(EnumUtils.asDbIri(graph));
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : entity.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }
       conn.add(builder.build());
@@ -291,8 +291,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   private void deletePredicates(TTEntity entity) throws TTFilerException {
     StringBuilder predList = new StringBuilder();
     int i = 0;
-    Map<TTIriRefExtended, TTArray> predicates = entity.getPredicateMap();
-    for (Map.Entry<TTIriRefExtended, TTArray> po : predicates.entrySet()) {
+    Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
+    for (Map.Entry<TTIriRef, TTArray> po : predicates.entrySet()) {
       String predicateIri = po.getKey().getIri();
       i++;
       if (i > 1) predList.append(", ");
@@ -357,7 +357,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       TTNode node = value.asNode();
       BNode bNode = bnode();
       builder.add(subject, predicate, bNode);
-      for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
         addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
       }
     } else {

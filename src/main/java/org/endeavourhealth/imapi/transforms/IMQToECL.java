@@ -4,10 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Prefix;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.interfacemanager.model.ECLType;
-import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.*;
+import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.util.*;
 
@@ -39,7 +42,7 @@ public class IMQToECL {
       }
     }
     try {
-      expressionMatch(query, ecl, eclQuery.isShowNames(), false);
+      expressionMatch(query, ecl, eclQuery.getShowNames(), false);
       eclQuery.setEcl(ecl.toString().trim());
     } catch (Exception ex) {
       eclStatus.setValid(false);

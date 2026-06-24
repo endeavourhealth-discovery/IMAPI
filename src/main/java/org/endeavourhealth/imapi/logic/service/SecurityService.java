@@ -8,11 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.model.responses.LoginResponse;
-import org.endeavourhealth.imapi.model.responses.LoginResponseES;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.User;
+import org.endeavourhealth.interfacemanager.model.LoginResponse;
+import org.endeavourhealth.interfacemanager.model.LoginResponseES;
 import org.endeavourhealth.interfacemanager.model.UserRole;
 import org.springframework.stereotype.Component;
 

@@ -6,9 +6,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.DataModelProperty;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,15 +15,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CodeGenStepDefs {
-  private final CodeGenDtoExtended template = new CodeGenDtoExtended();
-  private TTIriRefExtended model;
+  private final CodeGenDto template = new CodeGenDto();
+  private TTIriRef model;
   private List<DataModelProperty> properties = new ArrayList<>();
   private String namespace;
   private String actual;
 
   @Given("a model with iri {string} and name {string} and description {string}")
   public void setModel(String arg0, String arg1, String arg2) {
-    this.model = new TTIriRefExtended(arg0, arg1).setDescription(arg2);
+    this.model = TTIriRefExtensionsKt.iri(new TTIriRef(), arg0, arg1).setDescription(arg2);
   }
 
   @Given("a template of")

@@ -7,9 +7,7 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
 import org.endeavourhealth.imapi.model.imq.Assignable;
-import org.endeavourhealth.imapi.model.imq.Case;
 import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.transforms.eqd.*;
@@ -133,7 +131,7 @@ public class EqdResources {
           IM + "Q_RegisteredGMS";
       }
       match.addIs(Node.iri(finalParentId).setName(this.reportNames.get(parent)));
-      queryEntity.addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(finalParentId));
+      queryEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), finalParentId));
       return match;
     } else {
       List<EQDOCCriteria> groupCriteria = eqGroup.getDefinition().getCriteria();
@@ -267,7 +265,7 @@ public class EqdResources {
         IM + "Q_RegisteredGMS";
     }
 
-    queryEntity.addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(finalSearchId));
+    queryEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), finalSearchId));
     if (score != null) {
       addScore(match, score);
     }
@@ -997,15 +995,15 @@ public class EqdResources {
   private TTIriRef getIMUnits(VocValueUnit units) throws EQDException {
     switch (units) {
       case YEAR:
-        return new TTIriRefExtended(ImVocab.YEARS);
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.YEARS);
       case MONTH:
-        return new TTIriRefExtended(ImVocab.MONTHS);
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MONTHS);
       case DAY:
-        return new TTIriRefExtended(ImVocab.DAYS);
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DAYS);
       case FISCALYEAR:
-        return new TTIriRefExtended(ImVocab.FISCAL_YEAR);
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FISCAL_YEAR);
       case QUARTER:
-        return new TTIriRefExtended(ImVocab.QUARTER);
+        return TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUARTER);
       case DATE:
         break;
       default:
@@ -1017,9 +1015,9 @@ public class EqdResources {
 
   private TTIriRef getIMQualifier(VocValueUnit units) throws EQDException {
     return switch (units) {
-      case FISCALYEAR -> new TTIriRefExtended(ImVocab.FISCAL_YEAR);
-      case QUARTER -> new TTIriRefExtended(ImVocab.QUARTER);
-      case MONTH -> new TTIriRefExtended(ImVocab.MONTH);
+      case FISCALYEAR -> TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FISCAL_YEAR);
+      case QUARTER -> TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUARTER);
+      case MONTH -> TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MONTH);
       default -> throw new EQDException("unknown qualifier map: " + units);
     };
   }
@@ -1115,7 +1113,7 @@ public class EqdResources {
               String setIri = memberOrConcept.getIri();
               TTEntity usedIn = EqdToIMQ.setIriToEntity.get(setIri);
               if (usedIn == null) {
-                usedIn = (new TTEntity()).setIri(setIri).setCrud(new TTIriRefExtended(ImVocab.ADD_QUADS));
+                usedIn = (new TTEntity()).setIri(setIri).setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
                 this.document.addEntity(usedIn);
                 EqdToIMQ.setIriToEntity.put(setIri, usedIn);
               }
@@ -1321,7 +1319,7 @@ public class EqdResources {
   }
 
   private Set<Node> getValuesFromOriginal(String originalCode, String originalTerm, String legacyCode, List<NAMESPACE> schemes) {
-    Set<EntityExtended> snomed = this.getCoreFromCode(originalCode, schemes);
+    Set<Entity> snomed = this.getCoreFromCode(originalCode, schemes);
     if (snomed == null && legacyCode != null) {
       snomed = this.getCoreFromCode(legacyCode, schemes);
     }
@@ -1343,14 +1341,14 @@ public class EqdResources {
         Node n = new Node();
         n.setIri(e.getIri());
         n.setName(e.getName());
-        if (Set.of(new TTIriRefExtended(ImVocab.CONCEPT_SET), new TTIriRefExtended(ImVocab.VALUE_SET)).stream().anyMatch(e.getType()::contains))
+        if (Set.of(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.VALUE_SET)).stream().anyMatch(e.getType()::contains))
           n.setMemberOf(true);
         return n;
       })
       .collect(Collectors.toSet());
   }
 
-  private Set<EntityExtended> getLegacyFromTermCode(String originalCode) {
+  private Set<Entity> getLegacyFromTermCode(String originalCode) {
     try {
       return this.importMaps.getLegacyFromTermCode(originalCode, NamespaceVocab.EMIS);
     } catch (Exception e) {
@@ -1359,7 +1357,7 @@ public class EqdResources {
     }
   }
 
-  private Set<EntityExtended> getCoreFromLegacyTerm(String originalTerm) {
+  private Set<Entity> getCoreFromLegacyTerm(String originalTerm) {
     try {
       if (originalTerm.contains("s disease of lymph nodes of head, face AND/OR neck")) {
         log.info("!!");
@@ -1371,7 +1369,7 @@ public class EqdResources {
     }
   }
 
-  private Set<EntityExtended> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
+  private Set<Entity> getCoreFromCode(String originalCode, List<NAMESPACE> schemes) {
     return this.importMaps.getCoreFromCode(originalCode, schemes);
   }
 
@@ -1380,12 +1378,12 @@ public class EqdResources {
     if (EqdToIMQ.versionMap.containsKey(usedIn)) {
       usedIn = EqdToIMQ.versionMap.get(usedIn);
     }
-    queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(set.getIri()));
+    queryEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.USES), TTIriRefExtensionsKt.iri(new TTIriRef(), set.getIri()));
   }
 
   private void createLibraryValueSet(String iri, String name) {
-    TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(new TTIriRefExtended(ImVocab.CONCEPT_SET));
-    valueSet.setScheme(new TTIriRefExtended(namespace));
+    TTEntity valueSet = (new TTEntity()).setIri(iri).setName(name).addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET));
+    valueSet.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace));
     this.addUsedIn(valueSet);
     this.document.addEntity(valueSet);
   }
@@ -1410,9 +1408,9 @@ public class EqdResources {
       TTEntity valueSet = new TTEntity()
         .setIri(namespace + vs.getId())
         .setName(name)
-        .setScheme(new TTIriRefExtended(namespace))
-        .addType(new TTIriRefExtended(ImVocab.CONCEPT_SET))
-        .set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(definition));
+        .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace))
+        .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(definition));
       this.addUsedIn(valueSet);
       this.document.addEntity(valueSet);
       return valueSet;
@@ -1435,36 +1433,36 @@ public class EqdResources {
       return duplicate;
     } else {
       TTEntity valueSet = new TTEntity()
-        .setIri(namespace + vs.getId()).setName(name).addType(new TTIriRefExtended(ImVocab.CONCEPT_SET));
-      valueSet.setScheme(new TTIriRefExtended(namespace));
+        .setIri(namespace + vs.getId()).setName(name).addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET));
+      valueSet.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace));
       if (this.columnGroup != null) {
-        queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(valueSet.getIri()));
+        queryEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.USES), TTIriRefExtensionsKt.iri(new TTIriRef(), valueSet.getIri()));
       } else {
         String usedIn = activeReport;
         if (EqdToIMQ.versionMap.containsKey(usedIn)) {
           usedIn = EqdToIMQ.versionMap.get(usedIn);
         }
-        queryEntity.addObject(new TTIriRefExtended(ImVocab.USES), new TTIriRefExtended(valueSet.getIri()));
+        queryEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.USES), TTIriRefExtensionsKt.iri(new TTIriRef(), valueSet.getIri()));
       }
 
       for (Node node : setContent) {
         TTNode instance = new TTNode();
-        valueSet.addObject(new TTIriRefExtended(ImVocab.ENTAILED_MEMBER), instance);
-        instance.set(ImVocab.IS.toString(), new TTIriRefExtended(node.getIri()));
+        valueSet.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTAILED_MEMBER), instance);
+        instance.set(ImVocab.IS.toString(), TTIriRefExtensionsKt.iri(new TTIriRef(), node.getIri()));
         if (node.isExclude()) {
-          instance.set(new TTIriRefExtended(ImVocab.EXCLUDE), TTLiteral.literal(true));
+          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EXCLUDE), TTLiteral.literal(true));
         }
 
         if (node.isAncestorsOf()) {
-          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.ANCESTORS_OF));
+          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTAILMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ANCESTORS_OF));
         }
 
         if (node.isDescendantsOf()) {
-          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.DESCENDANTS_OF));
+          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTAILMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DESCENDANTS_OF));
         }
 
         if (node.isDescendantsOrSelfOf()) {
-          instance.set(new TTIriRefExtended(ImVocab.ENTAILMENT), new TTIriRefExtended(ImVocab.DESCENDANTS_OR_SELF_OF));
+          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTAILMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DESCENDANTS_OR_SELF_OF));
         }
       }
 

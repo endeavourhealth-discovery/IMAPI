@@ -56,7 +56,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_INT_JSON, TTLiteral.class);
 
     assertEquals("10", lit.getValue());
-    assertEquals(new TTIriRefExtended(XsdVocab. INTEGER),lit.getType());
+    assertEquals(TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.INTEGER), lit.getType());
   }
 
   @Test
@@ -72,7 +72,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_BOOL_JSON, TTLiteral.class);
 
     assertEquals("true", lit.getValue());
-    assertEquals(new TTIriRefExtended(XsdVocab. BOOLEAN),lit.getType());
+    assertEquals(TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.BOOLEAN), lit.getType());
   }
 
   @Test
@@ -88,7 +88,7 @@ class TTLiteralJsonTest {
     TTLiteral lit = om.readValue(LIT_PAT_JSON, TTLiteral.class);
 
     assertEquals(".*", lit.getValue());
-    assertEquals(new TTIriRefExtended(XsdVocab. PATTERN),lit.getType());
+    assertEquals(TTIriRefExtensionsKt.iri(new TTIriRef(), XsdVocab.PATTERN), lit.getType());
   }
 
 }

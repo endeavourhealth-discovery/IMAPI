@@ -1,13 +1,12 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.iml.MapFunction;
-import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
-import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
 import org.endeavourhealth.interfacemanager.model.ListMode;
+import org.endeavourhealth.interfacemanager.model.MapFunction;
+import org.endeavourhealth.interfacemanager.model.Match;
 import org.endeavourhealth.interfacemanager.model.TransformFunction;
 
 import java.util.*;
@@ -194,10 +193,10 @@ public class Transformer {
       return Collections.emptyMap();
   }
 
-  private Map<String, Object> getArguments(List<ArgumentExtended> arguments) {
+  private Map<String, Object> getArguments(List<Argument> arguments) {
     Map<String, Object> result = new HashMap<>();
     int argIndex = 0;
-    for (ArgumentExtended argument : arguments) {
+    for (Argument argument : arguments) {
       argIndex++;
       String parameter = argument.getParameter();
       if (parameter == null)

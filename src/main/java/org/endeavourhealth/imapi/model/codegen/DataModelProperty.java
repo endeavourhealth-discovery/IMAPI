@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.model.codegen;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 public class DataModelProperty {
 
   private String name;
-  private TTIriRefExtended dataType;
+  private TTIriRef dataType;
   private boolean isModel;
   private String comment;
   private Integer maxCount;
@@ -20,11 +20,11 @@ public class DataModelProperty {
     return this;
   }
 
-  public TTIriRefExtended getDataType() {
+  public TTIriRef getDataType() {
     return dataType;
   }
 
-  public DataModelProperty setDataType(TTIriRefExtended dataType) {
+  public DataModelProperty setDataType(TTIriRef dataType) {
     this.dataType = dataType;
     return this;
   }

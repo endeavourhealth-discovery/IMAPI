@@ -3,11 +3,7 @@ package org.endeavourhealth.imapi.model.map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.iml.MapFunction;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
-import org.endeavourhealth.interfacemanager.model.ListMode;
-import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +11,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({"where", "source", "sourceVariable", "listMode", "target", "functionClause", "valueData", "valueVariable", "targetUpdateMode", "propertyMap", "objectMap"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class MapProperty extends TTIriRefExtended {
+public class MapProperty extends TTIriRef {
 
   private String source;
   private String sourceVariable;

@@ -78,7 +78,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
       setEntityCrudOperation(transaction, entity);
 
-      if (Objects.equals(entity.getCrud(), new TTIriRefExtended(ImVocab.REPLACE_ALL_PREDICATES))) {
+      if (Objects.equals(entity.getCrud(), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.REPLACE_ALL_PREDICATES))) {
         if (entity.getPredicateMap().isEmpty())
           toCheck.computeIfAbsent(GraphVocab.IM, g -> new HashSet<>()).add("<" + entity.getIri() + ">");
       }
@@ -92,7 +92,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       if (transaction.getCrud() != null) {
         entity.setCrud(transaction.getCrud());
       } else
-        entity.setCrud(new TTIriRefExtended(ImVocab.REPLACE_ALL_PREDICATES));
+        entity.setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.REPLACE_ALL_PREDICATES));
     }
   }
 
@@ -208,7 +208,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       for (TTEntity entity : document.getEntities()) {
         setEntityCrudOperation(document, entity);
 
-        if (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+        if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)) != null && (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
           continue;
 
         fileEntity(entity);
@@ -262,7 +262,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         filingProgress = Math.round((float) i / totalEntities * 100);
         setEntityCrudOperation(document, entity);
 
-        if (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+        if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)) != null && (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
           continue;
 
         fileEntity(entity);
@@ -301,7 +301,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void fileEntity(TTEntity entity) throws TTFilerException {
-    if (entity.has(new TTIriRefExtended(ImVocab.HAS_SCHEME)) && entity.get(new TTIriRefExtended(ImVocab.HAS_SCHEME)).asIriRef().getIri().equals(NamespaceVocab.ODS.toString()))
+    if (entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)) && entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)).asIriRef().getIri().equals(NamespaceVocab.ODS.toString()))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);
@@ -309,7 +309,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
   public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
     for (TTEntity entity : document.getEntities()) {
-      if (entity.isType(new TTIriRefExtended(ImVocab.CONCEPT_SET)) || entity.isType(new TTIriRefExtended(ImVocab.VALUE_SET))) {
+      if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET)) || entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.VALUE_SET))) {
         log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         log.info("Binding set {}", entity.getIri());
@@ -336,7 +336,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       isAs.computeIfAbsent(subclass, s -> new HashSet<>());
       isAs.get(subclass).add(subclass);
       for (String iriRef : EnumUtils.asArrayList(RdfsVocab.SUBCLASS_OF, ImVocab.LOCAL_SUBCLASS_OF)) {
-        if (entity.get(new TTIriRefExtended(iriRef)) != null) {
+        if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), iriRef)) != null) {
           processSuperClass(entity, iriRef, subclass);
         }
       }
@@ -346,7 +346,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   private void processSuperClass(TTEntity entity, String iriRef, String subclass) {
-    for (TTValue superClass : entity.get(new TTIriRefExtended(iriRef)).getElements()) {
+    for (TTValue superClass : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), iriRef)).getElements()) {
       String iri = superClass.asIriRef().getIri();
       if (!done.contains(iri)) {
         isAs.get(subclass).add(iri);
@@ -391,7 +391,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       if (document.getEntities() != null) {
         int i = 0;
         for (TTEntity entity : document.getEntities()) {
-          if (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)) != null && (entity.get(new TTIriRefExtended(ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
+          if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)) != null && (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
             continue;
           setEntityCrudOperation(document, entity);
           fileEntity(entity);

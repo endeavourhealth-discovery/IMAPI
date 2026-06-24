@@ -13,25 +13,19 @@ import org.endeavourhealth.imapi.logic.exporters.SetExporter;
 import org.endeavourhealth.imapi.logic.service.EntityService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.SetService;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
-import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EditRequest;
 import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.interfacemanager.model.UserRole;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -112,14 +106,14 @@ public class SetController {
   ) throws DownloadException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Export.GET")) {
       log.debug("exportSet");
-      TTIriRefExtended entity = entityService.getEntityReference(iri);
+      TTIriRef entity = entityService.getEntityReference(iri);
       String filename = entity.getName() + " " + LocalDate.now();
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(new MediaType("application", "force-download"));
       headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=\"" + filename + ".txt\"");
       try {
         Set<Concept> members = setService.getExpandedSetMembers(iri, true, true, true, List.of(), EnumUtils.asArrayList(ImVocab.
-        SUBSUMED_BY));
+          SUBSUMED_BY));
         String result = setExporter.generateForIm1(iri, entity.getName(), members).toString();
         return new HttpEntity<>(result, headers);
       } catch (QueryException | JsonProcessingException e) {
@@ -131,7 +125,7 @@ public class SetController {
 
   @GetMapping("/protected/subsets")
   @Operation(summary = "Get subsets of entity", description = "Fetches all subsets for the given IRI.")
-  public Set<TTIriRefExtended> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+  public Set<TTIriRef> getSubsets(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Subsets.GET")) {
       log.debug("getSubsets");
       return setService.getSubsets(iri);
@@ -140,7 +134,7 @@ public class SetController {
 
   @PostMapping(value = "/protected/distillation")
   @Operation(summary = "Get semantic distillation", description = "Performs a semantic distillation process for the given list of concepts.")
-  public List<TTIriRefExtended> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
+  public List<TTIriRef> getDistillation(HttpServletRequest request, @RequestBody SetDistillationRequest setDistillationRequest) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Distillation.POST")) {
       log.debug("getDistillation");
       return setService.getDistillation(setDistillationRequest.getConceptList());

@@ -5,27 +5,27 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Node;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FHIRToIM {
 
-  public TTEntity convertValueSet(ValueSet valueSet, TTIriRefExtended setType, String folder) throws JsonProcessingException {
+  public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType, String folder) throws JsonProcessingException {
     TTEntity set = new TTEntity()
       .addType(setType)
       .setIri(valueSet.getURL())
-      .setScheme(new TTIriRefExtended(NamespaceVocab.FHIR))
-      .setStatus(valueSet.getStatus().equals("active") ? new TTIriRefExtended(ImVocab.ACTIVE) : new TTIriRefExtended(ImVocab.DRAFT))
+      .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.FHIR))
+      .setStatus(valueSet.getStatus().equals("active") ? TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE) : TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DRAFT))
       .setName("FHIR " + valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
-    set.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(folder));
+    set.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), TTIriRefExtensionsKt.iri(new TTIriRef(), folder));
     if (valueSet.getCompose() != null && valueSet.getCompose().getInclude() != null) {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
@@ -43,7 +43,7 @@ public class FHIRToIM {
           memberMatch.addIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }
       }
-      set.set(new TTIriRefExtended(ImVocab.DEFINITION), TTLiteral.literal(query));
+      set.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(query));
     }
 
 
@@ -54,24 +54,24 @@ public class FHIRToIM {
     List<TTEntity> concepts = new ArrayList<>();
     String iri = codeSystem.getUrl();
     TTEntity parent = new TTEntity()
-      .addType(new TTIriRefExtended(ImVocab.CONCEPT))
+      .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
-      .setScheme(new TTIriRefExtended(NamespaceVocab.FHIR))
-      .setStatus(codeSystem.getStatus().equals("active") ? new TTIriRefExtended(ImVocab.ACTIVE) : new TTIriRefExtended(ImVocab.DRAFT))
+      .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.FHIR))
+      .setStatus(codeSystem.getStatus().equals("active") ? TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE) : TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DRAFT))
       .setName(codeSystem.getTitle() + "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
-    parent.addObject(new TTIriRefExtended(ImVocab.IS_CONTAINED_IN), new TTIriRefExtended(folder));
+    parent.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), TTIriRefExtensionsKt.iri(new TTIriRef(), folder));
     concepts.add(parent);
     for (FHIRConcept fhirConcept : codeSystem.getConcept()) {
       TTEntity concept = new TTEntity()
-        .addType(new TTIriRefExtended(ImVocab.CONCEPT))
+        .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
         .setName(fhirConcept.getDisplay() + " (" + parent.getName() + ")")
         .setDescription(fhirConcept.getDefinition())
         .setIri(parent.getIri() + "/" + fhirConcept.getCode())
-        .setScheme(new TTIriRefExtended(NamespaceVocab.FHIR))
+        .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.FHIR))
         .setCode(fhirConcept.getCode());
-      concept.addObject(new TTIriRefExtended(RdfsVocab.SUBCLASS_OF), new TTIriRefExtended(parent.getIri()));
+      concept.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), TTIriRefExtensionsKt.iri(new TTIriRef(), parent.getIri()));
       concepts.add(concept);
     }
 

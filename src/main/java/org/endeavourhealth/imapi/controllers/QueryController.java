@@ -12,20 +12,17 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
+import org.endeavourhealth.imapi.model.imq.PathDocument;
+import org.endeavourhealth.imapi.model.imq.PathQuery;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
-import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.interfacemanager.model.DatabaseOption;
-import org.endeavourhealth.interfacemanager.model.DisplayMode;
-import org.endeavourhealth.interfacemanager.model.UserRole;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -275,7 +272,7 @@ public class QueryController {
 
   @PostMapping("/findRequestMissingArguments")
   @Operation(summary = "Check that a query request has argument values for all required query parameters")
-  public List<ArgumentReferenceExtended> findRequestMissingArguments(
+  public List<ArgumentReference> findRequestMissingArguments(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
   ) throws QueryException, JsonProcessingException {
@@ -288,7 +285,7 @@ public class QueryController {
 
   @GetMapping("/argumentType")
   @Operation(summary = "Get the data type for a query argument by using the reference iri")
-  public TTIriRefExtended getArgumentType(
+  public TTIriRef getArgumentType(
     HttpServletRequest request,
     @RequestParam String referenceIri
   ) {

@@ -54,8 +54,8 @@ public class TTArray implements Serializable {
     return elements.size() == 1 && elements.stream().findFirst().map(TTValue::isIriRef).orElse(false);
   }
 
-  public TTIriRefExtended asIriRef() {
-    return (TTIriRefExtended) elements.stream().findFirst().orElse(null);
+  public TTIriRef asIriRef() {
+    return (TTIriRef) elements.stream().findFirst().orElse(null);
   }
 
   public boolean isNode() {

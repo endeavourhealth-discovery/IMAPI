@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
@@ -56,7 +56,7 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityReference_NullIri() {
-    TTIriRefExtended actual = entityService.getEntityReference(null);
+    TTIriRef actual = entityService.getEntityReference(null);
 
     assertNull(actual);
 
@@ -65,7 +65,7 @@ class EntityModelServiceTest {
   @Test
   void getEntityReference_NullEntity() {
     when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(null);
-    TTIriRefExtended actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
+    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
 
     assertNull(actual);
 
@@ -73,9 +73,9 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityReference_NotNullEntity() {
-    TTIriRefExtended ttIriRef = new TTIriRefExtended().iri("http://endhealth.info/im#25451000252115").name("http://endhealth.info/im#25451000252115");
+    TTIriRef ttIriRef = TTIriRefExtensionsKt.iri(new TTIriRef(), ).iri("http://endhealth.info/im#25451000252115").name("http://endhealth.info/im#25451000252115");
     when(entityRepository.getEntityReferenceByIri("http://endhealth.info/im#25451000252115")).thenReturn(ttIriRef);
-    TTIriRefExtended actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
+    TTIriRef actual = entityService.getEntityReference("http://endhealth.info/im#25451000252115");
 
     assertNotNull(actual);
 
@@ -183,7 +183,7 @@ class EntityModelServiceTest {
       0, 20, true))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray()
-      .add(new TTIriRefExtended("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
+      .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 20, true);
@@ -200,7 +200,7 @@ class EntityModelServiceTest {
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 10, false))
       .thenReturn(Collections.singletonList(entityReferenceNode));
-    TTArray ttArray = new TTArray().add(new TTIriRefExtended("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
+    TTArray ttArray = new TTArray().add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 10, false);
@@ -211,7 +211,7 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_NullIri() {
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType(null, Arrays.asList("A", "B"));
 
     assertNotNull(actual);
@@ -219,7 +219,7 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_EmptyIri() {
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType("", Arrays.asList("A", "B"));
 
     assertNotNull(actual);
@@ -227,7 +227,7 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_EmptyCandidates() {
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType("http://endhealth.info/im#25451000252115", Collections.emptyList());
 
     assertNotNull(actual);
@@ -235,7 +235,7 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_NullCandidates() {
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType("http://endhealth.info/im#25451000252115", null);
 
     assertNotNull(actual);
@@ -243,7 +243,7 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_NullIriAndCandidates() {
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType(null, null);
 
     assertNotNull(actual);
@@ -251,14 +251,14 @@ class EntityModelServiceTest {
 
   @Test
   void isWhichType_NotNullIriAndCandidates() {
-    TTIriRefExtended ttIriRef = new TTIriRefExtended()
+    TTIriRef ttIriRef = TTIriRefExtensionsKt.iri(new TTIriRef(), )
       .iri("http://www.w3.org/2002/07/owl#Class")
       .name("Class");
 
     when(entityRepository.findAncestorsByType(any(), any(), any()))
       .thenReturn(Collections.singletonList(ttIriRef));
 
-    List<TTIriRefExtended> actual = entityService
+    List<TTIriRef> actual = entityService
       .isWhichType("http://endhealth.info/im#25451000252115",
         Collections.singletonList("http://endhealth.info/im#25451000252115"));
 
@@ -335,8 +335,8 @@ class EntityModelServiceTest {
   @Test
   void getConceptShape_NotContainNodeShape() {
     TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRefExtended(RdfVocab.TYPE), new TTArray()
-        .add(new TTIriRefExtended(ImVocab.CONCEPT))
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArray()
+        .add(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -347,8 +347,8 @@ class EntityModelServiceTest {
   @Test
   void getConceptShape_ContainsNodeShape() {
     TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(new TTIriRefExtended(RdfVocab.TYPE), new TTArray()
-        .add(new TTIriRefExtended(ShaclVocab.NODESHAPE))
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArray()
+        .add(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODESHAPE))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
@@ -380,8 +380,8 @@ class EntityModelServiceTest {
   void getSummaryFromConfig_NotNullIri() {
     TTEntity entity = new TTEntity()
       .set(EnumUtils.asIri(ImVocab.IS_CHILD_OF), new TTArray()
-        .add(new TTIriRefExtended("http://endhealth.info/im#parent1", "Parent 1"))
-        .add(new TTIriRefExtended("http://endhealth.info/im#parent2", "Parent 2"))
+        .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent1", "Parent 1"))
+        .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 

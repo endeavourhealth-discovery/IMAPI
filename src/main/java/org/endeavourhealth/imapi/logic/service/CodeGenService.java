@@ -2,13 +2,11 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
-import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
-import org.endeavourhealth.imapi.model.dto.CodeGenDtoExtended;
+import org.endeavourhealth.imapi.model.extensions.CodeGenDtoExtensionsKt;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
-import org.endeavourhealth.interfacemanager.model.EntityTypeVocab;
-import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
+import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +41,7 @@ public class CodeGenService {
     return codeGenRepository.getCodeTemplateList();
   }
 
-  public CodeGenDtoExtended getCodeTemplate(String name) {
+  public CodeGenDto getCodeTemplate(String name) {
     return codeGenRepository.getCodeTemplate(name);
   }
 
@@ -51,34 +49,34 @@ public class CodeGenService {
     codeGenRepository.updateCodeTemplate(name, extension, wrapper, dataTypeMap, template, complexTypes);
   }
 
-  public String generateCodeForModel(String modelIri, CodeGenDtoExtended template, String namespace) {
-    TTIriRefExtended model = getModelSummary(modelIri);
+  public String generateCodeForModel(String modelIri, CodeGenDto template, String namespace) {
+    TTIriRef model = getModelSummary(modelIri);
     return generateCodeForModel(template, model, namespace);
   }
 
   public HttpEntity<Object> generateCode(String iri, String templateName, String namespace) {
-    List<TTIriRefExtended> models = (iri == null || iri.isEmpty())
+    List<TTIriRef> models = (iri == null || iri.isEmpty())
       ? getIMModels()
       : Collections.singletonList(getModelSummary(iri));
 
-    CodeGenDtoExtended template = codeGenRepository.getCodeTemplate(templateName);
+    CodeGenDto template = codeGenRepository.getCodeTemplate(templateName);
 
     return createModelCodeZip(namespace, models, template);
   }
 
-  private List<TTIriRefExtended> getIMModels() {
-    List<TTIriRefExtended> models = entityService.getEntitiesByType(EntityTypeVocab.NODESHAPE);
+  private List<TTIriRef> getIMModels() {
+    List<TTIriRef> models = entityService.getEntitiesByType(EntityTypeVocab.NODESHAPE);
     return models.stream()
       .filter(m -> m.getIri().startsWith(NamespaceVocab.IM.toString()))
       .toList();
   }
 
-  private TTIriRefExtended getModelSummary(String iri) {
+  private TTIriRef getModelSummary(String iri) {
     SearchResultSummary summary = entityService.getSummary(iri);
-    return new TTIriRefExtended(summary.getIri(), summary.getName()).description(summary.getDescription());
+    return TTIriRefExtensionsKt.iri(new TTIriRef(), summary.getIri(), summary.getName()).description(summary.getDescription());
   }
 
-  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRefExtended> models, CodeGenDtoExtended template) {
+  private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     try (ZipOutputStream zos = new ZipOutputStream(baos)) {
       addModelsToZip(namespace, models, template, zos);
@@ -92,8 +90,8 @@ public class CodeGenService {
     return new HttpEntity<>(baos.toByteArray(), headers);
   }
 
-  private void addModelsToZip(String namespace, List<TTIriRefExtended> models, CodeGenDtoExtended template, ZipOutputStream zos) throws IOException {
-    for (TTIriRefExtended model : models) {
+  private void addModelsToZip(String namespace, List<TTIriRef> models, CodeGenDto template, ZipOutputStream zos) throws IOException {
+    for (TTIriRef model : models) {
       String code = generateCodeForModel(template, model, namespace);
 
       ZipEntry entry = new ZipEntry(clean(toTitleCase(codify(model.getName()))) + template.getExtension());
@@ -104,12 +102,12 @@ public class CodeGenService {
     }
   }
 
-  protected String generateCodeForModel(CodeGenDtoExtended template, TTIriRefExtended model, String namespace) {
+  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, String namespace) {
     List<DataModelProperty> properties = dataModelService.getDataModelProperties(model.getIri(), template.getComplexTypes());
     return generateCodeForModel(template, model, properties, namespace);
   }
 
-  protected String generateCodeForModel(CodeGenDtoExtended template, TTIriRefExtended model, List<DataModelProperty> properties, String namespace) {
+  protected String generateCodeForModel(CodeGenDto template, TTIriRef model, List<DataModelProperty> properties, String namespace) {
     StringBuilder code = new StringBuilder();
 
     CodeGenTemplate t = splitTemplate(template.getTemplate());
@@ -166,11 +164,11 @@ public class CodeGenService {
   }
 
   private String replacePropertyTokens(
-    CodeGenDtoExtended template,
+    CodeGenDto template,
     String property,
     String collectionProperty,
     String namespace,
-    TTIriRefExtended model,
+    TTIriRef model,
     DataModelProperty prop
   ) {
     if (prop.isArray())
@@ -179,19 +177,20 @@ public class CodeGenService {
     return replaceTokens(template, property, namespace, model, prop);
   }
 
-  private String replaceTokens(CodeGenDtoExtended template, String subTemplate, String namespace, TTIriRefExtended model, DataModelProperty prop) {
+  private String replaceTokens(CodeGenDto template, String subTemplate, String namespace, TTIriRef model, DataModelProperty prop) {
     String result = subTemplate;
 
     if (namespace != null) result = replaceVariants(result, "NAME SPACE", namespace);
 
-    if (model.hasName()) result = replaceVariants(result, "MODEL NAME", model.getName());
+    if (TTIriRefExtensionsKt.hasName(model)) result = replaceVariants(result, "MODEL NAME", model.getName());
 
-    if (model.hasDescription()) result = replaceVariants(result, "MODEL COMMENT", model.getDescription());
+    if (TTIriRefExtensionsKt.hasDescription(model))
+      result = replaceVariants(result, "MODEL COMMENT", model.getDescription());
 
-    if (prop != null && prop.hasProperty() && prop.getProperty().hasName() && prop.hasType()) {
-      if (prop.hasType() && template.getDataType(prop.getType().getIri()) != null) {
+    if (prop != null && prop.hasProperty() && TTIriRefExtensionsKt.hasName(prop.getProperty()) && prop.hasType()) {
+      if (prop.hasType() && CodeGenDtoExtensionsKt.getDataType(template, prop.getType().getIri()) != null) {
         result = replaceTypedPropertyTokens(template, prop, result);
-      } else if (prop.isArray() && template.hasCollectionWrapper()) {
+      } else if (prop.isArray() && CodeGenDtoExtensionsKt.hasCollectionWrapper(template)) {
         result = replaceArrayPropertyTokens(template, prop, result);
       } else {
         result = replaceRemainingPropertyTokens(prop, result);
@@ -204,19 +203,19 @@ public class CodeGenService {
   }
 
   private String replaceRemainingPropertyTokens(DataModelProperty prop, String result) {
-    String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
+    String basePropertyType = TTIriRefExtensionsKt.hasName(prop.getType()) ? prop.getType().getName() : "!!UNKNOWN!!";
     result = replaceVariants(result, "DATA TYPE", basePropertyType);
     return result;
   }
 
-  private String replaceArrayPropertyTokens(CodeGenDtoExtended template, DataModelProperty prop, String result) {
-    if (!template.hasCollectionWrapper())
+  private String replaceArrayPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+    if (!CodeGenDtoExtensionsKt.hasCollectionWrapper(template))
       return result;
 
     if (!template.getCollectionWrapper().contains("${"))
       result = replaceVariants(result, "DATA TYPE", template.getCollectionWrapper());
     else {
-      String basePropertyType = prop.getType().hasName() ? prop.getType().getName() : "!!UNKNOWN!!";
+      String basePropertyType = TTIriRefExtensionsKt.hasName(prop.getType()) ? prop.getType().getName() : "!!UNKNOWN!!";
       String cw = template.getCollectionWrapper();
       String cwType = cw.substring(cw.indexOf("${"), cw.indexOf("}") + 1);
       String placeholder = replaceVariants(template.getCollectionWrapper(), "BASE DATA TYPE", "${basedatatypeplaceholder}");
@@ -227,10 +226,10 @@ public class CodeGenService {
     return result;
   }
 
-  private String replaceTypedPropertyTokens(CodeGenDtoExtended template, DataModelProperty prop, String result) {
-    String basePropertyType = template.getDataType(prop.getType().getIri());
+  private String replaceTypedPropertyTokens(CodeGenDto template, DataModelProperty prop, String result) {
+    String basePropertyType = CodeGenDtoExtensionsKt.getDataType(template, prop.getType().getIri());
     String propertyType =
-      prop.isArray() && template.hasCollectionWrapper() ? replace(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;
+      prop.isArray() && CodeGenDtoExtensionsKt.hasCollectionWrapper(template) ? replace(template.getCollectionWrapper(), "BASE DATA TYPE", basePropertyType) : basePropertyType;
 
     result = replace(result, "BASE DATA TYPE", basePropertyType);
     result = replace(result, "DATA TYPE", propertyType);

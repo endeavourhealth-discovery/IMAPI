@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -68,7 +68,7 @@ class CachedObjectMapperTest {
   @Test
   void shouldConvertValueToTree() {
     try (CachedObjectMapper mapper = new CachedObjectMapper()) {
-      List<TTIriRefExtended> iris = Arrays.asList(new TTIriRefExtended("iri1"), new TTIriRefExtended("iri2"));
+      List<TTIriRef> iris = Arrays.asList(TTIriRefExtensionsKt.iri(new TTIriRef(), "iri1"), TTIriRefExtensionsKt.iri(new TTIriRef(), "iri2"));
       JsonNode node = mapper.valueToTree(iris);
       assertThat(node.isArray()).isTrue();
       assertThat(node.size()).isEqualTo(2);

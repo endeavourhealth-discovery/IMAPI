@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.Set;
@@ -11,8 +11,8 @@ public class TestQueries {
   public static QueryRequest pathQuery() {
     return new QueryRequest().setPathQuery(new PathQuery()
       .setName("DiabetesPath")
-      .setTarget(new TTIriRefExtended("http://snomed.info/sct#44054006"))
-      .setSource(new TTIriRefExtended(NamespaceVocab. IM + "Patient")));
+      .setTarget(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#44054006"))
+      .setSource(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "Patient")));
   }
 
 
@@ -51,10 +51,10 @@ public class TestQueries {
       .setQuery(query)
       .argument(a -> a
         .setParameter("myDataModel")
-        .setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "Observation")))
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "Observation")))
       .argument(a -> a
-      .setParameter("myProperty")
-      .setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "concept")));
+        .setParameter("myProperty")
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "concept")));
 
   }
 
@@ -63,48 +63,48 @@ public class TestQueries {
       .setContext(TTManager.createBasicContext())
       .addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "recordOwner")))
-      .query(q -> q.setIri(NamespaceVocab. IM + "Query_ObjectPropertyRangeSuggestions"));
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "recordOwner")))
+      .query(q -> q.setIri(NamespaceVocab.IM + "Query_ObjectPropertyRangeSuggestions"));
 
   }
 
   public static QueryRequest getShaclProperty() {
     return new QueryRequest()
-      .argument(a -> a.setParameter("dataModel").setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "Patient")))
-      .argument(a -> a.setParameter("property").setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "age")))
+      .argument(a -> a.setParameter("dataModel").setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "Patient")))
+      .argument(a -> a.setParameter("property").setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "age")))
       .query(q -> q
-      .setName("Shacl property predicates for a property is a data model")
-      .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
-      .addIs(new Node()
-        .setParameter("$dataModel"))
-      .path(p -> p
-        .setIri(ShaclVocab.PROPERTY.toString())
-        .setNode("shaclProperty"))
-      .where(w -> w
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.PATH)
-        .is(in -> in.setParameter("$property")))
-      .return_(s -> s
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.CLASS)
-        .return_(n -> n
-          .setIri(RdfsVocab.LABEL)))
-      .return_(p -> p
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.NODE)
-        .return_(n -> n
-          .setIri(RdfsVocab.LABEL)))
-      .return_(p -> p
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.DATATYPE)
-        .return_(n -> n
-          .setIri(RdfsVocab.LABEL)))
-      .return_(p -> p
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.MAXCOUNT))
-      .return_(p -> p
-        .setNodeRef("shaclProperty")
-        .setIri(ShaclVocab.MINCOUNT)));
+        .setName("Shacl property predicates for a property is a data model")
+        .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
+        .addIs(new Node()
+          .setParameter("$dataModel"))
+        .path(p -> p
+          .setIri(ShaclVocab.PROPERTY.toString())
+          .setNode("shaclProperty"))
+        .where(w -> w
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.PATH)
+          .is(in -> in.setParameter("$property")))
+        .return_(s -> s
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.CLASS)
+          .return_(n -> n
+            .setIri(RdfsVocab.LABEL)))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.NODE)
+          .return_(n -> n
+            .setIri(RdfsVocab.LABEL)))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.DATATYPE)
+          .return_(n -> n
+            .setIri(RdfsVocab.LABEL)))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.MAXCOUNT))
+        .return_(p -> p
+          .setNodeRef("shaclProperty")
+          .setIri(ShaclVocab.MINCOUNT)));
   }
 
 
@@ -113,10 +113,10 @@ public class TestQueries {
     qr.setContext(TTManager.createBasicContext());
     qr.addArgument(new Argument()
       .setParameter("this")
-      .setValueIri(new TTIriRefExtended(NamespaceVocab. IM + "Q_Queries")));
+      .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "Q_Queries")));
     Query query = new Query()
       .setName("Allowable child types for a folder")
-      .setIri(NamespaceVocab. IM + "Query_AllowableChildTypes");
+      .setIri(NamespaceVocab.IM + "Query_AllowableChildTypes");
     qr.setQuery(query);
     return qr;
   }
@@ -126,9 +126,9 @@ public class TestQueries {
     return new QueryRequest()
       .addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(new TTIriRefExtended(NamespaceVocab. QR)))
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.QR)))
       .setUpdate(new Update()
-      .setIri(NamespaceVocab. IM + "DeleteSets")
+        .setIri(NamespaceVocab.IM + "DeleteSets")
         .setName("delete sets"));
 
   }
@@ -138,8 +138,8 @@ public class TestQueries {
     return new QueryRequest()
       .addArgument(new Argument()
         .setParameter("this")
-        .addToValueIriList(new TTIriRefExtended("http://snomed.info/sct#76661004"))
-        .addToValueIriList(new TTIriRefExtended("http://snomed.info/sct#243640007")))
+        .addToValueIriList(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#76661004"))
+        .addToValueIriList(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#243640007")))
       .setQuery(new Query()
         .setName("Subtypes of concepts as a parameterised query")
         .return_(s -> s.setNodeRef("c").setIri(RdfsVocab.LABEL))
@@ -155,20 +155,20 @@ public class TestQueries {
       .setTextSearch("FOXG1")
       .query(q -> q
         .setName("Filter concept subtypes that are members of value sets")
-        .addIs(new Node().setIri(NamespaceVocab. SNOMED + "57148006")
+        .addIs(new Node().setIri(NamespaceVocab.SNOMED + "57148006")
           .setDescendantsOrSelfOf(true))
-        .addIs(new Node().setIri(NamespaceVocab. SNOMED + "11164009")
+        .addIs(new Node().setIri(NamespaceVocab.SNOMED + "11164009")
           .setDescendantsOrSelfOf(true))
         .where(w -> w
-      .setIri(ImVocab.HAS_MEMBER)
-      .setInverse(true)
-      .is(n -> n
-        .setIri(NamespaceVocab. IM + "VSET_Conditions"))
+          .setIri(ImVocab.HAS_MEMBER)
+          .setInverse(true)
           .is(n -> n
-      .setIri(NamespaceVocab. IM + "VSET_ASD")))
+            .setIri(NamespaceVocab.IM + "VSET_Conditions"))
+          .is(n -> n
+            .setIri(NamespaceVocab.IM + "VSET_ASD")))
         .return_(p -> p.setIri(RdfsVocab.LABEL))
-      .return_(p -> p.setIri(ImVocab.HAS_TERM_CODE)
-        .return_(p1 -> p1.setIri(RdfsVocab.LABEL))));
+        .return_(p -> p.setIri(ImVocab.HAS_TERM_CODE)
+          .return_(p1 -> p1.setIri(RdfsVocab.LABEL))));
   }
 
   public static QueryRequest substanceTextSearch() {
@@ -176,7 +176,7 @@ public class TestQueries {
       .setTextSearch("thia")
       .addArgument(new Argument()
         .setParameter("this")
-        .addToValueIriList(new TTIriRefExtended("http://snomed.info/sct#105590001")))
+        .addToValueIriList(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#105590001")))
       .setQuery(new Query()
         .is(i -> i
           .setParameter("this")
@@ -195,9 +195,9 @@ public class TestQueries {
       .where(w -> w
         .setIri(ImVocab.HAS_MEMBER)
         .setInverse(true)
-        .addIs(new Node().setIri(NamespaceVocab. IM + "VSET_FamilyHistory")))
+        .addIs(new Node().setIri(NamespaceVocab.IM + "VSET_FamilyHistory")))
       .return_(p -> p
-      .setIri(RdfsVocab.LABEL))
+        .setIri(RdfsVocab.LABEL))
       .return_(p -> p
         .setIri(ImVocab.CODE))
       .return_(p -> p
@@ -223,15 +223,15 @@ public class TestQueries {
       .where(p1 -> p1
         .setNodeRef("shaclProperty")
         .setIri(ShaclVocab.PATH)
-        .addIs(NamespaceVocab. IM + "dateOfBirth"))
+        .addIs(NamespaceVocab.IM + "dateOfBirth"))
       .return_(p -> p
-      .setIri(ShaclVocab.PROPERTY)
-      .return_(s1 -> s1.setIri(ShaclVocab.PATH))
-      .return_(s1 -> s1.setIri(ShaclVocab.NODE))
-      .return_(s1 -> s1.setIri(ShaclVocab.MINCOUNT))
-      .return_(s1 -> s1.setIri(ShaclVocab.MAXCOUNT))
-      .return_(s1 -> s1.setIri(ShaclVocab.CLASS))
-      .return_(s1 -> s1.setIri(ShaclVocab.DATATYPE)));
+        .setIri(ShaclVocab.PROPERTY)
+        .return_(s1 -> s1.setIri(ShaclVocab.PATH))
+        .return_(s1 -> s1.setIri(ShaclVocab.NODE))
+        .return_(s1 -> s1.setIri(ShaclVocab.MINCOUNT))
+        .return_(s1 -> s1.setIri(ShaclVocab.MAXCOUNT))
+        .return_(s1 -> s1.setIri(ShaclVocab.CLASS))
+        .return_(s1 -> s1.setIri(ShaclVocab.DATATYPE)));
     return new QueryRequest().setQuery(query);
   }
 
@@ -242,7 +242,7 @@ public class TestQueries {
       .setName("AsthmaSubTypesCore");
     query
       .addIs(new Node()
-        .setIri(NamespaceVocab. SNOMED + "195967001").setDescendantsOrSelfOf(true))
+        .setIri(NamespaceVocab.SNOMED + "195967001").setDescendantsOrSelfOf(true))
       .return_(p -> p.setIri(RdfsVocab.LABEL))
       .return_(p -> p.setIri(ImVocab.CODE));
     return new QueryRequest().setQuery(query);
@@ -253,10 +253,10 @@ public class TestQueries {
     return new QueryRequest().
       addArgument(new Argument()
         .setParameter("this")
-        .setValueIri(new TTIriRefExtended("http://snomed.info/sct#763158003")))
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#763158003")))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
-        .setIri(NamespaceVocab. IM + "Query_AllowableProperties")
+        .setIri(NamespaceVocab.IM + "Query_AllowableProperties")
       );
   }
 
@@ -266,7 +266,7 @@ public class TestQueries {
       .setTextSearch("has active")
       .addArgument(new Argument()
         .setParameter("entities")
-        .setValueIriList(entities.stream().map(TTIriRefExtended::new).collect(Collectors.toSet())))
+        .setValueIriList(entities.stream().map(TTIriRef::new).collect(Collectors.toSet())))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(QueryVocab.ENTITY_FILTER.toString())
@@ -277,10 +277,10 @@ public class TestQueries {
     return new QueryRequest().
       addArgument(new Argument()
         .setParameter("property")
-        .setValueIri(new TTIriRefExtended("http://snomed.info/sct#363698007")))
+        .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#363698007")))
       .addArgument(new Argument()
         .setParameter("concept")
-        .setValueIriList((Set.of(new TTIriRefExtended("http://snomed.info/sct#161891005")))))
+        .setValueIriList((Set.of(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#161891005")))))
       .setQuery(new Query()
         .setName("Allowable Properties for medications")
         .setIri(QueryVocab.IS_VALID_PROPERTY.toString()));
@@ -306,7 +306,7 @@ public class TestQueries {
         .setActiveOnly(true)
         .addIs(new Node().setParameter("this").setDescendantsOrSelfOf(true))
         .return_(r -> r.setIri(RdfsVocab.LABEL)));
-    qr.addArgument("this", NamespaceVocab. SNOMED + "417928002");
+    qr.addArgument("this", NamespaceVocab.SNOMED + "417928002");
     return qr;
   }
 
@@ -317,7 +317,7 @@ public class TestQueries {
     qr.setQuery(new Query()
       .setIri(QueryVocab.ALLOWABLE_PROPERTIES.toString()));
     qr.argument(a -> a.setParameter("this")
-      .setValueIri(new TTIriRefExtended(NamespaceVocab. SNOMED + "840539006")));
+      .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.SNOMED + "840539006")));
     return qr;
   }
 
@@ -325,17 +325,17 @@ public class TestQueries {
     Query query = new Query()
       .setName("oral none steroidals")
       .return_(s -> s.setIri(RdfsVocab.LABEL))
-      .addIs(new Node().setIri(NamespaceVocab. SNOMED + "763158003").setDescendantsOrSelfOf(true))
+      .addIs(new Node().setIri(NamespaceVocab.SNOMED + "763158003").setDescendantsOrSelfOf(true))
       .where(and -> and
-      .and(a1 -> a1
-        .setIri(NamespaceVocab. SNOMED + "127489000")
+        .and(a1 -> a1
+          .setIri(NamespaceVocab.SNOMED + "127489000")
           .setDescendantsOrSelfOf(true)
-      .setAnyRoleGroup(true)
-      .addIs(new Node().setIri(NamespaceVocab. SNOMED + "372665008").setDescendantsOrSelfOf(true)))
+          .setAnyRoleGroup(true)
+          .addIs(new Node().setIri(NamespaceVocab.SNOMED + "372665008").setDescendantsOrSelfOf(true)))
         .and(a2 -> a2
-      .setIri(NamespaceVocab. SNOMED + "411116001").setDescendantsOrSelfOf(true)
-      .setAnyRoleGroup(true)
-      .addIs(Node.iri(NamespaceVocab. SNOMED + "385268001").setDescendantsOrSelfOf(true))));
+          .setIri(NamespaceVocab.SNOMED + "411116001").setDescendantsOrSelfOf(true)
+          .setAnyRoleGroup(true)
+          .addIs(Node.iri(NamespaceVocab.SNOMED + "385268001").setDescendantsOrSelfOf(true))));
 
     return new QueryRequest().setQuery(query);
 

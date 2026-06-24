@@ -2,15 +2,15 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public class TTTypedRef extends TTIriRefExtended {
-  private TTIriRefExtended type;
+public class TTTypedRef extends TTIriRef {
+  private TTIriRef type;
 
-  public TTIriRefExtended getType() {
+  public TTIriRef getType() {
     return type;
   }
 
   @JsonSetter
-  public TTTypedRef setType(TTIriRefExtended type) {
+  public TTTypedRef setType(TTIriRef type) {
     this.type = type;
     return this;
   }

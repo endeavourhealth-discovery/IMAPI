@@ -3,7 +3,10 @@ package org.endeavourhealth.imapi.logic.cache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.interfacemanager.model.ShaclVocab;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
@@ -57,7 +60,7 @@ class EntityCacheTest {
     try (MockedStatic<PropertyRepository> mockedPropertyRepository = mockStatic(PropertyRepository.class)) {
       TTEntityMap propertyMap = new TTEntityMap();
       TTEntity property = new TTEntity("http://example.org/prop1");
-      property.set(new TTIriRefExtended("http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArray());
+      property.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArray());
       propertyMap.getEntities().put(property.getIri(), property);
       mockedPropertyRepository.when(() -> PropertyRepository.getProperty(anyString())).thenReturn(propertyMap);
 
@@ -125,8 +128,8 @@ class EntityCacheTest {
   void cacheShapes_WithPredicateOrder() {
     TTEntityMap shapeMap = new TTEntityMap();
     TTEntity shape = new TTEntity("http://example.org/shape1");
-    shape.set(new TTIriRefExtended(ShaclVocab.PROPERTY), new TTArray().add(new TTNode().set(new TTIriRefExtended(ShaclVocab.PATH),
-      new TTIriRefExtended("http://example.org/path1", "Path 1"))));
+    shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArray().add(new TTNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH),
+      TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/path1", "Path 1"))));
     shapeMap.getEntities().put(shape.getIri(), shape);
 
     EntityCache.cacheShapes(shapeMap);
@@ -139,15 +142,15 @@ class EntityCacheTest {
   @Test
   void getPredicatesFromNode() {
     TTNode node = new TTNode();
-    node.set(new TTIriRefExtended("http://example.org/p1"), new TTIriRefExtended("http://example.org/o1"));
+    node.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p1"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/o1"));
     TTNode nestedNode = new TTNode();
-    nestedNode.set(new TTIriRefExtended("http://example.org/p2"), new TTIriRefExtended("http://example.org/o2"));
-    node.addObject(new TTIriRefExtended("http://example.org/p3"), nestedNode);
+    nestedNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p2"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/o2"));
+    node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p3"), nestedNode);
 
-    Set<TTIriRefExtended> predicates = EntityCache.getPredicatesFromNode(node);
+    Set<TTIriRef> predicates = EntityCache.getPredicatesFromNode(node);
 
     assertThat(predicates).hasSize(3);
-    assertThat(predicates).extracting(TTIriRefExtended::getIri)
+    assertThat(predicates).extracting(TTIriRef::getIri)
       .containsExactlyInAnyOrder("http://example.org/p1", "http://example.org/p2", "http://example.org/p3");
   }
 
@@ -169,7 +172,7 @@ class EntityCacheTest {
     EntityCache.addPredicateName("http://example.org/p1", "Name 1");
     assertThat(EntityCache.getPredicateName("http://example.org/p1")).isEqualTo("Name 1");
 
-    List<TTIriRefExtended> order = List.of(new TTIriRefExtended("http://example.org/p1"), new TTIriRefExtended("http://example.org/p2"));
+    List<TTIriRef> order = List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p1"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p2"));
     EntityCache.setPredicateOrder("http://example.org/e1", order);
     assertThat(EntityCache.getPredicateOrder("http://example.org/e1")).isEqualTo(order);
   }

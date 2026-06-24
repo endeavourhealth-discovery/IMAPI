@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.transforms;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -18,7 +18,7 @@ public class ECLToIMQStepDefs {
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
     String eclResult = eclQuery.getEcl()
-    .replaceAll("\n", "")
+      .replaceAll("\n", "")
       .replaceAll("\t", "")
       .replaceAll("or ", "OR ");
     assertEquals(ecl, eclResult);

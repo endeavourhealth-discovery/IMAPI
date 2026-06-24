@@ -3,9 +3,13 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Path;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.transforms.eqd.*;
-import org.endeavourhealth.interfacemanager.model.QueryType;
+import org.endeavourhealth.interfacemanager.model.*;
+import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.io.IOException;
 
@@ -164,8 +168,8 @@ public class EqdListToIMQ {
       String columnPath = resources.getIMPath(eqURL);
       String[] subPath = (columnPath).trim().split(" ");
       String nodeRef = getNodeRef(subQuery, subPath, 0);
-      ArgumentExtended arg = new ArgumentExtended();
-      function.addArgument(arg);
+      Argument arg = new Argument();
+      function.addArgumentItem(arg);
       Path argPath = new Path();
       argPath.setNodeRef(nodeRef);
       argPath.setIri(subPath[subPath.length - 1]);

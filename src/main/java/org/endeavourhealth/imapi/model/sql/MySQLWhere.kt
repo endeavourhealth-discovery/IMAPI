@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model.sql
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-import org.endeavourhealth.imapi.model.imq.Node
+import org.endeavourhealth.interfacemanager.model.Node
 
 interface MySQLWhere {
   val property: String?

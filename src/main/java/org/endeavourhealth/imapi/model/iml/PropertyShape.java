@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.Argument;
+import org.endeavourhealth.interfacemanager.model.ArrayButtons;
+import org.endeavourhealth.interfacemanager.model.NodeShape;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.function.Consumer;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class PropertyShape {
   @Getter
-  private TTIriRefExtended group;
+  private TTIriRef group;
   @Getter
   private String label;
   @Getter
@@ -34,7 +36,7 @@ public class PropertyShape {
   private Integer maxCount;
   @Getter
   private List<PropertyShape> property;
-  private TTIriRefExtended path;
+  private TTIriRef path;
   @Getter
   private PropertyRange datatype;
   @Getter
@@ -42,30 +44,30 @@ public class PropertyShape {
   @Getter
   private PropertyRange node;
   @Getter
-  private TTIriRefExtended isIri;
+  private TTIriRef isIri;
   @Getter
   private String isNumericValue;
   @Getter
   private String isTextValue;
-  private TTIriRefExtended componentType;
+  private TTIriRef componentType;
   @Getter
-  private TTIriRefExtended validation;
+  private TTIriRef validation;
   @Getter
   private String validationErrorMessage;
   @Getter
-  private TTIriRefExtended search;
+  private TTIriRef search;
   @Getter
-  private TTIriRefExtended function;
+  private TTIriRef function;
   @Getter
-  private List<ArgumentExtended> argument;
+  private List<Argument> argument;
   @Getter
   private List<ParameterShape> parameter;
   @Getter
   private String valueVariable;
   @Getter
-  private TTIriRefExtended valueIri;
+  private TTIriRef valueIri;
   @Getter
-  private List<TTIriRefExtended> select;
+  private List<TTIriRef> select;
   @Getter
   private Boolean builderChild;
   @Getter
@@ -73,11 +75,11 @@ public class PropertyShape {
   @Getter
   private Boolean forceIsValue;
   @Getter
-  private ArrayButtonsExtended arrayButtons;
+  private ArrayButtons arrayButtons;
   @Getter
   private Object hasValue;
   @Getter
-  private TTIriRefExtended hasValueType;
+  private TTIriRef hasValueType;
   @Getter
   private String definition;
   @Getter
@@ -88,19 +90,19 @@ public class PropertyShape {
   private boolean orderable;
   @Getter
   @Setter
-  private TTIriRefExtended hasValueSet;
+  private TTIriRef hasValueSet;
   @Getter
   @Setter
   private boolean definingProperty;
   @Getter
   @Setter
-  private TTIriRefExtended isValidEntity;
+  private TTIriRef isValidEntity;
   @Getter
   @Setter
   private Boolean highCardinality;
   @Getter
-  private List<ArgumentExtended> isValidArguments;
-  private TTIriRefExtended inversePath;
+  private List<Argument> isValidArguments;
+  private TTIriRef inversePath;
   private boolean generic;
 
   public boolean isGeneric() {
@@ -112,11 +114,11 @@ public class PropertyShape {
     return this;
   }
 
-  public TTIriRefExtended getInversePath() {
+  public TTIriRef getInversePath() {
     return inversePath;
   }
 
-  public PropertyShape setInversePath(TTIriRefExtended inversePath) {
+  public PropertyShape setInversePath(TTIriRef inversePath) {
     this.inversePath = inversePath;
     return this;
   }
@@ -159,7 +161,7 @@ public class PropertyShape {
   }
 
 
-  public PropertyShape setGroup(TTIriRefExtended group) {
+  public PropertyShape setGroup(TTIriRef group) {
     this.group = group;
     return this;
   }
@@ -170,7 +172,7 @@ public class PropertyShape {
     return this;
   }
 
-  public PropertyShape setHasValueType(TTIriRefExtended hasValueType) {
+  public PropertyShape setHasValueType(TTIriRef hasValueType) {
     this.hasValueType = hasValueType;
     return this;
   }
@@ -181,7 +183,7 @@ public class PropertyShape {
   }
 
 
-  public PropertyShape setArrayButtons(ArrayButtonsExtended arrayButtons) {
+  public PropertyShape setArrayButtons(ArrayButtons arrayButtons) {
     this.arrayButtons = arrayButtons;
     return this;
   }
@@ -204,7 +206,7 @@ public class PropertyShape {
     return this;
   }
 
-  public PropertyShape setSelect(List<TTIriRefExtended> select) {
+  public PropertyShape setSelect(List<TTIriRef> select) {
     this.select = select;
     return this;
   }
@@ -215,20 +217,20 @@ public class PropertyShape {
   }
 
   @JsonSetter
-  public PropertyShape setArgument(List<ArgumentExtended> argument) {
+  public PropertyShape setArgument(List<Argument> argument) {
     this.argument = argument;
     return this;
   }
 
-  public PropertyShape addArgument(ArgumentExtended arg) {
+  public PropertyShape addArgument(Argument arg) {
     if (this.argument == null)
       this.argument = new ArrayList<>();
     this.argument.add(arg);
     return this;
   }
 
-  public PropertyShape argument(Consumer<ArgumentExtended> builder) {
-    ArgumentExtended arg = new ArgumentExtended();
+  public PropertyShape argument(Consumer<Argument> builder) {
+    Argument arg = new Argument();
     this.addArgument(arg);
     builder.accept(arg);
     return this;
@@ -236,7 +238,7 @@ public class PropertyShape {
   }
 
   @JsonSetter
-  public PropertyShape setFunction(TTIriRefExtended function) {
+  public PropertyShape setFunction(TTIriRef function) {
     this.function = function;
     return this;
   }
@@ -287,12 +289,12 @@ public class PropertyShape {
   }
 
   @JsonProperty(required = true)
-  public TTIriRefExtended getPath() {
+  public TTIriRef getPath() {
     return path;
   }
 
   @JsonSetter
-  public PropertyShape setPath(TTIriRefExtended path) {
+  public PropertyShape setPath(TTIriRef path) {
     this.path = path;
     return this;
   }
@@ -316,7 +318,7 @@ public class PropertyShape {
 
 
   @JsonSetter
-  public PropertyShape setIsIri(TTIriRefExtended isIri) {
+  public PropertyShape setIsIri(TTIriRef isIri) {
     this.isIri = isIri;
     return this;
   }
@@ -327,24 +329,24 @@ public class PropertyShape {
   }
 
   @JsonProperty(required = true)
-  public TTIriRefExtended getComponentType() {
+  public TTIriRef getComponentType() {
     return componentType;
   }
 
   @JsonSetter
-  public PropertyShape setComponentType(TTIriRefExtended componentType) {
+  public PropertyShape setComponentType(TTIriRef componentType) {
     this.componentType = componentType;
     return this;
   }
 
   @JsonSetter
-  public PropertyShape setValidation(TTIriRefExtended validation) {
+  public PropertyShape setValidation(TTIriRef validation) {
     this.validation = validation;
     return this;
   }
 
   @JsonSetter
-  public PropertyShape setSearch(TTIriRefExtended search) {
+  public PropertyShape setSearch(TTIriRef search) {
     this.search = search;
     return this;
   }
@@ -361,7 +363,7 @@ public class PropertyShape {
   }
 
   @JsonSetter
-  public PropertyShape setValueIri(TTIriRefExtended valueIri) {
+  public PropertyShape setValueIri(TTIriRef valueIri) {
     this.valueIri = valueIri;
     return this;
   }

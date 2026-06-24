@@ -1,24 +1,24 @@
 package org.endeavourhealth.imapi.model.set;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.Serializable;
 
 public class SetMember implements Serializable {
-  private TTIriRefExtended entity;
+  private TTIriRef entity;
   private String code;
-  private TTIriRefExtended scheme;
+  private TTIriRef scheme;
   private String label;
   private MemberType type;
-  private TTIriRefExtended directParent;
+  private TTIriRef directParent;
 
-  public TTIriRefExtended getEntity() {
+  public TTIriRef getEntity() {
     return entity;
   }
 
   @JsonSetter
-  public SetMember setEntity(TTIriRefExtended entity) {
+  public SetMember setEntity(TTIriRef entity) {
     this.entity = entity;
     return this;
   }
@@ -32,12 +32,12 @@ public class SetMember implements Serializable {
     return this;
   }
 
-  public TTIriRefExtended getScheme() {
+  public TTIriRef getScheme() {
     return scheme;
   }
 
   @JsonSetter
-  public SetMember setScheme(TTIriRefExtended scheme) {
+  public SetMember setScheme(TTIriRef scheme) {
     this.scheme = scheme;
     return this;
   }
@@ -59,12 +59,12 @@ public class SetMember implements Serializable {
     this.type = type;
   }
 
-  public TTIriRefExtended getDirectParent() {
+  public TTIriRef getDirectParent() {
     return directParent;
   }
 
   @JsonSetter
-  public void setDirectParent(TTIriRefExtended directParent) {
+  public void setDirectParent(TTIriRef directParent) {
     this.directParent = directParent;
   }
 }

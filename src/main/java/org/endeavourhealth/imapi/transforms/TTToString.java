@@ -7,14 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 public class TTToString {
-  private TTToString() {
-    throw new IllegalStateException("Utility class");
-  }
-
   private static final String REGEX = "\\s\\(([^)]*)\\)[^(]*$";
   private static final String INDENT_SIZE = "  ";
   private static final String OBJECT = "object";
   private static final String ARRAY = "array";
+  private TTToString() {
+    throw new IllegalStateException("Utility class");
+  }
 
   private static void setPredicateDefaults(Map<String, String> predicates, Map<String, String> defaultPredicates) {
     if (defaultPredicates == null) {
@@ -31,7 +30,7 @@ public class TTToString {
     Map<String, String> predicates = bundle.getPredicates();
     setPredicateDefaults(predicates, defaultPredicates);
     StringBuilder result = new StringBuilder();
-    for (Map.Entry<TTIriRefExtended, TTArray> element : bundle.getEntity().getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArray> element : bundle.getEntity().getPredicateMap().entrySet()) {
       result.append(ttValueToString(new TTNode().set(element.getKey(), element.getValue()), OBJECT, predicates, indent, withHyperlinks, blockedIris));
     }
     return result.toString();
@@ -51,7 +50,7 @@ public class TTToString {
     }
   }
 
-  public static String ttIriToString(TTIriRefExtended iri, String previous, int indent, boolean withHyperlinks, boolean inline, List<String> blockedIris) {
+  public static String ttIriToString(TTIriRef iri, String previous, int indent, boolean withHyperlinks, boolean inline, List<String> blockedIris) {
     String pad = new String(new char[indent]).replace("\0", INDENT_SIZE);
     String result = "";
     if (!inline) result += pad;
@@ -75,7 +74,7 @@ public class TTToString {
     int totalKeys = node.getPredicateMap().size();
     int count = 1;
     boolean group = totalKeys > 1;
-    for (Map.Entry<TTIriRefExtended, TTArray> element : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArray> element : node.getPredicateMap().entrySet()) {
       if (totalKeys == count) last = true;
       if (count == 1) first = true;
       String prefix = "";
@@ -95,7 +94,7 @@ public class TTToString {
     return result;
   }
 
-  private static String processNode(TTIriRefExtended key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
+  private static String processNode(TTIriRef key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
     if (value.isIriRef()) {
       result += getObjectName(key, iriMap, pad, prefix);
       result += ttIriToString(value.asIriRef(), OBJECT, indent, withHyperlinks, true, blockedIris);
@@ -122,7 +121,7 @@ public class TTToString {
     return result;
   }
 
-  private static String getObjectName(TTIriRefExtended key, Map<String, String> iriMap, String pad, String prefix) {
+  private static String getObjectName(TTIriRef key, Map<String, String> iriMap, String pad, String prefix) {
     if (iriMap != null && iriMap.containsKey(key.getIri()))
       return pad + prefix + removeEndBrackets(iriMap.get(key.getIri())) + " : ";
     if (key.getName() != null && !key.getName().isEmpty())

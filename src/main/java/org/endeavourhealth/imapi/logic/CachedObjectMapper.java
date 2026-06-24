@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class CachedObjectMapper implements AutoCloseable {
     synchronized (pool) {
       if (!pool.isEmpty())
         return pool.pop();
-      else{
+      else {
         ObjectMapper om = new ObjectMapper();
         om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         return om;
@@ -82,7 +82,7 @@ public class CachedObjectMapper implements AutoCloseable {
     return objectMapper.createArrayNode();
   }
 
-  public JsonNode valueToTree(List<TTIriRefExtended> fromValue) {
+  public JsonNode valueToTree(List<TTIriRef> fromValue) {
     return objectMapper.valueToTree(fromValue);
   }
 

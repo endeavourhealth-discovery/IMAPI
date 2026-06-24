@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.imq.ArgumentExtended;
+import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.Argument;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class FunctionService {
   private final EntityService entityService = new EntityService();
   private final SecurityService securityService = new SecurityService();
 
-  public JsonNode callFunction(HttpServletRequest request, String iri, List<ArgumentExtended> arguments) throws JsonProcessingException, UserNotFoundException {
+  public JsonNode callFunction(HttpServletRequest request, String iri, List<Argument> arguments) throws JsonProcessingException, UserNotFoundException {
     return switch (IMFUNCTION.fromValue(iri)) {
       case IMFUNCTION.LOCAL_NAME_RETRIEVER -> getLocalName(arguments);
       case IMFUNCTION.GET_ADDITIONAL_ALLOWABLE_TYPES -> getAdditionalAllowableTypes(arguments);
@@ -37,12 +37,12 @@ public class FunctionService {
     };
   }
 
-  private JsonNode getLocalName(List<ArgumentExtended> arguments) {
+  private JsonNode getLocalName(List<Argument> arguments) {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send json where/value pairs in request body");
     String iri = null;
     String fieldName = null;
-    for (ArgumentExtended arg : arguments) {
+    for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
       if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
@@ -57,11 +57,11 @@ public class FunctionService {
     }
   }
 
-  private JsonNode getSchemeFromIri(List<ArgumentExtended> arguments) {
+  private JsonNode getSchemeFromIri(List<Argument> arguments) {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send json where/value pairs in request body");
     String iri = null;
-    for (ArgumentExtended arg : arguments) {
+    for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
       if (ENTITY_IRI.equals(arg.getParameter())) iri = arg.getValueVariable();
@@ -73,17 +73,17 @@ public class FunctionService {
       List<EntityReferenceNode> schemes = entityService.getImmediateChildren(ImVocab.
         ROOT_NAMESPACE.toString(), new ArrayList<>(), 1, 1000, false);
       List<EntityReferenceNode> schemesFiltered = schemes.stream().filter(s -> s.getIri().equals(schemeIri)).toList();
-      List<TTIriRefExtended> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRefExtended().iri(s.getIri()).name(s.getName())).toList();
+      List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> TTIriRefExtensionsKt.iri(new TTIriRef(), ).iri(s.getIri()).name(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
       return om.valueToTree(schemesFilteredIriRef);
     }
   }
 
-  private JsonNode getAdditionalAllowableTypes(List<ArgumentExtended> arguments) {
+  private JsonNode getAdditionalAllowableTypes(List<Argument> arguments) {
     if (null == arguments)
       throw new IllegalArgumentException("No arguments, send array of json where/value pairs in request body");
     String entityIri = null;
-    for (ArgumentExtended arg : arguments) {
+    for (Argument arg : arguments) {
       if (null == arg.getParameter())
         throw new IllegalArgumentException(ONE_OR_MORE_ARGUMENTS_ARE_MISSING_PARAMETER_KEY);
       if (ENTITY_IRI.equals(arg.getParameter())) entityIri = arg.getValueIri().getIri();
@@ -97,12 +97,12 @@ public class FunctionService {
         CONCEPT.toString().equals(entityIri)) {
         String finalEntityIri = entityIri;
         List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Set.of(finalEntityIri, RdfVocab.PROPERTY, ShaclVocab.NODESHAPE).contains(t.getIri())).toList();
-        List<TTIriRefExtended> filteredResultsAsIri = filteredResults.stream().map(t -> new TTIriRefExtended(t.getIri(), t.getName())).toList();
+        List<TTIriRef> filteredResultsAsIri = filteredResults.stream().map(t -> TTIriRefExtensionsKt.iri(new TTIriRef(), t.getIri(), t.getName())).toList();
         return om.valueToTree(filteredResultsAsIri);
       } else {
         String finalEntityIri1 = entityIri;
         List<EntityReferenceNode> filteredResults = results.stream().filter(t -> Objects.equals(finalEntityIri1, t.getIri())).toList();
-        List<TTIriRefExtended> originalResultIri = filteredResults.stream().map(t -> new TTIriRefExtended(t.getIri(), t.getName())).toList();
+        List<TTIriRef> originalResultIri = filteredResults.stream().map(t -> TTIriRefExtensionsKt.iri(new TTIriRef(), t.getIri(), t.getName())).toList();
         return om.valueToTree(originalResultIri);
       }
     }
@@ -111,8 +111,8 @@ public class FunctionService {
   private JsonNode getLogicOptions() {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       Set<String> iris = EnumUtils.asHashSet(ShaclVocab.AND, ShaclVocab.OR, ShaclVocab.NOT);
-      Set<TTIriRefExtended> iriRefs = entityService.getNames(iris);
-      List<TTIriRefExtended> options = new ArrayList<>(iriRefs);
+      Set<TTIriRef> iriRefs = entityService.getNames(iris);
+      List<TTIriRef> options = new ArrayList<>(iriRefs);
       return om.valueToTree(options);
     }
   }
@@ -120,7 +120,7 @@ public class FunctionService {
   private JsonNode getSetEditorIriSchemes() {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(ImVocab.
       ROOT_NAMESPACE.toString(), null, 1, 200, false);
-    List<TTIriRefExtended> resultsAsIri = results.stream().map(r -> new TTIriRefExtended(r.getIri(), r.getName())).toList();
+    List<TTIriRef> resultsAsIri = results.stream().map(r -> TTIriRefExtensionsKt.iri(new TTIriRef(), r.getIri(), r.getName())).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(resultsAsIri);
     }
@@ -129,9 +129,9 @@ public class FunctionService {
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(ImVocab.
       ROOT_NAMESPACE.toString(), null, 1, 200, false);
-    List<TTIriRefExtended> resultsAsIri = results.stream().map(r -> new TTIriRefExtended(r.getIri(), r.getName())).toList();
+    List<TTIriRef> resultsAsIri = results.stream().map(r -> TTIriRefExtensionsKt.iri(new TTIriRef(), r.getIri(), r.getName())).toList();
     User user = securityService.getUser(request);
-    List<TTIriRefExtended> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> EnumUtils.asIri(o.getIri()).equals(r))).toList();
+    List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> EnumUtils.asIri(o.getIri()).equals(r))).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(editableSchemes);
     }

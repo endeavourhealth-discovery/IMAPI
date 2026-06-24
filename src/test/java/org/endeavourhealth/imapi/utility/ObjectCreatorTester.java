@@ -3,6 +3,8 @@ package org.endeavourhealth.imapi.utility;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.ImVocab;
+import org.endeavourhealth.interfacemanager.model.RdfsVocab;
 import org.junit.jupiter.api.Test;
 
 import static org.endeavourhealth.imapi.dataaccess.SetRepository.IM_1_ID;
@@ -15,23 +17,23 @@ public class ObjectCreatorTester {
     imQuery
       .path(p -> p
         .setOptional(true)
-        .setIri(ImVocab. HAS_SCHEME)
-        .setTypeOf(ImVocab. CONCEPT)
+        .setIri(ImVocab.HAS_SCHEME)
+        .setTypeOf(ImVocab.CONCEPT)
         .setNode("scheme"))
       .return_(s -> s
-      .setIri(RdfsVocab.LABEL).as("term"))
+        .setIri(RdfsVocab.LABEL).as("term"))
       .return_(s -> s
-        .setIri(ImVocab. CODE).as("code"))
+        .setIri(ImVocab.CODE).as("code"))
       .return_(s -> s
-      .setIri(ImVocab. HAS_SCHEME)
+        .setIri(ImVocab.HAS_SCHEME)
         .setNodeRef("scheme")
-      .setIri(RdfsVocab.LABEL)
-      .as("schemeName"))
+        .setIri(RdfsVocab.LABEL)
+        .as("schemeName"))
       .return_(s -> s
-      .setIri(ImVocab. USAGE_TOTAL)
+        .setIri(ImVocab.USAGE_TOTAL)
         .as("usage"))
       .return_(s -> s
-      .setIri(ImVocab. IM_1_ID)
+        .setIri(ImVocab.IM_1_ID)
         .as(IM_1_ID));
     String originalQuery = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(imQuery);
 

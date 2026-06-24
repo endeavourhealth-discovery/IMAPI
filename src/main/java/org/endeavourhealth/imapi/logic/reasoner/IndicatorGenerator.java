@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 
 public class IndicatorGenerator {
@@ -16,13 +16,13 @@ public class IndicatorGenerator {
       .setName(name)
       .setDescription(description)
       .setScheme(EnumUtils.asIri(namespace))
-      .addType(new TTIriRefExtended(ImVocab. INDICATOR));
+      .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INDICATOR));
     if (denominator != null)
-      indicator.set(new TTIriRefExtended(ImVocab. DENOMINATOR).toString(), new TTIriRefExtended(denominator));
+      indicator.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DENOMINATOR).toString(), TTIriRefExtensionsKt.iri(new TTIriRef(), denominator));
     if (numerator != null)
-      indicator.set(ImVocab. NUMERATOR, new TTIriRefExtended(numerator));
+      indicator.set(ImVocab.NUMERATOR, TTIriRefExtensionsKt.iri(new TTIriRef(), numerator));
     if (dataset != null)
-      indicator.set(ImVocab. HAS_DATASET, dataset.get(ImVocab. DEFINITION).asLiteral());
+      indicator.set(ImVocab.HAS_DATASET, dataset.get(ImVocab.DEFINITION).asLiteral());
     return indicator;
 
   }

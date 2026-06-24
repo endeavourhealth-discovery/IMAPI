@@ -4,8 +4,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.Case;
+import org.endeavourhealth.interfacemanager.model.FunctionClause;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,10 +23,10 @@ public class Return implements Returnable {
   private String pathRef;
   private boolean inverse;
   private FunctionClause function;
-  private TTIriRefExtended units;
+  private TTIriRef units;
   private String as;
   private List<Return> returx;
-  private TTIriRefExtended dataType;
+  private TTIriRef dataType;
   @JsonProperty("case")
   private Case case_;
   private String description;
@@ -54,11 +56,11 @@ public class Return implements Returnable {
     return this;
   }
 
-  public TTIriRefExtended getDataType() {
+  public TTIriRef getDataType() {
     return dataType;
   }
 
-  public Return setDataType(TTIriRefExtended dataType) {
+  public Return setDataType(TTIriRef dataType) {
     this.dataType = dataType;
     return this;
   }
@@ -160,11 +162,11 @@ public class Return implements Returnable {
     return this;
   }
 
-  public TTIriRefExtended getUnits() {
+  public TTIriRef getUnits() {
     return this.units;
   }
 
-  public Return setUnits(TTIriRefExtended units) {
+  public Return setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }

@@ -3,14 +3,14 @@ package org.endeavourhealth.imapi.model.requests;
 import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.extensions.ArgumentExtensionsKt;
+import org.endeavourhealth.imapi.model.imq.ContextMap;
+import org.endeavourhealth.imapi.model.imq.PathQuery;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Update;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
-import org.endeavourhealth.interfacemanager.model.DatabaseOption;
-import org.endeavourhealth.interfacemanager.model.NamespaceVocab;
-import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -24,7 +24,7 @@ public class QueryRequest implements ContextMap {
   private Page page;
   private Map<String, String> context;
   private String textSearch;
-  private Set<ArgumentExtended> argument;
+  private Set<Argument> argument;
   @JsonProperty(required = true)
   private Query query;
   private PathQuery pathQuery;
@@ -33,7 +33,7 @@ public class QueryRequest implements ContextMap {
   private String queryStringDefinition;
   private String askIri;
   private List<Map<Long, String>> timings = new ArrayList<>();
-  private Set<TTIriRefExtended> cohort;
+  private Set<TTIriRef> cohort;
   @Setter
   private boolean includeNames;
   @Setter
@@ -44,12 +44,12 @@ public class QueryRequest implements ContextMap {
   public QueryRequest() {
   }
 
-  public QueryRequest setCohort(Set<TTIriRefExtended> cohort) {
+  public QueryRequest setCohort(Set<TTIriRef> cohort) {
     this.cohort = cohort;
     return this;
   }
 
-  public QueryRequest addToCohort(TTIriRefExtended cohort) {
+  public QueryRequest addToCohort(TTIriRef cohort) {
     if (this.cohort == null) {
       this.cohort = new HashSet<>();
     }
@@ -103,32 +103,32 @@ public class QueryRequest implements ContextMap {
   }
 
   @JsonSetter
-  public QueryRequest setArgument(Set<ArgumentExtended> argument) {
+  public QueryRequest setArgument(Set<Argument> argument) {
     this.argument = argument;
     return this;
   }
 
-  public QueryRequest addArgument(ArgumentExtended argument) {
+  public QueryRequest addArgument(Argument argument) {
     if (this.argument == null)
       this.argument = new HashSet<>();
     this.argument.add(argument);
     return this;
   }
 
-  public QueryRequest argument(Consumer<ArgumentExtended> builder) {
-    ArgumentExtended argument = new ArgumentExtended();
+  public QueryRequest argument(Consumer<Argument> builder) {
+    Argument argument = new Argument();
     addArgument(argument);
     builder.accept(argument);
     return this;
   }
 
   public QueryRequest addArgument(String parameter, Object value) {
-    ArgumentExtended argument = new ArgumentExtended();
+    Argument argument = new Argument();
     argument.setParameter(parameter);
     if (value instanceof String)
       argument.setValueData((String) value);
-    else if (value instanceof TTIriRefExtended)
-      argument.setValueIri((TTIriRefExtended) value);
+    else if (value instanceof TTIriRef)
+      argument.setValueIri((TTIriRef) value);
     else
       throw new IllegalArgumentException("Using add argument this way must include a string value or TTIref value");
     addArgument(argument);
@@ -139,7 +139,7 @@ public class QueryRequest implements ContextMap {
     if (this.argument == null)
       return null;
     else {
-      for (ArgumentExtended arg : this.argument) {
+      for (Argument arg : this.argument) {
         if (arg.getParameter().equals(parameter))
           return arg.getValueData();
       }
@@ -230,8 +230,8 @@ public class QueryRequest implements ContextMap {
   public int hashCode() {
     resolveArgs();
     StringBuilder hs = new StringBuilder();
-    for (ArgumentExtended arg : argument) {
-      String argumentString = arg.getHashString();
+    for (Argument arg : argument) {
+      String argumentString = ArgumentExtensionsKt.getHashString(arg);
       hs.append(argumentString);
     }
     if (null != query.getIri()) hs.append(query.getIri());
@@ -250,7 +250,7 @@ public class QueryRequest implements ContextMap {
       boolean hasDate = this.argument.stream()
         .anyMatch(arg -> date.equals(arg.getParameter()));
       if (!hasDate)
-        this.argument.add(new ArgumentExtended().parameter(date).valueData(LocalDate.now().toString()));
+        this.argument.add(new Argument().parameter(date).valueData(LocalDate.now().toString()));
     }
   }
 }

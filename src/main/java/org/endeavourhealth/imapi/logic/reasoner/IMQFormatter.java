@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.interfacemanager.model.Match;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,12 +11,11 @@ import java.util.Map;
 public class IMQFormatter {
 
 
-
-  public static Map<String,List<Return>> getNodeReturnMap(Match match) {
-    Map<String,List<Return>> nodeReturnMap = new HashMap<>();
-    if (match.getReturn()==null) return nodeReturnMap;
-    for (Return ret: match.getReturn()){
-      nodeReturnMap.computeIfAbsent(ret.getNodeRef(),k-> new ArrayList<>()).add(ret);
+  public static Map<String, List<Return>> getNodeReturnMap(Match match) {
+    Map<String, List<Return>> nodeReturnMap = new HashMap<>();
+    if (match.getReturn() == null) return nodeReturnMap;
+    for (Return ret : match.getReturn()) {
+      nodeReturnMap.computeIfAbsent(ret.getNodeRef(), k -> new ArrayList<>()).add(ret);
     }
     return nodeReturnMap;
   }

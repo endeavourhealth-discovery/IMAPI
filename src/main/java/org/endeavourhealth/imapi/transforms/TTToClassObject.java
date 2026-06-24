@@ -33,9 +33,9 @@ public class TTToClassObject {
   private void processNode(TTNode node, Object obj, Class<?> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     List<Field> fields = getAllFields(classType);
     Map<String, Field> fieldMap = getFieldNames(fields);
-    for (Map.Entry<TTIriRefExtended, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
       if (entry.getValue() != null) {
-        TTIriRefExtended propertyIri = entry.getKey();
+        TTIriRef propertyIri = entry.getKey();
         String fieldName = propertyIri.getIri();
         fieldName = fieldName.substring(fieldName.lastIndexOf("#") + 1);
         Field field = fieldMap.get(fieldName);
@@ -53,7 +53,7 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRefExtended, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
+  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
     if (1 != pt.getActualTypeArguments().length) {
       return;
     }
@@ -82,7 +82,7 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeOtherType(Object obj, Map.Entry<TTIriRefExtended, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
+  private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     Class<?> clazz = null;
     if (type instanceof Class) {
       clazz = (Class<?>) type;

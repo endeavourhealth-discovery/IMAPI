@@ -2,7 +2,8 @@ package org.endeavourhealth.imapi.utility;
 
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.util.Values;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,8 +15,8 @@ public class EnumUtils {
   private EnumUtils() {
   }
 
-  public static TTIriRefExtended asIri(Enum<?> value) {
-    return new TTIriRefExtended(
+  public static TTIriRef asIri(Enum<?> value) {
+    return TTIriRefExtensionsKt.iri(new TTIriRef(),
       value.toString(),
       Arrays.stream(value.name().split("_"))
         .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())

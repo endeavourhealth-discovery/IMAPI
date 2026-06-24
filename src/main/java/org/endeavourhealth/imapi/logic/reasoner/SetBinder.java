@@ -5,10 +5,9 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.iml.Concept;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.Concept;
 import org.endeavourhealth.interfacemanager.model.GraphVocab;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
 import org.endeavourhealth.interfacemanager.model.RdfVocab;
@@ -60,7 +59,7 @@ public class SetBinder {
   public void bindSet(String iri, GraphVocab insertGraph) {
     Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
-      Set<String> memberIris = members.stream().map(EntityExtended::getIri).collect(Collectors.toSet());
+      Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
       Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
       setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
     }

@@ -1,17 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.Match;
-import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriteriaGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocPopulationParentType;
 import org.endeavourhealth.imapi.transforms.eqd.VocRuleAction;
-import org.endeavourhealth.interfacemanager.model.QueryType;
-import org.endeavourhealth.interfacemanager.model.RuleAction;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.io.IOException;
 
@@ -22,20 +18,20 @@ public class EqdPopToIMQ {
     String activeReport = eqReport.getId();
     if (eqReport.getVersionIndependentGUID() != null) activeReport = eqReport.getVersionIndependentGUID();
     resources.setQueryType(QueryType.POP);
-    query.setTypeOf(new Node().setIri(NamespaceVocab. IM + "Patient"));
+    query.setTypeOf(new Node().setIri(NamespaceVocab.IM + "Patient"));
     if (eqReport.getParent().getParentType() == VocPopulationParentType.ACTIVE) {
       query
         .rule(r -> r
-          .addIs(Node.iri(NamespaceVocab. IM + "Q_RegisteredGMS")
+          .addIs(Node.iri(NamespaceVocab.IM + "Q_RegisteredGMS")
             .setIsCohort(true)
-        .setName("Registered with GP for GMS services on the reference date")));
-      resources.getQueryEntity().addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended((NamespaceVocab.
-      IM + "Q_RegisteredGMS")));
+            .setName("Registered with GP for GMS services on the reference date")));
+      resources.getQueryEntity().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), (NamespaceVocab.
+        IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
-        resources.getQueryEntity().addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(NamespaceVocab.
-        IM + "Q_RegisteredGMS"));
+        resources.getQueryEntity().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.
+          IM + "Q_RegisteredGMS"));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -44,18 +40,18 @@ public class EqdPopToIMQ {
       if (EqdToIMQ.gmsPatients.contains(id) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         query
           .rule(r -> r
-            .addIs(Node.iri(NamespaceVocab. IM + "Q_RegisteredGMS")
+            .addIs(Node.iri(NamespaceVocab.IM + "Q_RegisteredGMS")
               .setIsCohort(true)
-          .setName("Registered with GP for GMS services on the reference date")));
-        resources.getQueryEntity().addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended((NamespaceVocab.
-        IM + "Q_RegisteredGMS")));
+              .setName("Registered with GP for GMS services on the reference date")));
+        resources.getQueryEntity().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), (NamespaceVocab.
+          IM + "Q_RegisteredGMS")));
       } else {
         query
           .addRule(new Match()
             .addIs(Node.iri(resources.getNamespace() + id)
               .setIsCohort(true)
               .setName(resources.reportNames.get(id))));
-        resources.getQueryEntity().addObject(new TTIriRefExtended(ImVocab.DEPENDENT_ON), new TTIriRefExtended(resources.getNamespace() + id));
+        resources.getQueryEntity().addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEPENDENT_ON), TTIriRefExtensionsKt.iri(new TTIriRef(), resources.getNamespace() + id));
       }
     }
     if (query.getRule() != null) {

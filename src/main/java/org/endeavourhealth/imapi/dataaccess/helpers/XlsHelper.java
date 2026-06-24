@@ -3,13 +3,15 @@ package org.endeavourhealth.imapi.dataaccess.helpers;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
 import org.endeavourhealth.imapi.model.set.SetMember;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.interfacemanager.model.DataModelProperty;
+import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,10 +43,10 @@ public class XlsHelper {
     if (summary.getIri() == null) {
       return;
     }
-    Set<TTIriRefExtended> predicates = summary.getPredicateMap().keySet();
+    Set<TTIriRef> predicates = summary.getPredicateMap().keySet();
     List<String> predicateNames = new ArrayList<>();
     predicateNames.add("Iri");
-    predicateNames.addAll(predicates.stream().map(TTIriRefExtended::getName).toList());
+    predicateNames.addAll(predicates.stream().map(TTIriRef::getName).toList());
     Sheet sheet = workbook.createSheet("Concept summary");
     addHeaders(sheet, 10000, predicateNames);
     Row row = sheet.createRow(sheet.getLastRowNum() + 1);
@@ -52,9 +54,9 @@ public class XlsHelper {
     Cell iriCell = row.createCell(row.getLastCellNum() + 1);
     iriCell.setCellValue(summary.getIri());
 
-    for (TTIriRefExtended predicate : predicates) {
+    for (TTIriRef predicate : predicates) {
       Cell cell = row.createCell(row.getLastCellNum());
-      TTArray value = summary.get(new TTIriRefExtended(predicate.getIri(), predicate.getName()));
+      TTArray value = summary.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate.getIri(), predicate.getName()));
       if (value.isIriRef()) {
         cell.setCellValue(value.asIriRef().getName());
       } else if (value.isLiteral()) {

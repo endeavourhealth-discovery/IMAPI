@@ -1,7 +1,13 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
+import org.endeavourhealth.imapi.model.imq.Path;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.ValueSource;
+import org.endeavourhealth.imapi.model.imq.When;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -165,13 +171,13 @@ public class IriCollector {
       iriSet.add(function.getIri());
     }
     if (function.getArgument() != null) {
-      for (ArgumentExtended argument : function.getArgument()) {
+      for (Argument argument : function.getArgument()) {
         if (argument.getValuePath() != null) {
           collectPathIris(argument.getValuePath(), iriSet);
         }
         if (argument.getValueIri() != null) iriSet.add(argument.getValueIri().getIri());
         if (argument.getValueIriList() != null) {
-          for (TTIriRefExtended valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
+          for (TTIriRef valueIri : argument.getValueIriList()) iriSet.add(valueIri.getIri());
         }
       }
     }
@@ -185,11 +191,11 @@ public class IriCollector {
 
   }
 
-  private static void collectCompareIris(CompareExtended compareExtended, Set<String> iriSet) {
-    collectValueSourceIris(compareExtended.getLeft(), iriSet);
-    collectValueSourceIris(compareExtended.getRight(), iriSet);
-    if (compareExtended.getUnits() != null)
-      iriSet.add(compareExtended.getUnits().getIri());
+  private static void collectCompareIris(Compare compare, Set<String> iriSet) {
+    collectValueSourceIris(compare.getLeft(), iriSet);
+    collectValueSourceIris(compare.getRight(), iriSet);
+    if (compare.getUnits() != null)
+      iriSet.add(compare.getUnits().getIri());
   }
 
   private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {

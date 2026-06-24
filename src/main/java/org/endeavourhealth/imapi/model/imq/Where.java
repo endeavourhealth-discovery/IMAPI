@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.Operator;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +31,13 @@ public class Where extends Element implements Assignable {
   private boolean isNull;
   private boolean roleGroup;
   private boolean isNotNull;
-  private TTIriRefExtended units;
+  private TTIriRef units;
   private List<Where> or;
   private List<Where> and;
   private String propertyRef;
   private String shortLabel;
   private FunctionClause function;
-  private TTIriRefExtended qualifier;
+  private TTIriRef qualifier;
   private List<Node> propertyList;
   private String propertyVariable;
   private String node;
@@ -47,7 +46,7 @@ public class Where extends Element implements Assignable {
   private boolean invalid;
   private boolean linked;
   private String valueTerm;
-  private CompareExtended compareExtended;
+  private Compare compare;
 
 
   public Where() {
@@ -123,19 +122,19 @@ public class Where extends Element implements Assignable {
   }
 
   @Override
-  public CompareExtended getCompare() {
-    return this.compareExtended;
+  public Compare getCompare() {
+    return this.compare;
   }
 
   @Override
-  public Where setCompare(CompareExtended compareExtended) {
-    this.compareExtended = compareExtended;
+  public Where setCompare(Compare compare) {
+    this.compare = compare;
     return this;
   }
 
-  public Where compare(Consumer<CompareExtended> builder) {
-    this.compareExtended = new CompareExtended();
-    builder.accept(this.compareExtended);
+  public Where compare(Consumer<Compare> builder) {
+    this.compare = new Compare();
+    builder.accept(this.compare);
     return this;
   }
 
@@ -438,11 +437,11 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public TTIriRefExtended getQualifier() {
+  public TTIriRef getQualifier() {
     return this.qualifier;
   }
 
-  public Where setQualifier(TTIriRefExtended qualifier) {
+  public Where setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
     return this;
   }
@@ -462,11 +461,11 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public TTIriRefExtended getUnits() {
+  public TTIriRef getUnits() {
     return units;
   }
 
-  public Where setUnits(TTIriRefExtended units) {
+  public Where setUnits(TTIriRef units) {
     this.units = units;
     return this;
   }

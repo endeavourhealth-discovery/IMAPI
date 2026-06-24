@@ -13,21 +13,14 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.logic.exporters.ExcelSearchExporter;
 import org.endeavourhealth.imapi.logic.exporters.SearchTextFileExporter;
 import org.endeavourhealth.imapi.logic.service.*;
-import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.Namespace;
-import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.iml.EntityExtended;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.EditRequest;
-import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.requests.ValidatedEntitiesRequest;
-import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
-import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
@@ -36,7 +29,6 @@ import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRefExtended;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.IriExtractor;
@@ -193,7 +185,7 @@ public class EntityController {
         size = EntityService.MAX_CHILDREN;
       }
       TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfVocab.TYPE)).getEntity();
-      boolean inactive = entity.getType() != null && entity.getType().contains(new TTIriRefExtended(ImVocab.TASK));
+      boolean inactive = entity.getType() != null && entity.getType().contains(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.TASK));
 
       return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
     }
@@ -219,7 +211,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/childrenPaged")
   @Operation(summary = "Get entity children with paging", description = "Fetches immediate children of the specified entity with pagination and total count")
-  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(
+  public EntityReferenceNodePageable getEntityChildrenPagedWithTotalCount(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri,
     @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
@@ -239,7 +231,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/partialAndTotalCount")
   @Operation(summary = "Get partial and total count", description = "Fetches partial results and provides total count for the given entity and predicate")
-  public Pageable<TTIriRefExtended> getPartialAndTotalCount(
+  public TTIriRefPageable getPartialAndTotalCount(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri,
     @RequestParam(name = "predicate") String predicate,
@@ -273,7 +265,7 @@ public class EntityController {
       }
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
-      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(new TTIriRefExtended(RdfsVocab.LABEL)) + ".json\"");
+      headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + entity.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) + ".json\"");
       return new HttpEntity<>(json, headers);
     }
   }
@@ -376,7 +368,7 @@ public class EntityController {
 
   @GetMapping("/protected/folderPath")
   @Operation(summary = "Get folder path", description = "Fetches the folder path of an entity specified by its IRI")
-  public List<TTIriRefExtended> getFolderPath(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+  public List<TTIriRef> getFolderPath(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FolderPath.GET")) {
       log.debug("getFolderPath");
       return entityService.getParentPath(iri);
@@ -385,7 +377,7 @@ public class EntityController {
 
   @GetMapping("/protected/shortestParentHierarchy")
   @Operation(summary = "Get shortest parent hierarchy", description = "Fetches the shortest parent hierarchy between an ancestor and a descendant by their IRIs")
-  public List<TTIriRefExtended> getShortestPathBetweenNodes(HttpServletRequest request, @RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
+  public List<TTIriRef> getShortestPathBetweenNodes(HttpServletRequest request, @RequestParam(name = "ancestor") String ancestor, @RequestParam(name = "descendant") String descendant) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ShortestParentHierarchy.GET")) {
       log.debug("getShortestPathBetweenNodes");
       return entityService.getShortestPathBetweenNodes(ancestor, descendant);
@@ -467,7 +459,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/type/entities")
   @Operation(summary = "Get entities by type", description = "Fetches entities that match the specified type IRI")
-  public List<TTIriRefExtended> getEntitiesByType(HttpServletRequest request, @RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
+  public List<TTIriRef> getEntitiesByType(HttpServletRequest request, @RequestParam(name = "iri") String typeIri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Predicates.GET")) {
       log.debug("getEntitiesByType");
       return entityService.getEntitiesByType(EntityType.fromValue(typeIri));
@@ -513,7 +505,7 @@ public class EntityController {
 
   @PostMapping(value = "/protected/iriDetails")
   @Operation(summary = "Get names and types for iris in object", description = "Fetches names and types for the iris in the object")
-  public Map<String, EntityExtended> getChildEntities(HttpServletRequest request, @RequestBody Object object) {
+  public Map<String, Entity> getChildEntities(HttpServletRequest request, @RequestBody Object object) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Children.POST")) {
       log.debug("iriDetails");
       Set<String> iris = new IriExtractor().extractIris(object);

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.interfacemanager.model.Match;
 import org.endeavourhealth.interfacemanager.model.NamespaceVocab.
 import org.junit.jupiter.api.Test;
 

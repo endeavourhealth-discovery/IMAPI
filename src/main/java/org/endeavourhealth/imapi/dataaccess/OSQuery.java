@@ -10,7 +10,6 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Return;
@@ -19,6 +18,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.Page;
 import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
 
 import java.net.URI;
@@ -57,7 +57,7 @@ public class OSQuery {
         if (!bestTerm.endsWith(")") && name.endsWith(")") && name.contains("(")) {
           bestTerm = bestTerm + " " + name.substring(name.lastIndexOf("("));
         }
-        resultNode.put(ImVocab. BEST_MATCH.toString(), bestTerm);
+        resultNode.put(ImVocab.BEST_MATCH.toString(), bestTerm);
       }
     }
   }
@@ -72,11 +72,11 @@ public class OSQuery {
   }
 
   private static void processSourceReturns(ObjectNode osResult, ObjectNode resultNode) {
-    Set<String> sources = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab. PREFERRED_NAME, ImVocab.
-    CODE, ImVocab.
-    USAGE_TOTAL, RdfVocab.TYPE, ImVocab.
-    HAS_SCHEME, ImVocab.
-    HAS_STATUS);
+    Set<String> sources = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.PREFERRED_NAME, ImVocab.
+      CODE, ImVocab.
+      USAGE_TOTAL, RdfVocab.TYPE, ImVocab.
+      HAS_SCHEME, ImVocab.
+      HAS_STATUS);
     sources.add("iri");
     for (String field : sources) {
       String osField = field.substring(field.lastIndexOf("#") + 1);

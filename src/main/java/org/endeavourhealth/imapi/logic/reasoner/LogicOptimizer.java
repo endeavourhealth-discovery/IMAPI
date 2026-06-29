@@ -508,5 +508,51 @@ public class LogicOptimizer {
     return rewritten;
   }
 
+  public static void optimiseNegativeIntervalWheres(Match match) {
+    if (match.getAnd() != null)
+      for (Match child : match.getAnd()) optimiseNegativeIntervalWheres(child);
+    if (match.getOr() != null)
+      for (Match child : match.getOr()) optimiseNegativeIntervalWheres(child);
+    if (match.getAny() != null)
+      for (Match child : match.getAny()) optimiseNegativeIntervalWheres(child);
+
+    if (match.getWhere() != null)
+      match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));
+  }
+
+  private static Where rewriteNegativeIntervalWhere(Where where) {
+    if (where.getAnd() != null)
+      where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+    if (where.getOr() != null)
+      where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
+    if (where.getCompare() == null) return where;
+    if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
+    if (where.getCompare().getUnits() == null) return where;
+
+    Compare compare = where.getCompare();
+    String positiveValue = where.getValue().startsWith("-") ? where.getValue().substring(1) : where.getValue();
+
+    boolean leftIsSearchDate = compare.getLeft() != null
+      && "$searchDate".equals(compare.getLeft().getParameter());
+    boolean rightIsSearchDate = compare.getRight() != null
+      && "$searchDate".equals(compare.getRight().getParameter());
+
+    if (leftIsSearchDate) {
+      Compare swapped = new Compare();
+      swapped.setLeft(compare.getRight());
+      swapped.setRight(compare.getLeft());
+      swapped.setUnits(compare.getUnits());
+      where.setCompare(swapped);
+      where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
+      where.setValue(positiveValue);
+
+    } else if (rightIsSearchDate) {
+      where.setValue(positiveValue);
+    }
+
+    return where;
+  }
+
 
 }

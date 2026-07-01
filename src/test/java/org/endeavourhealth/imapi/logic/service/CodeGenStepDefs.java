@@ -5,10 +5,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.endeavourhealth.library.logic.CachedObjectMapper;
-import org.endeavourhealth.library.model.DataModelProperty;
-import org.endeavourhealth.library.model.dto.CodeGenDto;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.dto.CodeGenDto;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;

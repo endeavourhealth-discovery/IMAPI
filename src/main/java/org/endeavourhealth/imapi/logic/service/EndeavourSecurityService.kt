@@ -2,11 +2,11 @@ package org.endeavourhealth.imapi.logic.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.endeavourhealth.imapi.utility.HttpRequestService
-import org.endeavourhealth.library.errorhandling.UserAuthorisationException
-import org.endeavourhealth.library.model.responses.LoginResponseES
-import org.endeavourhealth.library.model.security.Permission
-import org.endeavourhealth.library.model.security.User
-import org.endeavourhealth.library.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
+import org.endeavourhealth.imapi.model.responses.LoginResponseES
+import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.User
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 

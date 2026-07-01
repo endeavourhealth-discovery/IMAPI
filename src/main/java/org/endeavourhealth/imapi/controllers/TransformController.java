@@ -8,9 +8,9 @@ import org.endeavourhealth.imapi.logic.service.TransformService;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.requests.TransformRequest;
-import org.endeavourhealth.library.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.requests.TransformRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.library.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 public class RangeInheritor {
 

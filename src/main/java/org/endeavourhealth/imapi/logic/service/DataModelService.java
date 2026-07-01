@@ -2,25 +2,25 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.UIProperty;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.library.model.DataModelProperty;
-import org.endeavourhealth.library.model.iml.NodeShape;
-import org.endeavourhealth.library.model.iml.UIProperty;
-import org.endeavourhealth.library.model.tripletree.TTArray;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.model.tripletree.TTValue;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.OWL;
-import org.endeavourhealth.library.vocabulary.RDFS;
-import org.endeavourhealth.library.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class DataModelService {

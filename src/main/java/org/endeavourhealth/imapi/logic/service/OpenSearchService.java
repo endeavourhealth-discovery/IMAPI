@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.library.logic.CachedObjectMapper;
-import org.endeavourhealth.library.model.search.EntityDocument;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.springframework.stereotype.Component;
 
 @Slf4j

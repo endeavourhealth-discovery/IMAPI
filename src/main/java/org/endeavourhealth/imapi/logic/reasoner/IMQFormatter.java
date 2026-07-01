@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

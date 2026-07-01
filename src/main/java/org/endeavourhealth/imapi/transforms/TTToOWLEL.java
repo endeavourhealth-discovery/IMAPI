@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.library.model.tripletree.*;
-import org.endeavourhealth.library.transforms.TTManager;
-import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.formats.PrefixDocumentFormat;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Converts Discovery JSON Triple tree syntax document to OWL EL functional syntax using an OWL factory.

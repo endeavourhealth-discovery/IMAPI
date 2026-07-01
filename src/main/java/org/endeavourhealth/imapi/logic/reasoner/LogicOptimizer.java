@@ -2,8 +2,8 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.*;
 
@@ -150,6 +150,106 @@ public class LogicOptimizer {
     }
   }
 
+  public static Operator invertComparisonOperator(String op) {
+    return switch (op) {
+      case ">=" -> Operator.lte;
+      case ">" -> Operator.lt;
+      case "<=" -> Operator.gte;
+      case "<" -> Operator.gt;
+      case "=" -> Operator.eq;
+      default -> throw new IllegalArgumentException("Invalid comparison operator: " + op);
+    };
+  }
+
+  public static void optimiseAgeWheres(Match match) {
+    if (match.getAnd() != null)
+      for (Match child : match.getAnd()) optimiseAgeWheres(child);
+    if (match.getOr() != null)
+      for (Match child : match.getOr()) optimiseAgeWheres(child);
+    if (match.getAny() != null)
+      for (Match child : match.getAny()) optimiseAgeWheres(child);
+
+    if (match.getWhere() != null)
+      match.setWhere(rewriteAgeWhere(match.getWhere()));
+  }
+
+  private static Where rewriteAgeWhere(Where where) {
+    if (where.getAnd() != null)
+      where.getAnd().replaceAll(LogicOptimizer::rewriteAgeWhere);
+    if (where.getOr() != null)
+      where.getOr().replaceAll(LogicOptimizer::rewriteAgeWhere);
+
+    if (!"http://endhealth.info/im#age".equals(where.getIri())) return where;
+    if (where.getUnits() == null) return where;
+    if (where.getValue() == null) return where;
+    if (where.getOperator() == null) return where;
+
+    Where rewritten = new Where();
+    rewritten.setOperator(invertComparisonOperator(where.getOperator().getValue()));
+    rewritten.setValue(where.getValue());
+    rewritten.setNot(where.isNot());
+
+    ValueSource left = new ValueSource();
+    left.setIri("http://endhealth.info/im#dateOfBirth");
+
+    ValueSource right = new ValueSource();
+    right.setParameter("$searchDate");
+
+    Compare compare = new Compare();
+    compare.setLeft(left);
+    compare.setRight(right);
+    compare.setUnits(where.getUnits());
+
+    rewritten.setCompare(compare);
+
+    return rewritten;
+  }
+
+  public static void optimiseNegativeIntervalWheres(Match match) {
+    if (match.getAnd() != null)
+      for (Match child : match.getAnd()) optimiseNegativeIntervalWheres(child);
+    if (match.getOr() != null)
+      for (Match child : match.getOr()) optimiseNegativeIntervalWheres(child);
+    if (match.getAny() != null)
+      for (Match child : match.getAny()) optimiseNegativeIntervalWheres(child);
+
+    if (match.getWhere() != null)
+      match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));
+  }
+
+  private static Where rewriteNegativeIntervalWhere(Where where) {
+    if (where.getAnd() != null)
+      where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+    if (where.getOr() != null)
+      where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
+    if (where.getCompare() == null) return where;
+    if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
+    if (where.getCompare().getUnits() == null) return where;
+
+    Compare compare = where.getCompare();
+    String positiveValue = where.getValue().startsWith("-") ? where.getValue().substring(1) : where.getValue();
+
+    boolean leftIsSearchDate = compare.getLeft() != null
+      && "$searchDate".equals(compare.getLeft().getParameter());
+    boolean rightIsSearchDate = compare.getRight() != null
+      && "$searchDate".equals(compare.getRight().getParameter());
+
+    if (leftIsSearchDate) {
+      Compare swapped = new Compare();
+      swapped.setLeft(compare.getRight());
+      swapped.setRight(compare.getLeft());
+      swapped.setUnits(compare.getUnits());
+      where.setCompare(swapped);
+      where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
+      where.setValue(positiveValue);
+
+    } else if (rightIsSearchDate) {
+      where.setValue(positiveValue);
+    }
+
+    return where;
+  }
 
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
     String matchJson = mapper.writeValueAsString(match);
@@ -451,107 +551,6 @@ public class LogicOptimizer {
     }
     query.setAnd(null);
     query.setOr(null);
-  }
-
-  public static Operator invertComparisonOperator(String op) {
-    return switch (op) {
-      case ">=" -> Operator.lte;
-      case ">" -> Operator.lt;
-      case "<=" -> Operator.gte;
-      case "<" -> Operator.gt;
-      case "=" -> Operator.eq;
-      default -> throw new IllegalArgumentException("Invalid comparison operator: " + op);
-    };
-  }
-
-  public static void optimiseAgeWheres(Match match) {
-    if (match.getAnd() != null)
-      for (Match child : match.getAnd()) optimiseAgeWheres(child);
-    if (match.getOr() != null)
-      for (Match child : match.getOr()) optimiseAgeWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseAgeWheres(child);
-
-    if (match.getWhere() != null)
-      match.setWhere(rewriteAgeWhere(match.getWhere()));
-  }
-
-  private static Where rewriteAgeWhere(Where where) {
-    if (where.getAnd() != null)
-      where.getAnd().replaceAll(LogicOptimizer::rewriteAgeWhere);
-    if (where.getOr() != null)
-      where.getOr().replaceAll(LogicOptimizer::rewriteAgeWhere);
-
-    if (!"http://endhealth.info/im#age".equals(where.getIri())) return where;
-    if (where.getUnits() == null) return where;
-    if (where.getValue() == null) return where;
-    if (where.getOperator() == null) return where;
-
-    Where rewritten = new Where();
-    rewritten.setOperator(invertComparisonOperator(where.getOperator().getValue()));
-    rewritten.setValue(where.getValue());
-    rewritten.setNot(where.isNot());
-
-    ValueSource left = new ValueSource();
-    left.setIri("http://endhealth.info/im#dateOfBirth");
-
-    ValueSource right = new ValueSource();
-    right.setParameter("$searchDate");
-
-    Compare compare = new Compare();
-    compare.setLeft(left);
-    compare.setRight(right);
-    compare.setUnits(where.getUnits());
-
-    rewritten.setCompare(compare);
-
-    return rewritten;
-  }
-
-  public static void optimiseNegativeIntervalWheres(Match match) {
-    if (match.getAnd() != null)
-      for (Match child : match.getAnd()) optimiseNegativeIntervalWheres(child);
-    if (match.getOr() != null)
-      for (Match child : match.getOr()) optimiseNegativeIntervalWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseNegativeIntervalWheres(child);
-
-    if (match.getWhere() != null)
-      match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));
-  }
-
-  private static Where rewriteNegativeIntervalWhere(Where where) {
-    if (where.getAnd() != null)
-      where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
-    if (where.getOr() != null)
-      where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
-
-    if (where.getCompare() == null) return where;
-    if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
-    if (where.getCompare().getUnits() == null) return where;
-
-    Compare compare = where.getCompare();
-    String positiveValue = where.getValue().startsWith("-") ? where.getValue().substring(1) : where.getValue();
-
-    boolean leftIsSearchDate = compare.getLeft() != null
-      && "$searchDate".equals(compare.getLeft().getParameter());
-    boolean rightIsSearchDate = compare.getRight() != null
-      && "$searchDate".equals(compare.getRight().getParameter());
-
-    if (leftIsSearchDate) {
-      Compare swapped = new Compare();
-      swapped.setLeft(compare.getRight());
-      swapped.setRight(compare.getLeft());
-      swapped.setUnits(compare.getUnits());
-      where.setCompare(swapped);
-      where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
-      where.setValue(positiveValue);
-
-    } else if (rightIsSearchDate) {
-      where.setValue(positiveValue);
-    }
-
-    return where;
   }
 
 

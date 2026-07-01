@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.dataaccess.entity;
 
-import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class Tpl {
   private int dbid;

@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.utility;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.library.model.imq.Query;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.junit.jupiter.api.Test;
 
 import static org.endeavourhealth.imapi.dataaccess.SetRepository.*;

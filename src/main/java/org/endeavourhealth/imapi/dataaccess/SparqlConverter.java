@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.requests.QueryRequest;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.*;
 import java.util.stream.Collectors;

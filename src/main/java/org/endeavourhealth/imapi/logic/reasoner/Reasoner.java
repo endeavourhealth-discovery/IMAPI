@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
 import org.endeavourhealth.imapi.transforms.TTToOWLEL;
-import org.endeavourhealth.library.model.tripletree.*;
-import org.endeavourhealth.library.transforms.TTManager;
-import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.NodeSet;
 import org.semanticweb.owlapi.reasoner.OWLReasonerConfiguration;
@@ -16,7 +16,7 @@ import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
 
 import java.util.*;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Classifies an ontology using an owl reasoner, generating ISA relationships from a Discovery ontology document.

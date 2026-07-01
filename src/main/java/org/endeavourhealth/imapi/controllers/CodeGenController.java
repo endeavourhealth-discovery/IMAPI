@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.CodeGenService;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.library.model.dto.CodeGenDto;
+import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;

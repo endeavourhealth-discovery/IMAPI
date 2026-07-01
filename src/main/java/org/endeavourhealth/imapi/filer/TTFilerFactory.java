@@ -6,7 +6,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.ClosureGeneratorBulk;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
-import org.endeavourhealth.library.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 public class TTFilerFactory {
   private static boolean bulk = false;

@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.model.tripletree.TTLiteral;
-import org.endeavourhealth.library.model.tripletree.TTUtil;
-import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTUtil;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public abstract class Entry extends TTEntity {
 

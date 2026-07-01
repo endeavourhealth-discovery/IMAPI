@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.sql
 
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer
-import org.endeavourhealth.library.model.imq.Node
-import org.endeavourhealth.library.errorhandling.SQLConversionException
+import org.endeavourhealth.imapi.model.imq.Node
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
 interface MySQLWhere {
   val property: String?
@@ -92,6 +92,7 @@ class MySQLCompareWhere(
           when (units) {
             "DAY", "MONTH", "YEAR" ->
               "($prop) $operator DATE_SUB($right, INTERVAL $value $units)"
+
             else -> throw SQLConversionException("Unsupported unit $units")
           }
         } else if (qualifier != null) {

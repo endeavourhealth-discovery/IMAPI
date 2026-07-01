@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +11,7 @@ public class TTToString {
   private static final String INDENT_SIZE = "  ";
   private static final String OBJECT = "object";
   private static final String ARRAY = "array";
+
   private TTToString() {
     throw new IllegalStateException("Utility class");
   }

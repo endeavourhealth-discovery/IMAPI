@@ -4,17 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.library.model.iml.Concept;
-import org.endeavourhealth.library.model.imq.Query;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.tripletree.TTBundle;
-import org.endeavourhealth.library.vocabulary.GRAPH;
-import org.endeavourhealth.library.vocabulary.IM;
+import org.endeavourhealth.imapi.model.iml.Concept;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.IM;
 
 import java.util.Set;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class SetMemberGenerator {

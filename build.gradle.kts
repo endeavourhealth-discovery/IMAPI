@@ -4,6 +4,7 @@ plugins {
   id("java")
   id("jacoco")
   id("war")
+  alias(libs.plugins.static.const.generator)
   id("java-library")
   id("maven-publish")
   kotlin("jvm")
@@ -26,6 +27,7 @@ println("Build environment = [$ENV]")
 val CI = System.getenv("CI") ?: "false"
 if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
+    dependsOn("staticConstGenerator")
   }
 } else {
   tasks.build { finalizedBy("safeSonar") }
@@ -82,6 +84,13 @@ tasks.war {
   archiveFileName.set("imapi.war")
 }
 
+tasks {
+  staticConstGenerator {
+    inputJson = "vocab.json"
+    javaOutputFolder = "src/main/java/org/endeavourhealth/imapi/vocabulary/"
+  }
+}
+
 dependencies {
   implementation(libs.angus.mail)
   implementation(libs.antlr)
@@ -107,7 +116,6 @@ dependencies {
   implementation(libs.jersey.inject)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.endeavourhealth)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
@@ -126,7 +134,6 @@ dependencies {
   implementation(libs.validation)
   implementation(libs.woodstox)
   implementation(libs.wsrs)
-  implementation(libs.library)
 
   runtimeOnly(libs.spring.dev.tools)
 

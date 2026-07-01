@@ -3,10 +3,10 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.tripletree.TTArray;
-import org.endeavourhealth.library.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.util.*;
 

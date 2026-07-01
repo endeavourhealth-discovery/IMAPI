@@ -1,0 +1,152 @@
+package org.endeavourhealth.imapi.model.imq;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.imq.Element;
+import org.endeavourhealth.imapi.model.imq.Match;
+
+import java.util.function.Consumer;
+
+@JsonPropertyOrder({"descendantsOrSelfOf", "parameter", "iri", "type", "set", "qualifier", "match"})
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+public class Node extends Element {
+
+  private boolean exclude;
+  private String code;
+  private String type;
+  private boolean inverse;
+  private Match match;
+  private String node;
+  private String qualifier;
+
+  public Node() {
+  }
+
+  public static Node iri(String iri) {
+    Node node = new Node();
+    node.setIri(iri);
+    return node;
+  }
+
+  public String getQualifier() {
+    return qualifier;
+  }
+
+  public Node setQualifier(String qualifier) {
+    this.qualifier = qualifier;
+    return this;
+  }
+
+  public Match getMatch() {
+    return match;
+  }
+
+  public Node setMatch(Match match) {
+    this.match = match;
+    return this;
+  }
+
+  public Node match(Consumer<Match> match) {
+    Match m = new Match();
+    match.accept(m);
+    this.match = m;
+    return this;
+  }
+
+  public Node setIsResultSet(boolean resultSet) {
+    super.setIsResultSet(resultSet);
+    return this;
+  }
+
+  public Node setIsCohort(boolean isCohort) {
+    super.setIsCohort(isCohort);
+    return this;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public Node setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public Node setType(String type) {
+    this.type = type;
+    return this;
+  }
+
+  public String getCode() {
+    return code;
+  }
+
+  public Node setCode(String code) {
+    this.code = code;
+    return this;
+  }
+
+  public boolean isExclude() {
+    return exclude;
+  }
+
+  public Node setExclude(boolean exclude) {
+    this.exclude = exclude;
+    return this;
+  }
+
+  public Node setNodeRef(String nodeRef) {
+    super.setNodeRef(nodeRef);
+    return this;
+  }
+
+  public Node setParameter(String parameter) {
+    super.setParameter(parameter);
+    return this;
+  }
+
+  public Node setAncestorsOf(boolean ancestorsOf) {
+    super.setAncestorsOf(ancestorsOf);
+    return this;
+  }
+
+  public Node setDescendantsOrSelfOf(boolean descendantsOrSelfOf) {
+    super.setDescendantsOrSelfOf(descendantsOrSelfOf);
+    return this;
+  }
+
+  public Node setDescendantsOf(boolean descendantsOf) {
+    super.setDescendantsOf(descendantsOf);
+    return this;
+  }
+
+  public Node setMemberOf(boolean memberOf) {
+    super.setMemberOf(memberOf);
+    return this;
+  }
+
+  @JsonSetter
+  public Node setIri(String iri) {
+    super.setIri(iri);
+    return this;
+  }
+
+  public Node setName(String name) {
+    super.setName(name);
+    return this;
+  }
+
+  public String getNode() {
+    return node;
+  }
+
+  public Node setNode(String node) {
+    this.node = node;
+    return this;
+  }
+}

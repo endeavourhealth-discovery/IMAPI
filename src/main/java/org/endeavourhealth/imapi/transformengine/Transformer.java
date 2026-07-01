@@ -1,14 +1,14 @@
 package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.library.model.imq.Argument;
-import org.endeavourhealth.library.model.imq.Match;
-import org.endeavourhealth.library.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.Argument;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
-import org.endeavourhealth.library.vocabulary.TransformFunction;
-import org.endeavourhealth.library.model.iml.ListMode;
-import org.endeavourhealth.library.model.iml.MapFunction;
+import org.endeavourhealth.imapi.vocabulary.TransformFunction;
+import org.endeavourhealth.imapi.model.iml.ListMode;
+import org.endeavourhealth.imapi.model.iml.MapFunction;
 
 import java.util.*;
 

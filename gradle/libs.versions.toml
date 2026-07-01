@@ -12,7 +12,6 @@ cucumber = "7.22.0"
 commons-text = "1.10.0"
 dropwizard = "4.2.30"
 elasticSearch = "7.17.29"
-endeavour = "1.0.4-SNAPSHOT"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
@@ -58,7 +57,6 @@ dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dro
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
 elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
-endeavourhealth = {module= "org.endeavourhealth.library:Library",version.ref = "endeavour"}
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }
@@ -99,7 +97,6 @@ validation = { module = "jakarta.validation:jakarta.validation-api", version.ref
 woodstox = { module = "com.fasterxml.woodstox:woodstox-core", version.ref = "woodstox" }
 wsrs = { module = "jakarta.ws.rs:jakarta.ws.rs-api", version.ref = "wsrs" }
 mysqlConncector = { module = "com.mysql:mysql-connector-j", version.ref = "mysqlConncector" }
-library = "org.endeavourhealth.library:Library:1.0.3-SNAPSHOT"
 
 #Test implementation
 cucumber = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
@@ -112,4 +109,5 @@ spring-test = { module = "org.springframework.boot:spring-boot-starter-test", ve
 spring-test-security = { module = "org.springframework.security:spring-security-test", version.ref = "springTestSecurity" }
 
 [plugins]
+static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.5-SNAPSHOT" }
 sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

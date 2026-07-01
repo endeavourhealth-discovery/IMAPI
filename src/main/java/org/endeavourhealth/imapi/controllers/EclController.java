@@ -9,9 +9,9 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.model.customexceptions.EclFormatException;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.library.model.imq.ECLQueryRequest;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 

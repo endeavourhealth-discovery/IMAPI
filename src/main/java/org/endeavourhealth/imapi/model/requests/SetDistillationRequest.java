@@ -1,0 +1,34 @@
+package org.endeavourhealth.imapi.model.requests;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+
+@Getter
+@NoArgsConstructor
+public class SetDistillationRequest {
+
+  private List<TTIriRef> conceptList;
+  private GRAPH graph;
+
+  public SetDistillationRequest setConceptList(List<TTIriRef> conceptList) {
+    this.conceptList = conceptList;
+    return this;
+  }
+
+  public void addToConceptList(TTIriRef concept) {
+    if (null == conceptList) {
+      conceptList = new ArrayList<>();
+    }
+    this.conceptList.add(concept);
+  }
+
+  public SetDistillationRequest setGraph(GRAPH graph) {
+    this.graph = graph;
+    return this;
+  }
+}

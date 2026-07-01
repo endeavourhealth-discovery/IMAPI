@@ -5,13 +5,13 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.PropertyRepository;
 import org.endeavourhealth.imapi.dataaccess.ShapeRepository;
 import org.endeavourhealth.imapi.logic.reasoner.Inferrer;
-import org.endeavourhealth.library.model.tripletree.*;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.vocabulary.SHACL;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Class that holds the IM schema as a cache of static maps, including shapes, predicate display ordeers,

@@ -11,10 +11,10 @@ import org.endeavourhealth.imapi.model.github.GithubRelease;
 import org.endeavourhealth.imapi.model.postRequestPrimatives.REPOBody;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.library.model.github.REPO;
-import org.endeavourhealth.library.model.security.Permission;
-import org.endeavourhealth.library.model.security.Resource;
-import org.endeavourhealth.library.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.model.github.REPO;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 

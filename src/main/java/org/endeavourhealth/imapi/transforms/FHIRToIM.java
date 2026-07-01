@@ -58,13 +58,16 @@ public class FHIRToIM {
   public List<TTEntity> convertCodeSystem(CodeSystem codeSystem, String folder) {
     List<TTEntity> concepts = new ArrayList<>();
     String iri = codeSystem.getUrl();
+    String fhirName= codeSystem.getTitle();
+    if (fhirName==null)
+      fhirName=codeSystem.getName();
     TTEntity parent = new TTEntity()
       .addType(iri(IM.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
       .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
-      .setName(codeSystem.getTitle() + "( FHIR code system)")
+      .setName(fhirName + "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
     parent.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
     concepts.add(parent);

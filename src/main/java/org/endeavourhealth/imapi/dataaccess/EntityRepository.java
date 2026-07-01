@@ -137,14 +137,17 @@ public class EntityRepository {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
-      ?entity ?predicate ?object ?predicate2 ?object2
-      select *
+      select ?entity ?type ?predicate ?object ?predicate2 ?object2
+   
       where {
       values ?predicate {%s}
       ?entity rdf:type ?type.
       ?entity ?predicate ?object.
-      optional {?object ?predicate2 ?object2.
-      filter (isBlank(?object2)}
+      optional {
+        ?object ?predicate2 ?object2.
+        filter (isBlank(?object))
+        filter (!isBlank(?object2))
+        }
       }
       order by ?object
       offset %s limit %s
@@ -153,25 +156,29 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("type", iri(type));
+      Map<String,TTNode> blankNodes = new HashMap<>();
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
           entities.putIfAbsent(iri, new TTEntity().setIri(iri));
           TTEntity entity = entities.get(iri);
-          Value object = bs.getValue("folder");
+          entity.addObject((TTIriRef) iri(RDF.TYPE.toString()),TTIriRef.iri(bs.getValue("type").stringValue()));
+          Value object = bs.getValue("object");
           if (object.isIRI()) {
             entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), TTIriRef.iri(object.stringValue()));
           } else if (object.isBNode()) {
-            if (entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue())) == null) {
-              entity.set(TTIriRef.iri(bs.getValue("predicate").stringValue()), new TTNode());
+            TTNode node = blankNodes.get(object.stringValue());
+            if (node == null) {
+              node= new TTNode();
+              blankNodes.put(object.stringValue(), new TTNode());
+              entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), node);
             }
             Value object2 = bs.getValue("object2");
             if (object2.isIRI()) {
-              entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
-                .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
-            } else entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
-              .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
+                node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
+            } else
+              node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
           } else {
             entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), TTLiteral.literal(object.stringValue()));
           }
@@ -1968,6 +1975,26 @@ public class EntityRepository {
       }
     }
     return results;
+  }
+
+  public Set<String> getIsAs(String iri){
+    Set<String> result = new HashSet<>();
+    String sql= """
+      select ?entity
+      where {
+       ?entity im:isA <%s> .
+      }
+      """.formatted(iri);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.add(bs.getValue("entity").stringValue());
+        }
+      }
+    }
+    return result;
   }
 
   public List<String> getMemberOfIM1Ids(List<String> iris) {

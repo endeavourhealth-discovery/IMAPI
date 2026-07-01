@@ -107,6 +107,7 @@ dependencies {
   implementation(libs.jersey.inject)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
+  implementation(libs.endeavourhealth)
   implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)

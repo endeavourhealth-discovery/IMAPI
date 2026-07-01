@@ -23,6 +23,7 @@ import org.endeavourhealth.library.model.security.Permission;
 import org.endeavourhealth.library.model.security.Resource;
 import org.endeavourhealth.library.model.sql.SubQueryDependency;
 import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.library.model.tripletree.TTEntity;
 import org.endeavourhealth.library.model.workflow.roleRequest.UserRole;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
@@ -30,6 +31,8 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/query/protected")
@@ -196,6 +199,21 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("optimizeQuery");
       return queryService.flattenQuery(query);
+    }
+  }
+
+
+  @PostMapping("/semanticMapsForDataset")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Set<TTEntity> semanticMapsForDataset(
+    @RequestBody Match match) {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("getSemanticMapsForSourceEntities");
+      return queryService.getSemanticMapsForDataset(match);
     }
   }
 

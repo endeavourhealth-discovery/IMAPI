@@ -43,6 +43,9 @@ public class IriCollector {
     if (prop.getFunction() != null) {
       collectFunctionIris(prop.getFunction(), iriSet);
     }
+    if (prop.getSemanticMap()!=null){
+      iriSet.add(prop.getSemanticMap().getIri());
+    }
   }
 
   private static void collectPathIris(Path path, Set<String> iriSet) {
@@ -91,6 +94,11 @@ public class IriCollector {
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
+        collectMatchIris(subMatch, iriSet);
+      }
+    }
+    if (match.getAny() != null) {
+      for (Match subMatch : match.getAny()) {
         collectMatchIris(subMatch, iriSet);
       }
     }

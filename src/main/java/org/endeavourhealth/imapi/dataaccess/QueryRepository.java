@@ -25,7 +25,9 @@ import org.endeavourhealth.library.vocabulary.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+
 
 /**
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
@@ -88,7 +90,7 @@ public class QueryRepository {
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
       TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
-      queryRequest.setUpdate(updateEntity.get(TTIriRef.iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
+      queryRequest.setUpdate(updateEntity.get(iri(IM.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
       graphDeleteSearch(spq, conn);
@@ -114,12 +116,12 @@ public class QueryRepository {
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
     if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
       TTEntity entity = getEntity(query.getIri());
-      if (entity.get(TTIriRef.iri(SHACL.PARAMETER)) != null) {
-        for (TTValue param : entity.get(TTIriRef.iri(SHACL.PARAMETER)).getElements()) {
+      if (entity.get(iri(SHACL.PARAMETER)) != null) {
+        for (TTValue param : entity.get(iri(SHACL.PARAMETER)).getElements()) {
           processParam(param, queryRequest);
         }
       }
-      TTArray definition = entity.get(TTIriRef.iri(IM.DEFINITION));
+      TTArray definition = entity.get(iri(IM.DEFINITION));
 
       if (null == definition)
         throw new QueryException("Query: '" + query.getIri() + "' was not found");
@@ -137,19 +139,19 @@ public class QueryRepository {
   }
 
   private void processParam(TTValue param, QueryRequest queryRequest) throws QueryException {
-    if (param.asNode().get(TTIriRef.iri(SHACL.MINCOUNT)) == null) return;
-    String parameterName = param.asNode().get(TTIriRef.iri(RDFS.LABEL)).asLiteral().getValue();
+    if (param.asNode().get(iri(SHACL.MINCOUNT)) == null) return;
+    String parameterName = param.asNode().get(iri(RDFS.LABEL)).asLiteral().getValue();
     TTIriRef parameterType;
-    if (param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)) != null)
-      parameterType = param.asNode().get(TTIriRef.iri(SHACL.DATATYPE)).asIriRef();
+    if (param.asNode().get(iri(SHACL.DATATYPE)) != null)
+      parameterType = param.asNode().get(iri(SHACL.DATATYPE)).asIriRef();
     else
-      parameterType = param.asNode().get(TTIriRef.iri(SHACL.CLASS)).asIriRef();
+      parameterType = param.asNode().get(iri(SHACL.CLASS)).asIriRef();
     boolean found = false;
     for (Argument arg : queryRequest.getArgument())
       if (arg.getParameter().equals(parameterName)) {
         found = true;
         String error = "Query request arguments require parameter name :'" + parameterName + "' ";
-        if (parameterType.equals(TTIriRef.iri(NAMESPACE.IM + "IriRef"))) {
+        if (parameterType.equals(iri(NAMESPACE.IM + "IriRef"))) {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
@@ -386,5 +388,111 @@ public class QueryRepository {
       }
     }
     return properties;
+  }
+
+  public Map<String, Map<String, String>> getSemanticMaps() {
+    Map<String, Map<String, String>> mapEntries = new HashMap<>();
+    String sql = """
+      Select ?mapEntry ?sourceEntity ?sourceType
+      where {
+       ?map rdf:type im:SemanticMap.
+       ?map im:mapEntry ?mapEntry.
+       ?mapEntry im:sourceEntity ?sourceEntity.
+       ?sourceEntity rdf:type ?sourceType.
+      }
+      """;
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String mapEntryIri = bs.getValue("mapEntry").stringValue();
+          String sourceEntityIri = bs.getValue("sourceEntity").stringValue();
+          String sourceType = bs.getValue("sourceType").stringValue();
+          mapEntries.put(mapEntryIri, Map.of(sourceEntityIri, sourceType));
+        }
+      }
+    }
+    return mapEntries;
+  }
+
+  public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> sourceIris) {
+    String sql = """
+      Select distinct ?map ?mapName
+      where {
+      values ?sourceIri {%s}
+      {
+      ?subType im:semanticMap ?mapEntry.
+      ?subType im:isA ?sourceIri.
+      ?map im:mapEntry ?mapEntry.
+      ?map rdfs:label ?mapName.
+      ?mapEntry rdfs:label ?mapEntryName.
+      
+      }
+      union {
+      ?subType im:semanticMap ?mapEntry.
+      ?subType ^im:hasMember ?sourceIri.
+      ?map im:mapEntry ?mapEntry.
+      ?map rdfs:label ?mapName.
+      ?mapEntry rdfs:label ?mapEntryName.
+      
+      
+      }
+      
+      }
+      
+      """.formatted(sourceIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" ")));
+    Set<TTEntity> semanticMaps = new HashSet<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          ;
+          String mapIri = bs.getValue("map").stringValue();
+          String mapName = bs.getValue("mapName").stringValue();
+          TTEntity map = new TTEntity()
+            .addType(iri(IM.SEMANTIC_MAP))
+            .setIri(mapIri)
+            .setName(mapName);
+          semanticMaps.add(map);
+
+        }
+      }
+    }
+    return semanticMaps;
+  }
+
+  public Set<TTEntity> getSemanticMapsForSourceType(String sourceType) {
+    String sql = """
+      Select distinct ?map ?mapName
+      where {
+      values ?sourceType {%s}
+      ?sourceType ^im:sourceType ?mapEntry.
+      ?map im:mapEntry ?mapEntry.
+      ?map rdfs:label ?mapName.
+      ?mapEntry rdfs:label ?mapEntryName.
+      }
+      
+      """.formatted("<"+sourceType+">");
+    Set<TTEntity> semanticMaps = new HashSet<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          ;
+          String mapIri = bs.getValue("map").stringValue();
+          String mapName = bs.getValue("mapName").stringValue();
+          TTEntity map = new TTEntity()
+            .addType(iri(IM.SEMANTIC_MAP))
+            .setIri(mapIri)
+            .setName(mapName);
+          semanticMaps.add(map);
+
+        }
+      }
+    }
+    return semanticMaps;
   }
 }

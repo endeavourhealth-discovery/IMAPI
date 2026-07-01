@@ -12,6 +12,7 @@ cucumber = "7.22.0"
 commons-text = "1.10.0"
 dropwizard = "4.2.30"
 elasticSearch = "7.17.29"
+endeavour = "1.0.4-SNAPSHOT"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
@@ -57,6 +58,7 @@ dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dro
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
 elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
+endeavourhealth = {module= "org.endeavourhealth.library:Library",version.ref = "endeavour"}
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }

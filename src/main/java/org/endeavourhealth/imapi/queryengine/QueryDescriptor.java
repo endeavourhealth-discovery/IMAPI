@@ -149,6 +149,9 @@ public class QueryDescriptor {
         describeWhere(when, null);
       }
     }
+    if (prop.getSemanticMap()!=null &&prop.getSemanticMap().getIri()!=null){
+      prop.getSemanticMap().setName(getTermInContext(prop.getSemanticMap().getIri(), Context.SINGLE));
+    }
   }
 
   private void describeFunction(FunctionClause function) {
@@ -285,6 +288,11 @@ public class QueryDescriptor {
     }
     if (match.getAnd() != null) {
       for (Match subMatch : match.getAnd()) {
+        describeMatch(subMatch);
+      }
+    }
+    if (match.getAny() != null) {
+      for (Match subMatch : match.getAny()) {
         describeMatch(subMatch);
       }
     }

@@ -295,4 +295,34 @@ public class QueryService {
     }
     return query;
   }
+
+  public Set<TTEntity> getSemanticMapsForDataset(Match match) {
+    Set<String> sourceIris = new HashSet<>();
+    if (match.getWhere() != null) {
+       collectSourcesFromWhere(match.getWhere(), sourceIris);
+    }
+    if (match.getThen() != null &&match.getThen().getWhere() != null) {
+      collectSourcesFromWhere(match.getThen().getWhere(), sourceIris);
+    }
+    if (!sourceIris.isEmpty()) {
+      return new QueryRepository().getSemanticMapsForSourceEntities(sourceIris);
+    }
+    else return new QueryRepository().getSemanticMapsForSourceType(match.getTypeOf().getIri());
+  }
+
+
+  private void collectSourcesFromWhere(Where where, Set<String> sourceIris) {
+    if (where.getIs()!=null){
+      for (Node is:where.getIs()){
+        sourceIris.add(is.getIri());
+      }
+    }
+    for (List<Where> whereList:Arrays.asList(where.getAnd(),where.getOr())){
+      if (whereList!=null){
+        for (Where subWhere:whereList){
+          collectSourcesFromWhere(subWhere,sourceIris);
+        }
+      }
+    }
+  }
 }

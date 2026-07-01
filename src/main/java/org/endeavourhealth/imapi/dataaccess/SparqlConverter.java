@@ -14,7 +14,7 @@ public class SparqlConverter {
   private final String tabs = "";
   int o = 0;
   String mainEntity;
-  private Match query;
+  private Query query;
   private Update update;
   private Set<TTIriRef> statusFilter;
 

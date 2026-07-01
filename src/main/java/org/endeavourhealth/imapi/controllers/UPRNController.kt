@@ -192,7 +192,8 @@ open class UPRNController(
     request.setHeader("Accept", mediaType.toString())
     request.setHeader("Authorization", "Basic " + Base64.encode("${uprnUsername}:${uprnPassword}".encodeToByteArray()))
     request.setHeader("User-Id", userId)
-    return client.send(request.build(), HttpResponse.BodyHandlers.ofString()).body()
+    val json = client.send(request.build(), HttpResponse.BodyHandlers.ofString()).body()
+    return json
   }
 
 }

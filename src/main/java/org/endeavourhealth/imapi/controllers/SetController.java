@@ -16,8 +16,6 @@ import org.endeavourhealth.imapi.logic.service.SetService;
 import org.endeavourhealth.imapi.model.SetDiffObject;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
-import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
@@ -69,7 +67,7 @@ public class SetController {
 
   @GetMapping(value = "/protected/members")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
-  public Pageable<Node> getMembers(
+  public NodePageable getMembers(
     HttpServletRequest request,
     @RequestParam(name = "iri") String iri,
     @RequestParam(name = "entailments", required = false) Boolean entailments,
@@ -88,7 +86,7 @@ public class SetController {
 
   @PostMapping(value = "/protected/membersFromQuery")
   @Operation(summary = "Get entailed members", description = "Retrieves direct or entailed members from a given IRI with pagination support.")
-  public Pageable<Node> getMembersFromQuery(
+  public NodePageable getMembersFromQuery(
     HttpServletRequest request,
     @RequestBody ECLQueryRequest eclRequest
   ) throws QueryException {
@@ -157,7 +155,7 @@ public class SetController {
       headers.set(HttpHeaders.CONTENT_DISPOSITION, ATTACHMENT + "setExport." + setExportRequest.getFormat() + "\"");
 
       try {
-        byte[] setExport = setService.getSetExport(setExportRequest.getFormat(), setExportRequest.getOptions().isIncludeIM1id(), setExportRequest.getOptions());
+        byte[] setExport = setService.getSetExport(setExportRequest.getFormat(), setExportRequest.getOptions().getIncludeIM1id(), setExportRequest.getOptions());
         return new HttpEntity<>(setExport, headers);
       } catch (IOException e) {
         throw new DownloadException("Failed to write to document.");

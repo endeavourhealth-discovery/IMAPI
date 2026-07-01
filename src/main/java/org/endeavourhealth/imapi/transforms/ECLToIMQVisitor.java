@@ -3,9 +3,8 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.endeavourhealth.imapi.model.imq.Prefix;
 import org.endeavourhealth.imapi.model.imq.Prefixes;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
@@ -60,7 +59,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (match.getIs() != null) {
       query.setIs(match.getIs());
     }
-    query.setNotExists(match.notExists());
+    query.setNotExists(match.getNotExists());
     if (match.getAnd() != null)
       query.setAnd(match.getAnd());
     if (match.getOr() != null)
@@ -134,7 +133,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         } else if (result instanceof Where asWhere) {
           if (match == null) {
             match = new Match();
-            match.setTypeOf(new Node().setIri(ImVocab.CONCEPT.toString()));
+            match.setTypeOf((Node) new Node().iri(ImVocab.CONCEPT.toString()));
           }
           match.setWhere(asWhere);
         }
@@ -358,49 +357,49 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitMemberof(IMECLParser.MemberofContext ctx) {
-    return new Node().setMemberOf(true);
+    return new Node().memberOf(true);
   }
 
   @Override
   public Object visitDescendantof(IMECLParser.DescendantofContext ctx) {
-    return new Node().setDescendantsOf(true);
+    return new Node().descendantsOf(true);
 
   }
 
   @Override
   public Object visitDescendantorselfof(IMECLParser.DescendantorselfofContext ctx) {
-    return new Node().setDescendantsOrSelfOf(true);
+    return new Node().descendantsOrSelfOf(true);
   }
 
   @Override
   public Object visitChildof(IMECLParser.ChildofContext ctx) {
-    return new Node().setChildOf(true);
+    return new Node().childOf(true);
   }
 
   @Override
   public Object visitChildorselfof(IMECLParser.ChildorselfofContext ctx) {
-    return new Node().setChildOrSelfOf(true);
+    return new Node().childOrSelfOf(true);
   }
 
   @Override
   public Object visitAncestorof(IMECLParser.AncestorofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().ancestorsOf(true);
   }
 
   @Override
   public Object visitAncestororselfof(IMECLParser.AncestororselfofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().ancestorsOf(true);
   }
 
   @Override
   public Object visitParentof(IMECLParser.ParentofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().ancestorsOf(true);
   }
 
 
   @Override
   public Object visitParentorselfof(IMECLParser.ParentorselfofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().ancestorsOf(true);
   }
 
   @Override
@@ -541,11 +540,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             where = new Where();
             where.setIri(node.getIri());
             where.setName(node.getName());
-            where.setDescendantsOf(node.isDescendantsOf());
-            where.setDescendantsOrSelfOf(node.isDescendantsOrSelfOf());
-            where.setChildOf(node.isChildOf());
-            where.setChildOrSelfOf(node.isChildOrSelfOf());
-            where.setAncestorsOf(node.isAncestorsOf());
+            where.setDescendantsOf(node.getDescendantsOf());
+            where.setDescendantsOrSelfOf(node.getDescendantsOrSelfOf());
+            where.setChildOf(node.getChildOf());
+            where.setChildOrSelfOf(node.getChildOrSelfOf());
+            where.setAncestorsOf(node.getAncestorsOf());
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {

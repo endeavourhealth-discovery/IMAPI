@@ -72,9 +72,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     generateIm1Deltas = true;
   }
 
-  private static Map<GraphVocab, Set<String>> getEntitiesToCheckForUsage(TTDocument transaction) {
+  private static Map<GraphVocab, Set<String>> getEntitiesToCheckForUsage(TTDocumentJava transaction) {
     Map<GraphVocab, Set<String>> toCheck = new HashMap<>();
-    for (TTEntity entity : transaction.getEntities()) {
+    for (TTEntityJava entity : transaction.getEntities()) {
 
       setEntityCrudOperation(transaction, entity);
 
@@ -87,7 +87,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     return toCheck;
   }
 
-  private static void setEntityCrudOperation(TTDocument transaction, TTEntity entity) {
+  private static void setEntityCrudOperation(TTDocumentJava transaction, TTEntityJava entity) {
     if (entity.getCrud() == null) {
       if (transaction.getCrud() != null) {
         entity.setCrud(transaction.getCrud());
@@ -170,7 +170,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
   @Override
-  public void fileDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocumentJava document) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -181,7 +181,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     fileAsDocument(document);
   }
 
-  public void fileDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+  public void fileDocument(TTDocumentJava document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
     if (document.getEntities() == null) {
       throw new TTFilerException("Document has no entities");
     }
@@ -192,20 +192,20 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     fileAsDocument(document, taskId);
   }
 
-  private void checkDeletes(TTDocument transaction) throws TTFilerException {
+  private void checkDeletes(TTDocumentJava transaction) throws TTFilerException {
     Map<GraphVocab, Set<String>> toCheck = getEntitiesToCheckForUsage(transaction);
     if (!toCheck.isEmpty()) {
       checkIfEntitiesCurrentlyInUse(toCheck);
     }
   }
 
-  private void fileAsDocument(TTDocument document) throws TTFilerException, JsonProcessingException, QueryException {
+  private void fileAsDocument(TTDocumentJava document) throws TTFilerException, JsonProcessingException, QueryException {
     try {
       startTransaction();
       log.info("Filing entities.... ");
       int i = 0;
       entitiesFiled = new HashSet<>();
-      for (TTEntity entity : document.getEntities()) {
+      for (TTEntityJava entity : document.getEntities()) {
         setEntityCrudOperation(document, entity);
 
         if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)) != null && (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
@@ -238,7 +238,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
     if (generateIm1Deltas) {
       log.info("Generating IM1 deltas");
-      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNode::getIri).toList());
+      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNodeJava::getIri).toList());
     }
   }
 
@@ -246,7 +246,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     return filingProgress;
   }
 
-  private synchronized void fileAsDocument(TTDocument document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
+  private synchronized void fileAsDocument(TTDocumentJava document, String taskId) throws TTFilerException, JsonProcessingException, QueryException {
 
     if (filingProgress != null)
       throw new TTFilerException("There is a document already filing, please try again later");
@@ -257,7 +257,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
       int i = 0;
       int totalEntities = document.getEntities().size();
       entitiesFiled = new HashSet<>();
-      for (TTEntity entity : document.getEntities()) {
+      for (TTEntityJava entity : document.getEntities()) {
         i++;
         filingProgress = Math.round((float) i / totalEntities * 100);
         setEntityCrudOperation(document, entity);
@@ -294,21 +294,21 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
     if (generateIm1Deltas) {
       log.info("Generating IM1 Deltas");
-      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNode::getIri).toList());
+      SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNodeJava::getIri).toList());
     }
 
     filingProgress = null;
   }
 
-  private void fileEntity(TTEntity entity) throws TTFilerException {
+  private void fileEntity(TTEntityJava entity) throws TTFilerException {
     if (entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)) && entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)).asIriRef().getIri().equals(NamespaceVocab.ODS.toString()))
       instanceFiler.fileEntity(entity);
     else
       conceptFiler.fileEntity(entity);
   }
 
-  public void updateSets(TTDocument document) throws QueryException, JsonProcessingException {
-    for (TTEntity entity : document.getEntities()) {
+  public void updateSets(TTDocumentJava document) throws QueryException, JsonProcessingException {
+    for (TTEntityJava entity : document.getEntities()) {
       if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET)) || entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.VALUE_SET))) {
         log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
@@ -318,19 +318,19 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void updateTct(TTDocument document) {
+  public void updateTct(TTDocumentJava document) {
     isAs = new HashMap<>();
     done = new HashSet<>();
     manager = new TTManager();
     manager.setDocument(document).createIndex();
     log.info("Deleting and Generating isas.... ");
-    for (TTEntity entity : document.getEntities()) {
+    for (TTEntityJava entity : document.getEntities()) {
       conceptFiler.updateIsAs(entity.getIri());
     }
   }
 
 
-  private Set<String> getInternalIsAs(TTEntity entity) {
+  private Set<String> getInternalIsAs(TTEntityJava entity) {
     String subclass = entity.getIri();
     if (!done.contains(subclass)) {
       isAs.computeIfAbsent(subclass, s -> new HashSet<>());
@@ -345,8 +345,8 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     return isAs.get(subclass);
   }
 
-  private void processSuperClass(TTEntity entity, String iriRef, String subclass) {
-    for (TTValue superClass : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), iriRef)).getElements()) {
+  private void processSuperClass(TTEntityJava entity, String iriRef, String subclass) {
+    for (TTValueJava superClass : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), iriRef)).getElements()) {
       String iri = superClass.asIriRef().getIri();
       if (!done.contains(iri)) {
         isAs.get(subclass).add(iri);
@@ -362,7 +362,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   }
 
 
-  public void writeLog(TTDocument document) throws JsonProcessingException {
+  public void writeLog(TTDocumentJava document) throws JsonProcessingException {
     log.debug("Writing transaction to [{}]", logPath);
     File directory = new File(logPath);
     int logNumber = 0;
@@ -383,14 +383,14 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void fileEntities(TTDocument document) throws TTFilerException {
+  public void fileEntities(TTDocumentJava document) throws TTFilerException {
     log.info("Filing entities.... ");
 
     startTransaction();
     try {
       if (document.getEntities() != null) {
         int i = 0;
-        for (TTEntity entity : document.getEntities()) {
+        for (TTEntityJava entity : document.getEntities()) {
           if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)) != null && (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PRIVACY_LEVEL)).asLiteral().intValue() > TTFilerFactory.getPrivacyLevel()))
             continue;
           setEntityCrudOperation(document, entity);

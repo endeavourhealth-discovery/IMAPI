@@ -6,9 +6,6 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.iml.ParameterShape;
-import org.endeavourhealth.imapi.model.iml.PropertyRange;
-import org.endeavourhealth.imapi.model.iml.PropertyShape;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -288,9 +285,9 @@ public class DataModelRepository {
     parameter.setType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterType").stringValue()).name(bs.getValue("parameterTypeName").stringValue()));
     if (bs.getValue("parameterSubtype") != null) {
       if (parameter.getParameterSubType() == null) {
-        parameter.addParameterSubType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
+        parameter.addParameterSubTypeItem(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
       } else if (!parameter.getParameterSubType().contains(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterSubtype").stringValue()))) {
-        parameter.addParameterSubType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
+        parameter.addParameterSubTypeItem(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("parameterSubtype").stringValue()).name(bs.getValue("parameterSubtypeName").stringValue()));
       }
     }
 

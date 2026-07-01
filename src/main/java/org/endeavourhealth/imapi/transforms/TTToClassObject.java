@@ -11,7 +11,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class TTToClassObject {
-  public <T> T getObject(TTEntity entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
+  public <T> T getObject(TTEntityJava entity, Class<T> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
     T obj = classType.getDeclaredConstructor().newInstance();
     setField(obj, "iri", entity.getIri());
     processNode(entity, obj, classType);
@@ -30,10 +30,10 @@ public class TTToClassObject {
     return result;
   }
 
-  private void processNode(TTNode node, Object obj, Class<?> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
+  private void processNode(TTNodeJava node, Object obj, Class<?> classType) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     List<Field> fields = getAllFields(classType);
     Map<String, Field> fieldMap = getFieldNames(fields);
-    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
       if (entry.getValue() != null) {
         TTIriRef propertyIri = entry.getKey();
         String fieldName = propertyIri.getIri();
@@ -53,7 +53,7 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
+  private void processNodeParameterizedType(Object obj, Map.Entry<TTIriRef, TTArrayJava> entry, String fieldName, ParameterizedType pt) throws InstantiationException, IllegalAccessException, JsonProcessingException, NoSuchMethodException, InvocationTargetException {
     if (1 != pt.getActualTypeArguments().length) {
       return;
     }
@@ -64,7 +64,7 @@ public class TTToClassObject {
     if (listType instanceof Class) {
       listClazz = (Class<?>) listType;
     }
-    for (TTValue value : entry.getValue().getElements()) {
+    for (TTValueJava value : entry.getValue().getElements()) {
       if (value.isNode()) {
         if (listClazz == null)
           throw new InstantiationException("unable to converted entity due to class mismatch");
@@ -82,12 +82,12 @@ public class TTToClassObject {
     }
   }
 
-  private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArray> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
+  private void processNodeOtherType(Object obj, Map.Entry<TTIriRef, TTArrayJava> entry, String fieldName, Type type) throws InstantiationException, IllegalAccessException, JsonProcessingException, InvocationTargetException, NoSuchMethodException {
     Class<?> clazz = null;
     if (type instanceof Class) {
       clazz = (Class<?>) type;
     }
-    TTArray value = entry.getValue();
+    TTArrayJava value = entry.getValue();
     if (value.isNode()) {
       if (clazz == null)
         throw new InstantiationException("UJnable to parse entity due to class mismatch");
@@ -110,7 +110,7 @@ public class TTToClassObject {
     }
   }
 
-  private void setValue(Object object, String fieldName, TTLiteral value, Type type) {
+  private void setValue(Object object, String fieldName, TTLiteralJava value, Type type) {
 
     if (type == String.class) {
       setField(object, fieldName, value.asLiteral().getValue());
@@ -122,7 +122,7 @@ public class TTToClassObject {
       setField(object, fieldName, value.asLiteral().intValue());
   }
 
-  private void addValue(List<Object> list, TTLiteral value, Type type) {
+  private void addValue(List<Object> list, TTLiteralJava value, Type type) {
 
     if (type == String.class) {
       list.add(value.asLiteral().getValue());

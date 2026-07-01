@@ -1,5 +1,6 @@
 package org.endeavourhealth.imapi.model.extensions
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRefValue
 import org.endeavourhealth.imapi.utility.EnumUtils
 import org.endeavourhealth.interfacemanager.model.NamespaceVocab
 import org.endeavourhealth.interfacemanager.model.TTIriRef
@@ -42,6 +43,14 @@ fun TTIriRef.hasName(): Boolean =
 
 fun TTIriRef.hasDescription(): Boolean =
   description?.isNotEmpty() == true
+
+fun TTIriRef.asTTValue(): TTIriRefValue {
+  return TTIriRefValue().apply {
+    this.iri = normaliseIri(iri)
+    this.name = name
+    this.description = description
+  }
+}
 
 private
 val iriPattern: Pattern = Pattern.compile("([a-z]+)?[:].*")

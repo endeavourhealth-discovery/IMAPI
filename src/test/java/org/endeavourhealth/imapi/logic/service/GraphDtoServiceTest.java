@@ -3,9 +3,9 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_NotNullEntity() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
     GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
@@ -51,7 +51,7 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_RoleGroup() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
     GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
@@ -60,7 +60,7 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_LeafNodes() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
     GraphDto actual = graphDtoService.getGraphData("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
@@ -68,8 +68,8 @@ public class GraphDtoServiceTest {
 
   @Test
   void getGraphData_ParentIsList() {
-    TTEntity entity = new TTEntity()
-      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), new TTArray()
+    TTEntityJava entity = new TTEntityJava()
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), new TTArrayJava()
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent1", "Parent 1"))
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent2", "Parent 2"))
       );

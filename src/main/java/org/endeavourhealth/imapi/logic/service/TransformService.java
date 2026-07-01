@@ -6,10 +6,10 @@ import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.transforms.EqdToIMQ;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
@@ -27,7 +27,7 @@ import java.util.*;
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {
 
-  public TTDocument transformEqd(EnquiryDocument eqDoc, NamespaceVocab namespace) throws IOException, QueryException, EQDException {
+  public TTDocumentJava transformEqd(EnquiryDocument eqDoc, NamespaceVocab namespace) throws IOException, QueryException, EQDException {
     Properties dataMap = new Properties();
 
     File file = ResourceUtils.getFile("classpath:eqdmap.properties");
@@ -35,7 +35,7 @@ public class TransformService {
       dataMap.load(in);
     }
 
-    TTDocument document = new TTDocument();
+    TTDocumentJava document = new TTDocumentJava();
 
     EqdToIMQ converter = new EqdToIMQ(false);
     converter.convertEQD(document, eqDoc, dataMap, namespace);
@@ -54,7 +54,7 @@ public class TransformService {
   public Set<Object> runTransform(TransformRequest request) throws JsonProcessingException {
     validateInputs(request.getSourceFormat(), request.getTargetFormat(), request.getTransformMap(), request.getSource());
     String mapIri = request.getTransformMap().getIri();
-    TTEntity mapEntity = EntityCache.getEntity(mapIri).getEntity();
+    TTEntityJava mapEntity = EntityCache.getEntity(mapIri).getEntity();
 
     //Is it a graph map
     if (mapEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTITY_MAP)) != null) {
@@ -85,11 +85,11 @@ public class TransformService {
     return targetObjects;
   }
 
-  private Set<Object> transformGraph(TransformRequest request, TTEntity graphMapEntity) throws JsonProcessingException {
+  private Set<Object> transformGraph(TransformRequest request, TTEntityJava graphMapEntity) throws JsonProcessingException {
     Transformer transform = new Transformer(request.getSourceFormat(), request.getTargetFormat());
     Set<Object> targetObjects = new HashSet<>();
-    for (TTValue map : graphMapEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTITY_MAP)).getElements()) {
-      TTEntity mapEntity = EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
+    for (TTValueJava map : graphMapEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTITY_MAP)).getElements()) {
+      TTEntityJava mapEntity = EntityCache.getEntity(map.asIriRef().getIri()).getEntity();
       MapObject mapObject = mapEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(MapObject.class);
 
       //Matches the entity map with the typed source map

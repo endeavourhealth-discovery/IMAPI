@@ -5,9 +5,9 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -33,7 +33,7 @@ public class DataModelService {
     entityService = new EntityService(entityRepository);
   }
 
-  private static String getCardinality(TTValue ttProperty) {
+  private static String getCardinality(TTValueJava ttProperty) {
     int minCount = 0;
     if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MINCOUNT))) {
       minCount = ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MINCOUNT)).asLiteral().intValue();
@@ -66,15 +66,15 @@ public class DataModelService {
   }
 
   public List<DataModelProperty> getDataModelProperties(String iri, Boolean includeComplexTypes) {
-    TTEntity entity = entityRepository.getBundle(iri, EnumUtils.asHashSet(ShaclVocab.PROPERTY, RdfsVocab.LABEL)).getEntity();
+    TTEntityJava entity = entityRepository.getBundle(iri, EnumUtils.asHashSet(ShaclVocab.PROPERTY, RdfsVocab.LABEL)).getEntity();
     return getDataModelProperties(entity, includeComplexTypes);
   }
 
-  public List<DataModelProperty> getDataModelProperties(TTEntity entity) {
+  public List<DataModelProperty> getDataModelProperties(TTEntityJava entity) {
     return getDataModelProperties(entity, true);
   }
 
-  public List<DataModelProperty> getDataModelProperties(TTEntity entity, Boolean includeComplexTypes) {
+  public List<DataModelProperty> getDataModelProperties(TTEntityJava entity, Boolean includeComplexTypes) {
     List<DataModelProperty> properties = new ArrayList<>();
     if (entity == null)
       return Collections.emptyList();
@@ -84,8 +84,8 @@ public class DataModelService {
     return properties.stream().sorted(Comparator.comparing(DataModelProperty::getOrder)).toList();
   }
 
-  private void getDataModelPropertyGroups(TTEntity entity, List<DataModelProperty> properties, Boolean includeComplexTypes) {
-    for (TTValue propertyGroup : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY)).iterator()) {
+  private void getDataModelPropertyGroups(TTEntityJava entity, List<DataModelProperty> properties, Boolean includeComplexTypes) {
+    for (TTValueJava propertyGroup : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY)).iterator()) {
       if (propertyGroup.isNode()) {
         TTIriRef inheritedFrom = propertyGroup.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INHERITED_FROM))
           ? propertyGroup.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INHERITED_FROM)).asIriRef()
@@ -97,7 +97,7 @@ public class DataModelService {
     }
   }
 
-  private void getDataModelShaclProperties(List<DataModelProperty> properties, TTValue propertyGroup, TTIriRef inheritedFrom) {
+  private void getDataModelShaclProperties(List<DataModelProperty> properties, TTValueJava propertyGroup, TTIriRef inheritedFrom) {
     TTIriRef propertyPath = propertyGroup.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef();
     if (properties.stream()
       .noneMatch(o -> o.getProperty().getIri().equals(propertyPath.getIri()))) {
@@ -105,7 +105,7 @@ public class DataModelService {
     }
   }
 
-  private DataModelProperty getPropertyValue(TTIriRef inheritedFrom, TTValue property, TTIriRef propertyPath) {
+  private DataModelProperty getPropertyValue(TTIriRef inheritedFrom, TTValueJava property, TTIriRef propertyPath) {
     DataModelProperty pv = new DataModelProperty().inheritedFrom(inheritedFrom).property(propertyPath);
 
     if (property.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS)))
@@ -148,13 +148,13 @@ public class DataModelService {
   public List<PropertyDisplay> getPropertiesDisplay(String iri) {
     Set<String> predicates = new HashSet<>();
     predicates.add(ShaclVocab.PROPERTY.toString());
-    TTEntity entity = entityRepository.getBundle(iri, predicates).getEntity();
+    TTEntityJava entity = entityRepository.getBundle(iri, predicates).getEntity();
     List<PropertyDisplay> propertyList = new ArrayList<>();
     String entityIri = entity.getIri();
-    TTArray ttProperties = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
+    TTArrayJava ttProperties = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
     if (null == ttProperties) return propertyList;
 
-    for (TTValue ttProperty : ttProperties.getElements()) {
+    for (TTValueJava ttProperty : ttProperties.getElements()) {
       String cardinality = getCardinality(ttProperty);
       String reverseCardinality = "0 : * ";
       if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE))) {
@@ -169,11 +169,11 @@ public class DataModelService {
     return propertyList;
   }
 
-  private String getReverseCardinality(TTValue ttProperty, Set<String> predicates, String newCardinality, String entityIri) {
-    TTEntity newEntity = entityRepository.getBundle(ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)).asIriRef().getIri(), predicates).getEntity();
+  private String getReverseCardinality(TTValueJava ttProperty, Set<String> predicates, String newCardinality, String entityIri) {
+    TTEntityJava newEntity = entityRepository.getBundle(ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)).asIriRef().getIri(), predicates).getEntity();
     if (newEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY)) != null) {
-      TTArray newProps = newEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
-      for (TTValue newttProperty : newProps.getElements()) {
+      TTArrayJava newProps = newEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
+      for (TTValueJava newttProperty : newProps.getElements()) {
         if (newttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)) != null && Objects.equals(newttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)).get(0).asIriRef().getIri(), entityIri))
           newCardinality = getCardinality(newttProperty);
 
@@ -182,21 +182,21 @@ public class DataModelService {
     return newCardinality;
   }
 
-  private void handleOr(TTValue ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
+  private void handleOr(TTValueJava ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
     PropertyDisplay propertyDisplay = new PropertyDisplay();
     propertyDisplay.setOrder(ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.ORDER)).asLiteral().intValue());
     propertyDisplay.setCardinality(cardinality);
     propertyDisplay.setReverseCardinality(reverseCardinality);
     propertyDisplay.setOr(true);
-    for (TTValue orProperty : ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).getElements()) {
-      TTArray type;
+    for (TTValueJava orProperty : ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).getElements()) {
+      TTArrayJava type;
       if (orProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS)))
         type = orProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS));
       else if (orProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)))
         type = orProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE));
       else if (orProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE)))
         type = orProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE));
-      else type = new TTArray();
+      else type = new TTArrayJava();
       String name = "";
       if (orProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH))) {
         name += orProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).get(0).asIriRef().getIri() + " (";
@@ -211,16 +211,16 @@ public class DataModelService {
     }
   }
 
-  private void handleNotOr(TTValue ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
-    TTArray type;
+  private void handleNotOr(TTValueJava ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
+    TTArrayJava type;
     if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS)))
       type = ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.CLASS));
     else if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)))
       type = ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE));
     else if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE)))
       type = ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.DATATYPE));
-    else type = new TTArray();
-    TTValue group = null;
+    else type = new TTArrayJava();
+    TTValueJava group = null;
     if (ttProperty.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP))) {
       group = ttProperty.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.GROUP)).get(0);
     }

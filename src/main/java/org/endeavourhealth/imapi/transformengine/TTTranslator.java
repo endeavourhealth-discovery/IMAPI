@@ -11,16 +11,16 @@ import java.util.Map;
 
 public class TTTranslator implements SyntaxTranslator {
 
-  private static void setPropertyValueTTEntity(MapProperty rule, TTNode targetEntity, Object targetValue, String predicate) {
-    TTNode nodeValue = (TTNode) targetValue;
-    if (((TTEntity) targetValue).getIri() != null)
-      nodeValue.setIri(((TTEntity) targetValue).getIri());
+  private static void setPropertyValueTTEntity(MapProperty rule, TTNodeJava targetEntity, Object targetValue, String predicate) {
+    TTNodeJava nodeValue = (TTNodeJava) targetValue;
+    if (((TTEntityJava) targetValue).getIri() != null)
+      nodeValue.setIri(((TTEntityJava) targetValue).getIri());
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
       targetEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), nodeValue);
     }
   }
 
-  private static void setPropertyValueTTValue(MapProperty rule, TTNode targetEntity, TTValue targetValue, String predicate) {
+  private static void setPropertyValueTTValue(MapProperty rule, TTNodeJava targetEntity, TTValueJava targetValue, String predicate) {
     if (rule.getTargetUpdateMode() == TargetUpdateMode.ADDTOLIST) {
       targetEntity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), targetValue);
     } else
@@ -28,7 +28,7 @@ public class TTTranslator implements SyntaxTranslator {
   }
 
   public Object createEntity(String type) {
-    TTEntity target = new TTEntity();
+    TTEntityJava target = new TTEntityJava();
     target.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), type));
 
     return target;
@@ -41,31 +41,31 @@ public class TTTranslator implements SyntaxTranslator {
 
   @Override
   public boolean isCollection(Object source) {
-    return source instanceof TTArray;
+    return source instanceof TTArrayJava;
   }
 
   @Override
   public Object convertToTarget(Object from) {
     if (from instanceof Map<?, ?> fromMap) {
-      TTNode result = new TTNode();
+      TTNodeJava result = new TTNodeJava();
       for (Map.Entry<?, ?> entry : fromMap.entrySet()) {
         String key = (String) entry.getKey();
         if (!key.contains(":"))
           key = NamespaceVocab.
             IM + key;
         Object value = convertToTargetSingle(entry.getValue());
-        if (value instanceof TTArray valueTTArray)
-          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), valueTTArray);
-        else if (value instanceof TTValue valueTTValue) {
-          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), valueTTValue);
+        if (value instanceof TTArrayJava valueTTArrayJava)
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), valueTTArrayJava);
+        else if (value instanceof TTValueJava valueTTValueJava) {
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), valueTTValueJava);
         } else
           throw new IllegalArgumentException("Unknown sub node type in target map " + value.getClass().getSimpleName());
       }
       return result;
     } else if (from instanceof Collection<?> fromCollection) {
-      TTArray result = new TTArray();
+      TTArrayJava result = new TTArrayJava();
       for (Object value : fromCollection) {
-        result.add((TTValue) convertToTarget(value));
+        result.add((TTValueJava) convertToTarget(value));
       }
       return result;
     }
@@ -80,9 +80,9 @@ public class TTTranslator implements SyntaxTranslator {
   private Object convertToTargetSingle(Object from) {
     try {
       if (from instanceof String fromString)
-        return TTLiteral.literal(fromString);
+        return TTLiteralJava.literal(fromString);
       else if (from instanceof Number fromNumber)
-        return TTLiteral.literal(fromNumber);
+        return TTLiteralJava.literal(fromNumber);
       else {
         return from;
       }
@@ -95,7 +95,7 @@ public class TTTranslator implements SyntaxTranslator {
   public void setPropertyValue(MapProperty rule, Object targetEntity, String property, Object targetValue) {
     try {
       if (property.equals("id") || property.equals("iri"))
-        ((TTNode) targetEntity).setIri(((TTLiteral) targetValue).getValue());
+        ((TTNodeJava) targetEntity).setIri(((TTLiteralJava) targetValue).getValue());
       else {
         String predicate = property;
         if (!property.contains(":"))
@@ -103,20 +103,20 @@ public class TTTranslator implements SyntaxTranslator {
             IM + property;
         switch (targetValue) {
           case List<?> targetValueList -> {
-            TTArray array = new TTArray();
+            TTArrayJava array = new TTArrayJava();
             for (Object item : targetValueList) {
-              array.add((TTValue) convertToTargetSingle(item));
+              array.add((TTValueJava) convertToTargetSingle(item));
             }
-            ((TTNode) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), array);
+            ((TTNodeJava) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), array);
           }
-          case TTArray targetValueTTArray ->
-            ((TTNode) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), targetValueTTArray);
-          case TTEntity targetValueTTEntity ->
-            setPropertyValueTTEntity(rule, (TTNode) targetEntity, targetValueTTEntity, predicate);
-          case TTValue targetValueTTValue ->
-            setPropertyValueTTValue(rule, (TTNode) targetEntity, targetValueTTValue, predicate);
+          case TTArrayJava targetValueTTArrayJava ->
+            ((TTNodeJava) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), targetValueTTArrayJava);
+          case TTEntityJava targetValueTTEntity ->
+            setPropertyValueTTEntity(rule, (TTNodeJava) targetEntity, targetValueTTEntity, predicate);
+          case TTValueJava targetValueTTValueJava ->
+            setPropertyValueTTValue(rule, (TTNodeJava) targetEntity, targetValueTTValueJava, predicate);
           case null, default ->
-            ((TTNode) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), TTLiteral.literal(targetValue));
+            ((TTNodeJava) targetEntity).set(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), TTLiteralJava.literal(targetValue));
         }
       }
     } catch (JsonProcessingException e) {

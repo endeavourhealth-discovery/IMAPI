@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
 import org.endeavourhealth.interfacemanager.model.RdfVocab;
 import org.endeavourhealth.interfacemanager.model.RdfsVocab;
@@ -16,7 +16,7 @@ public class TTDisplay {
     throw new IllegalStateException("Utility class");
   }
 
-  public static TTIriRef[] getTemplate(TTNode node) {
+  public static TTIriRef[] getTemplate(TTNodeJava node) {
     return entity;
   }
 

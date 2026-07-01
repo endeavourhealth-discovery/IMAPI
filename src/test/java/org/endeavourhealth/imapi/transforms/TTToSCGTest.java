@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.junit.jupiter.api.Test;
 
 import java.util.zip.DataFormatException;
@@ -13,7 +13,7 @@ class TTToSCGTest {
   void getSCG() throws DataFormatException {
     String scg = "=== 173422009: 405813007 = 75573002 , 272741003 = 51440002";
     SCGToTT cnv = new SCGToTT();
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     try (TTManager manager = new TTManager()) {
       entity.setContext(manager.createDefaultContext());
       cnv.setDefinition(entity, scg);

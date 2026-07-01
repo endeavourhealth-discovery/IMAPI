@@ -3,31 +3,31 @@ package org.endeavourhealth.imapi.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.interfacemanager.model.XsdVocab;
 
 import java.io.IOException;
 
-public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
+public class TTLiteralSerializer extends StdSerializer<TTLiteralJava> {
   private transient TTNodeSerializer helper;
 
   public TTLiteralSerializer() {
     this(null);
   }
 
-  public TTLiteralSerializer(Class<TTLiteral> t) {
+  public TTLiteralSerializer(Class<TTLiteralJava> t) {
     super(t);
   }
 
-  public TTLiteralSerializer(Class<TTLiteral> t, TTNodeSerializer helper) {
+  public TTLiteralSerializer(Class<TTLiteralJava> t, TTNodeSerializer helper) {
     super(t);
     this.helper = helper;
   }
 
   @Override
-  public void serialize(TTLiteral literal, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
+  public void serialize(TTLiteralJava literal, JsonGenerator gen, SerializerProvider prov) throws IOException {
+    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContextJava.OUTPUT_CONTEXT);
     usePrefixes = (usePrefixes != null && usePrefixes && helper != null);
 
     if (literal.getType() != null) {

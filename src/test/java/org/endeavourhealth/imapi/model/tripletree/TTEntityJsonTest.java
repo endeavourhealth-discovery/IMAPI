@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TTEntityJsonTest {
   @Test
   void serializationTest() throws JsonProcessingException {
-    TTEntity adverseReaction = TestHelper.getTestEntity();
+    TTEntityJava adverseReaction = TestHelper.getTestEntity();
 
     ObjectMapper om = new ObjectMapper();
     String actual = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
@@ -24,28 +24,28 @@ class TTEntityJsonTest {
 
   @Test
   void deserializationTest() throws JsonProcessingException {
-    TTEntity adverseReaction = TestHelper.getTestEntity();
+    TTEntityJava adverseReaction = TestHelper.getTestEntity();
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
     String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
     // Deserialize
-    adverseReaction = om.readValue(json, TTEntity.class);
+    adverseReaction = om.readValue(json, TTEntityJava.class);
 
     TestHelper.checkEntity(adverseReaction);
   }
 
   @Test
   void flipFlopTest() throws JsonProcessingException {
-    TTEntity adverseReaction = TestHelper.getTestEntity();
+    TTEntityJava adverseReaction = TestHelper.getTestEntity();
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
     String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);
 
     // Deserialize
-    adverseReaction = om.readValue(json, TTEntity.class);
+    adverseReaction = om.readValue(json, TTEntityJava.class);
 
     // Reserialize
     String out = om.writerWithDefaultPrettyPrinter().writeValueAsString(adverseReaction);

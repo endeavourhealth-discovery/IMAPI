@@ -8,13 +8,7 @@ import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.interfacemanager.model.DownloadByQueryOptions;
-import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
-import org.endeavourhealth.interfacemanager.model.Page;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
 import java.util.List;

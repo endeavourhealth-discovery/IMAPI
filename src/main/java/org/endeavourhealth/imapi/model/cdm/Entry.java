@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.imapi.model.tripletree.TTUtil;
 
-public abstract class Entry extends TTEntity {
+public abstract class Entry extends TTEntityJava {
 
   public TTIriRef getDataController() {
 
@@ -25,7 +25,7 @@ public abstract class Entry extends TTEntity {
   }
 
   public Entry setDateOfEntry(String dateOfEntry) {
-    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DATE_OF_ENTRY), TTLiteral.literal(dateOfEntry));
+    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DATE_OF_ENTRY), TTLiteralJava.literal(dateOfEntry));
     return this;
   }
 }

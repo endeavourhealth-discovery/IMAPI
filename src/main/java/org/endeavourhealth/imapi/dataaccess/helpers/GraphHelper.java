@@ -29,7 +29,7 @@ public class GraphHelper {
   public static TTEntityMap getEntityMap(GraphQuery qry) {
     TTEntityMap entityMap = new TTEntityMap();
     try (GraphQueryResult gs = qry.evaluate()) {
-      Map<String, TTValue> valueMap = new HashMap<>();
+      Map<String, TTValueJava> valueMap = new HashMap<>();
       for (Statement st : gs) {
         processStatement(entityMap, valueMap, st);
       }
@@ -47,7 +47,7 @@ public class GraphHelper {
    * @param st        The rdf4j triple statement
    */
   public static void processStatement(TTEntityMap entityMap,
-                                      Map<String, TTValue> tripleMap, Statement st) {
+                                      Map<String, TTValueJava> tripleMap, Statement st) {
     Resource s = st.getSubject();
     IRI p = st.getPredicate();
     Value o = st.getObject();
@@ -60,23 +60,23 @@ public class GraphHelper {
       tripleMap.putIfAbsent(subject, TTIriRefExtensionsKt.iri(new TTIriRef(), subject));
       tripleMap.get(subject).asIriRef().setName(value);
     } else {
-      TTNode node;
+      TTNodeJava node;
       tripleMap.putIfAbsent(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), predicate));
       if (s.isIRI()) {
-        entityMap.getEntities().putIfAbsent(subject, new TTEntity().setIri(subject));
+        entityMap.getEntities().putIfAbsent(subject, new TTEntityJava().setIri(subject));
         node = entityMap.getEntities().get(subject);
       } else {
-        tripleMap.putIfAbsent(subject, new TTNode());
+        tripleMap.putIfAbsent(subject, new TTNodeJava());
         node = tripleMap.get(subject).asNode();
       }
       if (o.isBNode()) {
-        tripleMap.putIfAbsent(value, new TTNode());
+        tripleMap.putIfAbsent(value, new TTNodeJava());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
         tripleMap.putIfAbsent(value, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else {
-        tripleMap.putIfAbsent(value, TTLiteral.literal(value));
+        tripleMap.putIfAbsent(value, TTLiteralJava.literal(value));
         node.set(tripleMap.get(predicate).asIriRef(), tripleMap.get(value).asLiteral());
       }
     }

@@ -17,7 +17,7 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTest() throws JsonProcessingException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
 
     // Serialize
@@ -33,14 +33,14 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTestPrefix() throws JsonProcessingException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
     String json = om
       .writerWithDefaultPrettyPrinter()
-      .withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      .withAttribute(TTContextJava.OUTPUT_CONTEXT, true)
       .writeValueAsString(node);
 
 
@@ -51,7 +51,7 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTestSimpleProperties() throws JsonProcessingException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
 
     // Serialize
@@ -68,7 +68,7 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTestSimplePropertiesAndPrefix() throws JsonProcessingException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
 
     // Serialize
@@ -76,7 +76,7 @@ class TTNodeJsonTest {
     String json = om
       .writerWithDefaultPrettyPrinter()
       .withAttribute(TTNodeSerializer.SIMPLE_PROPERTIES, true)
-      .withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      .withAttribute(TTContextJava.OUTPUT_CONTEXT, true)
       .writeValueAsString(node);
 
     System.out.println(json);
@@ -86,16 +86,16 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTestV2() throws IOException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
-    TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
+    TTEntityJava entity = TestHelper.getTestEntity();
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNodeJava.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
       TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
         HAS_STATUS),
       TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
-    mod.addSerializer(TTEntity.class, ser);
+    mod.addSerializer(TTEntityJava.class, ser);
 
     // Serialize
     ObjectMapper mapper = new ObjectMapper();
@@ -111,17 +111,17 @@ class TTNodeJsonTest {
 
   @Test
   void serializationTestSimplePropertiesV2() throws JsonProcessingException {
-    TTNode node = TestHelper.getTestEntity();
+    TTNodeJava node = TestHelper.getTestEntity();
     TestHelper.checkEntity(node);
 
-    TTEntity entity = TestHelper.getTestEntity();
-    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNode.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
+    TTEntityJava entity = TestHelper.getTestEntity();
+    TTNodeSerializerV2 ser = new TTNodeSerializerV2(TTNodeJava.class, entity.getContext(), List.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL),
       TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
         HAS_STATUS),
       TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF)));
 
     SimpleModule mod = new SimpleModule("SimpleModule", new Version(1, 0, 0, null, null, null));
-    mod.addSerializer(TTEntity.class, ser);
+    mod.addSerializer(TTEntityJava.class, ser);
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
@@ -139,7 +139,7 @@ class TTNodeJsonTest {
   void deserializationTest() throws JsonProcessingException {
     // Deserialize
     ObjectMapper om = new ObjectMapper();
-    TTNode adverseReaction = om.readValue(TestHelper.getTestEntityJson(), TTNode.class);
+    TTNodeJava adverseReaction = om.readValue(TestHelper.getTestEntityJson(), TTNodeJava.class);
 
     TestHelper.checkEntity(adverseReaction);
   }

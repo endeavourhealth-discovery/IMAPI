@@ -7,7 +7,10 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 import javax.naming.directory.InvalidAttributesException;
 import java.util.StringJoiner;
@@ -26,7 +29,7 @@ public class SetReducer {
    * @return The entity redefined or as original
    * @throws InvalidAttributesException A message of "NOT CONVERTED TO EC ...."
    */
-  public TTEntity reduce(TTEntity set) throws InvalidAttributesException {
+  public TTEntityJava reduce(TTEntityJava set) throws InvalidAttributesException {
     String sql;
     int originalSize;
     if (set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) != null) {
@@ -48,7 +51,7 @@ public class SetReducer {
         if (!rs.hasNext())
           throw new InvalidAttributesException("Not converted to expression constraint. Does not have expanded members");
 
-        TTNode ors = new TTNode();
+        TTNodeJava ors = new TTNodeJava();
         set.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), ors);
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
@@ -77,9 +80,9 @@ public class SetReducer {
       """;
   }
 
-  private String getOrSql(TTEntity set) {
+  private String getOrSql(TTEntityJava set) {
 
-    TTArray definition = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
+    TTArrayJava definition = set.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
     if (definition.isIriRef()) {
       return null;
     }
@@ -87,7 +90,7 @@ public class SetReducer {
       return null;
     if (definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)) == null)
       return null;
-    for (TTValue value : definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).getElements()) {
+    for (TTValueJava value : definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)).getElements()) {
       if (!value.isIriRef())
         return null;
     }

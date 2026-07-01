@@ -6,12 +6,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.interfacemanager.model.GraphVocab;
+import org.endeavourhealth.interfacemanager.model.PathDocument;
+import org.endeavourhealth.interfacemanager.model.QueryRequest;
+import org.endeavourhealth.interfacemanager.model.SearchResponse;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -101,7 +102,7 @@ class SearchServiceTest {
     Path path = Paths.get("TestQueries/Definitions/" + name + "_definition.json").toAbsolutePath();
 
     try (FileWriter wr = new FileWriter(path.toString())) {
-      wr.write(new JsonLDMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
+      wr.write(new JsonLDMapper().writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(dataSet));
     }
     ObjectMapper om = new ObjectMapper();
 
@@ -110,7 +111,7 @@ class SearchServiceTest {
       JsonNode result = searchService.queryIM(dataSet);
       path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
-        wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+        wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(result));
         System.out.println("Found " + result.get("entities").size() + " entities");
         if (result.get("entities").isEmpty()) {
           dataSet = new ObjectMapper().readValue(originalRequest, QueryRequest.class);
@@ -122,10 +123,10 @@ class SearchServiceTest {
       PathDocument result = searchService.pathQuery(dataSet.getPathQuery());
       path = of.toAbsolutePath();
       try (FileWriter wr = new FileWriter(path.toString())) {
-        wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(result));
+        wr.write(om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(result));
       }
     } else if (dataSet.getUpdate() != null) {
-      searchService.updateIM(dataSet, GraphVocab. IM);
+      searchService.updateIM(dataSet, GraphVocab.IM);
     }
 
 
@@ -141,7 +142,7 @@ class SearchServiceTest {
 
   //@Test
   public void setTest() throws JsonProcessingException, QueryException {
-    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", GraphVocab. IM);
+    new SetMemberGenerator().generateMembers("http://apiqcodes.org/qcodes#QCodeGroup_713", GraphVocab.IM);
   }
 }
 

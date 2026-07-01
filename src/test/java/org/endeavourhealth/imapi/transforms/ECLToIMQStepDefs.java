@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

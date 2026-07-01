@@ -16,7 +16,10 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.GraphVocab;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
@@ -91,7 +94,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
   @Override
-  public void fileEntity(TTEntity entity) throws TTFilerException {
+  public void fileEntity(TTEntityJava entity) throws TTFilerException {
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME)) == null) {
       entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_SCHEME), getSchemeFromIri(entity.getIri()));
     }
@@ -258,16 +261,16 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void replaceAllPredicates(TTEntity entity) throws TTFilerException {
+  private void replaceAllPredicates(TTEntityJava entity) throws TTFilerException {
     deleteTriples(entity);
     addQuads(entity);
   }
 
-  private void addQuads(TTEntity entity) throws TTFilerException {
+  private void addQuads(TTEntityJava entity) throws TTFilerException {
     try {
       ModelBuilder builder = new ModelBuilder();
       builder.namedGraph(EnumUtils.asDbIri(graph));
-      for (Map.Entry<TTIriRef, TTArray> entry : entity.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : entity.getPredicateMap().entrySet()) {
         addTriple(builder, toIri(entity.getIri()), toIri(entry.getKey().getIri()), entry.getValue());
       }
       conn.add(builder.build());
@@ -277,7 +280,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  private void deleteTriples(TTEntity entity) throws TTFilerException {
+  private void deleteTriples(TTEntityJava entity) throws TTFilerException {
     try {
       deleteTriples.setBinding("concept", valueFactory.createIRI(entity.getIri()));
       deleteTriples.execute();
@@ -288,11 +291,11 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
   }
 
 
-  private void deletePredicates(TTEntity entity) throws TTFilerException {
+  private void deletePredicates(TTEntityJava entity) throws TTFilerException {
     StringBuilder predList = new StringBuilder();
     int i = 0;
-    Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
-    for (Map.Entry<TTIriRef, TTArray> po : predicates.entrySet()) {
+    Map<TTIriRef, TTArrayJava> predicates = entity.getPredicateMap();
+    for (Map.Entry<TTIriRef, TTArrayJava> po : predicates.entrySet()) {
       String predicateIri = po.getKey().getIri();
       i++;
       if (i > 1) predList.append(", ");
@@ -334,30 +337,30 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
 
   }
 
-  private void updatePredicates(TTEntity entity) throws TTFilerException {
+  private void updatePredicates(TTEntityJava entity) throws TTFilerException {
 
     //Deletes the previous predicate values and adds in the new ones
     deletePredicates(entity);
     addQuads(entity);
   }
 
-  private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTArray array) throws TTFilerException {
-    for (TTValue value : array.iterator()) {
+  private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTArrayJava array) throws TTFilerException {
+    for (TTValueJava value : array.iterator()) {
       addTriple(builder, subject, predicate, value);
     }
   }
 
-  private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValue value) throws TTFilerException {
+  private void addTriple(ModelBuilder builder, Resource subject, IRI predicate, TTValueJava value) throws TTFilerException {
     if (value.isLiteral()) {
       if (null != value.asLiteral().getValue())
         builder.add(subject, predicate, value.asLiteral().getType() == null ? literal(value.asLiteral().getValue()) : literal(value.asLiteral().getValue(), toIri(value.asLiteral().getType().getIri())));
     } else if (value.isIriRef()) {
       builder.add(subject, predicate, toIri(value.asIriRef().getIri()));
     } else if (value.isNode()) {
-      TTNode node = value.asNode();
+      TTNodeJava node = value.asNode();
       BNode bNode = bnode();
       builder.add(subject, predicate, bNode);
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
         addTriple(builder, bNode, toIri(entry.getKey().getIri()), entry.getValue());
       }
     } else {

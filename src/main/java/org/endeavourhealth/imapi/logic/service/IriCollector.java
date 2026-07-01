@@ -1,9 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.Assignable;
 import org.endeavourhealth.imapi.model.imq.ValueSource;
 import org.endeavourhealth.imapi.model.imq.When;
 import org.endeavourhealth.imapi.model.imq.Where;

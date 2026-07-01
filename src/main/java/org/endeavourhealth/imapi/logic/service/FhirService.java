@@ -4,10 +4,10 @@ import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.interfacemanager.model.ECLQueryRequest;
+import org.endeavourhealth.interfacemanager.model.SearchResponse;
+import org.endeavourhealth.interfacemanager.model.SearchResultSummary;
+import org.endeavourhealth.interfacemanager.model.SetOptions;
 import org.hl7.fhir.r4.model.ValueSet;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ public class FhirService {
 
   public String getFhirValueSet(String iri, boolean expanded) throws JsonProcessingException, QueryException {
     List<String> schemes = new ArrayList<>();
-    SetOptions setOptions = new SetOptions(iri, true, expanded, false, true, schemes, new ArrayList<>());
+    SetOptions setOptions = new SetOptions().setIri(iri).includeDefinition(true).includeCore(expanded).includeLegacy(false).includeSubsets(true).schemes(schemes).subsumptions(new ArrayList<>());
     return setService.getFHIRSetExport(setOptions);
   }
 

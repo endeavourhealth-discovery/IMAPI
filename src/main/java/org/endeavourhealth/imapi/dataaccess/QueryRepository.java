@@ -14,14 +14,11 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.model.imq.Update;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -89,7 +86,7 @@ public class QueryRepository {
         throw new QueryException("Missing update in query request");
       if (queryRequest.getUpdate().getIri() == null)
         throw new QueryException("Update queries must reference a predefined definition. Dynamic update based queries not supported");
-      TTEntity updateEntity = getEntity(queryRequest.getUpdate().getIri());
+      TTEntityJava updateEntity = getEntity(queryRequest.getUpdate().getIri());
       queryRequest.setUpdate(updateEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.UPDATE_PROCEDURE)).asLiteral().objectValue(Update.class));
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getUpdateSparql();
@@ -115,13 +112,13 @@ public class QueryRepository {
 
   private Query unpackQuery(Query query, QueryRequest queryRequest) throws QueryException {
     if (query.getIri() != null && query.getReturn() == null && query.getAnd() == null && query.getOr() == null) {
-      TTEntity entity = getEntity(query.getIri());
+      TTEntityJava entity = getEntity(query.getIri());
       if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PARAMETER)) != null) {
-        for (TTValue param : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PARAMETER)).getElements()) {
+        for (TTValueJava param : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PARAMETER)).getElements()) {
           processParam(param, queryRequest);
         }
       }
-      TTArray definition = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
+      TTArrayJava definition = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION));
 
       if (null == definition)
         throw new QueryException("Query: '" + query.getIri() + "' was not found");
@@ -138,7 +135,7 @@ public class QueryRepository {
     return query;
   }
 
-  private void processParam(TTValue param, QueryRequest queryRequest) throws QueryException {
+  private void processParam(TTValueJava param, QueryRequest queryRequest) throws QueryException {
     if (param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.MINCOUNT)) == null) return;
     String parameterName = param.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue();
     TTIriRef parameterType;
@@ -338,7 +335,7 @@ public class QueryRepository {
     return null;
   }
 
-  private TTEntity getEntity(String iri) {
+  private TTEntityJava getEntity(String iri) {
     return new EntityRepository().getBundle(iri,
       EnumUtils.asHashSet(ImVocab.DEFINITION, RdfVocab.TYPE, ImVocab.FUNCTION_DEFINITION, ImVocab.UPDATE_PROCEDURE, ShaclVocab.PARAMETER)).getEntity();
   }

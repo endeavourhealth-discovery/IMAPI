@@ -2,9 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;

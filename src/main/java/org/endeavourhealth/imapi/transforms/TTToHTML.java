@@ -1,9 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.util.Map;
 
@@ -12,12 +12,12 @@ public class TTToHTML {
     throw new IllegalStateException("Utility class");
   }
 
-  public static String getExpressionText(TTNode expression) {
+  public static String getExpressionText(TTNodeJava expression) {
     StringBuilder html = new StringBuilder();
     boolean first = true;
     if (expression.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)) != null) {
       html.append("<p class=\"intersection\">Intersection of</p>");
-      for (TTValue inter : expression.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
+      for (TTValueJava inter : expression.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF)).iterator()) {
         if (inter.isIriRef()) {
           if (!first)
             html.append("<p class=\"and\" style=\"margin-left: 40px;\">and</p> ");
@@ -36,8 +36,8 @@ public class TTToHTML {
     return html.toString();
   }
 
-  public static void setRoleGroup(TTNode roleGroup, StringBuilder html, int tab) {
-    for (Map.Entry<TTIriRef, TTArray> entry : roleGroup.getPredicateMap().entrySet()) {
+  public static void setRoleGroup(TTNodeJava roleGroup, StringBuilder html, int tab) {
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : roleGroup.getPredicateMap().entrySet()) {
       html.append("<p class=\"role-group\" style=\"margin-left: ").append(tab).append("px\">");
       html.append(entry.getKey().getName()).append("->");
       if (entry.getValue().isIriRef()) {

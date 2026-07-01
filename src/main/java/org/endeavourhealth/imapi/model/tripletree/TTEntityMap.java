@@ -4,25 +4,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TTEntityMap {
-  private Map<String, TTEntity> entities = new HashMap<>();
+  private Map<String, TTEntityJava> entities = new HashMap<>();
   private Map<String, String> predicates = new HashMap<>();
 
 
-  public Map<String, TTEntity> getEntities() {
+  public Map<String, TTEntityJava> getEntities() {
     return entities;
   }
 
-  public TTEntityMap setEntities(Map<String, TTEntity> entityResources) {
+  public TTEntityMap setEntities(Map<String, TTEntityJava> entityResources) {
     this.entities = entityResources;
     return this;
   }
 
-  public TTEntityMap addEntity(String iri, TTEntity entity) {
+  public TTEntityMap addEntity(String iri, TTEntityJava entity) {
     entities.put(iri, entity);
     return this;
   }
 
-  public TTEntity getEntity(String iri) {
+  public TTEntityJava getEntity(String iri) {
     return entities.get(iri);
   }
 

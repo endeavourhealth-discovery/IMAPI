@@ -3,37 +3,37 @@ package org.endeavourhealth.imapi.transforms;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TTManagerStepDefs {
-  private TTEntity entity;
+  private TTEntityJava entity;
 
   @Given("an entity")
   public void anEntity() {
-    entity = new TTEntity();
+    entity = new TTEntityJava();
   }
 
   @And("it has a list of term codes")
   public void itHasAListOfTermCodes() {
-    entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE), new TTArray());
+    entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE), new TTArrayJava());
   }
 
   @And("there is a term code with label {string}")
   public void thereIsATermCodeWithLabel(String arg0) {
-    TTNode node = new TTNode();
+    TTNodeJava node = new TTNodeJava();
     node.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), literal(arg0));
     entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).add(node);
   }
 
   @And("there is a term code with no label")
   public void thereIsATermCodeWithNoLabel() {
-    TTNode node = new TTNode();
+    TTNodeJava node = new TTNodeJava();
     entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).add(node);
   }
 

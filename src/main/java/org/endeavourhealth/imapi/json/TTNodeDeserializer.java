@@ -17,12 +17,12 @@ import java.util.regex.Pattern;
 @Slf4j
 public class TTNodeDeserializer {
 
-  private final TTContext context;
+  private final TTContextJava context;
 
   /**
    * @param context the map of prefixes to namespaces in string form.
    */
-  public TTNodeDeserializer(TTContext context) {
+  public TTNodeDeserializer(TTContextJava context) {
     this.context = context;
   }
 
@@ -44,7 +44,7 @@ public class TTNodeDeserializer {
     }
   }
 
-  public void populateTTNodeFromJson(TTNode result, JsonNode node) throws IOException {
+  public void populateTTNodeFromJson(TTNodeJava result, JsonNode node) throws IOException {
     Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
     while (iterator.hasNext()) {
       Map.Entry<String, JsonNode> field = iterator.next();
@@ -62,8 +62,8 @@ public class TTNodeDeserializer {
     }
   }
 
-  public TTArray getArrayNodeAsTripleTreeArray(ArrayNode arrayNode) throws IOException {
-    TTArray result = new TTArray();
+  public TTArrayJava getArrayNodeAsTripleTreeArray(ArrayNode arrayNode) throws IOException {
+    TTArrayJava result = new TTArrayJava();
 
     Iterator<JsonNode> iterator = arrayNode.elements();
     while (iterator.hasNext()) {
@@ -74,13 +74,13 @@ public class TTNodeDeserializer {
     return result;
   }
 
-  public TTArray getJsonNodeArrayAsValue(JsonNode node) throws IOException {
+  public TTArrayJava getJsonNodeArrayAsValue(JsonNode node) throws IOException {
     return getArrayNodeAsTripleTreeArray((ArrayNode) node);
   }
 
-  public TTValue getJsonNodeAsValue(JsonNode node) throws IOException {
+  public TTValueJava getJsonNodeAsValue(JsonNode node) throws IOException {
     if (node.isValueNode())
-      return TTLiteral.literal(node);
+      return TTLiteralJava.literal(node);
     else if (node.isObject()) {
       if (node.has(ImVocab.IRI.toString())) {
         if (node.has("name"))
@@ -91,7 +91,7 @@ public class TTNodeDeserializer {
         if (node.has(ImVocab.VALUE.toString())) {
           return getJsonNodeAsLiteral(node);
         } else {
-          TTNode result = new TTNode();
+          TTNodeJava result = new TTNodeJava();
           populateTTNodeFromJson(result, node);
           return result;
         }
@@ -100,20 +100,20 @@ public class TTNodeDeserializer {
       throw new IOException("Failed to deserialize node array");
     } else {
       log.warn("TTNode deserializer - Unhandled node type, reverting to String");
-      return TTLiteral.literal(node.asText());
+      return TTLiteralJava.literal(node.asText());
     }
   }
 
-  public TTLiteral getJsonNodeAsLiteral(JsonNode node) throws IOException {
+  public TTLiteralJava getJsonNodeAsLiteral(JsonNode node) throws IOException {
     if (!node.has(ImVocab.TYPE.toString()))
-      return TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
+      return TTLiteralJava.literal(node.get(ImVocab.VALUE.toString()).textValue());
 
     TTIriRef type = TTIriRefExtensionsKt.iri(new TTIriRef(), expand(node.get(ImVocab.TYPE.toString()).asText()));
     return switch (XsdVocab.fromValue(type.getIri())) {
-      case XsdVocab.STRING -> TTLiteral.literal(node.get(ImVocab.VALUE.toString()).textValue());
-      case XsdVocab.BOOLEAN -> TTLiteral.literal(Boolean.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
-      case XsdVocab.INTEGER -> TTLiteral.literal(Integer.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
-      case XsdVocab.PATTERN -> TTLiteral.literal(Pattern.compile(node.get(ImVocab.VALUE.toString()).textValue()));
+      case XsdVocab.STRING -> TTLiteralJava.literal(node.get(ImVocab.VALUE.toString()).textValue());
+      case XsdVocab.BOOLEAN -> TTLiteralJava.literal(Boolean.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
+      case XsdVocab.INTEGER -> TTLiteralJava.literal(Integer.valueOf(node.get(ImVocab.VALUE.toString()).asText()));
+      case XsdVocab.PATTERN -> TTLiteralJava.literal(Pattern.compile(node.get(ImVocab.VALUE.toString()).textValue()));
       case null, default -> throw new IOException("Unhandled literal type [" + type.getIri() + "]");
     };
   }

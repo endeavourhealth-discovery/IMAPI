@@ -14,9 +14,9 @@ import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
@@ -45,28 +45,28 @@ public class FilerService {
     openSearchService = new OpenSearchService();
   }
 
-  private static boolean isValidIri(TTEntity entity) {
+  private static boolean isValidIri(TTEntityJava entity) {
     if (null == entity.getIri()) return false;
     return !entity.getIri().isEmpty();
   }
 
-  private static boolean isValidName(TTEntity entity) {
+  private static boolean isValidName(TTEntityJava entity) {
     if (null == entity.getName()) return false;
     return !"".equals(entity.getName());
   }
 
-  private static boolean isValidType(TTEntity entity) {
+  private static boolean isValidType(TTEntityJava entity) {
     if (null == entity.getType()) return false;
     if (entity.getType().isEmpty()) return false;
-    return entity.getType().getElements().stream().allMatch(TTValue::isIriRef);
+    return entity.getType().getElements().stream().allMatch(TTValueJava::isIriRef);
   }
 
-  private static boolean isValidStatus(TTEntity entity) {
+  private static boolean isValidStatus(TTEntityJava entity) {
     if (null == entity.getStatus()) return false;
     return entity.getStatus().isIriRef();
   }
 
-  private static boolean hasParents(TTEntity entity) {
+  private static boolean hasParents(TTEntityJava entity) {
     String[] parentPredicateArray = EnumUtils.asArray(ImVocab.IS_A, ImVocab.IS_CONTAINED_IN, RdfsVocab.SUBCLASS_OF, ImVocab.IS_SUBSET_OF);
     for (String parentPredicate : parentPredicateArray) {
       if (!hasParentPredicateAndIsValidIriRefList(entity, TTIriRefExtensionsKt.iri(new TTIriRef(), parentPredicate)))
@@ -75,8 +75,8 @@ public class FilerService {
     return true;
   }
 
-  private static boolean hasParentPredicateAndIsValidIriRefList(TTEntity entity, TTIriRef predicate) {
-    return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
+  private static boolean hasParentPredicateAndIsValidIriRefList(TTEntityJava entity, TTIriRef predicate) {
+    return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValueJava::isIriRef)));
   }
 
   private void setupDocumentFiler(GraphVocab insertGraph) {
@@ -98,7 +98,7 @@ public class FilerService {
     }
   }
 
-  public void fileDocument(TTDocument document, String agentName, String taskId) {
+  public void fileDocument(TTDocumentJava document, String agentName, String taskId) {
     new Thread(() -> {
       try {
         setupDocumentFiler(insertGraph);
@@ -115,7 +115,7 @@ public class FilerService {
     return documentFiler.getFilingProgress(taskId);
   }
 
-  public void fileEntity(TTEntity entity, String agentName, TTEntity usedEntity) throws TTFilerException {
+  public void fileEntity(TTEntityJava entity, String agentName, TTEntityJava usedEntity) throws TTFilerException {
     try {
       setupEntityFiler();
       entityFiler.fileEntity(entity);
@@ -129,7 +129,7 @@ public class FilerService {
 
 
       ProvAgent agent = fileProvAgent(entity, agentName);
-      TTEntity provUsedEntity = fileUsedEntity(usedEntity);
+      TTEntityJava provUsedEntity = fileUsedEntity(usedEntity);
       ProvActivity activity = fileProvActivity(entity, agent, provUsedEntity);
 
       writeDelta(entity, activity, provUsedEntity);
@@ -139,8 +139,8 @@ public class FilerService {
     }
   }
 
-  public void writeDelta(TTEntity entity, ProvActivity activity, TTEntity provUsedEntity) throws JsonProcessingException {
-    TTDocument document = new TTDocument();
+  public void writeDelta(TTEntityJava entity, ProvActivity activity, TTEntityJava provUsedEntity) throws JsonProcessingException {
+    TTDocumentJava document = new TTDocumentJava();
     document.addEntity(entity);
     document.addEntity(activity);
     if (null != provUsedEntity)
@@ -150,35 +150,35 @@ public class FilerService {
     documentFiler.writeLog(document);
   }
 
-  private void fileProvDoc(TTDocument document, String agentName) throws JsonProcessingException, TTFilerException {
-    for (TTEntity entity : document.getEntities()) {
-      TTEntity usedEntity = null;
+  private void fileProvDoc(TTDocumentJava document, String agentName) throws JsonProcessingException, TTFilerException {
+    for (TTEntityJava entity : document.getEntities()) {
+      TTEntityJava usedEntity = null;
       if (entityService.iriExists(entity.getIri())) {
         usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       }
       ProvAgent agent = fileProvAgent(entity, agentName);
-      TTEntity provUsedEntity = fileUsedEntity(usedEntity);
+      TTEntityJava provUsedEntity = fileUsedEntity(usedEntity);
       fileProvActivity(entity, agent, provUsedEntity);
     }
   }
 
-  private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
+  private ProvAgent fileProvAgent(TTEntityJava entity, String agentName) throws TTFilerException {
     ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
     entityProvFiler.fileEntity(agent);
     return agent;
   }
 
-  private TTEntity fileUsedEntity(TTEntity usedEntity) throws TTFilerException, JsonProcessingException {
+  private TTEntityJava fileUsedEntity(TTEntityJava usedEntity) throws TTFilerException, JsonProcessingException {
     if (null == usedEntity)
       return null;
 
-    TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
+    TTEntityJava provUsedEntity = provService.buildUsedEntity(usedEntity);
     entityProvFiler.fileEntity(provUsedEntity);
 
     return provUsedEntity;
   }
 
-  private ProvActivity fileProvActivity(TTEntity entity, ProvAgent agent, TTEntity provUsedEntity) throws TTFilerException {
+  private ProvActivity fileProvActivity(TTEntityJava entity, ProvAgent agent, TTEntityJava provUsedEntity) throws TTFilerException {
     String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
 
     ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
@@ -196,23 +196,23 @@ public class FilerService {
     }
   }
 
-  public TTEntity createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException {
+  public TTEntityJava createEntity(EditRequest editRequest, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(editRequest.getEntity(), "Create");
     editRequest.getEntity().setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS)).setVersion(1);
     fileEntity(editRequest.getEntity(), agentName, null);
     return editRequest.getEntity();
   }
 
-  public TTEntity updateEntity(TTEntity entity, String agentName) throws TTFilerException, JsonProcessingException {
+  public TTEntityJava updateEntity(TTEntityJava entity, String agentName) throws TTFilerException, JsonProcessingException {
     isValid(entity, "Update");
     entity.setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.REPLACE_ALL_PREDICATES));
-    TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+    TTEntityJava usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
     entity.setVersion(usedEntity.getVersion() + 1);
     fileEntity(entity, agentName, usedEntity);
     return entity;
   }
 
-  public void isValid(TTEntity entity, String mode) throws TTFilerException, JsonProcessingException {
+  public void isValid(TTEntityJava entity, String mode) throws TTFilerException, JsonProcessingException {
     ArrayList<String> errorMessages = new ArrayList<>();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       if (!isValidIri(entity)) errorMessages.add("Missing iri.");

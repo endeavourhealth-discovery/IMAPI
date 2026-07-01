@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,27 +16,27 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
+public class TTDocumentDeserializer extends StdDeserializer<TTDocumentJava> {
   private static final String DEFAULT_SCHEME = "defaultScheme";
   private static final String GRAPH = "graph";
   private static final String ID = "iri";
   private static final String CRUD = "crud";
   private static final String ENTITIES = "entities";
-  private final TTContext context = new TTContext();
+  private final TTContextJava context = new TTContextJava();
 
   public TTDocumentDeserializer() {
     this(null);
   }
 
-  public TTDocumentDeserializer(Class<TTDocument> vc) {
+  public TTDocumentDeserializer(Class<TTDocumentJava> vc) {
     super(vc);
   }
 
   @Override
-  public TTDocument deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+  public TTDocumentJava deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-    TTDocument result = new TTDocument();
+    TTDocumentJava result = new TTDocumentJava();
     TTNodeDeserializer helper = new TTNodeDeserializer(context);
 
     List<TTPrefix> prefixes = new ArrayList<>();
@@ -52,13 +55,13 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
   }
 
 
-  private List<TTEntity> getEntities(ArrayNode arrayNode) throws IOException {
-    List<TTEntity> result = new ArrayList<>();
+  private List<TTEntityJava> getEntities(ArrayNode arrayNode) throws IOException {
+    List<TTEntityJava> result = new ArrayList<>();
     Iterator<JsonNode> iterator = arrayNode.elements();
     TTNodeDeserializer helper = new TTNodeDeserializer(context);
     while (iterator.hasNext()) {
       JsonNode entityNode = iterator.next();
-      TTEntity entity = new TTEntity();
+      TTEntityJava entity = new TTEntityJava();
       result.add(entity);
       Iterator<Map.Entry<String, JsonNode>> fields = entityNode.fields();
       while (fields.hasNext()) {

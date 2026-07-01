@@ -9,15 +9,8 @@ import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.imq.PathDocument;
-import org.endeavourhealth.imapi.model.imq.PathQuery;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.ArrayList;
@@ -96,7 +89,7 @@ public class SearchService {
           Where where = new Where();
           where.setIri(ImVocab.IM_IRI.toString());
           for (String iri : imResults) {
-            where.addIs(new Node().iri(iri));
+            where.addIs((Node) new Node().iri(iri));
           }
           if (query.getWhere() != null) {
             query.getWhere().addAndItem(where);

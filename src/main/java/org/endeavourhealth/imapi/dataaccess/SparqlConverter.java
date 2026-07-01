@@ -1,14 +1,10 @@
 package org.endeavourhealth.imapi.dataaccess;
 
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Update;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.interfacemanager.model.*;
-import org.endeavourhealth.interfacemanager.model.OrderDirection;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -173,7 +169,7 @@ public class SparqlConverter {
       whereQl.append("?").append(mainEntity).append(" im:status ?").append(statusVar).append(".\n");
       whereQl.append("VALUES ?").append(statusVar).append("{").append(String.join(" ", statusStrings)).append("}\n");
     }
-    if (match.isActiveOnly()) {
+    if (match.getActiveOnly()) {
       whereQl.append("?").append(mainEntity).append(" im:status im:Active.\n");
     }
 
@@ -270,10 +266,10 @@ public class SparqlConverter {
   }
 
   private String processPath(StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {
-    if (pathMatch.isOptional()) {
+    if (pathMatch.getOptional()) {
       whereQl.append(tabs).append("OPTIONAL {\n");
     }
-    String inverse = pathMatch.isInverse() ? "^" : "";
+    String inverse = pathMatch.getInverse() ? "^" : "";
     String object = pathMatch.getNode();
     String predicate = getIriFromAlias(pathMatch.getIri(), pathMatch.getParameter(), pathMatch.getPathVariable(), null);
     if (inverse.equals("^") && predicate.startsWith("?"))
@@ -284,7 +280,7 @@ public class SparqlConverter {
         object = processPath(whereQl, object, path);
       }
     }
-    if (pathMatch.isOptional()) {
+    if (pathMatch.getOptional()) {
       whereQl.append("}\n");
     }
     return object;

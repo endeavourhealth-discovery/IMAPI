@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 /**
  * Uitilities to compare Triple tree objects examning only predicates and values, ignoring entity IRI
@@ -21,7 +21,7 @@ public class TTCompare {
    * @param to   second node
    * @return if the same or not
    */
-  public static boolean equals(TTNode from, TTNode to) {
+  public static boolean equals(TTNodeJava from, TTNodeJava to) {
     if (isNull(from.getPredicateMap(), to.getPredicateMap()))
       return false;
     if (from.getPredicateMap().size() != to.getPredicateMap().size())
@@ -44,7 +44,7 @@ public class TTCompare {
    * @param to   second TTArray
    * @return true or false
    */
-  public static boolean equals(TTArray from, TTArray to) {
+  public static boolean equals(TTArrayJava from, TTArrayJava to) {
     if (isNull(from, to))
       return false;
     if (from != null && from.size() != to.size())
@@ -52,11 +52,11 @@ public class TTCompare {
     return !equalsIfFound(from, to);
   }
 
-  private static boolean equalsIfFound(TTArray from, TTArray to) {
+  private static boolean equalsIfFound(TTArrayJava from, TTArrayJava to) {
     if (from != null) {
-      for (TTValue fromVal : from.getElements()) {
+      for (TTValueJava fromVal : from.getElements()) {
         boolean found = false;
-        for (TTValue toVal : to.getElements()) {
+        for (TTValueJava toVal : to.getElements()) {
           if (equals(fromVal, toVal))
             found = true;
         }
@@ -67,13 +67,13 @@ public class TTCompare {
     return false;
   }
 
-  public static boolean equals(TTValue from, TTValue to) {
+  public static boolean equals(TTValueJava from, TTValueJava to) {
     if (from.isIriRef())
       return from.equals(to);
     if (from.isLiteral())
       return from.asLiteral().getValue().equals(to.asLiteral().getValue());
     else if (from.isNode() && to.isNode())
-      return equals((TTNode) from, (TTNode) to);
+      return equals((TTNodeJava) from, (TTNodeJava) to);
     else
       return false;
   }

@@ -34,7 +34,7 @@ class EntityCacheTest {
   void refreshShapes() {
     try (MockedStatic<ShapeRepository> mockedShapeRepository = mockStatic(ShapeRepository.class)) {
       TTEntityMap shapeMap = new TTEntityMap();
-      TTEntity shape = new TTEntity("http://example.org/shape1");
+      TTEntityJava shape = new TTEntityJava("http://example.org/shape1");
       shapeMap.getEntities().put(shape.getIri(), shape);
       mockedShapeRepository.when(ShapeRepository::getShapes).thenReturn(shapeMap);
 
@@ -46,7 +46,7 @@ class EntityCacheTest {
 
   @Test
   void getProperty_CacheHit() {
-    TTEntity property = new TTEntity("http://example.org/prop1");
+    TTEntityJava property = new TTEntityJava("http://example.org/prop1");
     EntityCache.addProperty(property);
 
     TTBundle bundle = EntityCache.getProperty("http://example.org/prop1");
@@ -59,8 +59,8 @@ class EntityCacheTest {
   void getProperty_CacheMiss() {
     try (MockedStatic<PropertyRepository> mockedPropertyRepository = mockStatic(PropertyRepository.class)) {
       TTEntityMap propertyMap = new TTEntityMap();
-      TTEntity property = new TTEntity("http://example.org/prop1");
-      property.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArray());
+      TTEntityJava property = new TTEntityJava("http://example.org/prop1");
+      property.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2000/01/rdf-schema#subClassOf"), new TTArrayJava());
       propertyMap.getEntities().put(property.getIri(), property);
       mockedPropertyRepository.when(() -> PropertyRepository.getProperty(anyString())).thenReturn(propertyMap);
 
@@ -74,7 +74,7 @@ class EntityCacheTest {
 
   @Test
   void getEntity_CacheHit() {
-    TTEntity entity = new TTEntity("http://example.org/entity1");
+    TTEntityJava entity = new TTEntityJava("http://example.org/entity1");
     EntityCache.addEntity(entity);
 
     TTBundle bundle = EntityCache.getEntity("http://example.org/entity1");
@@ -86,7 +86,7 @@ class EntityCacheTest {
   @Test
   void getEntity_CacheMiss() {
     try (MockedConstruction<EntityRepository> mockedEntityRepository = mockConstruction(EntityRepository.class, (mock, context) -> {
-      TTBundle bundle = new TTBundle().setEntity(new TTEntity("http://example.org/entity1"));
+      TTBundle bundle = new TTBundle().setEntity(new TTEntityJava("http://example.org/entity1"));
       when(mock.getBundle(anyString())).thenReturn(bundle);
     })) {
       TTBundle bundle = EntityCache.getEntity("http://example.org/entity1");
@@ -99,7 +99,7 @@ class EntityCacheTest {
 
   @Test
   void getShape_CacheHit() {
-    TTEntity shape = new TTEntity("http://example.org/shape1");
+    TTEntityJava shape = new TTEntityJava("http://example.org/shape1");
     EntityCache.addShape(shape);
 
     TTBundle bundle = EntityCache.getShape("http://example.org/shape1");
@@ -112,7 +112,7 @@ class EntityCacheTest {
   void getShape_CacheMiss() {
     try (MockedStatic<ShapeRepository> mockedShapeRepository = mockStatic(ShapeRepository.class)) {
       TTEntityMap shapeMap = new TTEntityMap();
-      TTEntity shape = new TTEntity("http://example.org/shape1");
+      TTEntityJava shape = new TTEntityJava("http://example.org/shape1");
       shapeMap.getEntities().put(shape.getIri(), shape);
       mockedShapeRepository.when(() -> ShapeRepository.getShapeAndAncestors(anyString())).thenReturn(shapeMap);
 
@@ -127,8 +127,8 @@ class EntityCacheTest {
   @Test
   void cacheShapes_WithPredicateOrder() {
     TTEntityMap shapeMap = new TTEntityMap();
-    TTEntity shape = new TTEntity("http://example.org/shape1");
-    shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArray().add(new TTNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH),
+    TTEntityJava shape = new TTEntityJava("http://example.org/shape1");
+    shape.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY), new TTArrayJava().add(new TTNodeJava().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH),
       TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/path1", "Path 1"))));
     shapeMap.getEntities().put(shape.getIri(), shape);
 
@@ -141,9 +141,9 @@ class EntityCacheTest {
 
   @Test
   void getPredicatesFromNode() {
-    TTNode node = new TTNode();
+    TTNodeJava node = new TTNodeJava();
     node.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p1"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/o1"));
-    TTNode nestedNode = new TTNode();
+    TTNodeJava nestedNode = new TTNodeJava();
     nestedNode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p2"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/o2"));
     node.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org/p3"), nestedNode);
 

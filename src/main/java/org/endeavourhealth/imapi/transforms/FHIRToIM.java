@@ -5,9 +5,9 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.interfacemanager.model.Query;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.interfacemanager.model.Match;
 import org.endeavourhealth.interfacemanager.model.Node;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
@@ -17,8 +17,8 @@ import java.util.List;
 
 public class FHIRToIM {
 
-  public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType, String folder) throws JsonProcessingException {
-    TTEntity set = new TTEntity()
+  public TTEntityJava convertValueSet(ValueSet valueSet, TTIriRef setType, String folder) throws JsonProcessingException {
+    TTEntityJava set = new TTEntityJava()
       .addType(setType)
       .setIri(valueSet.getURL())
       .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.FHIR))
@@ -43,17 +43,17 @@ public class FHIRToIM {
           memberMatch.addIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }
       }
-      set.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(query));
+      set.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(query));
     }
 
 
     return set;
   }
 
-  public List<TTEntity> convertCodeSystem(CodeSystem codeSystem, String folder) {
-    List<TTEntity> concepts = new ArrayList<>();
+  public List<TTEntityJava> convertCodeSystem(CodeSystem codeSystem, String folder) {
+    List<TTEntityJava> concepts = new ArrayList<>();
     String iri = codeSystem.getUrl();
-    TTEntity parent = new TTEntity()
+    TTEntityJava parent = new TTEntityJava()
       .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
@@ -64,7 +64,7 @@ public class FHIRToIM {
     parent.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), TTIriRefExtensionsKt.iri(new TTIriRef(), folder));
     concepts.add(parent);
     for (FHIRConcept fhirConcept : codeSystem.getConcept()) {
-      TTEntity concept = new TTEntity()
+      TTEntityJava concept = new TTEntityJava()
         .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
         .setName(fhirConcept.getDisplay() + " (" + parent.getName() + ")")
         .setDescription(fhirConcept.getDefinition())

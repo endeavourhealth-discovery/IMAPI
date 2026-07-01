@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.interfacemanager.model.ECLStatus;
 import org.endeavourhealth.interfacemanager.model.Match;

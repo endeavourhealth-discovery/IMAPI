@@ -13,8 +13,8 @@ import org.endeavourhealth.imapi.parser.owlfs.OWLFSParser;
 public class OWLToTT extends OWLFSBaseVisitor {
   private final OWLFSLexer lexer;
   private final OWLFSParser parser;
-  private TTEntity entity;
-  private TTContext context;
+  private TTEntityJava entity;
+  private TTContextJava context;
 
   public OWLToTT() {
     this.lexer = new OWLFSLexer(null);
@@ -29,7 +29,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
    * @param owl     string of owl functional syntax containing a single axiom
    * @param context Context object containing the prefixes and namespaces used in the owl string
    */
-  public void convertAxiom(TTEntity entity, String owl, TTContext context) {
+  public void convertAxiom(TTEntityJava entity, String owl, TTContextJava context) {
 
     this.entity = entity;
     this.context = context;
@@ -41,12 +41,12 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
   }
 
-  private void addType(TTEntity entity, TTIriRef type) {
+  private void addType(TTEntityJava entity, TTIriRef type) {
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)) == null) {
-      TTArray types = new TTArray();
+      TTArrayJava types = new TTArrayJava();
       entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), types);
     } else {
-      TTArray types = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE));
+      TTArrayJava types = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE));
       types.add(type);
     }
   }
@@ -71,15 +71,15 @@ public class OWLToTT extends OWLFSBaseVisitor {
   @Override
   public Object visitSubClassOf(OWLFSParser.SubClassOfContext ctx) {
     if (!isGCI(ctx)) {
-      TTArray subClassOf = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
+      TTArrayJava subClassOf = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
       subClassOf.add(convertClassExpression(ctx.superClass().classExpression()));
     }
     return this.defaultResult();
   }
 
-  private TTArray addArrayAxiom(TTIriRef predicate) {
+  private TTArrayJava addArrayAxiom(TTIriRef predicate) {
     if (entity.get(predicate) == null) {
-      TTArray array = new TTArray();
+      TTArrayJava array = new TTArrayJava();
       entity.set(predicate, array);
     }
     return entity.get(predicate);
@@ -87,7 +87,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
 
   @Override
   public Object visitEquivalentClasses(OWLFSParser.EquivalentClassesContext ctx) {
-    TTArray equivalent = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS));
+    TTArrayJava equivalent = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.EQUIVALENT_CLASS));
     equivalent.add(convertClassExpression(ctx.classExpression().get(1)));
     return null;
   }
@@ -99,7 +99,7 @@ public class OWLToTT extends OWLFSBaseVisitor {
       entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.PROPERTY_CHAIN),
         convertPropertyChain(ctx.subObjectPropertyExpression().propertyExpressionChain()));
     } else {
-      TTArray superProp = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF));
+      TTArrayJava superProp = addArrayAxiom(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF));
       superProp.add(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.superObjectPropertyExpression()
         .objectPropertyExpression()
         .objectProperty()
@@ -109,27 +109,27 @@ public class OWLToTT extends OWLFSBaseVisitor {
     return null;
   }
 
-  private TTArray convertPropertyChain(OWLFSParser.PropertyExpressionChainContext chainContext) {
-    TTArray chain = new TTArray();
+  private TTArrayJava convertPropertyChain(OWLFSParser.PropertyExpressionChainContext chainContext) {
+    TTArrayJava chain = new TTArrayJava();
     for (OWLFSParser.ObjectPropertyExpressionContext opcs : chainContext.objectPropertyExpression()) {
       chain.add(TTIriRefExtensionsKt.iri(new TTIriRef(), expand(opcs.objectProperty().iri().getText())));
     }
     return chain;
   }
 
-  private TTValue convertClassExpression(OWLFSParser.ClassExpressionContext ctx) {
+  private TTValueJava convertClassExpression(OWLFSParser.ClassExpressionContext ctx) {
     if (ctx.iri() != null)
       return TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.getText()));
     else if (ctx.objectIntersectionOf() != null) {
-      TTNode exp = new TTNode();
-      TTArray inters = new TTArray();
+      TTNodeJava exp = new TTNodeJava();
+      TTArrayJava inters = new TTArrayJava();
       exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.INTERSECTION_OF), inters);
       for (OWLFSParser.ClassExpressionContext ctxInter : ctx.objectIntersectionOf().classExpression()) {
         inters.add(convertClassExpression(ctxInter));
       }
       return exp;
     } else if (ctx.objectSomeValuesFrom() != null) {
-      TTNode exp = new TTNode();
+      TTNodeJava exp = new TTNodeJava();
       exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.RESTRICTION));
       exp.set(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), expand(ctx.objectSomeValuesFrom()
         .objectPropertyExpression()

@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.transforms
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.endeavourhealth.imapi.logic.service.QueryService
-import org.endeavourhealth.imapi.model.imq.Query
-import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.interfacemanager.model.Query
+import org.endeavourhealth.interfacemanager.model.QueryRequest
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.springframework.beans.factory.annotation.Autowired
@@ -17,7 +17,7 @@ class IMQtoSQLConverterStepDefs() {
   @When("IMQ to SQL conversion is executed for {string}")
   fun imqToSqlConversionIsExecutedFor(iri: String) {
     assertDoesNotThrow {
-      val queryRequest = QueryRequest().setQuery(Query().setIri(iri))
+      val queryRequest = QueryRequest().query(Query().iri(iri))
       sql = queryService.getSQLFromIMQ(queryRequest)
     }
   }

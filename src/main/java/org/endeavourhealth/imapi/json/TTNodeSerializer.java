@@ -15,7 +15,7 @@ import java.util.stream.Stream;
  */
 public class TTNodeSerializer {
   public static final String SIMPLE_PROPERTIES = "SIMPLE_PROPERTIES";
-  private final TTContext contextMap;
+  private final TTContextJava contextMap;
   private boolean usePrefixes = false;
   private SerializerProvider prov;
   private Boolean simpleProperties;
@@ -23,30 +23,30 @@ public class TTNodeSerializer {
   /**
    * @param contextMap the context object for the JSON-LD document
    */
-  public TTNodeSerializer(TTContext contextMap) {
+  public TTNodeSerializer(TTContextJava contextMap) {
     this.contextMap = contextMap;
   }
 
-  public TTNodeSerializer(TTContext contextMap, boolean usePrefixes) {
+  public TTNodeSerializer(TTContextJava contextMap, boolean usePrefixes) {
     this.contextMap = contextMap;
     this.usePrefixes = usePrefixes;
   }
 
 
-  public void serializeNode(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+  public void serializeNode(TTNodeJava node, JsonGenerator gen, SerializerProvider prov) throws IOException {
     this.prov = prov;
     simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
     simpleProperties = (simpleProperties != null && simpleProperties);
-    if ((!(node instanceof TTEntity)) && node.getIri() != null)
+    if ((!(node instanceof TTEntityJava)) && node.getIri() != null)
       gen.writeStringField("iri", prefix(node.getIri()));
     serializePredicates(node, gen);
   }
 
-  private void serializePredicates(TTNode node, JsonGenerator gen) throws IOException {
+  private void serializePredicates(TTNodeJava node, JsonGenerator gen) throws IOException {
     List<TTIriRef> orderedPredicates = Stream.of(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.
       HAS_STATUS)).toList();
     if (node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)) != null) {
-      for (TTValue type : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)).getElements()) {
+      for (TTValueJava type : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE)).getElements()) {
         List<TTIriRef> orderForType = EntityCache.getPredicateOrder(type.asIriRef().getIri());
         if (orderForType != null)
           orderedPredicates = orderForType;
@@ -56,15 +56,15 @@ public class TTNodeSerializer {
   }
 
 
-  private void serializeOrdered(TTNode node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
+  private void serializeOrdered(TTNodeJava node, List<TTIriRef> predicates, JsonGenerator gen) throws IOException {
     for (TTIriRef predicate : predicates) {
       if (node.get(predicate) != null) {
         serializeFieldValue(predicate.getIri(), node.get(predicate), gen);
       }
     }
-    Map<TTIriRef, TTArray> nodePredicates = node.getPredicateMap();
+    Map<TTIriRef, TTArrayJava> nodePredicates = node.getPredicateMap();
     if (nodePredicates != null && !nodePredicates.isEmpty()) {
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
         if (!predicates.contains(entry.getKey()))
           serializeFieldValue(entry.getKey().getIri(), entry.getValue(), gen);
       }
@@ -72,7 +72,7 @@ public class TTNodeSerializer {
   }
 
 
-  public void serializeFieldValue(String field, TTArray value, JsonGenerator gen) throws IOException {
+  public void serializeFieldValue(String field, TTArrayJava value, JsonGenerator gen) throws IOException {
     if (simpleProperties && field.contains("#")) {
       field = field.substring(field.indexOf("#") + 1);
     }
@@ -81,14 +81,14 @@ public class TTNodeSerializer {
       serializeValue(value.asLiteral(), gen);
     } else {
       gen.writeArrayFieldStart(prefix(field));
-      for (TTValue v : value.iterator()) {
+      for (TTValueJava v : value.iterator()) {
         serializeValue(v, gen);
       }
       gen.writeEndArray();
     }
   }
 
-  public void serializeFieldValue(String field, TTValue value, JsonGenerator gen) throws IOException {
+  public void serializeFieldValue(String field, TTValueJava value, JsonGenerator gen) throws IOException {
     if (value.isLiteral()) {
       if (value.asLiteral().getValue() != null) {
         gen.writeFieldName(prefix(field));
@@ -100,7 +100,7 @@ public class TTNodeSerializer {
     }
   }
 
-  public void serializeValue(TTValue value, JsonGenerator gen) throws IOException {
+  public void serializeValue(TTValueJava value, JsonGenerator gen) throws IOException {
     if (value.isIriRef()) {
       TTIriRef ref = value.asIriRef();
       gen.writeStartObject();
@@ -112,14 +112,14 @@ public class TTNodeSerializer {
       serializeLiteral(value.asLiteral(), gen);
     } else if (value.isNode()) {
       gen.writeStartObject();
-      serializeNode((TTNode) value, gen, prov);
+      serializeNode((TTNodeJava) value, gen, prov);
       gen.writeEndObject();
     } else {
       prov.defaultSerializeValue(value, gen);
     }
   }
 
-  public void serializeLiteral(TTLiteral literal, JsonGenerator gen) throws IOException {
+  public void serializeLiteral(TTLiteralJava literal, JsonGenerator gen) throws IOException {
     if (literal.getType() != null) {
       switch (XsdVocab.fromValue(literal.getType().getIri())) {
         case XsdVocab.STRING -> gen.writeString(literal.getValue());

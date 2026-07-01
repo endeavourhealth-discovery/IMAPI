@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +13,13 @@ public class TTToNQuad {
   private static int blank;
   private List<String> quads;
 
-  public List<String> transformEntity(TTEntity entity, GRAPH graph) {
+  public List<String> transformEntity(TTEntityJava entity, GRAPH graph) {
     quads = new ArrayList<>();
     appendEntity(entity, graph);
     return quads;
   }
 
-  private void appendEntity(TTEntity entity, GRAPH graph) {
+  private void appendEntity(TTEntityJava entity, GRAPH graph) {
     String subject = "<" + entity.getIri() + "> ";
     if (entity.getPredicateMap() != null) {
       setPredicateObjects(subject, entity, graph);
@@ -24,14 +27,14 @@ public class TTToNQuad {
 
   }
 
-  private void setPredicateObjects(String subject, TTNode node, GRAPH graph) {
-    Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
+  private void setPredicateObjects(String subject, TTNodeJava node, GRAPH graph) {
+    Map<TTIriRef, TTArrayJava> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : predicateObjectList.entrySet()) {
         String predicate = "<" + entry.getKey().getIri() + "> ";
-        TTArray value = entry.getValue();
+        TTArrayJava value = entry.getValue();
         if ((value != null) && (!value.isEmpty())) {
-          for (TTValue val : value.getElements()) {
+          for (TTValueJava val : value.getElements()) {
             setObject(subject, predicate, val, graph);
           }
         }
@@ -39,7 +42,7 @@ public class TTToNQuad {
     }
   }
 
-  private void setObject(String subject, String predicate, TTValue value, GRAPH graph) {
+  private void setObject(String subject, String predicate, TTValueJava value, GRAPH graph) {
     if (value.isIriRef())
       quads.add(subject + predicate + "<" + value.asIriRef().getIri() + "> <" + graph + ">.");
     else if (value.isLiteral()) {

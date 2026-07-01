@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.set.SetOptions;
+import org.endeavourhealth.interfacemanager.model.SetOptions;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,29 +33,29 @@ public class SetModelServiceTest {
 
   @Test
   void getSetExport_NullIri() {
-    SetOptions setOptions = new SetOptions(null, false, true, true, true, List.of(), List.of());
+    SetOptions setOptions = new SetOptions().setIri(null).includeDefinition(false).includeCore(true).includeLegacy(true).includeSubsets(true).schemes(List.of()).subsumptions(List.of());
     assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getSetExport_EmptyIri() {
-    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    SetOptions setOptions = new SetOptions().setIri("").includeDefinition(false).includeCore(true).includeLegacy(true).includeSubsets(true).schemes(List.of()).subsumptions(List.of());
     assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getSetExport_EmptyFormat() {
-    SetOptions setOptions = new SetOptions("", false, true, true, true, List.of(), List.of());
+    SetOptions setOptions = new SetOptions().setIri("").includeDefinition(false).includeCore(true).includeLegacy(true).includeSubsets(true).schemes(List.of()).subsumptions(List.of());
     assertThrows(IllegalArgumentException.class, () -> setService.getSetExport(null, true, setOptions));
   }
 
   @Test
   void getDistillation() {
     List<TTIriRef> conceptList = new ArrayList<>();
-    conceptList.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri("http://snomed.info/sct#73211009"));
-    conceptList.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri("http://snomed.info/sct#46635009"));
-    conceptList.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri("http://snomed.info/sct#44054006"));
-    conceptList.add(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri("http://endhealth.info/im#Q_RegisteredGMS"));
+    conceptList.add(new TTIriRef().iri("http://snomed.info/sct#73211009"));
+    conceptList.add(new TTIriRef().iri("http://snomed.info/sct#46635009"));
+    conceptList.add(new TTIriRef().iri("http://snomed.info/sct#44054006"));
+    conceptList.add(new TTIriRef().iri("http://endhealth.info/im#Q_RegisteredGMS"));
 
     String iris = "<http://snomed.info/sct#73211009> <http://snomed.info/sct#46635009> <http://snomed.info/sct#44054006> <http://endhealth.info/im#Q_RegisteredGMS>";
 
@@ -67,7 +67,7 @@ public class SetModelServiceTest {
 
     List<TTIriRef> actual = setService.getDistillation(conceptList);
 
-    assertEquals(actual, distList.stream().map(distIri -> TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri(distIri)).toList());
+    assertEquals(actual, distList.stream().map(distIri -> new TTIriRef().iri(distIri)).toList());
 
   }
 }

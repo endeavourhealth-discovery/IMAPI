@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.dto;
 
 import lombok.Data;
+import org.endeavourhealth.interfacemanager.model.RecentActivityItemDto;
 
 import java.util.List;
 

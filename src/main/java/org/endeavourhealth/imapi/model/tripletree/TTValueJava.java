@@ -1,10 +1,11 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.Serializable;
 
-public interface TTValue extends Serializable {
+public interface TTValueJava extends Serializable {
   @JsonIgnore
   default boolean isLiteral() {
     return false;
@@ -20,7 +21,7 @@ public interface TTValue extends Serializable {
     return false;
   }
 
-  default TTLiteral asLiteral() {
+  default TTLiteralJava asLiteral() {
     return null;
   }
 
@@ -28,7 +29,7 @@ public interface TTValue extends Serializable {
     return null;
   }
 
-  default TTNode asNode() {
+  default TTNodeJava asNode() {
     return null;
   }
 }

@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.imapi.model.imq.Return;
 import org.endeavourhealth.interfacemanager.model.Match;
+import org.endeavourhealth.interfacemanager.model.Return;
 
 import java.util.ArrayList;
 import java.util.HashMap;

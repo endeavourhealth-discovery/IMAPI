@@ -14,8 +14,7 @@ import org.endeavourhealth.imapi.filer.rdf4j.TaskFilerRdf4j;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.workflow.task.TaskHistoryExtended;
+import org.endeavourhealth.imapi.model.workflow.task.TaskHistory;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 
@@ -81,7 +80,7 @@ public class WorkflowRepository {
     return null;
   }
 
-  public List<TaskHistoryExtended> getHistory(String id) throws UserNotFoundException {
+  public List<TaskHistory> getHistory(String id) throws UserNotFoundException {
     String sparql = """
       SELECT ?predicateData ?originalObjectData ?newObjectData ?changeDateData ?modifiedByData
       WHERE {
@@ -93,7 +92,7 @@ public class WorkflowRepository {
         Optional { ?historyId ?newObject ?newObjectData . }
       }
       """;
-    List<TaskHistoryExtended> results = new ArrayList<>();
+    List<TaskHistory> results = new ArrayList<>();
     try (WorkflowDB conn = WorkflowDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sparql);
       setBugReportBindings(qry);
@@ -107,7 +106,7 @@ public class WorkflowRepository {
 
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
-          TaskHistoryExtended taskHistoryExtended = new TaskHistoryExtended();
+          TaskHistory taskHistoryExtended = new TaskHistory();
           BindingSet bs = rs.next();
           taskHistoryExtended.setPredicate(bs.getValue("predicateData").stringValue());
           if (bs.getValue("predicateData").stringValue().equals(WorkflowVocab.ASSIGNED_TO.toString()) && !bs.getValue("originalObjectData").stringValue().equals("UNASSIGNED")) {

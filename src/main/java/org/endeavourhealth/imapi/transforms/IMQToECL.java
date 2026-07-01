@@ -3,14 +3,13 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.imq.Prefix;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.Entailment;
+import org.endeavourhealth.imapi.model.imq.Prefixes;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.interfacemanager.model.*;
-import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.util.*;
 
@@ -433,11 +432,11 @@ public class IMQToECL {
    * @return ECL String
    */
 
-  public String getMembersAsECL(TTArray members) {
+  public String getMembersAsECL(TTArrayJava members) {
     StringBuilder ecl = new StringBuilder();
     boolean first = true;
     String or = " OR ";
-    for (TTValue iriRef : members.getElements()) {
+    for (TTValueJava iriRef : members.getElements()) {
       if (!first)
         ecl.append(or).append("\n");
       addClass(new Node().setIri(iriRef.asIriRef().getIri()), ecl, true);

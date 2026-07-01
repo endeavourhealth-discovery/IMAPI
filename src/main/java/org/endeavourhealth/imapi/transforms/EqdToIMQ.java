@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -25,8 +25,8 @@ import java.util.*;
 
 public class EqdToIMQ {
   protected static final Set<String> gmsPatients = new HashSet<>();
-  protected static final Map<String, TTEntity> definitionToEntity = new HashMap<>();
-  protected static final Map<String, TTEntity> setIriToEntity = new HashMap<>();
+  protected static final Map<String, TTEntityJava> definitionToEntity = new HashMap<>();
+  protected static final Map<String, TTEntityJava> setIriToEntity = new HashMap<>();
   protected static final Map<String, String> versionMap = new HashMap<>();
   private static final Logger log = LoggerFactory.getLogger(EqdToIMQ.class);
   @Getter
@@ -41,7 +41,7 @@ public class EqdToIMQ {
   @Getter
   private static Map<String, EQDOCCriterion> libraryItems;
   @Getter
-  private static Map<String, TTEntity> inlineSets = new HashMap<>();
+  private static Map<String, TTEntityJava> inlineSets = new HashMap<>();
   private final Map<String, Match> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
@@ -49,7 +49,7 @@ public class EqdToIMQ {
   private final boolean versionIndependent;
   private NamespaceVocab namespace;
   private EqdResources resources;
-  private TTDocument document;
+  private TTDocumentJava document;
   @Getter
   private String singleEntity;
 
@@ -63,7 +63,7 @@ public class EqdToIMQ {
   }
 
 
-  public static void addInlineSets(String setIri, TTEntity entity) {
+  public static void addInlineSets(String setIri, TTEntityJava entity) {
     inlineSets.put(setIri, entity);
   }
 
@@ -87,7 +87,7 @@ public class EqdToIMQ {
   }
 
 
-  public void convertEQD(TTDocument document, EnquiryDocument eqd, Properties dataMap, NamespaceVocab namespace) throws IOException, QueryException, EQDException {
+  public void convertEQD(TTDocumentJava document, EnquiryDocument eqd, Properties dataMap, NamespaceVocab namespace) throws IOException, QueryException, EQDException {
     this.document = document;
     this.resources = new EqdResources(document, dataMap, namespace);
     this.namespace = namespace;
@@ -106,7 +106,7 @@ public class EqdToIMQ {
         if (eqReport.getId() != null) {
           if (eqReport.getId().equals(this.singleEntity)) {
             log.info(eqReport.getName() + " found");
-            TTEntity qry = this.convertReport(eqReport);
+            TTEntityJava qry = this.convertReport(eqReport);
             if (eqReport.getVersionIndependentGUID() != null) {
               qry.setIri(this.namespace + eqReport.getVersionIndependentGUID());
             }
@@ -136,7 +136,7 @@ public class EqdToIMQ {
   }
 
   private void assignLibraryClauses() throws JsonProcessingException {
-    for (TTEntity entity : this.document.getEntities()) {
+    for (TTEntityJava entity : this.document.getEntities()) {
       if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY))) {
         Query query = entity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
         if (query.getRule() != null) {
@@ -144,7 +144,7 @@ public class EqdToIMQ {
             assignLibraryClausesToRule(rule);
           }
         }
-        entity.set(ImVocab.DEFINITION, TTLiteral.literal(query));
+        entity.set(ImVocab.DEFINITION, TTLiteralJava.literal(query));
       }
     }
   }
@@ -174,19 +174,19 @@ public class EqdToIMQ {
       if (name == null)
         name = "Base query";
       match.setName(name);
-      TTEntity entity = new TTEntity()
+      TTEntityJava entity = new TTEntityJava()
         .setIri(namespace + hash)
         .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY))
         .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace))
         .setName(name)
-        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(match));
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(match));
       document.addEntity(entity);
     }
   }
 
 
   private void createLibrary() throws JsonProcessingException {
-    for (TTEntity entity : this.document.getEntities()) {
+    for (TTEntityJava entity : this.document.getEntities()) {
       if (entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY))) {
         createLibrary(entity.getIri(), entity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class));
       }
@@ -195,12 +195,12 @@ public class EqdToIMQ {
       String libraryIri = entry.getKey();
       Match match = entry.getValue();
       if (criteriaLibraryCount.get(libraryIri) > 1) {
-        TTEntity entity = new TTEntity()
+        TTEntityJava entity = new TTEntityJava()
           .setIri(libraryIri)
           .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY))
           .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace))
           .setName(match.getDescription())
-          .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(match));
+          .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(match));
         document.addEntity(entity);
       }
     }
@@ -257,18 +257,18 @@ public class EqdToIMQ {
         throw new EQDException("No report name");
       }
       log.info(eqReport.getName());
-      TTEntity qry = this.convertReport(eqReport);
+      TTEntityJava qry = this.convertReport(eqReport);
       if (qry != null) {
         this.document.addEntity(qry);
       }
     }
 
     if (this.document.getEntities() != null) {
-      for (TTEntity report : this.document.getEntities()) {
+      for (TTEntityJava report : this.document.getEntities()) {
         if (report.get(ImVocab.DEFINITION) != null) {
           Query query = report.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
-          report.set(EnumUtils.asIri(ImVocab.DEFINITION), TTLiteral.literal(query));
+          report.set(EnumUtils.asIri(ImVocab.DEFINITION), TTLiteralJava.literal(query));
         }
       }
     }
@@ -325,7 +325,7 @@ public class EqdToIMQ {
             throw new EQDException("No folder name");
           }
 
-          TTEntity folder = (new TTEntity()).setIri(this.namespace + eqFolder.getId()).addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FOLDER)).setName(eqFolder.getName());
+          TTEntityJava folder = (new TTEntityJava()).setIri(this.namespace + eqFolder.getId()).addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FOLDER)).setName(eqFolder.getName());
           folder.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace));
           if (eqFolder.getParentFolder() != null) {
             folder.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), TTIriRefExtensionsKt.iri(new TTIriRef(), this.namespace + eqFolder.getParentFolder()));
@@ -338,7 +338,7 @@ public class EqdToIMQ {
 
   }
 
-  public TTEntity convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
+  public TTEntityJava convertReport(EQDOCReport eqReport) throws IOException, QueryException, EQDException {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     this.resources.setMatchCounter(0);
@@ -346,7 +346,7 @@ public class EqdToIMQ {
     if (versionMap.containsKey(id)) {
       id = versionMap.get(id);
     }
-    TTEntity queryEntity = new TTEntity();
+    TTEntityJava queryEntity = new TTEntityJava();
     queryEntity.setIri(this.namespace + id);
     queryEntity.setName(eqReport.getName());
     queryEntity.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), this.namespace));
@@ -385,7 +385,7 @@ public class EqdToIMQ {
 
       //this.flattenRules(qry);
       //(new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
-      queryEntity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(qry));
+      queryEntity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(qry));
       return queryEntity;
     }
   }

@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.interfacemanager.model.QueryRequest;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.Set;
 import java.util.stream.Collectors;

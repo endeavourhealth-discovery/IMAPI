@@ -3,10 +3,10 @@ package org.endeavourhealth.imapi.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ import java.util.Set;
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
-public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
-  private TTContext contextMap;
+public class TTNodeSerializerV2 extends StdSerializer<TTNodeJava> {
+  private TTContextJava contextMap;
   private List<TTIriRef> predicateTemplate;
   private Boolean simpleProperties;
 
@@ -26,25 +26,25 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     this(null);
   }
 
-  public TTNodeSerializerV2(Class<TTNode> t) {
+  public TTNodeSerializerV2(Class<TTNodeJava> t) {
     super(t);
   }
 
   /**
    * @param contextMap the context object for the JSON-LD document
    */
-  public TTNodeSerializerV2(Class<TTNode> t, TTContext contextMap) {
+  public TTNodeSerializerV2(Class<TTNodeJava> t, TTContextJava contextMap) {
     super(t);
     this.contextMap = contextMap;
   }
 
-  public TTNodeSerializerV2(Class<TTNode> t, TTContext contextMap, List<TTIriRef> predicateTemplate) {
+  public TTNodeSerializerV2(Class<TTNodeJava> t, TTContextJava contextMap, List<TTIriRef> predicateTemplate) {
     super(t);
     this.contextMap = contextMap;
     this.predicateTemplate = predicateTemplate;
   }
 
-  public void serialize(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+  public void serialize(TTNodeJava node, JsonGenerator gen, SerializerProvider prov) throws IOException {
     simpleProperties = (Boolean) prov.getAttribute(TTNodeSerializer.SIMPLE_PROPERTIES);
     simpleProperties = (simpleProperties != null && simpleProperties);
     if (predicateTemplate == null)
@@ -55,7 +55,7 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     gen.writeEndObject();
   }
 
-  private void serializeTemplatedPredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+  private void serializeTemplatedPredicates(TTNodeJava node, JsonGenerator gen, SerializerProvider prov) throws IOException {
     for (TTIriRef predicate : predicateTemplate) {
       if (node.get(predicate) != null)
         prov.defaultSerializeField(prefix(simpleProperties ? predicate.getIri().substring(predicate.getIri().indexOf("#"))
@@ -63,12 +63,12 @@ public class TTNodeSerializerV2 extends StdSerializer<TTNode> {
     }
   }
 
-  private void serializeRemainingPredicates(TTNode node, JsonGenerator gen, SerializerProvider prov) throws IOException {
+  private void serializeRemainingPredicates(TTNodeJava node, JsonGenerator gen, SerializerProvider prov) throws IOException {
 
-    Map<TTIriRef, TTArray> predicates = node.getPredicateMap();
+    Map<TTIriRef, TTArrayJava> predicates = node.getPredicateMap();
     if (predicates != null && !predicates.isEmpty()) {
-      Set<Map.Entry<TTIriRef, TTArray>> entries = predicates.entrySet();
-      for (Map.Entry<TTIriRef, TTArray> entry : entries) {
+      Set<Map.Entry<TTIriRef, TTArrayJava>> entries = predicates.entrySet();
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : entries) {
         if (!predicateTemplate.contains(entry.getKey())) {
 
           prov.defaultSerializeField(prefix(simpleProperties ? entry.getKey().getIri().substring(entry.getKey().getIri().indexOf("#"))

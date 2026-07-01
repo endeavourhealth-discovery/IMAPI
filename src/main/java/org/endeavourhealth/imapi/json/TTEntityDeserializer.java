@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,24 +15,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
-  protected final TTContext context = new TTContext();
+public class TTEntityDeserializer extends StdDeserializer<TTEntityJava> {
+  protected final TTContextJava context = new TTContextJava();
   protected transient TTNodeDeserializer helper;
 
   public TTEntityDeserializer() {
     this(null);
   }
 
-  public TTEntityDeserializer(Class<TTEntity> vc) {
+  public TTEntityDeserializer(Class<TTEntityJava> vc) {
     super(vc);
   }
 
   @Override
-  public TTEntity deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+  public TTEntityJava deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
 
-    TTEntity result = new TTEntity();
+    TTEntityJava result = new TTEntityJava();
     helper = new TTNodeDeserializer(context);
 
     List<TTPrefix> prefixes = new ArrayList<>();
@@ -45,7 +45,7 @@ public class TTEntityDeserializer extends StdDeserializer<TTEntity> {
     return result;
   }
 
-  void populateEntityFromJson(JsonNode node, TTEntity result) throws IOException {
+  void populateEntityFromJson(JsonNode node, TTEntityJava result) throws IOException {
     Iterator<Map.Entry<String, JsonNode>> fields = node.fields();
     while (fields.hasNext()) {
       Map.Entry<String, JsonNode> field = fields.next();

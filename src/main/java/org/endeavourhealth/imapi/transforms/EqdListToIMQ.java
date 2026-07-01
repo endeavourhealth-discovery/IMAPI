@@ -2,21 +2,18 @@ package org.endeavourhealth.imapi.transforms;
 
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Return;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.imq.HasPaths;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.interfacemanager.model.*;
-import org.endeavourhealth.interfacemanager.model.Node;
 
 import java.io.IOException;
 
 public class EqdListToIMQ {
   private EqdResources resources;
 
-  public void convertReport(EQDOCReport eqReport, TTDocument document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
+  public void convertReport(EQDOCReport eqReport, TTDocumentJava document, Query query, EqdResources resources) throws IOException, QueryException, EQDException {
     this.resources = resources;
     this.resources.setQueryType(QueryType.LIST);
     query.setTypeOf(new Node().setIri(NamespaceVocab.IM + "Patient"));

@@ -6,12 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.semanticweb.owlapi.model.OWLDocumentFormat;
@@ -30,23 +24,23 @@ import java.util.*;
 @Slf4j
 public class TTManager implements AutoCloseable {
   private static final TTIriRef[] jsonPredicates = {TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MAP)};
-  private Map<String, TTEntity> entityMap;
-  private Map<String, TTEntity> nameMap;
-  private TTDocument document;
+  private Map<String, TTEntityJava> entityMap;
+  private Map<String, TTEntityJava> nameMap;
+  private TTDocumentJava document;
   private ModelDocument modelDocument;
-  private TTContext context;
+  private TTContextJava context;
 
   public TTManager() {
     createDefaultContext();
   }
 
-  public TTManager(TTDocument document) {
+  public TTManager(TTDocumentJava document) {
     createDefaultContext();
     this.document = document;
   }
 
-  public static TTContext createBasicContext() {
-    TTContext context = new TTContext();
+  public static TTContextJava createBasicContext() {
+    TTContextJava context = new TTContextJava();
     context.add(NamespaceVocab.IM, "im", "Discovery namespace");
     context.add(NamespaceVocab.SNOMED, "sn", "Snomed-CT namespace");
     context.add(NamespaceVocab.OWL, "owl", "OWL2 namespace");
@@ -65,14 +59,14 @@ public class TTManager implements AutoCloseable {
    * @param grammar    language to output in
    * @throws JsonProcessingException if deserialization fails
    */
-  public static void saveDocument(TTDocument document, String outputFile, Grammar grammar) throws JsonProcessingException {
+  public static void saveDocument(TTDocumentJava document, String outputFile, Grammar grammar) throws JsonProcessingException {
     String outputString;
     if (grammar == Grammar.JSON) {
       try (CachedObjectMapper om = new CachedObjectMapper()) {
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
         om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-        outputString = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+        outputString = om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(document);
       }
     } else {
       TTToTurtle converter = new TTToTurtle();
@@ -85,36 +79,36 @@ public class TTManager implements AutoCloseable {
     }
   }
 
-  public static TTEntity createInstance(TTIriRef iri, TTIriRef crud) {
-    TTEntity result = new TTEntity();
+  public static TTEntityJava createInstance(TTIriRef iri, TTIriRef crud) {
+    TTEntityJava result = new TTEntityJava();
     result.setIri(iri.getIri());
     result.setCrud(crud);
     return result;
   }
 
-  public static void addChildOf(TTEntity c, TTIriRef parent) {
+  public static void addChildOf(TTEntityJava c, TTIriRef parent) {
     if (c.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CHILD_OF)) == null)
-      c.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CHILD_OF), new TTArray());
+      c.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CHILD_OF), new TTArrayJava());
     c.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CHILD_OF)).add(parent);
   }
 
-  public static void addSuperClass(TTEntity entity, TTIriRef andOr, TTValue superClass) {
+  public static void addSuperClass(TTEntityJava entity, TTIriRef andOr, TTValue superClass) {
     addESAxiom(entity, TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF), andOr, superClass);
 
   }
 
-  private static void addESAxiom(TTEntity entity, TTIriRef axiom,
+  private static void addESAxiom(TTEntityJava entity, TTIriRef axiom,
                                  TTIriRef andOr, TTValue newExpression) {
     TTIriRef subType = entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY)) ? TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF) : TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF);
     if (entity.get(axiom) == null)
-      entity.set(axiom, new TTArray());
+      entity.set(axiom, new TTArrayJava());
     TTValue oldExpression;
-    TTArray expressions = entity.get(axiom);
+    TTArrayJava expressions = entity.get(axiom);
     if (!expressions.isEmpty()) {
       oldExpression = expressions.getElements().getFirst();
       if (oldExpression.isIriRef() || oldExpression.isNode()) {
-        TTNode intersection = new TTNode();
-        intersection.set(andOr, new TTArray());
+        TTNodeJava intersection = new TTNodeJava();
+        intersection.set(andOr, new TTArrayJava());
         intersection.get(andOr).add(oldExpression);
         intersection.get(andOr).add(newExpression);
         expressions.add(intersection);
@@ -124,30 +118,30 @@ public class TTManager implements AutoCloseable {
       expressions.add(newExpression);
     if (newExpression.isIriRef()) {
       if (entity.get(subType) == null)
-        entity.set(subType, new TTArray());
+        entity.set(subType, new TTArrayJava());
       entity.addObject(subType, newExpression);
     }
 
   }
 
-  public static void addSimpleMap(TTEntity c, String target) {
+  public static void addSimpleMap(TTEntityJava c, String target) {
     c.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.MATCHED_TO), TTIriRefExtensionsKt.iri(new TTIriRef(), target));
   }
 
-  public static TTNode addComplexMap(TTEntity c) {
-    TTNode map = new TTNode();
+  public static TTNodeJava addComplexMap(TTEntityJava c) {
+    TTNodeJava map = new TTNodeJava();
     c.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MAP), map);
     return map;
   }
 
-  public static TTEntity createTermCode(TTIriRef iri, TTIriRef crud,
-                                        String term, String code) {
-    TTEntity result = createInstance(iri, crud);
+  public static TTEntityJava createTermCode(TTIriRef iri, TTIriRef crud,
+                                            String term, String code) {
+    TTEntityJava result = createInstance(iri, crud);
     addTermCode(result, term, code);
     return result;
   }
 
-  public static boolean termUsed(TTEntity entity, String term) {
+  public static boolean termUsed(TTEntityJava entity, String term) {
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
       for (TTValue val : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements()) {
         if (val.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null && val.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue().equals(term))
@@ -157,7 +151,7 @@ public class TTManager implements AutoCloseable {
     return false;
   }
 
-  public static boolean termCodeUsed(TTEntity entity, String term, String code) {
+  public static boolean termCodeUsed(TTEntityJava entity, String term, String code) {
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
       for (TTValue val : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements()) {
         if (val.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)) != null && val.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).asLiteral().getValue().equals(term)) {
@@ -172,22 +166,22 @@ public class TTManager implements AutoCloseable {
     return false;
   }
 
-  public static TTEntity addTermCode(TTEntity entity,
-                                     String term, String code) {
+  public static TTEntityJava addTermCode(TTEntityJava entity,
+                                         String term, String code) {
     return addTermCode(entity, term, code, null);
   }
 
-  public static TTEntity addTermCode(TTEntity entity,
-                                     String term, String code, TTIriRef status) {
+  public static TTEntityJava addTermCode(TTEntityJava entity,
+                                         String term, String code, TTIriRef status) {
     if (!termCodeUsed(entity, term, code)) {
-      TTNode termCode = new TTNode();
+      TTNodeJava termCode = new TTNodeJava();
       if (status != null)
         termCode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS), status);
       if (term != null) {
-        termCode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), TTLiteral.literal(term));
+        termCode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), TTLiteralJava.literal(term));
       }
       if (code != null)
-        termCode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTLiteral.literal(code));
+        termCode.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), TTLiteralJava.literal(code));
       entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE), termCode);
     }
     return entity;
@@ -200,17 +194,17 @@ public class TTManager implements AutoCloseable {
    * @return the node wrapped
    * @throws JsonProcessingException when serialization problem with the ttnode
    */
-  public static TTNode wrapRDFAsJson(TTNode node) throws JsonProcessingException {
+  public static TTNodeJava wrapRDFAsJson(TTNodeJava node) throws JsonProcessingException {
     for (TTIriRef predicate : jsonPredicates) {
       if (node.get(predicate) != null) {
-        TTArray jsons = new TTArray();
+        TTArrayJava jsons = new TTArrayJava();
         try (CachedObjectMapper om = new CachedObjectMapper()) {
           om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
           om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
           om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
           for (TTValue value : node.get(predicate).getElements()) {
             String json = om.writeValueAsString(value.asNode());
-            jsons.add(TTLiteral.literal(json));
+            jsons.add(TTLiteralJava.literal(json));
           }
           node.set(predicate, jsons);
         }
@@ -226,15 +220,15 @@ public class TTManager implements AutoCloseable {
    * @return the updated entity or node as full RDF
    * @throws IOException when problem with json literal
    */
-  public static boolean unwrapRDFfromJson(TTNode node) throws IOException {
+  public static boolean unwrapRDFfromJson(TTNodeJava node) throws IOException {
     boolean unwrapped = false;
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       for (TTIriRef predicate : jsonPredicates) {
         if (node.get(predicate) != null) {
           if (node.get(predicate).isLiteral()) {
-            TTArray rdfNodes = new TTArray();
+            TTArrayJava rdfNodes = new TTArrayJava();
             for (TTValue value : node.get(predicate).getElements()) {
-              rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNode.class));
+              rdfNodes.add(om.readValue(value.asLiteral().getValue(), TTNodeJava.class));
             }
             node.set(predicate, rdfNodes);
             unwrapped = true;
@@ -251,7 +245,7 @@ public class TTManager implements AutoCloseable {
    * @param node to retrieve the IRIs from
    * @return a set of iris
    */
-  public static Set<TTIriRef> getIrisFromNode(TTNode node) {
+  public static Set<TTIriRef> getIrisFromNode(TTNodeJava node) {
     Set<TTIriRef> iris = new HashSet<>();
     return addToIrisFromNode(node, iris);
   }
@@ -260,7 +254,7 @@ public class TTManager implements AutoCloseable {
     if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
       iris.add(subject.asIriRef());
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : subject.asNode().getPredicateMap().entrySet()) {
         if (entry.getKey().getName() == null || entry.getKey().getName().isEmpty())
           iris.add(entry.getKey());
         for (TTValue v : entry.getValue().getElements()) {
@@ -283,13 +277,13 @@ public class TTManager implements AutoCloseable {
    * @param target node being the object to be populated
    * @param ranges A set of entities representing the properties and ranges used to calculate t target objects
    */
-  public static void populateFromNode(TTNode source, TTNode target, Set<TTEntity> ranges) {
-    Class<? extends TTNode> clazz = target.getClass();
+  public static void populateFromNode(TTNodeJava source, TTNodeJava target, Set<TTEntityJava> ranges) {
+    Class<? extends TTNodeJava> clazz = target.getClass();
     target.setPredicateMap(source.getPredicateMap());
   }
 
-  public static TTContext getDefaultContext() {
-    TTContext ctx = new TTContext();
+  public static TTContextJava getDefaultContext() {
+    TTContextJava ctx = new TTContextJava();
     ctx.add(NamespaceVocab.IM, "");
     ctx.add(NamespaceVocab.IM, "im");
     ctx.add(NamespaceVocab.RDFS, "rdfs");
@@ -309,9 +303,9 @@ public class TTManager implements AutoCloseable {
     return this;
   }
 
-  public TTDocument createDocument() {
+  public TTDocumentJava createDocument() {
     createDefaultContext();
-    document = new TTDocument();
+    document = new TTDocumentJava();
     document.setContext(context);
     return document;
   }
@@ -322,10 +316,10 @@ public class TTManager implements AutoCloseable {
    * @param searchKey the iri or name of the entity you are looking for
    * @return entity, which may be a subtype that may be downcasted
    */
-  public TTEntity getEntity(String searchKey) {
+  public TTEntityJava getEntity(String searchKey) {
     if (entityMap == null)
       createIndex();
-    TTEntity result = entityMap.get(searchKey);
+    TTEntityJava result = entityMap.get(searchKey);
     if (result != null)
       return result;
     else {
@@ -339,8 +333,8 @@ public class TTManager implements AutoCloseable {
     }
   }
 
-  public TTContext createDefaultContext() {
-    context = new TTContext();
+  public TTContextJava createDefaultContext() {
+    context = new TTContextJava();
     context.add(NamespaceVocab.IM, "im", "Discovery namespace");
     context.add(NamespaceVocab.SNOMED, "sn", "Snomed-CT namespace");
     context.add(NamespaceVocab.OWL, "owl", "OWL2 namespace");
@@ -357,16 +351,16 @@ public class TTManager implements AutoCloseable {
    * @return the IM triple tree document
    * @throws IOException covering file format exceptions and content exceptions of various kinds
    */
-  public TTDocument loadDocument(File inputFile) throws IOException {
+  public TTDocumentJava loadDocument(File inputFile) throws IOException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      document = om.readValue(inputFile, TTDocument.class);
+      document = om.readValue(inputFile, TTDocumentJava.class);
       return document;
     }
   }
 
-  public TTDocument loadDocument(String json) throws IOException {
+  public TTDocumentJava loadDocument(String json) throws IOException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      document = om.readValue(json, TTDocument.class);
+      document = om.readValue(json, TTDocumentJava.class);
       return document;
     }
   }
@@ -428,11 +422,11 @@ public class TTManager implements AutoCloseable {
     return context.expand(iri);
   }
 
-  public TTDocument getDocument() {
+  public TTDocumentJava getDocument() {
     return document;
   }
 
-  public TTManager setDocument(TTDocument document) {
+  public TTManager setDocument(TTDocumentJava document) {
     this.document = document;
     return this;
   }
@@ -450,7 +444,7 @@ public class TTManager implements AutoCloseable {
       om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+      String json = om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(document);
       try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile, StandardCharsets.UTF_8))) {
         writer.write(json);
       } catch (Exception e) {
@@ -460,8 +454,8 @@ public class TTManager implements AutoCloseable {
   }
 
 
-  public TTEntity createNamespaceEntity(NamespaceVocab namespace, String name, String description) {
-    TTEntity result = new TTEntity()
+  public TTEntityJava createNamespaceEntity(NamespaceVocab namespace, String name, String description) {
+    TTEntityJava result = new TTEntityJava()
       .setIri(namespace.toString())
       .addType(EnumUtils.asIri(RdfsVocab.CLASS))
       .setName(name)
@@ -488,12 +482,12 @@ public class TTManager implements AutoCloseable {
    * @param document the TTDocument holding the ontology
    * @return the json serialization of the document
    */
-  public String getJson(TTDocument document) throws JsonProcessingException {
+  public String getJson(TTDocumentJava document) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true).writeValueAsString(document);
+      return om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true).writeValueAsString(document);
     }
   }
 
@@ -504,19 +498,19 @@ public class TTManager implements AutoCloseable {
    * @return the json serialization of the document
    * @throws JsonProcessingException in on serialization failure
    */
-  public String getJson(TTEntity entity) throws JsonProcessingException {
+  public String getJson(TTEntityJava entity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       om.setSerializationInclusion(JsonInclude.Include.NON_NULL);
       om.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
       om.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
-      return om.writerWithDefaultPrettyPrinter().withAttribute(TTContext.OUTPUT_CONTEXT, true)
+      return om.writerWithDefaultPrettyPrinter().withAttribute(TTContextJava.OUTPUT_CONTEXT, true)
         .writeValueAsString(entity);
     }
   }
 
-  public TTDocument replaceIri(TTDocument document, TTIriRef from, TTIriRef to) {
+  public TTDocumentJava replaceIri(TTDocumentJava document, TTIriRef from, TTIriRef to) {
     if (document.getEntities() != null) {
-      for (TTEntity entity : document.getEntities()) {
+      for (TTEntityJava entity : document.getEntities()) {
         if (entity.getIri().equals(from.getIri()))
           entity.setIri(to.getIri());
         boolean replacedPredicate = true;
@@ -530,22 +524,22 @@ public class TTManager implements AutoCloseable {
 
   }
 
-  private boolean replaceNode(TTNode node, TTIriRef from, TTIriRef to) {
+  private boolean replaceNode(TTNodeJava node, TTIriRef from, TTIriRef to) {
     if (node.get(from) != null) {
       node.set(to, node.get(from));
       node.getPredicateMap().remove(from);
       return true;
     }
     if (node.getPredicateMap() != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
         replaceNodeValueChange(from, to, entry);
       }
     }
     return false;
   }
 
-  private void replaceNodeValueChange(TTIriRef from, TTIriRef to, Map.Entry<TTIriRef, TTArray> entry) {
-    TTArray value = entry.getValue();
+  private void replaceNodeValueChange(TTIriRef from, TTIriRef to, Map.Entry<TTIriRef, TTArrayJava> entry) {
+    TTArrayJava value = entry.getValue();
 
     List<TTValue> toRemove = new ArrayList<>();
     for (TTValue arrayValue : value.iterator()) {
@@ -573,7 +567,7 @@ public class TTManager implements AutoCloseable {
    * @param ancestor   the ancestor IRI
    * @return true if found false if not a descendant
    */
-  public boolean isA(TTEntity descendant, TTIriRef ancestor) {
+  public boolean isA(TTEntityJava descendant, TTIriRef ancestor) {
     Set<TTIriRef> done = new HashSet<>();
     if (entityMap == null)
       createIndex();
@@ -596,7 +590,7 @@ public class TTManager implements AutoCloseable {
     Set<TTIriRef> done = new HashSet<>();
     if (entityMap == null)
       createIndex();
-    TTEntity descendantEntity = entityMap.get(descendant.getIri());
+    TTEntityJava descendantEntity = entityMap.get(descendant.getIri());
     if (descendantEntity == null)
       return false;
     if (entityMap.get(ancestor.getIri()) == null)
@@ -604,7 +598,7 @@ public class TTManager implements AutoCloseable {
     return isA1(descendantEntity, ancestor, done);
   }
 
-  private boolean isA1(TTEntity descendant, TTIriRef ancestor, Set<TTIriRef> done) {
+  private boolean isA1(TTEntityJava descendant, TTIriRef ancestor, Set<TTIriRef> done) {
     if (TTIriRefExtensionsKt.iri(new TTIriRef(), descendant.getIri()).equals(ancestor))
       return true;
     TTIriRef subType = descendant.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY)) ? TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUB_PROPERTY_OF) : TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF);
@@ -617,7 +611,7 @@ public class TTManager implements AutoCloseable {
           TTIriRef parent = ref.asIriRef();
           if (!done.contains(parent)) {
             done.add(parent);
-            TTEntity parentEntity = entityMap.get(parent.getIri());
+            TTEntityJava parentEntity = entityMap.get(parent.getIri());
             if (parentEntity != null)
               isa = isA1(parentEntity, ancestor, done);
             if (isa)
@@ -627,7 +621,7 @@ public class TTManager implements AutoCloseable {
     return false;
   }
 
-  public TTContext getContext() {
+  public TTContextJava getContext() {
     return context;
   }
 

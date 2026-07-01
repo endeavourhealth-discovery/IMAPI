@@ -2,11 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.interfacemanager.model.NamespaceVocab.
+import org.endeavourhealth.interfacemanager.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -29,7 +25,7 @@ class OSQueryTest_OS {
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
   void openSearchQuery_term() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
-      .setTextSearch("FOXG1");
+      .textSearch("FOXG1");
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(2, results.getEntities().size());
@@ -41,11 +37,11 @@ class OSQueryTest_OS {
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
   void openSearchQuery_term_scheme() throws OpenSearchException {
     QueryRequest req = new QueryRequest()
-      .setTextSearch("FOXG1")
+      .textSearch("FOXG1")
       .query(q -> q
         .where(w -> w
-          .setIri(ImVocab.HAS_SCHEME)
-          .is(is -> is.setIri(NamespaceVocab. SNOMED.toString()))));
+          .iri(ImVocab.HAS_SCHEME)
+          .is(is -> is.iri(NamespaceVocab.SNOMED.toString()))));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());

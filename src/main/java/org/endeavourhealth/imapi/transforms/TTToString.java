@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.apache.commons.lang3.StringUtils;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 import java.util.List;
 import java.util.Map;
@@ -11,6 +14,7 @@ public class TTToString {
   private static final String INDENT_SIZE = "  ";
   private static final String OBJECT = "object";
   private static final String ARRAY = "array";
+
   private TTToString() {
     throw new IllegalStateException("Utility class");
   }
@@ -30,17 +34,17 @@ public class TTToString {
     Map<String, String> predicates = bundle.getPredicates();
     setPredicateDefaults(predicates, defaultPredicates);
     StringBuilder result = new StringBuilder();
-    for (Map.Entry<TTIriRef, TTArray> element : bundle.getEntity().getPredicateMap().entrySet()) {
-      result.append(ttValueToString(new TTNode().set(element.getKey(), element.getValue()), OBJECT, predicates, indent, withHyperlinks, blockedIris));
+    for (Map.Entry<TTIriRef, TTArrayJava> element : bundle.getEntity().getPredicateMap().entrySet()) {
+      result.append(ttValueToString(new TTNodeJava().set(element.getKey(), element.getValue()), OBJECT, predicates, indent, withHyperlinks, blockedIris));
     }
     return result.toString();
   }
 
-  public static String ttValueToString(TTArray node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
+  public static String ttValueToString(TTArrayJava node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
     return ttArrayToString(node, indent, withHyperlinks, iriMap, blockedIris);
   }
 
-  public static String ttValueToString(TTValue node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
+  public static String ttValueToString(TTValueJava node, String previousType, Map<String, String> iriMap, int indent, boolean withHyperlinks, List<String> blockedIris) {
     if (node.isIriRef()) {
       return ttIriToString(node.asIriRef(), previousType, indent, withHyperlinks, false, blockedIris);
     } else if (node.isNode()) {
@@ -65,7 +69,7 @@ public class TTToString {
     return result;
   }
 
-  public static String ttNodeToString(TTNode node, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
+  public static String ttNodeToString(TTNodeJava node, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
     String pad = new String(new char[indent]).replace("\0", INDENT_SIZE);
     String result = "";
     boolean first = true;
@@ -74,7 +78,7 @@ public class TTToString {
     int totalKeys = node.getPredicateMap().size();
     int count = 1;
     boolean group = totalKeys > 1;
-    for (Map.Entry<TTIriRef, TTArray> element : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArrayJava> element : node.getPredicateMap().entrySet()) {
       if (totalKeys == count) last = true;
       if (count == 1) first = true;
       String prefix = "";
@@ -94,7 +98,7 @@ public class TTToString {
     return result;
   }
 
-  private static String processNode(TTIriRef key, TTArray value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
+  private static String processNode(TTIriRef key, TTArrayJava value, String result, int indent, Map<String, String> iriMap, String pad, String prefix, String suffix, boolean group, boolean last, boolean withHyperlinks, List<String> blockedIris) {
     if (value.isIriRef()) {
       result += getObjectName(key, iriMap, pad, prefix);
       result += ttIriToString(value.asIriRef(), OBJECT, indent, withHyperlinks, true, blockedIris);
@@ -133,9 +137,9 @@ public class TTToString {
     return str.replaceAll(REGEX, "");
   }
 
-  public static String ttArrayToString(TTArray arr, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
+  public static String ttArrayToString(TTArrayJava arr, int indent, boolean withHyperlinks, Map<String, String> iriMap, List<String> blockedIris) {
     StringBuilder bld = new StringBuilder();
-    for (TTValue item : arr.iterator()) {
+    for (TTValueJava item : arr.iterator()) {
       bld.append(ttValueToString(item, ARRAY, iriMap, indent, withHyperlinks, blockedIris));
     }
     return bld.toString();

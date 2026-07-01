@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestHelper {
-  public static TTEntity getTestEntity() {
-    return new TTEntity("http://endhealth.info/im#25451000252115")
+  public static TTEntityJava getTestEntity() {
+    return new TTEntityJava("http://endhealth.info/im#25451000252115")
       .addPrefix("http://endhealth.info/im#", "im")
       .addPrefix("http://snomed.info/sct#", "sn")
       .addPrefix("http://www.w3.org/2000/01/rdf-schema#", "rdfs")
@@ -16,13 +16,13 @@ public class TestHelper {
       .setDescription("Partial amputation of toe of left foot (procedure)")
       .setCode("787213005")
       .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#"))
-      .setType(new TTArray().add(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT)))
-      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A), new TTArray()
+      .setType(new TTArrayJava().add(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT)))
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A), new TTArrayJava()
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#371186005", "Amputation of toe (procedure)"))
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#732214009", "Amputation of left lower limb"))
       )
-      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP), new TTArray()
-        .add(new TTNode()
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP), new TTArrayJava()
+        .add(new TTNodeJava()
           .set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#129309007", "Amputation - action"))
           .set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#405813007", "Procedure site - Direct"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#732939008", "Part of toe of left foot"))
         )
@@ -189,7 +189,7 @@ public class TestHelper {
       .toString();
   }
 
-  public static void checkEntity(TTNode entity) {
+  public static void checkEntity(TTNodeJava entity) {
     assertTrue(entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)));
     assertTrue(entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL)).isLiteral());
     assertEquals("Partial amputation of toe of left foot", entity
@@ -213,7 +213,7 @@ public class TestHelper {
     assertEquals(1, entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).size());
     assertTrue(entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).get(0).isNode());
 
-    TTNode roleGroup = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).get(0).asNode();
+    TTNodeJava roleGroup = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).get(0).asNode();
 
     assertTrue(roleGroup.has(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method")));
     assertTrue(roleGroup.get(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method")).isIriRef());

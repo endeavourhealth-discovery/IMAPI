@@ -2,13 +2,13 @@ package org.endeavourhealth.imapi.model.tripletree;
 
 import org.junit.jupiter.api.Test;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TTArrayUniqueTest {
+class TTArrayJavaUniqueTest {
   @Test
   void differentObjectDifferentValue_Iri() {
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
     actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
     actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#DIFFERENT"));
 
@@ -19,7 +19,7 @@ class TTArrayUniqueTest {
   void sameObjectSameValue_Iri() {
     TTIriRef testIri = TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME");
 
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
 
     actual.add(testIri);
     assertEquals(1, actual.size());
@@ -29,7 +29,7 @@ class TTArrayUniqueTest {
 
   @Test
   void differentObjectSameValue_Iri() {
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
     actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
     actual.add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://example.org#SAME"));
 
@@ -38,7 +38,7 @@ class TTArrayUniqueTest {
 
   @Test
   void differentObjectDifferentValue_Literal() {
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
     actual.add(literal("SAME"));
     actual.add(literal("DIFFERENT"));
 
@@ -47,7 +47,7 @@ class TTArrayUniqueTest {
 
   @Test
   void differentObjectSameValue_Literal() {
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
     actual.add(literal("SAME"));
     actual.add(literal("SAME"));
 
@@ -57,9 +57,9 @@ class TTArrayUniqueTest {
 
   @Test
   void sameObjectSameValue_Literal() {
-    TTLiteral lit = literal("SAME");
+    TTLiteralJava lit = literal("SAME");
 
-    TTArray actual = new TTArray();
+    TTArrayJava actual = new TTArrayJava();
     actual.add(lit);
     actual.add(lit);
 

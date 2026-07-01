@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.junit.jupiter.api.Test;
 
@@ -27,15 +30,15 @@ class TTToStringTest {
     return List.of("http://www.w3.org/2001/XMLSchema#string");
   }
 
-  public TTArray getTestArray() {
-    return new TTArray()
+  public TTArrayJava getTestArray() {
+    return new TTArrayJava()
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"));
   }
 
-  public TTNode getTestNode() {
-    return new TTNode().set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), getTestArray());
+  public TTNodeJava getTestNode() {
+    return new TTNodeJava().set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), getTestArray());
   }
 
   public TTBundle getTestBundle() {
@@ -48,28 +51,28 @@ class TTToStringTest {
       .addPredicate(EnumUtils.asIri(RdfsVocab.SUBCLASS_OF))
       .addPredicate(EnumUtils.asIri(OwlVocab.INTERSECTION_OF))
       .addPredicate(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM))
-      .setEntity(new TTEntity()
-        .set(EnumUtils.asIri(RdfsVocab.SUBCLASS_OF), new TTArray()
-          .add(new TTNode()
-            .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArray()
+      .setEntity(new TTEntityJava()
+        .set(EnumUtils.asIri(RdfsVocab.SUBCLASS_OF), new TTArrayJava()
+          .add(new TTNodeJava()
+            .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArrayJava()
               .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#128084001", "Duane's syndrome, type 3 (disorder)"))
               .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#298382003", "Scoliosis deformity of spine (disorder)"))
               .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#82354003", "Multiple system malformation syndrome (disorder)"))
               .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#85995004", "Autosomal recessive hereditary disorder (disorder)"))
-              .add(new TTNode()
-                .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), new TTNode()
-                  .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArray()
-                    .add(new TTNode()
+              .add(new TTNodeJava()
+                .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), new TTNodeJava()
+                  .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArrayJava()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#31739005", "Lateral abnormal curvature (morphologic abnormality)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
-                    .add(new TTNode()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#289959001", "Musculoskeletal structure of spine (body structure)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#363698007", "Finding site (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
-                    .add(new TTNode()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#370135005", "Pathological process (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
@@ -79,25 +82,25 @@ class TTToStringTest {
                 .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#roleGroup", "role group"))
                 .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
               )
-              .add(new TTNode()
-                .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), new TTNode()
-                  .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArray()
-                    .add(new TTNode()
+              .add(new TTNodeJava()
+                .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), new TTNodeJava()
+                  .set(EnumUtils.asIri(OwlVocab.INTERSECTION_OF), new TTArrayJava()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#49755003", "Morphologically abnormal structure (morphologic abnormality)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#116676008", "Associated morphology (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
-                    .add(new TTNode()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#255399007", "Congenital (qualifier value)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#246454002", "Occurrence (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
-                    .add(new TTNode()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#127954009", "Skeletal muscle structure (body structure)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#363698007", "Finding site (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))
                     )
-                    .add(new TTNode()
+                    .add(new TTNodeJava()
                       .set(EnumUtils.asIri(OwlVocab.SOME_VALUES_FROM), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#308490002", "Pathological developmental process (qualifier value)"))
                       .set(EnumUtils.asIri(OwlVocab.ON_PROPERTY), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#370135005", "Pathological process (attribute)"))
                       .set(EnumUtils.asIri(RdfVocab.TYPE), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://www.w3.org/2002/07/owl#Restriction", "Restriction"))

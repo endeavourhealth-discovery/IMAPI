@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 
 public class Tpl {
   private int dbid;
@@ -45,15 +45,15 @@ public class Tpl {
   }
 
   public static TTBundle toBundle(String iri, List<Tpl> triples) {
-    TTEntity entity = new TTEntity(iri);
+    TTEntityJava entity = new TTEntityJava(iri);
     TTBundle result = new TTBundle().setEntity(entity);
 
     // Reconstruct bnode map
-    HashMap<Integer, TTNode> nodeMap = new HashMap<>();
+    HashMap<Integer, TTNodeJava> nodeMap = new HashMap<>();
 
     for (Tpl triple : triples) {
       if (triple.getObject() == null && triple.getLiteral() == null) {
-        TTNode bNode = new TTNode();
+        TTNodeJava bNode = new TTNodeJava();
         nodeMap.put(triple.getDbid(), bNode);
       }
     }
@@ -61,7 +61,7 @@ public class Tpl {
     for (Tpl triple : triples) {
       result.addPredicate(triple.getPredicate());
 
-      TTValue v = getValue(nodeMap, triple);
+      TTValueJava v = getValue(nodeMap, triple);
 
       addTripleToEntity(entity, nodeMap, triple, v);
     }
@@ -69,7 +69,7 @@ public class Tpl {
     return result;
   }
 
-  private static void addTripleToEntity(TTEntity entity, HashMap<Integer, TTNode> nodeMap, Tpl triple, TTValue v) {
+  private static void addTripleToEntity(TTEntityJava entity, HashMap<Integer, TTNodeJava> nodeMap, Tpl triple, TTValueJava v) {
     if (triple.getParent() == null) {
       if (triple.isFunctional() && !entity.has(triple.getPredicate())) {
         entity.set(triple.getPredicate(), v);
@@ -77,7 +77,7 @@ public class Tpl {
         entity.addObject(triple.getPredicate(), v);
       }
     } else {
-      TTNode n = nodeMap.get(triple.getParent());
+      TTNodeJava n = nodeMap.get(triple.getParent());
       if (n == null)
         throw new IllegalStateException("Unknown parent node [" + triple.getParent() + "]");
       if (triple.isFunctional() && !n.has(triple.getPredicate())) {
@@ -88,8 +88,8 @@ public class Tpl {
     }
   }
 
-  public static TTValue getValue(Map<Integer, TTNode> nodeMap, Tpl triple) {
-    TTValue v;
+  public static TTValueJava getValue(Map<Integer, TTNodeJava> nodeMap, Tpl triple) {
+    TTValueJava v;
 
     if (triple.getLiteral() != null)
       v = literal(triple.getLiteral(), triple.getObject());

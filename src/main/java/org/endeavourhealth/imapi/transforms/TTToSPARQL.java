@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 import java.util.Map;
 
@@ -15,7 +18,7 @@ public class TTToSPARQL {
   private StringBuilder turtle;
   private int level;
 
-  public String transformEntity(TTEntity entity) {
+  public String transformEntity(TTEntityJava entity) {
     turtle = new StringBuilder();
     appendEntity(entity);
     append("\n");
@@ -26,7 +29,7 @@ public class TTToSPARQL {
     turtle.append(" ");
   }
 
-  private void appendEntity(TTEntity entity) {
+  private void appendEntity(TTEntityJava entity) {
     level = 0;
     nl();
     append("<" + entity.getIri() + "> ");
@@ -40,13 +43,13 @@ public class TTToSPARQL {
 
   }
 
-  private void setPredicateObjects(TTNode node) {
+  private void setPredicateObjects(TTNodeJava node) {
     int nodeCount = 1;
-    Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
+    Map<TTIriRef, TTArrayJava> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : predicateObjectList.entrySet()) {
         TTIriRef predicate = entry.getKey();
-        TTArray value = entry.getValue();
+        TTArrayJava value = entry.getValue();
         if (value != null && !value.isEmpty()) {
           outputPredicateObject(predicate, entry.getValue(), nodeCount);
           nodeCount++;
@@ -55,7 +58,7 @@ public class TTToSPARQL {
     }
   }
 
-  private void outputPredicateObject(TTIriRef predicate, TTArray object, int nodeCount) {
+  private void outputPredicateObject(TTIriRef predicate, TTArrayJava object, int nodeCount) {
     if (nodeCount > 1) {
       append(";");
       nl();
@@ -68,13 +71,13 @@ public class TTToSPARQL {
   }
 
 
-  private void setObject(TTArray value) {
+  private void setObject(TTArrayJava value) {
     int firstIn = 1;
     if (value.size() > 1) {
       level = level + 6;
       nl();
     }
-    for (TTValue entry : value.iterator()) {
+    for (TTValueJava entry : value.iterator()) {
       if (firstIn > 1) {
         append(" , ");
         nl();
@@ -84,7 +87,7 @@ public class TTToSPARQL {
     }
   }
 
-  private void setObject(TTValue value) {
+  private void setObject(TTValueJava value) {
     if (value.isIriRef())
       append("<" + value.asIriRef().getIri() + ">");
     else if (value.isLiteral()) {

@@ -5,31 +5,31 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 
-public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
+public class TTLiteralDeserializer extends StdDeserializer<TTLiteralJava> {
   private transient TTNodeDeserializer helper;
 
   public TTLiteralDeserializer() {
     this(null);
   }
 
-  public TTLiteralDeserializer(Class<TTLiteral> t) {
+  public TTLiteralDeserializer(Class<TTLiteralJava> t) {
     super(t);
   }
 
-  public TTLiteralDeserializer(Class<TTLiteral> t, TTNodeDeserializer helper) {
+  public TTLiteralDeserializer(Class<TTLiteralJava> t, TTNodeDeserializer helper) {
     super(t);
     this.helper = helper;
   }
 
   @Override
-  public TTLiteral deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+  public TTLiteralJava deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
     if (!node.has(ImVocab.TYPE.toString())) {

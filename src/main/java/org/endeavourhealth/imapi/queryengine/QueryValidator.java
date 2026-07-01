@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.interfacemanager.model.Compare;
-import org.endeavourhealth.interfacemanager.model.Match;
-import org.endeavourhealth.interfacemanager.model.Node;
-import org.endeavourhealth.interfacemanager.model.VarType;
+import org.endeavourhealth.imapi.model.imq.Assignable;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.ValueSource;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

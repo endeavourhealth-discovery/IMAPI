@@ -10,26 +10,26 @@ class TTDocumentTest {
 
   @Test
   void deserializeTest() throws JsonProcessingException {
-    TTDocument first = getTestDocument();
+    TTDocumentJava first = getTestDocument();
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
     String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(first);
 
     // Deserialize
-    TTDocument second = om.readValue(json, TTDocument.class);
+    TTDocumentJava second = om.readValue(json, TTDocumentJava.class);
 
     checkDocument(first, second);
   }
 
-  private void checkDocument(TTDocument first, TTDocument second) {
+  private void checkDocument(TTDocumentJava first, TTDocumentJava second) {
     assertEquals(first.getEntities().getFirst().getIri(),
       second.getEntities().getFirst().getIri());
   }
 
 
-  private TTDocument getTestDocument() {
-    TTDocument result = new TTDocument();
+  private TTDocumentJava getTestDocument() {
+    TTDocumentJava result = new TTDocumentJava();
     result.addPrefix(new TTPrefix("http://endhealth.info/im#", "im"));
     result.addEntity(TestHelper.getTestEntity());
     return result;

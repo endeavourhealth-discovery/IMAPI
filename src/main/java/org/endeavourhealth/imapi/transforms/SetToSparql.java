@@ -1,7 +1,10 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.util.Map;
@@ -16,7 +19,7 @@ public class SetToSparql {
   public String getExpansionSparql(String entityVar, String iri) throws DataFormatException {
 
     Set<String> predicates = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION);
-    TTEntity entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
+    TTEntityJava entity = entityRepository.getEntityPredicates(iri, predicates).getEntity();
     StringBuilder subQuery = new StringBuilder();
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER)) != null) {
       subQuery.append("?").append(entityVar).append(" ")
@@ -30,7 +33,7 @@ public class SetToSparql {
 
   }
 
-  private void getExpansionWhere(TTArray definition, StringBuilder subQuery) {
+  private void getExpansionWhere(TTArrayJava definition, StringBuilder subQuery) {
     if (definition.isIriRef()) {
       simpleSuperClass(definition.asIriRef(), subQuery);
     } else if (definition.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.OR)) != null) {
@@ -50,10 +53,10 @@ public class SetToSparql {
   }
 
 
-  private void orClause(TTArray ors, StringBuilder subQuery) {
+  private void orClause(TTArrayJava ors, StringBuilder subQuery) {
     subQuery.append(tabs).append("{");
     StringBuilder values = new StringBuilder();
-    for (TTValue superClass : ors.getElements()) {
+    for (TTValueJava superClass : ors.getElements()) {
       if (superClass.isIriRef())
         values.append(tabs).append(iri(superClass.asIriRef().getIri())).append(" ");
     }
@@ -64,7 +67,7 @@ public class SetToSparql {
 
     }
 
-    for (TTValue complexClass : ors.getElements()) {
+    for (TTValueJava complexClass : ors.getElements()) {
       if (complexClass.isNode()) {
 
         addUnion(complexClass.asNode(), subQuery);
@@ -74,7 +77,7 @@ public class SetToSparql {
   }
 
 
-  private void addUnion(TTNode union, StringBuilder subQuery) {
+  private void addUnion(TTNodeJava union, StringBuilder subQuery) {
 
     if (union.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.AND)) != null) {
       subQuery.append(tabs).append("UNION {\n");
@@ -95,20 +98,20 @@ public class SetToSparql {
     }
   }
 
-  private Boolean andClause(TTArray and, boolean group, StringBuilder subqQuery) {
+  private Boolean andClause(TTArrayJava and, boolean group, StringBuilder subqQuery) {
     boolean hasRoles = false;
-    for (TTValue inter : and.getElements()) {
+    for (TTValueJava inter : and.getElements()) {
       if (inter.isNode() && inter.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NOT)) == null) {
         roles(inter.asNode(), group, subqQuery);
         hasRoles = true;
       }
     }
-    for (TTValue inter : and.getElements()) {
+    for (TTValueJava inter : and.getElements()) {
       if (inter.isIriRef()) {
         simpleSuperClass(inter.asIriRef(), subqQuery);
       }
     }
-    for (TTValue inter : and.getElements()) {
+    for (TTValueJava inter : and.getElements()) {
       if (inter.isNode() && inter.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NOT)) != null)
         notClause(inter.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NOT)).asValue(), subqQuery);
     }
@@ -116,7 +119,7 @@ public class SetToSparql {
   }
 
 
-  private void notClause(TTValue not, StringBuilder subQuery) {
+  private void notClause(TTValueJava not, StringBuilder subQuery) {
     subQuery.append(tabs).append("MINUS {\n");
     if (not.isIriRef())
       simpleSuperClass(not.asIriRef(), subQuery);
@@ -134,9 +137,9 @@ public class SetToSparql {
   }
 
 
-  private void roles(TTNode node, boolean group, StringBuilder subQuery) {
+  private void roles(TTNodeJava node, boolean group, StringBuilder subQuery) {
     int count = 1;
-    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
       count++;
       String obj = "?subo_" + count;
       String pred = "?subp_" + count;

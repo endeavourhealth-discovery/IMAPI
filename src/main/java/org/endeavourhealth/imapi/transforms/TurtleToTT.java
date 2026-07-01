@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
-public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
+public class TurtleToTT extends TurtliteBaseVisitor<TTDocumentJava> {
   private final TurtliteParser parser;
   private final TurtliteLexer lexer;
-  private final Map<String, TTNode> blankNodes = new HashMap<>();
-  private final Map<String, TTEntity> iriMap = new HashMap<>();
-  private TTDocument document;
+  private final Map<String, TTNodeJava> blankNodes = new HashMap<>();
+  private final Map<String, TTEntityJava> iriMap = new HashMap<>();
+  private TTDocumentJava document;
 
 
   /**
@@ -36,22 +36,22 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
    * @param turtle the string of turtle.
    * @return the TTDocument
    */
-  public TTDocument getDocument(String turtle) throws DataFormatException {
+  public TTDocumentJava getDocument(String turtle) throws DataFormatException {
     lexer.setInputStream(CharStreams.fromString(turtle));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
     parser.setTokenStream(tokens);
     TurtliteParser.TurtleDocContext tdoc = parser.turtleDoc();
     try (TTManager manager = new TTManager()) {
-      document = new TTDocument();
+      document = new TTDocumentJava();
       manager.setDocument(document);
     }
-    document.setContext(new TTContext());
+    document.setContext(new TTContextJava());
     convertDoc(tdoc);
 
     return document;
   }
 
-  private TTDocument convertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
+  private TTDocumentJava convertDoc(TurtliteParser.TurtleDocContext tdoc) throws DataFormatException {
     if (tdoc.statement() != null)
       for (TurtliteParser.StatementContext statement : tdoc.statement()) {
         if (statement.directive() != null) {
@@ -69,11 +69,11 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       if (triples.subject().iri() != null) {
         System.out.println(triples.subject().iri().getText());
         if (triples.predicateObjectList() != null) {
-          TTEntity entity;
+          TTEntityJava entity;
           if (iriMap.get(triples.subject().iri().getText()) != null)
             entity = iriMap.get(triples.subject().iri().getText());
           else {
-            entity = new TTEntity();
+            entity = new TTEntityJava();
             String iri = getIri(triples.subject().iri().getText());
             entity.setIri(iri);
             document.addEntity(entity);
@@ -83,14 +83,14 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
         }
       } else if (triples.subject().BlankNode() != null) {
         String text = triples.subject().BlankNode().getText();
-        blankNodes.computeIfAbsent(text, t -> new TTNode());
+        blankNodes.computeIfAbsent(text, t -> new TTNodeJava());
         convertPredicates(blankNodes.get(text), triples.predicateObjectList());
       }
     }
 
   }
 
-  private void convertPredicates(TTNode node, List<TurtliteParser.PredicateObjectListContext> poList) throws DataFormatException {
+  private void convertPredicates(TTNodeJava node, List<TurtliteParser.PredicateObjectListContext> poList) throws DataFormatException {
     TTIriRef predicate;
     for (TurtliteParser.PredicateObjectListContext po : poList) {
       TurtliteParser.VerbContext verb = po.verb();
@@ -103,32 +103,32 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
 
   }
 
-  private void convertObjects(TTNode node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
+  private void convertObjects(TTNodeJava node, TTIriRef predicate, TurtliteParser.ObjectListContext objectList) throws DataFormatException {
     for (TurtliteParser.ObjectContext object : objectList.object()) {
       if (object.collection() != null) {
         for (TurtliteParser.ObjectContext member : object.collection().object()) {
           node.addObject(predicate, getObjectValue(member));
         }
       } else {
-        TTValue value = getObjectValue(object);
+        TTValueJava value = getObjectValue(object);
         node.addObject(predicate, value);
       }
     }
   }
 
-  private TTValue getObjectValue(TurtliteParser.ObjectContext object) throws DataFormatException {
-    TTValue value;
+  private TTValueJava getObjectValue(TurtliteParser.ObjectContext object) throws DataFormatException {
+    TTValueJava value;
     if (object.literal() != null) {
       if (object.literal().rdfLiteral() != null)
-        return TTLiteral.literal(object.literal().rdfLiteral().String().getText().replace("\"", ""));
+        return TTLiteralJava.literal(object.literal().rdfLiteral().String().getText().replace("\"", ""));
       else
-        return TTLiteral.literal(object.literal().getText().replace("\"", ""));
+        return TTLiteralJava.literal(object.literal().getText().replace("\"", ""));
     } else if (object.iri() != null) {
       return TTIriRefExtensionsKt.iri(new TTIriRef(), getIri(object.iri().getText()));
     } else if (object.BlankNode() != null) {
       return getBlankNode(object.BlankNode().getText());
     } else if (object.blankNodePropertyList() != null) {
-      value = new TTNode();
+      value = new TTNodeJava();
       convertBlankNode(value.asNode(), object.blankNodePropertyList());
       return value;
     } else if (object.collection() != null) {
@@ -137,26 +137,26 @@ public class TurtleToTT extends TurtliteBaseVisitor<TTDocument> {
       throw new DataFormatException("Unknown object type " + object.getText());
   }
 
-  private void convertCollection(TTArray array, TurtliteParser.CollectionContext collection) throws DataFormatException {
+  private void convertCollection(TTArrayJava array, TurtliteParser.CollectionContext collection) throws DataFormatException {
     for (TurtliteParser.ObjectContext object : collection.object()) {
-      TTValue value = getObjectValue(object);
+      TTValueJava value = getObjectValue(object);
       array.add(value);
 
     }
   }
 
-  private void convertBlankNode(TTNode value, TurtliteParser.BlankNodePropertyListContext blankNodePropertyList) throws DataFormatException {
+  private void convertBlankNode(TTNodeJava value, TurtliteParser.BlankNodePropertyListContext blankNodePropertyList) throws DataFormatException {
     if (blankNodePropertyList.predicateObjectList() != null) {
       List<TurtliteParser.PredicateObjectListContext> polist = blankNodePropertyList.predicateObjectList();
       convertPredicates(value, polist);
     }
   }
 
-  private TTValue getBlankNode(String blankIri) {
+  private TTValueJava getBlankNode(String blankIri) {
     if (blankNodes.get(blankIri) != null)
       return blankNodes.get(blankIri);
     else {
-      blankNodes.put(blankIri, new TTNode());
+      blankNodes.put(blankIri, new TTNodeJava());
       return blankNodes.get(blankIri);
     }
   }

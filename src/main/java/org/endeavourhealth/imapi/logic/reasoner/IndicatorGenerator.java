@@ -1,17 +1,17 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 
 public class IndicatorGenerator {
 
-  public TTEntity createIndicator(String iri, String name, String description,
-                                  NAMESPACE namespace,
-                                  String denominator,
-                                  String numerator,
-                                  TTEntity dataset) {
-    TTEntity indicator = new TTEntity()
+  public TTEntityJava createIndicator(String iri, String name, String description,
+                                      NAMESPACE namespace,
+                                      String denominator,
+                                      String numerator,
+                                      TTEntityJava dataset) {
+    TTEntityJava indicator = new TTEntityJava()
       .setIri(iri)
       .setName(name)
       .setDescription(description)

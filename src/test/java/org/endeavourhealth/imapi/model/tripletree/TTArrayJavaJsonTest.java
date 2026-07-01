@@ -9,10 +9,10 @@ import java.util.StringJoiner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class TTArrayJsonTest {
+class TTArrayJavaJsonTest {
   @Test
   void serializationTest() throws JsonProcessingException {
-    TTArray node = getTestArray();
+    TTArrayJava node = getTestArray();
 
     // Serialize
     ObjectMapper om = new ObjectMapper();
@@ -28,16 +28,16 @@ class TTArrayJsonTest {
   void deserializationTest() throws JsonProcessingException {
     // Deserialize
     ObjectMapper om = new ObjectMapper();
-    TTArray array = om.readValue(getJson(), TTArray.class);
+    TTArrayJava array = om.readValue(getJson(), TTArrayJava.class);
 
     checkArray(array);
   }
 
-  private TTArray getTestArray() {
-    return new TTArray()
+  private TTArrayJava getTestArray() {
+    return new TTArrayJava()
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#371186005", "Amputation of toe (procedure)"))
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#732214009", "Amputation of left lower limb"))
-      .add(new TTNode()
+      .add(new TTNodeJava()
         .set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#129309007", "Amputation - action"))
         .set(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#405813007", "Procedure site - Direct"), TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#732939008", "Part of toe of left foot"))
       );
@@ -65,7 +65,7 @@ class TTArrayJsonTest {
     return json.toString();
   }
 
-  private void checkArray(TTArray array) {
+  private void checkArray(TTArrayJava array) {
     assertEquals(3, array.size());
 
     assertTrue(array.get(0).isIriRef());
@@ -75,7 +75,7 @@ class TTArrayJsonTest {
     assertEquals(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#732214009", "Amputation of left lower limb"), array.get(1));
 
     assertTrue(array.get(2).isNode());
-    TTNode node = array.get(2).asNode();
+    TTNodeJava node = array.get(2).asNode();
 
     assertTrue(node.has(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method")));
     assertTrue(node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://snomed.info/sct#260686004", "Method")).isIriRef());

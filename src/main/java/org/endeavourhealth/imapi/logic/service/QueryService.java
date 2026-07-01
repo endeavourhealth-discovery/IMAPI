@@ -8,13 +8,11 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.utility.EnumUtils;
@@ -69,7 +67,7 @@ public class QueryService {
     }
     Query query;
     if (queryRequest.getQuery().getIri() != null && !queryRequest.getQuery().getIri().isEmpty()) {
-      TTEntity queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(ImVocab.DEFINITION, RdfVocab.TYPE)).getEntity();
+      TTEntityJava queryEntity = entityRepository.getEntityPredicates(queryRequest.getQuery().getIri(), EnumUtils.asHashSet(ImVocab.DEFINITION, RdfVocab.TYPE)).getEntity();
       if (queryEntity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.INDICATOR)))
         return new QueryRequest().setQuery(queryRequest.getQuery().setQueryType(IMQType.INDICATOR)).setArgument(queryRequest.getArgument());
 
@@ -92,12 +90,12 @@ public class QueryService {
   }
 
   public Query getDefaultQuery() throws JsonProcessingException {
-    List<TTEntity> children = entityRepository.getFolderChildren(NamespaceVocab.
+    List<TTEntityJava> children = entityRepository.getFolderChildren(NamespaceVocab.
       IM + "Q_DefaultCohorts", EnumUtils.asArray(ShaclVocab.ORDER, RdfVocab.TYPE, RdfsVocab.LABEL, ImVocab.DEFINITION));
     if (children.isEmpty()) {
       return new Query().setTypeOf(NamespaceVocab.IM + "Patient");
     }
-    TTEntity cohort = findFirstQuery(children);
+    TTEntityJava cohort = findFirstQuery(children);
     Query defaultQuery = new Query();
     if (cohort != null) {
       Query cohortQuery = cohort.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
@@ -107,21 +105,21 @@ public class QueryService {
     } else return null;
   }
 
-  private TTEntity findFirstQuery(List<TTEntity> children) {
-    for (TTEntity child : children) {
+  private TTEntityJava findFirstQuery(List<TTEntityJava> children) {
+    for (TTEntityJava child : children) {
       if (child.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY)) && child.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) != null) {
         return child;
       }
 
     }
-    for (TTEntity child : children) {
+    for (TTEntityJava child : children) {
       if (child.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FOLDER))) {
-        List<TTEntity> subchildren = entityRepository.getFolderChildren(NamespaceVocab.
+        List<TTEntityJava> subchildren = entityRepository.getFolderChildren(NamespaceVocab.
           IM + "DefaultCohorts", EnumUtils.asArray(ShaclVocab.ORDER, RdfVocab.TYPE, RdfsVocab.LABEL, ImVocab.DEFINITION));
         if (subchildren == null || subchildren.isEmpty()) {
           return null;
         }
-        TTEntity cohort = findFirstQuery(subchildren);
+        TTEntityJava cohort = findFirstQuery(subchildren);
         if (cohort != null) return cohort;
       }
     }
@@ -139,7 +137,7 @@ public class QueryService {
   }
 
   public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(ImVocab.DEFINITION.toString())).getEntity();
+    TTEntityJava queryEntity = entityRepository.getEntityPredicates(iri, Set.of(ImVocab.DEFINITION.toString())).getEntity();
     Query query = queryEntity.get(ImVocab.DEFINITION).asLiteral().objectValue(Query.class);
     new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
     return query;
@@ -249,7 +247,7 @@ public class QueryService {
 
 
   public Indicator describeIndicator(String iri) throws JsonProcessingException, QueryException {
-    TTEntity entity = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(RdfsVocab.LABEL, RdfsVocab.COMMENT,
+    TTEntityJava entity = entityRepository.getEntityPredicates(iri, EnumUtils.asHashSet(RdfsVocab.LABEL, RdfsVocab.COMMENT,
       ImVocab.IS_SUBINDICATOR_OF, ImVocab.DENOMINATOR, ImVocab.NUMERATOR, ImVocab.HAS_DATASET)).getEntity();
     Indicator indicator = new Indicator();
     indicator.setIri(entity.getIri());
@@ -266,7 +264,7 @@ public class QueryService {
     }
     if (entity.get(ImVocab.IS_SUBINDICATOR_OF) != null) {
       indicator.setIsSubIndicatorOf(entity.get(ImVocab.IS_SUBINDICATOR_OF).getElements()
-        .stream().map(TTValue::asIriRef).collect(Collectors.toList()));
+        .stream().map(TTValueJava::asIriRef).collect(Collectors.toList()));
     }
     return indicator;
   }

@@ -5,9 +5,9 @@ import org.endeavourhealth.imapi.dataaccess.ProvRepository;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
 import org.endeavourhealth.imapi.model.cdm.ProvAgent;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ public class ProvService {
 
   final ProvRepository provRepository = new ProvRepository();
 
-  public ProvAgent buildProvenanceAgent(TTEntity targetEntity, String agentName) {
+  public ProvAgent buildProvenanceAgent(TTEntityJava targetEntity, String agentName) {
     String root;
 
     if (null != targetEntity.getScheme() && null != targetEntity.getScheme().getIri())
@@ -37,7 +37,7 @@ public class ProvService {
     return agent;
   }
 
-  public ProvActivity buildProvenanceActivity(TTEntity targetEntity, ProvAgent agent, String usedEntityIri) {
+  public ProvActivity buildProvenanceActivity(TTEntityJava targetEntity, ProvAgent agent, String usedEntityIri) {
     ProvActivity activity = new ProvActivity()
       .setIri("urn:uuid:" + UUID.randomUUID())
       .setActivityType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROV_CREATION))
@@ -54,12 +54,12 @@ public class ProvService {
     return activity;
   }
 
-  public TTEntity buildUsedEntity(TTEntity usedEntity) throws JsonProcessingException {
+  public TTEntityJava buildUsedEntity(TTEntityJava usedEntity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      return new TTEntity()
+      return new TTEntityJava()
         .setIri(usedEntity.getIri() + "/" + (usedEntity.getVersion()))
         .setName(usedEntity.getName())
-        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), new TTLiteral(om.writeValueAsString(usedEntity)))
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), new TTLiteralJava(om.writeValueAsString(usedEntity)))
         .setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
     }
   }
@@ -75,7 +75,7 @@ public class ProvService {
       uri;
   }
 
-  public List<TTEntity> getProvHistory(String iri) {
+  public List<TTEntityJava> getProvHistory(String iri) {
     return provRepository.getProvHistory(iri);
   }
 }

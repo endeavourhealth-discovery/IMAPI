@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class TTToTurtle {
   private final Map<String, String> prefixes = new HashMap<>();
-  private TTContext context;
+  private TTContextJava context;
   private StringBuilder turtle;
   private int level;
 
@@ -23,11 +23,11 @@ public class TTToTurtle {
    * @param document the document in Triple Tree class format
    * @return a string of turtle, with prefixed IRIs and tabs
    */
-  public String transformDocument(TTDocument document) {
+  public String transformDocument(TTDocumentJava document) {
     this.context = document.getContext();
     turtle = new StringBuilder();
     nl();
-    for (TTEntity entity : document.getEntities())
+    for (TTEntityJava entity : document.getEntities())
       appendEntity(entity);
     turtle.append("\n");
 
@@ -35,7 +35,7 @@ public class TTToTurtle {
     return turtle.toString();
   }
 
-  public String transformEntity(TTEntity entity, TTContext context) {
+  public String transformEntity(TTEntityJava entity, TTContextJava context) {
     turtle = new StringBuilder();
     this.context = context;
     appendEntity(entity);
@@ -60,12 +60,12 @@ public class TTToTurtle {
     }
   }
 
-  public String transformEntity(TTEntity entity) {
+  public String transformEntity(TTEntityJava entity) {
     return transformEntity(entity, entity.getContext());
   }
 
 
-  private void appendEntity(TTEntity entity) {
+  private void appendEntity(TTEntityJava entity) {
     level = 0;
     nl();
     append(getShort(entity.getIri()));
@@ -79,13 +79,13 @@ public class TTToTurtle {
 
   }
 
-  private void setPredicateObjects(TTNode node) {
+  private void setPredicateObjects(TTNodeJava node) {
     int nodeCount = 1;
-    Map<TTIriRef, TTArray> predicateObjectList = node.getPredicateMap();
+    Map<TTIriRef, TTArrayJava> predicateObjectList = node.getPredicateMap();
     if (predicateObjectList != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : predicateObjectList.entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : predicateObjectList.entrySet()) {
         TTIriRef predicate = entry.getKey();
-        TTArray value = entry.getValue();
+        TTArrayJava value = entry.getValue();
         if (value != null && !value.isEmpty()) {
           outputPredicateObject(predicate, entry.getValue(), nodeCount);
           nodeCount++;
@@ -94,7 +94,7 @@ public class TTToTurtle {
     }
   }
 
-  private void outputPredicateObject(TTIriRef predicate, TTArray object, int nodeCount) {
+  private void outputPredicateObject(TTIriRef predicate, TTArrayJava object, int nodeCount) {
     if (nodeCount > 1) {
       append(";");
       nl();
@@ -106,13 +106,13 @@ public class TTToTurtle {
     level = olevel;
   }
 
-  private void setObject(TTArray value) {
+  private void setObject(TTArrayJava value) {
     int firstIn = 1;
     if (value.size() > 1) {
       level = level + 6;
       nl();
     }
-    for (TTValue entry : value.iterator()) {
+    for (TTValueJava entry : value.iterator()) {
       if (firstIn > 1) {
         append(" , ");
         nl();
@@ -122,7 +122,7 @@ public class TTToTurtle {
     }
   }
 
-  private void setObject(TTValue value) {
+  private void setObject(TTValueJava value) {
     if (value.isIriRef())
       append(getShort(value.asIriRef().getIri()));
     else if (value.isLiteral()) {

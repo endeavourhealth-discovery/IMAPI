@@ -4,14 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.Concept;
-import org.endeavourhealth.interfacemanager.model.GraphVocab;
-import org.endeavourhealth.interfacemanager.model.ImVocab;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.Set;
 

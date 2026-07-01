@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.filer;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 
 import java.util.Map;
 import java.util.Set;
 
 public interface TTEntityFiler {
-  void fileEntity(TTEntity entity) throws TTFilerException;
+  void fileEntity(TTEntityJava entity) throws TTFilerException;
 
   void updateIsAs(String iri);
 

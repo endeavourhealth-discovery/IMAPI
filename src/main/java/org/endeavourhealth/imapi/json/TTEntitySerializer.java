@@ -3,19 +3,19 @@ package org.endeavourhealth.imapi.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.io.IOException;
 
-public class TTEntitySerializer extends StdSerializer<TTEntity> {
+public class TTEntitySerializer extends StdSerializer<TTEntityJava> {
 
   public TTEntitySerializer() {
     this(null);
   }
 
-  public TTEntitySerializer(Class<TTEntity> t) {
+  public TTEntitySerializer(Class<TTEntityJava> t) {
     super(t);
   }
 
@@ -29,8 +29,8 @@ public class TTEntitySerializer extends StdSerializer<TTEntity> {
   }
 
   @Override
-  public void serialize(TTEntity entity, JsonGenerator gen, SerializerProvider prov) throws IOException {
-    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContext.OUTPUT_CONTEXT);
+  public void serialize(TTEntityJava entity, JsonGenerator gen, SerializerProvider prov) throws IOException {
+    Boolean usePrefixes = (Boolean) prov.getAttribute(TTContextJava.OUTPUT_CONTEXT);
     usePrefixes = (usePrefixes != null && usePrefixes);
 
     TTContextHelper helper = new TTContextHelper(entity.getContext(), usePrefixes);

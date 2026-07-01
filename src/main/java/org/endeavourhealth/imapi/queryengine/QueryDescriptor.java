@@ -8,14 +8,14 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.Assignable;
-import org.endeavourhealth.imapi.model.imq.Return;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.Pluraliser;
 import org.endeavourhealth.interfacemanager.model.DisplayMode;
 import org.endeavourhealth.interfacemanager.model.Order;
+import org.endeavourhealth.interfacemanager.model.Return;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -28,7 +28,7 @@ public class QueryDescriptor {
   @Getter
   private EntityRepository repo = new EntityRepository();
   @Getter
-  private Map<String, TTEntity> iriContext;
+  private Map<String, TTEntityJava> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
   private DisplayMode displayMode;
 
@@ -92,7 +92,7 @@ public class QueryDescriptor {
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION)).getEntity();
+    TTEntityJava queryEntity = repo.getEntityPredicates(queryIri, EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.DEFINITION)).getEntity();
     if (queryEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)) == null) return null;
     Query query = queryEntity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION)).asLiteral().objectValue(Query.class);
     if (query.getIri() == null)
@@ -189,7 +189,7 @@ public class QueryDescriptor {
   public String getTermInContext(String source, Context... contexts) {
     if (source.isEmpty()) return "";
     StringBuilder term = new StringBuilder(source);
-    TTEntity entity = iriContext.get(source);
+    TTEntityJava entity = iriContext.get(source);
     if (entity != null) {
       term = new StringBuilder(entity.getName());
     }
@@ -448,7 +448,7 @@ public class QueryDescriptor {
     for (Node set : where.getIs()) {
       if (set.getIri() != null) {
         if (iriContext.get(set.getIri()) != null) {
-          TTEntity nodeEntity = (iriContext.get(set.getIri()));
+          TTEntityJava nodeEntity = (iriContext.get(set.getIri()));
           set.setCode(nodeEntity.getCode());
           String modifier = set.isExclude() ? " but not: " : " ";
           set.setDescription(nodeEntity.getName() + modifier);

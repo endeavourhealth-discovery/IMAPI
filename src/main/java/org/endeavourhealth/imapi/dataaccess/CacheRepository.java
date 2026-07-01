@@ -7,15 +7,20 @@ import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.query.GraphQuery;
 import org.eclipse.rdf4j.query.GraphQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 
 /**
  * A data access class with methods for extracting entities for the caching mechanism
@@ -40,12 +45,12 @@ public class CacheRepository {
         }
       }
       """;
-    Set<TTEntity> shapes = new HashSet<>();
+    Set<TTEntityJava> shapes = new HashSet<>();
     try (IMDB conn = IMDB.getConnection()) {
       GraphQuery qry = conn.prepareGraphSparql(sql);
       try (GraphQueryResult gs = qry.evaluate()) {
-        Map<String, TTValue> valueMap = new HashMap<>();
-        Map<String, TTNode> subjectMap = new HashMap<>();
+        Map<String, TTValueJava> valueMap = new HashMap<>();
+        Map<String, TTNodeJava> subjectMap = new HashMap<>();
         for (org.eclipse.rdf4j.model.Statement st : gs) {
           processStatement(shapes, valueMap, subjectMap, st);
         }
@@ -54,7 +59,7 @@ public class CacheRepository {
       shapes.forEach(e -> iris.addAll(TTManager.getIrisFromNode(e)));
       EntityRepository.getIriNames(conn, iris);
       Set<TTBundle> result = new HashSet<>();
-      for (TTEntity shape : shapes) {
+      for (TTEntityJava shape : shapes) {
         TTBundle bundle = new TTBundle();
         bundle.setEntity(shape);
         result.add(bundle);
@@ -68,23 +73,23 @@ public class CacheRepository {
 
   }
 
-  private void processStatement(Set<TTEntity> entities, Map<String, TTValue> valueMap, Map<String, TTNode> subjectMap, Statement st) {
+  private void processStatement(Set<TTEntityJava> entities, Map<String, TTValueJava> valueMap, Map<String, TTNodeJava> subjectMap, Statement st) {
     Resource s = st.getSubject();
     IRI p = st.getPredicate();
     Value o = st.getObject();
     String subject = s.stringValue();
     TTIriRef predicate = TTIriRefExtensionsKt.iri(new TTIriRef(), p.stringValue());
     String value = o.stringValue();
-    TTNode node;
+    TTNodeJava node;
     if (s.isIRI()) {
       subjectMap.computeIfAbsent(subject, k -> {
-        TTEntity entity = new TTEntity().setIri(k);
+        TTEntityJava entity = new TTEntityJava().setIri(k);
         entities.add(entity);
         return entity;
       });
       node = subjectMap.get(subject);
     } else {
-      valueMap.putIfAbsent(subject, new TTNode());
+      valueMap.putIfAbsent(subject, new TTNodeJava());
       node = valueMap.get(subject).asNode();
     }
     if (o.isLiteral()) {
@@ -92,7 +97,7 @@ public class CacheRepository {
     } else if (o.isIRI()) {
       node.addObject(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
     } else {
-      valueMap.putIfAbsent(value, new TTNode());
+      valueMap.putIfAbsent(value, new TTNodeJava());
       node.addObject(predicate, valueMap.get(value).asNode());
     }
   }

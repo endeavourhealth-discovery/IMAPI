@@ -3,9 +3,9 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.map.MapObject;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.interfacemanager.model.ListMode;
 import org.endeavourhealth.interfacemanager.model.TargetUpdateMode;
 
@@ -13,7 +13,7 @@ public class TestMaps {
 
 
   public static void patientDSTU2() throws JsonProcessingException {
-    TTEntity patientMapEntity = new TTEntity();
+    TTEntityJava patientMapEntity = new TTEntityJava();
     patientMapEntity
       .setIri(NamespaceVocab.MAP + "FHIR_2_PatientToIM")
       .setName("FHIR DSTU2 Patient to IM Patient transformMap")
@@ -126,7 +126,7 @@ public class TestMaps {
           .propertyMap(m2 -> m2
             .setTarget("originalScheme")
             .setValueData("http://hl7.org/fhir/administrative-gender"))));
-    patientMapEntity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(patientMap));
+    patientMapEntity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(patientMap));
     EntityCache.addEntity(patientMapEntity);
   }
 }

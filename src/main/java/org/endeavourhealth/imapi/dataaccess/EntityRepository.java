@@ -14,17 +14,16 @@ import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
 import org.endeavourhealth.interfacemanager.model.Namespace;
-import org.endeavourhealth.interfacemanager.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.interfacemanager.model.Entity;
 import org.endeavourhealth.interfacemanager.model.EntityDocument;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.interfacemanager.model.SearchResultSummary;
+import org.endeavourhealth.interfacemanager.model.SearchTermCode;
 import org.endeavourhealth.interfacemanager.model.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
@@ -142,8 +141,8 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
-    Map<String, TTEntity> entities = new HashMap<>();
+  public List<TTEntityJava> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
+    Map<String, TTEntityJava> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
       ?entity ?predicate ?object ?predicate2 ?object2
@@ -166,14 +165,14 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
-          entities.putIfAbsent(iri, new TTEntity().setIri(iri));
-          TTEntity entity = entities.get(iri);
+          entities.putIfAbsent(iri, new TTEntityJava().setIri(iri));
+          TTEntityJava entity = entities.get(iri);
           Value object = bs.getValue("folder");
           if (object.isIRI()) {
             entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue()));
           } else if (object.isBNode()) {
             if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue())) == null) {
-              entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), new TTNode());
+              entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("predicate").stringValue()), new TTNodeJava());
             }
             Value object2 = bs.getValue("object2");
             if (object2.isIRI()) {
@@ -249,13 +248,13 @@ public class EntityRepository {
           Set<TTIriRef> types = iriToTypesMap.get(iri);
           SearchResultSummary summary = new SearchResultSummary();
           summary
-            .setIri(iri)
-            .setName(bs.getValue("sname").stringValue())
-            .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-            .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
-            .setType(types)
-            .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
-            .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+            .iri(iri)
+            .name(bs.getValue("sname").stringValue())
+            .code(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
+            .scheme(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
+            .type(types.stream().toList())
+            .status(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            .description(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
       }
@@ -305,13 +304,13 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           if (result.getName() == null) {
-            result.setIri(iri).setName(bs.getValue("sname").stringValue())
-              .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-              .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            result.iri(iri).name(bs.getValue("sname").stringValue())
+              .code(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
+              .status(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
               .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
           if (bs.hasBinding("type")) {
-            result.addType(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("type").stringValue())
+            result.addTypeItem(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("type").stringValue())
               .name(bs.getValue("typeName").stringValue()));
           }
 
@@ -326,7 +325,7 @@ public class EntityRepository {
             TTIriRef qualifier = TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("qualifier").stringValue())
               .name(bs.getValue("qualifierName").stringValue());
             if (result.getQualifier() == null || (!result.getQualifier().contains(qualifier))) {
-              result.addQualifier(qualifier);
+              result.addQualifierItem(qualifier);
             }
           }
         }
@@ -421,7 +420,7 @@ public class EntityRepository {
   }
 
   public EntityDocument getOSDocument(String iri) {
-    EntityDocument result = new EntityDocument().setIri(iri);
+    EntityDocument result = new EntityDocument().iri(iri);
     hydrateCoreProperties(result);
     hydrateTerms(result);
     hydrateIsAs(result);
@@ -494,13 +493,13 @@ public class EntityRepository {
           if (synonym != null) {
             SearchTermCode tc = getTermCode(entityDocument, synonym);
             if (tc == null) {
-              entityDocument.addTermCode(synonym, termCode, status, null);
+              entityDocument.addTermCodeItem(synonym, termCode, status, null);
             } else if (termCode != null) {
               tc.setCode(termCode);
             }
           } else if (termCode != null) {
             SearchTermCode tc = getTermCodeFromCode(entityDocument, termCode);
-            if (tc == null) entityDocument.addTermCode(null, termCode, status, null);
+            if (tc == null) entityDocument.addTermCodeItem(null, termCode, status, null);
           }
 
         }
@@ -646,7 +645,7 @@ public class EntityRepository {
   }
 
   public TTBundle getBundle(String iri, Set<String> predicates, boolean excludePredicates, int depth) {
-    TTBundle bundle = new TTBundle().setEntity(new TTEntity().setIri(iri)).setPredicates(new HashMap<>());
+    TTBundle bundle = new TTBundle().setEntity(new TTEntityJava().setIri(iri)).setPredicates(new HashMap<>());
     if (null != predicates && predicates.contains(RdfsVocab.LABEL.toString()) && !predicates.contains(RdfsVocab.COMMENT.toString())) {
       Set<String> predicatesPlus = new HashSet<>(predicates);
       predicatesPlus.add(RdfsVocab.COMMENT.toString());
@@ -680,7 +679,7 @@ public class EntityRepository {
     if (subject.isIriRef() && (subject.asIriRef().getName() == null || subject.asIriRef().getName().isEmpty()))
       subject.asIriRef().setName(iriToName.get(subject.asIriRef().getIri()));
     else if (subject.isNode() && subject.asNode().getPredicateMap() != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : subject.asNode().getPredicateMap().entrySet()) {
         for (TTValue value : entry.getValue().getElements()) {
           if (value.isIriRef() && (value.asIriRef().getName() == null || value.asIriRef().getName().isEmpty()))
             value.asIriRef().setName(iriToName.get(value.asIriRef().getIri()));
@@ -1014,7 +1013,7 @@ public class EntityRepository {
   }
 
   private void processStatement(TTBundle bundle, Map<String, TTValue> tripleMap, String entityIri, Statement st) {
-    TTEntity entity = bundle.getEntity();
+    TTEntityJava entity = bundle.getEntity();
     Resource s = st.getSubject();
     IRI p = st.getPredicate();
     Value o = st.getObject();
@@ -1030,7 +1029,7 @@ public class EntityRepository {
       tripleMap.putIfAbsent(predicate, TTIriRefExtensionsKt.iri(new TTIriRef(), predicate));
       predNames.put(predicate, predicate);
     }
-    TTNode node;
+    TTNodeJava node;
     if (predicate.equals(RdfsVocab.LABEL.toString())) {
       if (s.isIRI()) {
         if (subject.equals(entityIri)) {
@@ -1041,18 +1040,18 @@ public class EntityRepository {
           predNames.computeIfPresent(subject, (k, v) -> value);
         }
       } else {
-        tripleMap.putIfAbsent(subject, new TTNode());
+        tripleMap.putIfAbsent(subject, new TTNodeJava());
         tripleMap.get(subject).asNode().set(EnumUtils.asIri(RdfsVocab.LABEL), TTLiteral.literal(value, ((Literal) o).getDatatype().stringValue()));
       }
     } else {
       if (s.isIRI()) {
         node = entity;
       } else {
-        tripleMap.putIfAbsent(subject, new TTNode());
+        tripleMap.putIfAbsent(subject, new TTNodeJava());
         node = tripleMap.get(subject).asNode();
       }
       if (o.isBNode()) {
-        tripleMap.putIfAbsent(value, new TTNode());
+        tripleMap.putIfAbsent(value, new TTNodeJava());
         node.addObject(tripleMap.get(predicate).asIriRef(), tripleMap.get(value));
       } else if (o.isIRI()) {
         tripleMap.putIfAbsent(value, TTIriRefExtensionsKt.iri(new TTIriRef(), value));
@@ -1064,8 +1063,8 @@ public class EntityRepository {
     }
   }
 
-  public TTArray getEntityTypes(String iri) {
-    TTArray result = new TTArray();
+  public TTArrayJava getEntityTypes(String iri) {
+    TTArrayJava result = new TTArrayJava();
 
     String sql = """
       SELECT ?o ?oname
@@ -1203,7 +1202,7 @@ public class EntityRepository {
           String iri = bs.getValue("s").stringValue();
           EntityReferenceNode refNode = iriMap.get(iri);
           if (refNode == null) {
-            refNode = new EntityReferenceNode(iri).setType(new TTArray());
+            refNode = new EntityReferenceNode(iri).setType(new TTArrayJava());
             iriMap.put(iri, refNode);
           }
           refNode.getType().add(TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("typeIri").stringValue())
@@ -1275,7 +1274,7 @@ public class EntityRepository {
 
 
   public EntityReferenceNode getEntityReferenceNode(String iri, List<String> schemeIris, boolean inactive) {
-    TTArray types = new TTArray();
+    TTArrayJava types = new TTArrayJava();
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
@@ -1589,8 +1588,8 @@ public class EntityRepository {
   }
 
 
-  public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
-    Map<String, TTEntity> result = new HashMap<>();
+  public Map<String, TTEntityJava> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
+    Map<String, TTEntityJava> result = new HashMap<>();
     if (iris == null || iris.isEmpty())
       return result;
 
@@ -1618,16 +1617,16 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
-        Map<String, TTNode> bnodeMap = new HashMap<>();
+        Map<String, TTNodeJava> bnodeMap = new HashMap<>();
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
-          result.putIfAbsent(iri, new TTEntity());
-          TTEntity entity = result.get(iri).setIri(iri);
+          result.putIfAbsent(iri, new TTEntityJava());
+          TTEntityJava entity = result.get(iri).setIri(iri);
           entity.setName(bs.getValue("entityLabel").stringValue());
           if (bs.getValue("predicate") != null) {
             String predicate = bs.getValue("predicate").stringValue();
-            result.putIfAbsent(predicate, new TTEntity());
+            result.putIfAbsent(predicate, new TTEntityJava());
             result.get(predicate).setName(bs.getValue("predicateLabel").stringValue());
             Value object = bs.getValue("object");
             if (object.isIRI()) {
@@ -1635,11 +1634,11 @@ public class EntityRepository {
               if (null != bs.getValue("objectLabel")) ttIriRef.setName(bs.getValue("objectLabel").stringValue());
               entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), ttIriRef);
             } else if (object.isBNode()) {
-              bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
-              TTNode blank = bnodeMap.get(object.stringValue());
+              bnodeMap.putIfAbsent(object.stringValue(), new TTNodeJava());
+              TTNodeJava blank = bnodeMap.get(object.stringValue());
               if (bs.getValue("subPredicate") != null) {
                 String subPredicate = bs.getValue("subPredicate").stringValue();
-                result.putIfAbsent(subPredicate, new TTEntity());
+                result.putIfAbsent(subPredicate, new TTEntityJava());
                 result.get(subPredicate).setName(bs.getValue("subPredicateLabel").stringValue());
                 Value subObject = bs.getValue("subObject");
                 if (subObject.isIRI()) {
@@ -1794,8 +1793,8 @@ public class EntityRepository {
     return options;
   }
 
-  public List<TTEntity> getFolderChildren(String iri, String... predicates) {
-    Map<String, TTEntity> entities = new HashMap<>();
+  public List<TTEntityJava> getFolderChildren(String iri, String... predicates) {
+    Map<String, TTEntityJava> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
       select ?entity ?predicate ?order ?object
@@ -1812,8 +1811,8 @@ public class EntityRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          entities.putIfAbsent(bs.getValue("entity").stringValue(), new TTEntity());
-          TTEntity entity = entities.get(bs.getValue("entity").stringValue());
+          entities.putIfAbsent(bs.getValue("entity").stringValue(), new TTEntityJava());
+          TTEntityJava entity = entities.get(bs.getValue("entity").stringValue());
           entity.setIri(bs.getValue("entity").stringValue());
           Value object = bs.getValue("object");
           TTValue ttValue = object.isIRI() ? TTIriRefExtensionsKt.iri(new TTIriRef(), object.stringValue()) : TTLiteral.literal(object.stringValue());
@@ -1829,7 +1828,7 @@ public class EntityRepository {
   }
 
 
-  public List<TTEntity> getAllowableChildTypes(String iri) {
+  public List<TTEntityJava> getAllowableChildTypes(String iri) {
     String spq = """
       SELECT distinct  ?entity ?label ?path ?pathLabel
       WHERE {
@@ -1856,16 +1855,16 @@ public class EntityRepository {
           }
       }
       """.formatted("<" + iri + ">");
-    List<TTEntity> result = new ArrayList<>();
-    Map<String, TTEntity> iriMap = new HashMap<>();
+    List<TTEntityJava> result = new ArrayList<>();
+    Map<String, TTEntityJava> iriMap = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          TTEntity child = iriMap.get(bs.getValue("entity").stringValue());
+          TTEntityJava child = iriMap.get(bs.getValue("entity").stringValue());
           if (child == null) {
-            child = new TTEntity()
+            child = new TTEntityJava()
               .setIri(bs.getValue("entity").stringValue())
               .setName(bs.getValue("label").stringValue());
             iriMap.put(bs.getValue("entity").stringValue(), child);
@@ -2080,7 +2079,7 @@ public class EntityRepository {
           BindingSet bs = rs.next();
           TTBundle bundle = new TTBundle();
           result.add(bundle);
-          TTEntity entity = new TTEntity();
+          TTEntityJava entity = new TTEntityJava();
           bundle.setEntity(entity);
           entity.setName(term);
           entity.setIri(bs.getValue("concept").stringValue());
@@ -2256,7 +2255,7 @@ public class EntityRepository {
     return results;
   }
 
-  public List<TTEntity> getQueryEntitiesWithDefinition() {
+  public List<TTEntityJava> getQueryEntitiesWithDefinition() {
     String spq = """
       PREFIX smh: <http://smartlifehealth.info/smh#>
       select ?s ?label ?definition
@@ -2267,13 +2266,13 @@ public class EntityRepository {
         ?s im:scheme smh: .
       }
       """;
-    List<TTEntity> results = new ArrayList<>();
+    List<TTEntityJava> results = new ArrayList<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(spq);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          TTEntity entity = new TTEntity();
+          TTEntityJava entity = new TTEntityJava();
           entity.setIri(bs.getValue("s").stringValue());
           entity.setName(bs.getValue("label").stringValue());
           entity.set(ImVocab.DEFINITION, TTLiteral.literal(bs.getValue("definition").stringValue()));

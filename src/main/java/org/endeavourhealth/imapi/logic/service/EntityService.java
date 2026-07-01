@@ -10,15 +10,8 @@ import org.endeavourhealth.imapi.model.ValidatedEntity;
 import org.endeavourhealth.imapi.model.dto.FilterOptionsDto;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.stereotype.Component;
@@ -56,7 +49,7 @@ public class EntityService {
   protected static void filterOutInactiveTermCodes(TTBundle bundle) {
     if (bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)) != null) {
       List<TTValue> termCodes = bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE)).getElements();
-      TTArray activeTermCodes = new TTArray();
+      TTArrayJava activeTermCodes = new TTArrayJava();
       for (TTValue value : termCodes) {
         if (value.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)) != null) {
           if (value.asNode().get(EnumUtils.asIri(ImVocab.HAS_STATUS)) != null && ImVocab.ACTIVE.toString().equals(value.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)).asIriRef().getIri())) {
@@ -78,7 +71,7 @@ public class EntityService {
     return entityRepository.getBundle(iri, predicates);
   }
 
-  public TTEntity getPartialEntity(String iri, Set<String> predicates) {
+  public TTEntityJava getPartialEntity(String iri, Set<String> predicates) {
     TTBundle bundle = getBundle(iri, predicates);
     if (bundle == null) return null;
     return bundle.getEntity();
@@ -91,14 +84,14 @@ public class EntityService {
     return bundle;
   }
 
-  public List<TTEntity> getPartialEntities(Set<String> iris, Set<String> predicates) {
-    List<TTEntity> entities = new ArrayList<>();
+  public List<TTEntityJava> getPartialEntities(Set<String> iris, Set<String> predicates) {
+    List<TTEntityJava> entities = new ArrayList<>();
     if (iris.stream().anyMatch(str -> str == null || str.isEmpty())) {
       throw new IllegalArgumentException("Iri list contains an empty or null string");
     }
 
     for (String iri : iris) {
-      TTEntity entity = getBundle(iri, predicates).getEntity();
+      TTEntityJava entity = getBundle(iri, predicates).getEntity();
       entities.add(entity);
     }
     return entities;
@@ -167,8 +160,8 @@ public class EntityService {
     return entityRepository.findAncestorsByType(iri, RdfsVocab.SUBCLASS_OF, candidates).stream().sorted(Comparator.comparing(TTIriRef::getName)).toList();
   }
 
-  public List<TTEntity> usages(String iri, Integer pageIndex, Integer pageSize) {
-    ArrayList<TTEntity> usageEntities = new ArrayList<>();
+  public List<TTEntityJava> usages(String iri, Integer pageIndex, Integer pageSize) {
+    ArrayList<TTEntityJava> usageEntities = new ArrayList<>();
     if (iri == null || iri.isEmpty()) return Collections.emptyList();
 
     Set<String> xmlDataTypes = entityRepository.getByNamespace(NamespaceVocab.XSD);
@@ -181,8 +174,8 @@ public class EntityService {
 
     usageRefs = usageRefs.stream().filter(usage -> !usage.getIri().equals(iri)).toList();
     for (TTIriRef usage : usageRefs) {
-      TTArray type = getBundle(usage.getIri(), Collections.singleton(RdfVocab.TYPE.toString())).getEntity().getType();
-      usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
+      TTArrayJava type = getBundle(usage.getIri(), Collections.singleton(RdfVocab.TYPE.toString())).getEntity().getType();
+      usageEntities.add(new TTEntityJava().setIri(usage.getIri()).setName(usage.getName()).setType(type));
     }
 
     return usageEntities;
@@ -197,9 +190,9 @@ public class EntityService {
     return entityRepository.getConceptUsagesCount(iri);
   }
 
-  public TTEntity getSummaryFromConfig(String iri, List<String> configs) {
+  public TTEntityJava getSummaryFromConfig(String iri, List<String> configs) {
     if (iri == null || iri.isEmpty() || configs == null || configs.isEmpty()) {
-      return new TTEntity();
+      return new TTEntityJava();
     }
     List<String> excludedForSummary = Arrays.asList("None", RdfsVocab.SUBCLASS_OF.toString(), "subtypes", ImVocab.IS_CHILD_OF.toString(), ImVocab.HAS_CHILDREN.toString(), "termCodes", "semanticProperties", "dataModelProperties");
     List<String> predicates = configs.stream().filter(config -> !excludedForSummary.contains(config)).toList();
@@ -211,23 +204,23 @@ public class EntityService {
     return entityRepository.getEntitySummaryByIri(iri);
   }
 
-  public TTEntity getConceptShape(String iri) {
+  public TTEntityJava getConceptShape(String iri) {
     if (iri == null || iri.isEmpty()) return null;
-    TTEntity entity = getBundle(iri, Set.of(ShaclVocab.PROPERTY.toString(), ShaclVocab.OR.toString(), RdfVocab.TYPE.toString())).getEntity();
-    TTArray value = entity.get(EnumUtils.asIri(RdfVocab.TYPE));
+    TTEntityJava entity = getBundle(iri, Set.of(ShaclVocab.PROPERTY.toString(), ShaclVocab.OR.toString(), RdfVocab.TYPE.toString())).getEntity();
+    TTArrayJava value = entity.get(EnumUtils.asIri(RdfVocab.TYPE));
     if (!value.getElements().contains(EnumUtils.asIri(ShaclVocab.NODESHAPE))) {
       return null;
     }
     return entity;
   }
 
-  public TTDocument getConceptList(List<String> iris) {
+  public TTDocumentJava getConceptList(List<String> iris) {
     if (iris == null || iris.isEmpty()) {
       return null;
     }
-    TTDocument document = new TTDocument();
+    TTDocumentJava document = new TTDocumentJava();
     List<Namespace> namespaces = getNamespaces();
-    TTContext context = new TTContext();
+    TTContextJava context = new TTContextJava();
     for (Namespace namespace : namespaces) {
       context.add(namespace.getIri(), namespace.getPrefix(), namespace.getName());
     }
@@ -240,7 +233,7 @@ public class EntityService {
   }
 
   public List<TTIriRef> getParentPath(String iri) {
-    TTEntity entity = getBundle(iri, new HashSet<>(List.of(RdfsVocab.LABEL.toString()))).getEntity();
+    TTEntityJava entity = getBundle(iri, new HashSet<>(List.of(RdfsVocab.LABEL.toString()))).getEntity();
     List<TTIriRef> parents = new ArrayList<>();
     getParentPathRecursive(iri, parents);
     Collections.reverse(parents);
@@ -416,11 +409,11 @@ public class EntityService {
 
   public List<ValidatedEntity> getValidatedEntitiesBySnomedCodes(List<String> codes) {
     List<String> snomedCodes = codes.stream().map(code -> NamespaceVocab.SNOMED + code).toList();
-    List<TTEntity> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RdfsVocab.LABEL.toString(), ImVocab.CODE.toString()));
+    List<TTEntityJava> entities = getPartialEntities(new HashSet<>(snomedCodes), Set.of(RdfsVocab.LABEL.toString(), ImVocab.CODE.toString()));
     SetService setService = new SetService();
     List<TTIriRef> needed = setService.getDistillation(entities.stream().map(e -> TTIriRefExtensionsKt.iri(new TTIriRef(), e.getIri())).toList());
     List<ValidatedEntity> validatedEntities = new ArrayList<>();
-    for (TTEntity entity : entities) {
+    for (TTEntityJava entity : entities) {
       ValidatedEntity validatedEntity = validateEntity(entity, needed);
       if (validatedEntities.stream().anyMatch(v -> v.getIri().equals(validatedEntity.getIri()))) {
         validatedEntity.setCode("Duplicate");
@@ -430,7 +423,7 @@ public class EntityService {
     return validatedEntities;
   }
 
-  private ValidatedEntity validateEntity(TTEntity entity, List<TTIriRef> needed) {
+  private ValidatedEntity validateEntity(TTEntityJava entity, List<TTIriRef> needed) {
     ValidatedEntity validatedEntity = new ValidatedEntity();
     validatedEntity
       .setIri(entity.getIri())
@@ -461,17 +454,17 @@ public class EntityService {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
       excludedPredicates.add(ImVocab.HAS_MEMBER.toString());
       TTIriRefPageable partialAndCount = getPartialWithTotalCount(iri, ImVocab.HAS_MEMBER.toString(), null, 1, 10, false);
-      TTArray partialAsTTArray = new TTArray();
+      TTArrayJava partialAsTTArrayJava = new TTArrayJava();
       for (TTIriRef partial : partialAndCount.getResult()) {
-        partialAsTTArray.add(partial);
+        partialAsTTArrayJava.add(partial);
       }
-      TTNode loadMoreNode = new TTNode()
+      TTNodeJava loadMoreNode = new TTNodeJava()
         .setIri(ImVocab.LOAD_MORE.toString())
         .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), "Load more")
         .set(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.IM + "totalCount"), partialAndCount.getTotalCount());
-      partialAsTTArray.add(loadMoreNode);
+      partialAsTTArrayJava.add(loadMoreNode);
       response.addPredicate(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER));
-      response.getEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER), partialAsTTArray);
+      response.getEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_MEMBER), partialAsTTArrayJava);
     } else {
       response = getBundleByPredicateExclusions(iri, excludedPredicates);
     }
@@ -481,7 +474,7 @@ public class EntityService {
 
   public TTBundle loadMoreDetailsDisplay(String iri, String predicate, int pageIndex, int pageSize) {
     TTIriRefPageable response = getPartialWithTotalCount(iri, predicate, null, pageIndex, pageSize, false);
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     entity.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate), response.getTotalCount());
     TTBundle bundle = new TTBundle();
     bundle.setEntity(entity);
@@ -515,7 +508,7 @@ public class EntityService {
     return entityRepository.getByNamespace(NamespaceVocab.XSD);
   }
 
-  public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
+  public List<TTEntityJava> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
     return entityRepository.getEntitiesByType(type, offset, limit, predicates);
   }
 
@@ -557,7 +550,7 @@ public class EntityService {
     return getChildren(EnumUtils.asIri(iri).getIri(), null, null, null, false);
   }
 
-  public List<TTEntity> getAllowableChildTypes(String iri) {
+  public List<TTEntityJava> getAllowableChildTypes(String iri) {
     return entityRepository.getAllowableChildTypes(iri);
   }
 

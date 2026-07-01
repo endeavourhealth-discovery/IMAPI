@@ -1,6 +1,8 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.TTContext;
+import org.endeavourhealth.interfacemanager.model.TTPrefix;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,47 +11,48 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class TTContext implements Serializable {
+public class TTContextJava extends TTContext implements Serializable {
   public static final String OUTPUT_CONTEXT = "OUTPUT_CONTEXT";
 
   private final Map<String, String> byIri = new HashMap<>();
   private final Map<String, String> byPrefix = new HashMap<>();
   private final Map<String, String> toName = new HashMap<>();
 
-
+  @Override
   public List<TTPrefix> getPrefixes() {
     return byIri.entrySet().stream()
-      .map(e -> new TTPrefix(e.getKey(), e.getValue()))
+      .map(e -> new TTPrefix().iri(e.getKey()).prefix(e.getValue()))
       .collect(Collectors.toList());
   }
 
+  @Override
   public List<TTPrefix> getNameSpaces() {
     List<TTPrefix> prefixes = new ArrayList<>();
     for (Map.Entry<String, String> entry : byIri.entrySet()) {
       TTPrefix prefix = new TTPrefix()
-        .setIri(entry.getKey())
-        .setPrefix(entry.getValue())
-        .setName(toName.get(entry.getKey()));
+        .iri(entry.getKey())
+        .prefix(entry.getValue())
+        .name(toName.get(entry.getKey()));
       prefixes.add(prefix);
     }
     return prefixes;
   }
 
-  public TTContext add(Enum<?> iri, String prefix) {
+  public TTContextJava add(Enum<?> iri, String prefix) {
     return add(EnumUtils.asIri(iri).getIri(), prefix);
   }
 
-  public TTContext add(String iri, String prefix) {
+  public TTContextJava add(String iri, String prefix) {
     byIri.put(iri, prefix);
     byPrefix.put(prefix, iri);
     return this;
   }
 
-  public TTContext add(Enum<?> iri, String prefix, String name) {
+  public TTContextJava add(Enum<?> iri, String prefix, String name) {
     return add(EnumUtils.asIri(iri).getIri(), prefix, name);
   }
 
-  public TTContext add(String iri, String prefix, String name) {
+  public TTContextJava add(String iri, String prefix, String name) {
     byIri.put(iri, prefix);
     byPrefix.put(prefix, iri);
     toName.put(iri, name);

@@ -1,5 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
+import org.endeavourhealth.interfacemanager.model.Prefix;
+
 import java.util.ArrayList;
 import java.util.Optional;
 

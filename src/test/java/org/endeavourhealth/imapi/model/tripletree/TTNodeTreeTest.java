@@ -40,13 +40,13 @@ class TTNodeTreeTest {
 
   @Test
   void tripleTreeTest() {
-    TTEntity adverseReaction = TestHelper.getTestEntity();
+    TTEntityJava adverseReaction = TestHelper.getTestEntity();
     TestHelper.checkEntity(adverseReaction);
   }
 
   @Test
   void testVisitor() {
-    TTEntity entity = TestHelper.getTestEntity();
+    TTEntityJava entity = TestHelper.getTestEntity();
     TTVisitor visitor = new TTVisitor();
 
     AtomicInteger i = new AtomicInteger();

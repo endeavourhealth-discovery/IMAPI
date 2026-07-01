@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
 import org.endeavourhealth.interfacemanager.model.RdfVocab;
 
@@ -30,11 +33,11 @@ public class TTToSCG {
       return iri;
   }
 
-  public String getSCG(TTEntity entity, Boolean includeName) throws DataFormatException {
+  public String getSCG(TTEntityJava entity, Boolean includeName) throws DataFormatException {
     StringBuilder scg = new StringBuilder();
     if (entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A)) != null) {
       boolean first = true;
-      for (TTValue parent : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A)).iterator()) {
+      for (TTValueJava parent : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_A)).iterator()) {
         if (parent.isIriRef()) {
           if (!first)
             scg.append(" +");
@@ -48,12 +51,12 @@ public class TTToSCG {
     return scg.toString();
   }
 
-  private void convertRoles(TTNode node, StringBuilder scg, boolean includeName) {
+  private void convertRoles(TTNodeJava node, StringBuilder scg, boolean includeName) {
     if (node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)) != null) {
       scg.append(":");
       this.refinedSet = true;
       boolean first = true;
-      for (TTValue group : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).iterator()) {
+      for (TTValueJava group : node.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).iterator()) {
         if (!first)
           scg.append(" ,");
         scg.append("{");
@@ -67,9 +70,9 @@ public class TTToSCG {
 
   }
 
-  private void refined(TTNode node, StringBuilder scg, Boolean includeName) {
+  private void refined(TTNodeJava node, StringBuilder scg, Boolean includeName) {
     boolean first = true;
-    for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
       if (!excludeCorePredicates(entry.getKey())) {
         if (!entry.getValue().isLiteral() && !refinedSet) {
           scg.append(": ");

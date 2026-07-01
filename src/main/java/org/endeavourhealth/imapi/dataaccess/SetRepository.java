@@ -10,10 +10,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.*;
 
@@ -323,7 +321,7 @@ public class SetRepository {
   }
 
 
-  public void bindConceptSetToDataModel(String iri, Set<TTNode> dataModels, GraphVocab insertGraph) {
+  public void bindConceptSetToDataModel(String iri, Set<TTNodeJava> dataModels, GraphVocab insertGraph) {
 
     String deleteBinding = """
       DELETE { ?concept im:binding ?datamodel}
@@ -334,7 +332,7 @@ public class SetRepository {
 
     StringJoiner newBinding = new StringJoiner("\n").add("INSERT DATA {");
     int blankCount = 0;
-    for (TTNode dataModel : dataModels) {
+    for (TTNodeJava dataModel : dataModels) {
       blankCount++;
       String pathIri = dataModel.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)).asIriRef().getIri();
       String nodeIri = dataModel.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE)).asIriRef().getIri();
@@ -490,8 +488,8 @@ public class SetRepository {
     return result;
   }
 
-  public Set<TTNode> getBindingsForConcept(Set<String> members) {
-    Set<TTNode> result = new HashSet<>();
+  public Set<TTNodeJava> getBindingsForConcept(Set<String> members) {
+    Set<TTNodeJava> result = new HashSet<>();
     Set<String> sparqlIris = members.stream().map(m -> "<" + m + ">").collect(Collectors.toSet());
     String iriList = String.join(",", sparqlIris);
     String spql = """
@@ -515,7 +513,7 @@ public class SetRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          TTNode dataModel = new TTNode();
+          TTNodeJava dataModel = new TTNodeJava();
           dataModel.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODE), TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("dataModel").stringValue()));
           if (bs.getValue("path") != null)
             dataModel.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH), TTIriRefExtensionsKt.iri(new TTIriRef(), bs.getValue("path").stringValue()));

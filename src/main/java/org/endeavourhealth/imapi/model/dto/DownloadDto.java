@@ -1,27 +1,27 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.ExportSet;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.interfacemanager.model.DataModelProperty;
 import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.SearchTermCode;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class DownloadDto implements Serializable {
 
-  private TTEntity summary;
+  private TTEntityJava summary;
   private List<EntityReferenceNode> hasSubTypes;
-  private TTNode inferred;
-  private TTNode axioms;
+  private TTNodeJava inferred;
+  private TTNodeJava axioms;
   private ExportSet members;
   private List<DataModelProperty> dataModelProperties;
   private List<SearchTermCode> terms;
-  private TTArray isChildOf;
-  private TTArray hasChildren;
+  private TTArrayJava isChildOf;
+  private TTArrayJava hasChildren;
 
   public List<EntityReferenceNode> getHasSubTypes() {
     return hasSubTypes;
@@ -31,20 +31,20 @@ public class DownloadDto implements Serializable {
     this.hasSubTypes = hasSubTypes;
   }
 
-  public TTNode getInferred() {
+  public TTNodeJava getInferred() {
     return inferred;
   }
 
-  public DownloadDto setInferred(TTNode inferred) {
+  public DownloadDto setInferred(TTNodeJava inferred) {
     this.inferred = inferred;
     return this;
   }
 
-  public TTNode getAxioms() {
+  public TTNodeJava getAxioms() {
     return axioms;
   }
 
-  public DownloadDto setAxioms(TTNode axioms) {
+  public DownloadDto setAxioms(TTNodeJava axioms) {
     this.axioms = axioms;
     return this;
   }
@@ -65,11 +65,11 @@ public class DownloadDto implements Serializable {
     this.dataModelProperties = dataModelProperties;
   }
 
-  public TTEntity getSummary() {
+  public TTEntityJava getSummary() {
     return summary;
   }
 
-  public void setSummary(TTEntity summary) {
+  public void setSummary(TTEntityJava summary) {
     this.summary = summary;
   }
 
@@ -81,19 +81,19 @@ public class DownloadDto implements Serializable {
     this.terms = terms;
   }
 
-  public TTArray getIsChildOf() {
+  public TTArrayJava getIsChildOf() {
     return isChildOf;
   }
 
-  public void setIsChildOf(TTArray isChildOf) {
+  public void setIsChildOf(TTArrayJava isChildOf) {
     this.isChildOf = isChildOf;
   }
 
-  public TTArray getHasChildren() {
+  public TTArrayJava getHasChildren() {
     return hasChildren;
   }
 
-  public void setHasChildren(TTArray hasChildren) {
+  public void setHasChildren(TTArrayJava hasChildren) {
     this.hasChildren = hasChildren;
   }
 }

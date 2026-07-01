@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.imapi.parser.scg.SCGLexer;
 import org.endeavourhealth.imapi.parser.scg.SCGParser;
 import org.endeavourhealth.imapi.utility.EnumUtils;
@@ -14,7 +14,7 @@ import java.util.zip.DataFormatException;
 public class SCGToTT {
   private final SCGLexer lexer;
   private final SCGParser parser;
-  private TTEntity entity;
+  private TTEntityJava entity;
 
   public SCGToTT() {
     this.lexer = new SCGLexer(null);
@@ -23,7 +23,7 @@ public class SCGToTT {
     this.parser.addErrorListener(new ParserErrorListener());
   }
 
-  public TTEntity setDefinition(TTEntity entity, String scgInput) throws DataFormatException {
+  public TTEntityJava setDefinition(TTEntityJava entity, String scgInput) throws DataFormatException {
     this.entity = entity;
     lexer.setInputStream(CharStreams.fromString(scgInput));
     CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -32,7 +32,7 @@ public class SCGToTT {
     return convertECContext(ctx);
   }
 
-  private TTEntity convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
+  private TTEntityJava convertECContext(SCGParser.ExpressionContext ctx) throws DataFormatException {
     if (ctx.definitionstatus() != null && ctx.definitionstatus().equivalentto() != null) {
       entity.set(EnumUtils.asIri(ImVocab.DEFINITIONAL_STATUS), EnumUtils.asIri(ImVocab.SUFFICIENTLY_DEFINED));
     }
@@ -52,19 +52,19 @@ public class SCGToTT {
     }
   }
 
-  private void convertAttributeSet(TTEntity node, SCGParser.AttributesetContext attributeset) throws DataFormatException {
+  private void convertAttributeSet(TTEntityJava node, SCGParser.AttributesetContext attributeset) throws DataFormatException {
     for (SCGParser.AttributeContext attribute : attributeset.attribute()) {
       convertAttribute(node, attribute);
     }
   }
 
-  private void convertAttribute(TTNode node, SCGParser.AttributeContext attribute) throws DataFormatException {
+  private void convertAttribute(TTNodeJava node, SCGParser.AttributeContext attribute) throws DataFormatException {
     TTIriRef property = getConRef(attribute.attributename().conceptreference().conceptid());
     if (attribute.attributevalue().expressionvalue() != null) {
       TTIriRef value = getConRef(attribute.attributevalue().expressionvalue().conceptreference().conceptid());
       node.set(property, value);
     } else {
-      TTNode value = new TTNode();
+      TTNodeJava value = new TTNodeJava();
       node.set(property, value);
       convertSubexpression(attribute.attributevalue().expressionvalue().subexpression());
     }

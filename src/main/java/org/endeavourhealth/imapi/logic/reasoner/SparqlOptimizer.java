@@ -7,12 +7,12 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.interfacemanager.model.*;
 
 import java.nio.charset.StandardCharsets;
@@ -171,15 +171,15 @@ public class SparqlOptimizer {
   private String createConceptSet(List<Node> is) throws JsonProcessingException, QueryException, TTFilerException {
     Query setQuery = new Query();
     setQuery.setIs(is);
-    TTEntity setEntity = new TTEntity();
+    TTEntityJava setEntity = new TTEntityJava();
     String setIri = NamespaceVocab.IM + "ASET_" + getHash(is);
     if (setIris.contains(setIri)) return setIri;
     if (!repo.iriExists(setIri)) {
-      TTDocument document = new TTDocument();
+      TTDocumentJava document = new TTDocumentJava();
       setEntity
         .setIri(setIri)
         .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET))
-        .set(ImVocab.DEFINITION, TTLiteral.literal(setQuery));
+        .set(ImVocab.DEFINITION, TTLiteralJava.literal(setQuery));
       document.addEntity(setEntity);
       try (TTTransactionFiler filer = new TTTransactionFiler(GraphVocab.IM)) {
         TTTransactionFiler.disableIm1Deltas();

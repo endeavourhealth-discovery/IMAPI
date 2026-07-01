@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.interfacemanager.model.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityPredicates_nullIriPredicates() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle(null, null);
@@ -46,7 +46,7 @@ class EntityModelServiceTest {
 
   @Test
   void getEntityPredicates_EmptyIri() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle("", null);
@@ -182,9 +182,9 @@ class EntityModelServiceTest {
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 20, true))
       .thenReturn(Collections.singletonList(entityReferenceNode));
-    TTArray ttArray = new TTArray()
+    TTArrayJava ttArrayJava = new TTArrayJava()
       .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
-    when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
+    when(entityRepository.getEntityTypes(any())).thenReturn(ttArrayJava);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 20, true);
 
@@ -200,8 +200,8 @@ class EntityModelServiceTest {
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 10, false))
       .thenReturn(Collections.singletonList(entityReferenceNode));
-    TTArray ttArray = new TTArray().add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
-    when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
+    TTArrayJava ttArrayJava = new TTArrayJava().add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
+    when(entityRepository.getEntityTypes(any())).thenReturn(ttArrayJava);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
       ("http://endhealth.info/im#25451000252115", null, 1, 10, false);
 
@@ -267,14 +267,14 @@ class EntityModelServiceTest {
 
   @Test
   void usages_NullIri() {
-    List<TTEntity> actual = entityService.usages(null, null, null);
+    List<TTEntityJava> actual = entityService.usages(null, null, null);
 
     assertNotNull(actual);
   }
 
   @Test
   void usages_EmptyIri() {
-    List<TTEntity> actual = entityService.usages("", null, null);
+    List<TTEntityJava> actual = entityService.usages("", null, null);
 
     assertNotNull(actual);
   }
@@ -284,7 +284,7 @@ class EntityModelServiceTest {
 
     when(entityRepository.getByNamespace(any())).thenReturn(Stream.of("http://endhealth.info/im#25451000252115").collect(Collectors.toSet()));
 
-    List<TTEntity> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10);
+    List<TTEntityJava> actual = entityService.usages("http://endhealth.info/im#25451000252115", 1, 10);
 
     assertNotNull(actual);
   }
@@ -328,88 +328,88 @@ class EntityModelServiceTest {
 
   @Test
   void getConceptShape_NullIri() {
-    TTEntity actual = entityService.getConceptShape(null);
+    TTEntityJava actual = entityService.getConceptShape(null);
     assertNull(actual);
   }
 
   @Test
   void getConceptShape_NotContainNodeShape() {
-    TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArray()
+    TTEntityJava entity = new TTEntityJava("http://endhealth.info/im#25451000252115")
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArrayJava()
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+    TTEntityJava actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
     assertNull(actual);
   }
 
   @Test
   void getConceptShape_ContainsNodeShape() {
-    TTEntity entity = new TTEntity("http://endhealth.info/im#25451000252115")
-      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArray()
+    TTEntityJava entity = new TTEntityJava("http://endhealth.info/im#25451000252115")
+      .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.TYPE), new TTArrayJava()
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.NODESHAPE))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
+    TTEntityJava actual = entityService.getConceptShape("http://endhealth.info/im#25451000252115");
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_NullIri() {
     List<String> configs = new ArrayList<>();
-    TTEntity actual = entityService.getSummaryFromConfig(null, configs);
+    TTEntityJava actual = entityService.getSummaryFromConfig(null, configs);
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_EmptyIri() {
     List<String> configs = new ArrayList<>();
-    TTEntity actual = entityService.getSummaryFromConfig("", configs);
+    TTEntityJava actual = entityService.getSummaryFromConfig("", configs);
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_NullConfig() {
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", null);
+    TTEntityJava actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", null);
     assertNotNull(actual);
   }
 
   @Test
   void getSummaryFromConfig_NotNullIri() {
-    TTEntity entity = new TTEntity()
-      .set(EnumUtils.asIri(ImVocab.IS_CHILD_OF), new TTArray()
+    TTEntityJava entity = new TTEntityJava()
+      .set(EnumUtils.asIri(ImVocab.IS_CHILD_OF), new TTArrayJava()
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent1", "Parent 1"))
         .add(TTIriRefExtensionsKt.iri(new TTIriRef(), "http://endhealth.info/im#parent2", "Parent 2"))
       );
     when(entityRepository.getBundle(any(), anySet())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTEntity actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", EnumUtils.asArrayList(ImVocab.
+    TTEntityJava actual = entityService.getSummaryFromConfig("http://endhealth.info/im#25451000252115", EnumUtils.asArrayList(ImVocab.
       IS_CHILD_OF));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NullIri() {
-    TTDocument actual = entityService.getConceptList(null);
+    TTDocumentJava actual = entityService.getConceptList(null);
     assertNull(actual);
   }
 
   @Test
   void getConceptList_EmptyIri() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
-    TTDocument actual = entityService.getConceptList(Collections.singletonList(""));
+    TTDocumentJava actual = entityService.getConceptList(Collections.singletonList(""));
     assertNotNull(actual);
   }
 
   @Test
   void getConceptList_NotNullIri() {
-    TTEntity entity = new TTEntity();
+    TTEntityJava entity = new TTEntityJava();
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
-    TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"));
+    TTDocumentJava actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"));
     assertNotNull(actual);
   }
 }

@@ -1,11 +1,7 @@
 package org.endeavourhealth.imapi.model.security
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
-import org.endeavourhealth.interfacemanager.model.FontSize
-import org.endeavourhealth.interfacemanager.model.PrimeVueColors
-import org.endeavourhealth.interfacemanager.model.PrimeVuePresetThemes
-import org.endeavourhealth.interfacemanager.model.UserRole
+import org.endeavourhealth.interfacemanager.model.*
 
 class User {
   var id: String = ""

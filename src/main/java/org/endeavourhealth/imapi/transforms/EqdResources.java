@@ -8,8 +8,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.Assignable;
-import org.endeavourhealth.imapi.model.imq.Return;
-import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.slf4j.Logger;
@@ -1410,7 +1409,7 @@ public class EqdResources {
         .setName(name)
         .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), namespace))
         .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CONCEPT_SET))
-        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteral.literal(definition));
+        .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.DEFINITION), TTLiteralJava.literal(definition));
       this.addUsedIn(valueSet);
       this.document.addEntity(valueSet);
       return valueSet;
@@ -1450,7 +1449,7 @@ public class EqdResources {
         valueSet.addObject(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ENTAILED_MEMBER), instance);
         instance.set(ImVocab.IS.toString(), TTIriRefExtensionsKt.iri(new TTIriRef(), node.getIri()));
         if (node.isExclude()) {
-          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EXCLUDE), TTLiteral.literal(true));
+          instance.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EXCLUDE), TTLiteralJava.literal(true));
         }
 
         if (node.isAncestorsOf()) {

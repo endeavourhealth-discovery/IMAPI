@@ -2,14 +2,10 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.imq.Path;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.imq.Where;
-import org.endeavourhealth.interfacemanager.model.Bool;
-import org.endeavourhealth.interfacemanager.model.DisplayMode;
-import org.endeavourhealth.interfacemanager.model.Match;
-import org.endeavourhealth.interfacemanager.model.RuleAction;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 
@@ -421,7 +417,7 @@ public class LogicOptimizer {
       }
       if (query.getOr() == null) {
         Match lastRule = query.getRule().getLast();
-        if (lastRule.notExists()) {
+        if (lastRule.getNotExists()) {
           lastRule.setIfTrue(RuleAction.REJECT);
           lastRule.setIfFalse(RuleAction.SELECT);
 

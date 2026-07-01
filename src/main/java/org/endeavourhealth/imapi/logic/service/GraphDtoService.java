@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.dto.GraphDto;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class GraphDtoService {
   public GraphDto getGraphData(String iri) {
     if (null == iri || iri.isEmpty()) return new GraphDto();
 
-    TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfsVocab.SUBCLASS_OF, RdfsVocab.
+    TTEntityJava entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfsVocab.SUBCLASS_OF, RdfsVocab.
       LABEL)).getEntity();
 
     GraphDto graphData = new GraphDto().setKey("0").setIri(entity.getIri()).setName(entity.getName());
@@ -101,8 +101,8 @@ public class GraphDtoService {
     dto.getChildren().add(wrapper.getLeafNodes().isEmpty() ? new GraphDto().setKey(key).setType(GraphDto.GraphType.NONE) : wrapper);
   }
 
-  private List<GraphDto> getEntityDefinedParents(TTEntity entity) {
-    TTArray parent = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
+  private List<GraphDto> getEntityDefinedParents(TTEntityJava entity) {
+    TTArrayJava parent = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF));
     if (parent == null) return Collections.emptyList();
     List<GraphDto> result = new ArrayList<>();
     parent.getElements().forEach(item -> {

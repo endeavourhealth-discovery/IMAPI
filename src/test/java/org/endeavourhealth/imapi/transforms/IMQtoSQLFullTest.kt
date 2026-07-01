@@ -2,9 +2,10 @@ package org.endeavourhealth.imapi.transforms
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository
 import org.endeavourhealth.imapi.logic.service.QueryService
-import org.endeavourhealth.imapi.model.imq.Query
-import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.utility.EnumUtils
+import org.endeavourhealth.interfacemanager.model.ImVocab
+import org.endeavourhealth.interfacemanager.model.Query
+import org.endeavourhealth.interfacemanager.model.QueryRequest
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
@@ -31,13 +32,13 @@ class IMQtoSQLFullTest {
     for (entity in entities) {
       val iri = entity.iri
       val name = entity.name
-      val definition = entity.get(EnumUtils.asIri(ImVocab. DEFINITION))
+      val definition = entity.get(EnumUtils.asIri(ImVocab.DEFINITION))
 
       if (definition != null) {
 //                log.info("Converting entity: $iri")
         try {
           val query = definition.asLiteral().objectValue(Query::class.java)
-          val queryRequest = QueryRequest().setQuery(query)
+          val queryRequest = QueryRequest().query(query)
           val sql = queryService.getSQLFromIMQ(queryRequest)
 
           assertNotNull(sql, "SQL should not be null for entity: $iri")

@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.utility;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.interfacemanager.model.ImVocab;
 import org.endeavourhealth.interfacemanager.model.RdfsVocab;
 import org.junit.jupiter.api.Test;

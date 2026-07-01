@@ -3,7 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.interfacemanager.model.SearchTermCode;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,10 +55,10 @@ public class ConceptModelServiceTest {
       .setTerm("Adverse reaction to Testogel")
       .setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), ).setIri(ImVocab.ACTIVE).setName(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE).getName()));
     when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", EnumUtils.asHashSet(ImVocab.
-      HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE),
-      new TTArray().add(new TTNode().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), new TTLiteral(termCode.getCode())).
-        set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS),
-          new TTArray().add(termCode.getStatus()))))));
+      HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntityJava().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_TERM_CODE),
+      new TTArrayJava().add(new TTNodeJava().set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE), new TTLiteralJava(termCode.getCode())).
+        set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), new TTLiteralJava(termCode.getTerm())).set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS),
+          new TTArrayJava().add(termCode.getStatus()))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }

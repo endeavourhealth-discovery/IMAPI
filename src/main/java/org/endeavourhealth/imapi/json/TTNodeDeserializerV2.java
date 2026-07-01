@@ -4,7 +4,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTContextJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -13,29 +16,29 @@ import java.util.Map;
 /**
  * Serializes a TTNode to JSON-LD. Normally called by a specialised class such as TTEntity or TTDocument serializer
  */
-public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
-  private TTContext context;
+public class TTNodeDeserializerV2 extends StdDeserializer<TTNodeJava> {
+  private TTContextJava context;
 
   public TTNodeDeserializerV2() {
     this(null);
   }
 
-  public TTNodeDeserializerV2(Class<TTNode> t) {
+  public TTNodeDeserializerV2(Class<TTNodeJava> t) {
     super(t);
   }
 
   /**
    * @param context the context object for the JSON-LD document
    */
-  public TTNodeDeserializerV2(Class<TTNode> t, TTContext context) {
+  public TTNodeDeserializerV2(Class<TTNodeJava> t, TTContextJava context) {
     super(t);
     this.context = context;
   }
 
-  public TTNode deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+  public TTNodeJava deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-    TTNode result = new TTNode();
+    TTNodeJava result = new TTNodeJava();
     Iterator<Map.Entry<String, JsonNode>> iterator = node.fields();
     while (iterator.hasNext()) {
       Map.Entry<String, JsonNode> field = iterator.next();
@@ -45,16 +48,16 @@ public class TTNodeDeserializerV2 extends StdDeserializer<TTNode> {
         if ("iri".equals(key))
           result.setIri(expand(value.textValue()));
         else if (value.isTextual())
-          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), TTLiteral.literal(value.asText()));
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), TTLiteralJava.literal(value.asText()));
         else if (value.isArray())
-          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArray.class));
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTArrayJava.class));
         else if (value.isObject()) {
           if (value.has("iri"))
             result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), TTIriRefExtensionsKt.iri(new TTIriRef(), value.get("iri").asText()));
           else
-            result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTNode.class));
+            result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), ctx.readValue(value.traverse(jsonParser.getCodec()), TTNodeJava.class));
         } else
-          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), TTLiteral.literal(value.asText()));
+          result.set(TTIriRefExtensionsKt.iri(new TTIriRef(), key), TTLiteralJava.literal(value.asText()));
       }
     }
     return result;

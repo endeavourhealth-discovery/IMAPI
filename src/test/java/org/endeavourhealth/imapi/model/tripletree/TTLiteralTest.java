@@ -5,18 +5,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.utility.EnumUtils;
+import org.endeavourhealth.interfacemanager.model.SearchTermCode;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteralJava.literal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TTLiteralTest {
   final EntityService entityService = new EntityService();
-  private final TTEntity testObject = (TTEntity) new TTEntity("http://endhealth.info/im#objectTest")
+  private final TTEntityJava testObject = (TTEntityJava) new TTEntityJava("http://endhealth.info/im#objectTest")
     .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.LABEL), "Test object")
     .set(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.COMMENT), "This is an entity to test object serialization")
     .set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY), literal(new SearchTermCode().setTerm("Mickey Mouse").setCode("EM-EYE-CEE").setStatus(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ACTIVE))));
@@ -34,7 +34,7 @@ class TTLiteralTest {
 
   // @Test
   void saveTest() throws Exception {
-    TTDocument doc = new TTDocument();
+    TTDocumentJava doc = new TTDocumentJava();
     doc.addEntity(testObject);
     doc.setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.REPLACE_ALL_PREDICATES));
 
@@ -44,10 +44,10 @@ class TTLiteralTest {
   // @Test
   void loadTest() throws JsonProcessingException {
     TTBundle bundle = entityService.getBundle("http://endhealth.info/im#objectTest", null);
-    TTArray preds = bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY));
+    TTArrayJava preds = bundle.getEntity().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY));
     assertEquals(1, preds.size());
 
-    TTValue val = preds.get(0);
+    TTValueJava val = preds.get(0);
     assertTrue(val.isLiteral());
 
     SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
@@ -70,13 +70,13 @@ class TTLiteralTest {
 
   @Test
   void deserializeTest() throws JsonProcessingException {
-    TTEntity entity = new ObjectMapper().readValue(json, TTEntity.class);
+    TTEntityJava entity = new ObjectMapper().readValue(json, TTEntityJava.class);
     assertEquals(entity.getIri(), testObject.getIri());
 
-    TTArray preds = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY));
+    TTArrayJava preds = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.QUERY));
     assertEquals(1, preds.size());
 
-    TTValue val = preds.get(0);
+    TTValueJava val = preds.get(0);
     assertTrue(val.isLiteral());
 
     SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
@@ -87,64 +87,64 @@ class TTLiteralTest {
 
   @Test
   void testTTLiteralSerialization_allNull() throws JsonProcessingException {
-    TTLiteral first = literal(null, (TTIriRef) null);
-    TTLiteral second = literal(null, (TTIriRef) null);
+    TTLiteralJava first = literal(null, (TTIriRef) null);
+    TTLiteralJava second = literal(null, (TTIriRef) null);
 
     assertEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_FirstNull() throws JsonProcessingException {
-    TTLiteral first = literal(null, (TTIriRef) null);
-    TTLiteral second = literal("TEST", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava first = literal(null, (TTIriRef) null);
+    TTLiteralJava second = literal("TEST", EnumUtils.asIri(XsdVocab.STRING));
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_SecondNull() throws JsonProcessingException {
-    TTLiteral first = literal("TEST", EnumUtils.asIri(XsdVocab.STRING));
-    TTLiteral second = literal(null, (TTIriRef) null);
+    TTLiteralJava first = literal("TEST", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava second = literal(null, (TTIriRef) null);
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_DiffVal() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
-    TTLiteral second = literal("DIFFERENT", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava second = literal("DIFFERENT", EnumUtils.asIri(XsdVocab.STRING));
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_DiffType() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
-    TTLiteral second = literal("SAME", EnumUtils.asIri(XsdVocab.INTEGER));
+    TTLiteralJava first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava second = literal("SAME", EnumUtils.asIri(XsdVocab.INTEGER));
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_DiffVal_NullType() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", (TTIriRef) null);
-    TTLiteral second = literal("DIFFERENT", (TTIriRef) null);
+    TTLiteralJava first = literal("SAME", (TTIriRef) null);
+    TTLiteralJava second = literal("DIFFERENT", (TTIriRef) null);
 
     assertNotEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_SameVal_NullType() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", (TTIriRef) null);
-    TTLiteral second = literal("SAME", (TTIriRef) null);
+    TTLiteralJava first = literal("SAME", (TTIriRef) null);
+    TTLiteralJava second = literal("SAME", (TTIriRef) null);
 
     assertEquals(first, second);
   }
 
   @Test
   void testTTLiteralSerialization_Same() throws JsonProcessingException {
-    TTLiteral first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
-    TTLiteral second = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava first = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
+    TTLiteralJava second = literal("SAME", EnumUtils.asIri(XsdVocab.STRING));
 
     assertEquals(first, second);
   }

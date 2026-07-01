@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 public class TTTuple {
   private TTIriRef predicate;
-  private TTValue value;
+  private TTValueJava value;
 
   public TTTuple() {
   }
 
-  public TTTuple(TTIriRef predicate, TTValue value) {
+  public TTTuple(TTIriRef predicate, TTValueJava value) {
     this.predicate = predicate;
     this.value = value;
   }
@@ -24,11 +24,11 @@ public class TTTuple {
     return this;
   }
 
-  public TTValue getValue() {
+  public TTValueJava getValue() {
     return value;
   }
 
-  public TTTuple setValue(TTValue value) {
+  public TTTuple setValue(TTValueJava value) {
     this.value = value;
     return this;
   }

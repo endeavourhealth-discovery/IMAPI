@@ -4,12 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 
 import java.util.Map;
 
 public class TTToObjectNode {
-  public static ObjectNode getAsObjectNode(TTEntity entity) throws JsonProcessingException {
+  public static ObjectNode getAsObjectNode(TTEntityJava entity) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       ObjectNode objectNode = om.createObjectNode();
       objectNode.put("iri", entity.getIri());
@@ -22,9 +25,9 @@ public class TTToObjectNode {
     return iri.substring(iri.lastIndexOf("#") + 1);
   }
 
-  private static void processNode(TTNode node, ObjectNode objectNode) throws JsonProcessingException {
+  private static void processNode(TTNodeJava node, ObjectNode objectNode) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      for (Map.Entry<TTIriRef, TTArray> entry : node.getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : node.getPredicateMap().entrySet()) {
         ObjectNode nodeValue;
         if (entry.getValue().isNode()) {
           ObjectNode subNode = om.createObjectNode();
@@ -43,7 +46,7 @@ public class TTToObjectNode {
         } else {
           ArrayNode arrayNode = om.createArrayNode();
           objectNode.set(getShort(entry.getKey().getIri()), arrayNode);
-          for (TTValue element : entry.getValue().getElements()) {
+          for (TTValueJava element : entry.getValue().getElements()) {
             if (element.isLiteral()) {
               if (element.asLiteral().getValue().charAt(0) == '{') {
                 nodeValue = om.readValue(element.asLiteral().getValue(), ObjectNode.class);

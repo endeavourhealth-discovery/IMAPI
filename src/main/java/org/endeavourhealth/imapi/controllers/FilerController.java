@@ -14,16 +14,16 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.ProblemDetailResponse;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.interfacemanager.model.Query;
 import org.endeavourhealth.interfacemanager.model.EditRequest;
 import org.endeavourhealth.interfacemanager.model.FileDocumentRequest;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.interfacemanager.model.QueryRequest;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -100,8 +100,8 @@ public class FilerController {
       log.debug("fileEntity");
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
       User user = securityService.getUser(request);
-      TTEntity usedEntity = null;
-      TTEntity entity = editRequest.getEntity();
+      TTEntityJava usedEntity = null;
+      TTEntityJava entity = editRequest.getEntity();
       String crud = editRequest.getCrud();
       if (entityService.iriExists(entity.getIri())) {
         usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
@@ -139,12 +139,12 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Source and target are the same");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
+      TTEntityJava entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
       if (!entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in a folder");
       }
 
-      TTArray folders = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN));
+      TTArrayJava folders = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN));
       if (!folders.contains(TTIriRefExtensionsKt.iri(new TTIriRef(), oldFolderIri))) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Entity is not currently in the specified folder");
       }
@@ -152,7 +152,7 @@ public class FilerController {
       if (entityService.isLinked(newFolderIri, TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN), oldFolderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Target folder is a descendant of the Entity");
       }
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+      TTEntityJava usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
 
       folders.remove(TTIriRefExtensionsKt.iri(new TTIriRef(), oldFolderIri));
       folders.add(TTIriRefExtensionsKt.iri(new TTIriRef(), newFolderIri));
@@ -184,13 +184,13 @@ public class FilerController {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot move", "Cannot move entity into itself");
       }
 
-      TTEntity entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
-      TTArray folders = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN));
-      if (folders == null) folders = new TTArray();
+      TTEntityJava entity = entityService.getBundle(entityIri, EnumUtils.asHashSet(ImVocab.IS_CONTAINED_IN, ImVocab.HAS_SCHEME)).getEntity();
+      TTArrayJava folders = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.IS_CONTAINED_IN));
+      if (folders == null) folders = new TTArrayJava();
       folders.add(TTIriRefExtensionsKt.iri(new TTIriRef(), folderIri));
 
       User user = securityService.getUser(request);
-      TTEntity usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
+      TTEntityJava usedEntity = entityService.getBundle(entity.getIri(), null).getEntity();
       entity.setVersion(usedEntity.getVersion() + 1).setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.UPDATE_PREDICATES));
       filerService.fileEntity(entity, user.getUsername(), usedEntity);
 
@@ -234,7 +234,7 @@ public class FilerController {
           .setValueIri(TTIriRefExtensionsKt.iri(new TTIriRef(), container)));
       JsonNode results = searchService.queryIM(queryRequest);
 
-      TTEntity entity = new TTEntity(iri)
+      TTEntityJava entity = new TTEntityJava(iri)
         .setName(name)
         .setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), GraphVocab.IM))
         .addType(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.FOLDER))
@@ -242,7 +242,7 @@ public class FilerController {
         .setVersion(1)
         .setCrud(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ADD_QUADS));
 
-      TTArray contentTypes = new TTArray();
+      TTArrayJava contentTypes = new TTArrayJava();
       for (JsonNode j : results.get("entities")) {
         TTIriRef contentType = TTIriRefExtensionsKt.iri(new TTIriRef(), );
         contentType.setIri(j.get("iri").asText());

@@ -2,13 +2,11 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.interfacemanager.model.*;
 
-import java.lang.Exception;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -38,7 +36,7 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse hasValidParents(TTEntity entity) {
+  private EntityValidationResponse hasValidParents(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity is missing a parent. Add a parent to 'Subset of', 'Subclass of' or 'Contained in'.");
@@ -50,7 +48,7 @@ public class EntityValidator {
     return response;
   }
 
-  private boolean isValidTTIriRef(TTValue value) {
+  private boolean isValidTTIriRef(TTValueJava value) {
     return value.isIriRef() && !value.asIriRef().getIri().isEmpty() && !value.asIriRef().getName().isEmpty();
   }
 
@@ -59,11 +57,11 @@ public class EntityValidator {
     response.setMessage(null);
   }
 
-  private boolean hasParameterAndAllAreTTIriRefs(TTEntity entity, String parameter) {
+  private boolean hasParameterAndAllAreTTIriRefs(TTEntityJava entity, String parameter) {
     return entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), parameter)) && !entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), parameter)).isEmpty() && entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), parameter)).getElements().stream().allMatch(this::isValidTTIriRef);
   }
 
-  private EntityValidationResponse isValidDefinition(TTEntity entity) {
+  private EntityValidationResponse isValidDefinition(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity definition is invalid");
@@ -88,7 +86,7 @@ public class EntityValidator {
   }
 
 
-  private EntityValidationResponse isValidIri(TTEntity entity) {
+  private EntityValidationResponse isValidIri(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("Entity IRI is invalid");
@@ -128,7 +126,7 @@ public class EntityValidator {
       .replace("!", "%21");
   }
 
-  private EntityValidationResponse isValidTermCodes(TTEntity entity) {
+  private EntityValidationResponse isValidTermCodes(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false);
     response.setMessage("1 or more term codes are invalid");
@@ -144,7 +142,7 @@ public class EntityValidator {
     return response;
   }
 
-  private boolean isValidTermCode(TTValue value) {
+  private boolean isValidTermCode(TTValueJava value) {
 
     return value.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.CODE)) &&
       value.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)) &&
@@ -155,15 +153,15 @@ public class EntityValidator {
       HAS_STATUS)).size() == 1 && value.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.HAS_STATUS)).get(0).asIriRef() != null;
   }
 
-  private EntityValidationResponse isValidProperties(TTEntity entity) {
+  private EntityValidationResponse isValidProperties(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(true).setMessage(null);
-    TTArray properties = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
+    TTArrayJava properties = entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY));
     if (properties == null || properties.isEmpty()) {
       response.setValid(false);
       response.setMessage("Data models must have at least 1 property");
     } else {
-      for (TTValue property : properties.getElements()) {
+      for (TTValueJava property : properties.getElements()) {
         if (!isValidIriOrIriList(property.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PATH)), 1, 1))
           response.setValid(false);
         if (
@@ -177,7 +175,7 @@ public class EntityValidator {
     return response;
   }
 
-  private boolean isValidIriOrIriList(TTArray list, int minLength, int maxLength) {
+  private boolean isValidIriOrIriList(TTArrayJava list, int minLength, int maxLength) {
     if (null == list) return minLength == 0;
     if (list.size() < minLength || list.size() > maxLength) return false;
     return list.getElements().stream().allMatch(item -> {
@@ -187,7 +185,7 @@ public class EntityValidator {
     });
   }
 
-  private EntityValidationResponse isValidScheme(TTEntity entity) {
+  private EntityValidationResponse isValidScheme(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Scheme is invalid");
     List<TTIriRef> schemes = entityService.getChildren(ImVocab.ROOT_NAMESPACE.toString(), null, null, null, false);
@@ -202,7 +200,7 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse isValidStatus(TTEntity entity) {
+  private EntityValidationResponse isValidStatus(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(false).setMessage("Status is invalid");
     List<TTIriRef> schemes = entityService.getChildren(ImVocab.STATUS.toString(), null, null, null, false);
@@ -217,19 +215,19 @@ public class EntityValidator {
     return response;
   }
 
-  private EntityValidationResponse isValidRoleGroups(TTEntity entity) {
+  private EntityValidationResponse isValidRoleGroups(TTEntityJava entity) {
     EntityValidationResponse response = new EntityValidationResponse();
     response.setValid(true).setMessage(null);
     if (!entity.has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP))) return response;
-    for (TTValue group : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).getElements()) {
+    for (TTValueJava group : entity.get(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.ROLE_GROUP)).getElements()) {
       if (group.asNode().has(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.GROUP_NUMBER))) {
         if (group.asNode().getPredicateMap().size() <= 1) {
           response.setValid(false);
           response.setMessage("1 or more role groups are invalid");
         } else {
-          for (Map.Entry<TTIriRef, TTArray> groupData : group.asNode().getPredicateMap().entrySet()) {
+          for (Map.Entry<TTIriRef, TTArrayJava> groupData : group.asNode().getPredicateMap().entrySet()) {
             String key = groupData.getKey().getIri();
-            TTArray value = groupData.getValue();
+            TTArrayJava value = groupData.getValue();
             if (!key.equals(ImVocab.GROUP_NUMBER.toString())) {
               if (key.isEmpty() || value.isEmpty() || value.get(0).asIriRef().getIri().isEmpty() || value.get(0).asIriRef().getName().isEmpty()) {
                 response.setValid(false);

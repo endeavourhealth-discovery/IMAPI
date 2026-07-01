@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
 import org.endeavourhealth.imapi.json.TTDocumentSerializer;
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.interfacemanager.model.TTPrefix;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +15,9 @@ import java.util.Map;
 
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
-public class TTDocument extends TTNode {
-  private TTContext context = new TTContext();
-  private List<TTEntity> entities;
+public class TTDocumentJava extends TTNodeJava {
+  private TTContextJava context = new TTContextJava();
+  private List<TTEntityJava> entities;
   private TTIriRef crud;
   private Map<String, String> predicates = new HashMap<>();
 
@@ -23,7 +25,7 @@ public class TTDocument extends TTNode {
     return predicates;
   }
 
-  public TTDocument setPredicates(Map<String, String> predicates) {
+  public TTDocumentJava setPredicates(Map<String, String> predicates) {
     this.predicates = predicates;
     return this;
   }
@@ -32,32 +34,32 @@ public class TTDocument extends TTNode {
     return context.getPrefixes();
   }
 
-  public TTDocument addPrefix(TTPrefix directive) {
+  public TTDocumentJava addPrefix(TTPrefix directive) {
     addPrefix(directive.getIri(), directive.getPrefix());
     return this;
   }
 
-  public TTDocument addPrefix(String iri, String prefix) {
+  public TTDocumentJava addPrefix(String iri, String prefix) {
     context.add(iri, prefix);
     return this;
   }
 
   @Override
-  public TTDocument set(TTIriRef predicate, TTValue value) {
+  public TTDocumentJava set(TTIriRef predicate, TTValueJava value) {
     super.set(predicate, value);
     return this;
   }
 
-  public List<TTEntity> getEntities() {
+  public List<TTEntityJava> getEntities() {
     return entities;
   }
 
-  public TTDocument setEntities(List<TTEntity> entities) {
+  public TTDocumentJava setEntities(List<TTEntityJava> entities) {
     this.entities = entities;
     return this;
   }
 
-  public TTDocument addEntity(TTEntity entity) {
+  public TTDocumentJava addEntity(TTEntityJava entity) {
     if (this.entities == null)
       this.entities = new ArrayList<>();
     entity.setContext(this.context);
@@ -65,11 +67,11 @@ public class TTDocument extends TTNode {
     return this;
   }
 
-  public TTContext getContext() {
+  public TTContextJava getContext() {
     return this.context;
   }
 
-  public TTDocument setContext(TTContext context) {
+  public TTDocumentJava setContext(TTContextJava context) {
     this.context = context;
     return this;
   }
@@ -79,7 +81,7 @@ public class TTDocument extends TTNode {
   }
 
   @JsonSetter
-  public TTDocument setCrud(TTIriRef crud) {
+  public TTDocumentJava setCrud(TTIriRef crud) {
     this.crud = crud;
     return this;
   }

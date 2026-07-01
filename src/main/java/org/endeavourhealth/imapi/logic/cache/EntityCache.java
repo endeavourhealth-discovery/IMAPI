@@ -19,7 +19,7 @@ import java.util.*;
 public class EntityCache implements Runnable {
 
   @Getter
-  public static final TTContext defaultPrefixes = new TTContext()
+  public static final TTContextJava defaultPrefixes = new TTContextJava()
     .add(NamespaceVocab.RDFS, "rdfs")
     .add(NamespaceVocab.RDF, "rdf")
     .add(NamespaceVocab.IM, "im")
@@ -30,10 +30,10 @@ public class EntityCache implements Runnable {
   public static final Object entityLock = new Object();
 
   @Getter
-  static final Map<String, TTEntity> shapes = new HashMap<>();
+  static final Map<String, TTEntityJava> shapes = new HashMap<>();
   @Getter
-  static final Map<String, TTEntity> properties = new HashMap<>();
-  static final Map<String, TTEntity> entities = new HashMap<>();
+  static final Map<String, TTEntityJava> properties = new HashMap<>();
+  static final Map<String, TTEntityJava> entities = new HashMap<>();
   static final Map<String, List<TTIriRef>> predicateOrder = new HashMap<>();
   @Getter
   static final Map<String, String> predicateNames = new HashMap<>();
@@ -57,7 +57,7 @@ public class EntityCache implements Runnable {
    * @return a TTEntity representing the shape
    */
   public static TTBundle getProperty(String iri) {
-    TTEntity property = properties.get(iri);
+    TTEntityJava property = properties.get(iri);
     if (property == null) {
       synchronized (propertyLock) {
         TTEntityMap propertyMap = PropertyRepository.getProperty(iri);
@@ -76,7 +76,7 @@ public class EntityCache implements Runnable {
     return bundle;
   }
 
-  public static void addProperty(TTEntity property) {
+  public static void addProperty(TTEntityJava property) {
     properties.put(property.getIri(), property);
   }
 
@@ -88,7 +88,7 @@ public class EntityCache implements Runnable {
    * @return a bundle consisting of the entity and a predicate name map
    */
   public static TTBundle getEntity(String iri) {
-    TTEntity entity = entities.get(iri);
+    TTEntityJava entity = entities.get(iri);
     if (entity == null) {
       synchronized (entityLock) {
         EntityRepository entityRepository = new EntityRepository();
@@ -114,7 +114,7 @@ public class EntityCache implements Runnable {
    * @return a TTEntity representing the shape
    */
   public static TTBundle getShape(String iri) {
-    TTEntity shape = shapes.get(iri);
+    TTEntityJava shape = shapes.get(iri);
     if (shape == null) {
       synchronized (shapeLock) {
         TTEntityMap shapeMap = ShapeRepository.getShapeAndAncestors(iri);
@@ -135,7 +135,7 @@ public class EntityCache implements Runnable {
   public static void cacheShapes(TTEntityMap shapeMap) {
     if (shapeMap.getPredicates() != null)
       shapeMap.getPredicates().forEach(EntityCache::addPredicateName);
-    for (Map.Entry<String, TTEntity> entry : shapeMap.getEntities().entrySet()) {
+    for (Map.Entry<String, TTEntityJava> entry : shapeMap.getEntities().entrySet()) {
       EntityCache.addShape(entry.getValue());
       if (entry.getValue().get(TTIriRefExtensionsKt.iri(new TTIriRef(), ShaclVocab.PROPERTY)) != null) {
         List<TTIriRef> properties = entry
@@ -154,17 +154,17 @@ public class EntityCache implements Runnable {
   public static void cacheProperties(TTEntityMap propertyMap) {
     if (propertyMap.getPredicates() != null)
       propertyMap.getPredicates().forEach(EntityCache::addPredicateName);
-    for (Map.Entry<String, TTEntity> entry : propertyMap.getEntities().entrySet()) {
+    for (Map.Entry<String, TTEntityJava> entry : propertyMap.getEntities().entrySet()) {
       addProperty(entry.getValue());
     }
   }
 
-  public static void addShape(TTEntity shape) {
+  public static void addShape(TTEntityJava shape) {
     shapes.put(shape.getIri(), shape);
   }
 
 
-  public static void addEntity(TTEntity entity) {
+  public static void addEntity(TTEntityJava entity) {
     entities.put(entity.getIri(), entity);
   }
 
@@ -211,16 +211,16 @@ public class EntityCache implements Runnable {
    * @param node to retrieve the IRIs from
    * @return a set of iris
    */
-  public static Set<TTIriRef> getPredicatesFromNode(TTNode node) {
+  public static Set<TTIriRef> getPredicatesFromNode(TTNodeJava node) {
     Set<TTIriRef> iris = new HashSet<>();
     return addPredicatesFromNode(node, iris);
   }
 
-  private static Set<TTIriRef> addPredicatesFromNode(TTValue subject, Set<TTIriRef> iris) {
+  private static Set<TTIriRef> addPredicatesFromNode(TTValueJava subject, Set<TTIriRef> iris) {
     if (subject.asNode().getPredicateMap() != null) {
-      for (Map.Entry<TTIriRef, TTArray> entry : subject.asNode().getPredicateMap().entrySet()) {
+      for (Map.Entry<TTIriRef, TTArrayJava> entry : subject.asNode().getPredicateMap().entrySet()) {
         iris.add(entry.getKey());
-        for (TTValue v : entry.getValue().getElements()) {
+        for (TTValueJava v : entry.getValue().getElements()) {
           if (v.isNode())
             addPredicatesFromNode(v, iris);
         }

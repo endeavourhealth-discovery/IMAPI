@@ -1,20 +1,20 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.List;
 
 public class InstanceDTO {
 
-  private TTEntity entity;
+  private TTEntityJava entity;
   private List<TTIriRef> predicates;
 
-  public TTEntity getEntity() {
+  public TTEntityJava getEntity() {
     return entity;
   }
 
-  public InstanceDTO setEntity(TTEntity entity) {
+  public InstanceDTO setEntity(TTEntityJava entity) {
     this.entity = entity;
     return this;
   }

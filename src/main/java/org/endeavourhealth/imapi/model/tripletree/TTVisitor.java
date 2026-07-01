@@ -54,30 +54,30 @@ public class TTVisitor {
     return this;
   }
 
-  public void visit(TTNode node) {
+  public void visit(TTNodeJava node) {
     visit(null, node);
   }
 
-  public void visit(TTArray array) {
+  public void visit(TTArrayJava array) {
     visit(null, array);
   }
 
-  public void visit(TTIriRef predicate, TTNode node) {
+  public void visit(TTIriRef predicate, TTNodeJava node) {
     if (predicate != null)
       predicateVisitor.visit(predicate);
 
     nodeVisitor.visit(predicate, node);
-    Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
-    for (Map.Entry<TTIriRef, TTArray> entry : predicateMap.entrySet()) {
+    Map<TTIriRef, TTArrayJava> predicateMap = node.getPredicateMap();
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : predicateMap.entrySet()) {
       TTIriRef p = entry.getKey();
-      TTArray v = entry.getValue();
+      TTArrayJava v = entry.getValue();
 
       visit(p, v);
     }
     nodeExitVisitor.visit(predicate, node);
   }
 
-  public void visit(TTIriRef predicate, TTValue value) {
+  public void visit(TTIriRef predicate, TTValueJava value) {
     if (value.isLiteral()) {
       if (predicate != null)
         predicateVisitor.visit(predicate);
@@ -91,18 +91,18 @@ public class TTVisitor {
     }
   }
 
-  public void visit(TTIriRef predicate, TTArray array) {
+  public void visit(TTIriRef predicate, TTArrayJava array) {
     if (predicate != null)
       predicateVisitor.visit(predicate);
     listVisitor.visit(predicate, array);
-    for (TTValue value : array.iterator()) {
+    for (TTValueJava value : array.iterator()) {
       visit(predicate, value);
     }
     listExitVisitor.visit(predicate, array);
   }
 
   public interface ITTLiteralVisitor {
-    void visit(TTIriRef predicate, TTLiteral literal);
+    void visit(TTIriRef predicate, TTLiteralJava literal);
   }
 
   public interface ITTIriRefVisitor {
@@ -110,11 +110,11 @@ public class TTVisitor {
   }
 
   public interface ITTNodeVisitor {
-    void visit(TTIriRef predicate, TTNode node);
+    void visit(TTIriRef predicate, TTNodeJava node);
   }
 
   public interface ITTListVisitor {
-    void visit(TTIriRef predicate, TTArray node);
+    void visit(TTIriRef predicate, TTArrayJava node);
   }
 
   public interface ITTPredicateVisitor {

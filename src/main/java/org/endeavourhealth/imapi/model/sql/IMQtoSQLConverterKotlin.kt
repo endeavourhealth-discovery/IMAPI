@@ -5,18 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
-import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.interfacemanager.model.*
-import org.endeavourhealth.interfacemanager.model.Match
 import java.util.Locale.getDefault
 import kotlin.and
-import kotlin.collections.first
 import kotlin.collections.forEach
-import kotlin.collections.get
 import kotlin.or
-import kotlin.ranges.first
-import kotlin.sequences.first
-import kotlin.text.first
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(

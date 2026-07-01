@@ -4,13 +4,13 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.search.SearchTermCode;
 import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.set.MemberType;
 import org.endeavourhealth.imapi.model.set.SetMember;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.interfacemanager.model.DataModelProperty;
 import org.endeavourhealth.interfacemanager.model.EntityReferenceNode;
+import org.endeavourhealth.interfacemanager.model.SearchTermCode;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ public class XlsHelper {
     return workbook;
   }
 
-  public void addSummary(TTEntity summary) {
+  public void addSummary(TTEntityJava summary) {
     if (summary == null) {
       return;
     }
@@ -56,7 +56,7 @@ public class XlsHelper {
 
     for (TTIriRef predicate : predicates) {
       Cell cell = row.createCell(row.getLastCellNum());
-      TTArray value = summary.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate.getIri(), predicate.getName()));
+      TTArrayJava value = summary.get(TTIriRefExtensionsKt.iri(new TTIriRef(), predicate.getIri(), predicate.getName()));
       if (value.isIriRef()) {
         cell.setCellValue(value.asIriRef().getName());
       } else if (value.isLiteral()) {
@@ -85,16 +85,16 @@ public class XlsHelper {
 
   }
 
-  public void addIsChildOf(List<TTValue> childList) {
+  public void addIsChildOf(List<TTValueJava> childList) {
     addChild(childList, "Is child of");
   }
 
-  private void addChild(List<TTValue> childList, String name) {
+  private void addChild(List<TTValueJava> childList, String name) {
     Sheet sheet = workbook.createSheet(name);
     List<String> headers = Arrays.asList("Iri", "Name");
     addHeaders(sheet, 10000, headers);
 
-    for (TTValue child : childList) {
+    for (TTValueJava child : childList) {
       if (child.isIriRef()) {
         Row row = sheet.createRow(sheet.getLastRowNum() + 1);
         Cell cell = row.createCell(0);
@@ -105,7 +105,7 @@ public class XlsHelper {
     }
   }
 
-  public void addHasChildren(List<TTValue> childList) {
+  public void addHasChildren(List<TTValueJava> childList) {
     addChild(childList, "Has children");
   }
 

@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.transforms;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.logic.service.ECLQueryValidator;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.interfacemanager.model.Query;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
@@ -15,7 +15,7 @@ import org.endeavourhealth.interfacemanager.model.ValidationLevel;
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs
  */
-public class ECLToIMQ extends IMECLBaseVisitor<TTValue> {
+public class ECLToIMQ extends IMECLBaseVisitor<TTValueJava> {
   private final IMECLLexer lexer;
   private final IMECLParser parser;
   private boolean validateEntities;

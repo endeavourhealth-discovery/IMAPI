@@ -13,7 +13,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
@@ -305,15 +305,15 @@ public class ImportMaps implements AutoCloseable {
     return readToSnomed;
   }
 
-  public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
+  public Map<String, TTEntityJava> getEMISReadAsVision() throws IOException {
     if (TTFilerFactory.isBulk()) {
       Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(NamespaceVocab.EMIS);
-      Map<String, TTEntity> emisRead2 = new HashMap<>();
+      Map<String, TTEntityJava> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();
         if (isRead(code)) {
           code = (code + ".....").substring(0, 5);
-          TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
+          TTEntityJava entity = emisRead2.computeIfAbsent(code, k -> new TTEntityJava());
           entity.setCode(code);
           entity.setScheme(TTIriRefExtensionsKt.iri(new TTIriRef(), NamespaceVocab.VISION));
           entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));
@@ -328,8 +328,8 @@ public class ImportMaps implements AutoCloseable {
       return getEMISReadAsVisionRdf4j();
   }
 
-  private Map<String, TTEntity> getEMISReadAsVisionRdf4j() {
-    Map<String, TTEntity> emisRead2 = new HashMap<>();
+  private Map<String, TTEntityJava> getEMISReadAsVisionRdf4j() {
+    Map<String, TTEntityJava> emisRead2 = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       String sql = """
         SELECT ?oldCode ?name ?snomedIri
@@ -358,7 +358,7 @@ public class ImportMaps implements AutoCloseable {
           String snomedIri = bs.getValue("snomedIri").stringValue();
           if (isRead(code)) {
             code = (code + ".....").substring(0, 5);
-            TTEntity entity = emisRead2.computeIfAbsent(code, k -> new TTEntity());
+            TTEntityJava entity = emisRead2.computeIfAbsent(code, k -> new TTEntityJava());
             entity.setName(name);
             entity.setCode(code);
             entity.setIri(NamespaceVocab.VISION + code.replace(".", ""));

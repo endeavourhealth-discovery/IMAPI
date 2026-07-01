@@ -5,7 +5,6 @@ import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
 import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
 import org.endeavourhealth.imapi.model.extensions.CodeGenDtoExtensionsKt;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.interfacemanager.model.*;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;

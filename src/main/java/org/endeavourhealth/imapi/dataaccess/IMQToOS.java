@@ -5,18 +5,16 @@ import lombok.Getter;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.functionscore.ScriptScoreQueryBuilder;
 import org.elasticsearch.script.Script;
 import org.elasticsearch.script.ScriptType;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
-import org.endeavourhealth.imapi.model.imq.Return;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.interfacemanager.model.TTIriRef;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.Bool;
-import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.*;
 
@@ -191,7 +189,7 @@ public class IMQToOS {
   private boolean addMatches(BoolQueryBuilder boolBuilder) throws QueryException {
     if (query == null)
       return true;
-    if (query.isActiveOnly()) {
+    if (query.getActiveOnly()) {
       addFilterWithId("status", EnumUtils.asHashSet(ImVocab.ACTIVE), Bool.AND, boolBuilder);
     }
     if (query.getAnd() == null && query.getOr() == null) {
@@ -245,38 +243,38 @@ public class IMQToOS {
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         if (prop.getIri() != null) {
-          switch (OPENSEARCH.fromValue(prop.getIri())) {
-            case OPENSEARCH.DESCRIPTION:
+          switch (OpenSearchVocab.fromValue(prop.getIri())) {
+            case OpenSearchVocab.DESCRIPTION:
               sources.add("description");
               break;
-            case OPENSEARCH.NAME:
+            case OpenSearchVocab.NAME:
               sources.add("name");
               break;
-            case OPENSEARCH.CODE:
+            case OpenSearchVocab.CODE:
               sources.add("code");
               break;
-            case OPENSEARCH.STATUS:
+            case OpenSearchVocab.STATUS:
               sources.add(STATUS);
               break;
-            case OPENSEARCH.ALTERNATIVE_CODE:
+            case OpenSearchVocab.ALTERNATIVE_CODE:
               sources.add("alternativeCode");
               break;
-            case OPENSEARCH.SCHEME:
+            case OpenSearchVocab.SCHEME:
               sources.add(SCHEME);
               break;
-            case OPENSEARCH.TYPE:
+            case OpenSearchVocab.TYPE:
               sources.add("type");
               break;
-            case OPENSEARCH.USAGE_TOTAL:
+            case OpenSearchVocab.USAGE_TOTAL:
               sources.add(USAGE_TOTAL);
               break;
-            case OPENSEARCH.BINDING:
+            case OpenSearchVocab.BINDING:
               sources.add("binding");
               break;
-            case OPENSEARCH.TERM_CODE:
+            case OpenSearchVocab.TERM_CODE:
               sources.add("termCode");
               break;
-            case OPENSEARCH.DOMAIN:
+            case OpenSearchVocab.DOMAIN:
               break;
             case null:
               throw new IllegalArgumentException("Failed to decode as OPENSEARCH enum");
@@ -356,7 +354,7 @@ public class IMQToOS {
       IS_MEMBER_OF.toString().equals(w)) {
       return addIsFilter("memberOf", where, bool, boolBldr);
     } else if (ImVocab.
-      HAS_MEMBER.toString().equals(w) && where.isInverse()) {
+      HAS_MEMBER.toString().equals(w) && where.getInverse()) {
       return addIsFilter("memberOf", where, bool, boolBldr);
     } else if (ImVocab.
       HAS_STATUS.toString().equals(w)) {
@@ -523,7 +521,7 @@ public class IMQToOS {
       } else
         throw new QueryException("Query has a query variable but request has no arguments set");
     } else if (query.getParentResult() != null) {
-      JsonNode parentResult = query.getParentResult();
+      JsonNode parentResult = (JsonNode) query.getParentResult();
       if (parentResult.get("entities") != null) {
         for (Iterator<JsonNode> it = parentResult.get("entities").elements(); it.hasNext(); ) {
           JsonNode element = it.next();
@@ -538,9 +536,9 @@ public class IMQToOS {
   }
 
   private void addToInstanceFilters(Node type, String iri, Map<String, Set<String>> instanceFilters) {
-    if (type.isDescendantsOrSelfOf())
+    if (type.getDescendantsOrSelfOf())
       instanceFilters.computeIfAbsent("isA", i -> new HashSet<>()).add(iri);
-    else if (type.isMemberOf())
+    else if (type.getMemberOf())
       instanceFilters.computeIfAbsent("isMemberOf", i -> new HashSet<>()).add(iri);
     else
       instanceFilters.computeIfAbsent("iri", i -> new HashSet<>()).add(iri);

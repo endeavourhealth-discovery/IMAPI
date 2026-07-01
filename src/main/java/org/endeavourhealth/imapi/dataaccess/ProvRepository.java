@@ -4,7 +4,7 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.ProvDB;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.interfacemanager.model.TTIriRef;
 
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import java.util.List;
 import static org.eclipse.rdf4j.model.util.Values.iri;
 
 public class ProvRepository {
-  public List<TTEntity> getProvHistory(String iri) {
-    List<TTEntity> results = new ArrayList<>();
+  public List<TTEntityJava> getProvHistory(String iri) {
+    List<TTEntityJava> results = new ArrayList<>();
 
     String sql = """
       SELECT *
@@ -40,7 +40,7 @@ public class ProvRepository {
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          TTEntity entity = new TTEntity(bs.getValue("prov").stringValue());
+          TTEntityJava entity = new TTEntityJava(bs.getValue("prov").stringValue());
           entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_TARGET), iri);
           entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EFFECTIVE_DATE), bs.getValue("effectiveDate").stringValue());
           entity.set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_ACTIVITY_TYPE),

@@ -1,17 +1,19 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.interfacemanager.model.TTIriRef;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class TTBundle {
-  private TTEntity entity;
+  private TTEntityJava entity;
   private Map<String, String> predicates = new HashMap<>();
 
-  public TTEntity getEntity() {
+  public TTEntityJava getEntity() {
     return entity;
   }
 
-  public TTBundle setEntity(TTEntity entity) {
+  public TTBundle setEntity(TTEntityJava entity) {
     this.entity = entity;
     return this;
   }

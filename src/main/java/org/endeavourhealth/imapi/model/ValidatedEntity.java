@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.model;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 
 @Getter
-public class ValidatedEntity extends TTEntity {
+public class ValidatedEntity extends TTEntityJava {
   private String validationCode;
   private String validationLabel;
 

@@ -21,14 +21,13 @@ import org.endeavourhealth.imapi.model.dto.GraphDto;
 import org.endeavourhealth.imapi.model.extensions.TTIriRefExtensionsKt;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.ValidatedEntitiesRequest;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 import org.endeavourhealth.imapi.utility.IriExtractor;
@@ -114,7 +113,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
-  public TTEntity getPartialEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
+  public TTEntityJava getPartialEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partial.GET")) {
       log.debug("getPartialEntity");
       return entityService.getBundle(iri, predicates).getEntity();
@@ -123,7 +122,7 @@ public class EntityController {
 
   @PostMapping(value = "/protected/partials")
   @Operation(summary = "Get partial entities", description = "Fetches partial details for multiple entities based on IRIs and predicates")
-  public List<TTEntity> getPartialEntities(HttpServletRequest request, @RequestBody Map<String, Object> map) {
+  public List<TTEntityJava> getPartialEntities(HttpServletRequest request, @RequestBody Map<String, Object> map) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Partials.POST")) {
       log.debug("getPartialEntities");
       Set<String> iris = new HashSet<>();
@@ -138,7 +137,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/fullEntity", produces = "application/json")
   @Operation(summary = "Get full entity", description = "Fetches full entity details using IRI")
-  public TTEntity getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
+  public TTEntityJava getFullEntity(HttpServletRequest request, @RequestParam(name = "iri") String iri) throws JsonProcessingException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.FullEntity.GET")) {
       log.debug("getFullEntity");
       return entityService.getBundleByPredicateExclusions(iri, null).getEntity();
@@ -184,7 +183,7 @@ public class EntityController {
         page = 1;
         size = EntityService.MAX_CHILDREN;
       }
-      TTEntity entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfVocab.TYPE)).getEntity();
+      TTEntityJava entity = entityService.getBundle(iri, EnumUtils.asHashSet(RdfVocab.TYPE)).getEntity();
       boolean inactive = entity.getType() != null && entity.getType().contains(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.TASK));
 
       return entityService.getImmediateChildren(iri, schemeIris, page, size, inactive);
@@ -257,8 +256,8 @@ public class EntityController {
       TTBundle entity = entityService.getBundle(iri, null);
       String json;
       try (TTManager manager = new TTManager()) {
-        TTDocument document = manager.createDocument();
-        List<TTEntity> entityList = new ArrayList<>();
+        TTDocumentJava document = manager.createDocument();
+        List<TTEntityJava> entityList = new ArrayList<>();
         entityList.add(entity.getEntity());
         document.setEntities(entityList);
         json = manager.getJson(document);
@@ -281,7 +280,7 @@ public class EntityController {
 
   @GetMapping(value = "/protected/usages")
   @Operation(summary = "Get entity usages", description = "Fetches usage details of the specified entity using IRI with pagination options")
-  public List<TTEntity> entityUsages(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) {
+  public List<TTEntityJava> entityUsages(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Usages.GET")) {
       log.debug("entityUsages");
       return entityService.usages(iri, page, size);
@@ -387,7 +386,7 @@ public class EntityController {
 
   @GetMapping("/protected/entityByPredicateExclusions")
   @Operation(summary = "Get entity by predicate exclusions", description = "Fetches an entity details using IRI, excluding specified predicates")
-  public TTEntity getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws JsonProcessingException {
+  public TTEntityJava getEntityByPredicateExclusions(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "predicates") Set<String> predicates) throws JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.EntityByPredicateExclusions.GET")) {
       log.debug("getEntityByPredicateExclusions");
       return entityService.getBundleByPredicateExclusions(iri, predicates).getEntity();
@@ -477,7 +476,7 @@ public class EntityController {
 
   @GetMapping("/protected/history")
   @Operation(summary = "Get provenance history", description = "Fetches the provenance history of an entity specified by its IRI")
-  public List<TTEntity> getProvHistory(@RequestParam(name = "iri") String iri) {
+  public List<TTEntityJava> getProvHistory(@RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Prov.History.GET")) {
       log.debug("getProvHistory");
       return provService.getProvHistory(iri);
@@ -486,7 +485,7 @@ public class EntityController {
 
   @GetMapping("/protected/allowableChildTypes")
   @Operation(summary = "Get allowable child types", description = "Fetches the allowable child types for an entity and the predicate that links them")
-  public List<TTEntity> getAllowableChildTypes(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+  public List<TTEntityJava> getAllowableChildTypes(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.AllowableChildTypes.GET")) {
       log.debug("get AllowableChildTypes for " + iri);
       return entityService.getAllowableChildTypes(iri);
@@ -517,7 +516,7 @@ public class EntityController {
 
   @PostMapping(value = "/private/create")
   @Operation(summary = "Create entity", description = "Creates a new entity in the system with the provided details")
-  public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
+  public TTEntityJava createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
@@ -528,7 +527,7 @@ public class EntityController {
 
   @PostMapping(value = "/private/update")
   @Operation(summary = "Update entity", description = "Updates an existing entity with the provided details")
-  public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
+  public TTEntityJava updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
       securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);

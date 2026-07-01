@@ -10,16 +10,10 @@ import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.imq.Return;
-import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.model.responses.SearchResponse;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
-import org.endeavourhealth.interfacemanager.model.Page;
-import org.endeavourhealth.interfacemanager.model.TextSearchStyle;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,9 +66,7 @@ public class OSQuery {
   }
 
   private static void processSourceReturns(ObjectNode osResult, ObjectNode resultNode) {
-    Set<String> sources = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.PREFERRED_NAME, ImVocab.
-      CODE, ImVocab.
-      USAGE_TOTAL, RdfVocab.TYPE, ImVocab.
+    Set<String> sources = EnumUtils.asHashSet(RdfsVocab.LABEL, ImVocab.PREFERRED_NAME, ImVocab.CODE, ImVocab.USAGE_TOTAL, RdfVocab.TYPE, ImVocab.
       HAS_SCHEME, ImVocab.
       HAS_STATUS);
     sources.add("iri");
@@ -123,8 +115,8 @@ public class OSQuery {
     Query query = request.getQuery();
     if (request.getPage() == null) {
       request.setPage(new Page()
-        .setPageSize(20)
-        .setPageNumber(1));
+        .pageSize(20)
+        .pageNumber(1));
     }
     ObjectMapper mapper = new ObjectMapper();
     ObjectNode fullResults = mapper.createObjectNode();
@@ -305,7 +297,7 @@ public class OSQuery {
 
   }
 
-  private SearchResultSummary getSummary(TTEntity entity) {
+  private SearchResultSummary getSummary(TTEntityJava entity) {
     SearchResultSummary summary = new SearchResultSummary();
     summary.setIri(entity.getIri());
     summary.setName(entity.getName());
@@ -328,7 +320,7 @@ public class OSQuery {
       searchResults.setHighestUsage(0);
       searchResults.setCount(0);
       for (JsonNode hit : root.get("entities")) {
-        TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
+        TTEntityJava entity = resultMapper.treeToValue(hit, TTEntityJava.class);
         SearchResultSummary summary = getSummary(entity);
         searchResults.addEntity(summary);
         if (summary.getUsageTotal() != null && summary.getUsageTotal() > searchResults.getHighestUsage())

@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.tripletree.*;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.imapi.model.tripletree.TTNodeJava;
 import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 import org.endeavourhealth.interfacemanager.model.*;
+import org.endeavourhealth.interfacemanager.model.TTValue;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.formats.FunctionalSyntaxDocumentFormat;
 import org.semanticweb.owlapi.formats.PrefixDocumentFormat;
@@ -51,7 +51,7 @@ public class TTToOWLEL {
    * @throws OWLOntologyCreationException if the owl ontology cannot be created
    */
 
-  public OWLOntologyManager transform(TTDocument document, TTManager dmanager, GraphVocab graph) throws OWLOntologyCreationException {
+  public OWLOntologyManager transform(TTDocumentJava document, TTManager dmanager, GraphVocab graph) throws OWLOntologyCreationException {
 
     ttManager = dmanager;
     //if the dmanager is null create it
@@ -77,22 +77,22 @@ public class TTToOWLEL {
     manager.setOntologyFormat(ontology, ontologyFormat);
   }
 
-  private void processEntities(List<TTEntity> entities) {
+  private void processEntities(List<TTEntityJava> entities) {
     if (entities == null || entities.isEmpty())
       return;
     int classno = 0;
 
-    for (TTEntity entity : entities) {
+    for (TTEntityJava entity : entities) {
       classno = classno + 1;
       IRI iri = getIri(entity.getIri());
       addDeclaration(entity);
-      Map<TTIriRef, TTArray> predicates = entity.getPredicateMap();
+      Map<TTIriRef, TTArrayJava> predicates = entity.getPredicateMap();
       processEntityPredicates(entity, predicates, iri);
     }
   }
 
-  private void processEntityPredicates(TTEntity entity, Map<TTIriRef, TTArray> predicates, IRI iri) {
-    for (Map.Entry<TTIriRef, TTArray> entry : predicates.entrySet()) {
+  private void processEntityPredicates(TTEntityJava entity, Map<TTIriRef, TTArrayJava> predicates, IRI iri) {
+    for (Map.Entry<TTIriRef, TTArrayJava> entry : predicates.entrySet()) {
       if (entry.getKey().equals(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfsVocab.SUBCLASS_OF))) {
         if (!entity.isType(TTIriRefExtensionsKt.iri(new TTIriRef(), RdfVocab.PROPERTY)))
           addSubClassOf(iri, entry.getValue());
@@ -114,7 +114,7 @@ public class TTToOWLEL {
     }
   }
 
-  private void addEquivalentClasses(IRI iri, TTArray eqClasses) {
+  private void addEquivalentClasses(IRI iri, TTArrayJava eqClasses) {
 
     for (TTValue exp : eqClasses.iterator()) {
       if (exp.isIriRef() || exp.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.WITH_RESTRICTIONS)) == null) {
@@ -127,7 +127,7 @@ public class TTToOWLEL {
     }
   }
 
-  private void addSubPropertyOf(IRI iri, TTIriRef propertyType, TTArray superClasses) {
+  private void addSubPropertyOf(IRI iri, TTIriRef propertyType, TTArrayJava superClasses) {
     for (TTValue exp : superClasses.iterator()) {
       if (propertyType.equals(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.OBJECT_PROPERTY))) {
         OWLSubObjectPropertyOfAxiom subAx = dataFactory
@@ -146,7 +146,7 @@ public class TTToOWLEL {
     }
   }
 
-  private void addSubClassOf(IRI iri, TTArray superClasses) {
+  private void addSubClassOf(IRI iri, TTArrayJava superClasses) {
     for (TTValue exp : superClasses.iterator()) {
       OWLSubClassOfAxiom subAx;
       subAx = dataFactory.getOWLSubClassOfAxiom(
@@ -159,7 +159,7 @@ public class TTToOWLEL {
 
   private OWLClassExpression getOPERestrictionAsOWlClassExpression(TTValue cex) {
     OWLObjectPropertyExpression owlOpe;
-    TTNode exp = cex.asNode();
+    TTNodeJava exp = cex.asNode();
     if (exp.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)) != null) {
       IRI prop = getIri(exp.get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.ON_PROPERTY)).asIriRef());
       owlOpe = dataFactory.getOWLObjectProperty(prop);
@@ -271,7 +271,7 @@ public class TTToOWLEL {
           cex.asNode().get(TTIriRefExtensionsKt.iri(new TTIriRef(), OwlVocab.COMPLEMENT_OF)).asValue()));
   }
 
-  private OWLClassExpression getOneOfAsOWLClassExpression(TTArray cex) {
+  private OWLClassExpression getOneOfAsOWLClassExpression(TTArrayJava cex) {
     Set<OWLNamedIndividual> indiList = new HashSet<>();
     for (TTValue oneOf : cex.iterator()) {
       indiList.add(dataFactory.getOWLNamedIndividual(getIri(oneOf.asIriRef())));
@@ -279,7 +279,7 @@ public class TTToOWLEL {
     return dataFactory.getOWLObjectOneOf(indiList);
   }
 
-  private void addDeclaration(TTEntity ttEntity) {
+  private void addDeclaration(TTEntityJava ttEntity) {
 
     IRI iri = getIri(ttEntity.getIri());
     OWLEntity entity;

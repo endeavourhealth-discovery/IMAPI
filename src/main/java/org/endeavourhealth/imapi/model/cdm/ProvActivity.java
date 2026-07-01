@@ -2,7 +2,10 @@ package org.endeavourhealth.imapi.model.cdm;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArrayJava;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteralJava;
+import org.endeavourhealth.imapi.model.tripletree.TTUtil;
+import org.endeavourhealth.imapi.model.tripletree.TTValueJava;
 import org.endeavourhealth.imapi.utility.EnumUtils;
 
 import java.util.List;
@@ -53,7 +56,7 @@ public class ProvActivity extends Entry {
   }
 
   public ProvActivity setEffectiveDate(String effectiveDate) {
-    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EFFECTIVE_DATE), TTLiteral.literal(effectiveDate));
+    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.EFFECTIVE_DATE), TTLiteralJava.literal(effectiveDate));
     return this;
   }
 
@@ -62,7 +65,7 @@ public class ProvActivity extends Entry {
   }
 
   public ProvActivity setStartTime(String startTime) {
-    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.START_TIME), TTLiteral.literal(startTime));
+    set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.START_TIME), TTLiteralJava.literal(startTime));
     return this;
   }
 
@@ -70,12 +73,12 @@ public class ProvActivity extends Entry {
     return TTUtil.getIriList(this, EnumUtils.asIri(ImVocab.PROVENANCE_AGENT));
   }
 
-  public ProvActivity setAgent(TTArray agent) {
+  public ProvActivity setAgent(TTArrayJava agent) {
     set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_AGENT), agent);
     return this;
   }
 
-  public ProvActivity addAgent(TTValue agent) {
+  public ProvActivity addAgent(TTValueJava agent) {
     TTUtil.add(this, TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_AGENT), agent);
     return this;
   }
@@ -84,7 +87,7 @@ public class ProvActivity extends Entry {
     return TTUtil.getIriList(this, EnumUtils.asIri(ImVocab.PROVENANCE_USED));
   }
 
-  public ProvActivity setUsed(TTArray used) {
+  public ProvActivity setUsed(TTArrayJava used) {
     set(TTIriRefExtensionsKt.iri(new TTIriRef(), ImVocab.PROVENANCE_USED), used);
     return this;
   }

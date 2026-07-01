@@ -3,11 +3,12 @@ package org.endeavourhealth.imapi.queryengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.model.imq.*;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.interfacemanager.model.Compare;
-import org.endeavourhealth.interfacemanager.model.Match;
-import org.endeavourhealth.interfacemanager.model.Node;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.Value;
+import org.endeavourhealth.imapi.model.imq.ValueSource;
+import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.tripletree.TTEntityJava;
+import org.endeavourhealth.interfacemanager.model.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +18,7 @@ public class QuerySummariser {
   private final EntityRepository repo = new EntityRepository();
   private final Map<String, String> nodeRefToLabel = new HashMap<>();
   @Getter
-  private Map<String, TTEntity> iriContext;
+  private Map<String, TTEntityJava> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
   private StringBuilder summary = new StringBuilder();
   private int level;

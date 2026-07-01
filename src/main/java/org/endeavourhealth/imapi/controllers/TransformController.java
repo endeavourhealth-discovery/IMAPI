@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.TransformService;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTDocumentJava;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -30,7 +30,7 @@ public class TransformController {
     summary = "Run transform of eqd to imq",
     description = "Runs a transform from an xml eqd query document to a set of target objects"
   )
-  public TTDocument transformEqd(
+  public TTDocumentJava transformEqd(
     HttpServletRequest request,
     @RequestBody EnquiryDocument eqd
   ) throws Exception {

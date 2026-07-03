@@ -1,15 +1,15 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.library.vocabulary.*;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.requests.QueryRequest;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.transforms.TTManager;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TestQueries {
   public static QueryRequest pathQuery() {

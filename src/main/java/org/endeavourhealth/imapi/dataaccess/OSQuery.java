@@ -8,20 +8,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.library.logic.CachedObjectMapper;
-import org.endeavourhealth.library.model.iml.Page;
-import org.endeavourhealth.library.model.imq.Query;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.imq.Return;
-import org.endeavourhealth.library.model.imq.TextSearchStyle;
-import org.endeavourhealth.library.model.requests.QueryRequest;
-import org.endeavourhealth.library.model.responses.SearchResponse;
-import org.endeavourhealth.library.model.search.SearchResultSummary;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.RDF;
-import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.imapi.model.iml.Page;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.TextSearchStyle;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Slf4j
 public class OSQuery {

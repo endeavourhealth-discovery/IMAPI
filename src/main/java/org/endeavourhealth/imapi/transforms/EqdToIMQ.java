@@ -10,22 +10,22 @@ import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.library.model.imq.Match;
-import org.endeavourhealth.library.model.imq.Node;
-import org.endeavourhealth.library.model.imq.Query;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.tripletree.TTDocument;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTLiteral;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EqdToIMQ {
   protected static final Set<String> gmsPatients = new HashSet<>();

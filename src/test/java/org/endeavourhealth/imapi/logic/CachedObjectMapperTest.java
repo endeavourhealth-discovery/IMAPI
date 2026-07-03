@@ -6,8 +6,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.library.logic.CachedObjectMapper;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 class CachedObjectMapperTest {
 

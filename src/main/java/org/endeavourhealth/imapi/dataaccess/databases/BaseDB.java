@@ -14,7 +14,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
-import org.endeavourhealth.library.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 import java.io.File;
 import java.util.StringJoiner;

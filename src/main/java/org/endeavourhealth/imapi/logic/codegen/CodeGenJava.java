@@ -9,8 +9,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -20,7 +20,7 @@ import java.util.Queue;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @Slf4j
 public class CodeGenJava {
@@ -173,7 +173,7 @@ public class CodeGenJava {
       os.write("""
         package org.endeavourhealth.imapi.logic.codegen;
         
-        import org.endeavourhealth.library.model.tripletree.TTIriRef;
+        import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
         
         import java.util.UUID;
         

@@ -7,14 +7,14 @@ import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.transformengine.Transformer;
 import org.endeavourhealth.imapi.transforms.EqdToIMQ;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.requests.TransformRequest;
-import org.endeavourhealth.library.model.tripletree.TTDocument;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.model.tripletree.TTValue;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.requests.TransformRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.util.ResourceUtils;
 
@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 @PropertySource("classpath:eqdmap.properties")
 public class TransformService {

@@ -5,10 +5,10 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
 import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.net.MalformedURLException;
 import java.net.URI;

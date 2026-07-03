@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class IriCollector {
     if (prop.getFunction() != null) {
       collectFunctionIris(prop.getFunction(), iriSet);
     }
-    if (prop.getSemanticMap()!=null){
+    if (prop.getSemanticMap() != null) {
       iriSet.add(prop.getSemanticMap().getIri());
     }
   }

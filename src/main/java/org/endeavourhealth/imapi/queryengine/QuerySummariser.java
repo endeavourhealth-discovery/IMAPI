@@ -3,8 +3,8 @@ package org.endeavourhealth.imapi.queryengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
 import java.util.HashMap;
 import java.util.List;

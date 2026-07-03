@@ -5,11 +5,11 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.RDFS;
-import org.endeavourhealth.library.vocabulary.XSD;
-import org.endeavourhealth.library.model.iml.*;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.*;
 

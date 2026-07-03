@@ -13,9 +13,9 @@ import org.endeavourhealth.imapi.model.uprn.UploadStatus
 import org.endeavourhealth.imapi.model.uprn.UprnException
 import org.endeavourhealth.imapi.model.uprn.UprnSearchResponse
 import org.endeavourhealth.imapi.utility.MetricsHelper
-import org.endeavourhealth.library.model.security.Permission
-import org.endeavourhealth.library.model.security.Resource
-import org.endeavourhealth.library.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Resource
+import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

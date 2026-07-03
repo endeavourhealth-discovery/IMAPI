@@ -2,9 +2,9 @@ package org.endeavourhealth.imapi.transforms
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository
 import org.endeavourhealth.imapi.logic.service.QueryService
-import org.endeavourhealth.library.vocabulary.IM
-import org.endeavourhealth.library.model.imq.Query
-import org.endeavourhealth.library.model.requests.QueryRequest
+import org.endeavourhealth.imapi.vocabulary.IM
+import org.endeavourhealth.imapi.model.imq.Query
+import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test

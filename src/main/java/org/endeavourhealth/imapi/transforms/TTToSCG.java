@@ -1,14 +1,14 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.library.model.tripletree.*;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.RDF;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.zip.DataFormatException;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class TTToSCG {
   private static final TTIriRef[] corePredicates = {iri(RDF.TYPE), iri(IM.IS_A), iri(IM.HAS_SCHEME), iri(IM.IS_CONTAINED_IN),

@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.endeavourhealth.library.logic.CachedObjectMapper;
-import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

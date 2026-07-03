@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.IntervalSet;
-import org.endeavourhealth.library.model.imq.ECLStatus;
+import org.endeavourhealth.imapi.model.imq.ECLStatus;
 
 
 public class ParserErrorListener extends BaseErrorListener {

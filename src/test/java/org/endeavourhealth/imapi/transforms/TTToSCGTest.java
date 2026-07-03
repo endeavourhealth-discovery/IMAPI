@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.transforms.TTManager;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.transforms.TTManager;
 import org.junit.jupiter.api.Test;
 
 import java.util.zip.DataFormatException;

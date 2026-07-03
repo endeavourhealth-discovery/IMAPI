@@ -9,17 +9,18 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
-import org.endeavourhealth.library.model.EntityReferenceNode;
-import org.endeavourhealth.library.model.Pageable;
-import org.endeavourhealth.library.model.dto.ParentDto;
-import org.endeavourhealth.library.model.iml.Entity;
-import org.endeavourhealth.library.model.search.EntityDocument;
-import org.endeavourhealth.library.model.search.SearchResultSummary;
-import org.endeavourhealth.library.model.search.SearchTermCode;
-import org.endeavourhealth.library.model.sql.SubQueryDependency;
-import org.endeavourhealth.library.model.tripletree.*;
-import org.endeavourhealth.library.transforms.TTManager;
-import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Namespace;
+import org.endeavourhealth.imapi.model.Pageable;
+import org.endeavourhealth.imapi.model.dto.ParentDto;
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.search.EntityDocument;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +29,7 @@ import static org.eclipse.rdf4j.model.util.Values.iri;
 import static org.eclipse.rdf4j.model.util.Values.literal;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString;
 import static org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asArrayList;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
@@ -138,7 +139,7 @@ public class EntityRepository {
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
       select ?entity ?type ?predicate ?object ?predicate2 ?object2
-   
+      
       where {
       values ?predicate {%s}
       ?entity rdf:type ?type.
@@ -156,27 +157,27 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("type", iri(type));
-      Map<String,TTNode> blankNodes = new HashMap<>();
+      Map<String, TTNode> blankNodes = new HashMap<>();
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
           entities.putIfAbsent(iri, new TTEntity().setIri(iri));
           TTEntity entity = entities.get(iri);
-          entity.addObject((TTIriRef) iri(RDF.TYPE.toString()),TTIriRef.iri(bs.getValue("type").stringValue()));
+          entity.addObject((TTIriRef) iri(RDF.TYPE.toString()), TTIriRef.iri(bs.getValue("type").stringValue()));
           Value object = bs.getValue("object");
           if (object.isIRI()) {
             entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), TTIriRef.iri(object.stringValue()));
           } else if (object.isBNode()) {
             TTNode node = blankNodes.get(object.stringValue());
             if (node == null) {
-              node= new TTNode();
+              node = new TTNode();
               blankNodes.put(object.stringValue(), new TTNode());
               entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), node);
             }
             Value object2 = bs.getValue("object2");
             if (object2.isIRI()) {
-                node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
+              node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
             } else
               node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
           } else {
@@ -1676,8 +1677,8 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public List<org.endeavourhealth.library.model.Namespace> findNamespaces() {
-    List<org.endeavourhealth.library.model.Namespace> result = new ArrayList<>();
+  public List<Namespace> findNamespaces() {
+    List<Namespace> result = new ArrayList<>();
 
     String sql = """
        select *
@@ -1694,7 +1695,7 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          org.endeavourhealth.library.model.Namespace namespace = new org.endeavourhealth.library.model.Namespace()
+          Namespace namespace = new Namespace()
             .setIri(iri)
             .setName(bs.getValue("name").stringValue())
             .setPrefix(getPrefixFromIri(iri));
@@ -1977,9 +1978,9 @@ public class EntityRepository {
     return results;
   }
 
-  public Set<String> getIsAs(String iri){
+  public Set<String> getIsAs(String iri) {
     Set<String> result = new HashSet<>();
-    String sql= """
+    String sql = """
       select ?entity
       where {
        ?entity im:isA <%s> .

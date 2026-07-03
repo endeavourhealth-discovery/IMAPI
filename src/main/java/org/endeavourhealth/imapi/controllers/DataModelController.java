@@ -10,9 +10,9 @@ import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
-import org.endeavourhealth.library.model.iml.NodeShape;
-import org.endeavourhealth.library.model.iml.UIProperty;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.UIProperty;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 

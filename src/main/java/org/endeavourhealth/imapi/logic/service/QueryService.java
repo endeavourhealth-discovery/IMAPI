@@ -6,28 +6,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.model.iml.Indicator;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
+import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.library.errorhandling.SQLConversionException;
-import org.endeavourhealth.library.model.iml.Indicator;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.requests.QueryRequest;
-import org.endeavourhealth.library.model.sql.SubQueryDependency;
-import org.endeavourhealth.library.model.tripletree.TTBundle;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.model.tripletree.TTValue;
-import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asArray;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 @Slf4j
@@ -299,28 +299,27 @@ public class QueryService {
   public Set<TTEntity> getSemanticMapsForDataset(Match match) {
     Set<String> sourceIris = new HashSet<>();
     if (match.getWhere() != null) {
-       collectSourcesFromWhere(match.getWhere(), sourceIris);
+      collectSourcesFromWhere(match.getWhere(), sourceIris);
     }
-    if (match.getThen() != null &&match.getThen().getWhere() != null) {
+    if (match.getThen() != null && match.getThen().getWhere() != null) {
       collectSourcesFromWhere(match.getThen().getWhere(), sourceIris);
     }
     if (!sourceIris.isEmpty()) {
       return new QueryRepository().getSemanticMapsForSourceEntities(sourceIris);
-    }
-    else return new QueryRepository().getSemanticMapsForSourceType(match.getTypeOf().getIri());
+    } else return new QueryRepository().getSemanticMapsForSourceType(match.getTypeOf().getIri());
   }
 
 
   private void collectSourcesFromWhere(Where where, Set<String> sourceIris) {
-    if (where.getIs()!=null){
-      for (Node is:where.getIs()){
+    if (where.getIs() != null) {
+      for (Node is : where.getIs()) {
         sourceIris.add(is.getIri());
       }
     }
-    for (List<Where> whereList:Arrays.asList(where.getAnd(),where.getOr())){
-      if (whereList!=null){
-        for (Where subWhere:whereList){
-          collectSourcesFromWhere(subWhere,sourceIris);
+    for (List<Where> whereList : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (whereList != null) {
+        for (Where subWhere : whereList) {
+          collectSourcesFromWhere(subWhere, sourceIris);
         }
       }
     }

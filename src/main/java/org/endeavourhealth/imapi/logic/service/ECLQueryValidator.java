@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.*;
 
 import java.util.*;
 

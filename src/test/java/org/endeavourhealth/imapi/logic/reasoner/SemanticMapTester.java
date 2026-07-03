@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.library.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.junit.jupiter.api.Test;
 
 public class SemanticMapTester {

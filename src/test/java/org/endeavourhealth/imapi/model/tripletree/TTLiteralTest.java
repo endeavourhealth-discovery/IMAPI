@@ -5,17 +5,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.library.vocabulary.GRAPH;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.RDFS;
-import org.endeavourhealth.library.vocabulary.XSD;
-import org.endeavourhealth.library.model.search.SearchTermCode;
-import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.XSD;
 import org.junit.jupiter.api.Test;
 
 import java.util.StringJoiner;
 
-import static org.endeavourhealth.library.model.tripletree.TTLiteral.literal;
+import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TTLiteralTest {

@@ -1,10 +1,10 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class IndicatorGenerator {
 

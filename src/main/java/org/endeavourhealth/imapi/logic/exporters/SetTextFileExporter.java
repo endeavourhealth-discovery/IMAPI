@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException;
-import org.endeavourhealth.library.model.iml.Concept;
+import org.endeavourhealth.imapi.model.iml.Concept;
 import org.springframework.http.HttpStatus;
 
 import java.io.ByteArrayOutputStream;

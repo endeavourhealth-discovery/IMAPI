@@ -1,7 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 import lombok.Getter;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
 @Getter
 public class ValidatedEntity extends TTEntity {

@@ -3,12 +3,12 @@ package org.endeavourhealth.imapi.transforms;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.logic.service.EclService;
-import org.endeavourhealth.library.vocabulary.GRAPH;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.model.imq.ECLQueryRequest;
-import org.endeavourhealth.library.model.imq.Query;
-import org.endeavourhealth.library.model.imq.QueryException;
-import org.endeavourhealth.library.model.responses.SearchResponse;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.responses.SearchResponse;
 
 public class ComplexECLTest {
   //@Test

@@ -2,20 +2,20 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.vocabulary.SHACL;
-import org.endeavourhealth.library.vocabulary.VALIDATION;
-import org.endeavourhealth.library.model.requests.EntityValidationRequest;
-import org.endeavourhealth.library.model.responses.EntityValidationResponse;
-import org.endeavourhealth.library.model.tripletree.TTArray;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.VALIDATION;
+import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
+import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class EntityValidatorTest {
   final EntityValidator entityValidator = new EntityValidator();

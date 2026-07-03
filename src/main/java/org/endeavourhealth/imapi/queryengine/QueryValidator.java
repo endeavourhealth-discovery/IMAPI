@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.queryengine;
 
-import org.endeavourhealth.library.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.*;
 
 import java.util.*;
 import java.util.stream.Collectors;

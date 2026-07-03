@@ -3,11 +3,11 @@ package org.endeavourhealth.imapi.model.map;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.library.model.iml.ListMode;
-import org.endeavourhealth.library.model.iml.MapFunction;
-import org.endeavourhealth.library.model.iml.TargetUpdateMode;
-import org.endeavourhealth.library.model.imq.Match;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.iml.ListMode;
+import org.endeavourhealth.imapi.model.iml.MapFunction;
+import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
+import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;

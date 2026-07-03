@@ -3,13 +3,13 @@ package org.endeavourhealth.imapi.dataaccess.helpers;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.endeavourhealth.library.model.DataModelProperty;
-import org.endeavourhealth.library.model.EntityReferenceNode;
-import org.endeavourhealth.library.model.search.SearchTermCode;
-import org.endeavourhealth.library.model.set.ExportSet;
-import org.endeavourhealth.library.model.set.MemberType;
-import org.endeavourhealth.library.model.set.SetMember;
-import org.endeavourhealth.library.model.tripletree.*;
+import org.endeavourhealth.imapi.model.DataModelProperty;
+import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.set.ExportSet;
+import org.endeavourhealth.imapi.model.set.MemberType;
+import org.endeavourhealth.imapi.model.set.SetMember;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public class XlsHelper {
   private final Workbook workbook;

@@ -7,15 +7,15 @@ import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.Context;
 import org.endeavourhealth.imapi.utility.Pluraliser;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.vocabulary.IM;
-import org.endeavourhealth.library.vocabulary.NAMESPACE;
-import org.endeavourhealth.library.vocabulary.RDF;
-import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -23,8 +23,8 @@ import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
   private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
@@ -149,7 +149,7 @@ public class QueryDescriptor {
         describeWhere(when, null);
       }
     }
-    if (prop.getSemanticMap()!=null &&prop.getSemanticMap().getIri()!=null){
+    if (prop.getSemanticMap() != null && prop.getSemanticMap().getIri() != null) {
       prop.getSemanticMap().setName(getTermInContext(prop.getSemanticMap().getIri(), Context.SINGLE));
     }
   }

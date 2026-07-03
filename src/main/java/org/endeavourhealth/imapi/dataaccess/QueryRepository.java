@@ -13,20 +13,20 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.logic.reasoner.TextMatcher;
+import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
-import org.endeavourhealth.library.model.imq.*;
-import org.endeavourhealth.library.model.requests.QueryRequest;
-import org.endeavourhealth.library.model.tripletree.TTArray;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.model.tripletree.TTValue;
-import org.endeavourhealth.library.vocabulary.*;
+import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 
 /**
@@ -474,7 +474,7 @@ public class QueryRepository {
       ?mapEntry rdfs:label ?mapEntryName.
       }
       
-      """.formatted("<"+sourceType+">");
+      """.formatted("<" + sourceType + ">");
     Set<TTEntity> semanticMaps = new HashSet<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);

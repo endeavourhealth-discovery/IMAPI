@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import org.endeavourhealth.library.errorhandling.SQLConversionException
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
 data class Table(
   var dataModels: List<String>? = ArrayList(),

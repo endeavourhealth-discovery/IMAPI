@@ -1,6 +1,6 @@
 package org.endeavourhealth.imapi.model.sql
 
-import org.endeavourhealth.library.model.imq.Bool
+import org.endeavourhealth.imapi.model.imq.Bool
 
 data class MySQLWith(
   var table: Table = Table(),

@@ -1,19 +1,19 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import org.endeavourhealth.library.model.dto.GraphDto;
-import org.endeavourhealth.library.model.tripletree.TTArray;
-import org.endeavourhealth.library.model.tripletree.TTEntity;
-import org.endeavourhealth.library.model.tripletree.TTIriRef;
-import org.endeavourhealth.library.vocabulary.OWL;
-import org.endeavourhealth.library.vocabulary.RDFS;
+import org.endeavourhealth.imapi.model.dto.GraphDto;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.OWL;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.endeavourhealth.library.model.tripletree.TTIriRef.iri;
-import static org.endeavourhealth.library.vocabulary.VocabUtils.asHashSet;
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 @Component
 public class GraphDtoService {

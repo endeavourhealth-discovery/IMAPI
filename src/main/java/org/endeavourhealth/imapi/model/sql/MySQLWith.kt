@@ -36,7 +36,7 @@ data class MySQLWith(
 
     return buildString {
       appendLine(
-        "SELECT $selectSql"
+        "SELECT DISTINCT $selectSql"
       )
       if (subQuery != null) {
         appendLine("FROM (")

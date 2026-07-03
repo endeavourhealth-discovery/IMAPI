@@ -7,6 +7,7 @@ import org.endeavourhealth.library.errorhandling.SQLConversionException
 import org.endeavourhealth.library.model.imq.*
 import org.endeavourhealth.library.model.requests.QueryRequest
 import org.endeavourhealth.library.vocabulary.IM
+import org.endeavourhealth.library.vocabulary.NAMESPACE
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
@@ -109,6 +110,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
         injectOrgReturnAndFilter(newMySqlQuery)
+        injectPatientFilter(mySqlQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
@@ -122,6 +124,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
       }
       injectOrgReturnAndFilter(mySqlQuery)
+      injectPatientFilter(mySqlQuery)
       return mySqlQuery.toSql()
     }
   }
@@ -382,6 +385,43 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
 
     return join
+  }
+
+  private fun injectPatientFilter(mySqlQuery: MySQLQuery) {
+    val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
+    val found = mySqlQuery.joins.find { it.tableTo == "patient" }
+    if (found != null) {
+      getPatientFilterWhere(patientTable)?.let { found.wheres.add(it) }
+    } else {
+      val lastCTE = mySqlQuery.withs.last { !it.exclude }
+      val (fk, pk) = if (lastCTE.table.table == patientTable.table)
+        patientTable.primaryKey to patientTable.primaryKey
+      else lastCTE.table.foreignKeyTo(patientTable)
+
+      val orgJoin = MySQLJoin(
+        join = "JOIN",
+        tableFrom = lastCTE.alias,
+        tableTo = patientTable.table,
+        fromProperty = fk,
+        toProperty = patientTable.primaryKey,
+        reference = true,
+      )
+      getPatientFilterWhere(patientTable)?.let { orgJoin.wheres.add(it) }
+      mySqlQuery.joins.add(orgJoin)
+    }
+  }
+
+  private fun getPatientFilterWhere(table: Table): MySQLWhere? {
+    val patientIds = queryRequest.getArgumentDataList("\$patientId")
+    if (!patientIds.isNullOrEmpty()) {
+      return MySQLPropertyValueWhere(
+        property = table.primaryKey,
+        operator = if (patientIds.size == 1) "=" else "IN",
+        value = patientIds.joinToString(prefix = "(", separator = ",", postfix = ")"),
+        table = table.table,
+      )
+    }
+    return null
   }
 
   private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {

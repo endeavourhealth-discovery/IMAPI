@@ -109,5 +109,5 @@ spring-test = { module = "org.springframework.boot:spring-boot-starter-test", ve
 spring-test-security = { module = "org.springframework.security:spring-security-test", version.ref = "springTestSecurity" }
 
 [plugins]
-static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.5-SNAPSHOT" }
+static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.6-SNAPSHOT" }
 sonar = { id = "org.sonarqube", version = "6.2.0.5505" }

@@ -1167,19 +1167,24 @@ public class EntityRepository {
       iri(stringIri);
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren
+      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren  ?description ?status ?statusname
       WHERE {
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
         ?typeIri rdfs:label ?typeName.
         %s
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
       """.formatted(valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
     if (parentContext != null) {
       sql.add("""
@@ -1210,7 +1215,11 @@ public class EntityRepository {
           else if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
-
+          if (bs.hasBinding("description"))
+            refNode.setDescription(bs.getValue("description").stringValue());
+          if (bs.hasBinding("status")) {
+            refNode.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
         }
       }
     }
@@ -1276,11 +1285,12 @@ public class EntityRepository {
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname
       WHERE {
         %s
         ?s im:scheme ?scheme ;
            rdfs:label ?name .
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
         OPTIONAL { ?s rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
@@ -1290,7 +1300,11 @@ public class EntityRepository {
       """.formatted(valueList("scheme", schemeIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
 
     sql.add("}");
@@ -1309,6 +1323,13 @@ public class EntityRepository {
 
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
             types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+
+          if (bs.getValue("description") != null)
+            result.setDescription(bs.getValue("description").stringValue());
+
+          if (bs.hasBinding("status")) {
+            result.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
 
           while (rs.hasNext()) {
             bs = rs.next();

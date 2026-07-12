@@ -230,6 +230,10 @@
         "value": "NAMESPACE.IM + \"SemanticMap\""
       },
       {
+        "name": "HAS_MAP_RULE",
+        "value": "NAMESPACE.IM + \"mapRule\""
+      },
+      {
         "name": "HAS_SEMANTIC_MAP",
         "value": "NAMESPACE.IM + \"semanticMap\""
       },

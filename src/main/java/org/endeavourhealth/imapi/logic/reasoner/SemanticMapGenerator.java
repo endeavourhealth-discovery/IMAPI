@@ -8,10 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -26,20 +23,21 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class SemanticMapGenerator {
   private final EntityRepository entityRepository = new EntityRepository();
   private final QueryRepository queryRepository = new QueryRepository();
-  private final SetRepository setRepo = new SetRepository();
+  private final SetRepository setRepository = new SetRepository();
 
   public void generateAllSemanticMaps(GRAPH insertGraph) throws TTFilerException, JsonProcessingException, QueryException {
 
     log.info("Getting semanticMaps ...");
     Map<String, TTEntity> iriToMember = new HashMap<>();
-    Map<String, Map<String, String>> mapEntries = queryRepository.getSemanticMaps();
+    Map<String, Set<Map<String, String>>> mapEntryToSource = queryRepository.getSemanticMaps();
     try (TTManager manager = new TTManager()) {
       TTDocument document = manager.createDocument();
-      for (String mapIri : mapEntries.keySet()) {
-        Map<String, String> mapEntry = mapEntries.get(mapIri);
-        for (String sourceEntityIri : mapEntry.keySet()) {
-          String sourceType = mapEntry.get(sourceEntityIri);
-          addSemanticMap(mapIri, sourceEntityIri, sourceType, document, iriToMember);
+      for (String mapIri : mapEntryToSource.keySet()) {
+        for (Map<String, String> sourceEntity : mapEntryToSource.get(mapIri)) {
+          for (String sourceEntityIri : sourceEntity.keySet()) {
+            String sourceType = sourceEntity.get(sourceEntityIri);
+            addSemanticMap(mapIri, sourceEntityIri, sourceType, document, iriToMember);
+          }
         }
       }
       if (document.getEntities() != null) {
@@ -84,37 +82,44 @@ public class SemanticMapGenerator {
   }
 
   private void addSemanticMap(String mapEntryIri, String sourceIri, String sourceType, TTDocument document, Map<String, TTEntity> iriToMember) {
+    TTEntity sourceEntity = entityRepository.getEntityPredicates(sourceIri, Set.of(RDF.TYPE.toString(), IM.HAS_MEMBER.toString())).getEntity();
     if (sourceType.equals(IM.CONCEPT_SET.toString())) {
-      TTEntity sourceEntity = entityRepository.getEntityPredicates(sourceIri, Set.of(RDF.TYPE.toString(), IM.HAS_MEMBER.toString())).getEntity();
+      addSetMaps(sourceEntity, mapEntryIri, sourceIri, document, iriToMember);
+    }
+    else if (sourceEntity.isType(IM.CONCEPT.asIri())) {
+        Set<String> isas= entityRepository.getIsAs(sourceEntity.getIri());
+        for (String isa : isas) {
+          TTEntity subEntity = new TTEntity()
+            .setIri(isa)
+            .setCrud(iri(IM.ADD_QUADS));
+          document.addEntity(subEntity);
+          subEntity.addObject(iri(IM.HAS_SEMANTIC_MAP), iri(mapEntryIri));
+        }
+      }
+  }
+
+
+
+  private void addSetMaps(TTEntity sourceEntity, String mapEntryIri, String sourceIri, TTDocument document, Map<String, TTEntity> iriToMember) {
+    if (sourceEntity.get(IM.HAS_MEMBER) !=null) {
       for (TTValue member : sourceEntity.get(IM.HAS_MEMBER).getElements()) {
         TTEntity memberEntity = iriToMember.get(member.asIriRef().getIri());
         if (memberEntity == null) {
           memberEntity = new TTEntity();
           iriToMember.put(member.asIriRef().getIri(), memberEntity);
           memberEntity.setIri(member.asIriRef().getIri());
-          memberEntity.setCrud(iri(IM.UPDATE_PREDICATES));
+          memberEntity.setCrud(iri(IM.ADD_QUADS));
           document.addEntity(memberEntity);
         }
         memberEntity.addObject(iri(IM.HAS_SEMANTIC_MAP), iri(mapEntryIri));
       }
-    } else {
-      Set<String> subTypes = entityRepository.getIsAs(sourceIri);
-      for (String subType : subTypes) {
-        TTEntity subEntity = iriToMember.get(subType);
-        if (subEntity == null) {
-          subEntity = new TTEntity();
-          iriToMember.put(subType, subEntity);
-          subEntity.setIri(subType);
-          subEntity.setCrud(iri(IM.UPDATE_PREDICATES));
-          document.addEntity(subEntity);
-        }
-        subEntity.addObject(iri(IM.HAS_SEMANTIC_MAP), iri(mapEntryIri));
-
-      }
-
     }
-
-
+    else {
+      Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(sourceEntity.getIri());
+      for (TTIriRef subsetIri : subSetIris) {
+        TTEntity subsetEntity = entityRepository.getEntityPredicates(subsetIri.getIri(), Set.of(RDF.TYPE.toString(), IM.HAS_MEMBER.toString())).getEntity();
+        addSetMaps(subsetEntity, mapEntryIri, sourceIri, document, iriToMember);
+      }
+    }
   }
-
 }

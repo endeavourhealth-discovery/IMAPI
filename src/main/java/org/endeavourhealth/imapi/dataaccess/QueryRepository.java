@@ -390,8 +390,8 @@ public class QueryRepository {
     return properties;
   }
 
-  public Map<String, Map<String, String>> getSemanticMaps() {
-    Map<String, Map<String, String>> mapEntries = new HashMap<>();
+  public Map<String, Set<Map<String, String>>> getSemanticMaps() {
+    Map<String, Set<Map<String, String>>> mapEntryToSource = new HashMap<>();
     String sql = """
       Select ?mapEntry ?sourceEntity ?sourceType
       where {
@@ -409,11 +409,11 @@ public class QueryRepository {
           String mapEntryIri = bs.getValue("mapEntry").stringValue();
           String sourceEntityIri = bs.getValue("sourceEntity").stringValue();
           String sourceType = bs.getValue("sourceType").stringValue();
-          mapEntries.put(mapEntryIri, Map.of(sourceEntityIri, sourceType));
+          mapEntryToSource.computeIfAbsent(mapEntryIri,e-> new HashSet<>()).add(Map.of(sourceEntityIri, sourceType));
         }
       }
     }
-    return mapEntries;
+    return mapEntryToSource;
   }
 
   public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> sourceIris) {

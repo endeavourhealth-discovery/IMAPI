@@ -71,6 +71,15 @@ public class Where extends Element implements Assignable {
     super.setIri(iri);
   }
 
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Where setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+
   public static Where iri(String iri) {
     return new Where(iri);
   }

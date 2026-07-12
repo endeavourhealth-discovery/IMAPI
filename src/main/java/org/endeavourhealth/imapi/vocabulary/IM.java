@@ -53,6 +53,7 @@ public enum IM implements VocabEnum {
     UPDATE_PROCEDURE(NAMESPACE.IM + "updateProcedure"),
     CONCEPT(NAMESPACE.IM + "Concept"),
     SEMANTIC_MAP(NAMESPACE.IM + "SemanticMap"),
+    HAS_MAP_RULE(NAMESPACE.IM + "mapRule"),
     HAS_SEMANTIC_MAP(NAMESPACE.IM + "semanticMap"),
     CODEABLE(NAMESPACE.IM + "Codeable"),
     CONCEPT_PROPERTY(NAMESPACE.IM + "concept"),

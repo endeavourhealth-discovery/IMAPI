@@ -280,7 +280,13 @@
         "http://endhealth.info/im#ageAtEvent": {"field": "age_at_event", "type": "number"},
         "http://endhealth.info/im#problemEpisode": {"field": "episodicity_concept_id", "type": "iri"},
         "http://endhealth.info/im#text": {"field": "result_text", "type": "string"},
-        "http://endhealth.info/im#units": {"field": "result_value_units", "type": "string"},
+        "http://endhealth.info/im#units": {
+          "field": "result_value_units",
+          "type": "string",
+          "returnAs": {
+            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.result_value_units"
+          }
+        },
         "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"},
         "http://endhealth.info/im#id": {"field": "id", "type": "string"}
       },
@@ -351,7 +357,13 @@
         "http://endhealth.info/im#effectiveDate": {"field": "clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#dosage": {"field": "dose", "type": "string"},
         "http://endhealth.info/im#value": {"field": "quantity_value", "type": "number"},
-        "http://endhealth.info/im#units": {"field": "quantity_unit", "type": "string"},
+        "http://endhealth.info/im#units": {
+          "field": "quantity_unit",
+          "type": "string",
+          "returnAs": {
+            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.result_value_units"
+          }
+        },
         "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"},
         "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
       },
@@ -373,7 +385,13 @@
         "http://endhealth.info/im#effectiveDate": {"field": "clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#dosage": {"field": "dose", "type": "string"},
         "http://endhealth.info/im#value": {"field": "quantity_value", "type": "number"},
-        "http://endhealth.info/im#units": {"field": "quantity_unit", "type": "string"},
+        "http://endhealth.info/im#units": {
+          "field": "quantity_unit",
+          "type": "string",
+          "returnAs": {
+            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.result_value_units"
+          }
+        },
         "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"},
         "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
       },

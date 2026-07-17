@@ -514,8 +514,12 @@
         "value": "NAMESPACE.IM + \"sourceType\""
       },
       {
-        "name": "SOURCE_PROPERTY",
-        "value": "NAMESPACE.IM + \"sourceProperty\""
+        "name": "SOURCE_ENTITY_PROPERTY",
+        "value": "NAMESPACE.IM + \"sourceEntityProperty\""
+      },
+      {
+        "name": "SOURCE_VALUE_PROPERTY",
+        "value": "NAMESPACE.IM + \"sourceValueProperty\""
       },
       {
         "name": "RANGE_FROM",

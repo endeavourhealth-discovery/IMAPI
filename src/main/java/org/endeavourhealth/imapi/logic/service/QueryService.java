@@ -296,7 +296,7 @@ public class QueryService {
     return query;
   }
 
-  public Set<TTEntity> getSemanticMapsForDataset(Match match) {
+  public Set<TTEntity> getSemanticMapsForMatch(Match match) {
     Set<String> sourceIris = new HashSet<>();
     if (match.getWhere() != null) {
       collectSourcesFromWhere(match.getWhere(), sourceIris);

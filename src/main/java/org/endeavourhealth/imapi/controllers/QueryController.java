@@ -31,7 +31,6 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -203,19 +202,6 @@ public class QueryController {
   }
 
 
-  @PostMapping("/semanticMapsForDataset")
-  @Operation(
-    summary = "optimises logical boolean of query",
-    description = "Returns the query with boolean optimisation"
-  )
-  public Set<TTEntity> semanticMapsForDataset(
-    @RequestBody Match match) {
-
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForDataset(match);
-    }
-  }
 
   @PostMapping("/optimiseECLQuery")
   @Operation(
@@ -346,6 +332,20 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       log.debug("validateQuery");
       return queryService.validateQuery(query);
+    }
+  }
+
+  @PostMapping("/semanticMapsForMatch")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Set<TTEntity> semanticMapsForDataset(
+    @RequestBody Match match) {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("getSemanticMapsForSourceEntities");
+      return queryService.getSemanticMapsForMatch(match);
     }
   }
 }

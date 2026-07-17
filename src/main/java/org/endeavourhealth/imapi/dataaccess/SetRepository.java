@@ -7,6 +7,7 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -15,8 +16,10 @@ import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
@@ -882,6 +885,44 @@ public class SetRepository {
       }
     }
     return 0;
+  }
+
+  public void deleteSemanticMaps(GRAPH graph) {
+    try (IMDB conn = IMDB.getConnection()) {
+      String spq = """
+        DELETE { ?concept im:semanticMap ?map.}
+        WHERE {
+          ?concept im:semanticMap ?map.
+        }
+        """;
+      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(spq);
+      upd.execute();
+    }
+  }
+  public void updateSemanticMaps(Set<TTEntity> mappedConcepts, GRAPH graph) {
+    try (IMDB conn = IMDB.getConnection()) {
+      StringJoiner sj = new StringJoiner("\n");
+      sj.add("INSERT DATA {");
+      int batch = 0;
+
+      for(TTEntity concept:mappedConcepts) {
+        ++batch;
+        if (batch == 1000) {
+          sj.add("}");
+          this.sendUp(sj, conn, graph);
+          sj = new StringJoiner("\n");
+          sj.add("INSERT DATA {");
+          batch = 0;
+        }
+        for (TTValue mapEntry : concept.get(IM.HAS_SEMANTIC_MAP).getElements()) {
+          sj.add("<" + concept.getIri() + "> im:semanticMap <" + mapEntry.asIriRef().getIri() + ">.");
+        }
+      }
+
+      sj.add("}");
+      this.sendUp(sj, conn, graph);
+    }
+
   }
 }
 

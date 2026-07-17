@@ -390,15 +390,13 @@ public class QueryRepository {
     return properties;
   }
 
-  public Map<String, Set<Map<String, String>>> getSemanticMaps() {
-    Map<String, Set<Map<String, String>>> mapEntryToSource = new HashMap<>();
+  public Map<String, Set<String>> getSemanticMaps() {
+    Map<String, Set<String>> sourceToMap = new HashMap<>();
     String sql = """
-      Select ?mapEntry ?sourceEntity ?sourceType
+      Select ?mapEntry ?sourceEntity
       where {
-       ?map rdf:type im:SemanticMap.
-       ?map im:mapEntry ?mapEntry.
+       ?mapEntry rdf:type im:MapEntry.
        ?mapEntry im:sourceEntity ?sourceEntity.
-       ?sourceEntity rdf:type ?sourceType.
       }
       """;
     try (IMDB conn = IMDB.getConnection()) {
@@ -408,12 +406,11 @@ public class QueryRepository {
           BindingSet bs = rs.next();
           String mapEntryIri = bs.getValue("mapEntry").stringValue();
           String sourceEntityIri = bs.getValue("sourceEntity").stringValue();
-          String sourceType = bs.getValue("sourceType").stringValue();
-          mapEntryToSource.computeIfAbsent(mapEntryIri,e-> new HashSet<>()).add(Map.of(sourceEntityIri, sourceType));
+          sourceToMap.computeIfAbsent(sourceEntityIri,e-> new HashSet<>()).add(mapEntryIri);
         }
       }
     }
-    return mapEntryToSource;
+    return sourceToMap;
   }
 
   public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> sourceIris) {

@@ -220,15 +220,26 @@ public class LogicOptimizer {
   private static Where rewriteNegativeIntervalWhere(Where where) {
     if (where.getAnd() != null)
       where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
     if (where.getOr() != null)
       where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
+    if (where.getRange() != null) {
+      if (where.getRange().getFrom() != null)
+        where.getRange().setFrom(rewriteNegativeIntervalValue(where.getRange().getFrom()));
+
+      if (where.getRange().getTo() != null)
+        where.getRange().setTo(rewriteNegativeIntervalValue(where.getRange().getTo()));
+
+      return where;
+    }
 
     if (where.getCompare() == null) return where;
     if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
     if (where.getCompare().getUnits() == null) return where;
 
     Compare compare = where.getCompare();
-    String positiveValue = where.getValue().startsWith("-") ? where.getValue().substring(1) : where.getValue();
+    String positiveValue = where.getValue().substring(1);
 
     boolean leftIsSearchDate = compare.getLeft() != null
       && "$searchDate".equals(compare.getLeft().getParameter());
@@ -243,12 +254,39 @@ public class LogicOptimizer {
       where.setCompare(swapped);
       where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
       where.setValue(positiveValue);
-
     } else if (rightIsSearchDate) {
       where.setValue(positiveValue);
     }
 
     return where;
+  }
+
+  private static Value rewriteNegativeIntervalValue(Value value) {
+    if (value.getCompare() == null) return value;
+    if (value.getValue() == null || !value.getValue().startsWith("-")) return value;
+    if (value.getCompare().getUnits() == null) return value;
+
+    Compare compare = value.getCompare();
+    String positiveValue = value.getValue().substring(1);
+
+    boolean leftIsSearchDate = compare.getLeft() != null
+      && "$searchDate".equals(compare.getLeft().getParameter());
+    boolean rightIsSearchDate = compare.getRight() != null
+      && "$searchDate".equals(compare.getRight().getParameter());
+
+    if (leftIsSearchDate) {
+      Compare swapped = new Compare();
+      swapped.setLeft(compare.getRight());
+      swapped.setRight(compare.getLeft());
+      swapped.setUnits(compare.getUnits());
+      value.setCompare(swapped);
+      value.setOperator(invertComparisonOperator(value.getOperator().getValue()));
+      value.setValue(positiveValue);
+    } else if (rightIsSearchDate) {
+      value.setValue(positiveValue);
+    }
+
+    return value;
   }
 
   public Match getLogicalMatch(Match match) throws JsonProcessingException {

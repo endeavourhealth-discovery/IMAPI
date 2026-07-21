@@ -102,7 +102,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) newMySqlQuery.withs.add(getIsWith(definition, newMySqlQuery))
         addMatchWithsRecursively(columnGroup, newMySqlQuery)
         if (columnGroup.and == null && columnGroup.or == null &&
-          columnGroup.any == null && columnGroup.`is` == null
+           columnGroup.`is` == null
         ) {
           val with = getMySQLWithFromMatch(columnGroup, newMySqlQuery)
           if (columnGroup.orderBy == null && newMySqlQuery.withs.isNotEmpty()) {
@@ -239,25 +239,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery: MySQLQuery,
   ) {
     if (currentMatch.and != null) addAnds(currentMatch, mySqlQuery)
-    if (currentMatch.any != null) addAnys(currentMatch, mySqlQuery)
     if (currentMatch.or != null) addOrs(currentMatch, mySqlQuery)
     if (currentMatch.`is` != null) mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
   }
 
-  private fun addAnys(currentMatch: Match, mySqlQuery: MySQLQuery) {
-    for (match in currentMatch.any) {
-      addMatchWithsRecursively(match, mySqlQuery)
-      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
-        val with = getMySQLWithFromMatch(match, mySqlQuery)
-        mySqlQuery.withs.add(with)
-      }
-    }
-  }
 
   private fun addAnds(currentMatch: Match, mySqlQuery: MySQLQuery) {
     for (match in currentMatch.and) {
       addMatchWithsRecursively(match, mySqlQuery)
-      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
+      if (match.and == null && match.or == null && match.`is` == null) {
         val with = getMySQLWithFromMatch(match, mySqlQuery)
         if (match.orderBy == null && mySqlQuery.withs.isNotEmpty()) {
           with.joins.add(getJoinBetweenWiths(with, mySqlQuery.withs.last()))
@@ -279,7 +269,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       if (tempQuery.withs.isNotEmpty()) branchQuery.withs.add(tempQuery.withs.last())
       addMatchWithsRecursively(match, branchQuery)
 
-      if (match.and == null && match.or == null && match.any == null && match.`is` == null) {
+      if (match.and == null && match.or == null && match.`is` == null) {
         val with = getMySQLWithFromMatch(match, branchQuery)
         if (match.orderBy == null && branchQuery.withs.isNotEmpty()) {
           with.joins.add(getJoinBetweenWiths(with, branchQuery.withs.last()))

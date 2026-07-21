@@ -49,7 +49,6 @@ public class Match extends IriLD implements HasPaths, Returnable {
   private List<Match> or;
   private List<Match> and;
   private List<Match> rule;
-  private List<Match> any;
   private String libraryItem;
   private boolean invalid;
   private Node is;
@@ -63,27 +62,8 @@ public class Match extends IriLD implements HasPaths, Returnable {
   private Match then;
   private Having having;
 
-  public List<Match> getAny() {
-    return any;
-  }
 
-  public Match setAny(List<Match> any) {
-    this.any = any;
-    return this;
-  }
 
-  public Match addAny(Match any) {
-    if (this.any == null) this.any = new ArrayList<>();
-    this.any.add(any);
-    return this;
-  }
-
-  public Match any(Consumer<Match> builder) {
-    Match any = new Match();
-    addAny(any);
-    builder.accept(any);
-    return this;
-  }
 
   public Having getHaving() {
     return having;

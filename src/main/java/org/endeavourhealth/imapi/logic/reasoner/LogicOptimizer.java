@@ -19,7 +19,9 @@ public class LogicOptimizer {
 
   public static void cleanColumnGroups(Query query) {
     if (query.getColumnGroup() == null) return;
-    flatten(query.getColumnGroup());
+    for (Match match : query.getColumnGroup()){
+      cleanBooleans(match);
+    }
   }
 
   public static void optimiseECLQuery(Query query) {
@@ -97,6 +99,7 @@ public class LogicOptimizer {
   }
 
 
+
   public static void cleanBooleans(Match group) {
     List<Match> matches = group.getAnd();
     if (matches != null) {
@@ -107,10 +110,6 @@ public class LogicOptimizer {
       if (matches != null) {
         if (matches.isEmpty()) group.setOr(null);
         else flatten(matches);
-      } else matches = group.getAny();
-      if (matches != null) {
-        if (matches.isEmpty()) group.setAny(null);
-        else flatten(matches);
       }
     }
   }
@@ -119,7 +118,7 @@ public class LogicOptimizer {
     for (int i = 0; i < list.size(); i++) {
       Match match = list.get(i);
       if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
-        && match.getAny() == null && match.getReturn() == null && match.getIs() == null) {
+       && match.getReturn() == null && match.getIs() == null) {
         list.remove(i);
         i--;
       } else cleanBooleans(match);
@@ -166,8 +165,6 @@ public class LogicOptimizer {
       for (Match child : match.getAnd()) optimiseAgeWheres(child);
     if (match.getOr() != null)
       for (Match child : match.getOr()) optimiseAgeWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseAgeWheres(child);
 
     if (match.getWhere() != null)
       match.setWhere(rewriteAgeWhere(match.getWhere()));
@@ -210,8 +207,6 @@ public class LogicOptimizer {
       for (Match child : match.getAnd()) optimiseNegativeIntervalWheres(child);
     if (match.getOr() != null)
       for (Match child : match.getOr()) optimiseNegativeIntervalWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseNegativeIntervalWheres(child);
 
     if (match.getWhere() != null)
       match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));

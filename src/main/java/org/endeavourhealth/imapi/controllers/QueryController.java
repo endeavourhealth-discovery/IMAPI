@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.MatchReturn;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
@@ -341,11 +342,11 @@ public class QueryController {
     description = "Returns the query with boolean optimisation"
   )
   public Set<TTEntity> semanticMapsForDataset(
-    @RequestBody Match match) {
+    @RequestBody MatchReturn matchReturn) {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForMatch(match);
+      return queryService.getSemanticMapsForMatch(matchReturn);
     }
   }
 }

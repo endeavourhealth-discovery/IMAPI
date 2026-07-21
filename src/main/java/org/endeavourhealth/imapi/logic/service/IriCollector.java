@@ -97,11 +97,6 @@ public class IriCollector {
         collectMatchIris(subMatch, iriSet);
       }
     }
-    if (match.getAny() != null) {
-      for (Match subMatch : match.getAny()) {
-        collectMatchIris(subMatch, iriSet);
-      }
-    }
 
 
     if (match.getWhere() != null) {

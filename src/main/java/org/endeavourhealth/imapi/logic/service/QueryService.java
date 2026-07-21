@@ -302,7 +302,7 @@ public class QueryService {
     Return column= matchReturn.getReturn();
     Set<String> sourceIris = new HashSet<>();
     Set<String> properties= new HashSet<>();
-    properties.add(getPropertyFromRef(match,column.getNodeRef()));
+    properties.add(getPropertyFromColumn(match,column));
     if (match.getWhere() != null) {
       collectSourcesFromWhere(match.getWhere(), sourceIris);
     }
@@ -330,17 +330,20 @@ public class QueryService {
     return null;
   }
 
-  private String getPropertyFromRef(HasPaths pathable, String nodeRef) {
-    if (pathable.getPath()!=null) {
-      for (Path path : pathable.getPath()) {
-        if (path.getNode().equals(nodeRef)) return path.getIri();
-        if (path.getPath() != null) {
-          String property = getPropertyFromRef(path, nodeRef);
-          if (property != null) return property;
+  private String getPropertyFromColumn(HasPaths pathable, Return column) {
+    if (column.getNodeRef()!=null) {
+      String nodeRef = column.getNodeRef();
+      if (pathable.getPath() != null) {
+        for (Path path : pathable.getPath()) {
+          if (path.getNode().equals(nodeRef)) return path.getIri();
+          if (path.getPath() != null) {
+            String property = getPropertyFromColumn(path, column);
+            if (property != null) return property;
+          }
         }
       }
     }
-    return null;
+    return column.getIri();
   }
 
 

@@ -586,5 +586,9 @@ public class LogicOptimizer {
     query.setOr(null);
   }
 
+  public void addMatchFromSemanticMap(Return column) {
+    if (column.getSemanticMap()==null) return;
+  }
+
 
 }

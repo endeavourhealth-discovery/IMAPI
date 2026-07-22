@@ -168,6 +168,8 @@ public class LogicOptimizer {
 
     if (match.getWhere() != null)
       match.setWhere(rewriteAgeWhere(match.getWhere()));
+    if (match.getThen() != null && match.getThen().getWhere() != null)
+      match.getThen().setWhere(rewriteAgeWhere(match.getThen().getWhere()));
   }
 
   private static Where rewriteAgeWhere(Where where) {
@@ -210,6 +212,8 @@ public class LogicOptimizer {
 
     if (match.getWhere() != null)
       match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));
+    if (match.getThen() != null && match.getThen().getWhere() != null)
+      match.getThen().setWhere(rewriteNegativeIntervalWhere(match.getThen().getWhere()));
   }
 
   private static Where rewriteNegativeIntervalWhere(Where where) {

@@ -291,11 +291,6 @@ public class QueryDescriptor {
         describeMatch(subMatch);
       }
     }
-    if (match.getAny() != null) {
-      for (Match subMatch : match.getAny()) {
-        describeMatch(subMatch);
-      }
-    }
 
     if (match.getPath() != null) {
       for (Path path : match.getPath()) {

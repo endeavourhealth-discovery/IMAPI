@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.iml.MatchReturn;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
@@ -31,7 +32,6 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @RestController
@@ -203,19 +203,6 @@ public class QueryController {
   }
 
 
-  @PostMapping("/semanticMapsForDataset")
-  @Operation(
-    summary = "optimises logical boolean of query",
-    description = "Returns the query with boolean optimisation"
-  )
-  public Set<TTEntity> semanticMapsForDataset(
-    @RequestBody Match match) {
-
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForDataset(match);
-    }
-  }
 
   @PostMapping("/optimiseECLQuery")
   @Operation(
@@ -346,6 +333,20 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       log.debug("validateQuery");
       return queryService.validateQuery(query);
+    }
+  }
+
+  @PostMapping("/semanticMapsForMatch")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query with boolean optimisation"
+  )
+  public Set<TTEntity> semanticMapsForDataset(
+    @RequestBody MatchReturn matchReturn) {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("getSemanticMapsForSourceEntities");
+      return queryService.getSemanticMapsForMatch(matchReturn);
     }
   }
 }

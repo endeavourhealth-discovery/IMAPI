@@ -124,11 +124,12 @@ public class FilerController {
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "oldFolder") String oldFolderIri,
     @RequestParam(name = "newFolder") String newFolderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") String namespaceString,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Move.POST")) {
       log.debug("moveFolder");
+      NAMESPACE namespace = NAMESPACE.from(namespaceString);
       securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.EDITOR), List.of(new NamespacePermission(namespace, true, true))), request);
 
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(oldFolderIri) || !entityService.iriExists(newFolderIri)) {
@@ -174,12 +175,14 @@ public class FilerController {
   public ResponseEntity<ProblemDetailResponse> addToFolder(
     @RequestParam(name = "entity") String entityIri,
     @RequestParam(name = "folder") String folderIri,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") String namespaceString,
     HttpServletRequest request
   ) throws Exception {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Add.POST")) {
       log.debug("addToFolder");
+      NAMESPACE namespace = NAMESPACE.from(namespaceString);
       securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.EDITOR), List.of(new NamespacePermission(namespace, true, true))), request);
+
       if (!entityService.iriExists(entityIri) || !entityService.iriExists(folderIri)) {
         return ProblemDetailResponse.create(HttpStatus.BAD_REQUEST, "Cannot add to folder", "One of the IRIs does not exist");
       }
@@ -207,9 +210,10 @@ public class FilerController {
   public String createFolder(
     @RequestParam(name = "container") String container,
     @RequestParam(name = "name") String name,
-    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") NAMESPACE namespace,
+    @RequestParam(name = "namespace", defaultValue = "http://endhealth.info/im#") String namespaceString,
     HttpServletRequest request
   ) throws Exception {
+    NAMESPACE namespace = NAMESPACE.from(namespaceString);
     securityService.requiresPermission(new Permission(Resource.FOLDER, List.of(UserRole.CREATOR), List.of(new NamespacePermission(namespace, true, true))), request);
     try (MetricsTimer t = MetricsHelper.recordTime("API.Filer.Folder.Create.POST")) {
       log.debug("createFolder");

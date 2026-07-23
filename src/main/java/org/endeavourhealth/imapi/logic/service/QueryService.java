@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.Indicator;
+import org.endeavourhealth.imapi.model.iml.MatchReturn;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
@@ -296,17 +297,53 @@ public class QueryService {
     return query;
   }
 
-  public Set<TTEntity> getSemanticMapsForDataset(Match match) {
+  public Set<TTEntity> getSemanticMapsForMatch(MatchReturn matchReturn) {
+    Match match = matchReturn.getMatch();
+    Return column= matchReturn.getReturn();
     Set<String> sourceIris = new HashSet<>();
+    Set<String> properties= new HashSet<>();
+    properties.add(getPropertyFromColumn(match,column));
     if (match.getWhere() != null) {
       collectSourcesFromWhere(match.getWhere(), sourceIris);
     }
     if (match.getThen() != null && match.getThen().getWhere() != null) {
       collectSourcesFromWhere(match.getThen().getWhere(), sourceIris);
     }
+    if (sourceIris.isEmpty()){
+      DataModelRepository dataModelRepository = new DataModelRepository();
+      TTIriRef valueSet= dataModelRepository.getPropertyValueSet(match.getTypeOf().getIri(),properties);
+      if (valueSet!=null) {
+        sourceIris.add(valueSet.getIri());
+      }
+    }
     if (!sourceIris.isEmpty()) {
-      return new QueryRepository().getSemanticMapsForSourceEntities(sourceIris);
-    } else return new QueryRepository().getSemanticMapsForSourceType(match.getTypeOf().getIri());
+      Set<String> fullSet = new HashSet<>(sourceIris);
+      SetService setService = new SetService();
+      for (String sourceIri : sourceIris) {
+        Set<TTIriRef>  subsets= setService.getSubsets(sourceIri);
+        if (!subsets.isEmpty()) {
+          fullSet.addAll(subsets.stream().map(TTIriRef::getIri).collect(Collectors.toSet()));
+        }
+      }
+      return new QueryRepository().getSemanticMapsForSourceEntities(properties,fullSet);
+    }
+    return null;
+  }
+
+  private String getPropertyFromColumn(HasPaths pathable, Return column) {
+    if (column.getNodeRef()!=null) {
+      String nodeRef = column.getNodeRef();
+      if (pathable.getPath() != null) {
+        for (Path path : pathable.getPath()) {
+          if (path.getNode().equals(nodeRef)) return path.getIri();
+          if (path.getPath() != null) {
+            String property = getPropertyFromColumn(path, column);
+            if (property != null) return property;
+          }
+        }
+      }
+    }
+    return column.getIri();
   }
 
 

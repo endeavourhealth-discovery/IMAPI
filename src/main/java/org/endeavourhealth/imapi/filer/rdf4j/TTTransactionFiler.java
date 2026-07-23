@@ -12,7 +12,6 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.logic.exporters.SetMemberExport;
 import org.endeavourhealth.imapi.logic.reasoner.RangeInheritor;
-import org.endeavourhealth.imapi.logic.reasoner.SemanticMapGenerator;
 import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.imq.QueryException;
@@ -242,9 +241,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     log.info("Updating set members");
     updateSets(document);
 
-    log.info("updating semanticMaps");
-    updateSemanticMaps(document);
-
     if (generateIm1Deltas) {
       log.info("Generating IM1 deltas");
       SetMemberExport.execute(new File("tct-delta").toPath(), document.getEntities().stream().map(TTNode::getIri).toList());
@@ -327,14 +323,6 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
-  public void updateSemanticMaps(TTDocument document) throws QueryException, JsonProcessingException, TTFilerException {
-    for (TTEntity entity : document.getEntities()) {
-      if (entity.isType(iri(IM.SEMANTIC_MAP))) {
-        log.info("updating semantic map {}", entity.getIri());
-        new SemanticMapGenerator().updateSemanticMap(entity, insertGraph);
-      }
-    }
-  }
 
   public void updateTct(TTDocument document) {
     isAs = new HashMap<>();

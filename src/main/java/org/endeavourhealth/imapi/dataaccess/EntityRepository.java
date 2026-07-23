@@ -1167,19 +1167,24 @@ public class EntityRepository {
       iri(stringIri);
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren
+      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren  ?description ?status ?statusname
       WHERE {
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
         ?typeIri rdfs:label ?typeName.
         %s
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
       """.formatted(valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
     if (parentContext != null) {
       sql.add("""
@@ -1210,7 +1215,11 @@ public class EntityRepository {
           else if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
-
+          if (bs.hasBinding("description"))
+            refNode.setDescription(bs.getValue("description").stringValue());
+          if (bs.hasBinding("status")) {
+            refNode.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
         }
       }
     }
@@ -1276,11 +1285,12 @@ public class EntityRepository {
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname
       WHERE {
         %s
         ?s im:scheme ?scheme ;
            rdfs:label ?name .
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
         OPTIONAL { ?s rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
@@ -1290,7 +1300,11 @@ public class EntityRepository {
       """.formatted(valueList("scheme", schemeIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
 
     sql.add("}");
@@ -1309,6 +1323,13 @@ public class EntityRepository {
 
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
             types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+
+          if (bs.getValue("description") != null)
+            result.setDescription(bs.getValue("description").stringValue());
+
+          if (bs.hasBinding("status")) {
+            result.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
 
           while (rs.hasNext()) {
             bs = rs.next();
@@ -1585,6 +1606,73 @@ public class EntityRepository {
     }
   }
 
+  public Set<TTEntity> getEntities(Set<String> iris,Set<String> predicates) {
+    Set<TTEntity> result = new HashSet<>();
+    Map<String, TTEntity> entityMap = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return result;
+    iris.remove(null);
+    String sql = """
+      select ?entity ?entityLabel ?predicate ?object ?objectLabel ?subPredicate ?subObject ?subObjectLabel
+      where {
+        %s
+        ?entity rdfs:label ?entityLabel.
+        optional {
+          %s
+          ?entity ?predicate ?object.
+          optional {
+            ?object rdfs:label ?objectLabel.
+          }
+          optional {
+          filter (isBlank(?object))
+            ?object ?subPredicate ?subObject.
+            optional {
+              ?subObject rdfs:label ?subObjectLabel.
+            }
+          }
+        }
+      }
+      """.formatted(valueList("entity", iris), valueList("predicate", predicates));
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      Map<String, TTNode> bnodeMap = new HashMap<>();
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("entity").stringValue();
+          TTEntity entity = entityMap.get(iri);
+          if (entity == null) {
+            entity= new TTEntity()
+              .setIri(iri)
+              .setName(bs.getValue("entityLabel").stringValue());
+            entityMap.put(iri, entity);
+            result.add(entity);
+          }
+          if (bs.getValue("predicate") != null) {
+            String predicate = bs.getValue("predicate").stringValue();
+            Value object = bs.getValue("object");
+            if (object.isIRI()) {
+              TTIriRef ttIriRef = TTIriRef.iri(object.stringValue());
+              if (null != bs.getValue("objectLabel")) ttIriRef.setName(bs.getValue("objectLabel").stringValue());
+              entity.addObject(TTIriRef.iri(predicate), ttIriRef);
+            } else if (object.isBNode()) {
+              bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
+              TTNode blank = bnodeMap.get(object.stringValue());
+              if (bs.getValue("subPredicate") != null) {
+                String subPredicate = bs.getValue("subPredicate").stringValue();
+                Value subObject = bs.getValue("subObject");
+                if (subObject.isIRI()) {
+                  blank.addObject(TTIriRef.iri(subPredicate), TTIriRef.iri(subObject.stringValue()).setName(bs.getValue("subObjectLabel").stringValue()));
+                } else blank.addObject(TTIriRef.iri(subPredicate), TTLiteral.literal(subObject.stringValue()));
+              }
+            } else
+              entity.addObject(TTIriRef.iri(predicate), TTLiteral.literal(object.stringValue()));
+          }
+        }
+      }
+    }
+    return result;
+  }
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();

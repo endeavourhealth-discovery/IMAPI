@@ -390,15 +390,13 @@ public class QueryRepository {
     return properties;
   }
 
-  public Map<String, Map<String, String>> getSemanticMaps() {
-    Map<String, Map<String, String>> mapEntries = new HashMap<>();
+  public Map<String, Set<String>> getSemanticMaps() {
+    Map<String, Set<String>> sourceToMap = new HashMap<>();
     String sql = """
-      Select ?mapEntry ?sourceEntity ?sourceType
+      Select ?mapEntry ?sourceEntity
       where {
-       ?map rdf:type im:SemanticMap.
-       ?map im:mapEntry ?mapEntry.
+       ?mapEntry rdf:type im:MapEntry.
        ?mapEntry im:sourceEntity ?sourceEntity.
-       ?sourceEntity rdf:type ?sourceType.
       }
       """;
     try (IMDB conn = IMDB.getConnection()) {
@@ -408,88 +406,54 @@ public class QueryRepository {
           BindingSet bs = rs.next();
           String mapEntryIri = bs.getValue("mapEntry").stringValue();
           String sourceEntityIri = bs.getValue("sourceEntity").stringValue();
-          String sourceType = bs.getValue("sourceType").stringValue();
-          mapEntries.put(mapEntryIri, Map.of(sourceEntityIri, sourceType));
+          sourceToMap.computeIfAbsent(sourceEntityIri,e-> new HashSet<>()).add(mapEntryIri);
         }
       }
     }
-    return mapEntries;
+    return sourceToMap;
   }
 
-  public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> sourceIris) {
+  public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> properties, Set<String> sourceIris) {
     String sql = """
       Select distinct ?map ?mapName
       where {
       values ?sourceIri {%s}
+      values ?property {%s}
       {
-      ?subType im:semanticMap ?mapEntry.
-      ?subType im:isA ?sourceIri.
-      ?map im:mapEntry ?mapEntry.
-      ?map rdfs:label ?mapName.
-      ?mapEntry rdfs:label ?mapEntryName.
-      
-      }
-      union {
-      ?subType im:semanticMap ?mapEntry.
-      ?subType ^im:hasMember ?sourceIri.
-      ?map im:mapEntry ?mapEntry.
-      ?map rdfs:label ?mapName.
-      ?mapEntry rdfs:label ?mapEntryName.
-      
-      
-      }
-      
-      }
-      
-      """.formatted(sourceIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" ")));
-    Set<TTEntity> semanticMaps = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection()) {
-      TupleQuery qry = conn.prepareTupleSparql(sql);
-      try (TupleQueryResult rs = qry.evaluate()) {
-        while (rs.hasNext()) {
-          BindingSet bs = rs.next();
-          ;
-          String mapIri = bs.getValue("map").stringValue();
-          String mapName = bs.getValue("mapName").stringValue();
-          TTEntity map = new TTEntity()
-            .addType(iri(IM.SEMANTIC_MAP))
-            .setIri(mapIri)
-            .setName(mapName);
-          semanticMaps.add(map);
-
+        ?sourceIri im:hasMember ?concept.
+        ?concept im:semanticMap ?mapEntry.
+        ?mapEntry im:sourceEntityProperty ?property.
+        ?map im:mapEntry ?mapEntry.
+        ?map rdfs:label ?mapName.
+       }
+       union {
+        ?concept im:isA ?sourceIri.
+        ?concept im:semanticMap ?mapEntry.
+        ?mapEntry im:sourceEntityProperty ?property.
+        ?map im:mapEntry ?mapEntry.
+        ?map rdfs:label ?mapName.
         }
       }
-    }
-    return semanticMaps;
-  }
-
-  public Set<TTEntity> getSemanticMapsForSourceType(String sourceType) {
-    String sql = """
-      Select distinct ?map ?mapName
-      where {
-      values ?sourceType {%s}
-      ?sourceType ^im:sourceType ?mapEntry.
-      ?map im:mapEntry ?mapEntry.
-      ?map rdfs:label ?mapName.
-      ?mapEntry rdfs:label ?mapEntryName.
-      }
-      
-      """.formatted("<" + sourceType + ">");
+      """.formatted(sourceIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "))
+    , properties.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" ")));
     Set<TTEntity> semanticMaps = new HashSet<>();
+    Map<String, TTEntity> maps = new HashMap<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          ;
           String mapIri = bs.getValue("map").stringValue();
           String mapName = bs.getValue("mapName").stringValue();
-          TTEntity map = new TTEntity()
-            .addType(iri(IM.SEMANTIC_MAP))
-            .setIri(mapIri)
-            .setName(mapName);
-          semanticMaps.add(map);
-
+          TTEntity map = maps.get(mapIri);
+          if (map==null){
+            map= new TTEntity()
+              .addType(iri(IM.SEMANTIC_MAP))
+              .setIri(mapIri)
+              .setName(mapName);
+            maps.put(mapIri,map);
+            semanticMaps.add(map);
+          }
         }
       }
     }

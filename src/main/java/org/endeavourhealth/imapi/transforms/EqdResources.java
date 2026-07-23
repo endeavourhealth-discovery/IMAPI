@@ -176,8 +176,13 @@ public class EqdResources {
         boolMatch.addAnd(match);
       } else boolMatch.addOr(match);
     }
+    if (boolMatch.getAnd() != null && boolMatch.getAnd().size() == 1) {
+      return boolMatch.getAnd().getFirst();
+    }
+    if (boolMatch.getOr() != null && boolMatch.getOr().size() == 1) {
+      return boolMatch.getOr().getFirst();
+    }
     return boolMatch;
-
   }
 
   private boolean isNegatedCriteria(EQDOCCriteria criteria) {
@@ -777,13 +782,13 @@ public class EqdResources {
   private void addMatchWhere(Match match, Where where) {
     if (match.getWhere() == null) {
       match.setWhere(where);
-    } else if (match.getWhere().getIri() != null) {
+    } else if (match.getWhere().getAnd()!=null){
+      match.getWhere().addAnd(where);
+    }else {
       Where boolWhere = new Where();
       boolWhere.addAnd(match.getWhere());
       match.setWhere(boolWhere);
       boolWhere.addAnd(where);
-    } else {
-      match.getWhere().addAnd(where);
     }
   }
 

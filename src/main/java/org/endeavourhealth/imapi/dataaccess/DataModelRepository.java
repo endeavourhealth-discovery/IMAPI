@@ -294,9 +294,9 @@ public class DataModelRepository {
       property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
         .setName(bs.getValue("inversePathName").stringValue()));
     }
-    if (bs.getValue("genericRelationship") != null) {
-      if (bs.getValue("genericRelationship").stringValue().equals("true")) {
-        property.setGeneric(true);
+    if (bs.getValue("association") != null) {
+      if (bs.getValue("association").stringValue().equals("true")) {
+        property.setAssociation(true);
       }
     }
   }
@@ -404,7 +404,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
-      ?orderable ?ascending ?descending ?definingProperty ?genericRelationship
+      ?orderable ?ascending ?descending ?definingProperty ?association
       WHERE {
          Values ?entity { %s }
         ?entity sh:property ?property.
@@ -431,7 +431,7 @@ public class DataModelRepository {
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
-          BIND(EXISTS { ?path im:isA im:genericRelationship} AS ?genericRelationship)
+          BIND(EXISTS { ?path im:isA im:association} AS ?association)
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
@@ -712,6 +712,29 @@ public class DataModelRepository {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           return TTIriRef.iri(bs.getValue("inversePath").stringValue()).setName(bs.getValue("pathLabel").stringValue());
+        }
+      }
+    }
+    return null;
+  }
+  public TTIriRef getPropertyValueSet(String nodeShape,Set<String> properties){
+    String sql = """
+      select ?propertyValueSet ?propertyValueSetName
+      where {
+       values ?nodeShape { <%s> }
+       %s
+       ?nodeShape sh:property ?property.
+       ?property sh:path ?path.
+       ?property sh:class ?propertyValueSet.
+       ?propertyValueSet rdfs:label ?propertyValueSetName.
+       }
+      """.formatted(nodeShape,valueList("path",properties));
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return TTIriRef.iri(bs.getValue("propertyValueSet").stringValue()).setName(bs.getValue("propertyValueSetName").stringValue());
         }
       }
     }

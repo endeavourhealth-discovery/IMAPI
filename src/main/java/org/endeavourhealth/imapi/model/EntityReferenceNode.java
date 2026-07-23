@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
@@ -17,6 +19,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   private boolean hasGrandChildren;
   private TTArray type;
   private int orderNumber;
+  private TTIriRef status;
 
   public EntityReferenceNode() {
   }
@@ -37,6 +40,15 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   public EntityReferenceNode addType(TTIriRef type) {
     if (this.type == null) this.type = new TTArray();
     this.type.add(type);
+    return this;
+  }
+
+  public TTIriRef getStatus() {
+    return status;
+  }
+
+  public EntityReferenceNode setStatus(TTIriRef status) {
+    this.status = status;
     return this;
   }
 

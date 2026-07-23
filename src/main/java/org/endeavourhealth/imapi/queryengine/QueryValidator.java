@@ -9,14 +9,16 @@ public class QueryValidator {
   private final Map<String, VarType> variables = new HashMap<>();
   private final Map<String, Map<String, Set<String>>> nodeMap = new HashMap<>();
   private int o = 0;
+  private String mainEntity;
 
-  public void validateQuery(Match query) throws QueryException {
+  public void validateQuery(Query query) throws QueryException {
     String mainEntity = "entity";
     if (query.getNode() != null) {
       mainEntity = query.getNode();
     } else if (query.getParameter() != null) {
       mainEntity = query.getParameter().replace("$", "");
     }
+    this.mainEntity = mainEntity;
     if (query.getAnd() == null && query.getOr() == null && null == query.getIs() && null == query.getWhere() && null == query.getTypeOf())
       throw new QueryException("Query must have match clause or is or where clause");
 
@@ -25,8 +27,12 @@ public class QueryValidator {
     if (null != query.getWhere()) {
       validateWhere(query.getWhere(), mainEntity);
     }
-
-    processReturn(query, mainEntity);
+    if (query.getColumnGroup()!=null){
+      for (Match group: query.getColumnGroup()) {
+        processMatch(group);
+        validateMatch(group);
+      }
+    }
   }
 
   private void processMatches(Match boolMatch) throws QueryException {
@@ -55,6 +61,9 @@ public class QueryValidator {
     }
     if (match.getIs() != null) {
       processIs(match.getIs());
+    }
+    if (match.getReturn() != null) {
+      processReturn(match, mainEntity);
     }
   }
 
@@ -120,6 +129,9 @@ public class QueryValidator {
       throw new QueryException("return_ clause uses an unbound node reference variable (" + path.getNodeRef() + ") should it be a property ref?");
     if (path.getPropertyRef() != null && variables.get(path.getPropertyRef()) == null)
       throw new QueryException("return_ clause uses an unbound where reference variable (" + path.getPropertyRef() + ") should it be a node ref?");
+    if (path.getIri()==null &&path.getFunction()==null &&path.getCase()==null &&path.getSemanticMap()==null){
+      throw new QueryException("Data set or column must have a definition. Check data sets and match clauses");
+    }
     if (path.getReturn() != null) {
       for (Return pathReturn : path.getReturn()) {
         validateReturn(pathReturn, path.getAs());
@@ -151,6 +163,12 @@ public class QueryValidator {
     }
     if (match.getWhere() != null) {
       validateWhere(match.getWhere(), match.getNode());
+    }
+    if (match.getReturn() != null) {
+      validateReturnColumns(match);
+      for (Return path : match.getReturn()) {
+        validateReturn(path, match.getNode());
+      }
     }
 
   }

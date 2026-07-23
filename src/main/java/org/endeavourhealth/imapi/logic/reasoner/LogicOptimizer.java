@@ -19,7 +19,9 @@ public class LogicOptimizer {
 
   public static void cleanColumnGroups(Query query) {
     if (query.getColumnGroup() == null) return;
-    flatten(query.getColumnGroup());
+    for (Match match : query.getColumnGroup()){
+      cleanBooleans(match);
+    }
   }
 
   public static void optimiseECLQuery(Query query) {
@@ -97,6 +99,7 @@ public class LogicOptimizer {
   }
 
 
+
   public static void cleanBooleans(Match group) {
     List<Match> matches = group.getAnd();
     if (matches != null) {
@@ -107,10 +110,6 @@ public class LogicOptimizer {
       if (matches != null) {
         if (matches.isEmpty()) group.setOr(null);
         else flatten(matches);
-      } else matches = group.getAny();
-      if (matches != null) {
-        if (matches.isEmpty()) group.setAny(null);
-        else flatten(matches);
       }
     }
   }
@@ -119,7 +118,7 @@ public class LogicOptimizer {
     for (int i = 0; i < list.size(); i++) {
       Match match = list.get(i);
       if (match.getWhere() == null && match.getOrderBy() == null && match.getAnd() == null && match.getOr() == null
-        && match.getAny() == null && match.getReturn() == null && match.getIs() == null) {
+       && match.getReturn() == null && match.getIs() == null) {
         list.remove(i);
         i--;
       } else cleanBooleans(match);
@@ -166,11 +165,11 @@ public class LogicOptimizer {
       for (Match child : match.getAnd()) optimiseAgeWheres(child);
     if (match.getOr() != null)
       for (Match child : match.getOr()) optimiseAgeWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseAgeWheres(child);
 
     if (match.getWhere() != null)
       match.setWhere(rewriteAgeWhere(match.getWhere()));
+    if (match.getThen() != null && match.getThen().getWhere() != null)
+      match.getThen().setWhere(rewriteAgeWhere(match.getThen().getWhere()));
   }
 
   private static Where rewriteAgeWhere(Where where) {
@@ -210,25 +209,36 @@ public class LogicOptimizer {
       for (Match child : match.getAnd()) optimiseNegativeIntervalWheres(child);
     if (match.getOr() != null)
       for (Match child : match.getOr()) optimiseNegativeIntervalWheres(child);
-    if (match.getAny() != null)
-      for (Match child : match.getAny()) optimiseNegativeIntervalWheres(child);
 
     if (match.getWhere() != null)
       match.setWhere(rewriteNegativeIntervalWhere(match.getWhere()));
+    if (match.getThen() != null && match.getThen().getWhere() != null)
+      match.getThen().setWhere(rewriteNegativeIntervalWhere(match.getThen().getWhere()));
   }
 
   private static Where rewriteNegativeIntervalWhere(Where where) {
     if (where.getAnd() != null)
       where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
     if (where.getOr() != null)
       where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
+
+    if (where.getRange() != null) {
+      if (where.getRange().getFrom() != null)
+        where.getRange().setFrom(rewriteNegativeIntervalValue(where.getRange().getFrom()));
+
+      if (where.getRange().getTo() != null)
+        where.getRange().setTo(rewriteNegativeIntervalValue(where.getRange().getTo()));
+
+      return where;
+    }
 
     if (where.getCompare() == null) return where;
     if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
     if (where.getCompare().getUnits() == null) return where;
 
     Compare compare = where.getCompare();
-    String positiveValue = where.getValue().startsWith("-") ? where.getValue().substring(1) : where.getValue();
+    String positiveValue = where.getValue().substring(1);
 
     boolean leftIsSearchDate = compare.getLeft() != null
       && "$searchDate".equals(compare.getLeft().getParameter());
@@ -243,12 +253,39 @@ public class LogicOptimizer {
       where.setCompare(swapped);
       where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
       where.setValue(positiveValue);
-
     } else if (rightIsSearchDate) {
       where.setValue(positiveValue);
     }
 
     return where;
+  }
+
+  private static Value rewriteNegativeIntervalValue(Value value) {
+    if (value.getCompare() == null) return value;
+    if (value.getValue() == null || !value.getValue().startsWith("-")) return value;
+    if (value.getCompare().getUnits() == null) return value;
+
+    Compare compare = value.getCompare();
+    String positiveValue = value.getValue().substring(1);
+
+    boolean leftIsSearchDate = compare.getLeft() != null
+      && "$searchDate".equals(compare.getLeft().getParameter());
+    boolean rightIsSearchDate = compare.getRight() != null
+      && "$searchDate".equals(compare.getRight().getParameter());
+
+    if (leftIsSearchDate) {
+      Compare swapped = new Compare();
+      swapped.setLeft(compare.getRight());
+      swapped.setRight(compare.getLeft());
+      swapped.setUnits(compare.getUnits());
+      value.setCompare(swapped);
+      value.setOperator(invertComparisonOperator(value.getOperator().getValue()));
+      value.setValue(positiveValue);
+    } else if (rightIsSearchDate) {
+      value.setValue(positiveValue);
+    }
+
+    return value;
   }
 
   public Match getLogicalMatch(Match match) throws JsonProcessingException {
@@ -551,6 +588,10 @@ public class LogicOptimizer {
     }
     query.setAnd(null);
     query.setOr(null);
+  }
+
+  public void addMatchFromSemanticMap(Return column) {
+    if (column.getSemanticMap()==null) return;
   }
 
 

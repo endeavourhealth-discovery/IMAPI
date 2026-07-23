@@ -167,14 +167,14 @@ public class PropertyShape {
   private List<Argument> isValidArguments;
 
   private TTIriRef inversePath;
-  private boolean generic;
+  private boolean association;
 
-  public boolean isGeneric() {
-    return generic;
+  public boolean isAssociation() {
+    return association;
   }
 
-  public PropertyShape setGeneric(boolean generic) {
-    this.generic = generic;
+  public PropertyShape setAssociation(boolean association) {
+    this.association = association;
     return this;
   }
 

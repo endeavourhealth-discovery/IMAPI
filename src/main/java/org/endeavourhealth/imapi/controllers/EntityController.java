@@ -77,13 +77,10 @@ public class EntityController {
 
   @GetMapping(value = "/public/schemes")
   @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
+  public List<Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Namespace> namespaces = entityService.getNamespaces();
-      Map<String, Namespace> result = new HashMap<>();
-      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
-      return result;
+      return entityService.getNamespaces();
     }
   }
 

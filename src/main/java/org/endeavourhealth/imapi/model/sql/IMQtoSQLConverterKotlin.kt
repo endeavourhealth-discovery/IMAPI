@@ -102,7 +102,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (definition.`is` != null) newMySqlQuery.withs.add(getIsWith(definition, newMySqlQuery))
         addMatchWithsRecursively(columnGroup, newMySqlQuery)
         if (columnGroup.and == null && columnGroup.or == null &&
-           columnGroup.`is` == null
+          columnGroup.`is` == null
         ) {
           val with = getMySQLWithFromMatch(columnGroup, newMySqlQuery)
           if (columnGroup.orderBy == null && newMySqlQuery.withs.isNotEmpty()) {
@@ -461,10 +461,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
 
+    val select = if (match.notExists()) {
+      if (mySQLQuery.withs.last().table.dataModel == "http://endhealth.info/im#Cohort") "${mySQLQuery.withs.last().alias}.*, ${mySQLQuery.withs.last().alias}.entity_id as patient_id"
+      else "${mySQLQuery.withs.last().alias}.*"
+    } else "sq.*"
+
+
     val rnWith = MySQLWith(
       table = with.table,
       alias = with.alias,
-      selects = mutableListOf(MySQLSelect(if (match.notExists()) "${mySQLQuery.withs.last().alias}.*" else "sq.*")),
+      selects = mutableListOf(MySQLSelect(select)),
       wheres = mutableListOf(),
       whereBool = Bool.and,
       subQuery = with

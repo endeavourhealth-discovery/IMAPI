@@ -67,6 +67,12 @@ public class QueryService {
     return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
   }
 
+  public String getSQLPatientTraceFromIMQIri(String queryIri, String patientId, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
+    QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
+    QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
+    return new IMQtoSQLConverterKotlin(queryRequestForSql, new ObjectMapper(), null, null, null, patientId).getSql();
+  }
+
   public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
     if (null == queryRequest.getQuery()) throw new SQLConversionException("Query in query request cannot be null");
 

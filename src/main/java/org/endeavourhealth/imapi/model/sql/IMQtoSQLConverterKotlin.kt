@@ -16,7 +16,8 @@ import java.util.Locale.getDefault
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper(),
-  val denominator: String? = null, val numerator: String? = null, val dataset: String? = null
+  val denominator: String? = null, val numerator: String? = null, val dataset: String? = null,
+  val debugPatientId: String? = null
 ) {
   private var IMtoMySQLMap: TableMap = MappingParser().parse("IMQtoMYSQL.json")
   var sql: String? = null
@@ -51,7 +52,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   init {
     try {
-      if (queryRequest.query.queryType == IMQType.INDICATOR) sql = generateSQLforIndicator()
+      if (debugPatientId != null) {
+        require(queryTypeOf != null) { "Queries need a type" }
+        queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+        sql = generatePatientTraceSQL(queryRequest.query, debugPatientId)
+      } else if (queryRequest.query.queryType == IMQType.INDICATOR) sql = generateSQLforIndicator()
       else {
         require(queryTypeOf != null) { "Queries need a type" }
         queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
@@ -141,6 +146,50 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
+  private fun generatePatientTraceSQL(definition: Query, patientId: String): String {
+    if (definition.columnGroup != null) {
+      throw SQLConversionException("Patient trace debugging is not supported for column-group (dataset) queries")
+    }
+    if (definition.iri == null) {
+      throw SQLConversionException("Query iri is null")
+    }
+    usedAliases.clear()
+    nodePathContextMap.clear()
+    val mySqlQuery = MySQLQuery()
+    if (definition.typeOf == null || definition.typeOf.iri == null) {
+      throw SQLConversionException("Query typeOf is null")
+    }
+
+    addMatchWithsRecursively(definition, mySqlQuery)
+    if (mySqlQuery.withs.isEmpty()) {
+      throw SQLConversionException("Query produced no steps to trace")
+    }
+
+    val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
+    val isPatientRooted = queryTypeOfTable.dataModel == patientTable.dataModel
+    val queryIriLiteral = toSqlLiteral(definition.iri)
+    val patientLiteral = toSqlLiteral(patientId)
+
+    val checks = mySqlQuery.withs.mapIndexed { index, with ->
+      val stepLabel = toSqlLiteral(with.alias.replace("`", ""))
+      val keyField = with.entityKeyField
+      val patientFoundSelect = if (isPatientRooted && keyField != null) {
+        "EXISTS(SELECT 1 FROM ${with.alias} WHERE ${with.alias}.$keyField = $patientLiteral)"
+      } else "NULL"
+      "SELECT $queryIriLiteral AS query_iri, $patientLiteral AS patient_id, " +
+        "$index AS step_no, $stepLabel AS cte_name, $patientFoundSelect AS patient_found"
+    }
+
+    return buildString {
+      append("INSERT INTO dataset.patient_exists (query_iri, patient_id, step_no, cte_name, patient_found)\n")
+      append("WITH ")
+      append(mySqlQuery.withs.joinToString(",\n") { it.toSql() })
+      append("\n")
+      append(checks.joinToString("\nUNION ALL\n"))
+      append(";")
+    }
+  }
+
   private fun getJSONObject(newMySqlQuery: MySQLQuery): String {
     val lastWith = newMySqlQuery.withs.last()
 
@@ -223,7 +272,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       selects = mutableListOf(MySQLSelect("${cohortTable.table}.entity_id")),
       joins = withJoins.ifEmpty { mutableListOf() },
       exclude = isA.isExclude,
-      wheres = topWheres
+      wheres = topWheres,
+      entityKeyField = "entity_id"
     )
   }
 
@@ -288,7 +338,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val unionWith = MySQLWith(
       alias = ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
       table = orWiths.first().table,
-      unionWiths = orWiths
+      unionWiths = orWiths,
+      entityKeyField = orWiths.first().entityKeyField
     )
     mySqlQuery.withs.add(unionWith)
   }
@@ -467,13 +518,19 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else "sq.*"
 
 
+    val entityKeyField = if (match.notExists()) {
+      if (mySQLQuery.withs.last().table.dataModel == "http://endhealth.info/im#Cohort") "patient_id"
+      else mySQLQuery.withs.last().entityKeyField
+    } else with.entityKeyField
+
     val rnWith = MySQLWith(
       table = with.table,
       alias = with.alias,
       selects = mutableListOf(MySQLSelect(select)),
       wheres = mutableListOf(),
       whereBool = Bool.and,
-      subQuery = with
+      subQuery = with,
+      entityKeyField = entityKeyField
     )
 
     val (fkLast, pkLast) = if (mySQLQuery.withs.last().table.table == queryTypeOfTable.table) {
@@ -550,6 +607,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
     with.selects.add(getDefaultSelect(with.table))
+    with.entityKeyField = getEntityKeyFieldName(with.table)
     if (match.`return` != null) {
       val (selects, _) =
         getSelects(
@@ -564,10 +622,26 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getDefaultSelect(table: Table): MySQLSelect {
+    val field = getEntityKeyFieldName(table)
     if (table.dataModel == queryTypeOfTable.dataModel)
-      return MySQLSelect("${table.table}.${queryTypeOfTable.primaryKey}")
+      return MySQLSelect("${table.table}.$field")
+    return MySQLSelect("${table.alias ?: table.table}.$field")
+  }
+
+  /**
+   * The column, relative to [table]'s own alias, that identifies the query's root
+   * (`queryTypeOfTable`) entity for a row in that table - i.e. `table`'s primary key if it
+   * *is* the root type, or its foreign key to the root type otherwise. Every CTE built from a
+   * [Match] exposes this as its first (unaliased) select column, which is what lets consecutive
+   * CTEs be joined together and lets patient-trace debugging identify which entity a CTE row
+   * belongs to.
+   */
+  private fun getEntityKeyFieldName(table: Table): String {
+    if (table.dataModel == queryTypeOfTable.dataModel) return queryTypeOfTable.primaryKey
     val (fk, _) = table.foreignKeyTo(queryTypeOfTable)
-    return MySQLSelect("${table.alias ?: table.table}.$fk")
+    return fk ?: throw SQLConversionException(
+      "No relationship between ${table.table} and ${queryTypeOfTable.table}"
+    )
   }
 
   private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {

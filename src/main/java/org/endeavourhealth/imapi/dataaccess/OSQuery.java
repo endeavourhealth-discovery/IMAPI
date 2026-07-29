@@ -306,20 +306,24 @@ public class OSQuery {
   }
 
   private SearchResultSummary getSummary(TTEntity entity) {
-    SearchResultSummary summary = new SearchResultSummary();
-    summary.setIri(entity.getIri());
-    summary.setName(entity.getName());
-    summary.setPreferredName(entity.getPreferredName());
-    summary.setType(entity.getTypes());
-    summary.setCode(entity.getCode());
-    summary.setStatus(entity.getStatus());
-    summary.setScheme(entity.getScheme());
-    summary.setUsageTotal(entity.getUsageTotal());
-    summary.setBestMatch(entity.getBestMatch());
-    if (summary.getPreferredName() != null) {
-      summary.setName(summary.getPreferredName());
+    if (null == entity.getStatus() || null == entity.getScheme()) {
+      return new EntityRepository().getEntitySummaryByIri(entity.getIri());
+    } else {
+      SearchResultSummary summary = new SearchResultSummary();
+      summary.setIri(entity.getIri());
+      summary.setName(entity.getName());
+      summary.setPreferredName(entity.getPreferredName());
+      summary.setType(entity.getTypes());
+      summary.setCode(entity.getCode());
+      summary.setStatus(entity.getStatus());
+      summary.setScheme(entity.getScheme());
+      summary.setUsageTotal(entity.getUsageTotal());
+      summary.setBestMatch(entity.getBestMatch());
+      if (summary.getPreferredName() != null) {
+        summary.setName(summary.getPreferredName());
+      }
+      return summary;
     }
-    return summary;
   }
 
   private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException {

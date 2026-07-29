@@ -261,6 +261,23 @@ public class QueryController {
     }
   }
 
+  @GetMapping("/sqlDebug")
+  @Operation(
+    summary = "Generate a per-step patient trace SQL script",
+    description = "Generates a diagnostic SQL script that reports whether a patient is present at each step (CTE) of the generated query."
+  )
+  public String getSQLPatientTraceFromIMQIri(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "patientId") String patientId,
+    @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang
+  ) throws IOException, QueryException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLPatientTraceFromIMQIri.GET")) {
+      log.debug("getSQLPatientTraceFromIMQIri");
+      return queryService.getSQLPatientTraceFromIMQIri(queryIri, patientId, lang);
+    }
+  }
+
   @GetMapping(value = "/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
   public Query getDefaultQuery(HttpServletRequest request) throws IOException {

@@ -330,7 +330,7 @@ public class OSQuery {
     try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
       SearchResponse searchResults = new SearchResponse();
       searchResults.setHighestUsage(0);
-      searchResults.setCount(0);
+      searchResults.setTotalCount(0);
       for (JsonNode hit : root.get("entities")) {
         TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
         SearchResultSummary summary = getSummary(entity);
@@ -339,7 +339,7 @@ public class OSQuery {
           searchResults.setHighestUsage(summary.getUsageTotal());
       }
       Integer totalCount = resultMapper.treeToValue(root.get("totalCount"), Integer.class);
-      if (null != totalCount) searchResults.setCount(totalCount);
+      if (null != totalCount) searchResults.setTotalCount(totalCount);
       if (request.getPage() != null) {
         searchResults.setPage(request.getPage().getPageNumber());
       }

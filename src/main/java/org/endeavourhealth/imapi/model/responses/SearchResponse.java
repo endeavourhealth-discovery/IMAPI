@@ -10,7 +10,7 @@ import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 public class SearchResponse {
 
   private Integer page;
-  private Integer count;
+  private Integer size;
   private Integer totalCount;
   private Integer highestUsage;
   private String term;
@@ -36,8 +36,8 @@ public class SearchResponse {
     return this;
   }
 
-  public SearchResponse setCount(Integer count) {
-    this.count = count;
+  public SearchResponse setSize(Integer size) {
+    this.size = size;
     return this;
   }
 

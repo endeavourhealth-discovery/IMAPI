@@ -140,7 +140,7 @@ public class SetService {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(response.getTotalCount());
     result.setCurrentPage(response.getPage());
-    result.setPageSize(response.getCount());
+    result.setPageSize(response.getSize());
     result.setResult(new ArrayList<>());
     if (response.getEntities() != null) {
       for (SearchResultSummary entity : response.getEntities()) {

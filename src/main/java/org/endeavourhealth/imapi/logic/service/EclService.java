@@ -87,7 +87,7 @@ public class EclService {
       ).toList();
     SearchResponse result = new SearchResponse();
     result.setEntities(evaluatedAsSummary);
-    result.setCount(totalCount);
+    result.setTotalCount(totalCount);
     result.setPage(request.getPage());
     return result;
   }

@@ -9,7 +9,6 @@ import lombok.Setter;
 public class GithubDTO {
   @JsonIgnore
   private String url;
-  @JsonIgnore
   private String html_url;
   @JsonIgnore
   private String assets_url;

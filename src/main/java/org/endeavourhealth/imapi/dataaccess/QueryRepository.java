@@ -33,7 +33,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
  * Methods to convert a Query object to its Sparql equivalent and return results as a json object
  */
 public class QueryRepository {
-  public static final String COUNT = "count";
+  public static final String SIZE = "size";
   public static final String TOTAL_COUNT = "totalCount";
   public static final String ENTITIES = "entities";
   private final ObjectMapper mapper = new ObjectMapper();
@@ -52,15 +52,15 @@ public class QueryRepository {
   public JsonNode queryIM(QueryRequest queryRequest, boolean highestUsage) throws QueryException {
     ObjectNode result = mapper.createObjectNode();
     Integer page = queryRequest.getPage() != null ? queryRequest.getPage().getPageNumber() : 1;
-    Integer count = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
+    Integer size = queryRequest.getPage() != null ? queryRequest.getPage().getPageSize() : 0;
     try (IMDB conn = IMDB.getConnection()) {
       SparqlConverter converter = new SparqlConverter(queryRequest);
       String spq = converter.getSelectSparql(queryRequest.getQuery(), null, false, highestUsage);
       ObjectNode resultNode = graphSelectSearch(queryRequest, spq, conn, result);
       if (queryRequest.getPage() != null) {
         resultNode.put("page", page);
-        resultNode.put(COUNT, count);
-        resultNode.put(TOTAL_COUNT, (page * count) + 1);
+        resultNode.put(SIZE, size);
+        resultNode.put(TOTAL_COUNT, (page * size) + 1);
       }
       return resultNode;
     }

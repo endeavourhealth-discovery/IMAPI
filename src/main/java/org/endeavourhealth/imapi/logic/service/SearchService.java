@@ -133,7 +133,7 @@ public class SearchService {
       }
     }
     if (queryResults.has("totalCount")) searchResponse.setTotalCount(queryResults.get("totalCount").asInt());
-    if (queryResults.has("count")) searchResponse.setCount(queryResults.get("count").asInt());
+    if (queryResults.has("size")) searchResponse.setSize(queryResults.get("size").asInt());
     if (queryResults.has("page")) searchResponse.setPage(queryResults.get("page").asInt());
     if (queryResults.has("term")) searchResponse.setTerm(queryResults.get("term").asText());
 

@@ -290,7 +290,7 @@ public class EntityRepository {
 
   public SearchResultSummary getEntitySummaryByIri(String iri) throws DataMissingException {
     String sql = """
-      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
+      SELECT ?s ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
         ?s rdfs:label ?sname .
         OPTIONAL { ?s im:code ?scode . }

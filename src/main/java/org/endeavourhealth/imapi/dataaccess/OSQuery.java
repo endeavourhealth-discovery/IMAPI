@@ -297,7 +297,14 @@ public class OSQuery {
         return null;
       if (root.has("entities")) {
         return processIMQueryResponse(root, request);
-      } else return new SearchResponse();
+      } else {
+        SearchResponse emptyResponse = new SearchResponse();
+        if (request.getPage() != null) {
+          emptyResponse.setPage(request.getPage().getPageNumber());
+          emptyResponse.setSize(request.getPage().getPageSize());
+        }
+        return emptyResponse;
+      }
     } catch (JsonProcessingException e) {
       throw new OpenSearchException("Could not parse OpenSearch response", e);
     }
@@ -342,6 +349,7 @@ public class OSQuery {
       if (null != totalCount) searchResults.setTotalCount(totalCount);
       if (request.getPage() != null) {
         searchResults.setPage(request.getPage().getPageNumber());
+        searchResults.setSize(request.getPage().getPageSize());
       }
       request.addTiming("Results List built");
       searchResults.setTerm(request.getTextSearch());

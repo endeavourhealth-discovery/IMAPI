@@ -1,21 +1,21 @@
 package org.endeavourhealth.imapi.model.responses;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class SearchResponse {
 
-  private Integer page;
-  private Integer size;
-  private Integer totalCount;
-  private Integer highestUsage;
-  private String term;
+  private Integer page = 1;
+  private Integer size = 25;
+  private Integer totalCount = 0;
+  private Integer highestUsage = 0;
+  private String term = "";
   private List<SearchResultSummary> entities = new ArrayList<>();
-  private boolean isExactMatch;
+  private boolean isExactMatch = false;
 
   public boolean isExactMatch() {
     return isExactMatch;

@@ -3,16 +3,17 @@ package org.endeavourhealth.imapi.logic.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
+import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.json.JsonLDMapper;
 import org.endeavourhealth.imapi.model.imq.PathDocument;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
+import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,7 +26,7 @@ class SearchServiceTest {
 
 
   //@Test
-  void os() throws QueryException, OpenSearchException {
+  void os() throws QueryException, OpenSearchException, DataMissingException {
     Set<String> entities = getResults(TestQueries.getAllowableProperties());
     QueryRequest osSearch = TestQueries.entityFilter(entities);
     SearchResponse results = new SearchService().queryIMSearch(osSearch);

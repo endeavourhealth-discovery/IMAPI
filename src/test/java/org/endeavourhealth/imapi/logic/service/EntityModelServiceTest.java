@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
@@ -317,13 +318,13 @@ class EntityModelServiceTest {
   }
 
   @Test
-  void getSummary_NullIri() {
+  void getSummary_NullIri() throws DataMissingException {
     SearchResultSummary actual = entityService.getSummary(null);
     assertNull(actual);
   }
 
   @Test
-  void getSummary_NotNullIri() {
+  void getSummary_NotNullIri() throws DataMissingException {
     SearchResultSummary summary = new SearchResultSummary();
     when(entityRepository.getEntitySummaryByIri(any())).thenReturn(summary);
     SearchResultSummary actual = entityService.getSummary("anyIri");

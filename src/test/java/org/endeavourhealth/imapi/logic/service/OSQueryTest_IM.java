@@ -1,9 +1,8 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -11,6 +10,8 @@ import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
@@ -33,7 +34,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term() throws OpenSearchException {
+  void imQuery_term() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -46,7 +47,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiScheme() throws OpenSearchException {
+  void imQuery_term_multiScheme() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -64,7 +65,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_isA() throws OpenSearchException {
+  void imQuery_term_isA() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -79,7 +80,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiIsA() throws OpenSearchException {
+  void imQuery_term_multiIsA() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .addArgument(new Argument().setParameter("isas").setValueIriList(
@@ -97,7 +98,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiMember() throws OpenSearchException {
+  void imQuery_term_multiMember() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()

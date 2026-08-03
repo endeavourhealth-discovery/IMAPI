@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
@@ -117,7 +118,8 @@ public class EntityRepository {
     String sql = """
       SELECT ?sname
       WHERE {
-        ?s rdfs:label ?sname
+        ?s rdfs:label ?sname .
+        optional { ?s rdfs:comment ?sdescription }
       }
       """;
 
@@ -128,6 +130,7 @@ public class EntityRepository {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           result.setIri(iri).setName(bs.getValue("sname").stringValue());
+          if (bs.getValue("sdescription") != null) result.setDescription(bs.getValue("sdescription").stringValue());
         }
       }
     }
@@ -216,7 +219,7 @@ public class EntityRepository {
     return iriToTypesMap;
   }
 
-  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris) {
+  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris) throws DataMissingException {
     List<SearchResultSummary> summaries = new ArrayList<>();
 
     String sql = """
@@ -245,29 +248,49 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
+          if (null == bs.getValue("sscheme")) {
+            throw new DataMissingException("Entity " + iri + " is missing required data im:scheme");
+          }
+          if (null == bs.getValue("sstatus")) {
+            throw new DataMissingException("Entity " + iri + " is missing required data im:status");
+          }
           Set<TTIriRef> types = iriToTypesMap.get(iri);
+          if (types.isEmpty()) {
+            throw new DataMissingException("Entity " + iri + " is missing required data rdf:type");
+          }
           SearchResultSummary summary = new SearchResultSummary();
           summary
             .setIri(iri)
             .setName(bs.getValue("sname").stringValue())
             .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-            .setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
+            .setScheme(
+              new TTIriRef(
+                bs.getValue("sscheme").stringValue(),
+                (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())
+              )
+            )
             .setType(types)
-            .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            .setStatus(
+              new TTIriRef(
+                bs.getValue("sstatus").stringValue(),
+                bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()
+              )
+            )
             .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
       }
     }
+    if (summaries.size() != stringIris.size()) {
+      List<String> missing = stringIris.stream().filter(iri -> summaries.stream().noneMatch(summ -> summ.getIri().equals(iri))).toList();
+      throw new DataMissingException("One of more iris do not exist. Missing iris: " + missing);
+    }
     return summaries;
   }
 
-  public SearchResultSummary getEntitySummaryByIri(String iri) {
-    SearchResultSummary result = new SearchResultSummary();
-    result.setIri(iri);
-
+  public SearchResultSummary getEntitySummaryByIri(String iri) throws DataMissingException {
     String sql = """
-      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
+      SELECT ?s ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
         ?s rdfs:label ?sname .
         OPTIONAL { ?s im:code ?scode . }
@@ -301,22 +324,30 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
+        SearchResultSummary result = new SearchResultSummary();
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          if (result.getName() == null) {
-            result.setIri(iri).setName(bs.getValue("sname").stringValue())
-              .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-              .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
-              .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          result.setIri(bs.getValue("s").stringValue());
+          if (null != bs.getValue("sname")) {
+            result.setName(bs.getValue("sname").stringValue());
+          } else throw new DataMissingException("Entity " + iri + " is missing required data rdfs:label");
+          if (null != bs.getValue("scode")) {
+            result.setCode(bs.getValue("scode").stringValue());
+          }
+          if (null != bs.getValue("sstatus")) {
+            result.setStatus(new TTIriRef(bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()));
+          } else throw new DataMissingException("Entity " + iri + " is missing required data im:status");
+          if (bs.hasBinding("sdescription")) {
+            result.setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
           if (bs.hasBinding("type")) {
             result.addType(TTIriRef.iri(bs.getValue("type").stringValue())
               .setName(bs.getValue("typeName").stringValue()));
-          }
+          } else throw new DataMissingException("Entity " + iri + " is missing required data rdf:type");
 
           if (bs.hasBinding("sscheme")) {
             result.setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
-          }
+          } else throw new DataMissingException("Entity " + iri + " is missing required data im:scheme");
           if (bs.hasBinding("intervalUnit")) {
             result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
               .setName(bs.getValue("intervalUnitName").stringValue()));
@@ -329,9 +360,11 @@ public class EntityRepository {
             }
           }
         }
+        return result;
+      } catch (QueryEvaluationException e) {
+        throw new DataMissingException("Entity with iri: " + iri + " does not exist");
       }
     }
-    return result;
   }
 
   public List<ParentDto> findParentHierarchies(String iri) {
@@ -1606,7 +1639,7 @@ public class EntityRepository {
     }
   }
 
-  public Set<TTEntity> getEntities(Set<String> iris,Set<String> predicates) {
+  public Set<TTEntity> getEntities(Set<String> iris, Set<String> predicates) {
     Set<TTEntity> result = new HashSet<>();
     Map<String, TTEntity> entityMap = new HashMap<>();
     if (iris == null || iris.isEmpty())
@@ -1642,7 +1675,7 @@ public class EntityRepository {
           String iri = bs.getValue("entity").stringValue();
           TTEntity entity = entityMap.get(iri);
           if (entity == null) {
-            entity= new TTEntity()
+            entity = new TTEntity()
               .setIri(iri)
               .setName(bs.getValue("entityLabel").stringValue());
             entityMap.put(iri, entity);

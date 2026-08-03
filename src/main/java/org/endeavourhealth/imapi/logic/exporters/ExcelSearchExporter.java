@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -42,7 +43,7 @@ public class ExcelSearchExporter {
     headerStyle.setWrapText(true);
   }
 
-  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException {
+  public XSSFWorkbook getSearchAsExcel(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DataMissingException {
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {
       QueryRequest queryRequest = downloadByQueryOptions.getQueryRequest();

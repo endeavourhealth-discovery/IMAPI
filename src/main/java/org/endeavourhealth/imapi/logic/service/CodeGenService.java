@@ -2,13 +2,12 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.apache.commons.text.WordUtils;
 import org.endeavourhealth.imapi.dataaccess.CodeGenRepository;
+import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.codegen.CodeGenTemplate;
+import org.endeavourhealth.imapi.model.dto.CodeGenDto;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.EntityType;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.model.DataModelProperty;
-import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.model.search.SearchResultSummary;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 
@@ -74,8 +73,7 @@ public class CodeGenService {
   }
 
   private TTIriRef getModelSummary(String iri) {
-    SearchResultSummary summary = entityService.getSummary(iri);
-    return new TTIriRef(summary.getIri(), summary.getName()).setDescription(summary.getDescription());
+    return entityService.getEntityReference(iri);
   }
 
   private HttpEntity<Object> createModelCodeZip(String namespace, List<TTIriRef> models, CodeGenDto template) {

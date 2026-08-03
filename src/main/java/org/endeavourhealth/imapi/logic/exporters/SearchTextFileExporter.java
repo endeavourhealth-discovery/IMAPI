@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.exporters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.service.EclService;
 import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.model.customexceptions.DownloadException;
@@ -24,7 +25,7 @@ public class SearchTextFileExporter {
   private final SearchService searchService = new SearchService();
   private final EclService eclService = new EclService();
 
-  public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException {
+  public String getSearchFile(DownloadByQueryOptions downloadByQueryOptions) throws OpenSearchException, JsonProcessingException, QueryException, DownloadException, DataMissingException {
     log.debug("Exporting search results to {}", downloadByQueryOptions.getFormat());
     SearchResponse searchResponse = null;
     if (null != downloadByQueryOptions.getQueryRequest()) {

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
@@ -290,7 +291,7 @@ public class OSQuery {
 
   }
 
-  public SearchResponse OSQueryAsSearchResponse(QueryRequest request) throws OpenSearchException {
+  public SearchResponse OSQueryAsSearchResponse(QueryRequest request) throws OpenSearchException, DataMissingException {
     try {
       JsonNode root = OSQueryAsJsonNode(request);
       if (root == null)
@@ -305,7 +306,7 @@ public class OSQuery {
 
   }
 
-  private SearchResultSummary getSummary(TTEntity entity) {
+  private SearchResultSummary getSummary(TTEntity entity) throws DataMissingException {
     if (null == entity.getStatus() || null == entity.getScheme()) {
       return new EntityRepository().getEntitySummaryByIri(entity.getIri());
     } else {
@@ -326,7 +327,7 @@ public class OSQuery {
     }
   }
 
-  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException {
+  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException, DataMissingException {
     try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
       SearchResponse searchResults = new SearchResponse();
       searchResults.setHighestUsage(0);

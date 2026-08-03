@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -209,7 +210,7 @@ public class EntityService {
     return getBundle(iri, new HashSet<>(predicates)).getEntity();
   }
 
-  public SearchResultSummary getSummary(String iri) {
+  public SearchResultSummary getSummary(String iri) throws DataMissingException {
     if (iri == null || iri.isEmpty()) return null;
     return entityRepository.getEntitySummaryByIri(iri);
   }

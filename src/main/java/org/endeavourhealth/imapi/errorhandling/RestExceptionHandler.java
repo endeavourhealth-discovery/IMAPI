@@ -5,8 +5,6 @@ import org.apache.catalina.connector.ClientAbortException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.model.customexceptions.*;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
-import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -173,6 +171,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler(AuthenticationException.class)
   protected ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex) {
     ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex, ErrorCodes.AUTHENTICATION_EXCEPTION);
+    return buildResponseEntity(error);
+  }
+
+  @ExceptionHandler(DataMissingException.class)
+  protected ResponseEntity<Object> handleDataMissingException(DataMissingException ex) {
+    ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.DATA_MISSING_EXCEPTION);
     return buildResponseEntity(error);
   }
 

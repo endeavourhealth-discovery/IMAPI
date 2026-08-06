@@ -17,6 +17,7 @@ import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.iml.MatchReturn;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
+import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
@@ -175,17 +176,17 @@ public class QueryController {
   )
   public Query describeQueryContent(
     HttpServletRequest request,
-    @RequestBody JsonNode body
+    @RequestBody QueryDisplayRequest queryDisplayRequest
   ) throws IOException, QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET");
-         CachedObjectMapper mapper = new CachedObjectMapper()) {
-      log.debug("getQueryDisplayFromQuery");
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
+      try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+        log.debug("getQueryDisplayFromQuery");
 
-      DisplayMode displayMode = DisplayMode.valueOf(body.get("displayMode").asText());
-      Query query = mapper.treeToValue(body.get("query"), Query.class);
-      log.debug("displayMode: {}", displayMode);
+        DisplayMode displayMode = queryDisplayRequest.getDisplayMode();
+        log.debug("displayMode: {}", displayMode);
 
-      return queryService.describeQuery(query, displayMode);
+        return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode);
+      }
     }
   }
 

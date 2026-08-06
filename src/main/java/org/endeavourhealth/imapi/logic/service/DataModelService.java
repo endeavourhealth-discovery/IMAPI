@@ -198,7 +198,7 @@ public class DataModelService {
     propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
     propertyDisplay.setCardinality(cardinality);
     propertyDisplay.setReverseCardinality(reverseCardinality);
-    propertyDisplay.setOr(true);
+    propertyDisplay.setIsOr(true);
     for (TTValue orProperty : ttProperty.asNode().get(iri(SHACL.OR)).getElements()) {
       TTArray type;
       if (orProperty.asNode().has(iri(SHACL.CLASS))) type = orProperty.asNode().get(iri(SHACL.CLASS));
@@ -244,8 +244,8 @@ public class DataModelService {
     propertyDisplay.addType(type.get(0).asIriRef());
     propertyDisplay.setCardinality(cardinality);
     propertyDisplay.setReverseCardinality(reverseCardinality);
-    propertyDisplay.setOr(false);
-    propertyDisplay.setNode(ttProperty.asNode().get(iri(SHACL.NODE)) != null);
+    propertyDisplay.setIsOr(false);
+    propertyDisplay.setIsNode(ttProperty.asNode().get(iri(SHACL.NODE)) != null);
     if (null != group) propertyDisplay.setGroup(group.asIriRef());
     propertyList.add(propertyDisplay);
   }

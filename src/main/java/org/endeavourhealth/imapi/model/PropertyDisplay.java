@@ -1,21 +1,30 @@
 package org.endeavourhealth.imapi.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
 public class PropertyDisplay {
+  @Getter
   private int order;
+  @Getter
   private TTIriRef group;
+  @Getter
   private List<TTIriRef> property;
+  @Getter
   private List<TTIriRef> type;
+  @Getter
   private String cardinality;
+  @JsonProperty("isOr")
   private boolean isOr;
-  private boolean isType;
+  @JsonProperty("isType")
+  private boolean typeFlag;
+  @JsonProperty("isNode")
   private boolean isNode;
+  @Getter
   private String reverseCardinality;
 
   public PropertyDisplay() {
@@ -46,11 +55,6 @@ public class PropertyDisplay {
     return this;
   }
 
-  public PropertyDisplay setType(List<TTIriRef> type) {
-    this.type = type;
-    return this;
-  }
-
   public PropertyDisplay addType(TTIriRef type) {
     if (this.type == null) {
       this.type = new ArrayList<>();
@@ -64,17 +68,37 @@ public class PropertyDisplay {
     return this;
   }
 
-  public PropertyDisplay setOr(boolean or) {
+  @JsonProperty("isOr")
+  public boolean isOr() {
+    return isOr;
+  }
+
+  public PropertyDisplay setIsOr(boolean or) {
     isOr = or;
     return this;
   }
 
-  public PropertyDisplay setType(boolean type) {
-    isType = type;
+  @JsonProperty("isType")
+  public boolean getTypeFlag() {
+    return typeFlag;
+  }
+
+  public PropertyDisplay setTypeFlag(boolean type) {
+    typeFlag = type;
     return this;
   }
 
-  public PropertyDisplay setNode(boolean node) {
+  public PropertyDisplay setType(List<TTIriRef> type) {
+    this.type = type;
+    return this;
+  }
+
+  @JsonProperty("isNode")
+  public boolean isNode() {
+    return isNode;
+  }
+
+  public PropertyDisplay setIsNode(boolean node) {
     isNode = node;
     return this;
   }

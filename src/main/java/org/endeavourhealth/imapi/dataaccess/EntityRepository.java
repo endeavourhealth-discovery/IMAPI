@@ -1200,7 +1200,7 @@ public class EntityRepository {
       iri(stringIri);
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren  ?description ?status ?statusname
+      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren  ?description ?status ?statusname ?scheme ?schemename
       WHERE {
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
@@ -1208,6 +1208,10 @@ public class EntityRepository {
         %s
         OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
+        OPTIONAL {
+          ?s im:scheme ?scheme .
+          ?scheme rdfs:label ?schemename
+        }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
       """.formatted(valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
@@ -1252,6 +1256,9 @@ public class EntityRepository {
             refNode.setDescription(bs.getValue("description").stringValue());
           if (bs.hasBinding("status")) {
             refNode.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
+          if (bs.hasBinding("schemename")) {
+            refNode.setScheme(new TTIriRef(bs.getValue("scheme") == null ? "" : bs.getValue("scheme").stringValue(), bs.getValue("schemename") == null ? "" : bs.getValue("schemename").stringValue()));
           }
         }
       }
@@ -1318,7 +1325,7 @@ public class EntityRepository {
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname
+      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname ?scheme ?schemename
       WHERE {
         %s
         ?s im:scheme ?scheme ;
@@ -1327,6 +1334,10 @@ public class EntityRepository {
         OPTIONAL { ?s sh:order ?order . }
         OPTIONAL { ?s rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
+        }
+        OPTIONAL {
+          ?s im:scheme ?scheme .
+          ?scheme rdfs:label ?schemename
         }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
@@ -1362,6 +1373,10 @@ public class EntityRepository {
 
           if (bs.hasBinding("status")) {
             result.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
+
+          if (bs.hasBinding("scheme") && bs.hasBinding("schemename")) {
+            result.setScheme(new TTIriRef((bs.getValue("scheme") == null ? "" : bs.getValue("scheme").stringValue()), (bs.getValue("schemename") == null ? "" : bs.getValue("schemename").stringValue())));
           }
 
           while (rs.hasNext()) {

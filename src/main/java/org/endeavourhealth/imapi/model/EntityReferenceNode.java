@@ -20,6 +20,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   private TTArray type;
   private int orderNumber;
   private TTIriRef status;
+  private TTIriRef scheme;
 
   public EntityReferenceNode() {
   }
@@ -49,6 +50,15 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
 
   public EntityReferenceNode setStatus(TTIriRef status) {
     this.status = status;
+    return this;
+  }
+
+  public TTIriRef getScheme() {
+    return scheme;
+  }
+
+  public EntityReferenceNode setScheme(TTIriRef scheme) {
+    this.scheme = scheme;
     return this;
   }
 

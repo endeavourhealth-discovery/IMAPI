@@ -9,15 +9,12 @@ import org.endeavourhealth.imapi.dataaccess.QueryRepository;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.iml.MatchReturn;
+import org.endeavourhealth.imapi.model.iml.MatchMap;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.sql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
-import org.endeavourhealth.imapi.model.tripletree.TTBundle;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
@@ -41,8 +38,8 @@ public class QueryService {
     return new QueryDescriptor().describeQuery(query, displayMode);
   }
 
-  public Match describeMatch(Match match) throws QueryException {
-    return new QueryDescriptor().describeSingleMatch(match);
+  public Query describeMatch(Query query) throws QueryException {
+    return new QueryDescriptor().describeSingleMatch(query);
   }
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
@@ -176,26 +173,26 @@ public class QueryService {
     checkMatchArguments(query, missingArguments, arguments);
   }
 
-  private void checkMatchArguments(Match match, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
-    if (null != match.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(match.getParameter()))) {
-      addMissingArgument(missingArguments, match.getParameter(), match.getIri());
+  private void checkMatchArguments(Query query, List<ArgumentReference> missingArguments, Set<Argument> arguments) {
+    if (null != query.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(query.getParameter()))) {
+      addMissingArgument(missingArguments, query.getParameter(), query.getIri());
     }
-    if (null != match.getIs()) {
-      Node instance = match.getIs();
+    if (null != query.getIs()) {
+      Node instance = query.getIs();
       if (null != instance.getParameter() && arguments.stream().noneMatch(argument -> argument.getParameter().equals(instance.getParameter()))) {
         addMissingArgument(missingArguments, instance.getParameter(), instance.getIri());
       }
     }
-    if (null != match.getAnd()) {
-      List<Match> matches = match.getAnd();
-      matches.forEach(andMatch -> checkMatchArguments(andMatch, missingArguments, arguments));
+    if (null != query.getAnd()) {
+      List<Query> queries = query.getAnd();
+      queries.forEach(andMatch -> checkMatchArguments(andMatch, missingArguments, arguments));
     }
-    if (null != match.getOr()) {
-      List<Match> matches = match.getOr();
-      matches.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
+    if (null != query.getOr()) {
+      List<Query> queries = query.getOr();
+      queries.forEach(orMatch -> checkMatchArguments(orMatch, missingArguments, arguments));
     }
-    if (null != match.getWhere()) {
-      recursivelyCheckWhereArguments(match.getWhere(), missingArguments, arguments);
+    if (null != query.getWhere()) {
+      recursivelyCheckWhereArguments(query.getWhere(), missingArguments, arguments);
     }
   }
 
@@ -303,21 +300,21 @@ public class QueryService {
     return query;
   }
 
-  public Set<TTEntity> getSemanticMapsForMatch(MatchReturn matchReturn) {
-    Match match = matchReturn.getMatch();
-    Return column= matchReturn.getReturn();
+  public Set<TTEntity> getSemanticMapsForMatch(MatchMap matchMap) {
+    Query query = matchMap.getMatch();
+    Return column= matchMap.getReturn();
     Set<String> sourceIris = new HashSet<>();
     Set<String> properties= new HashSet<>();
-    properties.add(getPropertyFromColumn(match,column));
-    if (match.getWhere() != null) {
-      collectSourcesFromWhere(match.getWhere(), sourceIris);
+    properties.add(getPropertyFromColumn(query,column));
+    if (query.getWhere() != null) {
+      collectSourcesFromWhere(query.getWhere(), sourceIris);
     }
-    if (match.getThen() != null && match.getThen().getWhere() != null) {
-      collectSourcesFromWhere(match.getThen().getWhere(), sourceIris);
+    if (query.getThen() != null && query.getThen().getWhere() != null) {
+      collectSourcesFromWhere(query.getThen().getWhere(), sourceIris);
     }
     if (sourceIris.isEmpty()){
       DataModelRepository dataModelRepository = new DataModelRepository();
-      TTIriRef valueSet= dataModelRepository.getPropertyValueSet(match.getTypeOf().getIri(),properties);
+      TTIriRef valueSet= dataModelRepository.getPropertyValueSet(query.getTypeOf().getIri(),properties);
       if (valueSet!=null) {
         sourceIris.add(valueSet.getIri());
       }
@@ -367,4 +364,169 @@ public class QueryService {
       }
     }
   }
+  public String getAcronym(String iri) {
+    if (iri == null || iri.isBlank()) return "";
+    String local = iri.substring(iri.lastIndexOf("#") + 1);
+    String[] parts = local.split("(?<!^)(?=[A-Z0-9])");
+    StringBuilder sb = new StringBuilder();
+    for (String part : parts) {
+      if (part.isBlank()) continue;
+      sb.append(Character.toUpperCase(part.charAt(0)));
+    }
+    String acronym = sb.toString().toLowerCase();
+    return acronym;
+  }
+
+  public Query generateMatchForSemanticMap(MatchMap matchMap) {
+    Query match= matchMap.getMatch();
+    if (match.getReturn() == null) return match;
+    Query mappedMatch=match;
+    String baseType = matchMap.getBaseType();
+    if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(baseType)) {
+      mappedMatch= new Query();
+      mappedMatch.addAnd(match);
+      mappedMatch.setReturn(match.getReturn());
+      match.setReturn(null);
+
+      mappedMatch.setName(match.getName());
+    }
+    for (Return column : match.getReturn()) {
+      if (column.getCase() == null && column.getSemanticMap() != null) {
+        String semanticMapIri = column.getSemanticMap().getIri();
+        TTEntity mapSource = new QueryRepository().getMapSourceProperties(semanticMapIri);
+        String sourceValueProperty;
+        String sourceEntityProperty;
+        TTArray valueProperty = mapSource.get(IM.SOURCE_VALUE_PROPERTY);
+        if (valueProperty != null) {
+          sourceValueProperty = valueProperty.asIriRef().getIri();
+        } else {
+          sourceValueProperty = null;
+        }
+        TTArray entityProperty = mapSource.get(IM.SOURCE_ENTITY_PROPERTY);
+        if (entityProperty != null) {
+          sourceEntityProperty = entityProperty.asIriRef().getIri();
+        } else {
+          sourceEntityProperty = null;
+        }
+        if (sourceEntityProperty == null) {
+          return matchMap.getMatch();
+        }
+        if (match.getTypeOf() != null && !match.getTypeOf().getIri().equals(baseType)) {
+          setComplexSemanticMatch(match, mapSource, sourceEntityProperty, sourceValueProperty, semanticMapIri, column);
+        } else {
+          setSimpleSemanticMatch(match, mapSource, sourceEntityProperty, sourceValueProperty, semanticMapIri, column);
+        }
+        setSemanticMatchCase(mappedMatch,mapSource,column);
+      }
+    }
+    return mappedMatch;
+  }
+
+  private Path getOrSetPathFromProperty(Query query, String property,String typeOf) {
+    if (query.getPath()!=null){
+      for (Path path:query.getPath()) {
+        if (path.getIri().equals(property)) return path;
+      }
+    }
+    Path path = new Path();
+    query.addPath(path);
+    path.setIri(property);
+    path.setTypeOf(typeOf);
+    return path;
+  }
+
+  private void setSimpleSemanticMatch(Query match, TTEntity mapSource,String sourceEntityProperty, String sourceValueProperty, String semanticMapIri,Return column) {
+    Path path = getOrSetPathFromProperty(match,sourceEntityProperty,IM.CONCEPT.toString());
+    match.addPath(path);
+    setMapPath(match,path,sourceValueProperty,semanticMapIri);
+  }
+
+  private void setSemanticMatchCase(Query match, TTEntity mapSource,Return caseReturn) {
+    caseReturn.setIri((String) null);
+    String defaultText= mapSource.get(IM.DEFAULT_TEXT).asLiteral().getValue();
+    When when= new When();
+    when.setNodeRef("mapEntry")
+      .setIri(IM.TARGET_TEXT.toString())
+      .setNotNull(true);
+    when
+      .then(t->t
+        .setIri(IM.TARGET_TEXT.toString()));
+    Case case_ = new Case();
+    caseReturn.setCase(case_);
+    case_.addWhen(when);
+    case_.else_(
+      e->e.setValue(defaultText)
+      );
+  }
+
+
+  private void setComplexSemanticMatch (Query match,TTEntity mapSource,String entityProperty,
+                                         String sourceValueProperty,String semanticMapIri,Return column){
+
+    match.addReturn(new Return().setIri(entityProperty));
+    if (sourceValueProperty!=null) {
+      match.addReturn(new Return().setIri(sourceValueProperty));
+    }
+    Query then= new Query();
+    match.setThen(then);
+    setMapPath(then,then,sourceValueProperty,semanticMapIri);
+  }
+
+  private void setMapPath(Query match,HasPaths rootPath,String sourceValueProperty,String semanticMapIri) {
+    Path mapEntryPath = new Path(); // outer join on map entry
+    rootPath.addPath(mapEntryPath);
+    mapEntryPath.setOptional(true);
+    mapEntryPath.setIri(IM.HAS_MAP_ENTRY);
+    mapEntryPath.setTypeOf(IM.MAP_ENTRY);
+    mapEntryPath.setNode("mapEntry");
+    Where where = new Where();
+    Where mapWhere = new Where();  //matches only on the map entries needed
+    mapWhere.setNodeRef("mapEntry")
+      .setIri(IM.IN_SEMANTIC_MAP.toString())
+      .is(is -> is.setIri(semanticMapIri));
+    if (sourceValueProperty != null) {
+      mapEntryPath.setWhere(where);
+      where
+        .addAnd(mapWhere)
+        .and(w1 -> w1    //range match rules
+          .or(w2 -> w2
+            .and(w3 -> w3
+              .setIri(sourceValueProperty)
+              .setNotNull(true))
+            .and(w3 -> w3
+              .setIri(sourceValueProperty)
+              .range(r -> r
+                .from(f -> f
+                  .setNodeRef("mapEntry")
+                  .setIri(IM.RANGE_FROM.toString())
+                  .setOperator(Operator.gte))
+                .to(t -> t
+                  .setNodeRef("mapEntry")
+                  .setIri(IM.RANGE_TO.toString())
+                  .setOperator(Operator.lte)))))
+          .or(w2 -> w2.  //match withut range match
+            and(w3 -> w3
+            .setIri(sourceValueProperty)
+            .setIsNull(true))
+            .and(w3 -> w3
+              .setNodeRef("mapEntry")
+              .setIsNull(true)
+              .setIri(IM.RANGE_FROM.toString()))));
+    } else {
+      mapEntryPath.setWhere(mapWhere); //any match
+    }
+    if (sourceValueProperty != null) {
+      match.setOrderBy(new OrderLimit());
+      OrderLimit orderLimit = match.getOrderBy();
+      orderLimit.addProperty(new OrderDirection()
+        .setNodeRef("mapEntry")
+        .setIri(SHACL.ORDER.toString())
+        .setDirection(Order.ascending));
+      orderLimit.setLimit(1);
+      match.setAs("mapEntry");
+    }
+
+  }
+
+
 }

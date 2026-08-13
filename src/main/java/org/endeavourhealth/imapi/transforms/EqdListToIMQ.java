@@ -31,16 +31,16 @@ public class EqdListToIMQ {
     resources.getQueryEntity().addObject(TTIriRef.iri(IM.DEPENDENT_ON), TTIriRef.iri(id));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
-      Match subQuery = new Match();
+      Query subQuery = new Query();
       subQuery.setIri(resources.getNamespace() + eqColGroup.getId());
       query.addColumnGroup(convertListGroup(eqColGroup));
     }
   }
 
 
-  private Match convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
+  private Query convertListGroup(EQDOCListColumnGroup eqColGroup) throws IOException, QueryException, EQDException {
     String eqTable = eqColGroup.getLogicalTableName();
-    Match subQuery;
+    Query subQuery;
     subQuery = convertColumns(eqColGroup, eqTable);
     subQuery.setName(eqColGroup.getDisplayName());
 
@@ -86,15 +86,15 @@ public class EqdListToIMQ {
     return null;
   }
 
-  private Match convertColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
+  private Query convertColumns(EQDOCListColumnGroup eqColGroup, String eqTable) throws IOException, QueryException, EQDException {
     resources.setRule(1);
     resources.setSubRule(1);
     String tablePath = resources.getIMPath(eqTable);
-    Match subQuery;
+    Query subQuery;
     if (eqColGroup.getCriteria() != null)
       subQuery = resources.convertCriteria(eqColGroup.getCriteria());
     else {
-      subQuery = new Match();
+      subQuery = new Query();
     }
     subQuery.setReturn(null);
     subQuery.setTypeOf(resources.getIMPath(eqTable));
@@ -141,7 +141,7 @@ public class EqdListToIMQ {
     return subQuery;
   }
 
-  private void convertColumn(Match subQuery, String propertyIri, String as, String nodeRef) throws EQDException {
+  private void convertColumn(Query subQuery, String propertyIri, String as, String nodeRef) throws EQDException {
     Return property = new Return();
     subQuery.addReturn(property);
     ;
@@ -152,7 +152,7 @@ public class EqdListToIMQ {
       property.setAs(as);
   }
 
-  private void convertReturnConcatenate(Match subQuery, String eqTable, String tablePath, String eqPaths, String as) throws EQDException {
+  private void convertReturnConcatenate(Query subQuery, String eqTable, String tablePath, String eqPaths, String as) throws EQDException {
     FunctionClause function = new FunctionClause();
     Return property = new Return();
     subQuery.addReturn(property);

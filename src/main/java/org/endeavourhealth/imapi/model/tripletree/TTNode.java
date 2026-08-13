@@ -158,7 +158,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an object to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, TTValue object) {
@@ -171,7 +171,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds a String or string iri to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, String value) {
@@ -184,7 +184,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, Integer value) {
@@ -196,7 +196,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, boolean value) {
@@ -208,7 +208,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, Long value) {

@@ -31,40 +31,6 @@ public class Return implements Returnable {
   private Case case_;
   private String description;
   private String value;
-  private Match match;
-  private List<Match> coalesce;
-
-  public List<Match> getCoalesce() {
-    return coalesce;
-  }
-  public Return setCoalesce(List<Match> coalesce) {
-    this.coalesce = coalesce;
-    return this;
-  }
-  public Return addCoalesce(Match coalesce) {
-    if (this.coalesce == null) this.coalesce = new ArrayList<>();
-    this.coalesce.add(coalesce);
-    return this;
-  }
-  public Match getMatch() {
-    return match;
-
-  }
-  public Return setMatch(Match match) {
-    this.match = match;
-    return this;
-  }
-  public Return match(Consumer<Match> builder) {
-    Match match = new Match();
-    builder.accept(match);
-    return this.setMatch(match);
-  }
-  public Return coalesce(Consumer<Match> builder) {
-    Match match = new Match();
-    addCoalesce(match);
-    builder.accept(match);
-    return this;
-  }
 
 
   public TTIriRef getSemanticMap() {

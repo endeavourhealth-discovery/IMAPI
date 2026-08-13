@@ -7,7 +7,6 @@ import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
@@ -575,8 +574,8 @@ public class SetRepository {
           Values ?setIri{%s}
         """.formatted("<" + setIri + ">"))
       .append("\n");
-    select.append(addUnion(true, includeLegacy, schemes, null));
-    select.append(addUnion(false, includeLegacy, schemes, subsumptionPredicates));
+    select.append(addOr(true, includeLegacy, schemes, null));
+    select.append(addOr(false, includeLegacy, schemes, subsumptionPredicates));
     select.append("}  ");
     boolean subsumedBy = !subsumptionPredicates.isEmpty();
     try (IMDB conn = IMDB.getConnection()) {
@@ -585,7 +584,7 @@ public class SetRepository {
     }
   }
 
-  private String addUnion(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {
+  private String addOr(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {
     StringJoiner spql = new StringJoiner("\n");
     if (first) {
       spql.add("{");
@@ -914,8 +913,8 @@ public class SetRepository {
           sj.add("INSERT DATA {");
           batch = 0;
         }
-        for (TTValue mapEntry : concept.get(IM.HAS_SEMANTIC_MAP).getElements()) {
-          sj.add("<" + concept.getIri() + "> im:semanticMap <" + mapEntry.asIriRef().getIri() + ">.");
+        for (TTValue mapEntry : concept.get(IM.HAS_MAP_ENTRY).getElements()) {
+          sj.add("<" + concept.getIri() + "> <"+IM.HAS_MAP_ENTRY.toString()+"> <" + mapEntry.asIriRef().getIri() + ">.");
         }
       }
 

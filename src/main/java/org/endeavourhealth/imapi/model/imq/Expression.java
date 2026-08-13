@@ -6,6 +6,15 @@ public class Expression {
   private String nodeRef;
   private String iri;
   private String propertyRef;
+  private String name;
+
+  public String getName() {
+    return name;
+  }
+  public Expression setName(String name) {
+    this.name = name;
+    return this;
+  }
 
   public String getValue() {
     return value;

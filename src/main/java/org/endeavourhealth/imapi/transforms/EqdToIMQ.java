@@ -6,13 +6,12 @@ import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -38,7 +37,7 @@ public class EqdToIMQ {
   @Getter
   private static final Map<String, String> autoNamedClauses = new HashMap<>();
   @Getter
-  private static final Map<String, Match> baseQueries = new HashMap<>();
+  private static final Map<String, Query> baseQueries = new HashMap<>();
   @Getter
   private static Integer setNumber;
   @Setter
@@ -46,7 +45,7 @@ public class EqdToIMQ {
   private static Map<String, EQDOCCriterion> libraryItems;
   @Getter
   private static Map<String, TTEntity> inlineSets = new HashMap<>();
-  private final Map<String, Match> criteriaLibrary = new HashMap<>();
+  private final Map<String, Query> criteriaLibrary = new HashMap<>();
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
@@ -149,7 +148,7 @@ public class EqdToIMQ {
       if (entity.isType(iri(IM.QUERY))) {
         Query query = entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
         if (query.getRule() != null) {
-          for (Match rule : query.getRule()) {
+          for (Query rule : query.getRule()) {
             assignLibraryClausesToRule(rule);
           }
         }
@@ -158,15 +157,15 @@ public class EqdToIMQ {
     }
   }
 
-  private void assignLibraryClausesToRule(Match rule) throws JsonProcessingException {
-    for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
-      if (matches != null) {
-        for (Match match : matches) {
-          if (match.getIs() == null) {
-            Match logicalMatch = new LogicOptimizer().getLogicalMatch(match);
-            String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
+  private void assignLibraryClausesToRule(Query rule) throws JsonProcessingException {
+    for (List<Query> queries : Arrays.asList(rule.getAnd(), rule.getOr())) {
+      if (queries != null) {
+        for (Query query : queries) {
+          if (query.getIs() == null) {
+            Query logicalQuery = new LogicOptimizer().getLogicalMatch(query);
+            String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalQuery).hashCode());
             if (criteriaLibrary.containsKey(libraryIri) && criteriaLibraryCount.get(libraryIri) > 1) {
-              match.setIri(libraryIri);
+              query.setIri(libraryIri);
             }
           }
         }
@@ -176,19 +175,19 @@ public class EqdToIMQ {
 
 
   private void createBaseQueries() throws JsonProcessingException {
-    for (Map.Entry<String, Match> entry : baseQueries.entrySet()) {
+    for (Map.Entry<String, Query> entry : baseQueries.entrySet()) {
       String hash = entry.getKey();
-      Match match = entry.getValue();
+      Query query = entry.getValue();
       String name = autoNamedClauses.get(hash);
       if (name == null)
         name = "Base query";
-      match.setName(name);
+      query.setName(name);
       TTEntity entity = new TTEntity()
         .setIri(namespace + hash)
         .addType(iri(IM.QUERY))
         .setScheme(iri(namespace))
         .setName(name)
-        .set(iri(IM.DEFINITION), TTLiteral.literal(match));
+        .set(iri(IM.DEFINITION), TTLiteral.literal(query));
       document.addEntity(entity);
     }
   }
@@ -200,16 +199,16 @@ public class EqdToIMQ {
         createLibrary(entity.getIri(), entity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
       }
     }
-    for (Map.Entry<String, Match> entry : criteriaLibrary.entrySet()) {
+    for (Map.Entry<String, Query> entry : criteriaLibrary.entrySet()) {
       String libraryIri = entry.getKey();
-      Match match = entry.getValue();
+      Query query = entry.getValue();
       if (criteriaLibraryCount.get(libraryIri) > 1) {
         TTEntity entity = new TTEntity()
           .setIri(libraryIri)
           .addType(iri(IM.QUERY))
           .setScheme(iri(namespace))
-          .setName(match.getDescription())
-          .set(iri(IM.DEFINITION), TTLiteral.literal(match));
+          .setName(query.getName())
+          .set(iri(IM.DEFINITION), TTLiteral.literal(query));
         document.addEntity(entity);
       }
     }
@@ -217,15 +216,15 @@ public class EqdToIMQ {
 
   private void createLibrary(String queryIri, Query query) throws JsonProcessingException {
     if (query.getRule() == null) return;
-    for (Match rule : query.getRule()) {
+    for (Query rule : query.getRule()) {
       if (rule.getIs() == null) {
-        for (List<Match> matches : Arrays.asList(rule.getAnd(), rule.getOr())) {
-          if (matches != null) {
-            for (Match subMatch : matches) {
-              if (subMatch.getIs() == null && !LogicOptimizer.isLinkedMatch(subMatch)) {
-                if (subMatch.getDescription() != null) {
-                  Match logicalMatch = new LogicOptimizer().getLogicalMatch(subMatch);
-                  addLibraryItem(queryIri, subMatch, logicalMatch);
+        for (List<Query> queries : Arrays.asList(rule.getAnd(), rule.getOr())) {
+          if (queries != null) {
+            for (Query subQuery : queries) {
+              if (subQuery.getIs() == null && !LogicOptimizer.isLinkedMatch(subQuery)) {
+                if (subQuery.getName() != null) {
+                  Query logicalQuery = new LogicOptimizer().getLogicalMatch(subQuery);
+                  addLibraryItem(queryIri, subQuery, logicalQuery);
                 }
               }
             }
@@ -235,9 +234,9 @@ public class EqdToIMQ {
     }
   }
 
-  private void addLibraryItem(String queryIri, Match match, Match logicalMatch) throws JsonProcessingException {
-    String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalMatch).hashCode());
-    criteriaLibrary.putIfAbsent(libraryIri, match);
+  private void addLibraryItem(String queryIri, Query query, Query logicalQuery) throws JsonProcessingException {
+    String libraryIri = namespace + "Clause_" + (mapper.writeValueAsString(logicalQuery).hashCode());
+    criteriaLibrary.putIfAbsent(libraryIri, query);
     criteriaLibraryCount.putIfAbsent(libraryIri, 1);
     libraryUsedIn.computeIfAbsent(libraryIri, r -> new HashSet<>()).add(queryIri);
     criteriaLibraryCount.put(libraryIri, criteriaLibraryCount.get(libraryIri) + 1);
@@ -298,24 +297,24 @@ public class EqdToIMQ {
 
   private void checkGms(Query query) {
     if (query.getRule() != null) {
-      for (Match match : query.getRule()) {
-        this.checkGms(match);
+      for (Query subQuery : query.getRule()) {
+        this.checkGmsClause(subQuery);
       }
     }
 
     if (query.getColumnGroup() != null) {
-      for (Match subQuery : query.getColumnGroup()) {
-        this.checkGms(subQuery);
+      for (Query subQuery : query.getColumnGroup()) {
+        this.checkGmsClause(subQuery);
       }
     }
 
   }
 
-  private void checkGms(Match match) {
-    if (match.getIs() != null) {
-      Node node = match.getIs();
+  private void checkGmsClause(Query query) {
+    if (query.getIs() != null) {
+      Node node = query.getIs();
       if (gmsPatients.contains(node.getIri())) {
-        node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered with GP for GMS services on the reference date");
+        node.setIri(NAMESPACE.IM + "Q_RegisteredGMS").setName("Registered and GP for GMS services on the reference date");
       }
     }
   }
@@ -399,31 +398,31 @@ public class EqdToIMQ {
 
   private void flattenRules(Query qry) {
     if (qry.getRule() != null) {
-      for (Match rule : qry.getRule()) {
+      for (Query rule : qry.getRule()) {
         flattenMatch(rule);
       }
     }
   }
 
-  private void flattenMatch(Match match) {
-    if (match.getOr() != null) {
-      for (Match subMatch : match.getOr()) {
-        flattenMatch(subMatch);
+  private void flattenMatch(Query query) {
+    if (query.getOr() != null) {
+      for (Query subQuery : query.getOr()) {
+        flattenMatch(subQuery);
       }
-    } else if (match.getAnd() != null) {
-      List<Match> flatAnds = new ArrayList<>();
-      flattenAnds(match, flatAnds);
-      if (!flatAnds.isEmpty()) match.setAnd(flatAnds);
+    } else if (query.getAnd() != null) {
+      List<Query> flatAnds = new ArrayList<>();
+      flattenAnds(query, flatAnds);
+      if (!flatAnds.isEmpty()) query.setAnd(flatAnds);
     }
   }
 
-  private void flattenAnds(Match match, List<Match> flatAnds) {
-    for (Match subMatch : match.getAnd()) {
-      if (subMatch.getAnd() == null) {
-        flatAnds.add(subMatch);
-        flattenMatch(subMatch);
+  private void flattenAnds(Query query, List<Query> flatAnds) {
+    for (Query subQuery : query.getAnd()) {
+      if (subQuery.getAnd() == null) {
+        flatAnds.add(subQuery);
+        flattenMatch(subQuery);
       } else {
-        flattenAnds(subMatch, flatAnds);
+        flattenAnds(subQuery, flatAnds);
       }
     }
   }

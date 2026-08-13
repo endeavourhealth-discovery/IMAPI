@@ -1,175 +1,132 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({
-  "prefix",
-  "iri",
+  "notExists",
+  "and",
+  "ifTrue",
+  "ifFalse",
   "name",
   "description",
-  "query",
-  "activeOnly",
+  "nodeRef",
+  "header",
   "typeOf",
   "is",
+  "path",
   "and",
   "or",
   "not",
-  "path",
   "where",
   "return",
-  "groupBy",
-  "dataSet"
+  "then",
+  ""
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Query extends Match {
+public class Query implements HasPaths, Returnable {
 
-  private Prefixes prefixes;
-  private String description;
-  private List<Match> columnGroup;
-  private String iri;
+  private String as;
   private String name;
+  private String description;
+  private Node graph;
+  private Where where;
+  private String iri;
+  private String from;
+  private boolean optional;
+  private Node typeOf;
+  private String parameter;
+
+  private List<Path> path;
+  private FunctionClause function;
+  private Entail entailment;
+  private List<Return> returx;
+  private RuleAction ifTrue;
+  private RuleAction ifFalse;
+  private boolean baseRule;
+  private Integer ruleNumber;
+  private boolean inverse;
+  private boolean activeOnly;
+  private List<Query> or;
+  private List<Query> and;
+  private List<Query> rule;
+  private String libraryItem;
+  private boolean invalid;
+  private Node is;
+  private List<GroupBy> groupBy;
+  private String node;
+  private OrderLimit orderBy;
+  private String asDescription;
+  private boolean notExists;
+  private String errorMessage;
+  private boolean draft;
+  private Query then;
+  private Having having;
+  private Prefixes prefixes;
   private String imQuery;
   private JsonNode parentResult;
-
-  @Getter
-  private TTIriRef persistentIri;
-
-  @Getter
-  private String bindAs;
-
+  private List<Query> columnGroup;
   private IMQType queryType;
+  private String uuid;
 
-  public Query setErrorMessage(String errorMessage) {
-    super.setErrorMessage(errorMessage);
+
+  public String getDescription() {
+    return description;
+  }
+  public Query setDescription(String description) {
+    this.description = description;
+    return this;
+  }
+  public Query setAs(String as){
+    this.as = as;
+    return this;
+  }
+  public String getAs(){
+    return as;
+  }
+  public String getUuid() {
+    return uuid;
+  }
+  public Query setUuid(String uuid) {
+    this.uuid = uuid;
     return this;
   }
 
   public IMQType getQueryType() {
     return queryType;
   }
-
-  public Query setQueryType(IMQType type) {
-    this.queryType = type;
+  public Query setQueryType(IMQType queryType) {
+    this.queryType = queryType;
     return this;
   }
 
-  public Query setParameter(String parameter) {
-    super.setParameter(parameter);
+  public List<Query> getColumnGroup() {
+    return columnGroup;
+  }
+
+  public Query setColumnGroup(List<Query> columnGroup) {
+    this.columnGroup = columnGroup;
     return this;
   }
 
-  public Query setBindAs(String bindAs) {
-    this.bindAs = bindAs;
+  public Query addColumnGroup(Query columnGroup) {
+    if (this.columnGroup == null) this.columnGroup = new ArrayList<>();
+    this.columnGroup.add(columnGroup);
     return this;
   }
 
-  public Query setRule(List<Match> rule) {
-    super.setRule(rule);
-    return this;
+  public String getIri() {
+    return iri;
   }
 
-  public Query addRule(Match rule) {
-    super.addRule(rule);
-    return this;
-  }
-
-  public Query setAnd(List<Match> and) {
-    super.setAnd(and);
-    return this;
-  }
-
-  public Query addAnd(Match and) {
-    super.addAnd(and);
-    return this;
-  }
-
-  public Query and(Consumer<Match> builder) {
-    Match match = new Match();
-    addAnd(match);
-    builder.accept(match);
-    return this;
-  }
-
-
-  public Query is(Consumer<Node> builder) {
-    super.is(builder);
-    return this;
-  }
-
-  public Query setIs(Node is) {
-    super.setIs(is);
-    return this;
-  }
-
-  public Query setOr(List<Match> or) {
-    super.setOr(or);
-    return this;
-  }
-
-  public Query addOr(Match or) {
-    super.addOr(or);
-    return this;
-  }
-
-  public Query or(Consumer<Match> builder) {
-    Match match = new Match();
-    addOr(match);
-    builder.accept(match);
-    return this;
-  }
-
-  public Query setPath(List<Path> path) {
-    super.setPath(path);
-    return this;
-  }
-
-  public Query addPath(Path path) {
-    super.addPath(path);
-    return this;
-  }
-
-  public Query path(Consumer<Path> builder) {
-    Path path = new Path();
-    addPath(path);
-    builder.accept(path);
-    return this;
-  }
-
-  public Query setWhere(Where where) {
-    super.setWhere(where);
-    return this;
-  }
-
-  public Query where(Consumer<Where> builder) {
-    super.where(builder);
-    return this;
-  }
-
-  public Query setPersistentIri(TTIriRef persistentIri) {
-    this.persistentIri = persistentIri;
-    return this;
-  }
-
-  public Query function(Consumer<FunctionClause> builder) {
-    FunctionClause function = new FunctionClause();
-    super.setFunction(function);
-    builder.accept(function);
-    return this;
-  }
 
   public JsonNode getParentResult() {
     return parentResult;
   }
-
   public Query setParentResult(JsonNode parentResult) {
     this.parentResult = parentResult;
     return this;
@@ -178,32 +135,18 @@ public class Query extends Match {
   public String getImQuery() {
     return imQuery;
   }
-
   public Query setImQuery(String imQuery) {
     this.imQuery = imQuery;
-    return this;
-  }
-
-  @Override
-  public Query setNode(String node) {
-    super.setNode(node);
-    return this;
-  }
-
-  public Query setBaseRule(boolean baseRule) {
-    super.setBaseRule(baseRule);
     return this;
   }
 
   public Prefixes getPrefixes() {
     return prefixes;
   }
-
   public Query setPrefixes(Prefixes prefixes) {
     this.prefixes = prefixes;
     return this;
   }
-
   public Query addPrefix(String prefix, String namespace) {
     Prefix newPrefix = new Prefix().setPrefix(prefix).setNamespace(namespace);
     if (this.prefixes == null) {
@@ -213,36 +156,98 @@ public class Query extends Match {
     return this;
   }
 
+
+
+  public Having getHaving() {
+    return having;
+  }
+
+  public Query setHaving(Having having) {
+    this.having = having;
+    return this;
+  }
+
+  public Query having(Consumer<Having> builder) {
+    Having having = new Having();
+    setHaving(having);
+    return this;
+  }
+
+  public Query getThen() {
+    return then;
+  }
+
+  public Query setThen(Query then) {
+    this.then = then;
+    return this;
+  }
+
+  public Query then(Consumer<Query> builder) {
+    this.then = new Query();
+    builder.accept(this.then);
+    return this;
+  }
+
+  public boolean isDraft() {
+    return draft;
+  }
+
+  public Query setDraft(boolean draft) {
+    this.draft = draft;
+    return this;
+  }
+
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  public Query setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+    return this;
+  }
+
+  public boolean isNotExists() {
+    return notExists;
+  }
+
+  public Query setNotExists(boolean notExists) {
+    this.notExists = notExists;
+    return this;
+  }
+
+  public Query rule(Consumer<Query> builder) {
+    Query rule = new Query();
+    addRule(rule);
+    builder.accept(rule);
+    return this;
+  }
+
+  @JsonGetter
+  public boolean notExists() {
+    return notExists;
+  }
+
+  public Node getTypeOf() {
+    return typeOf;
+  }
+
+  @JsonSetter
+  public Query setTypeOf(Node typeOf) {
+    this.typeOf = typeOf;
+    return this;
+  }
+
   public Query setTypeOf(String type) {
-    super.setTypeOf(type);
+    this.typeOf = new Node().setIri(type);
     return this;
   }
 
-  public Query setReturn(List<Return> returns) {
-    super.setReturn(returns);
-    return this;
+  public Where getWhere() {
+    return where;
   }
 
-  public Query return_(Consumer<Return> builder) {
-    super.return_(builder);
-    return this;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public Query setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  public String getIri() {
-    return iri;
-  }
-
-  public Query setIri(String iri) {
-    this.iri = iri;
+  public Query setWhere(Where where) {
+    this.where = where;
     return this;
   }
 
@@ -255,51 +260,338 @@ public class Query extends Match {
     return this;
   }
 
+  public String getParameter() {
+    return parameter;
+  }
+
+  public Query setParameter(String parameter) {
+    this.parameter = parameter;
+    return this;
+  }
+
+
+  @Override
+  public List<Path> getPath() {
+    return path;
+  }
+
+  public Query setPath(List<Path> path) {
+    this.path = path;
+    return this;
+  }
+
+  public FunctionClause getFunction() {
+    return function;
+  }
+
+  public Query setFunction(FunctionClause function) {
+    this.function = function;
+    return this;
+  }
+
+  public Entail getEntailment() {
+    return entailment;
+  }
+
+  public Query setEntailment(Entail entailment) {
+    this.entailment = entailment;
+    return this;
+  }
+
+  public RuleAction getIfTrue() {
+    return ifTrue;
+  }
+
+  public Query setIfTrue(RuleAction ifTrue) {
+    this.ifTrue = ifTrue;
+    return this;
+  }
+
+  public RuleAction getIfFalse() {
+    return ifFalse;
+  }
+
+  public Query setIfFalse(RuleAction ifFalse) {
+    this.ifFalse = ifFalse;
+    return this;
+  }
+
+  public boolean isBaseRule() {
+    return baseRule;
+  }
+
+  public Query setBaseRule(boolean baseRule) {
+    this.baseRule = baseRule;
+    return this;
+  }
+
+  public Integer getRuleNumber() {
+    return ruleNumber;
+  }
+
+  public void setRuleNumber(Integer ruleNumber) {
+    this.ruleNumber = ruleNumber;
+  }
+
+  public boolean isInverse() {
+    return inverse;
+  }
+
+  public Query setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
+  }
+
+  public List<Query> getOr() {
+    return or;
+  }
+
+  public Query setOr(List<Query> ors) {
+    this.or = ors;
+    return this;
+  }
+
+  public List<Query> getAnd() {
+    return and;
+  }
+
+  public Query setAnd(List<Query> and) {
+    this.and = and;
+    return this;
+  }
+
+  public List<Query> getRule() {
+    return rule;
+  }
+
+  public Query setRule(List<Query> rule) {
+    this.rule = rule;
+    return this;
+  }
+
+  public String getLibraryItem() {
+    return libraryItem;
+  }
+
+  public Query setLibraryItem(String libraryItem) {
+    this.libraryItem = libraryItem;
+    return this;
+  }
+
+  public boolean isInvalid() {
+    return invalid;
+  }
+
+  public void setInvalid(boolean invalid) {
+    this.invalid = invalid;
+  }
+
+  public Node getIs() {
+    return is;
+  }
+
+  @JsonSetter
+  public Query setIs(Node is) {
+    this.is = is;
+    return this;
+  }
+
+  public String getAsDescription() {
+    return asDescription;
+  }
+
+  public Query setAsDescription(String asDescription) {
+    this.asDescription = asDescription;
+    return this;
+  }
+
+  public OrderLimit getOrderBy() {
+    return orderBy;
+  }
+
+  public Query setOrderBy(OrderLimit orderBy) {
+    this.orderBy = orderBy;
+    return this;
+  }
+
+  public Query orderBy(Consumer<OrderLimit> builder) {
+    this.orderBy = new OrderLimit();
+    builder.accept(this.orderBy);
+    return this;
+  }
+
+  public List<GroupBy> getGroupBy() {
+    return groupBy;
+  }
+
   public Query setGroupBy(List<GroupBy> groupBy) {
-    super.setGroupBy(groupBy);
+    this.groupBy = groupBy;
     return this;
   }
 
   public Query addGroupBy(GroupBy group) {
-    super.addGroupBy(group);
+    if (this.groupBy == null) this.groupBy = new ArrayList<>();
+    this.groupBy.add(group);
     return this;
   }
 
   public Query groupBy(Consumer<GroupBy> builder) {
-    super.groupBy(builder);
+    GroupBy group = new GroupBy();
+    addGroupBy(group);
+    builder.accept(group);
     return this;
   }
 
-  public Query setOrderBy(OrderLimit orderBy) {
-    super.setOrderBy(orderBy);
+  public Query where(Consumer<Where> builder) {
+    if (this.where == null) {
+      Where where = new Where();
+      setWhere(where);
+      builder.accept(where);
+    } else builder.accept(null);
     return this;
   }
 
-  public List<Match> getColumnGroup() {
-    return columnGroup;
+  public Query addRule(Query rule) {
+    if (this.rule == null) {
+      this.rule = new ArrayList<>();
+    }
+    this.rule.add(rule);
+    return this;
+  }
+
+  public Query addOr(Query or) {
+    if (this.or == null) {
+      this.or = new ArrayList<>();
+    }
+    this.or.add(or);
+    return this;
+  }
+
+  public Query or(Consumer<Query> builder) {
+    Query or = new Query();
+    addOr(or);
+    builder.accept(or);
+    return this;
+  }
+
+  public Query addAnd(Query and) {
+    if (this.and == null) {
+      this.and = new ArrayList<>();
+    }
+    this.and.add(and);
+    return this;
+  }
+
+  public Query and(Consumer<Query> builder) {
+    Query and = new Query();
+    addAnd(and);
+    builder.accept(and);
+    return this;
+  }
+
+  @JsonGetter
+  public List<Return> getReturn() {
+    return returx;
   }
 
   @JsonSetter
-  public Query setColumnGroup(List<Match> columnGroup) {
-    this.columnGroup = columnGroup;
+  public Query setReturn(List<Return> returns) {
+    this.returx = returns;
     return this;
   }
 
-  public Query addColumnGroup(Match match) {
-    if (this.columnGroup == null) this.columnGroup = new ArrayList<>();
-    this.columnGroup.add(match);
+  public Query addReturn(Return returnx) {
+    if (this.returx == null) {
+      this.returx = new ArrayList<>();
+    }
+    this.returx.add(returnx);
     return this;
   }
 
-  public Query columnGroup(Consumer<Match> builder) {
-    Match match = new Match();
-    addColumnGroup(match);
-    builder.accept(match);
+  public Query return_(Consumer<Return> builder) {
+    Return returx = new Return();
+    addReturn(returx);
+    builder.accept(returx);
     return this;
+  }
+
+  public Query function(Consumer<FunctionClause> builder) {
+    FunctionClause function = new FunctionClause();
+    this.function = function;
+    builder.accept(function);
+    return this;
+  }
+
+  public Query addPath(Path path) {
+    if (this.path == null) {
+      this.path = new ArrayList<>();
+    }
+    this.path.add(path);
+    return this;
+  }
+
+  public Query path(Consumer<Path> builder) {
+    Path path = new Path();
+    this.addPath(path);
+    builder.accept(path);
+    return this;
+  }
+
+  @Override
+  public Query setIri(String iri) {
+    this.iri= iri;
+    return this;
+  }
+
+  @JsonIgnore
+  public Query is(Consumer<Node> builder) {
+    this.is = new Node();
+    builder.accept(is);
+    return this;
+  }
+
+  public boolean isOptional() {
+    return optional;
+  }
+
+  public Query setOptional(boolean optional) {
+    this.optional = optional;
+    return this;
+  }
+
+  public String getFrom() {
+    return from;
+  }
+
+  public Query setFrom(String from) {
+    this.from = from;
+    return this;
+  }
+
+  public Node getGraph() {
+    return graph;
+  }
+
+  public Query setGraph(Node graph) {
+    this.graph = graph;
+    return this;
+  }
+
+  public String getNode() {
+    return node;
+  }
+
+  public Query setNode(String node) {
+    this.node = node;
+    return this;
+  }
+
+  public boolean isActiveOnly() {
+    return activeOnly;
   }
 
   public Query setActiveOnly(boolean activeOnly) {
-    super.setActiveOnly(activeOnly);
+    this.activeOnly = activeOnly;
     return this;
   }
 }

@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.junit.jupiter.api.Test;
 
 public class QueryLogicTest {
   // @Test

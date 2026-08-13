@@ -63,7 +63,9 @@ class EndeavourSecurityService {
     else throw UserAuthorisationException("Failed to get profile url")
   }
 
-  fun getUser(ipAddress: String, sessionId: String): User {
+  fun
+
+    getUser(ipAddress: String, sessionId: String): User {
     log.debug("getUser")
     val params = HashMap<String, String>()
     params["sessionId"] = sessionId

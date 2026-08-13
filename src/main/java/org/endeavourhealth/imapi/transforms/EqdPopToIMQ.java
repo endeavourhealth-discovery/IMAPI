@@ -27,7 +27,7 @@ public class EqdPopToIMQ {
         .rule(r -> r
           .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
             .setIsCohort(true)
-            .setName("Registered with GP for GMS services on the reference date")));
+            .setName("Registered and GP for GMS services on the reference date")));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
@@ -43,11 +43,11 @@ public class EqdPopToIMQ {
           .rule(r -> r
             .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
               .setIsCohort(true)
-              .setName("Registered with GP for GMS services on the reference date")));
+              .setName("Registered and GP for GMS services on the reference date")));
         resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       } else {
         query
-          .addRule(new Match()
+          .addRule(new Query()
             .setIs(Node.iri(resources.getNamespace() + id)
               .setIsCohort(true)
               .setName(resources.reportNames.get(id))));
@@ -62,7 +62,7 @@ public class EqdPopToIMQ {
     resources.setRule(0);
     resources.setSubRule(0);
     for (EQDOCCriteriaGroup eqGroup : eqReport.getPopulation().getCriteriaGroup()) {
-      Match rule = resources.convertGroup(eqGroup);
+      Query rule = resources.convertGroup(eqGroup);
       query.addRule(rule);
       VocRuleAction ifTrue = eqGroup.getActionIfTrue();
       VocRuleAction ifFalse = eqGroup.getActionIfFalse();

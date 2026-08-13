@@ -23,7 +23,7 @@ public class EqdAuditToIMQ {
       if (EqdToIMQ.gmsPatients.contains(popId) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         finalPopId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
-      Match popQuery = new Match();
+      Query popQuery = new Query();
       query.addColumnGroup(popQuery);
       popQuery
         .setNode(POPULATION)

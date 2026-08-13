@@ -8,7 +8,6 @@ import org.endeavourhealth.imapi.model.fhir.ValueSet;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.model.imq.Match;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -34,7 +33,7 @@ public class FHIRToIM {
     if (valueSet.getCompose() != null && valueSet.getCompose().getInclude() != null) {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
-      Match match = new Match();
+      Query match = new Query();
       query.addOr(match);
       if (valueSet.getCompose().getInclude().length == 1) {
         String member = include[0].getSystem();
@@ -42,7 +41,7 @@ public class FHIRToIM {
           .setDescendantsOrSelfOf(true));
       } else {
         for (Include value : include) {
-          Match memberMatch = new Match();
+          Query memberMatch = new Query();
           match.addOr(memberMatch);
           String member = value.getSystem().replace("fhir/", "fhir#");
           memberMatch.setIs(new Node().setIri(member).setDescendantsOrSelfOf(true));

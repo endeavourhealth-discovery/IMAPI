@@ -17,28 +17,28 @@ public class IMQParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, EXCLUDE=5, IF=6, LATEST=7, EARLIEST=8, 
-		WHERE=9, PREFIX=10, CREATE=11, VARIABLES=12, DEFINE=13, NUMERIC=14, INTEGER=15, 
-		AND=16, OR=17, NOT=18, WITH=19, FROM=20, OB=21, CB=22, IS=23, IN=24, AS=25, 
-		COHORT=26, EQ=27, GT=28, GTE=29, LT=30, LTE=31, VARIABLE=32, PARAMETER=33, 
+		T__0=1, T__1=2, T__2=3, T__3=4, EXCLUDE=5, IF=6, LATEST=7, EARLIEST=8,
+		WHERE=9, PREFIX=10, CREATE=11, VARIABLES=12, DEFINE=13, NUMERIC=14, INTEGER=15,
+		AND=16, OR=17, NOT=18, WITH=19, FROM=20, OB=21, CB=22, IS=23, IN=24, AS=25,
+		COHORT=26, EQ=27, GT=28, GTE=29, LT=30, LTE=31, VARIABLE=32, PARAMETER=33,
 		VALUE=34, WS=35, IRI_REF=36, PNAME_LN=37, PNAME_NS=38;
 	public static final int
-		RULE_imq = 0, RULE_definition = 1, RULE_variableDefinition = 2, RULE_definedAs = 3, 
-		RULE_prefix = 4, RULE_setLabel = 5, RULE_iri = 6, RULE_cohort = 7, RULE_type = 8, 
-		RULE_dataset = 9, RULE_task = 10, RULE_cohortDefinition = 11, RULE_query = 12, 
-		RULE_cte = 13, RULE_booleanCte = 14, RULE_exclude = 15, RULE_booleanClause = 16, 
-		RULE_with = 17, RULE_and = 18, RULE_or = 19, RULE_not = 20, RULE_from = 21, 
-		RULE_set = 22, RULE_where = 23, RULE_inResultSet = 24, RULE_resultSet = 25, 
-		RULE_name = 26, RULE_propertyTest = 27, RULE_valueCompare = 28, RULE_parameter = 29, 
-		RULE_is = 30, RULE_function = 31, RULE_property = 32, RULE_operator = 33, 
+		RULE_imq = 0, RULE_definition = 1, RULE_variableDefinition = 2, RULE_definedAs = 3,
+		RULE_prefix = 4, RULE_setLabel = 5, RULE_iri = 6, RULE_cohort = 7, RULE_type = 8,
+		RULE_dataset = 9, RULE_task = 10, RULE_cohortDefinition = 11, RULE_query = 12,
+		RULE_cte = 13, RULE_booleanCte = 14, RULE_exclude = 15, RULE_booleanClause = 16,
+		RULE_with = 17, RULE_and = 18, RULE_or = 19, RULE_not = 20, RULE_from = 21,
+		RULE_set = 22, RULE_where = 23, RULE_inResultSet = 24, RULE_resultSet = 25,
+		RULE_name = 26, RULE_propertyTest = 27, RULE_valueCompare = 28, RULE_parameter = 29,
+		RULE_is = 30, RULE_function = 31, RULE_property = 32, RULE_operator = 33,
 		RULE_value = 34, RULE_units = 35, RULE_ordered = 36;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"imq", "definition", "variableDefinition", "definedAs", "prefix", "setLabel", 
-			"iri", "cohort", "type", "dataset", "task", "cohortDefinition", "query", 
-			"cte", "booleanCte", "exclude", "booleanClause", "with", "and", "or", 
-			"not", "from", "set", "where", "inResultSet", "resultSet", "name", "propertyTest", 
-			"valueCompare", "parameter", "is", "function", "property", "operator", 
+			"imq", "definition", "variableDefinition", "definedAs", "prefix", "setLabel",
+			"iri", "cohort", "type", "dataset", "task", "cohortDefinition", "query",
+			"cte", "booleanCte", "exclude", "booleanClause", "and", "and", "or",
+			"not", "from", "set", "where", "inResultSet", "resultSet", "name", "propertyTest",
+			"valueCompare", "parameter", "is", "function", "property", "operator",
 			"value", "units", "ordered"
 		};
 	}
@@ -46,18 +46,18 @@ public class IMQParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'dataset'", "'task'", "'&'", "'.'", null, null, null, null, null, 
-			null, null, null, null, null, null, null, null, null, null, null, "'('", 
+			null, "'dataset'", "'task'", "'&'", "'.'", null, null, null, null, null,
+			null, null, null, null, null, null, null, null, null, null, null, "'('",
 			"')'", null, null, null, null, "'='", "'>'", "'>='", "'<'", "'<='"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, null, null, null, "EXCLUDE", "IF", "LATEST", "EARLIEST", 
-			"WHERE", "PREFIX", "CREATE", "VARIABLES", "DEFINE", "NUMERIC", "INTEGER", 
-			"AND", "OR", "NOT", "WITH", "FROM", "OB", "CB", "IS", "IN", "AS", "COHORT", 
-			"EQ", "GT", "GTE", "LT", "LTE", "VARIABLE", "PARAMETER", "VALUE", "WS", 
+			null, null, null, null, null, "EXCLUDE", "IF", "LATEST", "EARLIEST",
+			"WHERE", "PREFIX", "CREATE", "VARIABLES", "DEFINE", "NUMERIC", "INTEGER",
+			"AND", "OR", "NOT", "WITH", "FROM", "OB", "CB", "IS", "IN", "AS", "COHORT",
+			"EQ", "GT", "GTE", "LT", "LTE", "VARIABLE", "PARAMETER", "VALUE", "WS",
 			"IRI_REF", "PNAME_LN", "PNAME_NS"
 		};
 	}
@@ -152,7 +152,7 @@ public class IMQParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(75); 
+			setState(75);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
@@ -162,7 +162,7 @@ public class IMQParser extends Parser {
 				definition();
 				}
 				}
-				setState(77); 
+				setState(77);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==DEFINE );
@@ -923,7 +923,7 @@ public class IMQParser extends Parser {
 							setState(143);
 							booleanClause();
 							}
-							} 
+							}
 						}
 						setState(148);
 						_errHandler.sync(this);
@@ -945,7 +945,7 @@ public class IMQParser extends Parser {
 					setState(153);
 					booleanCte();
 					}
-					} 
+					}
 				}
 				setState(158);
 				_errHandler.sync(this);

@@ -40,7 +40,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
           }
           query.setPrefixes(prefixes);
-        } else if (result instanceof Match match) {
+        } else if (result instanceof Query match) {
           if (query == null) {
             query = new Query();
           }
@@ -55,7 +55,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     return query;
   }
 
-  private void copyMatchToQuery(Match match, Query query) {
+  private void copyMatchToQuery(Query match, Query query) {
     if (match.getIs() != null) {
       query.setIs(match.getIs());
     }
@@ -111,10 +111,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitExpressionconstraint(IMECLParser.ExpressionconstraintContext ctx) {
+
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match match)
+        if (result instanceof Query match)
           return match;
       }
     }
@@ -124,15 +125,15 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitRefinedexpressionconstraint(IMECLParser.RefinedexpressionconstraintContext ctx) {
-    Match match = null;
+    Query match = null;
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch) {
+        if (result instanceof Query asMatch) {
           match = asMatch;
         } else if (result instanceof Where asWhere) {
           if (match == null) {
-            match = new Match();
+            match = new Query();
             match.setTypeOf(new Node().setIri(IM.CONCEPT.toString()));
           }
           match.setWhere(asWhere);
@@ -147,7 +148,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch)
+        if (result instanceof Query asMatch)
           return asMatch;
       }
     }
@@ -157,11 +158,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitConjunctionexpressionconstraint(IMECLParser.ConjunctionexpressionconstraintContext ctx) {
-    Match match = new Match();
+    Query match = new Query();
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch)
+        if (result instanceof Query asMatch)
           match.addAnd(asMatch);
       }
     }
@@ -171,11 +172,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitDisjunctionexpressionconstraint(IMECLParser.DisjunctionexpressionconstraintContext ctx) {
-    Match match = new Match();
+    Query match = new Query();
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch)
+        if (result instanceof Query asMatch)
           match.addOr(asMatch);
       }
     }
@@ -184,11 +185,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitExclusionexpressionconstraint(IMECLParser.ExclusionexpressionconstraintContext ctx) {
-    Match match = new Match();
+    Query match = new Query();
     if (ctx.children != null) {
       for (ParseTree child : ctx.children) {
         Object result = visit(child);
-        if (result instanceof Match asMatch) {
+        if (result instanceof Query asMatch) {
           if (match.getAnd() == null)
             match.addAnd(asMatch);
           else {
@@ -204,7 +205,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitSubexpressionconstraint(IMECLParser.SubexpressionconstraintContext ctx) {
-    Match match = null;
+    Query match = null;
     Node node = null;
     boolean nested = false;
     if (ctx.children != null) {
@@ -215,7 +216,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
         Object result = visit(child);
         if (result != null) {
-          if (result instanceof Match asMatch) {
+          if (result instanceof Query asMatch) {
             match = asMatch;
           }
           if (result instanceof Node asNode) {
@@ -232,11 +233,11 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         }
       }
       if (match == null && node != null && !nested) {
-        match = new Match();
+        match = new Query();
         match.setIs(node);
         return match;
       } else if (match != null && node != null && nested) {
-        Match outerMatch = new Match();
+        Query outerMatch = new Query();
         outerMatch.setIs(node);
         node.setMatch(match);
         return outerMatch;
@@ -533,7 +534,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
         if (result instanceof Boolean asBoolean && asBoolean) {
           reverseFlag = true;
         }
-        if (result instanceof Match asMatch) {
+        if (result instanceof Query asMatch) {
           if (where == null) {
             Node node = (asMatch).getIs();
             where = new Where();
@@ -551,7 +552,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
               getWhereFromMatch(asMatch, where);
             } else if (asMatch.getAnd() != null) {
               Where andWhere = new Where();
-              for (Match subMatch : asMatch.getAnd()) {
+              for (Query subMatch : asMatch.getAnd()) {
                 andWhere.addAnd(new Where().setIri(where.getIri())
                   .addIs(new Node().setIri(subMatch.getIs().getIri())));
               }
@@ -570,9 +571,9 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
     return where;
   }
 
-  private void getWhereFromMatch(Match match, Where where) {
+  private void getWhereFromMatch(Query match, Where where) {
     if (match.getOr() != null) {
-      for (Match subMatch : match.getOr()) {
+      for (Query subMatch : match.getOr()) {
         where.addIs(subMatch.getIs());
       }
     }

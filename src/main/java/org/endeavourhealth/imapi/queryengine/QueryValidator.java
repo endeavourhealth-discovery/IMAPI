@@ -23,47 +23,40 @@ public class QueryValidator {
       throw new QueryException("Query must have match clause or is or where clause");
 
     variables.put(mainEntity, VarType.NODE);
-    processMatches(query);
-    if (null != query.getWhere()) {
-      validateWhere(query.getWhere(), mainEntity);
-    }
+    processMatch(query);
+    validateMatch(query);
     if (query.getColumnGroup()!=null){
-      for (Match group: query.getColumnGroup()) {
+      for (Query group: query.getColumnGroup()) {
         processMatch(group);
         validateMatch(group);
       }
     }
   }
 
-  private void processMatches(Match boolMatch) throws QueryException {
-    processMatch(boolMatch);
-    validateMatch(boolMatch);
-    for (List<Match> matches : Arrays.asList(boolMatch.getAnd(), boolMatch.getOr())) {
-      if (matches != null) {
-        for (Match match : matches) {
-          processMatch(match);
-          validateMatch(match);
-        }
-      }
-    }
-  }
 
-  private void processMatch(Match match) throws QueryException {
-    if (match.getNode() != null) {
-      variables.put(match.getNode(), VarType.NODE);
-    } else if (match.getParameter() != null) {
-      variables.put(match.getParameter(), VarType.NODE);
+  private void processMatch(Query query) throws QueryException {
+    if (query.getNode() != null) {
+      variables.put(query.getNode(), VarType.NODE);
+    } else if (query.getParameter() != null) {
+      variables.put(query.getParameter(), VarType.NODE);
     }
-    if (match.getPath() != null) {
-      for (Path pathMatch : match.getPath()) {
+    if (query.getPath() != null) {
+      for (Path pathMatch : query.getPath()) {
         processPath(pathMatch);
       }
     }
-    if (match.getIs() != null) {
-      processIs(match.getIs());
+    if (query.getIs() != null) {
+      processIs(query.getIs());
     }
-    if (match.getReturn() != null) {
-      processReturn(match, mainEntity);
+    if (query.getReturn() != null) {
+      processReturn(query, mainEntity);
+    }
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr())) {
+      if (queries != null) {
+        for (Query subQuery : queries) {
+          processMatch(subQuery);
+        }
+      }
     }
   }
 
@@ -90,7 +83,7 @@ public class QueryValidator {
     }
   }
 
-  private void processReturn(Match query, String mainEntity) throws QueryException {
+  private void processReturn(Query query, String mainEntity) throws QueryException {
     if (query.getReturn() != null) {
       validateReturnColumns(query);
       for (Return path : query.getReturn()) {
@@ -99,8 +92,8 @@ public class QueryValidator {
     }
   }
 
-  private void validateReturnColumns(Match match) throws QueryException {
-    List<Return> returns = match.getReturn();
+  private void validateReturnColumns(Query query) throws QueryException {
+    List<Return> returns = query.getReturn();
     if (returns == null || returns.isEmpty()) {
       return;
     }
@@ -140,36 +133,43 @@ public class QueryValidator {
   }
 
 
-  private void validateMatch(Match match) throws QueryException {
-    if (match.getNode() != null) {
-      variables.put(match.getNode(), VarType.NODE);
+  private void validateMatch(Query query) throws QueryException {
+    if (query.getNode() != null) {
+      variables.put(query.getNode(), VarType.NODE);
     }
-    if (match.getParameter() != null) {
-      variables.put(match.getParameter(), VarType.NODE);
+    if (query.getAs() != null) {
+      variables.put(query.getAs(), VarType.NODE);
     }
-    if (match.getPath() != null) {
-      for (Path pathMatch : match.getPath()) {
+    if (query.getParameter() != null) {
+      variables.put(query.getParameter(), VarType.NODE);
+    }
+    if (query.getPath() != null) {
+      for (Path pathMatch : query.getPath()) {
         validatePath(pathMatch);
       }
     }
-    if (match.getNodeRef() != null && variables.get(match.getNodeRef()) == null)
-      throw new QueryException("match clause contains a node reference that has not been declared as a variable");
-    for (List<Match> matches : Arrays.asList(match.getAnd(), match.getOr())) {
-      if (matches != null) {
-        for (Match subMatch : matches) {
-          validateMatch(subMatch);
+
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr())) {
+      if (queries != null) {
+        for (Query subQuery : queries) {
+          validateMatch(subQuery);
         }
       }
     }
-    if (match.getWhere() != null) {
-      validateWhere(match.getWhere(), match.getNode());
+    if (query.getThen()!=null){
+      validateMatch(query.getThen());
     }
-    if (match.getReturn() != null) {
-      validateReturnColumns(match);
-      for (Return path : match.getReturn()) {
-        validateReturn(path, match.getNode());
+    if (query.getWhere() != null) {
+      validateWhere(query.getWhere(), query.getNode());
+    }
+    if (query.getReturn() != null) {
+      validateReturnColumns(query);
+      for (Return path : query.getReturn()) {
+        validateReturn(path, query.getNode());
       }
     }
+    if (query.getFrom() != null && variables.get(query.getFrom()) == null)
+      throw new QueryException("query clause contains a 'from' that has not been projected from another clause");
 
   }
 
@@ -191,7 +191,7 @@ public class QueryValidator {
     (assignable.getOperator() == null)
       throw new QueryException("Operator must be specified");
     if (assignable.getValue() == null && assignable.getCompare() == null) {
-      throw new QueryException("Either Value or a Compare with must be specified");
+      throw new QueryException("Either Value or a Compare and must be specified");
     }
     if (assignable.getCompare() != null)
       validateCompare(assignable);

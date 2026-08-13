@@ -5,6 +5,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
+import org.endeavourhealth.imapi.model.iml.SemanticMap;
 import org.endeavourhealth.imapi.model.iml.UIProperty;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -256,5 +257,9 @@ public class DataModelService {
 
   public TTIriRef getInversePath(String source, String target) {
     return dataModelRepository.getInversePath(source, target);
+  }
+
+  public SemanticMap getSemanticMap(String iri) {
+    return dataModelRepository.getSemanticMap(iri);
   }
 }

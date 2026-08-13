@@ -7,7 +7,8 @@ import org.endeavourhealth.imapi.model.imq.Where;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class When extends Where {
+public class
+When extends Where {
 
   private String value;
   private Expression then;
@@ -34,6 +35,16 @@ public class When extends Where {
 
   public When setIri(String iri) {
     super.setIri(iri);
+    return this;
+  }
+
+  public When setIsNotNull(boolean isNotNull) {
+    super.setIsNotNull(isNotNull);
+    return this;
+  }
+
+  public When setIsNull(boolean isNull) {
+    super.setIsNull(isNull);
     return this;
   }
 

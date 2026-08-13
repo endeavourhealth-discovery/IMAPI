@@ -6,7 +6,6 @@ import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.junit.jupiter.api.Test;
 
 public class QueryRequestTest {
   QueryService queryService = new QueryService();

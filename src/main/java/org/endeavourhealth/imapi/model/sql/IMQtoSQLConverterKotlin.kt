@@ -232,7 +232,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun getIsWith(match: Match, mySqlQuery: MySQLQuery): MySQLWith {
+  private fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
     val isA = match.`is`
     val isAlias = ensureUniqueAlias(getCteAliasFromTypeAndProperty(isA.iri, null))
     val withJoins = mutableListOf<MySQLJoin>()
@@ -285,7 +285,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun addMatchWithsRecursively(
-    currentMatch: Match,
+    currentMatch: Query,
     mySqlQuery: MySQLQuery,
   ) {
     if (currentMatch.and != null) addAnds(currentMatch, mySqlQuery)
@@ -294,7 +294,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
 
-  private fun addAnds(currentMatch: Match, mySqlQuery: MySQLQuery) {
+  private fun addAnds(currentMatch: Query, mySqlQuery: MySQLQuery) {
     for (match in currentMatch.and) {
       addMatchWithsRecursively(match, mySqlQuery)
       if (match.and == null && match.or == null && match.`is` == null) {
@@ -307,7 +307,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun addOrs(currentMatch: Match, mySqlQuery: MySQLQuery) {
+  private fun addOrs(currentMatch: Query, mySqlQuery: MySQLQuery) {
     val orWiths = mutableListOf<MySQLWith>()
     val tempQuery = MySQLQuery()
     tempQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
@@ -344,15 +344,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     mySqlQuery.withs.add(unionWith)
   }
 
-  private fun getMySQLWithFromMatch(match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+  private fun getMySQLWithFromMatch(match: Query, mySQLQuery: MySQLQuery): MySQLWith {
     var with = MySQLWith()
 
     if (match.typeOf?.iri != null) {
       with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)
     } else {
-      with.table = if (match.nodeRef != null)
-        mySQLQuery.nodeToTableMap[match.nodeRef]
-          ?: throw SQLConversionException("Table not found: ${match.nodeRef}")
+      with.table = if (match.from != null)
+        mySQLQuery.nodeToTableMap[match.from]
+          ?: throw SQLConversionException("Table not found: ${match.from}")
       else queryTypeOfTable
     }
 
@@ -490,7 +490,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return null
   }
 
-  private fun getOrderByWith(with: MySQLWith, match: Match, mySQLQuery: MySQLQuery): MySQLWith {
+  private fun getOrderByWith(with: MySQLWith, match: Query, mySQLQuery: MySQLQuery): MySQLWith {
     val (fk, pk) = if (with.table.table == queryTypeOfTable.table) {
       with.table.primaryKey to with.table.primaryKey
     } else {
@@ -605,7 +605,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return properties
   }
 
-  private fun addSelects(match: Match, mySQLQuery: MySQLQuery, with: MySQLWith) {
+  private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith) {
     with.selects.add(getDefaultSelect(with.table))
     with.entityKeyField = getEntityKeyFieldName(with.table)
     if (match.`return` != null) {
@@ -644,7 +644,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-  private fun getWithAlias(match: Match, mySQLQuery: MySQLQuery): String {
+  private fun getWithAlias(match: Query, mySQLQuery: MySQLQuery): String {
     val baseAlias = if (match.name != null) sanitiseAlias(match.name)
     else if (match.node != null) sanitiseAlias(match.node)
     else "cte_${mySQLQuery.withs.size}"
@@ -1305,10 +1305,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   fun getDataModelFromKeepAs(keepAs: String?): String? {
-    var match: Match? = findMatchByKeepAs(queryRequest.query, keepAs)
+    var match: Query? = findMatchByKeepAs(queryRequest.query, keepAs)
     if (match == null && queryRequest.query.columnGroup != null) {
       for (child in queryRequest.query.columnGroup) {
-        val result: Match? = findMatchByKeepAs(child, keepAs)
+        val result: Query? = findMatchByKeepAs(child, keepAs)
         if (result != null) match = result
       }
     }
@@ -1323,7 +1323,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return null
   }
 
-  fun findMatchByKeepAs(match: Match?, keepAs: String?): Match? {
+  fun findMatchByKeepAs(match: Query?, keepAs: String?): Query? {
     if (match == null) return null
     if (match.node != null && match.node == keepAs) {
       return match

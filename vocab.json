@@ -230,12 +230,8 @@
         "value": "NAMESPACE.IM + \"SemanticMap\""
       },
       {
-        "name": "HAS_MAP_RULE",
-        "value": "NAMESPACE.IM + \"mapRule\""
-      },
-      {
-        "name": "HAS_SEMANTIC_MAP",
-        "value": "NAMESPACE.IM + \"semanticMap\""
+        "name": "HAS_ENTRY",
+        "value": "NAMESPACE.IM + \"hasEntry\""
       },
       {
         "name": "CODEABLE",
@@ -486,24 +482,8 @@
         "value": "NAMESPACE.IM + \"sourceText\""
       },
       {
-        "name": "MAP_TYPE",
-        "value": "NAMESPACE.IM + \"MapType\""
-      },
-      {
-        "name": "HAS_MAP_TYPE",
-        "value": "NAMESPACE.IM + \"mapType\""
-      },
-      {
-        "name": "DIRECT_MAP",
-        "value": "NAMESPACE.IM + \"DirectMap\""
-      },
-      {
-        "name": "RANGE_VALUE_MAP",
-        "value": "NAMESPACE.IM + \"RangeValueMap\""
-      },
-      {
-        "name": "EXACT_VALUE_MAP",
-        "value": "NAMESPACE.IM + \"ExactValueMap\""
+        "name": "IN_SEMANTIC_MAP",
+        "value": "NAMESPACE.IM + \"inSemanticMap\""
       },
       {
         "name": "SOURCE_ENTITY",
@@ -543,7 +523,7 @@
       },
       {
         "name": " HAS_MAP_ENTRY",
-        "value": "NAMESPACE.IM + \"mapEntry\""
+        "value": "NAMESPACE.IM + \"hasMapEntry\""
       },
       {
         "name": "HAS_TERM_CODE",

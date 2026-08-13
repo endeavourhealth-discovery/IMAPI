@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transformengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.Where;
 import org.endeavourhealth.imapi.model.map.MapObject;
 import org.endeavourhealth.imapi.model.map.MapProperty;
@@ -104,7 +104,7 @@ public class Transformer {
     if (targetObject == null)
       throw new IllegalArgumentException("Data map or value map has not created or retrieved a target entity to populate ");
 
-    Match where = rule.getWhere();
+    Query where = rule.getWhere();
     if (where != null && !where(where, sourceObject))
       return;
 
@@ -215,8 +215,8 @@ public class Transformer {
     return result;
   }
 
-  private boolean where(Match match, Object sourceNode) throws JsonProcessingException {
-    Where property = match.getWhere();
+  private boolean where(Query query, Object sourceNode) throws JsonProcessingException {
+    Where property = query.getWhere();
     Object sourceValue = sourceTranslator.getPropertyValue(sourceNode, property.getIri());
     return property.getValue() != null && property.getValue().equals(sourceValue);
   }

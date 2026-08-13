@@ -33,7 +33,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 /**
- * Methods to create update and delete entities and generate a transaction log with the ability to refile
+ * Methods to create update and delete entities and generate a transaction log and the ability to refile
  * from the transaction log in order to process deltas after a bulk load
  * Methods may be called via CRUD instructions or file entities that contain the CRUD instructions.
  * <p>All entities must have a graph and a crud transaction</p>

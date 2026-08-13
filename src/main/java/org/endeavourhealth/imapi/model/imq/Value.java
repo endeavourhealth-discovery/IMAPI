@@ -14,6 +14,47 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Value implements Assignable {
 
+  private String iri;
+  private String name;
+  private String nodeRef;
+  private String propertyRef;
+
+  public String getIri() {
+    return iri;
+  }
+
+  public Value setIri(String iri) {
+    this.iri = iri;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public Value setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getNodeRef() {
+    return nodeRef;
+  }
+
+  public Value setNodeRef(String nodeRef) {
+    this.nodeRef = nodeRef;
+    return this;
+  }
+
+  public String getPropertyRef() {
+    return propertyRef;
+  }
+
+  public Value setPropertyRef(String propertyRef) {
+    this.propertyRef = propertyRef;
+    return this;
+  }
+
   @Getter
   private Operator operator;
 
@@ -27,6 +68,7 @@ public class Value implements Assignable {
 
   private FunctionClause function;
   private String description;
+
   private TTIriRef units;
   private boolean invalid;
   private String valueTerm;

@@ -6,14 +6,14 @@ import java.util.Optional;
 import lombok.Getter;
 
 public enum Operator {
-  // This will call enum constructor with one
+  // This will call enum constructor and one
   // String argument
   eq("=", "="),
   gte(">=", "greater or equal to"),
   gt(">", "greater than"),
   lte("<=", "less than or equal to"),
   lt("<", "less than"),
-  start("startsWith", "starts with"),
+  start("startsWith", "starts and"),
   notNull("notNull", "not null"),
   isNull("isNull", "is null"),
   contains("contains", "contains");

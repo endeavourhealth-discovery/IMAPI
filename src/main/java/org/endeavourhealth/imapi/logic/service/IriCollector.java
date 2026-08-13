@@ -3,7 +3,9 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class IriCollector {
@@ -14,15 +16,10 @@ public class IriCollector {
     return iris;
   }
 
-  public static Set<String> collectIris(Match match) {
-    Set<String> iris = new HashSet<>();
-    collectMatchIris(match, iris);
-    return iris;
-  }
 
   private static void collectQueryIris(Query query, Set<String> iris) {
     if (query.getColumnGroup() != null) {
-      for (Match subQuery : query.getColumnGroup()) {
+      for (Query subQuery : query.getColumnGroup()) {
         collectMatchIris(subQuery, iris);
       }
     }
@@ -38,6 +35,8 @@ public class IriCollector {
       if (prop.getCase().getWhen() != null)
         for (When when : prop.getCase().getWhen()) {
           collectWhereIris(when, iriSet);
+          if (when.getThen() != null)
+            collectExpressionIris(when.getThen(), iriSet);
         }
     }
     if (prop.getFunction() != null) {
@@ -46,6 +45,11 @@ public class IriCollector {
     if (prop.getSemanticMap() != null) {
       iriSet.add(prop.getSemanticMap().getIri());
     }
+  }
+
+  private static void collectExpressionIris(Expression then, Set<String> iriSet) {
+    if (then.getIri() != null)
+      iriSet.add(then.getIri());
   }
 
   private static void collectPathIris(Path path, Set<String> iriSet) {
@@ -62,57 +66,54 @@ public class IriCollector {
   }
 
 
-  private static void collectMatchIris(Match match, Set<String> iriSet) {
+  private static void collectMatchIris(Query query, Set<String> iriSet) {
 
-    if (match.getIri() != null) {
-      iriSet.add(match.getIri());
+    if (query.getIri() != null) {
+      iriSet.add(query.getIri());
     }
-    if (match.getTypeOf() != null) {
-      iriSet.add(match.getTypeOf().getIri());
+    if (query.getTypeOf() != null) {
+      iriSet.add(query.getTypeOf().getIri());
     }
-    if (match.getPath() != null) {
-      for (Path path : match.getPath()) {
+    if (query.getPath() != null) {
+      for (Path path : query.getPath()) {
         collectPathIris(path, iriSet);
       }
     }
-    if (match.getIs() != null) {
-      Node node = match.getIs();
+    if (query.getIs() != null) {
+      Node node = query.getIs();
       if (node.getMatch() != null)
         collectMatchIris(node.getMatch(), iriSet);
       else if (node.getIri() != null)
         iriSet.add(node.getIri());
     }
-    if (match.getRule() != null) {
-      for (Match subMatch : match.getRule()) {
-        collectMatchIris(subMatch, iriSet);
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd(), query.getRule())) {
+      if (queries != null) {
+        for (Query subQuery : queries) {
+          collectMatchIris(subQuery, iriSet);
+        }
       }
     }
-    if (match.getOr() != null) {
-      for (Match subMatch : match.getOr()) {
-        collectMatchIris(subMatch, iriSet);
-      }
-    }
-    if (match.getAnd() != null) {
-      for (Match subMatch : match.getAnd()) {
-        collectMatchIris(subMatch, iriSet);
-      }
+    if (query.getThen()!=null){
+      collectMatchIris(query.getThen(), iriSet);
     }
 
 
-    if (match.getWhere() != null) {
-      collectWhereIris(match.getWhere(), iriSet);
+
+
+    if (query.getWhere() != null) {
+      collectWhereIris(query.getWhere(), iriSet);
     }
 
-    if (match.getThen() != null) {
-      collectMatchIris(match.getThen(), iriSet);
+    if (query.getThen() != null) {
+      collectMatchIris(query.getThen(), iriSet);
     }
-    if (match.getReturn() != null) {
-      for (Return prop : match.getReturn()) {
+    if (query.getReturn() != null) {
+      for (Return prop : query.getReturn()) {
         collectReturnIris(prop, iriSet);
       }
     }
-    if (match.getOrderBy() != null) {
-      collectOrderByIris(match.getOrderBy(), iriSet);
+    if (query.getOrderBy() != null) {
+      collectOrderByIris(query.getOrderBy(), iriSet);
     }
   }
 

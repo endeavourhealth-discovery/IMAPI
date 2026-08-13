@@ -392,7 +392,7 @@ public class DataModelRepository {
 
   private String getPropertySql(String iri) {
     return """
-      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
+      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
       ?inversePath ?inversePathName
       ?highCardinality
       ?class ?className ?classType ?classTypeName
@@ -740,4 +740,102 @@ public class DataModelRepository {
     }
     return null;
   }
+
+  public SemanticMap getSemanticMap(String iri) {
+    String sql = """
+      select ?iri ?name ?entry ?entryName
+      ?sourceEntity ?sourceEntityLabel
+      ?sourceType ?sourceTypeLabel
+      ?sourceEntityProperty ?sourceEntityPropertyLabel
+      ?sourceValueProperty ?sourceValuePropertyLabel
+      ?targetText ?targetValue ?rangeFrom ?rangeTo ?function ?functionName
+      ?defaultText ?defaultValue
+      where {
+       values ?iri { <%s> }
+       ?iri rdfs:label ?name.
+       optional {?iri im:defaultText ?defaultText}
+       optional {?iri im:defaultValue ?defaultValue}
+         optional { ?iri im:sourceType ?sourceType.
+          ?sourceType rdfs:label ?sourceTypeLabel. }
+       optional { ?iri im:sourceEntityProperty ?sourceEntityProperty.
+         ?sourceEntityProperty rdfs:label ?sourceEntityPropertyLabel.}
+         optional { ?iri im:sourceValueProperty ?sourceValueProperty.
+          ?sourceValueProperty rdfs:label ?sourceValuePropertyLabel.}
+         optional { ?iri im:function ?function.
+            ?function rdfs:label ?functionName.}
+       optional {?iri im:hasEntry ?entry.
+         ?entry rdfs:label ?entryName.
+         ?entry im:sourceEntity ?sourceEntity.
+         ?sourceEntity rdfs:label ?sourceEntityLabel.
+         optional { ?entry im:rangeFrom ?rangeFrom. }
+         optional { ?entry im:rangeTo ?rangeTo. }
+         optional {?entry sh:order ?order.}
+         optional { ?entry im:targetText ?targetText. }
+         optional { ?entry im:targetValue ?targetValue. }
+       }
+      }
+      """.formatted(iri);
+    SemanticMap map = new SemanticMap();
+    Map<String,SemanticMapEntry> entryMap = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          map.setIri(bs.getValue("iri").stringValue());
+          map.setName(bs.getValue("name").stringValue());
+          if (bs.getValue("entry") != null) {
+            SemanticMapEntry entry = entryMap.get(bs.getValue("entry").stringValue());
+            if (entry == null) {
+              entry = new SemanticMapEntry();
+              entry.setIri(bs.getValue("entry").stringValue());
+              entry.setName(bs.getValue("entryName").stringValue());
+              entryMap.put(bs.getValue("entry").stringValue(), entry);
+              map.addEntry(entry);
+            }
+            if (bs.getValue("sourceEntity") != null) {
+              entry.setSourceEntity(TTIriRef.iri(bs.getValue("sourceEntity").stringValue()).setName(bs.getValue("sourceEntityLabel").stringValue()));
+            }
+            if (bs.getValue("sourceEntityProperty") != null) {
+              map.setSourceEntityProperty(TTIriRef.iri(bs.getValue("sourceEntityProperty").stringValue()).setName(bs.getValue("sourceEntityPropertyLabel").stringValue()));
+            }
+            if (bs.getValue("sourceValueProperty") != null) {
+              map.setSourceValueProperty(TTIriRef.iri(bs.getValue("sourceValueProperty").stringValue()).setName(bs.getValue("sourceValuePropertyLabel").stringValue()));
+            }
+            if (bs.getValue("targetText") != null) {
+              entry.setTargetText(bs.getValue("targetText").stringValue());
+            }
+            if (bs.getValue("targetValue") != null) {
+              entry.setTargetValue(Double.valueOf(bs.getValue("targetValue").stringValue()));
+            }
+            if (bs.getValue("rangeFrom") != null) {
+              entry.setRangeFrom(Double.valueOf(bs.getValue("rangeFrom").stringValue()));
+            }
+            if (bs.getValue("rangeTo") != null) {
+              entry.setRangeTo(Double.valueOf(bs.getValue("rangeTo").stringValue()));
+            }
+            if (bs.getValue("order") != null) {
+              entry.setOrder(Integer.valueOf(bs.getValue("order").stringValue()));
+            }
+            if (bs.getValue("function")!=null){
+              map.setFunction(TTIriRef.iri(bs.getValue("function").stringValue()).setName(bs.getValue("functionName").stringValue()));
+            }
+          }
+          if (bs.getValue("defaultText") != null) {
+            map.setDefaultText(bs.getValue("defaultText").stringValue());
+          }
+          if (bs.getValue("defaultValue") != null) {
+            map.setDefaultValue(Double.valueOf(bs.getValue("defaultValue").stringValue()));
+          }
+
+          if (bs.getValue("sourceType") != null) {
+            map.setSourceType(TTIriRef.iri(bs.getValue("sourceType").stringValue()).setName(bs.getValue("sourceTypeLabel").stringValue()));
+          }
+
+        }
+      }
+    }
+    return map;
+  }
+
 }

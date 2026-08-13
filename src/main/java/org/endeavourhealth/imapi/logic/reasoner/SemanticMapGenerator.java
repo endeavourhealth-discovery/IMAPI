@@ -44,7 +44,7 @@ public class SemanticMapGenerator {
             .setCrud(iri(IM.ADD_QUADS));
           mappedConcepts.add(memberEntity);
           for (String mapEntry : sourceToMap.get(mappedEntity.getIri())) {
-            memberEntity.addObject(iri(IM.HAS_SEMANTIC_MAP), iri(mapEntry));
+            memberEntity.addObject(iri(IM.HAS_MAP_ENTRY), iri(mapEntry));
           }
         }
     }
@@ -71,7 +71,7 @@ public class SemanticMapGenerator {
             .setCrud(iri(IM.ADD_QUADS));
           mappedConcepts.add(subEntity);
           for (String map : sourceToMap.get(sourceEntity.getIri())) {
-            subEntity.addObject(iri(IM.HAS_SEMANTIC_MAP), iri(map));
+            subEntity.addObject(iri(IM.HAS_MAP_ENTRY), iri(map));
           }
         }
       } else if (sourceEntity.isType(iri(IM.CONCEPT_SET))) {

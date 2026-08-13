@@ -17,6 +17,21 @@ public class Path extends Element implements HasPaths {
   private Node typeOf;
   private TTIriRef qualifier;
   private String node;
+  private Where where;
+
+  public Where getWhere() {
+    return where;
+  }
+  public Path setWhere(Where where) {
+    this.where = where;
+    return this;
+  }
+  public Path where(Consumer<Where> builder) {
+    Where w = new Where();
+    builder.accept(w);
+    this.setWhere(w);
+    return this;
+  }
 
   public String getNode() {
     return node;

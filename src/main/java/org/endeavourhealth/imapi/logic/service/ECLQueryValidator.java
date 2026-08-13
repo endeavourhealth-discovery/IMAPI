@@ -30,10 +30,10 @@ public class ECLQueryValidator {
     return status;
   }
 
-  private boolean isInvalidMatchWheres(Match match) {
+  private boolean isInvalidMatchWheres(Query query) {
     boolean invalid = false;
-    if (match.getIs() != null) {
-      Node node = match.getIs();
+    if (query.getIs() != null) {
+      Node node = query.getIs();
       if (node.getIri() != null) {
         if (!validConcepts.get(node.getIri())) {
           node.setInvalid(true);
@@ -41,17 +41,17 @@ public class ECLQueryValidator {
         }
       }
     }
-    if (match.getWhere() != null) {
+    if (query.getWhere() != null) {
       Set<String> focusConcepts = new HashSet<>();
       if (validationLevel == ValidationLevel.ECL)
-        getFocusConcepts(match, focusConcepts);
-      if (isInvalidWhere(match.getWhere(), focusConcepts)) {
+        getFocusConcepts(query, focusConcepts);
+      if (isInvalidWhere(query.getWhere(), focusConcepts)) {
         invalid = true;
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match m : matches) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query m : queries) {
           if (isInvalidMatchWheres(m)) {
             invalid = true;
           }
@@ -109,16 +109,16 @@ public class ECLQueryValidator {
     return invalid;
   }
 
-  private void getFocusConcepts(Match match, Set<String> focusConcepts) {
-    if (match.getIs() != null) {
-      Node node = match.getIs();
+  private void getFocusConcepts(Query query, Set<String> focusConcepts) {
+    if (query.getIs() != null) {
+      Node node = query.getIs();
       if (node.getIri() != null) {
         focusConcepts.add(node.getIri());
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match m : matches) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query m : queries) {
           getFocusConcepts(m, focusConcepts);
         }
       }

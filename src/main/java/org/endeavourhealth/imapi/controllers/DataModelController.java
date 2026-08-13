@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.logic.service.DataModelService;
 import org.endeavourhealth.imapi.model.PropertyDisplay;
+import org.endeavourhealth.imapi.model.iml.SemanticMap;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.model.iml.NodeShape;
@@ -149,6 +150,19 @@ public class DataModelController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("getInversePath from " + source + " to " + target);
       return dataModelService.getInversePath(source, target);
+    }
+  }
+  @GetMapping(value = "/semanticMap", produces = "application/json")
+  @Operation(
+    summary = "gets the semanticMap and its entries",
+    description = "for the map iri"
+  )
+  public SemanticMap getSemanticMap(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
+      log.debug("getSemanticMap for " + iri);
+      return dataModelService.getSemanticMap(iri);
     }
   }
 }

@@ -23,7 +23,6 @@ public class TestQueries {
   public static QueryRequest dataModelPropertyRange() {
     Query query = new Query()
       .setName("Data model property range")
-      .setDescription("get node, class or datatype value (range)  of property objects for specific data model and property")
       .setIs(new Node()
         .setParameter("myDataModel"))
       .path(p -> p
@@ -78,8 +77,7 @@ public class TestQueries {
       .argument(a -> a.setParameter("property").setValueIri(TTIriRef.iri(NAMESPACE.IM + "age")))
       .query(q -> q
         .setName("Shacl property predicates for a property is a data model")
-        .setDescription("Select the predicates and values and labels of the values for a given data mode and property")
-        .setIs(new Node()
+          .setIs(new Node()
           .setParameter("$dataModel"))
         .path(p -> p
           .setIri(SHACL.PROPERTY.toString())
@@ -190,7 +188,7 @@ public class TestQueries {
         .return_(p -> p.setIri(RDFS.LABEL))
         .return_(p -> p.setIri(IM.HAS_TERM_CODE)
           .return_(p1 -> p1.setIri(RDFS.LABEL)))
-        .setName("substances starting with 'thia'"));
+        .setName("substances starting and 'thia'"));
   }
 
 
@@ -219,8 +217,7 @@ public class TestQueries {
   public static QueryRequest shapesWithDateOFBirth() {
 
     Query query = new Query()
-      .setName("PropertiesOfShapesUsingDateOfBirth")
-      .setDescription("all of the data model properties for entities that have a property df a data of birth");
+      .setName("PropertiesOfShapesUsingDateOfBirth");
     query
       .setTypeOf(SHACL.NODESHAPE.toString())
       .path(p -> p

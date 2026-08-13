@@ -144,6 +144,7 @@ public class FunctionService {
 
   private JsonNode getIM1SchemeOptions() {
     List<String> results = entityService.getIM1SchemeOptions();
+
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.stringArrayToTree(results);
     }

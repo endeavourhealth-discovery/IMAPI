@@ -13,7 +13,6 @@ public class UIProperty {
   private String valueType;
   private String valueTypeName;
   private int maxCount;
-  private int number;
   private String intervalUnitIri;
   private List<TTIriRef> intervalUnitOptions;
   private String unitIri;
@@ -71,14 +70,6 @@ public class UIProperty {
     return this;
   }
 
-  public int getNumber() {
-    return number;
-  }
-
-  public UIProperty setNumber(int number) {
-    this.number = number;
-    return this;
-  }
 
   public String getIntervalUnitIri() {
     return intervalUnitIri;

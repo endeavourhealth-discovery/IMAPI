@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 public class Update extends TTIriRef {
 
   private String description;
-  private List<Match> match;
+  private List<Query> queries;
   private List<Delete> delete;
 
   public Update setName(String name) {
@@ -22,25 +22,25 @@ public class Update extends TTIriRef {
     return this;
   }
 
-  public List<Match> getMatch() {
-    return match;
+  public List<Query> getMatch() {
+    return queries;
   }
 
-  public Update setMatch(List<Match> match) {
-    this.match = match;
+  public Update setMatch(List<Query> queries) {
+    this.queries = queries;
     return this;
   }
 
-  public Update addMatch(Match match) {
-    if (this.match == null) this.match = new ArrayList<>();
-    this.match.add(match);
+  public Update addMatch(Query query) {
+    if (this.queries == null) this.queries = new ArrayList<>();
+    this.queries.add(query);
     return this;
   }
 
-  public Update match(Consumer<Match> builder) {
-    Match match = new Match();
-    addMatch(match);
-    builder.accept(match);
+  public Update match(Consumer<Query> builder) {
+    Query query = new Query();
+    addMatch(query);
+    builder.accept(query);
     return this;
   }
 

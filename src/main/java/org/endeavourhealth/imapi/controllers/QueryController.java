@@ -14,7 +14,7 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.iml.MatchReturn;
+import org.endeavourhealth.imapi.model.iml.MatchMap;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
@@ -224,13 +224,13 @@ public class QueryController {
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
-  public Match describeMatchContent(
+  public Query describeMatchContent(
     HttpServletRequest request,
     @RequestBody MatchDisplayRequest matchDisplayRequest
   ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getMatchDisplayFromMatch");
-      return queryService.describeMatch(matchDisplayRequest.getMatch());
+      return queryService.describeMatch(matchDisplayRequest.getQuery());
     }
   }
 
@@ -354,17 +354,18 @@ public class QueryController {
     }
   }
 
+
   @PostMapping("/semanticMapsForMatch")
   @Operation(
     summary = "optimises logical boolean of query",
-    description = "Returns the query with boolean optimisation"
+    description = "Returns the query and boolean optimisation"
   )
-  public Set<TTEntity> semanticMapsForDataset(
-    @RequestBody MatchReturn matchReturn) {
+  public Set<TTEntity> semanticMapsForMatch(
+    @RequestBody MatchMap matchMap) {
 
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForMatch(matchReturn);
+      return queryService.getSemanticMapsForMatch(matchMap);
     }
   }
 }

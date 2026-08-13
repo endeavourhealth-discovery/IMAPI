@@ -33,13 +33,13 @@ public class Range {
     return this;
   }
 
-  public Range from(Consumer<Assignable> builder) {
+  public Range from(Consumer<Value> builder) {
     this.from = new Value();
     builder.accept(this.from);
     return this;
   }
 
-  public Range to(Consumer<Assignable> builder) {
+  public Range to(Consumer<Value> builder) {
     this.to = new Value();
     builder.accept(this.to);
     return this;

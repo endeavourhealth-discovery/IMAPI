@@ -3,12 +3,10 @@ package org.endeavourhealth.imapi.model.imq;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.imq.Element;
-import org.endeavourhealth.imapi.model.imq.Match;
 
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"descendantsOrSelfOf", "parameter", "iri", "type", "set", "qualifier", "match"})
+@JsonPropertyOrder({"descendantsOrSelfOf", "parameter", "iri", "type", "set", "qualifier", "query"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Node extends Element {
 
@@ -16,7 +14,7 @@ public class Node extends Element {
   private String code;
   private String type;
   private boolean inverse;
-  private Match match;
+  private Query query;
   private String node;
   private String qualifier;
 
@@ -38,19 +36,19 @@ public class Node extends Element {
     return this;
   }
 
-  public Match getMatch() {
-    return match;
+  public Query getMatch() {
+    return query;
   }
 
-  public Node setMatch(Match match) {
-    this.match = match;
+  public Node setMatch(Query query) {
+    this.query = query;
     return this;
   }
 
-  public Node match(Consumer<Match> match) {
-    Match m = new Match();
+  public Node match(Consumer<Query> match) {
+    Query m = new Query();
     match.accept(m);
-    this.match = m;
+    this.query = m;
     return this;
   }
 

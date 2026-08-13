@@ -42,7 +42,7 @@ public class QueryRepository {
 
 
   /**
-   * Generic query of IM with the select statements determining the response
+   * Generic query of IM and the select statements determining the response
    *
    * @param queryRequest QueryRequest object
    * @return A document consisting of a list of TTEntity and predicate look ups
@@ -77,7 +77,7 @@ public class QueryRepository {
   }
 
   /**
-   * Generic query of IM with the select statements determining the response
+   * Generic query of IM and the select statements determining the response
    *
    * @param queryRequest QueryRequest object
    * @throws QueryException          if query syntax is invalid
@@ -155,7 +155,7 @@ public class QueryRepository {
           if (arg.getValueIri() == null)
             throw new QueryException(error + " to have a valueIri :{iri : http....}");
         } else if (arg.getValueData() == null) {
-          throw new QueryException(error + " to have valueData where with string value");
+          throw new QueryException(error + " to have valueData where and string value");
         }
       }
     if (!found) {
@@ -421,16 +421,16 @@ public class QueryRepository {
       values ?property {%s}
       {
         ?sourceIri im:hasMember ?concept.
-        ?concept im:semanticMap ?mapEntry.
+        ?concept im:hasMapEntry ?mapEntry.
         ?mapEntry im:sourceEntityProperty ?property.
-        ?map im:mapEntry ?mapEntry.
+        ?map im:hasEntry ?mapEntry.
         ?map rdfs:label ?mapName.
        }
        union {
         ?concept im:isA ?sourceIri.
-        ?concept im:semanticMap ?mapEntry.
+        ?concept im:hasMapEntry ?mapEntry.
         ?mapEntry im:sourceEntityProperty ?property.
-        ?map im:mapEntry ?mapEntry.
+        ?map im:hasEntry ?mapEntry.
         ?map rdfs:label ?mapName.
         }
       }
@@ -458,5 +458,41 @@ public class QueryRepository {
       }
     }
     return semanticMaps;
+  }
+
+  public TTEntity getMapSourceProperties(String iri) {
+    String sql = """
+      select ?mapEntry ?sourceEntityProperty ?sourceValueProperty ?defaultText
+      where {
+      
+      
+      
+      Values ?mapIri {%s}
+      ?mapIri im:hasEntry ?mapEntry.
+      optional{?mapIri im:defaultText ?defaultText}
+      ?mapEntry im:sourceEntityProperty ?sourceEntityProperty.
+      optional { ?mapEntry im:sourceValueProperty ?sourceValueProperty. }
+      }
+      """.formatted("<" + iri + ">");
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      TTEntity mapEntry = new TTEntity()
+        .addType(iri(IM.MAP_ENTRY))
+        .setIri(iri);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String entityProperty = bs.getValue("sourceEntityProperty").stringValue();
+          mapEntry.set(iri(IM.SOURCE_ENTITY_PROPERTY), iri(entityProperty));
+          String valueProperty = bs.getValue("sourceValueProperty") != null ? bs.getValue("sourceValueProperty").stringValue() : null;
+          if (valueProperty != null)
+            mapEntry.set(iri(IM.SOURCE_VALUE_PROPERTY), iri(valueProperty));
+          String defaultText = bs.getValue("defaultText") != null ? bs.getValue("defaultText").stringValue() : null;
+          if (defaultText != null)
+            mapEntry.set(iri(IM.DEFAULT_TEXT), defaultText);
+        }
+        return mapEntry;
+      }
+    }
   }
 }

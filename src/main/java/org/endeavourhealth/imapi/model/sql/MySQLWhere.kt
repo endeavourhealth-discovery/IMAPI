@@ -180,6 +180,7 @@ class MySQLPropertyIsWhere(
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
   override val table: String? = null,
+  val conceptTable: String = "concept_tct",
 ) : MySQLWhere {
 
   override val sqlTemplate: String
@@ -190,10 +191,10 @@ class MySQLPropertyIsWhere(
       val iri = node.iri
       val selfValue =
         if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
-      val base = if (selfValue == 0) "concept_tct.parent $operator '$iri'"
+      val base = if (selfValue == 0) "$conceptTable.parent $operator '$iri'"
       else """(
-        concept_tct.parent $operator '$iri'
-        AND concept_tct.self = $selfValue
+        $conceptTable.parent $operator '$iri'
+        AND $conceptTable.self = $selfValue
       )
       """.trimIndent()
       if (not == true) "NOT ($base)" else base

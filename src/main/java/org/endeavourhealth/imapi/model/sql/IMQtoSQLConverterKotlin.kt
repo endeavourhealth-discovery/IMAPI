@@ -330,7 +330,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         mySqlQuery.withs.addAll(newWiths)
       }
 
-      orWiths.add(branchQuery.withs.last())
+      orWiths.add(normaliseForUnion(branchQuery.withs.last()))
       mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
     }
     if (orWiths.size == 1) return
@@ -342,6 +342,21 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       entityKeyField = orWiths.first().entityKeyField
     )
     mySqlQuery.withs.add(unionWith)
+  }
+
+  private fun normaliseForUnion(with: MySQLWith): MySQLWith {
+    val keyField = with.entityKeyField ?: return with
+    val onlySelect = with.selects.singleOrNull()
+    if (onlySelect != null && onlySelect.alias == null && !onlySelect.name.contains("*")) return with
+
+    return MySQLWith(
+      table = with.table,
+      alias = with.alias,
+      selects = mutableListOf(MySQLSelect("t.$keyField")),
+      subQuery = with,
+      fromAlias = "t",
+      entityKeyField = keyField
+    )
   }
 
   private fun getMySQLWithFromMatch(match: Query, mySQLQuery: MySQLQuery): MySQLWith {
@@ -1055,7 +1070,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val tableRef = table?.alias ?: table?.table ?: currentTable.alias ?: currentTable.table
 
     val result = if (where.`is` != null) {
-      for (join in addWhereConceptJoin(currentTable, field)) {
+      val (conceptJoins, conceptAlias) = addWhereConceptJoin(currentTable, field, with)
+      for (join in conceptJoins) {
         if (!with.joins.contains(join)) with.joins.add(join)
       }
       MySQLPropertyIsWhere(
@@ -1064,6 +1080,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         "=",
         not = where.isNot,
         table = tableRef,
+        conceptTable = conceptAlias,
       )
     } else if (where.range != null) {
       val from = where.range.from
@@ -1225,19 +1242,30 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "`${nodeRef}`.${property}"
   }
 
-  private fun addWhereConceptJoin(table: Table, fromField: String?): MutableList<MySQLJoin> {
+  private fun addWhereConceptJoin(table: Table, fromField: String?, with: MySQLWith): Pair<MutableList<MySQLJoin>, String> {
     val joins: MutableList<MySQLJoin> = mutableListOf()
 
     val conceptTCT = getTableFromTypeAndProperty(IM.CONCEPT.toString() + "TCT", null)
+    val bareConceptTableRef = conceptTCT.table.substringAfterLast('.')
+    val existingJoinForField = with.joins.firstOrNull {
+      it.tableTo == conceptTCT.table && it.fromProperty == fromField
+    }
+    if (existingJoinForField != null) {
+      return joins to (existingJoinForField.tableToAlias?.replace("`", "") ?: bareConceptTableRef)
+    }
+
+    val needsAlias = with.joins.any { it.tableTo == conceptTCT.table }
+    val alias = if (needsAlias) ensureUniqueAlias("${bareConceptTableRef}_$fromField") else null
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
         tableTo = conceptTCT,
+        tableToAlias = alias,
         fromField = fromField,
         toField = "im1dbid"
       )
     )
-    return joins
+    return joins to (alias?.replace("`", "") ?: bareConceptTableRef)
   }
 
   private fun getUnitNameAndType(iri: String): Pair<String, String> {

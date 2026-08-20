@@ -139,8 +139,6 @@ public class SparqlConverter {
     mainEntity = "entity";
     if (query.getNode() != null)
       mainEntity = query.getNode();
-    if (query.getFrom() != null)
-      mainEntity = query.getFrom();
     if (query.getParameter() != null)
       mainEntity = query.getParameter().replace("$", "");
     whereQl.append("WHERE {");
@@ -195,17 +193,20 @@ public class SparqlConverter {
     if (query.notExists()) {
       whereQl.append(tabs).append(" FILTER NOT EXISTS {\n");
     }
-    String subject;
-    if (query.getFrom() != null)
-      subject = query.getFrom();
+    String subject=null;
+    if (query.getFrom() != null){
+      for (From from : query.getFrom()) {
+        if (from.getAlias()!=null)
+          subject = from.getAlias();
+      }
+    }
     else if (query.getNode() != null)
       subject = query.getNode();
     else if (query.getParameter() != null) {
       subject = query.getParameter().replace("$", "");
       whereQl.append(" VALUES ").append("?").append(subject).append("{").append(getIriFromAlias(null, query.getParameter(), null, null)).append("}\n");
-    } else
-      subject = parent;
-    String mainSubject = subject;
+    }
+    if (subject == null) subject=parent;
     if (query.getEntailment() != null) {
       if (query.getEntailment() == Entail.descendantsOrSelfOf) {
         o++;

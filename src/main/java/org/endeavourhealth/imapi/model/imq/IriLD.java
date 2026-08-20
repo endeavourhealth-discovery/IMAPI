@@ -8,7 +8,7 @@ import java.util.Objects;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-@JsonPropertyOrder({"iri", "qualifier", "name", "description"})
+@JsonPropertyOrder({"iri", "qualifier", "name", "description","uuid"})
 public class IriLD {
 
   private String iri;

@@ -28,11 +28,9 @@ public class EqdPopToIMQ {
           .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
             .setIsCohort(true)
             .setName("Registered and GP for GMS services on the reference date")));
-      resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       if (eqReport.getPopulation().getCriteriaGroup().isEmpty()) {
         EqdToIMQ.gmsPatients.add(activeReport);
         EqdToIMQ.gmsPatients.add(resources.getNamespace() + activeReport);
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(NAMESPACE.IM + "Q_RegisteredGMS"));
         return null;
       }
     } else if (eqReport.getParent().getParentType() == VocPopulationParentType.POP) {
@@ -44,14 +42,12 @@ public class EqdPopToIMQ {
             .setIs(Node.iri(NAMESPACE.IM + "Q_RegisteredGMS")
               .setIsCohort(true)
               .setName("Registered and GP for GMS services on the reference date")));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri((NAMESPACE.IM + "Q_RegisteredGMS")));
       } else {
         query
           .addRule(new Query()
             .setIs(Node.iri(resources.getNamespace() + id)
               .setIsCohort(true)
               .setName(resources.reportNames.get(id))));
-        resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(resources.getNamespace() + id));
       }
     }
     if (query.getRule() != null) {

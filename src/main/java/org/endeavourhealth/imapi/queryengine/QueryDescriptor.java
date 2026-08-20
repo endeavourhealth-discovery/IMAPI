@@ -123,9 +123,7 @@ public class QueryDescriptor {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
     describeMatch(query);
-    if (query.getGroupBy() != null) {
-      describeGroupBys(query.getGroupBy());
-    }
+
 
     return query;
   }
@@ -253,10 +251,19 @@ public class QueryDescriptor {
   public void describeMatch(Query query) {
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
 
-
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         describeReturn(prop, query);
+      }
+    }
+    if (query.getColumnGroup()!=null){
+      for (Query subQuery : query.getColumnGroup()) {
+        describeMatch(subQuery);
+      }
+    }
+    if (query.getEach() != null) {
+      for (Query subQuery : query.getEach()) {
+        describeMatch(subQuery);
       }
     }
     if (query.getOrderBy() != null) {
@@ -291,6 +298,9 @@ public class QueryDescriptor {
 
     if (query.getThen() != null) {
       describeThen(query.getThen(), query);
+    }
+    if (query.getGroupBy() != null) {
+      describeGroupBys(query.getGroupBy());
     }
   }
 

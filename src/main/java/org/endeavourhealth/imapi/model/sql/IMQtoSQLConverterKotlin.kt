@@ -441,8 +441,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (match.typeOf?.iri != null) {
       with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)
     } else {
+      //This needs refactoring for multiple froms for now we are using just the one
       with.table = if (match.from != null)
-        mySQLQuery.nodeToTableMap[match.from]
+        mySQLQuery.nodeToTableMap[match.from[0].alias]
           ?: throw SQLConversionException("Table not found: ${match.from}")
       else queryTypeOfTable
     }

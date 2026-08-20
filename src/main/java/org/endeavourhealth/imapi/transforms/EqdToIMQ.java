@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
@@ -49,6 +50,7 @@ public class EqdToIMQ {
   private final Map<String, Integer> criteriaLibraryCount = new HashMap<>();
   private final Map<String, Set<String>> libraryUsedIn = new HashMap<>();
   private final ObjectMapper mapper = new ObjectMapper();
+  private final QueryService queryService = new QueryService();
   private final boolean versionIndependent;
   private NAMESPACE namespace;
   private EqdResources resources;
@@ -276,6 +278,7 @@ public class EqdToIMQ {
         if (report.get(IM.DEFINITION) != null) {
           Query query = report.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
           this.checkGms(query);
+          queryService.checkDependency(report,query);
           report.set(IM.DEFINITION.asIri(), TTLiteral.literal(query));
         }
       }

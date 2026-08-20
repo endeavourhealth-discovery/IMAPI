@@ -27,6 +27,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val MAX_ALIAS_LENGTH = 64
   private var longAliasCounter = 1
   private val usedAliases = mutableSetOf<String>()
+  private val carryPropertiesStack = ArrayDeque<List<String>>()
   private val DATE_FORMATS = listOf(
     DateTimeFormatter.ofPattern("yyyy-MM-dd"),
     DateTimeFormatter.ofPattern("dd/MM/yyyy"),
@@ -273,7 +274,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       joins = withJoins.ifEmpty { mutableListOf() },
       exclude = isA.isExclude,
       wheres = topWheres,
-      entityKeyField = "entity_id"
+      entityKeyField = "entity_id",
+      isCohortRef = true
     )
   }
 
@@ -313,50 +315,124 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     tempQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
     if (mySqlQuery.withs.isNotEmpty()) tempQuery.withs.add(mySqlQuery.withs.last())
 
-    for (match in currentMatch.or) {
-      val branchQuery = MySQLQuery()
-      branchQuery.nodeToTableMap.putAll(tempQuery.nodeToTableMap)
-      if (tempQuery.withs.isNotEmpty()) branchQuery.withs.add(tempQuery.withs.last())
-      addMatchWithsRecursively(match, branchQuery)
+    val carryProperties = getGroupCarryProperties(currentMatch)
+    if (carryProperties.isNotEmpty()) carryPropertiesStack.addLast(carryProperties)
+    try {
+      for (match in currentMatch.or) {
+        val branchQuery = MySQLQuery()
+        branchQuery.nodeToTableMap.putAll(tempQuery.nodeToTableMap)
+        if (tempQuery.withs.isNotEmpty()) branchQuery.withs.add(tempQuery.withs.last())
+        addMatchWithsRecursively(match, branchQuery)
 
-      if (match.and == null && match.or == null && match.`is` == null) {
-        val with = getMySQLWithFromMatch(match, branchQuery)
-        if (match.orderBy == null && branchQuery.withs.isNotEmpty()) {
-          with.joins.add(getJoinBetweenWiths(with, branchQuery.withs.last()))
+        if (match.and == null && match.or == null && match.`is` == null) {
+          val with = getMySQLWithFromMatch(match, branchQuery)
+          if (match.orderBy == null && branchQuery.withs.isNotEmpty()) {
+            with.joins.add(getJoinBetweenWiths(with, branchQuery.withs.last()))
+          }
+          branchQuery.withs.add(with)
+        } else {
+          val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
+          mySqlQuery.withs.addAll(newWiths)
         }
-        branchQuery.withs.add(with)
-      } else {
-        val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
-        mySqlQuery.withs.addAll(newWiths)
+
+        orWiths.add(normaliseForUnion(branchQuery.withs.last(), carryProperties))
+        mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
       }
-
-      orWiths.add(normaliseForUnion(branchQuery.withs.last()))
-      mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
+    } finally {
+      if (carryProperties.isNotEmpty()) carryPropertiesStack.removeLast()
     }
-    if (orWiths.size == 1) return
 
-    val unionWith = MySQLWith(
+    if (orWiths.size == 1 && currentMatch.orderBy == null) return
+
+    val unionWith = if (orWiths.size == 1) orWiths.first() else MySQLWith(
       alias = ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
       table = orWiths.first().table,
       unionWiths = orWiths,
       entityKeyField = orWiths.first().entityKeyField
     )
-    mySqlQuery.withs.add(unionWith)
+
+    mySqlQuery.withs.add(
+      if (currentMatch.orderBy != null) wrapGroupOrderBy(unionWith, currentMatch) else unionWith
+    )
   }
 
-  private fun normaliseForUnion(with: MySQLWith): MySQLWith {
+  private fun normaliseForUnion(with: MySQLWith, carryProperties: List<String> = emptyList()): MySQLWith {
     val keyField = with.entityKeyField ?: return with
-    val onlySelect = with.selects.singleOrNull()
-    if (onlySelect != null && onlySelect.alias == null && !onlySelect.name.contains("*")) return with
 
+    if (carryProperties.isEmpty()) {
+      val onlySelect = with.selects.singleOrNull()
+      if (onlySelect != null && onlySelect.alias == null && !onlySelect.name.contains("*")) return with
+      return MySQLWith(
+        table = with.table,
+        alias = with.alias,
+        selects = mutableListOf(MySQLSelect("t.$keyField")),
+        subQuery = with,
+        fromAlias = "t",
+        entityKeyField = keyField
+      )
+    }
+
+    val selects = mutableListOf(MySQLSelect("t.$keyField"))
+    for (propIri in carryProperties) {
+      val alias = propIri.substringAfterLast('#')
+      selects.add(if (with.isCohortRef) MySQLSelect("NULL", alias) else MySQLSelect("t.$alias", alias))
+    }
     return MySQLWith(
       table = with.table,
       alias = with.alias,
-      selects = mutableListOf(MySQLSelect("t.$keyField")),
+      selects = selects,
       subQuery = with,
       fromAlias = "t",
       entityKeyField = keyField
     )
+  }
+
+  private fun getGroupCarryProperties(match: Query): List<String> {
+    if (match.orderBy == null) return emptyList()
+    val props = linkedSetOf<String>()
+    match.orderBy.property.forEach { props.add(it.iri) }
+    match.then?.where?.let { props.addAll(getPropsUsedInThen(it)) }
+    return props.toList()
+  }
+
+  private fun wrapGroupOrderBy(with: MySQLWith, match: Query): MySQLWith {
+    val keyField = with.entityKeyField ?: throw SQLConversionException("Group order-by requires an entity key")
+    val orderBy = match.orderBy ?: throw SQLConversionException("wrapGroupOrderBy called without an orderBy")
+    val orderClause = orderBy.property.joinToString(", ") { p ->
+      "${p.iri.substringAfterLast('#')} ${if (p.direction == Order.descending) "DESC" else "ASC"}"
+    }
+
+    val rnLayer = MySQLWith(
+      table = with.table,
+      selects = mutableListOf(
+        MySQLSelect("u.*"),
+        MySQLSelect("ROW_NUMBER() OVER(PARTITION BY u.$keyField ORDER BY $orderClause)", "rn")
+      ),
+      subQuery = with,
+      fromAlias = "u",
+      entityKeyField = keyField
+    )
+
+    val finalWith = MySQLWith(
+      table = with.table,
+      alias = with.alias,
+      selects = mutableListOf(MySQLSelect("sq.*")),
+      subQuery = rnLayer,
+      fromAlias = "sq",
+      wheres = mutableListOf(MySQLPropertyValueWhere("rn", "<=", orderBy.limit.toString(), table = "sq")),
+      entityKeyField = keyField
+    )
+
+    match.then?.where?.let { finalWith.wheres.add(buildBarePropertyWhere(it)) }
+    return finalWith
+  }
+
+  private fun buildBarePropertyWhere(where: Where): MySQLWhere {
+    if (where.iri == null || where.and != null || where.or != null || where.`is` != null || where.compare != null) {
+      throw SQLConversionException("Unsupported group-level 'then' clause: $where")
+    }
+    val alias = where.iri.substringAfterLast('#')
+    return MySQLPropertyValueWhere(alias, where.operator.value, toSqlLiteral(where.value), not = where.isNot)
   }
 
   private fun getMySQLWithFromMatch(match: Query, mySQLQuery: MySQLQuery): MySQLWith {
@@ -634,6 +710,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         )
       with.selects.addAll(selects)
     }
+    for (propIri in carryPropertiesStack.lastOrNull().orEmpty()) {
+      val alias = propIri.substringAfterLast('#')
+      if (with.selects.none { it.alias == alias }) {
+        val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
+        with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field", alias))
+      }
+    }
   }
 
   private fun getDefaultSelect(table: Table): MySQLSelect {
@@ -643,14 +726,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return MySQLSelect("${table.alias ?: table.table}.$field")
   }
 
-  /**
-   * The column, relative to [table]'s own alias, that identifies the query's root
-   * (`queryTypeOfTable`) entity for a row in that table - i.e. `table`'s primary key if it
-   * *is* the root type, or its foreign key to the root type otherwise. Every CTE built from a
-   * [Match] exposes this as its first (unaliased) select column, which is what lets consecutive
-   * CTEs be joined together and lets patient-trace debugging identify which entity a CTE row
-   * belongs to.
-   */
   private fun getEntityKeyFieldName(table: Table): String {
     if (table.dataModel == queryTypeOfTable.dataModel) return queryTypeOfTable.primaryKey
     val (fk, _) = table.foreignKeyTo(queryTypeOfTable)

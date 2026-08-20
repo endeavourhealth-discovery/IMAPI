@@ -18,9 +18,12 @@ data class MySQLWith(
   var isStep: Boolean = false,
   val groupByColumns: MutableList<String> = mutableListOf(),
   var havingClause: String? = null,
-  var entityKeyField: String? = null
+  var entityKeyField: String? = null,
+  val isCohortRef: Boolean = false
 ) {
   private fun toSqlBody(): String {
+    if (unionWiths.isNotEmpty()) return toUnionSqlBody()
+
     val selectSql = selects.joinToString(", ") { sel ->
       sel.toSql()
     }

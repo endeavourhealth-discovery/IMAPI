@@ -529,4 +529,39 @@ public class QueryService {
   }
 
 
+  public void checkDependency(TTEntity report, Query query) {
+    if (query.getRule() != null) {
+      for (Query subQuery : query.getRule()) {
+        if (subQuery.getIs() != null) {
+          Node node = subQuery.getIs();
+          report.addObject(iri(IM.DEPENDENT_ON),iri(node.getIri()));
+        }
+        checkDependency(report,subQuery);
+      }
+    }
+    if (query.getColumnGroup() != null) {
+      for (Query subQuery : query.getColumnGroup()) {
+        checkDependency(report,subQuery);
+      }
+    }
+    if (query.getAnd() != null) {
+      for (Query subQuery : query.getAnd()) {
+        checkDependency(report,subQuery);
+      }
+    }
+    if (query.getOr() != null) {
+      for (Query subQuery : query.getOr()) {
+        checkDependency(report,subQuery);
+      }
+    }
+    if (query.getEach() != null) {
+      for (Query subQuery : query.getEach()) {
+        checkDependency(report,subQuery);
+      }
+    }
+  }
+
+
+
+
 }

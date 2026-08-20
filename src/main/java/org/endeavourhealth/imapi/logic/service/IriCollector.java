@@ -18,11 +18,7 @@ public class IriCollector {
 
 
   private static void collectQueryIris(Query query, Set<String> iris) {
-    if (query.getColumnGroup() != null) {
-      for (Query subQuery : query.getColumnGroup()) {
-        collectMatchIris(subQuery, iris);
-      }
-    }
+
     collectMatchIris(query, iris);
   }
 
@@ -67,6 +63,16 @@ public class IriCollector {
 
 
   private static void collectMatchIris(Query query, Set<String> iriSet) {
+    if (query.getColumnGroup() != null) {
+      for (Query subQuery : query.getColumnGroup()) {
+        collectMatchIris(subQuery, iriSet);
+      }
+    }
+    if (query.getEach() != null) {
+      for (Query subQuery : query.getEach()) {
+        collectMatchIris(subQuery, iriSet);
+      }
+    }
 
     if (query.getIri() != null) {
       iriSet.add(query.getIri());

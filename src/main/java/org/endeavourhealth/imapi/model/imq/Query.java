@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 @JsonPropertyOrder({
   "notExists",
+  "from",
   "and",
   "ifTrue",
   "ifFalse",
@@ -36,7 +37,7 @@ public class Query implements HasPaths, Returnable {
   private Node graph;
   private Where where;
   private String iri;
-  private String from;
+  private List<From> from;
   private boolean optional;
   private Node typeOf;
   private String parameter;
@@ -54,6 +55,7 @@ public class Query implements HasPaths, Returnable {
   private List<Query> or;
   private List<Query> and;
   private List<Query> rule;
+  private List<Query> each;
   private String libraryItem;
   private boolean invalid;
   private Node is;
@@ -73,6 +75,25 @@ public class Query implements HasPaths, Returnable {
   private IMQType queryType;
   private String uuid;
 
+public List<Query> getEach() {
+  return each;
+}
+
+public Query setEach(List<Query> each) {
+  this.each = each;
+  return this;
+}
+public Query addEach(Query query) {
+  if (this.each == null) this.each = new ArrayList<>();
+  this.each.add(query);
+  return this;
+}
+public Query each(Consumer<Query> builder) {
+  Query query = new Query();
+  addEach(query);
+  builder.accept(query);
+  return this;
+}
 
   public String getDescription() {
     return description;
@@ -559,12 +580,22 @@ public class Query implements HasPaths, Returnable {
     return this;
   }
 
-  public String getFrom() {
+  public List<From> getFrom() {
     return from;
   }
-
-  public Query setFrom(String from) {
+  public Query setFrom(List<From> from) {
     this.from = from;
+    return this;
+  }
+  public Query addFrom(From from) {
+    if (this.from == null) this.from = new ArrayList<>();
+    this.from.add(from);
+    return this;
+  }
+  public Query from(Consumer<From> builder) {
+    From from = new From();
+    addFrom(from);
+    builder.accept(from);
     return this;
   }
 

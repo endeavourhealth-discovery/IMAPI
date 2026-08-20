@@ -1,0 +1,38 @@
+package org.endeavourhealth.imapi.model.customexceptions
+
+enum class ErrorCodes(code: String) {
+    DATA_FORMAT_EXCEPTION("DataFormatException"),
+    UNKNOWN_FORMAT_CONVERSION_EXCEPTION("UnknownFormatConversionException"),
+    UNHANDLED_EXCEPTION("UnhandledException"),
+    NO_HANDLER_FOUND_EXCEPTION("NoHandlerFoundException"),
+    HTTP_MESSAGE_NOT_READABLE("HttpMessageNotReadable"),
+    HTTP_REQUEST_METHOD_NOT_SUPPORTED("HttpRequestMethodNotSupported"),
+    MISSING_SERVLET_REQUEST_PARAMETER("MissingServletRequestParameter"),
+    TYPE_MISMATCH("TypeMismatch"),
+    HTTP_MEDIA_TYPE_NOT_SUPPORTED("HttpMediaTypeNotSupported"),
+    ACCESS_DENIED_EXCEPTION("AccessDeniedException"),
+    AUTHENTICATION_EXCEPTION("AuthenticationException"),
+    ECL_FORMAT_EXCEPTION("EclFormatException"),
+    OPEN_SEARCH_EXCEPTION("OpenSearchException"),
+    TT_FILER_EXCEPTION("TTFilerException"),
+    QUERY_EXCEPTION("QueryException"),
+    GENERAL_CUSTOM_EXCEPTION("GeneralCustomException"),
+    CONFIG_EXCEPTION("ConfigException"),
+    DOWNLOAD_EXCEPTION("DownloadException"),
+    ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
+    SQL_CONVERSION_EXCEPTION("SQLConversionException"),
+    ECL_BUILDER_EXCEPTION("EclBuilderException"),
+    USER_NOT_FOUND_EXCEPTION("UserNotFoundException"),
+    DATA_MISSING_EXCEPTION("DataMissingException"),
+    ;
+
+    private val code: String?
+
+    init {
+        this.code = code
+    }
+
+    fun asString(): String? {
+        return code
+    }
+}

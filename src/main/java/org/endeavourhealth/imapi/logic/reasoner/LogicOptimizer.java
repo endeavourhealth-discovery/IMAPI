@@ -340,8 +340,10 @@ public class LogicOptimizer {
 
   private void getLogicFromRules(Query query) {
     if (query.getRule() == null) return;
-    Query topOr = null;
-    for (Query subQuery : query.getRule()) {
+    Query or=null;
+    Query and=query;
+    for (int i=0;i<query.getRule().size();i++) {
+      Query subQuery = query.getRule().get(i);
       RuleAction ifTrue = subQuery.getIfTrue();
       RuleAction ifFalse = subQuery.getIfFalse();
       if (ifTrue == ifFalse) {
@@ -349,45 +351,57 @@ public class LogicOptimizer {
       }
       switch (ifTrue + "_" + ifFalse) {
         case "SELECT_REJECT":
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else query.addAnd(subQuery);
+          if (i<query.getRule().size()-1)
+            throw new IllegalArgumentException("Select /Reject must be last rule");
+          if (or!=null)
+            or.addOr(subQuery);
+          else and.addAnd(subQuery);
           break;
         case "SELECT_NEXT":
-          if (topOr != null) topOr.addOr(subQuery);
+          if (or!=null)
+            or.addOr(subQuery);
           else {
-            topOr = new Query();
-            query.addAnd(topOr);
-            topOr.addOr(subQuery);
-          }
-          break;
-        case "REJECT_SELECT":
-          subQuery.setNotExists(true);
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else query.addAnd(subQuery);
-          break;
-        case "REJECT_NEXT":
-          subQuery.setNotExists(true);
-          query.addAnd(subQuery);
-          topOr = null;
-          break;
-        case "NEXT_SELECT":
-          subQuery.setNotExists(true);
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else {
-            topOr = new Query();
-            query.addAnd(topOr);
-            topOr.addOr(subQuery);
+            or= new Query();
+            and.addAnd(or);
+            or.addOr(subQuery);
           }
           break;
         case "NEXT_REJECT":
-          query.addAnd(subQuery);
+          if (or!=null) {
+            or.addOr(subQuery);
+            or=null;
+          }
+          else and.addAnd(subQuery);
           break;
+        case "NEXT_SELECT":
+          subQuery.setNotExists(true);
+          if (or!=null)
+            or.addOr(subQuery);
+          else {
+            or= new Query();
+            and.addAnd(or);
+            or.addOr(subQuery);
+          }
+          break;
+        case "REJECT_SELECT":
+          if (i<query.getRule().size()-1)
+            throw new IllegalArgumentException("Reject /select must be last rule");
+          if (or!=null)
+            or.addOr(subQuery);
+          else and.addAnd(subQuery);
+          break;
+
+        case "REJECT_NEXT":
+          subQuery.setNotExists(true);
+          if (or!=null){
+            and=new Query();
+            or.addOr(and);
+            and.addAnd(subQuery);
+            or=null;
+          }
+          else and.addAnd(subQuery);
+          break;
+
       }
     }
     query.setRule(null);

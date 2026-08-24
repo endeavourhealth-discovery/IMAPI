@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpException;
 import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
 import org.endeavourhealth.imapi.model.responses.LoginResponseES;
@@ -45,17 +46,26 @@ public class SecurityService {
     return endeavourSecurityService.updateUser(ipAddress, sessionId, user);
   }
 
-  public LoginResponse loginUser(String code, String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public LoginResponse loginUser(String code, String state, HttpServletRequest request, HttpServletResponse response) throws UserAuthorisationException {
     String ipAddress = getIpAddress(request);
-    LoginResponseES loginResponseES = endeavourSecurityService.login(ipAddress, code, state);
-    Cookie cookie = new Cookie("session_id", loginResponseES.getSessionId());
-    cookie.setPath("/");
-    cookie.setHttpOnly(true);
-    response.addCookie(cookie);
-    LoginResponse loginResponse = new LoginResponse();
-    loginResponse.setUser(loginResponseES.getUser());
-    loginResponse.setState(loginResponseES.getState());
-    return loginResponse;
+    try {
+      LoginResponseES loginResponseES = endeavourSecurityService.login(ipAddress, code, state);
+      Cookie cookie = new Cookie("session_id", loginResponseES.getSessionId());
+      cookie.setPath("/");
+      cookie.setHttpOnly(true);
+      response.addCookie(cookie);
+      LoginResponse loginResponse = new LoginResponse();
+      loginResponse.setUser(loginResponseES.getUser());
+      loginResponse.setState(loginResponseES.getState());
+      return loginResponse;
+    } catch (UserAuthorisationException e) {
+      Cookie cookie = new Cookie("session_id", null);
+      cookie.setPath("/");
+      cookie.setHttpOnly(true);
+      cookie.setMaxAge(0);
+      response.addCookie(cookie);
+      throw e;
+    }
   }
 
   public String getLoginUrl(String redirectUrl, HttpServletRequest request) throws HttpException {

@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.logic.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.endeavourhealth.imapi.utility.HttpRequestService
+import org.apache.http.HttpException
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException
 import org.endeavourhealth.imapi.model.responses.LoginResponseES
 import org.endeavourhealth.imapi.model.security.Permission
 import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.utility.HttpRequestService
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 
@@ -117,20 +118,26 @@ class EndeavourSecurityService {
     }
   }
 
+  @Throws(UserAuthorisationException::class)
   fun login(ipAddress: String, code: String, state: String): LoginResponseES {
     log.debug("login")
     val params = HashMap<String, String>()
     params["code"] = code
     params["state"] = state
     val headers = hashMapOf("X-CLIENT-IP" to ipAddress)
-    val response = httpRequestService.httpGet(
-      endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/login",
-      LoginResponseES::class.java,
-      params,
-      headers
-    )
-    if (null != response) return response
-    else throw UserAuthorisationException("Failed to login")
+    try {
+      val response = httpRequestService.httpGet(
+        endeavourSecurityUrl + "/api/" + endeavourSecurityApplication + "/authn/login",
+        LoginResponseES::class.java,
+        params,
+        headers
+      )
+      if (null != response) return response
+      else throw UserAuthorisationException("Failed to login")
+    } catch (e: HttpException) {
+      log.error("Failed to login.", e)
+      throw UserAuthorisationException("Failed to login")
+    }
   }
 
   fun logout(ipAddress: String, sessionId: String): Unit {

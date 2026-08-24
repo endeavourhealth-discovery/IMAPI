@@ -4,17 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "TTIriRef", description = "Class representing an IRI")
 public class TTIriRef implements TTValue, Serializable {
+
   private static final Pattern iriPattern = Pattern.compile("([a-z]+)?[:].*");
 
   @Schema(description = "The actual iri")
@@ -36,7 +39,6 @@ public class TTIriRef implements TTValue, Serializable {
   public TTIriRef(String iri) {
     setIri(iri);
   }
-
 
   public TTIriRef(String iri, String name) {
     setIri(iri);
@@ -64,8 +66,7 @@ public class TTIriRef implements TTValue, Serializable {
     this.iri = iri;
     if (iri != null && !iri.isEmpty() && !iriPattern.matcher(iri).matches()) {
       iri = NAMESPACE.IM + iri;
-      if (!iriPattern.matcher(iri).matches())
-        Thread.dumpStack();
+      if (!iriPattern.matcher(iri).matches()) Thread.dumpStack();
     }
     return this;
   }
@@ -76,8 +77,7 @@ public class TTIriRef implements TTValue, Serializable {
   }
 
   public TTIriRef setName(String name) {
-    if (name != null && name.startsWith("null"))
-      System.err.println("Its here!!!!");
+    if (name != null && name.startsWith("null")) System.err.println("Its here!!!!");
     this.name = name;
     return this;
   }
@@ -97,7 +97,6 @@ public class TTIriRef implements TTValue, Serializable {
   public boolean isIriRef() {
     return true;
   }
-
 
   public TTIriRef setDescription(String description) {
     this.description = description;

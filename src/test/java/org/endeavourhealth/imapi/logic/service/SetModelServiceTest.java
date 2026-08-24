@@ -21,7 +21,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class SetModelServiceTest {
 
-  @Mock SetRepository setRepository;
+  @Mock
+  SetRepository setRepository;
 
   SetService setService;
 

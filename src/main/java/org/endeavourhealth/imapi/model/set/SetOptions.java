@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.model.set;
 import java.util.List;
 
 public class SetOptions {
+
   private String setIri;
   private boolean includeDefinition;
   private boolean includeCore;
@@ -12,11 +13,17 @@ public class SetOptions {
   private boolean includeIM1id;
   private List<String> subsumptions;
 
-  public SetOptions() {
-  }
+  public SetOptions() {}
 
-  public SetOptions(String setIri, boolean includeDefinition, boolean includeCore, boolean includeLegacy, boolean includeSubsets, List<String> schemes,
-                    List<String> subsumptions) {
+  public SetOptions(
+    String setIri,
+    boolean includeDefinition,
+    boolean includeCore,
+    boolean includeLegacy,
+    boolean includeSubsets,
+    List<String> schemes,
+    List<String> subsumptions
+  ) {
     this.setIri = setIri;
     this.includeDefinition = includeDefinition;
     this.includeCore = includeCore;

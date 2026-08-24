@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.model.search;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class Filter {
+
   private String field;
   private List<TTIriRef> iriValue;
   private List<Filter> and;
@@ -33,8 +34,7 @@ public class Filter {
   }
 
   public Filter addTextValue(String text) {
-    if (this.textValue == null)
-      this.textValue = new ArrayList<>();
+    if (this.textValue == null) this.textValue = new ArrayList<>();
     this.textValue.add(text);
     return this;
   }
@@ -47,7 +47,6 @@ public class Filter {
     this.field = field;
     return this;
   }
-
 
   public boolean isNot() {
     return not;
@@ -98,6 +97,4 @@ public class Filter {
     this.iriValue.add(iriValue);
     return this;
   }
-
-
 }

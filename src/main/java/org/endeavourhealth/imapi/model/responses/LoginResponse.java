@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.security.User;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginResponse {
+
   private User user;
   private String state;
 }

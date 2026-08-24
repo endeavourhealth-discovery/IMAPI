@@ -1,12 +1,15 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.iml.ParameterTemplate;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class FunctionTemplate extends Entity {
+
   private TTIriRef function;
   private List<ParameterTemplate> parameterTemplate;
 
@@ -42,6 +45,4 @@ public class FunctionTemplate extends Entity {
     builder.accept(parameter);
     return this;
   }
-
-
 }

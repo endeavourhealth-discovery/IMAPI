@@ -1,12 +1,12 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
 public class TTPrefix {
+
   String iri;
   String prefix;
   String name;
 
-  public TTPrefix() {
-  }
+  public TTPrefix() {}
 
   public TTPrefix(String iri, String prefix) {
     this.iri = iri;

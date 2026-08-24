@@ -11,10 +11,14 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Node;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.*;
@@ -411,6 +415,30 @@ public class SetRepository {
     }
   }
 
+  public void updateMemberCount(String iri, GRAPH graph) {
+    int count = 0;
+    try (IMDB conn = IMDB.getConnection()) {
+      String sql = """
+        Select (count(?member) as ?count)
+        Where {<%s> im:hasMember ?member.}
+        """.formatted(iri);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          count = ((Literal) rs.next().getValue("count")).intValue();
+
+        }
+      }
+      sql = """
+        INSERT DATA {<%s>  im:memberCount %s}
+        """.formatted(iri, count);
+      org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sql, GRAPH.IM);
+      conn.begin();
+      upd.execute();
+      conn.commit();
+    }
+  }
+
 
   private void sendUp(StringJoiner sj, IMDB conn, GRAPH graph) {
     org.eclipse.rdf4j.query.Update upd = conn.prepareInsertSparql(sj.toString(), GRAPH.IM);
@@ -546,8 +574,8 @@ public class SetRepository {
           Values ?setIri{%s}
         """.formatted("<" + setIri + ">"))
       .append("\n");
-    select.append(addUnion(true, includeLegacy, schemes, null));
-    select.append(addUnion(false, includeLegacy, schemes, subsumptionPredicates));
+    select.append(addOr(true, includeLegacy, schemes, null));
+    select.append(addOr(false, includeLegacy, schemes, subsumptionPredicates));
     select.append("}  ");
     boolean subsumedBy = !subsumptionPredicates.isEmpty();
     try (IMDB conn = IMDB.getConnection()) {
@@ -556,7 +584,7 @@ public class SetRepository {
     }
   }
 
-  private String addUnion(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {
+  private String addOr(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {
     StringJoiner spql = new StringJoiner("\n");
     if (first) {
       spql.add("{");
@@ -837,6 +865,63 @@ public class SetRepository {
       }
     }
     return result;
+  }
+
+  public Integer getMemberCount(String iri) {
+    String spq = """
+      SELECT ?memberCount
+      WHERE {
+        <%s> in:memberCount ?memberCount.
+      }
+      """.formatted(iri);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return ((Literal) bs.getValue("memberCount")).intValue();
+        }
+      }
+    }
+    return 0;
+  }
+
+  public void deleteSemanticMaps(GRAPH graph) {
+    try (IMDB conn = IMDB.getConnection()) {
+      String spq = """
+        DELETE { ?concept im:semanticMap ?map.}
+        WHERE {
+          ?concept im:semanticMap ?map.
+        }
+        """;
+      org.eclipse.rdf4j.query.Update upd = conn.prepareDeleteSparql(spq);
+      upd.execute();
+    }
+  }
+  public void updateSemanticMaps(Set<TTEntity> mappedConcepts, GRAPH graph) {
+    try (IMDB conn = IMDB.getConnection()) {
+      StringJoiner sj = new StringJoiner("\n");
+      sj.add("INSERT DATA {");
+      int batch = 0;
+
+      for(TTEntity concept:mappedConcepts) {
+        ++batch;
+        if (batch == 1000) {
+          sj.add("}");
+          this.sendUp(sj, conn, graph);
+          sj = new StringJoiner("\n");
+          sj.add("INSERT DATA {");
+          batch = 0;
+        }
+        for (TTValue mapEntry : concept.get(IM.HAS_MAP_ENTRY).getElements()) {
+          sj.add("<" + concept.getIri() + "> <"+IM.HAS_MAP_ENTRY.toString()+"> <" + mapEntry.asIriRef().getIri() + ">.");
+        }
+      }
+
+      sj.add("}");
+      this.sendUp(sj, conn, graph);
+    }
+
   }
 }
 

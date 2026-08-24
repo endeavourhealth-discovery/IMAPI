@@ -71,14 +71,14 @@ public class SetToSparql {
     for (TTValue complexClass : ors.getElements()) {
       if (complexClass.isNode()) {
 
-        addUnion(complexClass.asNode(), subQuery);
+        addOr(complexClass.asNode(), subQuery);
       }
     }
     subQuery.append(tabs).append("}\n");
   }
 
 
-  private void addUnion(TTNode union, StringBuilder subQuery) {
+  private void addOr(TTNode union, StringBuilder subQuery) {
 
     if (union.get(TTIriRef.iri(SHACL.AND)) != null) {
       subQuery.append(tabs).append("UNION {\n");

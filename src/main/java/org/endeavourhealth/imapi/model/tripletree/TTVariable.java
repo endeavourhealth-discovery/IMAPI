@@ -3,13 +3,25 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @JsonPropertyOrder({"inverse", "iri", "name", "variable"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class TTVariable extends TTIriRef {
+
   private String variable;
   private boolean isType;
 
+  public TTVariable(TTIriRef iri) {
+    super.setIri(iri.getIri());
+  }
+
+  public TTVariable() {
+  }
+
+  public static TTVariable iri(String iri) {
+    return new TTVariable().setIri(iri);
+  }
 
   public boolean isType() {
     return isType;
@@ -34,15 +46,6 @@ public class TTVariable extends TTIriRef {
     return this;
   }
 
-
-  public static TTVariable iri(String iri) {
-    return new TTVariable().setIri(iri);
-  }
-
-  public TTVariable(TTIriRef iri) {
-    super.setIri(iri.getIri());
-  }
-
   public String getVariable() {
     return variable;
   }
@@ -51,11 +54,6 @@ public class TTVariable extends TTIriRef {
     this.variable = variable;
     return this;
   }
-
-
-  public TTVariable() {
-  }
-
 
   public TTVariable setIri(String iri) {
     super.setIri(iri);

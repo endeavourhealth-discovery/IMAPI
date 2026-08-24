@@ -1,15 +1,14 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.List;
+
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class ParentDto extends TTIriRef {
 
   private List<ParentDto> parents;
 
   public ParentDto() {
-
   }
 
   public ParentDto(String iri, String name, List<ParentDto> parents) {

@@ -9,12 +9,10 @@ public class QueryEntity extends Entity {
 
   private Query definition;
 
-
   public QueryEntity setIsContainedIn(Set<TTEntity> isContainedIn) {
     super.setIsContainedIn(isContainedIn);
     return this;
   }
-
 
   public Query getDefinition() {
     return definition;

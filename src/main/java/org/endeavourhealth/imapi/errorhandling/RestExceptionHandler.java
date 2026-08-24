@@ -174,6 +174,12 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     return buildResponseEntity(error);
   }
 
+  @ExceptionHandler(DataMissingException.class)
+  protected ResponseEntity<Object> handleDataMissingException(DataMissingException ex) {
+    ApiError error = new ApiError(HttpStatus.BAD_REQUEST, ex.getMessage(), ex, ErrorCodes.DATA_MISSING_EXCEPTION);
+    return buildResponseEntity(error);
+  }
+
   private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
     return new ResponseEntity<>(apiError, apiError.getStatus());
   }

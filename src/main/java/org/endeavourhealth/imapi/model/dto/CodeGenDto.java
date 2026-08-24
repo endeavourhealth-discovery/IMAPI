@@ -1,11 +1,11 @@
 package org.endeavourhealth.imapi.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class CodeGenDto {
+
   private String name;
   private String extension;
   private String collectionWrapper;
@@ -13,8 +13,7 @@ public class CodeGenDto {
   private String template;
   private Boolean complexTypes = false;
 
-  public CodeGenDto() {
-  }
+  public CodeGenDto() {}
 
   public String getName() {
     return name;
@@ -54,8 +53,7 @@ public class CodeGenDto {
 
   @JsonIgnore
   public String getDataType(String datatype) {
-    if (datatypeMap == null)
-      return null;
+    if (datatypeMap == null) return null;
 
     return datatypeMap.get(datatype);
   }

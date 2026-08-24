@@ -22,7 +22,9 @@ public enum ErrorCodes {
   ILLEGAL_ARGUMENT_EXCEPTION("IllegalArgumentException"),
   SQL_CONVERSION_EXCEPTION("SQLConversionException"),
   ECL_BUILDER_EXCEPTION("EclBuilderException"),
-  USER_NOT_FOUND_EXCEPTION("UserNotFoundException");
+  USER_NOT_FOUND_EXCEPTION("UserNotFoundException"),
+  DATA_MISSING_EXCEPTION("DataMissingException"),
+  ;
 
   private final String code;
 

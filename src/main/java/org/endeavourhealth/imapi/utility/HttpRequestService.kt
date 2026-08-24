@@ -63,10 +63,13 @@ class HttpRequestService {
     if (params.isNotEmpty()) {
       url += "?" + (params.keys.map { k -> "$k={$k}" }).joinToString("&")
     }
-
-    val response = RestTemplate()
-      .exchange(url, HttpMethod.GET, HttpEntity<String>(reqHeaders), responseType, params)
-    if (response.statusCode.is2xxSuccessful) return response.body
-    else throw HttpException("Http get failed: " + url + " with status " + response.statusCode)
+    try {
+      val response = RestTemplate()
+        .exchange(url, HttpMethod.GET, HttpEntity<String>(reqHeaders), responseType, params)
+      if (response.statusCode.is2xxSuccessful) return response.body
+      else throw HttpException("Http get failed: " + url + " with status " + response.statusCode)
+    } catch (err: Throwable) {
+      throw HttpException("Http get failed: " + url + " with error " + err.message, err)
+    }
   }
 }

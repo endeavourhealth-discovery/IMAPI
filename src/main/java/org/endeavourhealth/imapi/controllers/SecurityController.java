@@ -9,7 +9,9 @@ import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.responses.LoginResponse;
-import org.endeavourhealth.imapi.model.security.*;
+import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
+import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
@@ -41,8 +43,9 @@ public class SecurityController {
       return securityService.getLoginUrl(redirectUrl, request);
     }
   }
+
   @GetMapping("/public/login")
-  public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws HttpException {
+  public LoginResponse login(@RequestParam(name = "code") String code, @RequestParam(name = "state") String state, HttpServletRequest request, HttpServletResponse response) throws UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.SECURITY.PUBLIC.LOGIN.GET")) {
       log.debug("login");
       return securityService.loginUser(code, state, request, response);

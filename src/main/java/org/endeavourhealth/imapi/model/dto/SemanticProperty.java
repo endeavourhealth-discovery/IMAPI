@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.model.dto;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.io.Serializable;
+
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class SemanticProperty implements Serializable {
 

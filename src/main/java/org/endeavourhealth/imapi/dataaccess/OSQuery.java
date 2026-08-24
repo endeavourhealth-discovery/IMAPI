@@ -8,10 +8,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.common.unit.Fuzziness;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.*;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.imq.QueryException;
+import org.endeavourhealth.imapi.model.imq.Return;
+import org.endeavourhealth.imapi.model.imq.TextSearchStyle;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
@@ -97,27 +101,28 @@ public class OSQuery {
   }
 
   private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
-    JsonNode results= runQuery(builder);
+    JsonNode results = runQuery(builder);
     if (results.get("hits").get("hits").isEmpty()) return;
-    fullResults.put("totalCount", fullResults.get("totalCount").asInt()+ results.get("hits").get("total").get("value").asInt());
-    ObjectNode hitsObject= (ObjectNode) fullResults.get("hits");
+    fullResults.put("totalCount", fullResults.get("totalCount").asInt() + results.get("hits").get("total").get("value").asInt());
+    ObjectNode hitsObject = (ObjectNode) fullResults.get("hits");
     ArrayNode hitsArray = (ArrayNode) hitsObject.get("hits");
     for (JsonNode hit : results.get("hits").get("hits")) {
-      String entityIri= hit.get("_source").get("iri").textValue();
+      String entityIri = hit.get("_source").get("iri").textValue();
       if (!found.contains(entityIri)) {
         hitsArray.add(hit);
         found.add(entityIri);
-        hitsObject.put("total", hitsObject.get("total").asInt()+1);
+        hitsObject.put("total", hitsObject.get("total").asInt() + 1);
       }
     }
   }
+
   private Integer getTotal(JsonNode results) {
     return results.get("hits").get("total").asInt();
   }
 
   private ObjectNode getOSResults(QueryRequest request) throws OpenSearchException, QueryException {
     Query query = request.getQuery();
-    if (request.getPage()==null){
+    if (request.getPage() == null) {
       request.setPage(new Page()
         .setPageSize(20)
         .setPageNumber(1));
@@ -129,29 +134,30 @@ public class OSQuery {
     hitsNode.put("total", 0);
     hitsNode.putArray("hits");
     SearchSourceBuilder builder;
-    Set<String> found= new HashSet<>();
+    Set<String> found = new HashSet<>();
     builder = converter.buildQuery(request, query, TextSearchStyle.exact);
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)==1)
+    if (getTotal(fullResults) == 1)
       return fullResults;
 
     builder = converter.buildQuery(request, query, TextSearchStyle.autocomplete);
     if (builder == null)
-        return fullResults;
+      return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete&&fullResults.get("totalCount").asInt()>0) return fullResults;
+    if (request.getTextSearchStyle() == TextSearchStyle.autocomplete && fullResults.get("totalCount").asInt() > 0)
+      return fullResults;
     if (getTotal(fullResults) >= request.getPage().getPageSize())
-        return fullResults;
+      return fullResults;
 
     builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.ZERO);
     if (builder == null) return fullResults;
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)>= request.getPage().getPageSize())
-        return fullResults;
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+      return fullResults;
     builder = converter.buildQuery(request, query, TextSearchStyle.multiword);
     runAndAddResults(fullResults, builder, found);
-    if (getTotal(fullResults)>= request.getPage().getPageSize())
-        return fullResults;
+    if (getTotal(fullResults) >= request.getPage().getPageSize())
+      return fullResults;
     builder = converter.buildQuery(request, query, TextSearchStyle.ngram, Fuzziness.TWO);
     runAndAddResults(fullResults, builder, found);
     if (getTotal(fullResults) >= request.getPage().getPageSize())
@@ -285,7 +291,7 @@ public class OSQuery {
 
   }
 
-  public SearchResponse OSQueryAsSearchResponse(QueryRequest request) throws OpenSearchException {
+  public SearchResponse OSQueryAsSearchResponse(QueryRequest request) throws OpenSearchException, DataMissingException {
     try {
       JsonNode root = OSQueryAsJsonNode(request);
       if (root == null)
@@ -300,28 +306,32 @@ public class OSQuery {
 
   }
 
-  private SearchResultSummary getSummary(TTEntity entity) {
-    SearchResultSummary summary = new SearchResultSummary();
-    summary.setIri(entity.getIri());
-    summary.setName(entity.getName());
-    summary.setPreferredName(entity.getPreferredName());
-    summary.setType(entity.getTypes());
-    summary.setCode(entity.getCode());
-    summary.setStatus(entity.getStatus());
-    summary.setScheme(entity.getScheme());
-    summary.setUsageTotal(entity.getUsageTotal());
-    summary.setBestMatch(entity.getBestMatch());
-    if (summary.getPreferredName() != null) {
-      summary.setName(summary.getPreferredName());
+  private SearchResultSummary getSummary(TTEntity entity) throws DataMissingException {
+    if (null == entity.getStatus() || null == entity.getScheme()) {
+      return new EntityRepository().getEntitySummaryByIri(entity.getIri());
+    } else {
+      SearchResultSummary summary = new SearchResultSummary();
+      summary.setIri(entity.getIri());
+      summary.setName(entity.getName());
+      summary.setPreferredName(entity.getPreferredName());
+      summary.setType(entity.getTypes());
+      summary.setCode(entity.getCode());
+      summary.setStatus(entity.getStatus());
+      summary.setScheme(entity.getScheme());
+      summary.setUsageTotal(entity.getUsageTotal());
+      summary.setBestMatch(entity.getBestMatch());
+      if (summary.getPreferredName() != null) {
+        summary.setName(summary.getPreferredName());
+      }
+      return summary;
     }
-    return summary;
   }
 
-  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException {
+  private SearchResponse processIMQueryResponse(JsonNode root, QueryRequest request) throws JsonProcessingException, DataMissingException {
     try (CachedObjectMapper resultMapper = new CachedObjectMapper()) {
       SearchResponse searchResults = new SearchResponse();
       searchResults.setHighestUsage(0);
-      searchResults.setCount(0);
+      searchResults.setTotalCount(0);
       for (JsonNode hit : root.get("entities")) {
         TTEntity entity = resultMapper.treeToValue(hit, TTEntity.class);
         SearchResultSummary summary = getSummary(entity);
@@ -330,7 +340,7 @@ public class OSQuery {
           searchResults.setHighestUsage(summary.getUsageTotal());
       }
       Integer totalCount = resultMapper.treeToValue(root.get("totalCount"), Integer.class);
-      if (null != totalCount) searchResults.setCount(totalCount);
+      if (null != totalCount) searchResults.setTotalCount(totalCount);
       if (request.getPage() != null) {
         searchResults.setPage(request.getPage().getPageNumber());
       }

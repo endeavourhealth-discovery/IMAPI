@@ -2,15 +2,17 @@ package org.endeavourhealth.imapi.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+
 public class TTContextHelper {
+
   private TTContext context;
   private boolean usePrefixes = false;
 
@@ -32,10 +34,8 @@ public class TTContextHelper {
   }
 
   public String prefix(String iri) {
-    if (usePrefixes)
-      return context.prefix(iri);
-    else
-      return context.expand(iri);
+    if (usePrefixes) return context.prefix(iri);
+    else return context.expand(iri);
   }
 
   public String expand(String iri) {

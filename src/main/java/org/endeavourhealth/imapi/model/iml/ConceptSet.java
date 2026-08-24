@@ -1,15 +1,18 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.HashSet;
 import java.util.Set;
 
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class ConceptSet extends Entity {
+
   private Query definition;
   private Set<TTIriRef> hasMember;
   private Set<TTIriRef> usedIn;
+  private Boolean avoidReplacedBy;
 
   public Boolean getAvoidReplacedBy() {
     return avoidReplacedBy;
@@ -18,8 +21,6 @@ public class ConceptSet extends Entity {
   public void setAvoidReplacedBy(Boolean avoidReplacedBy) {
     this.avoidReplacedBy = avoidReplacedBy;
   }
-
-  private Boolean avoidReplacedBy;
 
   public Set<TTIriRef> getUsedIn() {
     return usedIn;
@@ -31,8 +32,7 @@ public class ConceptSet extends Entity {
   }
 
   public ConceptSet addUsedIn(TTIriRef query) {
-    if (this.usedIn == null)
-      this.usedIn = new HashSet<>();
+    if (this.usedIn == null) this.usedIn = new HashSet<>();
     this.usedIn.add(query);
     return this;
   }
@@ -56,8 +56,7 @@ public class ConceptSet extends Entity {
   }
 
   public ConceptSet addHasMember(TTIriRef member) {
-    if (this.hasMember == null)
-      this.hasMember = new HashSet<>();
+    if (this.hasMember == null) this.hasMember = new HashSet<>();
     this.hasMember.add(member);
     return this;
   }

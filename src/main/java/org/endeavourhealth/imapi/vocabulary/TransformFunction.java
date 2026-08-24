@@ -13,11 +13,9 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum TransformFunction implements VocabEnum {
-
   CONCATENATE(NAMESPACE.IM + "Concatenate"),
   STRING_JOIN(NAMESPACE.IM + "StringJoin"),
-  SNOMED_CODE_CONCEPT_MAP(NAMESPACE.IM + "SchemedCodeConceptMap"),
-  ;
+  SNOMED_CODE_CONCEPT_MAP(NAMESPACE.IM + "SchemedCodeConceptMap");
 
   private final String value;
 
@@ -30,8 +28,7 @@ public enum TransformFunction implements VocabEnum {
   }
 
   public static TransformFunction from(String text) {
-    if (text == null)
-      throw new IllegalArgumentException("no text specified");
+    if (text == null) throw new IllegalArgumentException("no text specified");
 
     for (TransformFunction b : TransformFunction.values()) {
       if (b.value.equals(text)) {
@@ -59,5 +56,4 @@ public enum TransformFunction implements VocabEnum {
   public IRI asDbIri() {
     return Values.iri(value);
   }
-
 }

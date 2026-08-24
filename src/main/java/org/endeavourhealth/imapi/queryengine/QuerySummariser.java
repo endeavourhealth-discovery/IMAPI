@@ -20,17 +20,17 @@ public class QuerySummariser {
   private int level;
 
 
-  public String summariseQuery(Match query) throws QueryException, JsonProcessingException {
+  public String summariseQuery(Query query) throws QueryException, JsonProcessingException {
     new QueryDescriptor().describeSingleMatch(query);
     summariseMatch(query, 0, "");
     return summary.toString();
   }
 
 
-  public void summariseMatch(Match match, Integer index, String bool) {
+  public void summariseMatch(Query query, Integer index, String bool) {
     int subIndex = -1;
-    if (match.getTypeOf() != null) {
-      summary.append(match.getTypeOf().getName()).append(" with ");
+    if (query.getTypeOf() != null) {
+      summary.append(query.getTypeOf().getName()).append(" and ");
       indent();
     }
     if (!bool.isEmpty() && !bool.equals("union") && !bool.equals("step") && index > 0) {
@@ -39,51 +39,51 @@ public class QuerySummariser {
     if (bool.equals("or") && index == 0) {
       summary.append("either ");
     }
-    if (match.getNodeRef() != null) {
-      summary.append("From ").append(match.getNodeRef());
+    if (query.getFrom() != null) {
+      summary.append("From ").append(query.getFrom());
       indent();
     }
 
-    if (match.getOrderBy() != null) {
-      summary.append(match.getOrderBy().getDescription());
+    if (query.getOrderBy() != null) {
+      summary.append(query.getOrderBy().getDescription());
     }
 
 
-    if (match.getIs() != null) {
-      summariseIs(match.getIs());
+    if (query.getIs() != null) {
+      summariseIs(query.getIs());
     }
 
-    if (match.getOr() != null) {
+    if (query.getOr() != null) {
       level++;
-      for (Match subMatch : match.getOr()) {
+      for (Query subQuery : query.getOr()) {
         subIndex++;
         indent();
-        summariseMatch(subMatch, subIndex, "or");
+        summariseMatch(subQuery, subIndex, "or");
       }
       level--;
     }
-    if (match.getAnd() != null) {
+    if (query.getAnd() != null) {
       level++;
-      for (Match subMatch : match.getAnd()) {
+      for (Query subQuery : query.getAnd()) {
         subIndex++;
         indent();
-        summariseMatch(subMatch, subIndex, "and");
+        summariseMatch(subQuery, subIndex, "and");
       }
       level--;
     }
 
-    if (match.getPath() != null) {
-      for (Path path : match.getPath()) {
+    if (query.getPath() != null) {
+      for (Path path : query.getPath()) {
         summarisePath(path);
       }
     }
 
-    if (match.getWhere() != null) {
-      summary.append(" with ");
-      summariseWhere(match.getWhere(), 0, "");
+    if (query.getWhere() != null) {
+      summary.append(" and ");
+      summariseWhere(query.getWhere(), 0, "");
     }
-    if (match.getNode() != null) {
-      summary.append("as (").append(match.getNode()).append(")");
+    if (query.getNode() != null) {
+      summary.append("as (").append(query.getNode()).append(")");
     }
   }
 
@@ -107,14 +107,18 @@ public class QuerySummariser {
   }
 
 
-  private void summariseIs(List<Node> inSets) {
+  private void summariseIsList(List<Node> inSets) {
     for (Node set : inSets) {
-      if (set.getDescription() != null) {
-        summary.append(set.getDescription()).append(" ");
-      } else summary.append(set.getName()).append(" ");
-      if (set.getMatch() != null) {
-        summariseMatch(set.getMatch(), 0, "");
-      }
+      summariseIs(set);
+    }
+  }
+
+  private void summariseIs(Node set) {
+    if (set.getDescription() != null) {
+      summary.append(set.getDescription()).append(" ");
+    } else summary.append(set.getName()).append(" ");
+    if (set.getMatch() != null) {
+      summariseMatch(set.getMatch(), 0, "");
     }
   }
 
@@ -140,7 +144,7 @@ public class QuerySummariser {
     if (where.getDescription() != null) {
       summary.append(where.getDescription()).append(" ");
     } else if (where.getIs() != null) {
-      summariseIs(where.getIs());
+      summariseIsList(where.getIs());
     }
     if (where.getRange() != null) {
       summariseRange(where.getRange());

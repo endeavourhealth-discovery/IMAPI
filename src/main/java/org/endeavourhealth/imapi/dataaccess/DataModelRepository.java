@@ -5,11 +5,11 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.model.iml.*;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.vocabulary.XSD;
+import org.endeavourhealth.imapi.model.iml.*;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.*;
 
@@ -123,7 +123,60 @@ public class DataModelRepository {
     }
   }
 
-  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly, boolean excludeGeneric) {
+
+  public NodeShape getRelatedTypes(String iri) {
+    NodeShape result = getDataModelDisplayProperties(iri, false);
+    String sql = """
+      Select distinct ?folderOrder ?folder  ?folderName ?type ?typeName  \s
+      where {
+          Values ?c {%s}
+          ?c rdfs:label ?cName.
+          ?type sh:property ?property.
+          ?property sh:node ?c.
+          filter not exists{
+              ?c sh:property ?property1.
+              ?property1 sh:path ?path.
+              filter not exists {?path rdf:type sh:Function}
+              ?property1 sh:node ?type.
+          }
+          filter not exists {?type im:abstract true}
+          ?type im:isContainedIn ?folder.
+          optional {?folder sh:order ?folderOrder}
+          ?folder rdfs:label ?folderName.
+          ?type rdfs:label ?typeName.
+      }
+      order by ?folderOrder ?folder ?typeName
+      """.formatted("<" + iri + ">");
+    Map<String, NodeShape> folderMap = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String folderIri = bs.getValue("folder").stringValue();
+          String folderName = bs.getValue("folderName").stringValue();
+          String typeName = bs.getValue("typeName").stringValue();
+          String typeIri = bs.getValue("type").stringValue();
+          NodeShape folder = folderMap.get(folderIri);
+          if (folder == null) {
+            folder = new NodeShape();
+            folder.setIri(folderIri);
+            folder.setName(folderName);
+            folderMap.put(folderIri, folder);
+            result.addFolder(folder);
+          }
+          NodeShape type = new NodeShape();
+          type.setIri(typeIri);
+          type.setName(typeName);
+          folder.addType(type);
+        }
+      }
+    }
+    return result;
+  }
+
+
+  public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);
     addDataModelSubtypes(nodeShape);
@@ -136,9 +189,6 @@ public class DataModelRepository {
           BindingSet bs = rs.next();
           nodeShape.setName(bs.getValue("entityName").stringValue());
           PropertyShape group = null;
-          if (excludeGeneric
-            && bs.getValue("genericRelationship") != null
-            && bs.getValue("genericRelationship").stringValue().equals("true")) continue;
           if (bs.getValue("path") != null) {
             if (bs.getValue("group") != null) {
               group = getGroupFromNode(bs, nodeShape);
@@ -244,9 +294,9 @@ public class DataModelRepository {
       property.setInversePath(TTIriRef.iri(bs.getValue("inversePath").stringValue())
         .setName(bs.getValue("inversePathName").stringValue()));
     }
-    if (bs.getValue("genericRelationship") != null) {
-      if (bs.getValue("genericRelationship").stringValue().equals("true")) {
-        property.setGeneric(true);
+    if (bs.getValue("association") != null) {
+      if (bs.getValue("association").stringValue().equals("true")) {
+        property.setAssociation(true);
       }
     }
   }
@@ -342,7 +392,7 @@ public class DataModelRepository {
 
   private String getPropertySql(String iri) {
     return """
-      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType 
+      Select ?entityName ?property ?groupOrder ?group ?groupName ?order ?path ?pathName ?pathType
       ?inversePath ?inversePathName
       ?highCardinality
       ?class ?className ?classType ?classTypeName
@@ -354,7 +404,7 @@ public class DataModelRepository {
       ?minCount ?maxCount
       ?parameter ?parameterName ?parameterType ?parameterTypeName ?parameterSubtype ?parameterSubtypeName
       ?comment ?propertyDefinition ?units ?unitsName ?operator ?operatorName ?isRelativeValue
-      ?orderable ?ascending ?descending ?definingProperty ?genericRelationship
+      ?orderable ?ascending ?descending ?definingProperty ?association
       WHERE {
          Values ?entity { %s }
         ?entity sh:property ?property.
@@ -381,7 +431,7 @@ public class DataModelRepository {
           ?property sh:path ?path.
           ?path rdf:type ?pathType.
           ?path rdfs:label ?pathName.
-          BIND(EXISTS { ?path im:isA im:genericRelationship} AS ?genericRelationship)
+          BIND(EXISTS { ?path im:isA im:association} AS ?association)
           optional {?path im:definingProperty ?definingProperty.}
           optional {?path im:definition ?propertyDefinition}
           optional {
@@ -667,4 +717,125 @@ public class DataModelRepository {
     }
     return null;
   }
+  public TTIriRef getPropertyValueSet(String nodeShape,Set<String> properties){
+    String sql = """
+      select ?propertyValueSet ?propertyValueSetName
+      where {
+       values ?nodeShape { <%s> }
+       %s
+       ?nodeShape sh:property ?property.
+       ?property sh:path ?path.
+       ?property sh:class ?propertyValueSet.
+       ?propertyValueSet rdfs:label ?propertyValueSetName.
+       }
+      """.formatted(nodeShape,valueList("path",properties));
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        if (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          return TTIriRef.iri(bs.getValue("propertyValueSet").stringValue()).setName(bs.getValue("propertyValueSetName").stringValue());
+        }
+      }
+    }
+    return null;
+  }
+
+  public SemanticMap getSemanticMap(String iri) {
+    String sql = """
+      select ?iri ?name ?entry ?entryName
+      ?sourceEntity ?sourceEntityLabel
+      ?sourceType ?sourceTypeLabel
+      ?sourceEntityProperty ?sourceEntityPropertyLabel
+      ?sourceValueProperty ?sourceValuePropertyLabel
+      ?targetText ?targetValue ?rangeFrom ?rangeTo ?function ?functionName
+      ?defaultText ?defaultValue
+      where {
+       values ?iri { <%s> }
+       ?iri rdfs:label ?name.
+       optional {?iri im:defaultText ?defaultText}
+       optional {?iri im:defaultValue ?defaultValue}
+         optional { ?iri im:sourceType ?sourceType.
+          ?sourceType rdfs:label ?sourceTypeLabel. }
+       optional { ?iri im:sourceEntityProperty ?sourceEntityProperty.
+         ?sourceEntityProperty rdfs:label ?sourceEntityPropertyLabel.}
+         optional { ?iri im:sourceValueProperty ?sourceValueProperty.
+          ?sourceValueProperty rdfs:label ?sourceValuePropertyLabel.}
+         optional { ?iri im:function ?function.
+            ?function rdfs:label ?functionName.}
+       optional {?iri im:hasEntry ?entry.
+         ?entry rdfs:label ?entryName.
+         ?entry im:sourceEntity ?sourceEntity.
+         ?sourceEntity rdfs:label ?sourceEntityLabel.
+         optional { ?entry im:rangeFrom ?rangeFrom. }
+         optional { ?entry im:rangeTo ?rangeTo. }
+         optional {?entry sh:order ?order.}
+         optional { ?entry im:targetText ?targetText. }
+         optional { ?entry im:targetValue ?targetValue. }
+       }
+      }
+      """.formatted(iri);
+    SemanticMap map = new SemanticMap();
+    Map<String,SemanticMapEntry> entryMap = new HashMap<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          map.setIri(bs.getValue("iri").stringValue());
+          map.setName(bs.getValue("name").stringValue());
+          if (bs.getValue("entry") != null) {
+            SemanticMapEntry entry = entryMap.get(bs.getValue("entry").stringValue());
+            if (entry == null) {
+              entry = new SemanticMapEntry();
+              entry.setIri(bs.getValue("entry").stringValue());
+              entry.setName(bs.getValue("entryName").stringValue());
+              entryMap.put(bs.getValue("entry").stringValue(), entry);
+              map.addEntry(entry);
+            }
+            if (bs.getValue("sourceEntity") != null) {
+              entry.setSourceEntity(TTIriRef.iri(bs.getValue("sourceEntity").stringValue()).setName(bs.getValue("sourceEntityLabel").stringValue()));
+            }
+            if (bs.getValue("sourceEntityProperty") != null) {
+              map.setSourceEntityProperty(TTIriRef.iri(bs.getValue("sourceEntityProperty").stringValue()).setName(bs.getValue("sourceEntityPropertyLabel").stringValue()));
+            }
+            if (bs.getValue("sourceValueProperty") != null) {
+              map.setSourceValueProperty(TTIriRef.iri(bs.getValue("sourceValueProperty").stringValue()).setName(bs.getValue("sourceValuePropertyLabel").stringValue()));
+            }
+            if (bs.getValue("targetText") != null) {
+              entry.setTargetText(bs.getValue("targetText").stringValue());
+            }
+            if (bs.getValue("targetValue") != null) {
+              entry.setTargetValue(Double.valueOf(bs.getValue("targetValue").stringValue()));
+            }
+            if (bs.getValue("rangeFrom") != null) {
+              entry.setRangeFrom(Double.valueOf(bs.getValue("rangeFrom").stringValue()));
+            }
+            if (bs.getValue("rangeTo") != null) {
+              entry.setRangeTo(Double.valueOf(bs.getValue("rangeTo").stringValue()));
+            }
+            if (bs.getValue("order") != null) {
+              entry.setOrder(Integer.valueOf(bs.getValue("order").stringValue()));
+            }
+            if (bs.getValue("function")!=null){
+              map.setFunction(TTIriRef.iri(bs.getValue("function").stringValue()).setName(bs.getValue("functionName").stringValue()));
+            }
+          }
+          if (bs.getValue("defaultText") != null) {
+            map.setDefaultText(bs.getValue("defaultText").stringValue());
+          }
+          if (bs.getValue("defaultValue") != null) {
+            map.setDefaultValue(Double.valueOf(bs.getValue("defaultValue").stringValue()));
+          }
+
+          if (bs.getValue("sourceType") != null) {
+            map.setSourceType(TTIriRef.iri(bs.getValue("sourceType").stringValue()).setName(bs.getValue("sourceTypeLabel").stringValue()));
+          }
+
+        }
+      }
+    }
+    return map;
+  }
+
 }

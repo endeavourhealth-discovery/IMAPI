@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum MAP implements VocabEnum {
 
     DOMAIN("http://endhealth.info/"),

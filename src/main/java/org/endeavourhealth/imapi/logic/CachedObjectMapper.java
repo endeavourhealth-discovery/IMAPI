@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +15,10 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class CachedObjectMapper implements AutoCloseable {
+
   private static final Deque<ObjectMapper> pool = new ArrayDeque<>();
 
   private final ObjectMapper objectMapper;
@@ -47,7 +49,6 @@ public class CachedObjectMapper implements AutoCloseable {
     return objectMapper.writeValueAsString(value);
   }
 
-
   private void push(ObjectMapper objectMapper) {
     synchronized (pool) {
       pool.push(objectMapper);
@@ -56,9 +57,8 @@ public class CachedObjectMapper implements AutoCloseable {
 
   private ObjectMapper pop() {
     synchronized (pool) {
-      if (!pool.isEmpty())
-        return pool.pop();
-      else{
+      if (!pool.isEmpty()) return pool.pop();
+      else {
         ObjectMapper om = new ObjectMapper();
         om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         return om;

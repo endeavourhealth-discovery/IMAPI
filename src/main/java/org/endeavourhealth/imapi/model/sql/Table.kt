@@ -1,8 +1,6 @@
 package org.endeavourhealth.imapi.model.sql;
 
-import org.apache.lucene.search.DoubleValuesSource.fromField
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-import kotlin.String
 
 data class Table(
   var dataModels: List<String>? = ArrayList(),

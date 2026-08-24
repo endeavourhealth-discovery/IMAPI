@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for
- *            operations with no return type.
+ *            operations and no return type.
  */
 public class TurtliteBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements TurtliteVisitor<T> {
   /**

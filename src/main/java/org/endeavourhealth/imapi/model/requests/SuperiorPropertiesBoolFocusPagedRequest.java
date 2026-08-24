@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.model.requests;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 @Getter
 @Setter
 public class SuperiorPropertiesBoolFocusPagedRequest {
+
   private String ecl;
   private int page;
   private int size;
@@ -22,7 +22,5 @@ public class SuperiorPropertiesBoolFocusPagedRequest {
     this.inactive = inactive;
   }
 
-  public SuperiorPropertiesBoolFocusPagedRequest() {
-
-  }
+  public SuperiorPropertiesBoolFocusPagedRequest() {}
 }

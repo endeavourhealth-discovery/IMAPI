@@ -2,10 +2,10 @@ package org.endeavourhealth.imapi.transforms;
 
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSBaseVisitor;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSLexer;
 import org.endeavourhealth.imapi.parser.owlfs.OWLFSParser;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;

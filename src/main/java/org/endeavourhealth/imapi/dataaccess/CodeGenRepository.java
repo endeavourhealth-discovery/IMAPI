@@ -10,9 +10,9 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.query.Update;
 import org.endeavourhealth.imapi.dataaccess.databases.ConfigDB;
+import org.endeavourhealth.imapi.vocabulary.*;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
-import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.util.ArrayList;
 import java.util.Iterator;

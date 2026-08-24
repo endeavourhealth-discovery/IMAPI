@@ -7,16 +7,16 @@ import org.eclipse.rdf4j.query.Update;
 import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.databases.WorkflowDB;
-import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.EmailService;
+import org.endeavourhealth.imapi.vocabulary.*;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Browser;
 import org.endeavourhealth.imapi.model.workflow.bugReport.OperatingSystem;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Severity;
 import org.endeavourhealth.imapi.model.workflow.bugReport.Status;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
-import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;

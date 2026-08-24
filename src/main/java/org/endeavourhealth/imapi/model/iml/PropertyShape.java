@@ -13,112 +13,179 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-@JsonPropertyOrder({"iri", "label", "comment", "name", "order", "minCount", "maxCount", "componentType", "path", "datatype", "class", "node",
-  "functionClause", "validation", "search", "select", "argument", "valueVariable", "isIri", "isTextValue", "isNumericValue", "forceIsValue", "builderChild", "showTitle"})
+@JsonPropertyOrder({
+  "iri",
+  "label",
+  "comment",
+  "name",
+  "order",
+  "minCount",
+  "maxCount",
+  "componentType",
+  "path",
+  "datatype",
+  "class",
+  "node",
+  "functionClause",
+  "validation",
+  "search",
+  "select",
+  "argument",
+  "valueVariable",
+  "isIri",
+  "isTextValue",
+  "isNumericValue",
+  "forceIsValue",
+  "builderChild",
+  "showTitle"
+})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class PropertyShape{
+public class PropertyShape {
+
   @Getter
   private TTIriRef group;
+
   @Getter
   private String label;
+
   @Getter
   private String comment;
+
   @Getter
   private String name;
+
   @Getter
   private Boolean showTitle;
+
   private int order;
+
   @Getter
   private Integer minCount;
+
   @Getter
   private Integer maxCount;
+
   @Getter
   private List<PropertyShape> property;
+
   private TTIriRef path;
+
   @Getter
   private PropertyRange datatype;
+
   @Getter
   private PropertyRange clazz;
+
   @Getter
   private PropertyRange node;
+
   @Getter
   private TTIriRef isIri;
+
   @Getter
   private String isNumericValue;
+
   @Getter
   private String isTextValue;
+
   private TTIriRef componentType;
+
   @Getter
   private TTIriRef validation;
+
   @Getter
   private String validationErrorMessage;
+
   @Getter
   private TTIriRef search;
+
   @Getter
   private TTIriRef function;
+
   @Getter
   private List<Argument> argument;
+
   @Getter
   private List<ParameterShape> parameter;
+
   @Getter
   private String valueVariable;
+
   @Getter
   private TTIriRef valueIri;
+
   @Getter
   private List<TTIriRef> select;
+
   @Getter
   private Boolean builderChild;
+
   @Getter
   private NodeShape expression;
+
   @Getter
   private Boolean forceIsValue;
+
   @Getter
   private ArrayButtons arrayButtons;
+
   @Getter
   private Object hasValue;
+
   @Getter
   private TTIriRef hasValueType;
+
   @Getter
   private String definition;
+
   @Getter
   private String ascending;
+
   @Getter
   private String descending;
+
   @Getter
   private boolean orderable;
+
   @Getter
   @Setter
   private TTIriRef hasValueSet;
+
   @Getter
   @Setter
   private boolean definingProperty;
+
   @Getter
   @Setter
   private TTIriRef isValidEntity;
+
   @Getter
   @Setter
   private Boolean highCardinality;
+
   @Getter
   private List<Argument> isValidArguments;
-  private TTIriRef inversePath;
-  private boolean generic;
 
-  public boolean isGeneric() {
-    return generic;
+  private TTIriRef inversePath;
+  private boolean association;
+
+  public boolean isAssociation() {
+    return association;
   }
-  public PropertyShape setGeneric(boolean generic) {
-    this.generic = generic;
+
+  public PropertyShape setAssociation(boolean association) {
+    this.association = association;
     return this;
   }
 
   public TTIriRef getInversePath() {
     return inversePath;
   }
+
   public PropertyShape setInversePath(TTIriRef inversePath) {
     this.inversePath = inversePath;
     return this;
   }
-
 
   public PropertyShape setAscending(String ascending) {
     this.ascending = ascending;
@@ -135,35 +202,30 @@ public class PropertyShape{
     return this;
   }
 
-
   public PropertyShape setParameter(List<ParameterShape> parameter) {
     this.parameter = parameter;
     return this;
   }
-  public PropertyShape addParameter (ParameterShape parameter){
-      if (this.parameter == null) {
-        this.parameter = new ArrayList<>();
-      }
-      this.parameter.add(parameter);
-      return this;
-    }
-  public PropertyShape parameter (Consumer < ParameterShape > builder) {
-      ParameterShape parameter = new ParameterShape();
-      addParameter(parameter);
-      builder.accept(parameter);
-      return this;
-    }
 
+  public PropertyShape addParameter(ParameterShape parameter) {
+    if (this.parameter == null) {
+      this.parameter = new ArrayList<>();
+    }
+    this.parameter.add(parameter);
+    return this;
+  }
+
+  public PropertyShape parameter(Consumer<ParameterShape> builder) {
+    ParameterShape parameter = new ParameterShape();
+    addParameter(parameter);
+    builder.accept(parameter);
+    return this;
+  }
 
   public PropertyShape setGroup(TTIriRef group) {
     this.group = group;
     return this;
   }
-
-
-
-
-
 
   public PropertyShape setHasValue(Object hasValue) {
     this.hasValue = hasValue;
@@ -179,11 +241,6 @@ public class PropertyShape{
     this.definition = definition;
     return this;
   }
-
-
-
-
-
 
   public PropertyShape setArrayButtons(ArrayButtons arrayButtons) {
     this.arrayButtons = arrayButtons;
@@ -225,8 +282,7 @@ public class PropertyShape{
   }
 
   public PropertyShape addArgument(Argument arg) {
-    if (this.argument == null)
-      this.argument = new ArrayList<>();
+    if (this.argument == null) this.argument = new ArrayList<>();
     this.argument.add(arg);
     return this;
   }
@@ -236,7 +292,6 @@ public class PropertyShape{
     this.addArgument(arg);
     builder.accept(arg);
     return this;
-
   }
 
   @JsonSetter
@@ -317,7 +372,6 @@ public class PropertyShape{
     this.node = node;
     return this;
   }
-
 
   @JsonSetter
   public PropertyShape setIsIri(TTIriRef isIri) {

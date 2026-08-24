@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Binding {
+
   private Map<String, String> predicateBinding = new HashMap<>();
   private Map<String, Binding> predicateObject = new HashMap<>();
 

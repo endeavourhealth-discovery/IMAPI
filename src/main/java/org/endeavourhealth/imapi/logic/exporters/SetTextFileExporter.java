@@ -18,30 +18,31 @@ import static org.endeavourhealth.imapi.logic.exporters.helpers.ExporterHelpers.
 public class SetTextFileExporter {
   public static final String IM_1_ID = "im1id";
 
-  private static void addHeader(boolean includeIM1id, boolean includeSubsets, boolean includeLegacy, boolean subsumption,StringJoiner results, String del) {
-    String headerLine="";
-    if (subsumption) headerLine = "subsumed"+del;
+  private static void addHeader(boolean includeIM1id, boolean includeSubsets, boolean includeLegacy, boolean subsumption, StringJoiner results, String del) {
+    String headerLine = "";
+    if (subsumption) headerLine = "subsumed" + del;
     headerLine += "code" + del + "term" + del + "status" + del + "scheme" + del + "usage" + del + "extension" + del + "set";
     if (includeSubsets) headerLine += del + "subset" + del + "subsetIri" + del + "subsetVersion";
     if (includeIM1id) headerLine += del + IM_1_ID;
-    if (includeLegacy) headerLine += del + "legacyCode" + del + "legacyTerm" + del + "legacyScheme" + del + "codeId"+del+"legacyAltCode";
+    if (includeLegacy)
+      headerLine += del + "legacyCode" + del + "legacyTerm" + del + "legacyScheme" + del + "codeId" + del + "legacyAltCode";
     results.add(headerLine);
   }
 
   public byte[] generateFile(String fileType, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy,
-  List<String> subsumption,String ecl) throws IOException, GeneralCustomException {
-    if (subsumption==null) subsumption=new ArrayList<>();
+                             List<String> subsumption, String ecl) throws IOException, GeneralCustomException {
+    if (subsumption == null) subsumption = new ArrayList<>();
     log.trace("Generating output...");
     switch (fileType) {
       case "tsv" -> {
-        return getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy,subsumption).getBytes();
+        return getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy, subsumption).getBytes();
       }
       case "csv" -> {
-        return getTextFile(",", members, setName, includeIM1id, includeSubsets, includeLegacy,subsumption).getBytes();
+        return getTextFile(",", members, setName, includeIM1id, includeSubsets, includeLegacy, subsumption).getBytes();
       }
       case "xlsx" -> {
-        String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy,subsumption);
-        return getExcel(fileContent,ecl);
+        String fileContent = getTextFile("\t", members, setName, includeIM1id, includeSubsets, includeLegacy, subsumption);
+        return getExcel(fileContent, ecl);
       }
       default -> {
         return new byte[0];
@@ -49,25 +50,26 @@ public class SetTextFileExporter {
     }
   }
 
-  private boolean hasSubsets(Set<Concept> members){
+  private boolean hasSubsets(Set<Concept> members) {
     for (Concept member : members) {
-      if (member.getIsContainedIn()!=null)
+      if (member.getIsContainedIn() != null)
         return true;
     }
     return false;
   }
 
-  private String getTextFile(String del, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy,List<String> subsumption) {
+  private String getTextFile(String del, Set<Concept> members, String setName, boolean includeIM1id, boolean includeSubsets, boolean includeLegacy, List<String> subsumption) {
     StringJoiner results = new StringJoiner(System.lineSeparator());
     if (includeSubsets)
       includeSubsets = hasSubsets(members);
-    addHeader(includeIM1id, includeSubsets, includeLegacy, !subsumption.isEmpty(),results, del);
+    addHeader(includeIM1id, includeSubsets, includeLegacy, !subsumption.isEmpty(), results, del);
     for (Concept member : members) {
       addConcept(results, member, setName, includeIM1id, includeSubsets, !subsumption.isEmpty(), del);
 
     }
     return results.toString();
   }
+
   private CellStyle createTextStyle(Workbook workbook) {
     CellStyle textStyle = workbook.createCellStyle();
     DataFormat format = workbook.createDataFormat();
@@ -75,13 +77,13 @@ public class SetTextFileExporter {
     return textStyle;
   }
 
-  private byte[] getExcel(String csvString,String ecl) throws IOException, GeneralCustomException {
+  private byte[] getExcel(String csvString, String ecl) throws IOException, GeneralCustomException {
     try (Workbook workbook = new XSSFWorkbook()) {
       if (ecl != null && !ecl.isEmpty()) {
         Sheet sheet = workbook.createSheet("ECLDefinition");
         Row row = sheet.createRow(0);
         row.createCell(0).setCellValue("ECL");
-        row= sheet.createRow(1);
+        row = sheet.createRow(1);
         row.createCell(0).setCellValue(ecl);
       }
       Sheet sheet = workbook.createSheet("Expansion");
@@ -95,7 +97,7 @@ public class SetTextFileExporter {
         int cellNum = 0;
         while (st.hasMoreTokens()) {
           String cellValue = st.nextToken();
-          Cell cell = row.createCell(cellNum++,CellType.STRING);
+          Cell cell = row.createCell(cellNum++, CellType.STRING);
           cell.setCellStyle(textStyle);
           cellValue = cellValue.replaceAll("\r\n|\n|\t", "");
           cellValue = cellValue.trim();
@@ -128,13 +130,13 @@ public class SetTextFileExporter {
     String isExtension = member.getScheme().getIri().contains("sct#") ? "N" : "Y";
     List<String> valueArray;
     if (includeSubsumed)
-      valueArray= List.of(member.isSubsumed() ?"Y":"N",member.getCode(), member.getName(), status, scheme, usage, isExtension, setName);
-    else valueArray= List.of(member.getCode(), member.getName(), status, scheme, usage, isExtension, setName);
+      valueArray = List.of(member.isSubsumed() ? "Y" : "N", member.getCode(), member.getName(), status, scheme, usage, isExtension, setName);
+    else valueArray = List.of(member.getCode(), member.getName(), status, scheme, usage, isExtension, setName);
 
     ArrayList<String> values = new ArrayList<>(valueArray);
     for (int i = 0; i < values.size(); i++) {
       if (values.get(i) == null) {
-        values.set(i,"");
+        values.set(i, "");
       }
     }
     if (includeSubsets) values.addAll(List.of(subSet, subsetIri, subsetVersion));
@@ -155,7 +157,7 @@ public class SetTextFileExporter {
   private String[] addLegacy(Concept legacyMember) {
 
     String[] valueArray = {legacyMember.getCode(), legacyMember.getName(), legacyMember.getScheme().getIri(),
-      legacyMember.getCodeId(),legacyMember.getAlternativeCode()};
+      legacyMember.getCodeId(), legacyMember.getAlternativeCode()};
     for (int i = 0; i < valueArray.length; i++) {
       if (valueArray[i] == null) {
         valueArray[i] = "";

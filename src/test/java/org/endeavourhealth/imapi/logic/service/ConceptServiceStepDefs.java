@@ -27,14 +27,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.when;
 
 public class ConceptServiceStepDefs {
-  private AutoCloseable mocks;
   private final String entityIri = "http://snomed.info/sct#44054006";
+  private AutoCloseable mocks;
   private List<SearchTermCode> entityTermCodes;
 
   private ConceptService conceptService;
 
-  @Mock private EntityRepository entityRepository;
-  @Mock private ConceptRepository conceptRepository;
+  @Mock
+  private EntityRepository entityRepository;
+  @Mock
+  private ConceptRepository conceptRepository;
 
   @Before
   public void initMocks() {

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum ENTITY_TYPE implements VocabEnum {
 
     QUERY(IM.QUERY),

@@ -1,28 +1,14 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
 
 import java.util.Map;
 
 public class TTVisitor {
-  public interface ITTLiteralVisitor {
-    void visit(TTIriRef predicate, TTLiteral literal);
-  }
-
-  public interface ITTIriRefVisitor {
-    void visit(TTIriRef predicate, TTIriRef iriRef);
-  }
-
-  public interface ITTNodeVisitor {
-    void visit(TTIriRef predicate, TTNode node);
-  }
-
-  public interface ITTListVisitor {
-    void visit(TTIriRef predicate, TTArray node);
-  }
-
-  public interface ITTPredicateVisitor {
-    void visit(TTIriRef predicate);
-  }
 
   private ITTLiteralVisitor literalVisitor = (predicate, literal) -> {
   };
@@ -83,8 +69,7 @@ public class TTVisitor {
   }
 
   public void visit(TTIriRef predicate, TTNode node) {
-    if (predicate != null)
-      predicateVisitor.visit(predicate);
+    if (predicate != null) predicateVisitor.visit(predicate);
 
     nodeVisitor.visit(predicate, node);
     Map<TTIriRef, TTArray> predicateMap = node.getPredicateMap();
@@ -99,12 +84,10 @@ public class TTVisitor {
 
   public void visit(TTIriRef predicate, TTValue value) {
     if (value.isLiteral()) {
-      if (predicate != null)
-        predicateVisitor.visit(predicate);
+      if (predicate != null) predicateVisitor.visit(predicate);
       literalVisitor.visit(predicate, value.asLiteral());
     } else if (value.isIriRef()) {
-      if (predicate != null)
-        predicateVisitor.visit(predicate);
+      if (predicate != null) predicateVisitor.visit(predicate);
       iriRefVisitor.visit(predicate, value.asIriRef());
     } else if (value.isNode()) {
       visit(predicate, value.asNode());
@@ -112,8 +95,7 @@ public class TTVisitor {
   }
 
   public void visit(TTIriRef predicate, TTArray array) {
-    if (predicate != null)
-      predicateVisitor.visit(predicate);
+    if (predicate != null) predicateVisitor.visit(predicate);
     listVisitor.visit(predicate, array);
     for (TTValue value : array.iterator()) {
       visit(predicate, value);
@@ -121,5 +103,23 @@ public class TTVisitor {
     listExitVisitor.visit(predicate, array);
   }
 
+  public interface ITTLiteralVisitor {
+    void visit(TTIriRef predicate, TTLiteral literal);
+  }
 
+  public interface ITTIriRefVisitor {
+    void visit(TTIriRef predicate, TTIriRef iriRef);
+  }
+
+  public interface ITTNodeVisitor {
+    void visit(TTIriRef predicate, TTNode node);
+  }
+
+  public interface ITTListVisitor {
+    void visit(TTIriRef predicate, TTArray node);
+  }
+
+  public interface ITTPredicateVisitor {
+    void visit(TTIriRef predicate);
+  }
 }

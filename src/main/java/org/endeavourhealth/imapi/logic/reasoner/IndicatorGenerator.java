@@ -1,8 +1,8 @@
 package org.endeavourhealth.imapi.logic.reasoner;
 
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 

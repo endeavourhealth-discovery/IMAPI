@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTVisitor;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;

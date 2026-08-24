@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 import org.endeavourhealth.imapi.model.iml.ListMode;
 import org.endeavourhealth.imapi.model.iml.MapFunction;
 import org.endeavourhealth.imapi.model.iml.TargetUpdateMode;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
@@ -20,7 +20,7 @@ public class MapProperty extends TTIriRef {
   private String source;
   private String sourceVariable;
   private ListMode listMode;
-  private Match where;
+  private Query where;
   private MapFunction functionClause;
   private String target;
   private String valueData;
@@ -31,6 +31,11 @@ public class MapProperty extends TTIriRef {
 
   public String getTarget() {
     return target;
+  }
+
+  public MapProperty setTarget(String target) {
+    this.target = target;
+    return this;
   }
 
   public List<MapProperty> getPropertyMap() {
@@ -57,13 +62,13 @@ public class MapProperty extends TTIriRef {
     return this;
   }
 
+  public String getSource() {
+    return source;
+  }
+
   public MapProperty setSource(String source) {
     this.source = source;
     return this;
-  }
-
-  public String getSource() {
-    return source;
   }
 
   public String getSourceVariable() {
@@ -72,11 +77,6 @@ public class MapProperty extends TTIriRef {
 
   public MapProperty setSourceVariable(String sourceVariable) {
     this.sourceVariable = sourceVariable;
-    return this;
-  }
-
-  public MapProperty setTarget(String target) {
-    this.target = target;
     return this;
   }
 
@@ -135,18 +135,18 @@ public class MapProperty extends TTIriRef {
     return this;
   }
 
-  public Match getWhere() {
+  public Query getWhere() {
     return where;
   }
 
   @JsonSetter
-  public MapProperty setWhere(Match where) {
+  public MapProperty setWhere(Query where) {
     this.where = where;
     return this;
   }
 
-  public MapProperty where(Consumer<Match> builder) {
-    this.where = new Match();
+  public MapProperty where(Consumer<Query> builder) {
+    this.where = new Query();
     builder.accept(this.where);
     return this;
   }

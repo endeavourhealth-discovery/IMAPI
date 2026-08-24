@@ -226,6 +226,14 @@
         "value": "NAMESPACE.IM + \"Concept\""
       },
       {
+        "name": "SEMANTIC_MAP",
+        "value": "NAMESPACE.IM + \"SemanticMap\""
+      },
+      {
+        "name": "HAS_ENTRY",
+        "value": "NAMESPACE.IM + \"hasEntry\""
+      },
+      {
         "name": "CODEABLE",
         "value": "NAMESPACE.IM + \"Codeable\""
       },
@@ -474,8 +482,48 @@
         "value": "NAMESPACE.IM + \"sourceText\""
       },
       {
+        "name": "IN_SEMANTIC_MAP",
+        "value": "NAMESPACE.IM + \"inSemanticMap\""
+      },
+      {
+        "name": "SOURCE_ENTITY",
+        "value": "NAMESPACE.IM + \"sourceEntity\""
+      },
+      {
+        "name": "SOURCE_TYPE",
+        "value": "NAMESPACE.IM + \"sourceType\""
+      },
+      {
+        "name": "SOURCE_ENTITY_PROPERTY",
+        "value": "NAMESPACE.IM + \"sourceEntityProperty\""
+      },
+      {
+        "name": "SOURCE_VALUE_PROPERTY",
+        "value": "NAMESPACE.IM + \"sourceValueProperty\""
+      },
+      {
+        "name": "RANGE_FROM",
+        "value": "NAMESPACE.IM + \"rangeFrom\""
+      },
+      {
+        "name": "RANGE_TO",
+        "value": "NAMESPACE.IM + \"rangeTo\""
+      },
+      {
         "name": "TARGET_TEXT",
         "value": "NAMESPACE.IM + \"targetText\""
+      },
+      {
+        "name": "TARGET_VALUE",
+        "value": "NAMESPACE.IM + \"targetValue\""
+      },
+      {
+        "name": " MAP_ENTRY",
+        "value": "NAMESPACE.IM + \"MapEntry\""
+      },
+      {
+        "name": " HAS_MAP_ENTRY",
+        "value": "NAMESPACE.IM + \"hasMapEntry\""
       },
       {
         "name": "HAS_TERM_CODE",
@@ -628,6 +676,10 @@
       {
         "name": "COUNT",
         "value": "NAMESPACE.IM + \"Count\""
+      },
+      {
+        "name": "MEMBER_COUNT",
+        "value": "NAMESPACE.IM + \"memberCount\""
       },
       {
         "name": "SUM",
@@ -1094,6 +1146,10 @@
         "value": "NAMESPACE.IM + \"defaultValue\""
       },
       {
+        "name": "DEFAULT_TEXT",
+        "value": "NAMESPACE.IM + \"defaultText\""
+      },
+      {
         "name": "LOAD_MORE",
         "value": "NAMESPACE.IM + \"loadMore\""
       },
@@ -1260,6 +1316,10 @@
       {
         "name": "GET_ADDITIONAL_ALLOWABLE_TYPES",
         "value": "NAMESPACE.FUNCTION + \"GetAdditionalAllowableTypes\""
+      },
+      {
+        "name": "GET_MAP_TYPES",
+        "value": "NAMESPACE.FUNCTION + \"GetMapTypes\""
       },
       {
         "name": "GET_LOGIC_OPTIONS",
@@ -2120,6 +2180,10 @@
         "value": "NAMESPACE.IM_COMPONENT + \"roleGroupBuilder\""
       },
       {
+        "name": "MAP_ENTRY_BUILDER",
+        "value": "NAMESPACE.IM_COMPONENT + \"mapEntryBuilder\""
+      },
+      {
         "name": "TERM_CODE_EDITOR",
         "value": "NAMESPACE.IM_COMPONENT + \"termCodeEditor\""
       },
@@ -2190,6 +2254,10 @@
       {
         "name": "INDICATOR_SHAPE",
         "value": "NAMESPACE.IM_EDITOR + \"IndicatorShape\""
+      },
+      {
+        "name": "SEMANTIC_MAP_SHAPE",
+        "value": "NAMESPACE.IM_EDITOR + \"SemanticMapShape\""
       }
     ]
   },

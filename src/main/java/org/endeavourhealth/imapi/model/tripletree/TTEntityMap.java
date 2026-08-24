@@ -1,12 +1,15 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class TTEntityMap {
+
   private Map<String, TTEntity> entities = new HashMap<>();
   private Map<String, String> predicates = new HashMap<>();
-
 
   public Map<String, TTEntity> getEntities() {
     return entities;
@@ -25,7 +28,6 @@ public class TTEntityMap {
   public TTEntity getEntity(String iri) {
     return entities.get(iri);
   }
-
 
   public Map<String, String> getPredicates() {
     return predicates;

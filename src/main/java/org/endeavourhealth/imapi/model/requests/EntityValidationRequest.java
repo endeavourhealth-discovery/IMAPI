@@ -7,6 +7,7 @@ import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 
 @Getter
 public class EntityValidationRequest {
+
   private TTEntity entity;
   private String validationIri;
   private GRAPH graph;

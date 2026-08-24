@@ -2,6 +2,10 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
@@ -9,7 +13,6 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.*;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,17 +27,20 @@ public class EntityValidator {
 
   public EntityValidationResponse validate(EntityValidationRequest request, EntityService entityService) throws ValidationException {
     this.entityService = entityService;
-    return switch (VALIDATION.from(request.getValidationIri())) {
-      case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
-      case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
-      case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
-      case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
-      case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
-      case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
-      case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
-      case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
-      default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
-    };
+    EntityValidationResponse response =
+      switch (VALIDATION.from(request.getValidationIri())) {
+        case VALIDATION.HAS_PARENT -> hasValidParents(request.getEntity());
+        case VALIDATION.IS_DEFINITION -> isValidDefinition(request.getEntity());
+        case VALIDATION.IS_IRI -> isValidIri(request.getEntity());
+        case VALIDATION.IS_TERMCODE -> isValidTermCodes(request.getEntity());
+        case VALIDATION.IS_PROPERTY -> isValidProperties(request.getEntity());
+        case VALIDATION.IS_SCHEME -> isValidScheme(request.getEntity());
+        case VALIDATION.IS_STATUS -> isValidStatus(request.getEntity());
+        case VALIDATION.IS_ROLE_GROUP -> isValidRoleGroups(request.getEntity());
+        default -> throw new ValidationException("Invalid validation IRI: " + request.getValidationIri());
+      };
+    System.out.println(response);
+    return response;
   }
 
   private EntityValidationResponse hasValidParents(TTEntity entity) {

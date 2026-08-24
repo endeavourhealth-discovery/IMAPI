@@ -10,6 +10,7 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 public class ECLQueryRequest {
+
   private String ecl;
   private Query query;
   private boolean showNames;
@@ -56,7 +57,6 @@ public class ECLQueryRequest {
     return this;
   }
 
-
   public boolean isIncludeLegacy() {
     return includeLegacy;
   }
@@ -65,6 +65,7 @@ public class ECLQueryRequest {
     this.includeLegacy = includeLegacy;
     return this;
   }
+
   public ECLQueryRequest setEcl(String ecl) {
     this.ecl = ecl;
     return this;

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgGeoLocation {
+
   private OrgLocation location;
 
   @JsonProperty("Location")

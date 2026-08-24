@@ -5,11 +5,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
-import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TaskFilerException;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.logic.service.WorkflowService;
+import org.endeavourhealth.imapi.utility.MetricsHelper;
+import org.endeavourhealth.imapi.utility.MetricsTimer;
+import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
+import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
@@ -17,8 +19,6 @@ import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
-import org.endeavourhealth.imapi.utility.MetricsHelper;
-import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -71,7 +71,8 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.tasksByCreator.GET")) {
       log.debug("getWorkflowsByCreatedBy");
       securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      WorkflowRequest wfRequest = new WorkflowRequest(request);
+      String userId = securityService.getUser(request).getId();
+      WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
       return workflowService.getTasksByCreatedBy(wfRequest);
@@ -84,7 +85,8 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.tasksByAssignedTo.GET")) {
       log.debug("getWorkflowsByAssignedTo");
       securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      WorkflowRequest wfRequest = new WorkflowRequest(request);
+      String userId = securityService.getUser(request).getId();
+      WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
       return workflowService.getTasksByAssignedTo(wfRequest);
@@ -97,7 +99,8 @@ public class WorkflowController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.unassignedTasks.GET")) {
       log.debug("getUnassignedTasks");
       securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      WorkflowRequest wfRequest = new WorkflowRequest(request);
+      String userId = securityService.getUser(request).getId();
+      WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
       return workflowService.getUnassignedTasks(wfRequest);

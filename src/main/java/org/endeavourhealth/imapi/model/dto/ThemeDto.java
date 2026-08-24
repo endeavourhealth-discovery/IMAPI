@@ -4,8 +4,7 @@ public class ThemeDto {
 
   private String themeValue;
 
-  public ThemeDto() {
-  }
+  public ThemeDto() {}
 
   public String getThemeValue() {
     return themeValue;

@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.xml.bind.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.filer.TTFilerException;
@@ -77,13 +78,10 @@ public class EntityController {
 
   @GetMapping(value = "/public/schemes")
   @Operation(summary = "Get schemes", description = "Fetches schemes and their prefixes available in the system")
-  public Map<String, Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
+  public List<Namespace> getNamespacesWithPrefixes(HttpServletRequest request) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Namespaces.GET")) {
       log.debug("getNamespacesWithPrefixes (getSchemes)");
-      List<Namespace> namespaces = entityService.getNamespaces();
-      Map<String, Namespace> result = new HashMap<>();
-      namespaces.forEach(namespace -> result.put(namespace.getIri(), namespace));
-      return result;
+      return entityService.getNamespaces();
     }
   }
 
@@ -330,7 +328,7 @@ public class EntityController {
 
   @GetMapping("/protected/summary")
   @Operation(summary = "Get entity summary", description = "Fetches a summary of the search results for the specified entity by IRI")
-  public SearchResultSummary getSummary(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) {
+  public SearchResultSummary getSummary(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "graph", defaultValue = "http://endhealth.info/im#") String graph) throws DataMissingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Summary.GET")) {
       log.debug("getSummary");
       return entityService.getSummary(iri);
@@ -342,7 +340,7 @@ public class EntityController {
   public HttpEntity<Object> downloadSearchResults(
     HttpServletRequest request,
     @RequestBody DownloadByQueryOptions downloadByQueryOptions
-  ) throws OpenSearchException, DownloadException, QueryException {
+  ) throws OpenSearchException, DownloadException, QueryException, DataMissingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API/Entity.DownloadSearchResults.POST")) {
       log.debug("downloadSearchResults");
       HttpHeaders headers = new HttpHeaders();

@@ -1,6 +1,9 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class GroupBy extends IriLD{
+import org.endeavourhealth.imapi.model.imq.IriLD;
+
+public class GroupBy extends IriLD {
+
   private String nodeRef;
   private String valueRef;
   private String propertyRef;

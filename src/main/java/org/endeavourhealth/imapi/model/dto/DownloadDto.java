@@ -1,5 +1,8 @@
 package org.endeavourhealth.imapi.model.dto;
 
+import java.io.Serializable;
+import java.util.List;
+
 import org.endeavourhealth.imapi.model.DataModelProperty;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
 import org.endeavourhealth.imapi.model.search.SearchTermCode;
@@ -7,9 +10,6 @@ import org.endeavourhealth.imapi.model.set.ExportSet;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
-
-import java.io.Serializable;
-import java.util.List;
 
 public class DownloadDto implements Serializable {
 

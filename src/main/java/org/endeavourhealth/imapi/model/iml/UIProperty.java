@@ -1,20 +1,18 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class UIProperty {
+
   private String iri;
   private String name;
   private String propertyType;
   private String valueType;
   private String valueTypeName;
   private int maxCount;
-  private int number;
   private String intervalUnitIri;
   private List<TTIriRef> intervalUnitOptions;
   private String unitIri;
@@ -72,14 +70,6 @@ public class UIProperty {
     return this;
   }
 
-  public int getNumber() {
-    return number;
-  }
-
-  public UIProperty setNumber(int number) {
-    this.number = number;
-    return this;
-  }
 
   public String getIntervalUnitIri() {
     return intervalUnitIri;

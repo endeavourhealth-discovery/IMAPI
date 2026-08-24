@@ -4,8 +4,7 @@ public class ScaleDto {
 
   private String scaleValue;
 
-  public ScaleDto() {
-  }
+  public ScaleDto() {}
 
   public String getScaleValue() {
     return scaleValue;

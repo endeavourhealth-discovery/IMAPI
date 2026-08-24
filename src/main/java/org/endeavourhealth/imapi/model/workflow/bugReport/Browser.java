@@ -1,18 +1,19 @@
 package org.endeavourhealth.imapi.model.workflow.bugReport;
 
 public enum Browser {
-    CHROME("chrome"),
-    FIREFOX("firefox"),
-    EDGE("edge"),
-    IE("internet explorer"),
-    OTHER("other");
+  CHROME("chrome"),
+  FIREFOX("firefox"),
+  EDGE("edge"),
+  IE("internet explorer"),
+  OTHER("other");
 
-    private final String text;
-    Browser(String text) {
-        this.text = text;
-    }
+  private final String text;
 
-    public String getText() {
-        return text;
-    }
+  Browser(String text) {
+    this.text = text;
+  }
+
+  public String getText() {
+    return text;
+  }
 }

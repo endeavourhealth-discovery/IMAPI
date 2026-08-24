@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model;
 
 public class DownloadEntityOptions {
+
   private String entityIri;
   private String format;
   private boolean includeHasSubtypes;

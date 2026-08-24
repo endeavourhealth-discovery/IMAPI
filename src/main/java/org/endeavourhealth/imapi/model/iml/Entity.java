@@ -3,17 +3,19 @@ package org.endeavourhealth.imapi.model.iml;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @Getter
 @JsonPropertyOrder({"iri", "label", "type", "comment", "status", "scheme", "isContainedIn", "subClassOf"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Entity {
+
   private String iri;
   private Set<TTIriRef> type;
   private String name;
@@ -58,8 +60,7 @@ public class Entity {
   }
 
   public Entity addIsContainedIn(TTEntity folder) {
-    if (this.isContainedIn == null)
-      this.isContainedIn = new HashSet<>();
+    if (this.isContainedIn == null) this.isContainedIn = new HashSet<>();
     this.isContainedIn.add(folder);
     return this;
   }

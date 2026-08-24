@@ -1,13 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
-import lombok.Getter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
-import java.util.ArrayList;
-import java.util.List;
-
-
 public class ValueSource {
+
   private String parameter;
   private String iri;
   private String name;
@@ -22,7 +16,6 @@ public class ValueSource {
     this.propertyRef = propertyRef;
     return this;
   }
-
 
   public String getIri() {
     return iri;
@@ -51,8 +44,6 @@ public class ValueSource {
     return this;
   }
 
-
-
   public String getParameter() {
     return parameter;
   }
@@ -61,7 +52,4 @@ public class ValueSource {
     this.parameter = parameter;
     return this;
   }
-
-
-
 }

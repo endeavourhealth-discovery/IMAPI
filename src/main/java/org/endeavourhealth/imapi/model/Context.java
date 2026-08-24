@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class Context {
+
   String publisher;
   String system;
   String schema;

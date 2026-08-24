@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
@@ -87,7 +88,7 @@ public class EntityService {
     return bundle.getEntity();
   }
 
-  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException{
+  public TTBundle getBundleByPredicateExclusions(String iri, Set<String> excludePredicates) throws JsonProcessingException {
     TTBundle bundle = entityRepository.getBundle(iri, excludePredicates, true);
     filterOutSpecifiedPredicates(excludePredicates, bundle);
     filterOutInactiveTermCodes(bundle);
@@ -209,7 +210,7 @@ public class EntityService {
     return getBundle(iri, new HashSet<>(predicates)).getEntity();
   }
 
-  public SearchResultSummary getSummary(String iri) {
+  public SearchResultSummary getSummary(String iri) throws DataMissingException {
     if (iri == null || iri.isEmpty()) return null;
     return entityRepository.getEntitySummaryByIri(iri);
   }
@@ -456,7 +457,7 @@ public class EntityService {
     return validatedEntity;
   }
 
-  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException{
+  public TTBundle getDetailsDisplay(String iri) throws JsonProcessingException {
     Set<String> excludedPredicates = asHashSet(IM.CODE, RDFS.LABEL, IM.HAS_STATUS, RDFS.COMMENT);
     Set<String> entityPredicates = getPredicates(iri);
     TTBundle response;

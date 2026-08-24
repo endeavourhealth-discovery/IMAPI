@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
@@ -28,7 +29,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term() throws OpenSearchException {
+  void openSearchQuery_term() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -40,7 +41,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_scheme() throws OpenSearchException {
+  void openSearchQuery_term_scheme() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -56,7 +57,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA() throws OpenSearchException {
+  void openSearchQuery_term_IsA() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -71,7 +72,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_Member() throws OpenSearchException {
+  void openSearchQuery_term_Member() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -86,7 +87,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA_Member() throws OpenSearchException {
+  void openSearchQuery_term_IsA_Member() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q
@@ -103,7 +104,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_NotMember() throws OpenSearchException {
+  void openSearchQuery_term_NotMember() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -116,7 +117,7 @@ class OSQueryTest_OS {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void openSearchQuery_term_IsA_NotMember() throws OpenSearchException {
+  void openSearchQuery_term_IsA_NotMember() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .query(q -> q

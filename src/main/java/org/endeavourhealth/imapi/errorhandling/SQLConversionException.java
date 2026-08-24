@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SQLConversionException extends Exception {
+
   private String sql;
 
   public SQLConversionException(String message) {
@@ -13,7 +14,7 @@ public class SQLConversionException extends Exception {
   }
 
   public SQLConversionException(String message, Throwable cause) {
-    super(message,  cause);
+    super(message, cause);
   }
 
   public SQLConversionException(String message, String sql) {

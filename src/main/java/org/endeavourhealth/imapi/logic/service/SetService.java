@@ -140,7 +140,7 @@ public class SetService {
     Pageable<Node> result = new Pageable<>();
     result.setTotalCount(response.getTotalCount());
     result.setCurrentPage(response.getPage());
-    result.setPageSize(response.getCount());
+    result.setPageSize(response.getSize());
     result.setResult(new ArrayList<>());
     if (response.getEntities() != null) {
       for (SearchResultSummary entity : response.getEntities()) {
@@ -401,6 +401,10 @@ public class SetService {
     String name = entityRepository.getBundle(iri, asHashSet(RDFS.LABEL)).getEntity().getName();
     Set<Concept> members = getExpandedSetMembers(iri, true, true, true, List.of(), asArrayList(IM.SUBSUMED_BY));
     setExporter.publishSetToIM1(iri, name, members);
+  }
+
+  public Integer getMemberCount(String iri) {
+    return setRepository.getMemberCount(iri);
   }
 }
 

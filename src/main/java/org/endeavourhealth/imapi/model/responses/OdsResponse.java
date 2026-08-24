@@ -2,13 +2,15 @@ package org.endeavourhealth.imapi.model.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.endeavourhealth.imapi.model.ods.OrgRole;
-import org.endeavourhealth.imapi.model.ods.Organisation;
 
 import java.util.List;
 
+import org.endeavourhealth.imapi.model.ods.OrgRole;
+import org.endeavourhealth.imapi.model.ods.Organisation;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OdsResponse {
+
   private Organisation organisation;
   private List<OrgRole> roles;
 

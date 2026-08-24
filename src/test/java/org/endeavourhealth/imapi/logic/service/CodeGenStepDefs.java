@@ -50,7 +50,8 @@ public class CodeGenStepDefs {
   @Given("a datatype map")
   public void setDataTypeMap(String arg0) throws JsonProcessingException {
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {}));
+      this.template.setDatatypeMap(om.readValue(arg0, new TypeReference<>() {
+      }));
     }
   }
 

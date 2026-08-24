@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @Getter
 public class PathQuery extends TTIriRef {
+
   private TTIriRef source;
   private TTIriRef target;
   private Integer depth;

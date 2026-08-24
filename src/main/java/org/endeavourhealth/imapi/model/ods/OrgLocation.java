@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"AddrLn1", "AddrLn2", "AddrLn3", "Town", "County", "PostCode", "Country", "UPRN"})
+@JsonPropertyOrder({ "AddrLn1", "AddrLn2", "AddrLn3", "Town", "County", "PostCode", "Country", "UPRN" })
 public class OrgLocation {
+
   private String addrln1;
   private String addrln2;
   private String addrln3;

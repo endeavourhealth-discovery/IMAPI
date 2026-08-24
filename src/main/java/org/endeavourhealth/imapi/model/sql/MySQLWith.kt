@@ -5,7 +5,7 @@ import org.endeavourhealth.imapi.model.imq.Bool
 data class MySQLWith(
   var table: Table = Table(),
   var alias: String = "",
-  val wheres: MutableList<MySQLWhere>? = mutableListOf(),
+  var wheres: MutableList<MySQLWhere> = mutableListOf(),
   val selects: MutableList<MySQLSelect> = mutableListOf(),
   var joins: MutableList<MySQLJoin> = mutableListOf(),
   val whereBool: Bool = Bool.and,
@@ -17,11 +17,15 @@ data class MySQLWith(
   var subQuery: MySQLWith? = null,
   var isStep: Boolean = false,
   val groupByColumns: MutableList<String> = mutableListOf(),
-  var havingClause: String? = null
+  var havingClause: String? = null,
+  var entityKeyField: String? = null,
+  val isCohortRef: Boolean = false
 ) {
   private fun toSqlBody(): String {
+    if (unionWiths.isNotEmpty()) return toUnionSqlBody()
+
     val selectSql = selects.joinToString(", ") { sel ->
-      sel.alias?.let { "${sel.name} AS $it" } ?: sel.name
+      sel.toSql()
     }
 
     val whereSql = wheres
@@ -36,7 +40,7 @@ data class MySQLWith(
 
     return buildString {
       appendLine(
-        "SELECT $selectSql"
+        "SELECT DISTINCT $selectSql"
       )
       if (subQuery != null) {
         appendLine("FROM (")

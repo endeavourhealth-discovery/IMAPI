@@ -10,8 +10,8 @@ public class ParserErrorListener extends BaseErrorListener {
   @Override
   public void syntaxError(Recognizer<?, ?> recognizer,
                           Object offendingSymbol, int line, int charPositionInLine,
-                          String msg, RecognitionException e) throws ECLSyntaxError{
-    ECLStatus errorData= new ECLStatus();
+                          String msg, RecognitionException e) throws ECLSyntaxError {
+    ECLStatus errorData = new ECLStatus();
     errorData.setValid(false);
     errorData.setLine(line);
     errorData.setOffset(charPositionInLine);
@@ -30,7 +30,7 @@ public class ParserErrorListener extends BaseErrorListener {
           badSymbol = symbols[0];
       }
       String message = "Expecting " + expectedTokens.toString(parser.getVocabulary());
-      errorData.setMessage("Symbol '"+badSymbol + "' " + message);
+      errorData.setMessage("Symbol '" + badSymbol + "' " + message);
       throw new ECLSyntaxError("Invalid ECL"
         , errorData);
 

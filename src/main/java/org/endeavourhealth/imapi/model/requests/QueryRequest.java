@@ -143,9 +143,16 @@ public class QueryRequest implements ContextMap {
       }
     }
     return null;
-
   }
 
+  public Set<String> getArgumentDataList(String parameter) {
+    if (this.argument == null) return null;
+    for (Argument arg : this.argument) {
+      if (parameter.equals(arg.getParameter()))
+        return arg.getValueDataList();
+    }
+    return null;
+  }
 
   @JsonSetter
   public QueryRequest setPage(Page page) {

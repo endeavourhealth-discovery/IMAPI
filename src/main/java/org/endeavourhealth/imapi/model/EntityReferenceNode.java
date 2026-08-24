@@ -1,14 +1,17 @@
 package org.endeavourhealth.imapi.model;
 
-import org.endeavourhealth.imapi.model.tripletree.TTArray;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import org.endeavourhealth.imapi.model.search.SearchResultSummary;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class EntityReferenceNode extends TTIriRef implements Serializable {
+
   private List<EntityReferenceNode> parents = new ArrayList<>();
   private List<EntityReferenceNode> children;
   private String moduleId;
@@ -16,15 +19,10 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   private boolean hasGrandChildren;
   private TTArray type;
   private int orderNumber;
+  private TTIriRef status;
+  private TTIriRef scheme;
 
   public EntityReferenceNode() {
-  }
-
-  public EntityReferenceNode addType(TTIriRef type){
-    if (this.type == null)
-      this.type = new TTArray();
-    this.type.add(type);
-    return this;
   }
 
   public EntityReferenceNode(String iri) {
@@ -40,6 +38,30 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
     super(iri, name);
   }
 
+  public EntityReferenceNode addType(TTIriRef type) {
+    if (this.type == null) this.type = new TTArray();
+    this.type.add(type);
+    return this;
+  }
+
+  public TTIriRef getStatus() {
+    return status;
+  }
+
+  public EntityReferenceNode setStatus(TTIriRef status) {
+    this.status = status;
+    return this;
+  }
+
+  public TTIriRef getScheme() {
+    return scheme;
+  }
+
+  public EntityReferenceNode setScheme(TTIriRef scheme) {
+    this.scheme = scheme;
+    return this;
+  }
+
   public List<EntityReferenceNode> getParents() {
     return parents;
   }
@@ -50,8 +72,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   }
 
   public EntityReferenceNode addParent(EntityReferenceNode parent) {
-    if (this.parents == null)
-      this.parents = new ArrayList<>();
+    if (this.parents == null) this.parents = new ArrayList<>();
 
     this.parents.add(parent);
 
@@ -77,8 +98,7 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
   }
 
   public EntityReferenceNode addChild(EntityReferenceNode parent) {
-    if (this.children == null)
-      this.children = new ArrayList<>();
+    if (this.children == null) this.children = new ArrayList<>();
 
     this.children.add(parent);
 
@@ -94,22 +114,22 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
     return this;
   }
 
+  public boolean isHasGrandChildren() {
+    return hasGrandChildren;
+  }
+
   public EntityReferenceNode setHasGrandChildren(boolean hasGrandChildren) {
     this.hasGrandChildren = hasGrandChildren;
     return this;
   }
 
-  public boolean isHasGrandChildren() {
-    return hasGrandChildren;
+  public boolean isHasChildren() {
+    return hasChildren;
   }
 
   public EntityReferenceNode setHasChildren(boolean hasChildren) {
     this.hasChildren = hasChildren;
     return this;
-  }
-
-  public boolean isHasChildren() {
-    return hasChildren;
   }
 
   public TTArray getType() {
@@ -127,11 +147,13 @@ public class EntityReferenceNode extends TTIriRef implements Serializable {
     if (o == null || getClass() != o.getClass()) return false;
     if (!super.equals(o)) return false;
     EntityReferenceNode that = (EntityReferenceNode) o;
-    return hasChildren == that.hasChildren
-      && Objects.equals(parents, that.parents)
-      && Objects.equals(children, that.children)
-      && Objects.equals(moduleId, that.moduleId)
-      && Objects.equals(type, that.type);
+    return (
+      hasChildren == that.hasChildren &&
+        Objects.equals(parents, that.parents) &&
+        Objects.equals(children, that.children) &&
+        Objects.equals(moduleId, that.moduleId) &&
+        Objects.equals(type, that.type)
+    );
   }
 
   @Override

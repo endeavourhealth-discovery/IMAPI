@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum CodeTemplate implements VocabEnum {
-
   DOMAIN("http://endhealth.info/"),
   PREFIX("cTemp"),
   WRAPPER(NAMESPACE.IM_CODE_TEMPLATE + "wrapper"),
@@ -22,8 +21,7 @@ public enum CodeTemplate implements VocabEnum {
   TYPE(RDF.TYPE),
   DATATYPE_MAP(NAMESPACE.IM_CODE_TEMPLATE + "datatypeMap"),
   EXTENSION(NAMESPACE.IM_CODE_TEMPLATE + "extension"),
-  INCLUDE_COMPLEX_TYPES(NAMESPACE.IM_CODE_TEMPLATE + "includeComplexTypes"),
-  ;
+  INCLUDE_COMPLEX_TYPES(NAMESPACE.IM_CODE_TEMPLATE + "includeComplexTypes");
 
   private final String value;
 
@@ -36,8 +34,7 @@ public enum CodeTemplate implements VocabEnum {
   }
 
   public static CodeTemplate from(String text) {
-    if (text == null)
-      throw new IllegalArgumentException("no text specified");
+    if (text == null) throw new IllegalArgumentException("no text specified");
 
     for (CodeTemplate b : CodeTemplate.values()) {
       if (b.value.equals(text)) {
@@ -65,5 +62,4 @@ public enum CodeTemplate implements VocabEnum {
   public IRI asDbIri() {
     return Values.iri(value);
   }
-
 }

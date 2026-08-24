@@ -16,5 +16,4 @@ public interface Entailment {
   boolean isMemberOf();
 
   Entailment setMemberOf(boolean descendantsOf);
-
 }

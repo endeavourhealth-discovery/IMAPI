@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.dto;
 
 public class BooleanBody {
+
   Boolean bool;
 
   public Boolean getBool() {

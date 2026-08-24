@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.service.CodeGenService;
 import org.endeavourhealth.imapi.model.dto.CodeGenDto;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -64,7 +65,7 @@ public class CodeGenController {
     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
     @Parameter(description = "The name of the template to use for generating code") @RequestParam("template") String templateName,
     @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace
-  ) {
+  ) throws DataMissingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCode");
       return codeGenService.generateCode(iri, templateName, namespace);
@@ -77,7 +78,7 @@ public class CodeGenController {
                                     @Parameter(description = "The IRI for which to generate code") @RequestParam(name = "iri", required = false) String iri,
                                     @Parameter(description = "The namespace to use for generating code") @RequestParam("namespace") String namespace,
                                     @Parameter(description = "The template data to use") @RequestBody CodeGenDto template
-  ) {
+  ) throws DataMissingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.CodeGen.GenerateCode.GET")) {
       log.debug("GenerateCodePreview");
       return codeGenService.generateCodeForModel(iri, template, namespace);

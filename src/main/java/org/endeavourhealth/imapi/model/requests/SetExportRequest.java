@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.set.SetOptions;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SetExportRequest {
+
   private boolean ownRow;
   private String format;
   private SetOptions options;

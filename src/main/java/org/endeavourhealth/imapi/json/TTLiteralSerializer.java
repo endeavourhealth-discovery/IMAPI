@@ -3,14 +3,17 @@ package org.endeavourhealth.imapi.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+
+import java.io.IOException;
+
+import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
 import org.endeavourhealth.imapi.vocabulary.XSD;
 
-import java.io.IOException;
-
 public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
-  private transient TTNodeSerializer helper;
+
+  private transient TTNodeSerializerV2 helper;
 
   public TTLiteralSerializer() {
     this(null);
@@ -20,7 +23,7 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
     super(t);
   }
 
-  public TTLiteralSerializer(Class<TTLiteral> t, TTNodeSerializer helper) {
+  public TTLiteralSerializer(Class<TTLiteral> t, TTNodeSerializerV2 helper) {
     super(t);
     this.helper = helper;
   }
@@ -39,17 +42,13 @@ public class TTLiteralSerializer extends StdSerializer<TTLiteral> {
         case XSD.PATTERN -> {
           gen.writeStartObject();
           gen.writeStringField("value", literal.getValue());
-          gen.writeStringField("type", usePrefixes
-            ? helper.prefix(literal.getType().getIri())
-            : literal.getType().getIri()
-          );
+          gen.writeStringField("type", usePrefixes ? helper.prefix(literal.getType().getIri()) : literal.getType().getIri());
           gen.writeEndObject();
         }
         case null, default -> throw new IOException("Unhandled literal type [" + literal.getType().getIri() + "]");
       }
-
-    } else
-      // No type, assume string
-      gen.writeString(literal.getValue());
+    }
+    // No type, assume string
+    else gen.writeString(literal.getValue());
   }
 }

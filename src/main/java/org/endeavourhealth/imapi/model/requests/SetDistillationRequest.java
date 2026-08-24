@@ -1,16 +1,17 @@
 package org.endeavourhealth.imapi.model.requests;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
 public class SetDistillationRequest {
+
   private List<TTIriRef> conceptList;
   private GRAPH graph;
 

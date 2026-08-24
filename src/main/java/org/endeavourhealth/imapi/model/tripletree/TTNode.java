@@ -1,31 +1,37 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Getter;
-import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
-import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
-import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import lombok.Getter;
+import org.endeavourhealth.imapi.json.TTNodeDeserializerV2;
+import org.endeavourhealth.imapi.json.TTNodeSerializerV2;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.VocabEnum;
 
 @JsonSerialize(using = TTNodeSerializerV2.class)
 @JsonDeserialize(using = TTNodeDeserializerV2.class)
 public class TTNode implements TTValue, Serializable {
+
   private Map<TTIriRef, TTArray> predicateValues = new HashMap<>();
+
   @Getter
   private String iri;
 
   public TTNode setIri(String iri) {
-    if (iri != null && iri.startsWith("null"))
-      System.err.println("Its here!!!!");
+    if (iri != null && iri.startsWith("null")) System.err.println("Its here!!!!");
 
     this.iri = iri;
     return this;
@@ -33,19 +39,15 @@ public class TTNode implements TTValue, Serializable {
 
   @JsonSetter
   public TTNode set(TTIriRef predicate, TTValue value) {
-    if (value == null)
-      predicateValues.remove(predicate);
-    else
-      predicateValues.put(predicate, new TTArray().add(value));
+    if (value == null) predicateValues.remove(predicate);
+    else predicateValues.put(predicate, new TTArray().add(value));
     return this;
   }
 
   @JsonIgnore
   public TTNode set(TTIriRef predicate, String value) {
-    if (value.startsWith("http:"))
-      this.set(predicate, iri(value));
-    else
-      this.set(predicate, TTLiteral.literal(value));
+    if (value.startsWith("http:")) this.set(predicate, iri(value));
+    else this.set(predicate, TTLiteral.literal(value));
     return this;
   }
 
@@ -84,7 +86,6 @@ public class TTNode implements TTValue, Serializable {
     this.set(predicate.asIri(), value);
     return this;
   }
-
 
   @JsonIgnore
   public TTNode set(String predicate, boolean value) {
@@ -157,14 +158,12 @@ public class TTNode implements TTValue, Serializable {
    * Adds an object to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, TTValue object) {
-    if (this.get(predicate) == null)
-      this.set(predicate, new TTArray().add(object));
-    else
-      this.get(predicate).add(object);
+    if (this.get(predicate) == null) this.set(predicate, new TTArray().add(object));
+    else this.get(predicate).add(object);
     return this;
   }
 
@@ -172,14 +171,12 @@ public class TTNode implements TTValue, Serializable {
    * Adds a String or string iri to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, String value) {
-    if (value.startsWith("http:"))
-      this.addObject(predicate, iri(value));
-    else
-      this.addObject(predicate, TTLiteral.literal(value));
+    if (value.startsWith("http:")) this.addObject(predicate, iri(value));
+    else this.addObject(predicate, TTLiteral.literal(value));
     return this;
   }
 
@@ -187,7 +184,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, Integer value) {
@@ -199,7 +196,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, boolean value) {
@@ -211,7 +208,7 @@ public class TTNode implements TTValue, Serializable {
    * Adds an integer value to a predicate if necessary converting to an array if not already an array
    *
    * @param predicate the predicate to add the object to. This may or may not already exist
-   * @return the modified node with a predicate object as an array
+   * @return the modified node and a predicate object as an array
    */
 
   public TTNode addObject(TTIriRef predicate, Long value) {
@@ -225,5 +222,4 @@ public class TTNode implements TTValue, Serializable {
     }
     return this;
   }
-
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class ParameterTemplate extends Entity {
+
   private String label;
   private Integer order;
   private List<ValueTemplate> valueTemplate;
@@ -26,7 +27,6 @@ public class ParameterTemplate extends Entity {
     this.label = label;
     return this;
   }
-
 
   public List<ValueTemplate> getValueTemplate() {
     return valueTemplate;
@@ -51,6 +51,4 @@ public class ParameterTemplate extends Entity {
     builder.accept(valueTemplate);
     return this;
   }
-
-
 }

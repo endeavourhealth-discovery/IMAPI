@@ -1,12 +1,13 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class ParameterShape {
+
   private String label;
   private TTIriRef type;
   private List<TTIriRef> parameterSubType;
@@ -19,20 +20,21 @@ public class ParameterShape {
     this.parameterSubType = parameterSubType;
     return this;
   }
-  public ParameterShape addParameterSubType (TTIriRef parameterSubType){
-      if (this.parameterSubType == null) {
-        this.parameterSubType = new ArrayList<>();
-      }
-      this.parameterSubType.add(parameterSubType);
-      return this;
-    }
-  public ParameterShape parameterSubType (Consumer< TTIriRef > builder) {
-      TTIriRef parameterSubType = new TTIriRef();
-      addParameterSubType(parameterSubType);
-      builder.accept(parameterSubType);
-      return this;
-    }
 
+  public ParameterShape addParameterSubType(TTIriRef parameterSubType) {
+    if (this.parameterSubType == null) {
+      this.parameterSubType = new ArrayList<>();
+    }
+    this.parameterSubType.add(parameterSubType);
+    return this;
+  }
+
+  public ParameterShape parameterSubType(Consumer<TTIriRef> builder) {
+    TTIriRef parameterSubType = new TTIriRef();
+    addParameterSubType(parameterSubType);
+    builder.accept(parameterSubType);
+    return this;
+  }
 
   public TTIriRef getType() {
     return type;

@@ -1,19 +1,20 @@
 package org.endeavourhealth.imapi.model.workflow.bugReport;
 
 public enum TaskModule {
-    DIRECTORY("directory"),
-    QUERY("query"),
-    CREATOR("creator"),
-    EDITOR("editor"),
-    UPRN("uprn"),
-    AUTH("auth");
+  DIRECTORY("directory"),
+  QUERY("query"),
+  CREATOR("creator"),
+  EDITOR("editor"),
+  UPRN("uprn"),
+  AUTH("auth");
 
-    private final String text;
-    TaskModule(String text) {
-        this.text = text;
-    }
+  private final String text;
 
-    public String getText() {
-        return this.text;
-    }
+  TaskModule(String text) {
+    this.text = text;
+  }
+
+  public String getText() {
+    return this.text;
+  }
 }

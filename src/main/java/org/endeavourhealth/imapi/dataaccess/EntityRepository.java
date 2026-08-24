@@ -9,7 +9,9 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.dto.ParentDto;
 import org.endeavourhealth.imapi.model.iml.Entity;
@@ -116,7 +118,8 @@ public class EntityRepository {
     String sql = """
       SELECT ?sname
       WHERE {
-        ?s rdfs:label ?sname
+        ?s rdfs:label ?sname .
+        optional { ?s rdfs:comment ?sdescription }
       }
       """;
 
@@ -127,6 +130,7 @@ public class EntityRepository {
         if (rs.hasNext()) {
           BindingSet bs = rs.next();
           result.setIri(iri).setName(bs.getValue("sname").stringValue());
+          if (bs.getValue("sdescription") != null) result.setDescription(bs.getValue("sdescription").stringValue());
         }
       }
     }
@@ -137,14 +141,17 @@ public class EntityRepository {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
     String sql = """
-      ?entity ?predicate ?object ?predicate2 ?object2
-      select *
+      select ?entity ?type ?predicate ?object ?predicate2 ?object2
+      
       where {
       values ?predicate {%s}
       ?entity rdf:type ?type.
       ?entity ?predicate ?object.
-      optional {?object ?predicate2 ?object2.
-      filter (isBlank(?object2)}
+      optional {
+        ?object ?predicate2 ?object2.
+        filter (isBlank(?object))
+        filter (!isBlank(?object2))
+        }
       }
       order by ?object
       offset %s limit %s
@@ -153,25 +160,29 @@ public class EntityRepository {
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("type", iri(type));
+      Map<String, TTNode> blankNodes = new HashMap<>();
       try (TupleQueryResult rs = qry.evaluate()) {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("entity").stringValue();
           entities.putIfAbsent(iri, new TTEntity().setIri(iri));
           TTEntity entity = entities.get(iri);
-          Value object = bs.getValue("folder");
+          entity.addObject((TTIriRef) iri(RDF.TYPE.toString()), TTIriRef.iri(bs.getValue("type").stringValue()));
+          Value object = bs.getValue("object");
           if (object.isIRI()) {
             entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), TTIriRef.iri(object.stringValue()));
           } else if (object.isBNode()) {
-            if (entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue())) == null) {
-              entity.set(TTIriRef.iri(bs.getValue("predicate").stringValue()), new TTNode());
+            TTNode node = blankNodes.get(object.stringValue());
+            if (node == null) {
+              node = new TTNode();
+              blankNodes.put(object.stringValue(), new TTNode());
+              entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), node);
             }
             Value object2 = bs.getValue("object2");
             if (object2.isIRI()) {
-              entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
-                .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
-            } else entity.get(TTIriRef.iri(bs.getValue("predicate").stringValue()))
-              .asNode().addObject(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
+              node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTIriRef.iri(object2.stringValue()));
+            } else
+              node.set(TTIriRef.iri(bs.getValue("predicate2").stringValue()), TTLiteral.literal(object2.stringValue()));
           } else {
             entity.addObject(TTIriRef.iri(bs.getValue("predicate").stringValue()), TTLiteral.literal(object.stringValue()));
           }
@@ -208,7 +219,7 @@ public class EntityRepository {
     return iriToTypesMap;
   }
 
-  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris) {
+  public List<SearchResultSummary> getEntitySummariesByIris(Set<String> stringIris) throws DataMissingException {
     List<SearchResultSummary> summaries = new ArrayList<>();
 
     String sql = """
@@ -237,29 +248,49 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
+          if (null == bs.getValue("sscheme")) {
+            throw new DataMissingException("Entity " + iri + " is missing required data im:scheme");
+          }
+          if (null == bs.getValue("sstatus")) {
+            throw new DataMissingException("Entity " + iri + " is missing required data im:status");
+          }
           Set<TTIriRef> types = iriToTypesMap.get(iri);
+          if (types.isEmpty()) {
+            throw new DataMissingException("Entity " + iri + " is missing required data rdf:type");
+          }
           SearchResultSummary summary = new SearchResultSummary();
           summary
             .setIri(iri)
             .setName(bs.getValue("sname").stringValue())
             .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-            .setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())))
+            .setScheme(
+              new TTIriRef(
+                bs.getValue("sscheme").stringValue(),
+                (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())
+              )
+            )
             .setType(types)
-            .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
+            .setStatus(
+              new TTIriRef(
+                bs.getValue("sstatus").stringValue(),
+                bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()
+              )
+            )
             .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           summaries.add(summary);
         }
       }
     }
+    if (summaries.size() != stringIris.size()) {
+      List<String> missing = stringIris.stream().filter(iri -> summaries.stream().noneMatch(summ -> summ.getIri().equals(iri))).toList();
+      throw new DataMissingException("One of more iris do not exist. Missing iris: " + missing);
+    }
     return summaries;
   }
 
-  public SearchResultSummary getEntitySummaryByIri(String iri) {
-    SearchResultSummary result = new SearchResultSummary();
-    result.setIri(iri);
-
+  public SearchResultSummary getEntitySummaryByIri(String iri) throws DataMissingException {
     String sql = """
-      SELECT ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
+      SELECT ?s ?sname ?type ?typeName ?scode ?sstatus ?sstatusname ?sdescription ?sscheme ?sschemename ?intervalUnit ?intervalUnitName ?qualifier ?qualifierName
       WHERE {
         ?s rdfs:label ?sname .
         OPTIONAL { ?s im:code ?scode . }
@@ -293,22 +324,30 @@ public class EntityRepository {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       qry.setBinding("s", iri(iri));
       try (TupleQueryResult rs = qry.evaluate()) {
+        SearchResultSummary result = new SearchResultSummary();
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
-          if (result.getName() == null) {
-            result.setIri(iri).setName(bs.getValue("sname").stringValue())
-              .setCode(bs.getValue("scode") == null ? "" : bs.getValue("scode").stringValue())
-              .setStatus(new TTIriRef(bs.getValue("sstatus") == null ? "" : bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()))
-              .setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
+          result.setIri(bs.getValue("s").stringValue());
+          if (null != bs.getValue("sname")) {
+            result.setName(bs.getValue("sname").stringValue());
+          } else throw new DataMissingException("Entity " + iri + " is missing required data rdfs:label");
+          if (null != bs.getValue("scode")) {
+            result.setCode(bs.getValue("scode").stringValue());
+          }
+          if (null != bs.getValue("sstatus")) {
+            result.setStatus(new TTIriRef(bs.getValue("sstatus").stringValue(), bs.getValue("sstatusname") == null ? "" : bs.getValue("sstatusname").stringValue()));
+          } else throw new DataMissingException("Entity " + iri + " is missing required data im:status");
+          if (bs.hasBinding("sdescription")) {
+            result.setDescription(bs.getValue("sdescription") == null ? "" : bs.getValue("sdescription").stringValue());
           }
           if (bs.hasBinding("type")) {
             result.addType(TTIriRef.iri(bs.getValue("type").stringValue())
               .setName(bs.getValue("typeName").stringValue()));
-          }
+          } else throw new DataMissingException("Entity " + iri + " is missing required data rdf:type");
 
           if (bs.hasBinding("sscheme")) {
             result.setScheme(new TTIriRef(bs.getValue("sscheme").stringValue(), (bs.getValue("sschemename") == null ? "" : bs.getValue("sschemename").stringValue())));
-          }
+          } else throw new DataMissingException("Entity " + iri + " is missing required data im:scheme");
           if (bs.hasBinding("intervalUnit")) {
             result.addIntervalUnit(TTIriRef.iri(bs.getValue("intervalUnit").stringValue())
               .setName(bs.getValue("intervalUnitName").stringValue()));
@@ -321,9 +360,11 @@ public class EntityRepository {
             }
           }
         }
+        return result;
+      } catch (QueryEvaluationException e) {
+        throw new DataMissingException("Entity with iri: " + iri + " does not exist");
       }
     }
-    return result;
   }
 
   public List<ParentDto> findParentHierarchies(String iri) {
@@ -1159,19 +1200,28 @@ public class EntityRepository {
       iri(stringIri);
     }
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren
+      SELECT ?s ?name ?typeIri ?typeName ?order ?contextOrder ?hasChildren ?hasGrandchildren  ?description ?status ?statusname ?scheme ?schemename
       WHERE {
         ?s rdfs:label ?name.
         ?s rdf:type ?typeIri.
         ?typeIri rdfs:label ?typeName.
         %s
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
+        OPTIONAL {
+          ?s im:scheme ?scheme .
+          ?scheme rdfs:label ?schemename
+        }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
       """.formatted(valueList("s", stringIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
     if (parentContext != null) {
       sql.add("""
@@ -1202,7 +1252,14 @@ public class EntityRepository {
           else if (bs.hasBinding("order")) refNode.setOrderNumber(((Literal) bs.getValue("order")).intValue());
           else refNode.setOrderNumber(Integer.MAX_VALUE);
           refNode.setHasChildren(((Literal) bs.getValue("hasChildren")).booleanValue()).setHasGrandChildren(((Literal) bs.getValue("hasGrandchildren")).booleanValue()).setName(bs.getValue("name").stringValue());
-
+          if (bs.hasBinding("description"))
+            refNode.setDescription(bs.getValue("description").stringValue());
+          if (bs.hasBinding("status")) {
+            refNode.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
+          if (bs.hasBinding("schemename")) {
+            refNode.setScheme(new TTIriRef(bs.getValue("scheme") == null ? "" : bs.getValue("scheme").stringValue(), bs.getValue("schemename") == null ? "" : bs.getValue("schemename").stringValue()));
+          }
         }
       }
     }
@@ -1268,21 +1325,30 @@ public class EntityRepository {
     EntityReferenceNode result = new EntityReferenceNode(iri).setType(types);
 
     StringJoiner sql = new StringJoiner(System.lineSeparator()).add("""
-      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren
+      SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname ?scheme ?schemename
       WHERE {
         %s
         ?s im:scheme ?scheme ;
            rdfs:label ?name .
+        OPTIONAL { ?s rdfs:comment ?description . }
         OPTIONAL { ?s sh:order ?order . }
         OPTIONAL { ?s rdf:type ?typeIri .
           OPTIONAL { ?typeIri rdfs:label ?typeName . }
+        }
+        OPTIONAL {
+          ?s im:scheme ?scheme .
+          ?scheme rdfs:label ?schemename
         }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
       """.formatted(valueList("scheme", schemeIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
-      sql.add("  OPTIONAL { ?s im:status ?status FILTER (?status != im:Inactive) }");
+      sql.add("""
+        OPTIONAL { ?s im:status ?status .
+        ?status rdfs:label ?statusname .
+        FILTER (?status != im:Inactive) }
+        """);
     }
 
     sql.add("}");
@@ -1301,6 +1367,17 @@ public class EntityRepository {
 
           if (bs.getValue("typeIri") != null && bs.getValue("typeName") != null)
             types.add(new TTIriRef(bs.getValue("typeIri").stringValue(), bs.getValue("typeName").stringValue()));
+
+          if (bs.getValue("description") != null)
+            result.setDescription(bs.getValue("description").stringValue());
+
+          if (bs.hasBinding("status")) {
+            result.setStatus(new TTIriRef(bs.getValue("status") == null ? "" : bs.getValue("status").stringValue(), bs.getValue("statusname") == null ? "" : bs.getValue("statusname").stringValue()));
+          }
+
+          if (bs.hasBinding("scheme") && bs.hasBinding("schemename")) {
+            result.setScheme(new TTIriRef((bs.getValue("scheme") == null ? "" : bs.getValue("scheme").stringValue()), (bs.getValue("schemename") == null ? "" : bs.getValue("schemename").stringValue())));
+          }
 
           while (rs.hasNext()) {
             bs = rs.next();
@@ -1577,6 +1654,73 @@ public class EntityRepository {
     }
   }
 
+  public Set<TTEntity> getEntities(Set<String> iris, Set<String> predicates) {
+    Set<TTEntity> result = new HashSet<>();
+    Map<String, TTEntity> entityMap = new HashMap<>();
+    if (iris == null || iris.isEmpty())
+      return result;
+    iris.remove(null);
+    String sql = """
+      select ?entity ?entityLabel ?predicate ?object ?objectLabel ?subPredicate ?subObject ?subObjectLabel
+      where {
+        %s
+        ?entity rdfs:label ?entityLabel.
+        optional {
+          %s
+          ?entity ?predicate ?object.
+          optional {
+            ?object rdfs:label ?objectLabel.
+          }
+          optional {
+          filter (isBlank(?object))
+            ?object ?subPredicate ?subObject.
+            optional {
+              ?subObject rdfs:label ?subObjectLabel.
+            }
+          }
+        }
+      }
+      """.formatted(valueList("entity", iris), valueList("predicate", predicates));
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      Map<String, TTNode> bnodeMap = new HashMap<>();
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          String iri = bs.getValue("entity").stringValue();
+          TTEntity entity = entityMap.get(iri);
+          if (entity == null) {
+            entity = new TTEntity()
+              .setIri(iri)
+              .setName(bs.getValue("entityLabel").stringValue());
+            entityMap.put(iri, entity);
+            result.add(entity);
+          }
+          if (bs.getValue("predicate") != null) {
+            String predicate = bs.getValue("predicate").stringValue();
+            Value object = bs.getValue("object");
+            if (object.isIRI()) {
+              TTIriRef ttIriRef = TTIriRef.iri(object.stringValue());
+              if (null != bs.getValue("objectLabel")) ttIriRef.setName(bs.getValue("objectLabel").stringValue());
+              entity.addObject(TTIriRef.iri(predicate), ttIriRef);
+            } else if (object.isBNode()) {
+              bnodeMap.putIfAbsent(object.stringValue(), new TTNode());
+              TTNode blank = bnodeMap.get(object.stringValue());
+              if (bs.getValue("subPredicate") != null) {
+                String subPredicate = bs.getValue("subPredicate").stringValue();
+                Value subObject = bs.getValue("subObject");
+                if (subObject.isIRI()) {
+                  blank.addObject(TTIriRef.iri(subPredicate), TTIriRef.iri(subObject.stringValue()).setName(bs.getValue("subObjectLabel").stringValue()));
+                } else blank.addObject(TTIriRef.iri(subPredicate), TTLiteral.literal(subObject.stringValue()));
+              }
+            } else
+              entity.addObject(TTIriRef.iri(predicate), TTLiteral.literal(object.stringValue()));
+          }
+        }
+      }
+    }
+    return result;
+  }
 
   public Map<String, TTEntity> getEntitiesWithPredicates(Set<String> iris, Set<String> predicates) {
     Map<String, TTEntity> result = new HashMap<>();
@@ -1669,8 +1813,8 @@ public class EntityRepository {
     return iriRefs;
   }
 
-  public List<org.endeavourhealth.imapi.model.Namespace> findNamespaces() {
-    List<org.endeavourhealth.imapi.model.Namespace> result = new ArrayList<>();
+  public List<Namespace> findNamespaces() {
+    List<Namespace> result = new ArrayList<>();
 
     String sql = """
        select *
@@ -1687,7 +1831,7 @@ public class EntityRepository {
         while (rs.hasNext()) {
           BindingSet bs = rs.next();
           String iri = bs.getValue("s").stringValue();
-          org.endeavourhealth.imapi.model.Namespace namespace = new org.endeavourhealth.imapi.model.Namespace()
+          Namespace namespace = new Namespace()
             .setIri(iri)
             .setName(bs.getValue("name").stringValue())
             .setPrefix(getPrefixFromIri(iri));
@@ -1968,6 +2112,26 @@ public class EntityRepository {
       }
     }
     return results;
+  }
+
+  public Set<String> getIsAs(String iri) {
+    Set<String> result = new HashSet<>();
+    String sql = """
+      select ?entity
+      where {
+       ?entity im:isA <%s> .
+      }
+      """.formatted(iri);
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          result.add(bs.getValue("entity").stringValue());
+        }
+      }
+    }
+    return result;
   }
 
   public List<String> getMemberOfIM1Ids(List<String> iris) {

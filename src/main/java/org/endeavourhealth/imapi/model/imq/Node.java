@@ -6,43 +6,49 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 import java.util.function.Consumer;
 
-
-@JsonPropertyOrder({"descendantsOrSelfOf","parameter", "iri", "type", "set", "qualifier","match"})
+@JsonPropertyOrder({"descendantsOrSelfOf", "parameter", "iri", "type", "set", "qualifier", "query"})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-public class Node extends Element{
+public class Node extends Element {
+
   private boolean exclude;
   private String code;
   private String type;
   private boolean inverse;
-  private Match match;
+  private Query query;
   private String node;
   private String qualifier;
+
+  public Node() {
+  }
+
+  public static Node iri(String iri) {
+    Node node = new Node();
+    node.setIri(iri);
+    return node;
+  }
 
   public String getQualifier() {
     return qualifier;
   }
+
   public Node setQualifier(String qualifier) {
     this.qualifier = qualifier;
     return this;
   }
 
-
-
-
-
-  public Match getMatch() {
-    return match;
+  public Query getMatch() {
+    return query;
   }
 
-  public Node setMatch(Match match) {
-    this.match = match;
+  public Node setMatch(Query query) {
+    this.query = query;
     return this;
   }
 
-  public Node match(Consumer<Match> match) {
-    Match m = new Match();
+  public Node match(Consumer<Query> match) {
+    Query m = new Query();
     match.accept(m);
-    this.match = m;
+    this.query = m;
     return this;
   }
 
@@ -55,6 +61,7 @@ public class Node extends Element{
     super.setIsCohort(isCohort);
     return this;
   }
+
   public boolean isInverse() {
     return inverse;
   }
@@ -63,8 +70,6 @@ public class Node extends Element{
     this.inverse = inverse;
     return this;
   }
-
-
 
   public String getType() {
     return type;
@@ -84,7 +89,6 @@ public class Node extends Element{
     return this;
   }
 
-
   public boolean isExclude() {
     return exclude;
   }
@@ -103,18 +107,6 @@ public class Node extends Element{
     super.setParameter(parameter);
     return this;
   }
-
-  public static Node iri(String iri) {
-    Node node= new Node();
-    node.setIri(iri);
-    return node;
-  }
-
-  public Node() {
-  }
-
-
-
 
   public Node setAncestorsOf(boolean ancestorsOf) {
     super.setAncestorsOf(ancestorsOf);
@@ -136,7 +128,6 @@ public class Node extends Element{
     return this;
   }
 
-
   @JsonSetter
   public Node setIri(String iri) {
     super.setIri(iri);
@@ -148,13 +139,12 @@ public class Node extends Element{
     return this;
   }
 
-  public Node setNode(String node) {
-    this.node=node;
-    return this;
-  }
   public String getNode() {
     return node;
   }
 
+  public Node setNode(String node) {
+    this.node = node;
+    return this;
+  }
 }
-

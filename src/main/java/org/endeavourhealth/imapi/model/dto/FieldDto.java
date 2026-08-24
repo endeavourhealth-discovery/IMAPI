@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.dto;
 
 public class FieldDto {
+
   private String name;
   private String firstType;
   private String secondType;

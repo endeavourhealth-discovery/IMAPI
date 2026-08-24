@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,10 +16,10 @@ import java.util.Map;
  * Json LD serializer for use only with JsonLDMapper as the mapper sets the context objects from the objects passed in
  */
 public class JsonLDSerializer extends StdSerializer<Object> {
+
   private ObjectMapper defaultMapper = new ObjectMapper();
   private Map<String, String> prefixIriMap;
   private Map<String, String> iriPrefixMap;
-
 
   protected JsonLDSerializer(Class<Object> t) {
     super(t);
@@ -47,8 +46,7 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     ObjectNode node;
     if (!(value instanceof JsonNode)) {
       node = defaultMapper.valueToTree(value);
-    } else
-      node = (ObjectNode) value;
+    } else node = (ObjectNode) value;
     JsonNode context = node.get("context");
     if (context != null) {
       Map<String, String> map = defaultMapper.convertValue(context, new TypeReference<>() {});
@@ -69,53 +67,38 @@ public class JsonLDSerializer extends StdSerializer<Object> {
     gen.writeEndObject();
   }
 
-  private void serializeFieldValue(JsonNode value, JsonGenerator gen,
-                                   SerializerProvider serializers) throws IOException {
-    if (value.isTextual())
-      gen.writeString(value.asText());
-    else if (value.isObject())
-      serialize(value, gen, serializers);
-    else if (value.isFloat())
-      gen.writeNumber(value.asDouble());
-    else if (value.isInt())
-      gen.writeNumber(value.asInt());
-    else if (value.isLong())
-      gen.writeNumber(value.asLong());
-    else if (value.isBoolean())
-      gen.writeBoolean(value.asBoolean());
+  private void serializeFieldValue(JsonNode value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+    if (value.isTextual()) gen.writeString(value.asText());
+    else if (value.isObject()) serialize(value, gen, serializers);
+    else if (value.isFloat()) gen.writeNumber(value.asDouble());
+    else if (value.isInt()) gen.writeNumber(value.asInt());
+    else if (value.isLong()) gen.writeNumber(value.asLong());
+    else if (value.isBoolean()) gen.writeBoolean(value.asBoolean());
     else if (value.isArray()) {
       gen.writeStartArray();
       for (int i = 0; i < value.size(); i++) {
         serializeFieldValue(value.get(i), gen, serializers);
       }
       gen.writeEndArray();
-    } else if (value.isNull())
-      gen.writeNull();
-    else
-      throw new IOException("unsupported json node type : " + value.getClass());
+    } else if (value.isNull()) gen.writeNull();
+    else throw new IOException("unsupported json node type : " + value.getClass());
   }
 
   public String prefix(String iri) {
-    if (prefixIriMap == null)
-      return iri;
+    if (prefixIriMap == null) return iri;
     int end = Integer.max(iri.lastIndexOf("/"), iri.lastIndexOf("#"));
     String path = iri.substring(0, end + 1);
     String prefix = iriPrefixMap.get(path);
-    if (prefix == null)
-      return iri;
-    else if (end < iri.length() - 1)
-      return prefix + ":" + iri.substring(end + 1);
-    else if (end == iri.length() - 1)
-      return prefix + ":";
+    if (prefix == null) return iri;
+    else if (end < iri.length() - 1) return prefix + ":" + iri.substring(end + 1);
+    else if (end == iri.length() - 1) return prefix + ":";
     else return iri;
   }
 
   public String expand(String prefixed) {
-    if (prefixIriMap == null)
-      return prefixed;
+    if (prefixIriMap == null) return prefixed;
     int colonPos = prefixed.indexOf(":");
-    if (colonPos == -1)
-      return prefixed;
+    if (colonPos == -1) return prefixed;
     String prefix = prefixed.substring(0, colonPos);
     String namespace = prefixIriMap.get(prefix);
 

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class Path extends Element implements HasPaths {
+
   private boolean inverse;
   private boolean optional;
   private List<Path> path;
@@ -16,13 +17,28 @@ public class Path extends Element implements HasPaths {
   private Node typeOf;
   private TTIriRef qualifier;
   private String node;
+  private Where where;
+
+  public Where getWhere() {
+    return where;
+  }
+  public Path setWhere(Where where) {
+    this.where = where;
+    return this;
+  }
+  public Path where(Consumer<Where> builder) {
+    Where w = new Where();
+    builder.accept(w);
+    this.setWhere(w);
+    return this;
+  }
 
   public String getNode() {
     return node;
   }
 
   public Path setNode(String node) {
-    this.node=node;
+    this.node = node;
     return this;
   }
 
@@ -31,25 +47,17 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
+  public String getPathVariable() {
+    return pathVariable;
+  }
+
   public Path setPathVariable(String variable) {
     this.pathVariable = variable;
     return this;
   }
 
-  public String getPathVariable() {
-    return pathVariable;
-  }
-
-
-  public Path setIri(VocabEnum iri){
+  public Path setIri(VocabEnum iri) {
     super.setIri(iri.toString());
-    return this;
-  }
-
-
-
-  public Path setTypeOf(VocabEnum iri){
-    this.setTypeOf(iri.toString());
     return this;
   }
 
@@ -62,9 +70,13 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-
   public Node getTypeOf() {
     return typeOf;
+  }
+
+  public Path setTypeOf(VocabEnum iri) {
+    this.setTypeOf(iri.toString());
+    return this;
   }
 
   @JsonSetter
@@ -82,7 +94,6 @@ public class Path extends Element implements HasPaths {
     return path;
   }
 
-
   @JsonSetter("path")
   public Path setPath(List<Path> path) {
     this.path = path;
@@ -90,8 +101,7 @@ public class Path extends Element implements HasPaths {
   }
 
   public Path addPath(Path path) {
-    if (this.path == null)
-      this.path = new ArrayList<>();
+    if (this.path == null) this.path = new ArrayList<>();
     this.path.add(path);
     return this;
   }
@@ -100,17 +110,6 @@ public class Path extends Element implements HasPaths {
     Path p = new Path();
     this.addPath(p);
     path.accept(p);
-    return this;
-  }
-
-  public Path setOptional(boolean optional) {
-    this.optional = optional;
-    return this;
-  }
-
-
-  public Path setInverse(boolean inverse) {
-    this.inverse = inverse;
     return this;
   }
 
@@ -138,7 +137,17 @@ public class Path extends Element implements HasPaths {
     return optional;
   }
 
+  public Path setOptional(boolean optional) {
+    this.optional = optional;
+    return this;
+  }
+
   public boolean isInverse() {
     return inverse;
+  }
+
+  public Path setInverse(boolean inverse) {
+    this.inverse = inverse;
+    return this;
   }
 }

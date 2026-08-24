@@ -4,9 +4,9 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import openllet.owlapi.OpenlletReasoner;
 import openllet.owlapi.OpenlletReasonerFactory;
+import org.endeavourhealth.imapi.transforms.TTToOWLEL;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.transforms.TTToOWLEL;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.reasoner.NodeSet;
@@ -355,8 +355,7 @@ public class Reasoner {
           String iriName = sob.getRepresentativeElement().asOWLObjectProperty()
             .getIRI().toString();
           if (!iriName.equals(NAMESPACE.OWL + "topObjectProperty") && (!iriName.contains("_TOP_"))) {
-            addSubClassOf(c, TTIriRef
-              .iri(iriName));
+            addSubClassOf(c, iri(iriName));
           } else {
             addSubClassOf(c, iri(RDF.PROPERTY));
           }
@@ -374,7 +373,7 @@ public class Reasoner {
           String iriName = sob.getRepresentativeElement().asOWLDataProperty()
             .getIRI().toString();
           if (!iriName.equals(NAMESPACE.OWL + "topDataProperty") && (!iriName.contains("_TOP_"))) {
-            addSubClassOf(c, TTIriRef.iri(iriName));
+            addSubClassOf(c, iri(iriName));
           } else {
             addSubClassOf(c, iri(RDF.PROPERTY));
           }
@@ -388,7 +387,7 @@ public class Reasoner {
     NodeSet<OWLClass> superClasses = owlReasoner.getSuperClasses(owlClass, true);
     if (superClasses != null) {
       superClasses.forEach(sup -> {
-          TTIriRef iri = TTIriRef.iri(sup.getRepresentativeElement()
+          TTIriRef iri = iri(sup.getRepresentativeElement()
             .asOWLClass()
             .getIRI()
             .toString());

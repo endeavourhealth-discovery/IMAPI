@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest;
 
 @Getter
 public class DownloadByQueryOptions {
+
   private QueryRequest queryRequest;
   private ECLQueryRequest eclSearchRequest;
   private int totalCount;

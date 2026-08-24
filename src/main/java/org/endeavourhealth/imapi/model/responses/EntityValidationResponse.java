@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class EntityValidationResponse {
+
   private boolean valid;
   private String message;
 
@@ -12,8 +13,7 @@ public class EntityValidationResponse {
     this.message = message;
   }
 
-  public EntityValidationResponse() {
-  }
+  public EntityValidationResponse() {}
 
   public EntityValidationResponse setValid(boolean valid) {
     this.valid = valid;

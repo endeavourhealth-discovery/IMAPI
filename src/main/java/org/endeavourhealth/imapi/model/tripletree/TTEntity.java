@@ -1,23 +1,29 @@
 package org.endeavourhealth.imapi.model.tripletree;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.json.TTEntityDeserializer;
-import org.endeavourhealth.imapi.json.TTEntitySerializer;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import org.endeavourhealth.imapi.json.TTEntityDeserializer;
+import org.endeavourhealth.imapi.json.TTEntitySerializer;
+import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 @JsonSerialize(using = TTEntitySerializer.class)
 @JsonDeserialize(using = TTEntityDeserializer.class)
 public class TTEntity extends TTNode implements Serializable {
+
   private TTContext context = new TTContext();
   private TTIriRef crud;
 
@@ -25,7 +31,6 @@ public class TTEntity extends TTNode implements Serializable {
   }
 
   public TTEntity(String iri) {
-
     super.setIri(iri);
   }
 
@@ -34,36 +39,30 @@ public class TTEntity extends TTNode implements Serializable {
     return this;
   }
 
+  public String getName() {
+    TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
+    return (literal == null) ? null : literal.getValue();
+  }
+
   // Utility methods for common predicates
   public TTEntity setName(String name) {
     set(iri(RDFS.LABEL), TTLiteral.literal(name));
     return this;
   }
 
-  public String getName() {
-    TTLiteral literal = getAsLiteral(iri(RDFS.LABEL));
-    return (literal == null) ? null : literal.getValue();
-  }
-
-  public String getPreferredName(){
+  public String getPreferredName() {
     TTLiteral literal = getAsLiteral(iri(IM.PREFERRED_NAME));
     return (literal == null) ? null : literal.getValue();
   }
 
-  public String getBestMatch(){
+  public String getBestMatch() {
     TTLiteral literal = getAsLiteral(iri(IM.BEST_MATCH));
     return (literal == null) ? null : literal.getValue();
   }
 
-  public Integer getUsageTotal(){
+  public Integer getUsageTotal() {
     TTLiteral literal = getAsLiteral(iri(IM.USAGE_TOTAL));
-    return (literal == null) ? null :literal.getValue()==null ?null: literal.intValue();
-  }
-
-
-  public TTEntity setVersion(int version) {
-    set(iri(IM.VERSION), TTLiteral.literal(version));
-    return this;
+    return (literal == null) ? null : literal.getValue() == null ? null : literal.intValue();
   }
 
   public int getVersion() {
@@ -71,11 +70,8 @@ public class TTEntity extends TTNode implements Serializable {
     return (literal == null) ? 1 : literal.intValue();
   }
 
-  public TTEntity setDescription(String description) {
-    if (description == null)
-      getPredicateMap().remove(iri(RDFS.COMMENT));
-    else
-      set(iri(RDFS.COMMENT), TTLiteral.literal(description));
+  public TTEntity setVersion(int version) {
+    set(iri(IM.VERSION), TTLiteral.literal(version));
     return this;
   }
 
@@ -84,8 +80,9 @@ public class TTEntity extends TTNode implements Serializable {
     return (literal == null) ? null : literal.getValue();
   }
 
-  public TTEntity setCode(String code) {
-    set(iri(IM.CODE), TTLiteral.literal(code));
+  public TTEntity setDescription(String description) {
+    if (description == null) getPredicateMap().remove(iri(RDFS.COMMENT));
+    else set(iri(RDFS.COMMENT), TTLiteral.literal(description));
     return this;
   }
 
@@ -94,9 +91,8 @@ public class TTEntity extends TTNode implements Serializable {
     return (literal == null) ? null : literal.getValue();
   }
 
-  @JsonSetter
-  public TTEntity setScheme(TTIriRef scheme) {
-    set(iri(IM.HAS_SCHEME), scheme);
+  public TTEntity setCode(String code) {
+    set(iri(IM.CODE), TTLiteral.literal(code));
     return this;
   }
 
@@ -104,8 +100,9 @@ public class TTEntity extends TTNode implements Serializable {
     return this.getAsIriRef(iri(IM.HAS_SCHEME));
   }
 
-  public TTEntity setType(TTArray type) {
-    set(iri(RDF.TYPE), type);
+  @JsonSetter
+  public TTEntity setScheme(TTIriRef scheme) {
+    set(iri(IM.HAS_SCHEME), scheme);
     return this;
   }
 
@@ -129,19 +126,20 @@ public class TTEntity extends TTNode implements Serializable {
   }
 
   public TTArray getType() {
-    if (get(iri(RDF.TYPE)) == null)
-      return null;
-    else
-      return get(iri(RDF.TYPE));
+    if (get(iri(RDF.TYPE)) == null) return null;
+    else return get(iri(RDF.TYPE));
   }
-  public Set<TTIriRef> getTypes(){
+
+  public TTEntity setType(TTArray type) {
+    set(iri(RDF.TYPE), type);
+    return this;
+  }
+
+  public Set<TTIriRef> getTypes() {
     TTArray types = getType();
-    if(types == null)
-      return null;
+    if (types == null) return null;
     return types.getElements().stream().map(TTValue::asIriRef).collect(java.util.stream.Collectors.toSet());
   }
-
-
 
   public TTIriRef getStatus() {
     return this.getAsIriRef(iri(IM.HAS_STATUS));
@@ -150,11 +148,6 @@ public class TTEntity extends TTNode implements Serializable {
   @JsonSetter
   public TTEntity setStatus(TTIriRef status) {
     set(iri(IM.HAS_STATUS), status);
-    return this;
-  }
-
-  public TTEntity setContext(TTContext context) {
-    this.context = context;
     return this;
   }
 
@@ -211,6 +204,11 @@ public class TTEntity extends TTNode implements Serializable {
 
   public TTContext getContext() {
     return context;
+  }
+
+  public TTEntity setContext(TTContext context) {
+    this.context = context;
+    return this;
   }
 
   public TTIriRef getCrud() {

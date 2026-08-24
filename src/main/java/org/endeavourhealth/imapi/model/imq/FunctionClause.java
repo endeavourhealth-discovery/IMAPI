@@ -5,14 +5,13 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public class FunctionClause extends IriLD {
-  private List<Argument> argument;
 
+  private List<Argument> argument;
 
   public FunctionClause setIri(String iri) {
     super.setIri(iri);
     return this;
   }
-
 
   public FunctionClause setName(String name) {
     super.setName(name);
@@ -28,10 +27,8 @@ public class FunctionClause extends IriLD {
     return this;
   }
 
-
   public FunctionClause addArgument(Argument argument) {
-    if (this.argument == null)
-      this.argument = new ArrayList<>();
+    if (this.argument == null) this.argument = new ArrayList<>();
     this.argument.add(argument);
     return this;
   }
@@ -42,7 +39,4 @@ public class FunctionClause extends IriLD {
     builder.accept(argument);
     return this;
   }
-
-
-
 }

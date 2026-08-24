@@ -48,45 +48,43 @@ public class SparqlOptimizer {
     }
   }
 
-  private void optimizeProperties(Match match) throws QueryException, TTFilerException, JsonProcessingException {
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getMatch() != null)
-          optimizeProperties(node.getMatch());
-      }
+  private void optimizeProperties(Query query) throws QueryException, TTFilerException, JsonProcessingException {
+    if (query.getIs() != null) {
+      Node node = query.getIs();
+      if (node.getMatch() != null)
+        optimizeProperties(node.getMatch());
     }
-    if (match.getWhere() != null) {
-      optimizeWhereProperties(match.getWhere());
+    if (query.getWhere() != null) {
+      optimizeWhereProperties(query.getWhere());
     }
-    if (match.getAnd() != null) {
-      for (Match and : match.getAnd()) {
+    if (query.getAnd() != null) {
+      for (Query and : query.getAnd()) {
         optimizeProperties(and);
       }
     }
-    if (match.getOr() != null) {
-      for (Match or : match.getOr()) {
+    if (query.getOr() != null) {
+      for (Query or : query.getOr()) {
         optimizeProperties(or);
       }
     }
   }
 
-  private void optimizeValueSets(Match match) throws QueryException, JsonProcessingException, TTFilerException {
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getMatch() != null)
-          optimizeValueSets(node.getMatch());
-      }
+  private void optimizeValueSets(Query query) throws QueryException, JsonProcessingException, TTFilerException {
+    if (query.getIs() != null) {
+      Node node = query.getIs();
+      if (node.getMatch() != null)
+        optimizeValueSets(node.getMatch());
     }
-    if (match.getWhere() != null) {
-      optimizeWhereSets(match.getWhere());
+    if (query.getWhere() != null) {
+      optimizeWhereSets(query.getWhere());
     }
-    if (match.getAnd() != null) {
-      for (Match and : match.getAnd()) {
+    if (query.getAnd() != null) {
+      for (Query and : query.getAnd()) {
         optimizeValueSets(and);
       }
     }
-    if (match.getOr() != null) {
-      for (Match or : match.getOr()) {
+    if (query.getOr() != null) {
+      for (Query or : query.getOr()) {
         optimizeValueSets(or);
       }
     }
@@ -161,10 +159,15 @@ public class SparqlOptimizer {
   }
 
   private List<Node> inferPropertyList(List<Node> propertyList) throws QueryException {
-    Query propertyQuery = new Query()
-      .setIs(propertyList);
-    Set<Concept> conceptList = setRepo.getMembersFromDefinition(propertyQuery);
-    return conceptList.stream()
+    Set<Concept> conceptSet = new HashSet<>();
+    Query propertyQuery = new Query();
+    for (Node node : propertyList) {
+      Query orQuery = new Query();
+      orQuery.setIs(node);
+      propertyQuery.addOr(orQuery);
+      conceptSet.addAll(setRepo.getMembersFromDefinition(orQuery));
+    }
+    return conceptSet.stream()
       .map(c -> new Node().setIri(c.getIri()))
       .sorted(Comparator.comparing(Node::getIri))
       .toList();
@@ -172,7 +175,9 @@ public class SparqlOptimizer {
 
   private String createConceptSet(List<Node> is) throws JsonProcessingException, QueryException, TTFilerException {
     Query setQuery = new Query();
-    setQuery.setIs(is);
+    for (Node node : is) {
+      setQuery.addOr(new Query().setIs(node));
+    }
     TTEntity setEntity = new TTEntity();
     String setIri = NAMESPACE.IM + "ASET_" + getHash(is);
     if (setIris.contains(setIri)) return setIri;

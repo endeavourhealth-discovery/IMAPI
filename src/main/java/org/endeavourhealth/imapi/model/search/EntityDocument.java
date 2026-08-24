@@ -1,15 +1,17 @@
 package org.endeavourhealth.imapi.model.search;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.endeavourhealth.imapi.model.search.SearchTermCode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 public class EntityDocument {
+
   Integer id;
   String iri;
   String name;
@@ -161,7 +163,6 @@ public class EntityDocument {
     return this;
   }
 
-
   public List<TTIriRef> getIsDescendentOf() {
     return isDescendentOf;
   }
@@ -180,7 +181,6 @@ public class EntityDocument {
     return this;
   }
 
-
   public Set<SearchTermCode> getTermCode() {
     return termCode;
   }
@@ -190,14 +190,12 @@ public class EntityDocument {
     return this;
   }
 
-  public EntityDocument addTermCode(String term, String code, TTIriRef status,String keyTerm) {
+  public EntityDocument addTermCode(String term, String code, TTIriRef status, String keyTerm) {
     SearchTermCode tc = new SearchTermCode();
     tc.setTerm(term).setCode(code).setStatus(status);
-    if (term!=null)
-      tc.setLength(term.length());
-    if (keyTerm==null)
-      keyTerm= term;
-    if (keyTerm!=null) {
+    if (term != null) tc.setLength(term.length());
+    if (keyTerm == null) keyTerm = term;
+    if (keyTerm != null) {
       keyTerm = keyTerm.replaceAll("[ '()\\-_./,]", "").toLowerCase();
       keyTerm = keyTerm.substring(0, Math.min(keyTerm.length(), 30));
       tc.setKeyTerm(keyTerm);
@@ -205,7 +203,6 @@ public class EntityDocument {
     this.termCode.add(tc);
     return this;
   }
-
 
   public Set<TTIriRef> getMemberOf() {
     return memberOf;
@@ -216,7 +213,6 @@ public class EntityDocument {
     return this;
   }
 
-
   public String getMatch() {
     return match;
   }
@@ -225,5 +221,4 @@ public class EntityDocument {
     this.match = match;
     return this;
   }
-
 }

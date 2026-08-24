@@ -14,7 +14,7 @@ public class ECLQueryValidator {
   public ECLStatus validateQuery(Query query, ValidationLevel validationLevel) {
     this.validationLevel = validationLevel;
     Set<String> iris = IriCollector.collectIris(query);
-    if (iris.isEmpty()){
+    if (iris.isEmpty()) {
       ECLStatus status = new ECLStatus();
       status.setValid(false);
       status.setMessage("No concepts in query");
@@ -30,29 +30,28 @@ public class ECLQueryValidator {
     return status;
   }
 
-  private boolean isInvalidMatchWheres(Match match) {
+  private boolean isInvalidMatchWheres(Query query) {
     boolean invalid = false;
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null) {
-          if (!validConcepts.get(node.getIri())) {
-            node.setInvalid(true);
-            invalid = true;
-          }
+    if (query.getIs() != null) {
+      Node node = query.getIs();
+      if (node.getIri() != null) {
+        if (!validConcepts.get(node.getIri())) {
+          node.setInvalid(true);
+          invalid = true;
         }
       }
     }
-    if (match.getWhere() != null) {
+    if (query.getWhere() != null) {
       Set<String> focusConcepts = new HashSet<>();
       if (validationLevel == ValidationLevel.ECL)
-        getFocusConcepts(match, focusConcepts);
-      if (isInvalidWhere(match.getWhere(), focusConcepts)) {
+        getFocusConcepts(query, focusConcepts);
+      if (isInvalidWhere(query.getWhere(), focusConcepts)) {
         invalid = true;
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match m : matches) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query m : queries) {
           if (isInvalidMatchWheres(m)) {
             invalid = true;
           }
@@ -110,17 +109,16 @@ public class ECLQueryValidator {
     return invalid;
   }
 
-  private void getFocusConcepts(Match match, Set<String> focusConcepts) {
-    if (match.getIs() != null) {
-      for (Node node : match.getIs()) {
-        if (node.getIri() != null) {
-          focusConcepts.add(node.getIri());
-        }
+  private void getFocusConcepts(Query query, Set<String> focusConcepts) {
+    if (query.getIs() != null) {
+      Node node = query.getIs();
+      if (node.getIri() != null) {
+        focusConcepts.add(node.getIri());
       }
     }
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match m : matches) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query m : queries) {
           getFocusConcepts(m, focusConcepts);
         }
       }

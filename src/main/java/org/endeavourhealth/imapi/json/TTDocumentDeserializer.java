@@ -1,14 +1,12 @@
 package org.endeavourhealth.imapi.json;
 
+import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.endeavourhealth.imapi.model.tripletree.TTContext;
-import org.endeavourhealth.imapi.model.tripletree.TTDocument;
-import org.endeavourhealth.imapi.model.tripletree.TTEntity;
-import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,9 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
+import org.endeavourhealth.imapi.json.TTNodeDeserializer;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTDocument;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
 
 public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
+
   private static final String DEFAULT_SCHEME = "defaultScheme";
   private static final String GRAPH = "graph";
   private static final String ID = "iri";
@@ -44,18 +47,14 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
     List<TTPrefix> prefixes = new ArrayList<>();
 
     helper.populatePrefixesFromJson(node, prefixes);
-    if (!prefixes.isEmpty())
-      result.setContext(context);
-    if (node.get(CRUD) != null)
-      result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
+    if (!prefixes.isEmpty()) result.setContext(context);
+    if (node.get(CRUD) != null) result.setCrud(iri(helper.expand(node.get(CRUD).get(ID).asText())));
     if (node.get(ENTITIES) != null) {
       result.setEntities(getEntities(node.withArray(ENTITIES)));
     }
 
-
     return result;
   }
-
 
   private List<TTEntity> getEntities(ArrayNode arrayNode) throws IOException {
     List<TTEntity> result = new ArrayList<>();
@@ -74,8 +73,7 @@ public class TTDocumentDeserializer extends StdDeserializer<TTDocument> {
           default -> {
             if (field.getValue().isArray())
               entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeArrayAsValue(field.getValue()));
-            else
-              entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
+            else entity.set(iri(helper.expand(field.getKey())), helper.getJsonNodeAsValue(field.getValue()));
           }
         }
       }

@@ -6,12 +6,11 @@ import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
-import org.junit.jupiter.api.Test;
 
 public class QueryLogicTest {
- // @Test
+  // @Test
   public void optimiseQuery() throws QueryException, JsonProcessingException {
-    Query query= new QueryService().getQueryFromIri("http://endhealth.info/im#Q_TestQuery");
+    Query query = new QueryService().getQueryFromIri("http://endhealth.info/im#Q_TestQuery");
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     System.out.println(new ObjectMapper().writeValueAsString(query));
   }

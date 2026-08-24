@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SystemUtils;
 import org.endeavourhealth.imapi.filer.TTDocumentFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTToNQuad;
+import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
@@ -316,10 +316,10 @@ public class TTBulkFiler implements TTDocumentFiler {
   private void addCodeToMaps(TTEntity entity) throws IOException {
     NAMESPACE namespace = NAMESPACE.from(entity.getScheme().getIri());
 
-    if (entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)) != null) {
-      codeMap.write(namespace + entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+    if (entity.get(iri(IM.ALTERNATIVE_CODE)) != null) {
+      codeMap.write(namespace + entity.get(iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
       if (namespace.equals(NAMESPACE.IM) || (namespace.equals(NAMESPACE.SNOMED)))
-        getCodeCoreMap(namespace).write(entity.get(TTIriRef.iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
+        getCodeCoreMap(namespace).write(entity.get(iri(IM.ALTERNATIVE_CODE)).asLiteral().getValue() + "\t" + entity.getIri() + "\n");
     } else {
       if (entity.getCode() != null) {
         codeMap.write(namespace + entity.getCode() + "\t" + entity.getIri() + "\n");

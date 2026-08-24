@@ -1,13 +1,12 @@
 package org.endeavourhealth.imapi.model;
 
 public class Namespace {
+
   private String iri;
   private String prefix;
   private String name;
 
-  public Namespace() {
-
-  }
+  public Namespace() {}
 
   public Namespace(String iri, String prefix, String name) {
     this.iri = iri;

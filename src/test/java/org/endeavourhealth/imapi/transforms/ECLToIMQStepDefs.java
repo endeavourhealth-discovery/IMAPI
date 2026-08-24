@@ -18,7 +18,7 @@ public class ECLToIMQStepDefs {
     eclQuery.setQuery(query);
     imqToECL.getECLFromQuery(eclQuery);
     String eclResult = eclQuery.getEcl()
-    .replaceAll("\n", "")
+      .replaceAll("\n", "")
       .replaceAll("\t", "")
       .replaceAll("or ", "OR ");
     assertEquals(ecl, eclResult);

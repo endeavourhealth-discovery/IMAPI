@@ -1,10 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.OWL;
 import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.model.tripletree.TTArray;
+import org.endeavourhealth.imapi.model.tripletree.TTBundle;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -19,10 +22,10 @@ class TTToStringTest {
   public Map<String, String> getTestDefaultPredicates() {
     Map<String, String> defaults = new HashMap<>();
     defaults.put("http://endhealth.info/im#isA", "Is a");
-    defaults.put("http://endhealth.info/im#roleGroup", "Match");
+    defaults.put("http://endhealth.info/im#roleGroup", "Query");
     defaults.put("http://www.w3.org/2002/07/owl#equivalentClass", "Is equivalent to");
     defaults.put("http://www.w3.org/2002/07/owl#intersectionOf", "Combination of");
-    defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "Match a value");
+    defaults.put("http://www.w3.org/2002/07/owl#someValuesFrom", "Query a value");
     defaults.put("http://www.w3.org/2002/07/owl#onProperty", "On property");
     return defaults;
   }
@@ -126,31 +129,31 @@ class TTToStringTest {
         <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23298382003">Scoliosis deformity of spine</a>
         <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2382354003">Multiple system malformation syndrome</a>
         <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2385995004">Autosomal recessive hereditary disorder</a>
-        ( Match a value :\s
+        ( Query a value :\s
           Combination of :\s
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2331739005">Lateral abnormal curvature</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23116676008">Associated morphology</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23289959001">Musculoskeletal structure of spine</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363698007">Finding site</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23370135005">Pathological process</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
           On property : <a href="/viewer/#/concept/http:%2F%2Fendhealth.info%2Fim%23roleGroup">role group</a>
           Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-        ( Match a value :\s
+        ( Query a value :\s
           Combination of :\s
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%2349755003">Morphologically abnormal structure</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23116676008">Associated morphology</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23255399007">Congenital</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23246454002">Occurrence</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23127954009">Skeletal muscle structure</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23363698007">Finding site</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
-            ( Match a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>
+            ( Query a value : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23308490002">Pathological developmental process</a>
               On property : <a href="/viewer/#/concept/http:%2F%2Fsnomed.info%2Fsct%23370135005">Pathological process</a>
               Type : <a href="/viewer/#/concept/http:%2F%2Fwww.w3.org%2F2002%2F07%2Fowl%23Restriction">Restriction</a> )
           On property : <a href="/viewer/#/concept/http:%2F%2Fendhealth.info%2Fim%23roleGroup">role group</a>

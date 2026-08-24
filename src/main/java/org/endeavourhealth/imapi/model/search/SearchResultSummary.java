@@ -15,6 +15,10 @@ import java.util.function.Consumer;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class SearchResultSummary {
+
+  Set<SearchTermCode> termCode = new HashSet<>();
+  Set<TTIriRef> unit;
+  List<TTIriRef> qualifier;
   @JsonProperty()
   private String name;
   @JsonProperty(value = "iri", required = true)
@@ -36,9 +40,33 @@ public class SearchResultSummary {
   private String preferredName;
   private Set<String> key;
   private Set<TTIriRef> isA = new HashSet<>();
-  Set<SearchTermCode> termCode = new HashSet<>();
-  Set<TTIriRef> unit;
-  List<TTIriRef> qualifier;
+
+  public SearchResultSummary(
+    String name,
+    String iri,
+    String code,
+    String description,
+    TTIriRef status,
+    TTIriRef scheme,
+    Set<TTIriRef> entityTypes,
+    Set<TTIriRef> isDescendentOf,
+    Integer usageTotal,
+    String bestMatch
+  ) {
+    this.name = name;
+    this.iri = iri;
+    this.code = code;
+    this.description = description;
+    this.status = status;
+    this.scheme = scheme;
+    this.type = entityTypes;
+    this.isA = isDescendentOf;
+    this.usageTotal = usageTotal;
+    this.bestMatch = bestMatch;
+  }
+
+  public SearchResultSummary() {
+  }
 
   public SearchResultSummary addTermCode(String term, String code, TTIriRef status) {
     SearchTermCode tc = new SearchTermCode();
@@ -71,7 +99,6 @@ public class SearchResultSummary {
     return this;
   }
 
-
   public List<TTIriRef> getQualifier() {
     return qualifier;
   }
@@ -96,7 +123,6 @@ public class SearchResultSummary {
     return this;
   }
 
-
   public String getPreferredName() {
     return preferredName;
   }
@@ -104,22 +130,6 @@ public class SearchResultSummary {
   public SearchResultSummary setPreferredName(String preferredName) {
     this.preferredName = preferredName;
     return this;
-  }
-
-  public SearchResultSummary(String name, String iri, String code, String description, TTIriRef status, TTIriRef scheme, Set<TTIriRef> entityTypes, Set<TTIriRef> isDescendentOf, Integer usageTotal, String bestMatch) {
-    this.name = name;
-    this.iri = iri;
-    this.code = code;
-    this.description = description;
-    this.status = status;
-    this.scheme = scheme;
-    this.type = entityTypes;
-    this.isA = isDescendentOf;
-    this.usageTotal = usageTotal;
-    this.bestMatch = bestMatch;
-  }
-
-  public SearchResultSummary() {
   }
 
   public Set<TTIriRef> getIsA() {
@@ -143,8 +153,7 @@ public class SearchResultSummary {
   @JsonSetter("name")
   public SearchResultSummary setNameFromJson(String name) {
     this.name = name;
-    if (this.bestMatch == null)
-      this.bestMatch = name;
+    if (this.bestMatch == null) this.bestMatch = name;
     return this;
   }
 
@@ -205,8 +214,7 @@ public class SearchResultSummary {
   }
 
   public SearchResultSummary addType(TTIriRef entityType) {
-    if (this.type == null)
-      this.type = new HashSet<>();
+    if (this.type == null) this.type = new HashSet<>();
     this.type.add(entityType);
     return this;
   }

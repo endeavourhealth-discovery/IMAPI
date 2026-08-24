@@ -16,11 +16,11 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.endeavourhealth.imapi.dataaccess.databases.BaseDB;
 import org.endeavourhealth.imapi.filer.TTEntityFiler;
 import org.endeavourhealth.imapi.filer.TTFilerException;
-import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.model.tripletree.*;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -280,7 +280,7 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
       deleteTriples.setBinding("concept", valueFactory.createIRI(entity.getIri()));
       deleteTriples.execute();
     } catch (Exception e) {
-      throw new TTFilerException("Failed to delete triples : " + e.getMessage());
+      throw new TTFilerException("Failed to delete triples : " + e.getMessage()+"  iri = "+entity.getIri());
     }
 
   }

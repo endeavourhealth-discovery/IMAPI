@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 @Getter
 public class EditRequest {
+
   private TTEntity entity;
   private String hostUrl;
   private NAMESPACE namespace;
@@ -17,7 +18,6 @@ public class EditRequest {
   }
 
   public EditRequest() {
-
   }
 
   public EditRequest setEntity(TTEntity entity) {

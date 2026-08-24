@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static java.util.stream.Collectors.toCollection;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class FunctionService {
@@ -35,6 +34,7 @@ public class FunctionService {
       case IM_FUNCTION.IM1_SCHEME_OPTIONS -> getIM1SchemeOptions();
       case IM_FUNCTION.SCHEME_FROM_IRI -> getSchemeFromIri(arguments);
       case IM_FUNCTION.GET_USER_EDITABLE_SCHEMES -> getUserEditableSchemes(request);
+      case IM_FUNCTION.GET_MAP_TYPES -> getMapTypes();
       default -> throw new IllegalArgumentException("No such function: " + iri);
     };
   }
@@ -77,6 +77,14 @@ public class FunctionService {
       List<TTIriRef> schemesFilteredIriRef = schemesFiltered.stream().map(s -> new TTIriRef().setIri(s.getIri()).setName(s.getName())).toList();
       if (schemesFiltered.isEmpty()) throw new IllegalArgumentException("Iri has invalid scheme");
       return om.valueToTree(schemesFilteredIriRef);
+    }
+  }
+
+  private JsonNode getMapTypes() {
+    List<EntityReferenceNode> results = entityService.getImmediateChildren(NAMESPACE.IM + "MapType", null, 1, 200, false);
+    try (CachedObjectMapper om = new CachedObjectMapper()) {
+      List<TTIriRef> resultIris = results.stream().map(t -> new TTIriRef(t.getIri(), t.getName())).toList();
+      return om.valueToTree(resultIris);
     }
   }
 
@@ -136,6 +144,7 @@ public class FunctionService {
 
   private JsonNode getIM1SchemeOptions() {
     List<String> results = entityService.getIM1SchemeOptions();
+
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.stringArrayToTree(results);
     }

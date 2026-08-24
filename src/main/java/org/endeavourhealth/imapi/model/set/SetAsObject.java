@@ -1,11 +1,12 @@
 package org.endeavourhealth.imapi.model.set;
 
+import java.util.Set;
+
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
-import java.util.Set;
-
 public class SetAsObject {
+
   private String iri;
   private String name;
   private TTArray included;

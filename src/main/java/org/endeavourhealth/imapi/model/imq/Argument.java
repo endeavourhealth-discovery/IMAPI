@@ -1,6 +1,5 @@
 package org.endeavourhealth.imapi.model.imq;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -13,26 +12,29 @@ import java.util.Objects;
 import java.util.Set;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 public class Argument {
 
   private String parameter;
   private String valueData;
   private String valueParameter;
   private TTIriRef valueIri;
+
   @Getter
   private Set<TTIriRef> valueIriList;
+
   private Set<String> valueDataList;
   private Path valuePath;
   private String valueNodeRef;
   private TTIriRef dataType;
+
   @Getter
   private Object valueObject;
+
   @Getter
   private String valueVariable;
+
   @Getter
   private TTIriRef qualifier;
-
 
   public Argument setQualifier(TTIriRef qualifier) {
     this.qualifier = qualifier;
@@ -48,8 +50,6 @@ public class Argument {
     this.valueObject = valueObject;
     return this;
   }
-
-
 
   public String getValueNodeRef() {
     return valueNodeRef;
@@ -84,15 +84,13 @@ public class Argument {
   }
 
   public Argument addToValueDataList(String value) {
-    if (this.valueDataList == null)
-      this.valueDataList = new HashSet<>();
+    if (this.valueDataList == null) this.valueDataList = new HashSet<>();
     this.valueDataList.add(value);
     return this;
   }
 
   public Argument addToValueIriList(TTIriRef value) {
-    if (this.valueIriList == null)
-      this.valueIriList = new HashSet<>();
+    if (this.valueIriList == null) this.valueIriList = new HashSet<>();
     this.valueIriList.add(value);
     return this;
   }
@@ -145,7 +143,6 @@ public class Argument {
 
   @Override
   public int hashCode() {
-
     return Objects.hash(getHashString());
   }
 
@@ -167,5 +164,4 @@ public class Argument {
     if (null != valueVariable) hs.append(valueVariable);
     return hs.toString();
   }
-
 }

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.logic.service.QueryService;
@@ -13,13 +14,16 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Indicator;
+import org.endeavourhealth.imapi.model.iml.MatchMap;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
+import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.endeavourhealth.imapi.utility.MetricsHelper;
@@ -30,6 +34,7 @@ import org.springframework.web.context.annotation.RequestScope;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/query/protected")
@@ -78,7 +83,7 @@ public class QueryController {
   public SearchResponse queryIMSearch(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
-  ) throws OpenSearchException, QueryException {
+  ) throws OpenSearchException, QueryException, DataMissingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIMSearch.POST")) {
       log.debug("queryIMSearch  {} : {} ", queryRequest.getTextSearchStyle(), queryRequest.getTextSearch());
       if (queryRequest.getPage() != null) {
@@ -101,7 +106,6 @@ public class QueryController {
       return searchService.pathQuery(pathQuery);
     }
   }
-
 
   @GetMapping(value = "/queryDisplay", produces = "application/json")
   @Operation(
@@ -141,13 +145,12 @@ public class QueryController {
   )
   public Query expandCohort(
     HttpServletRequest request,
-    @RequestParam(name = "queryIri") String queryIri,
     @RequestParam(name = "cohortIri") String cohortIri,
     @RequestParam(name = "displayMode", defaultValue = "ORIGINAL") DisplayMode displayMode
   ) throws IOException, QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.Display.GET")) {
       log.debug("expandCohort");
-      return queryService.expandCohort(queryIri, cohortIri, displayMode);
+      return queryService.expandCohort(cohortIri, displayMode);
     }
   }
 
@@ -173,20 +176,19 @@ public class QueryController {
   )
   public Query describeQueryContent(
     HttpServletRequest request,
-    @RequestBody JsonNode body
+    @RequestBody QueryDisplayRequest queryDisplayRequest
   ) throws IOException, QueryException {
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET");
-         CachedObjectMapper mapper = new CachedObjectMapper()) {
-      log.debug("getQueryDisplayFromQuery");
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.GET")) {
+      try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+        log.debug("getQueryDisplayFromQuery");
 
-      DisplayMode displayMode = DisplayMode.valueOf(body.get("displayMode").asText());
-      Query query = mapper.treeToValue(body.get("query"), Query.class);
-      log.debug("displayMode: {}", displayMode);
+        DisplayMode displayMode = queryDisplayRequest.getDisplayMode();
+        log.debug("displayMode: {}", displayMode);
 
-      return queryService.describeQuery(query, displayMode);
+        return queryService.describeQuery(queryDisplayRequest.getQuery(), displayMode);
+      }
     }
   }
-
 
   @PostMapping("/flattenBooleans")
   @Operation(
@@ -202,6 +204,7 @@ public class QueryController {
     }
   }
 
+
   @PostMapping("/optimiseECLQuery")
   @Operation(
     summary = "optimises logical boolean of query",
@@ -216,22 +219,20 @@ public class QueryController {
     }
   }
 
-
   @PostMapping("/matchDisplayFromMatch")
   @Operation(
     summary = "Describe query content",
     description = "Returns a query view, transforming an IMQ query into a viewable object."
   )
-  public Match describeMatchContent(
+  public Query describeMatchContent(
     HttpServletRequest request,
     @RequestBody MatchDisplayRequest matchDisplayRequest
   ) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
       log.debug("getMatchDisplayFromMatch");
-      return queryService.describeMatch(matchDisplayRequest.getMatch());
+      return queryService.describeMatch(matchDisplayRequest.getQuery());
     }
   }
-
 
   @PostMapping("/sql")
   @Operation(
@@ -261,6 +262,22 @@ public class QueryController {
     }
   }
 
+  @GetMapping("/sqlDebug")
+  @Operation(
+    summary = "Generate a per-step patient trace SQL script",
+    description = "Generates a diagnostic SQL script that reports whether a patient is present at each step (CTE) of the generated query."
+  )
+  public String getSQLPatientTraceFromIMQIri(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "patientId") String patientId,
+    @RequestParam(name = "lang", defaultValue = "MYSQL") DatabaseOption lang
+  ) throws IOException, QueryException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLPatientTraceFromIMQIri.GET")) {
+      log.debug("getSQLPatientTraceFromIMQIri");
+      return queryService.getSQLPatientTraceFromIMQIri(queryIri, patientId, lang);
+    }
+  }
 
   @GetMapping(value = "/defaultQuery")
   @Operation(summary = "Gets the default parent cohort", description = "Fetches a query with the 1st cohort in the default cohort folder")
@@ -334,6 +351,21 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
       log.debug("validateQuery");
       return queryService.validateQuery(query);
+    }
+  }
+
+
+  @PostMapping("/semanticMapsForMatch")
+  @Operation(
+    summary = "optimises logical boolean of query",
+    description = "Returns the query and boolean optimisation"
+  )
+  public Set<TTEntity> semanticMapsForMatch(
+    @RequestBody MatchMap matchMap) {
+
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
+      log.debug("getSemanticMapsForSourceEntities");
+      return queryService.getSemanticMapsForMatch(matchMap);
     }
   }
 }

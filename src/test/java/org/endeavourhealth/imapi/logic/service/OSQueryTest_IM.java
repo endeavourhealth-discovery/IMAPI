@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.imq.Argument;
 import org.endeavourhealth.imapi.model.imq.Node;
@@ -33,7 +34,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term() throws OpenSearchException {
+  void imQuery_term() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1");
 
@@ -46,7 +47,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiScheme() throws OpenSearchException {
+  void imQuery_term_multiScheme() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
@@ -64,11 +65,11 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_isA() throws OpenSearchException {
+  void imQuery_term_isA() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()
-        .addIs(new Node().setIri("http://snomed.info/sct#57148006")
+        .setIs(new Node().setIri("http://snomed.info/sct#57148006")
           .setDescendantsOrSelfOf(true)
         ));
 
@@ -79,14 +80,14 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiIsA() throws OpenSearchException {
+  void imQuery_term_multiIsA() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .addArgument(new Argument().setParameter("isas").setValueIriList(
         (Set.of(TTIriRef.iri("http://snomed.info/sct#57148006", "http://snomed.info/sct#11164009")))
       ))
       .setQuery(new Query()
-        .addIs(new Node().setParameter("$isas")
+        .setIs(new Node().setParameter("$isas")
           .setDescendantsOrSelfOf(true)
         ));
 
@@ -97,7 +98,7 @@ class OSQueryTest_IM {
 
   @Test
   @EnabledIfEnvironmentVariable(named = "OPENSEARCH_URL", matches = "http.*")
-  void imQuery_term_multiMember() throws OpenSearchException {
+  void imQuery_term_multiMember() throws OpenSearchException, DataMissingException {
     QueryRequest req = new QueryRequest()
       .setTextSearch("FOXG1")
       .setQuery(new Query()

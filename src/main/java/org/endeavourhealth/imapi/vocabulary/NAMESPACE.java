@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum NAMESPACE implements VocabEnum {
 
     LNWH_SY("http://endhealth.info/lnwhsy#"),

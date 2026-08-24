@@ -16,6 +16,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.model.tripletree.TTLiteral.literal;
 
 public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
+
   private transient TTNodeDeserializer helper;
 
   public TTLiteralDeserializer() {
@@ -36,10 +37,8 @@ public class TTLiteralDeserializer extends StdDeserializer<TTLiteral> {
     JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
     if (!node.has(IM.TYPE.toString())) {
-      if (node.isValueNode())
-        return literal(node);
-      else
-        return literal(node.get(IM.VALUE.toString()).textValue());
+      if (node.isValueNode()) return literal(node);
+      else return literal(node.get(IM.VALUE.toString()).textValue());
     }
 
     TTIriRef type = iri(helper == null ? node.get(IM.TYPE.toString()).asText() : helper.expand(node.get(IM.TYPE.toString()).asText()));

@@ -8,7 +8,6 @@ public enum TTValueType {
   LIST((byte) 2, "List"),
   LITERAL((byte) 3, "Literal");
 
-
   private final byte value;
   private final String name;
 
@@ -28,8 +27,7 @@ public enum TTValueType {
 
   public static TTValueType byValue(byte value) {
     for (TTValueType t : TTValueType.values()) {
-      if (t.value == value)
-        return t;
+      if (t.value == value) return t;
     }
 
     return null;
@@ -37,8 +35,7 @@ public enum TTValueType {
 
   public static TTValueType byName(String name) {
     for (TTValueType t : TTValueType.values()) {
-      if (t.name.equals(name))
-        return t;
+      if (t.name.equals(name)) return t;
     }
 
     return null;

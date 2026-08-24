@@ -27,14 +27,13 @@ import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 /**
- * Methods to create update and delete entities and generate a transaction log with the ability to refile
+ * Methods to create update and delete entities and generate a transaction log and the ability to refile
  * from the transaction log in order to process deltas after a bulk load
  * Methods may be called via CRUD instructions or file entities that contain the CRUD instructions.
  * <p>All entities must have a graph and a crud transaction</p>
@@ -324,6 +323,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     }
   }
 
+
   public void updateTct(TTDocument document) {
     isAs = new HashMap<>();
     done = new HashSet<>();
@@ -331,6 +331,9 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     manager.setDocument(document).createIndex();
     log.info("Deleting and Generating isas.... ");
     for (TTEntity entity : document.getEntities()) {
+      if (entity.getCrud() != null
+        && (entity.getCrud().equals(iri(IM.ADD_QUADS)) || entity.getCrud().equals(iri(IM.UPDATE_PREDICATES))))
+        continue;
       conceptFiler.updateIsAs(entity.getIri());
     }
   }
@@ -338,6 +341,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
 
   private Set<String> getInternalIsAs(TTEntity entity) {
     String subclass = entity.getIri();
+
     if (!done.contains(subclass)) {
       isAs.computeIfAbsent(subclass, s -> new HashSet<>());
       isAs.get(subclass).add(subclass);

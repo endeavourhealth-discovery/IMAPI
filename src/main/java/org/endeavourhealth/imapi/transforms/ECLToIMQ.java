@@ -3,14 +3,14 @@ package org.endeavourhealth.imapi.transforms;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.endeavourhealth.imapi.logic.service.ECLQueryValidator;
+import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
+import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
+import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.ECLStatus;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.ValidationLevel;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.parser.imecl.IMECLBaseVisitor;
-import org.endeavourhealth.imapi.parser.imecl.IMECLLexer;
-import org.endeavourhealth.imapi.parser.imecl.IMECLParser;
 
 /**
  * Converts ECL to Discovery syntax, supporting commonly used constructs

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum COMPONENT implements VocabEnum {
 
     DOMAIN("http://endhealth.info/im#"),
@@ -35,6 +36,7 @@ public enum COMPONENT implements VocabEnum {
     VERTICAL_LAYOUT(NAMESPACE.IM_COMPONENT + "VerticalLayout"),
     DROPDOWN_TEXT_INPUT_CONCATENATOR(NAMESPACE.IM_COMPONENT + "dropdownTextInputConcatenator"),
     ROLE_GROUP_BUILDER(NAMESPACE.IM_COMPONENT + "roleGroupBuilder"),
+    MAP_ENTRY_BUILDER(NAMESPACE.IM_COMPONENT + "mapEntryBuilder"),
     TERM_CODE_EDITOR(NAMESPACE.IM_COMPONENT + "termCodeEditor"),
     TEXT_DROPDOWN(NAMESPACE.IM_COMPONENT + "textDropdown"),
     ENTITY_DISPLAY(NAMESPACE.IM_COMPONENT + "entityDisplay"),

@@ -1,28 +1,28 @@
 package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import lombok.Getter;
-
 import java.util.Arrays;
 import java.util.Optional;
+import lombok.Getter;
 
 public enum Operator {
-  // This will call enum constructor with one
+  // This will call enum constructor and one
   // String argument
-  eq("=","="),
-  gte(">=","greater or equal to"),
-  gt(">","greater than"),
-  lte("<=","less than or equal to"),
-  lt("<","less than"),
-  start("startsWith","starts with"),
-  isTrue("isTrue","is true"),
-  contains("contains","contains"),;
+  eq("=", "="),
+  gte(">=", "greater or equal to"),
+  gt(">", "greater than"),
+  lte("<=", "less than or equal to"),
+  lt("<", "less than"),
+  start("startsWith", "starts and"),
+  notNull("notNull", "not null"),
+  isNull("isNull", "is null"),
+  contains("contains", "contains");
 
   // declaring private variable for getting values
   private final String value;
+
   @Getter
   private final String description;
-
 
   @JsonValue
   public String getValue() {
@@ -36,8 +36,8 @@ public enum Operator {
   }
 
   // enum constructor - cannot be public or protected
-  Operator(String value,String description ) {
+  Operator(String value, String description) {
     this.value = value;
-    this.description= description;
+    this.description = description;
   }
 }

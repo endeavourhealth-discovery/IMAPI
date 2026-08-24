@@ -6,5 +6,4 @@ public enum Entail {
   descendantsOf,
   ancestorsOf,
   equal
-
 }

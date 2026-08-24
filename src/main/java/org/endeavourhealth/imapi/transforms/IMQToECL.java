@@ -3,10 +3,10 @@ package org.endeavourhealth.imapi.transforms;
 import lombok.Getter;
 import lombok.Setter;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.util.*;
 
@@ -47,11 +47,11 @@ public class IMQToECL {
     }
   }
 
-  private void cleanMatch(Match match) {
-    match.setOr(cleanSubMatches(match.getOr()));
-    match.setAnd(cleanSubMatches(match.getAnd()));
-    if (match.getWhere() != null)
-      cleanWhere(match.getWhere());
+  private void cleanMatch(Query query) {
+    query.setOr(cleanSubMatches(query.getOr()));
+    query.setAnd(cleanSubMatches(query.getAnd()));
+    if (query.getWhere() != null)
+      cleanWhere(query.getWhere());
   }
 
   private void cleanWhere(Where where) {
@@ -83,31 +83,31 @@ public class IMQToECL {
     return where.getIs().getFirst().getIri() == null;
   }
 
-  private List<Match> cleanSubMatches(List<Match> matches) {
-    if (matches == null) return null;
-    for (int i = matches.size() - 1; i >= 0; i--) {
-      if (isBlankMatch(matches.get(i))) {
-        matches.remove(i);
+  private List<Query> cleanSubMatches(List<Query> queries) {
+    if (queries == null) return null;
+    for (int i = queries.size() - 1; i >= 0; i--) {
+      if (isBlankMatch(queries.get(i))) {
+        queries.remove(i);
       }
     }
-    if (matches.isEmpty()) {
+    if (queries.isEmpty()) {
       return null;
     }
-    for (Match m : matches) {
+    for (Query m : queries) {
       cleanMatch(m);
     }
-    return matches;
+    return queries;
   }
 
 
-  private boolean isBlankMatch(Match match) {
-    return match.getIs() != null && match.getIs().getFirst().getIri() == null && match.getWhere() == null;
+  private boolean isBlankMatch(Query query) {
+    return query.getIs() != null && query.getIs().getIri() == null && query.getWhere() == null;
   }
 
-  public ECLType getEclType(Match match) {
-    if (match.getWhere() != null)
+  public ECLType getEclType(Query query) {
+    if (query.getWhere() != null)
       return ECLType.refined;
-    if (match.getAnd() != null || match.getOr() != null) {
+    if (query.getAnd() != null || query.getOr() != null) {
       return ECLType.compound;
     } else return ECLType.simple;
   }
@@ -125,10 +125,10 @@ public class IMQToECL {
     }
   }
 
-  private boolean isExclusion(Match match) {
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match m : matches) {
+  private boolean isExclusion(Query query) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query m : queries) {
           if (m.notExists())
             return true;
         }
@@ -138,121 +138,115 @@ public class IMQToECL {
   }
 
 
-  private void expressionMatch(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    ECLType matchType = getEclType(match);
+  private void expressionMatch(Query query, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
+    ECLType matchType = getEclType(query);
     if (matchType == null)
       return;
     if (matchType == ECLType.simple) {
-      matchInstanceOf(match, ecl, includeNames);
+      matchInstanceOf(query, ecl, includeNames);
     } else if (matchType == ECLType.refined) {
-      match(match, ecl, includeNames, true);
-      addRefinementsToMatch(match, ecl, includeNames, false);
+      match(query, ecl, includeNames, true);
+      addRefinementsToMatch(query, ecl, includeNames, false);
       ecl.append("\n");
     } else if (matchType == ECLType.compound) {
       if (isNested) ecl.append("(");
-      compound(match, ecl, includeNames);
+      compound(query, ecl, includeNames);
       if (isNested) ecl.append(")");
       ecl.append("\n");
     }
     ecl.append("\n");
   }
 
-  private void match(Match match, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    if ((match.getIs() == null || (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null)) && match.getOr() == null && match.getAnd() == null) {
-      if (match.getWhere() != null)
+  private void match(Query query, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
+    if ((query.getIs() == null || (query.getIs().getIri() == null && query.getIs().getMatch() == null)) && query.getOr() == null && query.getAnd() == null) {
+      if (query.getWhere() != null)
         ecl.append("*");
       else throw new QueryException("Must have concept if no refinement");
-    } else if (match.getIs() != null) {
-      if (match.getIs().size() > 1) {
-        ecl.append("(");
-      }
-      matchInstanceOf(match, ecl, includeNames);
-      if (match.getIs().size() > 1) {
-        ecl.append(")");
-      }
+    } else if (query.getIs() != null) {
+      matchInstanceOf(query, ecl, includeNames);
     } else {
       if (isNested)
         ecl.append("(");
-      compound(match, ecl, includeNames);
+      compound(query, ecl, includeNames);
       if (isNested)
         ecl.append(")");
     }
   }
 
-  private Map<String, List<Match>> sortInclusions(Match match) {
-    Map<String, List<Match>> includeExclude = new HashMap<>();
-    for (List<Match> matches : Arrays.asList(match.getOr(), match.getAnd())) {
-      if (matches != null) {
-        for (Match subMatch : matches) {
-          if (subMatch.notExists()) {
-            includeExclude.computeIfAbsent("out", m -> new ArrayList<>()).add(subMatch);
-          } else includeExclude.computeIfAbsent("in", m -> new ArrayList<>()).add(subMatch);
+  private Map<String, List<Query>> sortInclusions(Query query) {
+    Map<String, List<Query>> includeExclude = new HashMap<>();
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd())) {
+      if (queries != null) {
+        for (Query subQuery : queries) {
+          if (subQuery.notExists()) {
+            includeExclude.computeIfAbsent("out", m -> new ArrayList<>()).add(subQuery);
+          } else includeExclude.computeIfAbsent("in", m -> new ArrayList<>()).add(subQuery);
         }
       }
     }
     return includeExclude;
   }
 
-  private boolean needsExcludeBracket(List<Match> matches) {
-    if (matches.size() > 1) return true;
-    for (Match m : matches) {
+  private boolean needsExcludeBracket(List<Query> queries) {
+    if (queries.size() > 1) return true;
+    for (Query m : queries) {
       if (m.getWhere() != null) return true;
       if (m.getAnd() != null || m.getOr() != null) return true;
     }
     return false;
   }
 
-  private boolean needsBracket(List<Match> matches,
-                               Match match) {
-    return matches.size() > 1 && match.getWhere() != null && match.getAnd() == null && match.getOr() == null;
+  private boolean needsBracket(List<Query> queries,
+                               Query query) {
+    return queries.size() > 1 && query.getWhere() != null && query.getAnd() == null && query.getOr() == null;
   }
 
-  private boolean needsIncludeBracket(Map<String, List<Match>> includeExclude) {
+  private boolean needsIncludeBracket(Map<String, List<Query>> includeExclude) {
     if (includeExclude.containsKey("out")) {
-      List<Match> matches = includeExclude.get("in");
-      if (matches.size() > 1)
+      List<Query> queries = includeExclude.get("in");
+      if (queries.size() > 1)
         return true;
-      if (matches.get(0).getWhere() != null)
+      if (queries.get(0).getWhere() != null)
         return true;
     }
     return false;
   }
 
-  private void compound(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    Map<String, List<Match>> includeExclude = sortInclusions(match);
+  private void compound(Query query, StringBuilder ecl, boolean includeNames) throws QueryException {
+    Map<String, List<Query>> includeExclude = sortInclusions(query);
     if (includeExclude.get("out") != null && includeExclude.get("out").size() > 1)
       throw new QueryException("Only one exclusion allowed in ecl");
 
     boolean first = true;
-    if (match.getAnd() != null) {
+    if (query.getAnd() != null) {
       boolean outerBracket = needsIncludeBracket(includeExclude);
       if (outerBracket) ecl.append("(");
-      List<Match> matches = includeExclude.get("in");
-      for (Match subMatch : matches) {
+      List<Query> queries = includeExclude.get("in");
+      for (Query subQuery : queries) {
         if (!first) {
           ecl.append(" AND ");
         }
-        boolean compoundRefined = needsBracket(matches, subMatch);
+        boolean compoundRefined = needsBracket(queries, subQuery);
         if (compoundRefined)
           ecl.append("(");
-        expressionMatch(subMatch, ecl, includeNames, true);
+        expressionMatch(subQuery, ecl, includeNames, true);
         if (compoundRefined)
           ecl.append(")");
         first = false;
       }
       if (outerBracket) ecl.append(")");
     }
-    if (match.getOr() != null) {
+    if (query.getOr() != null) {
       boolean outerBracket = needsIncludeBracket(includeExclude);
       if (outerBracket) ecl.append("(");
-      for (Match subMatch : includeExclude.get("in")) {
+      for (Query subQuery : includeExclude.get("in")) {
         if (!first) {
           ecl.append(" OR ");
         }
-        boolean compoundRefined = needsBracket(includeExclude.get("in"), subMatch);
+        boolean compoundRefined = needsBracket(includeExclude.get("in"), subQuery);
         if (compoundRefined)
           ecl.append("(");
-        expressionMatch(subMatch, ecl, includeNames, true);
+        expressionMatch(subQuery, ecl, includeNames, true);
         if (compoundRefined)
           ecl.append(")");
         first = false;
@@ -271,39 +265,25 @@ public class IMQToECL {
     }
   }
 
-  private void matchInstanceOf(Match match, StringBuilder ecl, boolean includeNames) throws QueryException {
-    if (match.getIs().size() == 1) {
-      if (match.getIs().getFirst().getIri() == null && match.getIs().getFirst().getMatch() == null && match.getWhere() == null)
-        throw new QueryException("Must have concept if no refinement");
-      if (match.getIs().getFirst().isInvalid())
-        setErrorStatus(ecl, "unknown concept");
-      if (match.getIs().getFirst().getMatch() != null) {
-        ecl.append(getSubsumption(match.getIs().getFirst()));
-        ecl.append("(");
-        expressionMatch(match.getIs().getFirst().getMatch(), ecl, includeNames, false);
-        ecl.append(")");
-      } else
-        addClass(match.getIs().getFirst(), ecl, includeNames);
-    } else {
+  private void matchInstanceOf(Query query, StringBuilder ecl, boolean includeNames) throws QueryException {
+    if (query.getIs().getIri() == null && query.getIs().getMatch() == null && query.getWhere() == null)
+      throw new QueryException("Must have concept if no refinement");
+    if (query.getIs().isInvalid())
+      setErrorStatus(ecl, "unknown concept");
+    if (query.getIs().getMatch() != null) {
+      ecl.append(getSubsumption(query.getIs()));
       ecl.append("(");
-      boolean first = true;
-      for (Node instance : match.getIs()) {
-        if (instance.isInvalid()) setErrorStatus(ecl, "unknown concept");
-        if (!first) {
-          ecl.append(" OR ");
-        }
-        first = false;
-        addClass(instance, ecl, includeNames);
-        ecl.append("\n");
-      }
+      expressionMatch(query.getIs().getMatch(), ecl, includeNames, false);
       ecl.append(")");
-    }
+    } else
+      addClass(query.getIs(), ecl, includeNames);
+
   }
 
 
-  private void addRefinementsToMatch(Match match, StringBuilder ecl, boolean includeNames, boolean ignoreColon) throws QueryException {
+  private void addRefinementsToMatch(Query query, StringBuilder ecl, boolean includeNames, boolean ignoreColon) throws QueryException {
     if (!ignoreColon) ecl.append(": ");
-    addRefined(match.getWhere(), ecl, includeNames, false);
+    addRefined(query.getWhere(), ecl, includeNames, false);
   }
 
   private void addRefinementsToWhere(Where property, StringBuilder ecl, boolean includeNames, boolean nested) throws QueryException {
@@ -423,7 +403,7 @@ public class IMQToECL {
   }
 
   /**
-   * Gets simple iri set as ECL for compatibility with definition
+   * Gets simple iri set as ECL for compatibility and definition
    *
    * @param members a TTArray or TTNNode containing an iri set
    * @return ECL String

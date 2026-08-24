@@ -1,13 +1,13 @@
 package org.endeavourhealth.imapi.transforms;
 
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateGroup;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCAggregateReport;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.VocStandardAuditReportType;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.model.imq.*;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
@@ -23,11 +23,11 @@ public class EqdAuditToIMQ {
       if (EqdToIMQ.gmsPatients.contains(popId) || EqdToIMQ.gmsPatients.contains(eqReport.getVersionIndependentGUID())) {
         finalPopId = NAMESPACE.IM + "Q_RegisteredGMS";
       }
-      Match popQuery = new Match();
+      Query popQuery = new Query();
       query.addColumnGroup(popQuery);
       popQuery
         .setNode(POPULATION)
-        .addIs(Node.iri(finalPopId)
+        .setIs(Node.iri(finalPopId)
           .setIsCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(finalPopId));

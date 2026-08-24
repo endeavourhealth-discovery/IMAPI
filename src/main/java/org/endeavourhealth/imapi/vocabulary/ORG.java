@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum ORG implements VocabEnum {
 
     ORGANISATION_RECORD_CLASS("http://endhealth.info/im#organisationRecordClass"),

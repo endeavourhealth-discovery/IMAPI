@@ -3,17 +3,25 @@ package org.endeavourhealth.imapi.model.tripletree;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
-import org.endeavourhealth.imapi.json.TTDocumentSerializer;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.endeavourhealth.imapi.json.TTDocumentDeserializer;
+import org.endeavourhealth.imapi.json.TTDocumentSerializer;
+import org.endeavourhealth.imapi.model.tripletree.TTContext;
+import org.endeavourhealth.imapi.model.tripletree.TTEntity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.model.tripletree.TTPrefix;
+import org.endeavourhealth.imapi.model.tripletree.TTValue;
+
 @JsonSerialize(using = TTDocumentSerializer.class)
 @JsonDeserialize(using = TTDocumentDeserializer.class)
 public class TTDocument extends TTNode {
+
   private TTContext context = new TTContext();
   private List<TTEntity> entities;
   private TTIriRef crud;
@@ -58,8 +66,7 @@ public class TTDocument extends TTNode {
   }
 
   public TTDocument addEntity(TTEntity entity) {
-    if (this.entities == null)
-      this.entities = new ArrayList<>();
+    if (this.entities == null) this.entities = new ArrayList<>();
     entity.setContext(this.context);
     this.entities.add(entity);
     return this;

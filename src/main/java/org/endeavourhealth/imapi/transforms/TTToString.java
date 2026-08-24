@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 public class TTToString {
-  private TTToString() {
-    throw new IllegalStateException("Utility class");
-  }
-
   private static final String REGEX = "\\s\\(([^)]*)\\)[^(]*$";
   private static final String INDENT_SIZE = "  ";
   private static final String OBJECT = "object";
   private static final String ARRAY = "array";
+
+  private TTToString() {
+    throw new IllegalStateException("Utility class");
+  }
 
   private static void setPredicateDefaults(Map<String, String> predicates, Map<String, String> defaultPredicates) {
     if (defaultPredicates == null) {

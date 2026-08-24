@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.dataaccess.PathRepository;
 import org.endeavourhealth.imapi.dataaccess.QueryRepository;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Page;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -16,7 +17,6 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.QUERY;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -80,7 +80,7 @@ public class SearchService {
    * @return a list of SearchResultSummary
    * @throws QueryException if query format is invalid
    */
-  public SearchResponse queryIMSearch(QueryRequest queryRequest) throws OpenSearchException, QueryException {
+  public SearchResponse queryIMSearch(QueryRequest queryRequest) throws OpenSearchException, QueryException, DataMissingException {
     ObjectMapper om = new ObjectMapper();
 
     QueryRepository repo = new QueryRepository();
@@ -119,7 +119,7 @@ public class SearchService {
     return convertQueryIMResultsToSearchResultSummary(queryResults, queryResults);
   }
 
-  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) {
+  public SearchResponse convertQueryIMResultsToSearchResultSummary(JsonNode queryResults, JsonNode highestUsageResults) throws DataMissingException {
     SearchResponse searchResponse = new SearchResponse();
 
     if (queryResults.has(ENTITIES)) {
@@ -134,7 +134,7 @@ public class SearchService {
       }
     }
     if (queryResults.has("totalCount")) searchResponse.setTotalCount(queryResults.get("totalCount").asInt());
-    if (queryResults.has("count")) searchResponse.setCount(queryResults.get("count").asInt());
+    if (queryResults.has("size")) searchResponse.setSize(queryResults.get("size").asInt());
     if (queryResults.has("page")) searchResponse.setPage(queryResults.get("page").asInt());
     if (queryResults.has("term")) searchResponse.setTerm(queryResults.get("term").asText());
 
@@ -176,7 +176,7 @@ public class SearchService {
    * @param request holding the search term (multi or single word) + type/status/scheme filters
    * @return A set of Summaries of entity documents from the store
    */
-  public SearchResponse getEntitiesByTerm(QueryRequest request) throws OpenSearchException {
+  public SearchResponse getEntitiesByTerm(QueryRequest request) throws OpenSearchException, DataMissingException {
     return new OSQuery().OSQueryAsSearchResponse(request);
   }
 

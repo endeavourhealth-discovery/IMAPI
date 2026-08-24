@@ -32,8 +32,7 @@ public class GraphDto {
     this.leafNodes = new ArrayList<>();
   }
 
-  public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri,
-                  String inheritedFromName) {
+  public GraphDto(String iri, String name, String valueTypeIri, String valueTypeName, String inheritedFromIri, String inheritedFromName) {
     this.name = name;
     this.iri = iri;
     this.valueTypeIri = valueTypeIri;

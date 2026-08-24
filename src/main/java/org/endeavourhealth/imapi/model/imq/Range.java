@@ -2,15 +2,16 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.endeavourhealth.imapi.model.imq.Assignable;
+import org.endeavourhealth.imapi.model.imq.Value;
 
 import java.util.function.Consumer;
 
-
 @JsonPropertyOrder({"match", "from", "to"})
 public class Range {
+
   private Value from;
   private Value to;
-
 
   @JsonProperty(required = true)
   public Value getFrom() {
@@ -32,13 +33,13 @@ public class Range {
     return this;
   }
 
-  public Range from(Consumer<Assignable> builder) {
+  public Range from(Consumer<Value> builder) {
     this.from = new Value();
     builder.accept(this.from);
     return this;
   }
 
-  public Range to(Consumer<Assignable> builder) {
+  public Range to(Consumer<Value> builder) {
     this.to = new Value();
     builder.accept(this.to);
     return this;

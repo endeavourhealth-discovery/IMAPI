@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.model.iml;
 
-import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.endeavourhealth.imapi.model.iml.Entity;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+
 public class ValueTemplate extends Entity {
+
   private String parameter;
   private Integer order;
   private String label;
@@ -26,17 +28,17 @@ public class ValueTemplate extends Entity {
     return valueOption;
   }
 
+  public ValueTemplate setValueOption(List<Object> valueOption) {
+    this.valueOption = valueOption;
+    return this;
+  }
+
   public String getParameter() {
     return parameter;
   }
 
   public ValueTemplate setParameter(String parameter) {
     this.parameter = parameter;
-    return this;
-  }
-
-  public ValueTemplate setValueOption(List<Object> valueOption) {
-    this.valueOption = valueOption;
     return this;
   }
 
@@ -47,7 +49,6 @@ public class ValueTemplate extends Entity {
     this.valueOption.add(valueOption);
     return this;
   }
-
 
   public Integer getOrder() {
     return order;

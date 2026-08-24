@@ -18,14 +18,15 @@ public class PathRepository {
     try (IMDB conn = IMDB.getConnection()) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
-      List<Match> paths = getPaths(conn, source, targetIri);
+      List<Query> paths = getPaths(conn, source, targetIri);
       document.setMatch(paths);
     }
     return document;
   }
 
-  private List<Match> getPaths(IMDB conn, String source, String target) {
-    List<Match> result = new ArrayList<>();
+
+  private List<Query> getPaths(IMDB conn, String source, String target) {
+    List<Query> result = new ArrayList<>();
     String sql = """
       select ?path ?pathLabel ?path2 ?path2Label ?where ?whereLabel ?target ?targetName
       where {
@@ -94,28 +95,28 @@ public class PathRepository {
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        Match match = new Match();
-        result.add(match);
+        Query query = new Query();
+        result.add(query);
         String pathVariable = null;
         if (bs.getValue("path") != null) {
           String pathIri = bs.getValue("path").stringValue();
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
           Path pathMatch = new Path().setIri(pathIri).setName(bs.getValue("pathLabel").stringValue());
-          match.addPath(pathMatch);
+          query.addPath(pathMatch);
         }
         if (bs.getValue("path2") != null) {
           String pathIri = bs.getValue("path2").stringValue();
-          match.getPath().getFirst().addPath(new Path().setIri(pathIri).setName(bs.getValue("path2Label").stringValue()));
+          query.getPath().getFirst().addPath(new Path().setIri(pathIri).setName(bs.getValue("path2Label").stringValue()));
           pathVariable = pathIri.substring(pathIri.lastIndexOf("#") + 1);
         }
         if (bs.getValue("where") != null) {
-          match.setWhere(new Where()
+          query.setWhere(new Where()
             .setIri(bs.getValue("where").stringValue())
             .setName(bs.getValue("whereLabel").stringValue())
             .addIs(new Node().setIri(target).setName(bs.getValue("targetName").stringValue())
               .setDescendantsOrSelfOf(true)));
-          if (pathVariable != null && match.getWhere() != null)
-            match.getWhere().setNodeRef(pathVariable);
+          if (pathVariable != null && query.getWhere() != null)
+            query.getWhere().setNodeRef(pathVariable);
         }
       }
     }

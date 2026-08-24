@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.iml;
 
 public class Page {
+
   private Integer pageNumber;
   private Integer pageSize;
   private Integer offset;

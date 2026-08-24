@@ -4,14 +4,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.logic.cache.EntityCache;
 import org.endeavourhealth.imapi.model.map.MapObject;
+import org.endeavourhealth.imapi.vocabulary.FHIR;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.model.requests.TransformRequest;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.transforms.TTManager;
-import org.endeavourhealth.imapi.vocabulary.FHIR;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -40,7 +40,7 @@ class TransformServiceTest {
 
     //Create transform request;
     TransformRequest request = new TransformRequest();
-    request.setTransformMap(TTIriRef.iri(mapEntity.getIri()));
+    request.setTransformMap(iri(mapEntity.getIri()));
     request.setSourceFormat("JSON");
     request.setTargetFormat("JSON-LD");
 

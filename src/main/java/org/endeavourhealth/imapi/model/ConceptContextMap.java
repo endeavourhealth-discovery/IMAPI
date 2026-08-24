@@ -1,11 +1,13 @@
 package org.endeavourhealth.imapi.model;
 
-import lombok.Getter;
-
 import java.util.List;
+
+import lombok.Getter;
+import org.endeavourhealth.imapi.model.Context;
 
 @Getter
 public class ConceptContextMap {
+
   String id;
   String node;
   String value;

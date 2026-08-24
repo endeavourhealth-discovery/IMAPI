@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
 public class Prefix {
+
   private String prefix;
   private String namespace;
 
@@ -21,5 +22,4 @@ public class Prefix {
     this.namespace = namespace;
     return this;
   }
-
 }

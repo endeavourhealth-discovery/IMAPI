@@ -13,50 +13,46 @@ import java.util.stream.Collectors;
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 public enum EntityType implements VocabEnum {
+  QUERY(IM.QUERY),
+  NODESHAPE(SHACL.NODESHAPE);
 
-    QUERY(IM.QUERY),
-    NODESHAPE(SHACL.NODESHAPE),
-    ;
+  private final String value;
 
-    private final String value;
+  EntityType(final String value) {
+    this.value = value;
+  }
 
-    EntityType(final String value) {
-        this.value = value;
-    }
+  EntityType(final VocabEnum value) {
+    this.value = value.toString();
+  }
 
-    EntityType(final VocabEnum value) {
-        this.value = value.toString();
-    }
+  public static EntityType from(String text) {
+    if (text == null) throw new IllegalArgumentException("no text specified");
 
-    @JsonValue
-    @Override
-    public String toString() {
-        return value;
-    }
-
-    public TTIriRef asIri() {
-      return iri(
-        value,
-        Arrays.stream(this.name().split("_"))
-          .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
-          .collect(Collectors.joining(" "))
-      );
-    }
-
-    public IRI asDbIri() {
-      return Values.iri(value);
-    }
-
-    public static EntityType from(String text) {
-      if (text == null)
-        throw new IllegalArgumentException("no text specified");
-
-      for (EntityType b : EntityType.values()) {
-        if (b.value.equals(text)) {
-          return b;
-        }
+    for (EntityType b : EntityType.values()) {
+      if (b.value.equals(text)) {
+        return b;
       }
-      throw new IllegalArgumentException("no enums match text specified");
     }
+    throw new IllegalArgumentException("no enums match text specified");
+  }
 
+  @JsonValue
+  @Override
+  public String toString() {
+    return value;
+  }
+
+  public TTIriRef asIri() {
+    return iri(
+      value,
+      Arrays.stream(this.name().split("_"))
+        .map(i -> i.substring(0, 1).toUpperCase() + i.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "))
+    );
+  }
+
+  public IRI asDbIri() {
+    return Values.iri(value);
+  }
 }

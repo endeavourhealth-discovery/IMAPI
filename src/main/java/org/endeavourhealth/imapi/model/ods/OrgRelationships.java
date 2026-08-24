@@ -8,6 +8,7 @@ import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class OrgRelationships {
+
   private List<OrgRelationship> rel = new ArrayList<>();
 
   @JsonProperty("Rel")
@@ -21,8 +22,7 @@ public class OrgRelationships {
   }
 
   public OrgRelationships addRel(OrgRelationship orgRel) {
-    if (rel == null)
-      rel = new ArrayList<>();
+    if (rel == null) rel = new ArrayList<>();
     rel.add(orgRel);
 
     return this;

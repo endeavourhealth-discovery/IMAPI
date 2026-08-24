@@ -43,60 +43,6 @@ public class Tpl {
     this.functional = functional;
   }
 
-  public int getDbid() {
-    return dbid;
-  }
-
-  public Tpl setDbid(int dbid) {
-    this.dbid = dbid;
-    return this;
-  }
-
-  public Integer getParent() {
-    return parent;
-  }
-
-  public Tpl setParent(Integer parent) {
-    this.parent = parent;
-    return this;
-  }
-
-  public TTIriRef getPredicate() {
-    return predicate;
-  }
-
-  public Tpl setPredicate(TTIriRef predicate) {
-    this.predicate = predicate;
-    return this;
-  }
-
-  public TTIriRef getObject() {
-    return object;
-  }
-
-  public Tpl setObject(TTIriRef object) {
-    this.object = object;
-    return this;
-  }
-
-  public String getLiteral() {
-    return literal;
-  }
-
-  public Tpl setLiteral(String literal) {
-    this.literal = literal;
-    return this;
-  }
-
-  public boolean isFunctional() {
-    return functional;
-  }
-
-  public Tpl setFunctional(boolean functional) {
-    this.functional = functional;
-    return this;
-  }
-
   public static TTBundle toBundle(String iri, List<Tpl> triples) {
     TTEntity entity = new TTEntity(iri);
     TTBundle result = new TTBundle().setEntity(entity);
@@ -152,6 +98,60 @@ public class Tpl {
       v = nodeMap.get(triple.getDbid());
     }
     return v;
+  }
+
+  public int getDbid() {
+    return dbid;
+  }
+
+  public Tpl setDbid(int dbid) {
+    this.dbid = dbid;
+    return this;
+  }
+
+  public Integer getParent() {
+    return parent;
+  }
+
+  public Tpl setParent(Integer parent) {
+    this.parent = parent;
+    return this;
+  }
+
+  public TTIriRef getPredicate() {
+    return predicate;
+  }
+
+  public Tpl setPredicate(TTIriRef predicate) {
+    this.predicate = predicate;
+    return this;
+  }
+
+  public TTIriRef getObject() {
+    return object;
+  }
+
+  public Tpl setObject(TTIriRef object) {
+    this.object = object;
+    return this;
+  }
+
+  public String getLiteral() {
+    return literal;
+  }
+
+  public Tpl setLiteral(String literal) {
+    this.literal = literal;
+    return this;
+  }
+
+  public boolean isFunctional() {
+    return functional;
+  }
+
+  public Tpl setFunctional(boolean functional) {
+    this.functional = functional;
+    return this;
   }
 }
 

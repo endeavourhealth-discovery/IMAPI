@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({"id", "Status", "code", "displayName"})
+@JsonPropertyOrder({ "id", "Status", "code", "displayName" })
 public class OrgRole {
+
   private String id;
   private String status;
   private String code;

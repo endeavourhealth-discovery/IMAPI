@@ -5,15 +5,14 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.model.imq.Match;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,18 +33,18 @@ public class FHIRToIM {
     if (valueSet.getCompose() != null && valueSet.getCompose().getInclude() != null) {
       Include[] include = valueSet.getCompose().getInclude();
       Query query = new Query();
-      Match match = new Match();
+      Query match = new Query();
       query.addOr(match);
       if (valueSet.getCompose().getInclude().length == 1) {
         String member = include[0].getSystem();
-        match.addIs(new Node().setIri(member)
+        match.setIs(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
         for (Include value : include) {
-          Match memberMatch = new Match();
+          Query memberMatch = new Query();
           match.addOr(memberMatch);
           String member = value.getSystem().replace("fhir/", "fhir#");
-          memberMatch.addIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
+          memberMatch.setIs(new Node().setIri(member).setDescendantsOrSelfOf(true));
         }
       }
       set.set(iri(IM.DEFINITION), TTLiteral.literal(query));
@@ -58,13 +57,16 @@ public class FHIRToIM {
   public List<TTEntity> convertCodeSystem(CodeSystem codeSystem, String folder) {
     List<TTEntity> concepts = new ArrayList<>();
     String iri = codeSystem.getUrl();
+    String fhirName = codeSystem.getTitle();
+    if (fhirName == null)
+      fhirName = codeSystem.getName();
     TTEntity parent = new TTEntity()
       .addType(iri(IM.CONCEPT))
       .setCode(codeSystem.getID())
       .setIri(iri)
       .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
-      .setName(codeSystem.getTitle() + "( FHIR code system)")
+      .setName(fhirName + "( FHIR code system)")
       .setDescription(codeSystem.getDescription());
     parent.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
     concepts.add(parent);

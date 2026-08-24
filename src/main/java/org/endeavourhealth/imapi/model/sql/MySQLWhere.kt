@@ -1,7 +1,8 @@
 package org.endeavourhealth.imapi.model.sql
 
-import org.endeavourhealth.imapi.errorhandling.SQLConversionException
+import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer
 import org.endeavourhealth.imapi.model.imq.Node
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
 interface MySQLWhere {
   val property: String?
@@ -85,11 +86,13 @@ class MySQLCompareWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null) "`${table}`.$property" else property
+      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base =
         if (units != null) {
           when (units) {
-            "DAY", "MONTH", "YEAR" -> "TIMESTAMPDIFF($units, $prop, $right) $operator $value"
+            "DAY", "MONTH", "YEAR" ->
+              "($prop) $operator DATE_SUB($right, INTERVAL $value $units)"
+
             else -> throw SQLConversionException("Unsupported unit $units")
           }
         } else if (qualifier != null) {
@@ -117,14 +120,16 @@ class MySQLPropertyValueWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null) "`${table}`.$property" else property
+      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base = if (qualifier != null) {
         when (qualifier) {
-          "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value))"
+          "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value)))"
           "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) $operator (YEAR(DATE_SUB($value, INTERVAL 3 MONTH)) + 1)"
           else -> "$qualifier($prop) $operator $qualifier($value)"
         }
-      } else return "$prop $operator $value"
+      } else {
+        "$prop $operator $value"
+      }
       return if (not == true) "NOT ($base)" else base
     }
 }
@@ -139,7 +144,7 @@ class MySQLPropertyIsNullWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null) "`${table}`.$property" else property
+      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base = "$prop IS NULL"
       return if (not == true) "$property IS NOT NULL" else base
     }
@@ -160,7 +165,7 @@ class MySQLPropertyRangeWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null) "`${table}`.$property" else property
+      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
       val base = "$prop $operator $value AND $prop $operator2 $value2"
       return if (not == true) "NOT ($base)" else base
     }
@@ -175,6 +180,7 @@ class MySQLPropertyIsWhere(
   override var or: MutableList<MySQLWhere>? = null,
   override val not: Boolean? = false,
   override val table: String? = null,
+  val conceptTable: String = "concept_tct",
 ) : MySQLWhere {
 
   override val sqlTemplate: String
@@ -185,10 +191,10 @@ class MySQLPropertyIsWhere(
       val iri = node.iri
       val selfValue =
         if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
-      val base = if (selfValue == 0) "concept_tct.parent $operator '$iri'"
+      val base = if (selfValue == 0) "$conceptTable.parent $operator '$iri'"
       else """(
-        concept_tct.parent $operator '$iri'
-        AND concept_tct.self = $selfValue
+        $conceptTable.parent $operator '$iri'
+        AND $conceptTable.self = $selfValue
       )
       """.trimIndent()
       if (not == true) "NOT ($base)" else base

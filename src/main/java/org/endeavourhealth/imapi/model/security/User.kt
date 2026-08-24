@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 
 class User {
   var id: String = ""
+  var type: String = ""
   var username: String = ""
   var email: String = ""
   var displayName: String = ""

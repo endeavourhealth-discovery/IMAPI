@@ -9,6 +9,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ArgumentReference {
+
   private String parameter;
   private TTIriRef referenceIri;
   private TTIriRef dataType;

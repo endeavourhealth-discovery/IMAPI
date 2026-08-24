@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.model.imq;
 
-public class OrderDirection extends IriLD{
+public class OrderDirection extends IriLD {
+
   private Order direction;
   private FunctionClause function;
   private String nodeRef;
@@ -19,7 +20,7 @@ public class OrderDirection extends IriLD{
     return nodeRef;
   }
 
-  public OrderDirection setNodeRef(String nodeRef){
+  public OrderDirection setNodeRef(String nodeRef) {
     this.nodeRef = nodeRef;
     return this;
   }
@@ -27,11 +28,11 @@ public class OrderDirection extends IriLD{
   public FunctionClause getFunction() {
     return function;
   }
+
   public OrderDirection setFunction(FunctionClause function) {
     this.function = function;
     return this;
   }
-
 
   public Order getDirection() {
     return direction;

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
+
 public enum ODS implements VocabEnum {
 
     BASE_NAMESPACE("https://directory.spineservices.nhs.uk/STU3/CodeSystem/ODSAPI-"),

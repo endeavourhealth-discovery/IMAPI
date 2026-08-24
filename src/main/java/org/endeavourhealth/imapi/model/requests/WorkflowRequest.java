@@ -3,25 +3,20 @@ package org.endeavourhealth.imapi.model.requests;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.logic.service.SecurityService;
 
 @Getter
-@Schema(
-  name = "Search request",
-  description = "Structure containing search request parameters and filters"
-)
+@Schema(name = "Search request", description = "Structure containing search request parameters and filters")
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class WorkflowRequest {
-  private final SecurityService securityService = new SecurityService();
+
   private Integer page = 1;
   private Integer size = 25;
   private String userId;
 
-  public WorkflowRequest(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
-    this.userId = securityService.getUser(request).getId();
+  public WorkflowRequest(String userId) throws JsonProcessingException, UserNotFoundException {
+    this.userId = userId;
   }
 
   public WorkflowRequest(Integer page, Integer size, String userId) {
@@ -43,5 +38,4 @@ public class WorkflowRequest {
     this.size = size;
     return this;
   }
-
 }

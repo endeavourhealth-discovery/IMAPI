@@ -182,6 +182,12 @@ tasks.register("imqTests", Test::class.java) {
   }
 }
 
+tasks.register("imqClinicalIndicatorsTest", Test::class.java) {
+  useJUnitPlatform {
+    includeTags("IMQTest")
+  }
+}
+
 tasks.jacocoTestReport {
   reports {
     xml.required.set(true)

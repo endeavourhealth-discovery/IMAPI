@@ -740,6 +740,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       val table = rnWith.table.copy(table = "sq")
       addWheresRecursively(match.then.where, rnWith, mySQLQuery.nodeToTableMap, null, null, table)
+
+      match.then.`return`?.let { returns ->
+        val (thenSelects, _) = getSelects(with.table, returns, mySQLQuery, with.alias, mySQLQuery.nodeToTableMap)
+        for (select in thenSelects) {
+          if (with.selects.none { it.name == select.name && it.alias == select.alias }) {
+            with.selects.add(select)
+          }
+          val outputName = select.alias ?: select.name.substringAfterLast('.')
+          rnWith.selects.add(MySQLSelect("sq.$outputName"))
+        }
+      }
+      match.then.`as`?.let { keepAsMap[it] = rnWith }
     }
     return rnWith
   }

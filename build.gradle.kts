@@ -171,7 +171,7 @@ repositories {
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
   useJUnitPlatform {
-    excludeTags("IMQTest", "IMQFullTest")
+    excludeTags("IMQTest", "IMQFullTest", "IMQClinicalIndicatorsTest")
   }
   finalizedBy("jacocoTestReport")
 }

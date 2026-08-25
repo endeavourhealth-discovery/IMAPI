@@ -102,7 +102,7 @@ class MySQLCompareWhere(
             "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
             else -> "$prop - $right $operator $value"
           }
-        } else throw SQLConversionException("No units or qualifier provided")
+        } else "($prop) $operator $right"
       return if (not == true) "NOT ($base)" else base
     }
 }

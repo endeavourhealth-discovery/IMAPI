@@ -182,9 +182,9 @@ tasks.register("imqTests", Test::class.java) {
   }
 }
 
-tasks.register("imqClinicalIndicatorsTest", Test::class.java) {
+tasks.register("imqQOFQueriesTest", Test::class.java) {
   useJUnitPlatform {
-    includeTags("IMQTest")
+    includeTags("IMQQOFQueriesTest")
   }
 }
 

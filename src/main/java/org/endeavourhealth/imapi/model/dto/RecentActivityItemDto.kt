@@ -1,5 +1,5 @@
 package org.endeavourhealth.imapi.model.dto
 
-import java.time.LocalDateTime;
+import java.util.*
 
-class RecentActivityItemDto(var iri: String?, var dateTime: LocalDateTime?, var action: String?)
+class RecentActivityItemDto(var iri: String?, var dateTime: Date?, var action: String?)

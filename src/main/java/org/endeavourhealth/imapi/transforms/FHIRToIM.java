@@ -5,14 +5,14 @@ import org.endeavourhealth.imapi.model.fhir.CodeSystem;
 import org.endeavourhealth.imapi.model.fhir.FHIRConcept;
 import org.endeavourhealth.imapi.model.fhir.Include;
 import org.endeavourhealth.imapi.model.fhir.ValueSet;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.model.imq.Node;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,19 +24,19 @@ public class FHIRToIM {
   public TTEntity convertValueSet(ValueSet valueSet, TTIriRef setType, String folder) throws JsonProcessingException {
     TTEntity set = new TTEntity()
       .addType(setType)
-      .setIri(valueSet.getURL())
+      .setIri(valueSet.getUrl())
       .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(valueSet.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))
       .setName("FHIR " + valueSet.getName().replaceAll("([a-z])([A-Z])", "$1 $2"))
       .setDescription(valueSet.getDescription());
     set.addObject(iri(IM.IS_CONTAINED_IN), iri(folder));
     if (valueSet.getCompose() != null && valueSet.getCompose().getInclude() != null) {
-      Include[] include = valueSet.getCompose().getInclude();
+      List<Include> include = valueSet.getCompose().getInclude();
       Query query = new Query();
       Query match = new Query();
       query.addOr(match);
-      if (valueSet.getCompose().getInclude().length == 1) {
-        String member = include[0].getSystem();
+      if (valueSet.getCompose().getInclude().size() == 1) {
+        String member = include.getFirst().getSystem();
         match.setIs(new Node().setIri(member)
           .setDescendantsOrSelfOf(true));
       } else {
@@ -62,7 +62,7 @@ public class FHIRToIM {
       fhirName = codeSystem.getName();
     TTEntity parent = new TTEntity()
       .addType(iri(IM.CONCEPT))
-      .setCode(codeSystem.getID())
+      .setCode(codeSystem.getId())
       .setIri(iri)
       .setScheme(iri(NAMESPACE.FHIR))
       .setStatus(codeSystem.getStatus().equals("active") ? iri(IM.ACTIVE) : iri(IM.DRAFT))

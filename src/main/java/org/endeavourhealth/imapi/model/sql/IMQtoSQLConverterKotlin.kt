@@ -538,6 +538,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     }
 
+    val actualPk = toWith.entityKeyField ?: pk
     return if (toWith.exclude) {
       MySQLJoin(
         join = "LEFT JOIN",
@@ -545,10 +546,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         tableTo = toWith.table.table,
         tableToAlias = toWith.alias,
         fromProperty = fk,
-        toProperty = pk,
+        toProperty = actualPk,
         reference = true
       ).apply {
-        wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$pk", "IS", "NULL"))
+        wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$actualPk", "IS", "NULL"))
       }
     } else {
       MySQLJoin(
@@ -557,7 +558,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         tableTo = toWith.table.table,
         tableToAlias = toWith.alias,
         fromProperty = fk,
-        toProperty = pk,
+        toProperty = actualPk,
         reference = true
       )
     }

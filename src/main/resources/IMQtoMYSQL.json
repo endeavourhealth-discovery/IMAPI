@@ -268,6 +268,7 @@
       "dataModels": [
         "http://endhealth.info/im#Observation",
         "http://endhealth.info/im#ClinicalEntry",
+        "http://endhealth.info/im#Journal",
         "http://endhealth.info/im#Condition",
         "http://endhealth.info/im#Procedure",
         "http://endhealth.info/im#AppointmentSession"
@@ -296,7 +297,8 @@
         "http://endhealth.info/im#Concept": {"fromField": "core_concept_id", "toField": "dbid"},
         "http://endhealth.info/im#Encounter": {"fromField": "encounter_id", "toField": "id"},
         "http://endhealth.info/im#MedicationOrder": {"fromField": "patient_id", "toField": "patient_id"},
-        "http://endhealth.info/im#MedicationRequest": {"fromField": "patient_id", "toField": "patient_id"}
+        "http://endhealth.info/im#MedicationRequest": {"fromField": "patient_id", "toField": "patient_id"},
+        "http://endhealth.info/im#EpisodeOfCare": {"fromField": "patient_id", "toField": "patient_id"}
       }
     },
     {

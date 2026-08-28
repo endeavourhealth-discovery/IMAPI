@@ -114,11 +114,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (columnGroup.and == null && columnGroup.or == null &&
           columnGroup.`is` == null
         ) {
-          val with = getMySQLWithFromMatch(columnGroup, newMySqlQuery)
-          if (columnGroup.orderBy == null && newMySqlQuery.withs.isNotEmpty()) {
-            with.joins.add(getJoinBetweenWiths(with, newMySqlQuery.withs.last()))
-          }
-          newMySqlQuery.withs.add(with)
+          newMySqlQuery.withs.add(buildChainedWith(columnGroup, newMySqlQuery))
         }
         if (definition.`return` == null) {
           val lastCTE = newMySqlQuery.withs.last { !it.exclude }
@@ -305,11 +301,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     for (match in currentMatch.and) {
       addMatchWithsRecursively(match, mySqlQuery)
       if (match.and == null && match.or == null && match.`is` == null) {
-        val with = getMySQLWithFromMatch(match, mySqlQuery)
-        if (match.orderBy == null && mySqlQuery.withs.isNotEmpty()) {
-          with.joins.add(getJoinBetweenWiths(with, mySqlQuery.withs.last()))
-        }
-        mySqlQuery.withs.add(with)
+        mySqlQuery.withs.add(buildChainedWith(match, mySqlQuery))
       }
     }
   }
@@ -330,11 +322,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         addMatchWithsRecursively(match, branchQuery)
 
         if (match.and == null && match.or == null && match.`is` == null) {
-          val with = getMySQLWithFromMatch(match, branchQuery)
-          if (match.orderBy == null && branchQuery.withs.isNotEmpty()) {
-            with.joins.add(getJoinBetweenWiths(with, branchQuery.withs.last()))
-          }
-          branchQuery.withs.add(with)
+          branchQuery.withs.add(buildChainedWith(match, branchQuery))
         } else {
           val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
           mySqlQuery.withs.addAll(newWiths)
@@ -550,6 +538,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     }
 
+    val actualPk = toWith.entityKeyField ?: pk
     return if (toWith.exclude) {
       MySQLJoin(
         join = "LEFT JOIN",
@@ -557,10 +546,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         tableTo = toWith.table.table,
         tableToAlias = toWith.alias,
         fromProperty = fk,
-        toProperty = pk,
+        toProperty = actualPk,
         reference = true
       ).apply {
-        wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$pk", "IS", "NULL"))
+        wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$actualPk", "IS", "NULL"))
       }
     } else {
       MySQLJoin(
@@ -569,10 +558,84 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         tableTo = toWith.table.table,
         tableToAlias = toWith.alias,
         fromProperty = fk,
-        toProperty = pk,
+        toProperty = actualPk,
         reference = true
       )
     }
+  }
+
+  private fun buildChainedWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
+    val with = getMySQLWithFromMatch(match, mySqlQuery)
+    if (match.orderBy != null || mySqlQuery.withs.isEmpty()) return with
+    val previous = mySqlQuery.withs.last()
+    return if (match.notExists()) {
+      wrapNotExistsMatch(with, previous)
+    } else {
+      with.joins.add(getJoinBetweenWiths(with, previous))
+      with
+    }
+  }
+
+  private fun wrapNotExistsMatch(with: MySQLWith, previous: MySQLWith): MySQLWith {
+    val (fk, _) = if (with.table.table == queryTypeOfTable.table) {
+      with.table.primaryKey to with.table.primaryKey
+    } else {
+      with.table.foreignKeyTo(queryTypeOfTable)
+    }
+
+    val (fkLast, pkLast) = if (previous.table.table == queryTypeOfTable.table) {
+      previous.table.primaryKey to previous.table.primaryKey
+    } else {
+      previous.table.foreignKeyTo(queryTypeOfTable)
+    }
+
+    if (fk == null || fkLast == null || pkLast == null) {
+      throw SQLConversionException(
+        "No relationship between ${with.table.table} and ${previous.table.table}"
+      )
+    }
+
+    with.joins.add(
+      MySQLJoin(
+        join = "JOIN",
+        tableFrom = with.table.alias ?: with.table.table,
+        tableTo = previous.alias,
+        tableToAlias = previous.alias,
+        fromProperty = fk,
+        toProperty = fkLast,
+        reference = true
+      )
+    )
+
+    val select = if (previous.table.dataModel == "http://endhealth.info/im#Cohort")
+      "${previous.alias}.*, ${previous.alias}.entity_id as patient_id"
+    else "${previous.alias}.*"
+
+    val entityKeyField = if (previous.table.dataModel == "http://endhealth.info/im#Cohort")
+      "patient_id"
+    else previous.entityKeyField
+
+    val wrapped = MySQLWith(
+      table = with.table,
+      alias = with.alias,
+      selects = mutableListOf(MySQLSelect(select)),
+      subQuery = with,
+      entityKeyField = entityKeyField
+    )
+
+    wrapped.joins.add(
+      MySQLJoin(
+        join = "RIGHT JOIN",
+        tableFrom = "sq",
+        tableTo = previous.alias,
+        tableToAlias = previous.alias,
+        fromProperty = fk,
+        toProperty = fkLast,
+        reference = true
+      )
+    )
+    wrapped.wheres.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
+    return wrapped
   }
 
   private fun injectPatientFilter(mySqlQuery: MySQLQuery) {

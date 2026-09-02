@@ -709,6 +709,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getOrderByWith(with: MySQLWith, match: Query, mySQLQuery: MySQLQuery): MySQLWith {
+    val previousWith = mySQLQuery.withs.lastOrNull()
+
     val (fk, pk) = if (with.table.table == queryTypeOfTable.table) {
       with.table.primaryKey to with.table.primaryKey
     } else {
@@ -717,7 +719,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (fk == null || pk == null) {
       throw SQLConversionException(
-        "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table.table}"
+        "No relationship between ${with.table.table} and ${queryTypeOfTable.table}"
       )
     }
 
@@ -730,15 +732,15 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
 
-    val select = if (match.notExists()) {
-      if (mySQLQuery.withs.last().table.dataModel == "http://endhealth.info/im#Cohort") "${mySQLQuery.withs.last().alias}.*, ${mySQLQuery.withs.last().alias}.entity_id as patient_id"
-      else "${mySQLQuery.withs.last().alias}.*"
+    val select = if (match.notExists() && previousWith != null) {
+      if (previousWith.table.dataModel == "http://endhealth.info/im#Cohort") "${previousWith.alias}.*, ${previousWith.alias}.entity_id as patient_id"
+      else "${previousWith.alias}.*"
     } else "sq.*"
 
 
-    val entityKeyField = if (match.notExists()) {
-      if (mySQLQuery.withs.last().table.dataModel == "http://endhealth.info/im#Cohort") "patient_id"
-      else mySQLQuery.withs.last().entityKeyField
+    val entityKeyField = if (match.notExists() && previousWith != null) {
+      if (previousWith.table.dataModel == "http://endhealth.info/im#Cohort") "patient_id"
+      else previousWith.entityKeyField
     } else with.entityKeyField
 
     val rnWith = MySQLWith(
@@ -751,46 +753,50 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       entityKeyField = entityKeyField
     )
 
-    val (fkLast, pkLast) = if (mySQLQuery.withs.last().table.table == queryTypeOfTable.table) {
-      mySQLQuery.withs.last().table.primaryKey to mySQLQuery.withs.last().table.primaryKey
-    } else {
-      mySQLQuery.withs.last().table.foreignKeyTo(queryTypeOfTable)
-    }
+    if (previousWith != null) {
+      val (fkLast, pkLast) = if (previousWith.table.table == queryTypeOfTable.table) {
+        previousWith.table.primaryKey to previousWith.table.primaryKey
+      } else {
+        previousWith.table.foreignKeyTo(queryTypeOfTable)
+      }
 
-    if (fkLast == null || pkLast == null) {
-      throw SQLConversionException(
-        "No relationship between ${with.table.table} and ${mySQLQuery.withs.last().table.table}"
-      )
-    }
+      if (fkLast == null || pkLast == null) {
+        throw SQLConversionException(
+          "No relationship between ${with.table.table} and ${previousWith.table.table}"
+        )
+      }
 
-    val innerQueryJoin = MySQLJoin(
-      join = "JOIN",
-      tableFrom = with.table.alias ?: with.table.table,
-      tableTo = mySQLQuery.withs.last().alias,
-      tableToAlias = mySQLQuery.withs.last().alias,
-      fromProperty = fk,
-      toProperty = fkLast,
-      reference = true
-    )
-
-    with.joins.add(innerQueryJoin)
-
-    if (match.notExists()) {
-      val notExistJoinCondition = MySQLJoin(
-        join = "RIGHT JOIN",
-        tableFrom = "sq",
-        tableTo = mySQLQuery.withs.last().alias,
-        tableToAlias = mySQLQuery.withs.last().alias,
+      val innerQueryJoin = MySQLJoin(
+        join = "JOIN",
+        tableFrom = with.table.alias ?: with.table.table,
+        tableTo = previousWith.alias,
+        tableToAlias = previousWith.alias,
         fromProperty = fk,
         toProperty = fkLast,
         reference = true
       )
-      rnWith.joins.add(notExistJoinCondition)
-      val or = mutableListOf<MySQLWhere>()
-      or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
-      or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
-      rnWith.wheres.add(MySQLBoolWhere(or = or))
-    } else {
+
+      with.joins.add(innerQueryJoin)
+
+      if (match.notExists()) {
+        val notExistJoinCondition = MySQLJoin(
+          join = "RIGHT JOIN",
+          tableFrom = "sq",
+          tableTo = previousWith.alias,
+          tableToAlias = previousWith.alias,
+          fromProperty = fk,
+          toProperty = fkLast,
+          reference = true
+        )
+        rnWith.joins.add(notExistJoinCondition)
+        val or = mutableListOf<MySQLWhere>()
+        or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
+        or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
+        rnWith.wheres.add(MySQLBoolWhere(or = or))
+      }
+    }
+
+    if (!match.notExists() || previousWith == null) {
       rnWith.wheres.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
     }
 
@@ -1394,7 +1400,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.iri ?: where.iri ?: where.range?.from?.compare?.left?.iri
+    ?: where.range?.from?.compare?.left?.nodeRef ?: where.range?.to?.compare?.left?.nodeRef
+    val whereIri = where.compare?.left?.iri ?: where.iri
+    ?: where.range?.from?.compare?.left?.iri ?: where.range?.to?.compare?.left?.iri
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table

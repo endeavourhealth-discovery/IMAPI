@@ -110,4 +110,4 @@ spring-test-security = { module = "org.springframework.security:spring-security-
 
 [plugins]
 static-const-generator = { id = "org.endeavourhealth.plugins.static-const-generator", version = "1.6-SNAPSHOT" }
-sonar = { id = "org.sonarqube", version = "6.2.0.5505" }
+sonar = { id = "org.sonarqube", version = "7.4.0.8496" }

@@ -171,7 +171,7 @@ repositories {
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
   useJUnitPlatform {
-    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest")
+    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
   }
   finalizedBy("jacocoTestReport")
 }
@@ -197,6 +197,14 @@ tasks.register("imqSMHQueriesTest", Test::class.java) {
   classpath = sourceSets["test"].runtimeClasspath
   useJUnitPlatform {
     includeTags("IMQSMHQueriesTest")
+  }
+}
+
+tasks.register("imqREGQueriesTest", Test::class.java) {
+  testClassesDirs = sourceSets["test"].output.classesDirs
+  classpath = sourceSets["test"].runtimeClasspath
+  useJUnitPlatform {
+    includeTags("IMQREGQueriesTest")
   }
 }
 

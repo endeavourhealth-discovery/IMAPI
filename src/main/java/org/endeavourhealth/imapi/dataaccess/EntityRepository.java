@@ -2435,4 +2435,70 @@ public class EntityRepository {
     }
     return results;
   }
+
+  public List<TTIriRef> getRegisterQueryEntities() {
+    String spq = """
+      PREFIX qof: <http://endhealth.info/qof#>
+      SELECT ?s ?l
+      WHERE {
+          ?s rdf:type im:Query .
+          ?s im:scheme qof: .
+          ?s rdfs:label ?l .
+          FILTER (CONTAINS(STR(?l), "_REG"))
+      }
+      """;
+    List<TTIriRef> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(TTIriRef.iri(bs.getValue("s").stringValue()).setName(bs.getValue("l").stringValue()));
+        }
+      }
+    }
+    return results;
+  }
+
+  public List<TTIriRef> getQOFQueryEntities() {
+    String spq = """
+      select ?iri ?label where {
+          ?iri im:isContainedIn+ <http://endhealth.info/qof#Q_QOFQueries> .
+          ?iri rdf:type im:Query .
+          ?iri rdfs:label ?label .
+      }
+      """;
+    List<TTIriRef> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(TTIriRef.iri(bs.getValue("iri").stringValue()).setName(bs.getValue("label").stringValue()));
+        }
+      }
+    }
+    return results;
+  }
+
+  public List<TTIriRef> getSMHQueryEntities() {
+    String spq = """
+      select ?iri ?label where {
+          ?iri im:isContainedIn+ <http://smartlifehealth.info/smh#Q_SmartLifeQueries> .
+          ?iri rdf:type im:Query .
+          ?iri rdfs:label ?label .
+      }
+      """;
+    List<TTIriRef> results = new ArrayList<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(spq);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          results.add(TTIriRef.iri(bs.getValue("iri").stringValue()).setName(bs.getValue("label").stringValue()));
+        }
+      }
+    }
+    return results;
+  }
 }

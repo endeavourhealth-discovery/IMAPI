@@ -46,12 +46,16 @@ class IMQtoSQLConverterStepDefs() {
 
   @When("IMQ to SQL conversion is executed for all QOF queries")
   fun imqToSqlConversionIsExecutedForAllQOFQueries() {
-    runConversionForAll(entityRepository.getQOFQueryEntities())
+    val entities = entityRepository.getQOFQueryEntities()
+//    featureTableExporter.exportQOFQueries(entities)
+    runConversionForAll(entities)
   }
 
   @When("IMQ to SQL conversion is executed for all SMH queries")
   fun imqToSqlConversionIsExecutedForAllSMHQueries() {
-    runConversionForAll(entityRepository.getSMHQueryEntities())
+    val entities = entityRepository.getSMHQueryEntities()
+//    featureTableExporter.exportSMHQueries(entities)
+    runConversionForAll(entities)
   }
 
   @Then("SQL should be generated successfully for all of them")

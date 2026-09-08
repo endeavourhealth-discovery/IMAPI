@@ -8,14 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.logic.service.SecurityService
+import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.uprn.Activity
 import org.endeavourhealth.imapi.model.uprn.UploadStatus
 import org.endeavourhealth.imapi.model.uprn.UprnException
 import org.endeavourhealth.imapi.model.uprn.UprnSearchResponse
-import org.endeavourhealth.imapi.utility.MetricsHelper
-import org.endeavourhealth.imapi.model.security.Permission
-import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -127,8 +127,10 @@ open class UPRNController(
       log.debug("download")
       securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
 
+      val encodedFilename = encode(file, Charsets.UTF_8)
+
       val uprnReq = HttpRequest.newBuilder()
-        .uri(URI.create("$uprnUrl/api2/download3?filename=${file}"))
+        .uri(URI.create("$uprnUrl/api2/download3?filename=${encodedFilename}"))
         .GET()
 
       val response = callUPRN(uprnReq, securityService.getUser(request).id)

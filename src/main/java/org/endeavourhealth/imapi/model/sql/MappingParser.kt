@@ -42,12 +42,21 @@ class MappingParser {
     // Add reverse relationships where not already present
     for (table in tableList) {
       for (fromDataModel in requireNotNull(table.dataModels)) {
-        for ((toDataModel, rel) in table.relationships) {
-          val toTable = dMtablesMap[toDataModel] ?: continue
-          if (!toTable.relationships.containsKey(fromDataModel)) {
-            toTable.relationships[fromDataModel] = Relationship(
-              fromField = rel.toField.replace("{alias}.", ""),
-              toField = rel.fromField.replace("{alias}.", "")
+        for (rel in table.relationships) {
+          val toTable = dMtablesMap[rel.dataModel] ?: continue
+          val reverseFromField = rel.toField.replace("{alias}.", "")
+          val reverseToField = rel.fromField.replace("{alias}.", "")
+          val alreadyExists = toTable.relationships.any {
+            it.dataModel == fromDataModel && it.fromField == reverseFromField && it.toField == reverseToField
+          }
+          if (!alreadyExists) {
+            toTable.relationships.add(
+              Relationship(
+                dataModel = fromDataModel,
+                fromField = reverseFromField,
+                toField = reverseToField,
+                viaProperty = rel.viaProperty
+              )
             )
           }
         }

@@ -1625,6 +1625,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           tableTo = table,
           tableToAlias = table.alias,
           tableFromAlias = parentTable.alias,
+          viaProperty = path.iri,
         )
 
         if (table.condition != null) {

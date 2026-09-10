@@ -233,6 +233,9 @@
           "type": "number"
         },
         "http://endhealth.info/im#patient": {"field": "id", "type": "string"}
+      },
+      "relationships": {
+        "http://endhealth.info/im#Concept": {"fromField": "ethnic_code_concept_id", "toField": "dbid"}
       }
     },
     {

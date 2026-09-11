@@ -61,6 +61,13 @@ class IMQtoSQLConverterStepDefs() {
   @Then("SQL should be generated successfully for all of them")
   fun sqlShouldBeGeneratedSuccessfullyForAllOfThem() {
     if (failures.isNotEmpty()) {
+      val byMessage = failures.groupBy { it.message ?: "unknown" }
+      println("--- Failures by unique error (${byMessage.size} unique) ---")
+      byMessage.entries
+        .sortedByDescending { it.value.size }
+        .forEach { (message, group) -> println("${group.size}x: $message") }
+      println("-----------------------------------")
+
       val details = failures.joinToString(System.lineSeparator()) { "${it.iri} (${it.label}): ${it.message}" }
       fail<Unit>("Failed to generate SQL for ${failures.size} quer${if (failures.size == 1) "y" else "ies"}:${System.lineSeparator()}$details")
     }

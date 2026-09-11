@@ -27,6 +27,7 @@ class IMQtoSQLFullTest {
     log.info("Found ${entities.size} entities with definitions")
 
     val uniqueExceptions = mutableMapOf<String, ConversionError>()
+    val errorCounts = mutableMapOf<String, Int>()
 
     for (entity in entities) {
       val iri = entity.iri
@@ -44,9 +45,8 @@ class IMQtoSQLFullTest {
 //                    log.debug("SQL generated for $iri: ${sql.take(100)}...")
         } catch (e: Exception) {
           val message = e.message ?: e.javaClass.name
-          if (!uniqueExceptions.containsKey(message)) {
-            uniqueExceptions[message] = ConversionError(iri, name, message)
-          }
+          uniqueExceptions.putIfAbsent(message, ConversionError(iri, name, message))
+          errorCounts[message] = (errorCounts[message] ?: 0) + 1
 //                    log.error("Failed to convert entity $iri: $message")
         }
       }
@@ -57,10 +57,12 @@ class IMQtoSQLFullTest {
       uniqueExceptions.values.forEach { error ->
         println("IRI: ${error.iri} Name: ${error.name}")
         println("Exception: ${error.message}")
+        println("Count: ${errorCounts[error.message]}")
         println("-----------------------------------")
       }
     }
     println("Total entities: ${entities.size}")
     println("Errors: ${uniqueExceptions.size}")
+    println("Total failing queries: ${errorCounts.values.sum()}")
   }
 }

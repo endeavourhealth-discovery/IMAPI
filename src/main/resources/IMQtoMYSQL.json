@@ -341,7 +341,8 @@
         "http://endhealth.info/im#effectiveDate": {"field": "clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#effectiveTime": {"field": "clinical_effective_date", "type": "date"},
         "http://endhealth.info/im#appointmentType": {"field": "type", "type": "string"},
-        "http://endhealth.info/im#attendanceStatus": {"field": "attendance_status", "type": "string"}
+        "http://endhealth.info/im#attendanceStatus": {"field": "attendance_status", "type": "string"},
+        "http://endhealth.info/im#patient": {"field": "patient_id", "type": "number"}
       },
       "relationships": [
         {"dataModel": "http://endhealth.info/im#Patient", "fromField": "patient_id", "toField": "id"},

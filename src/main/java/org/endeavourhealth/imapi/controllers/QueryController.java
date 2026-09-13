@@ -14,7 +14,6 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.iml.MatchMap;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
@@ -353,19 +352,14 @@ public class QueryController {
       return queryService.validateQuery(query);
     }
   }
-
-
-  @PostMapping("/semanticMapsForMatch")
-  @Operation(
-    summary = "optimises logical boolean of query",
-    description = "Returns the query and boolean optimisation"
-  )
-  public Set<TTEntity> semanticMapsForMatch(
-    @RequestBody MatchMap matchMap) {
-
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForMatch(matchMap);
+  @GetMapping("/semanticMaps")
+  @Operation(summary = "Get the list of semanticMaps for a source type")
+  public Set<TTEntity> getSemanticMaps(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSemanticMaps");
+      return queryService.getSemanticMaps(iri);
     }
   }
 }

@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.reasoner;
+package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,38 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Query> keepMatches = new HashMap<>();
+  private Map<String, Query> asMap;
+
+
+
+  public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
+    asMap = new HashMap<>();
+    try {
+      if (displayMode == DisplayMode.LOGICAL) {
+        getLogicFromRules(query);
+        optimiseMatch(query);
+      } else {
+        optimiseMatch(query);
+      }
+      flattenMatch(query);
+      operationalise(query,null);
+    } catch (Exception e) {
+      throw new QueryException("Error resolving logic", e);
+    }
+  }
+
+  private void operationalise(Query query,Query parent) {
+    if (query.getAnd() != null) {
+        for (int i = 0; i < query.getAnd().size(); i++) {
+          Query subQuery = query.getAnd().get(i);
+          operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+        }
+    }
+    if (query.getAs()!=null){
+      asMap.put(query.getAs(), query);
+    }
+  }
+
 
   public static void optimizeQuery(Query query) {
     cleanBooleans(query);
@@ -324,20 +355,6 @@ public class LogicOptimizer {
     }
   }
 
-  public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
-    try {
-      if (displayMode == DisplayMode.LOGICAL) {
-        getLogicFromRules(query);
-        optimiseMatch(query);
-      } else {
-        optimiseMatch(query);
-      }
-      flattenMatch(query);
-    } catch (Exception e) {
-      throw new QueryException("Error resolving logic", e);
-    }
-  }
-
   private void getLogicFromRules(Query query) {
     if (query.getRule() == null) return;
     Query or=null;
@@ -384,6 +401,7 @@ public class LogicOptimizer {
           }
           break;
         case "REJECT_SELECT":
+          subQuery.setNotExists(true);
           if (i<query.getRule().size()-1)
             throw new IllegalArgumentException("Reject /select must be last rule");
           if (or!=null)
@@ -413,6 +431,7 @@ public class LogicOptimizer {
     optimizeOrMatches(query);
   }
 
+
   private void flattenMatch(Query query) {
     if (query.getOr() != null && !query.isNotExists()) {
       List<Query> flatOrs = new ArrayList<>();
@@ -437,6 +456,7 @@ public class LogicOptimizer {
       }
     }
   }
+
 
   private void flattenOrs(Query query, List<Query> flatOrs) {
     for (Query subQuery : query.getOr()) {

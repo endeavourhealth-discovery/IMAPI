@@ -31,6 +31,27 @@ public class Return implements Returnable {
   private Case case_;
   private String description;
   private String value;
+  private List<Expression> coalesce;
+
+  public List<Expression> getCoalesce() {
+    return coalesce;
+  }
+  public Return setCoalesce(List<Expression> coalesce) {
+    this.coalesce = coalesce;
+    return this;
+  }
+  public Return addCoalesce(Expression coalesce) {
+    if (this.coalesce == null) this.coalesce = new ArrayList<>();
+    this.coalesce.add(coalesce);
+    return this;
+  }
+  public Return coalesce(Consumer<Expression> builder) {
+    Expression coalesce = new Expression();
+    addCoalesce(coalesce);
+    builder.accept(coalesce);
+    return this;
+  }
+
 
 
   public TTIriRef getSemanticMap() {

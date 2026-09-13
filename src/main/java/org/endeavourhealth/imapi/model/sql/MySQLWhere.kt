@@ -1,6 +1,4 @@
 package org.endeavourhealth.imapi.model.sql
-
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 

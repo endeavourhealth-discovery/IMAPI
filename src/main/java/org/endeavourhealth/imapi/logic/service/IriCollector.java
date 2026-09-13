@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import software.amazon.awssdk.services.s3.endpoints.internal.Partition;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -127,6 +128,11 @@ public class IriCollector {
     if (orderBy.getProperty() != null) {
       for (OrderDirection property : orderBy.getProperty()) {
         iriSet.add(property.getIri());
+      }
+    }
+    if (orderBy.getPartition()!=null){
+      for (IriLD partition : orderBy.getPartition()){
+        iriSet.add(partition.getIri());
       }
     }
   }

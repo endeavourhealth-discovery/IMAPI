@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -385,7 +385,7 @@ public class EqdToIMQ {
     if (qry == null) {
       return null;
     } else {
-      flattenRules(qry);
+      //flattenRules(qry);
       queryEntity.addType(iri(IM.QUERY));
       if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");

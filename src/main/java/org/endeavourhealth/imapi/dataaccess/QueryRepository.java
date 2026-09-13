@@ -413,31 +413,19 @@ public class QueryRepository {
     return sourceToMap;
   }
 
-  public Set<TTEntity> getSemanticMapsForSourceEntities(Set<String> properties, Set<String> sourceIris) {
+  public Set<TTEntity> getSemanticMapsForSourceIri(String sourceIri) {
     String sql = """
       Select distinct ?map ?mapName
       where {
-      values ?sourceIri {%s}
-      values ?property {%s}
+      values ?sourceIri {<%s>}
       {
-        ?sourceIri im:hasMember ?concept.
-        ?concept im:hasMapEntry ?mapEntry.
-        ?mapEntry im:sourceEntityProperty ?property.
-        ?map im:hasEntry ?mapEntry.
+       ?sourceIri im:isA ?sourceTypeIri.
+       ?map im:sourceType ?sourceTypeIri.
         ?map rdfs:label ?mapName.
        }
-       union {
-        ?concept im:isA ?sourceIri.
-        ?concept im:hasMapEntry ?mapEntry.
-        ?mapEntry im:sourceEntityProperty ?property.
-        ?map im:hasEntry ?mapEntry.
-        ?map rdfs:label ?mapName.
-        }
       }
-      """.formatted(sourceIris.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" "))
-    , properties.stream().map(iri -> "<" + iri + ">").collect(Collectors.joining(" ")));
-    Set<TTEntity> semanticMaps = new HashSet<>();
-    Map<String, TTEntity> maps = new HashMap<>();
+      """.formatted(sourceIri);
+    Set<TTEntity> maps = new HashSet<>();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(sql);
       try (TupleQueryResult rs = qry.evaluate()) {
@@ -445,19 +433,15 @@ public class QueryRepository {
           BindingSet bs = rs.next();
           String mapIri = bs.getValue("map").stringValue();
           String mapName = bs.getValue("mapName").stringValue();
-          TTEntity map = maps.get(mapIri);
-          if (map==null){
-            map= new TTEntity()
+          TTEntity map = new TTEntity()
               .addType(iri(IM.SEMANTIC_MAP))
               .setIri(mapIri)
               .setName(mapName);
-            maps.put(mapIri,map);
-            semanticMaps.add(map);
+            maps.add(map);
           }
         }
       }
-    }
-    return semanticMaps;
+    return maps;
   }
 
   public TTEntity getMapSourceProperties(String iri) {

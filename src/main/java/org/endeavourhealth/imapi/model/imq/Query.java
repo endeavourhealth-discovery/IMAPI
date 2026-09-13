@@ -37,10 +37,11 @@ public class Query implements HasPaths, Returnable {
   private Node graph;
   private Where where;
   private String iri;
-  private List<From> from;
+  private String from;
   private boolean optional;
   private Node typeOf;
   private String parameter;
+  private boolean isTest;
 
   private List<Path> path;
   private FunctionClause function;
@@ -74,7 +75,23 @@ public class Query implements HasPaths, Returnable {
   private List<Query> columnGroup;
   private IMQType queryType;
   private String uuid;
+  private boolean isBase;
 
+  public boolean isBase() {
+    return isBase;
+  }
+  public Query setBase(boolean base) {
+    isBase = base;
+    return this;
+  }
+
+  public boolean isTest() {
+    return isTest;
+  }
+  public Query setTest(boolean test) {
+    isTest = test;
+    return this;
+  }
 public List<Query> getEach() {
   return each;
 }
@@ -580,22 +597,12 @@ public Query each(Consumer<Query> builder) {
     return this;
   }
 
-  public List<From> getFrom() {
+  public String getFrom() {
     return from;
   }
-  public Query setFrom(List<From> from) {
+
+  public Query setFrom(String from) {
     this.from = from;
-    return this;
-  }
-  public Query addFrom(From from) {
-    if (this.from == null) this.from = new ArrayList<>();
-    this.from.add(from);
-    return this;
-  }
-  public Query from(Consumer<From> builder) {
-    From from = new From();
-    addFrom(from);
-    builder.accept(from);
     return this;
   }
 

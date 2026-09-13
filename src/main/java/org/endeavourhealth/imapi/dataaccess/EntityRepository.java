@@ -1328,6 +1328,7 @@ public class EntityRepository {
       SELECT ?name ?typeIri ?typeName ?order ?hasChildren ?hasGrandchildren ?description ?status ?statusname ?scheme ?schemename
       WHERE {
         %s
+        Values ?s {<%s>}
         ?s im:scheme ?scheme ;
            rdfs:label ?name .
         OPTIONAL { ?s rdfs:comment ?description . }
@@ -1341,7 +1342,7 @@ public class EntityRepository {
         }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted(valueList("scheme", schemeIris), PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+      """.formatted(valueList("scheme", schemeIris), iri,PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("""
@@ -1389,6 +1390,7 @@ public class EntityRepository {
 
     return result;
   }
+
 
   public Pageable<TTIriRef> findImmediateChildrenPagedByIriWithTotalCount(
     String parentIri,

@@ -29,6 +29,7 @@ public class EqdResources {
   private final Map<String, Set<Node>> valueMap = new HashMap<>();
   private final Properties dataMap;
   private final Set<String> acronyms = new HashSet<>();
+  private final Map<String,Integer> asMap= new HashMap<>();
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Setter
@@ -60,7 +61,6 @@ public class EqdResources {
   @Setter
   @Getter
   private int subRule = 0;
-  private Map<String, Query> nodeRefMap;
 
   public EqdResources(TTDocument document, Properties dataMap, NAMESPACE namespace) {
     this.dataMap = dataMap;
@@ -163,6 +163,7 @@ public class EqdResources {
 
   private Query getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
+    asMap.clear();
     Query boolQuery = new Query();
     if (memberOp == null) {
       memberOp = VocMemberOperator.OR;
@@ -202,9 +203,7 @@ public class EqdResources {
     } else {
       this.incrementSubRule();
       if (eqCriteria.getCriterion() != null) {
-        Query query = this.convertCriterion(eqCriteria.getCriterion());
-        if (eqCriteria.getCriterion().getDescription() != null)
-          query.setName(eqCriteria.getCriterion().getDescription());
+        Query query = this.convertCriterion(eqCriteria.getCriterion(),null);
         if (score != null) {
           addScore(query, score);
         }
@@ -222,7 +221,7 @@ public class EqdResources {
           return libraryQuery;
         } else {
           System.out.println("Library item found : " + libraryId);
-          Query query = this.convertCriterion(libraryItems.get(libraryId));
+          Query query = this.convertCriterion(libraryItems.get(libraryId),null);
           if (score != null)
             addScore(query, score);
           return query;
@@ -267,55 +266,104 @@ public class EqdResources {
     return query;
   }
 
-
-  private Query convertCriterion(EQDOCCriterion eqCriterion) throws IOException, QueryException, EQDException {
-    nodeRefMap = new HashMap<>();
-    Query baseQuery = null;
-    Query standardQuery = null;
-    Query testQuery = null;
-    Query linkedQuery = null;
-    Query lastQuery = null;
-    EQDOCFilterAttribute filter = eqCriterion.getFilterAttribute();
-    boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
-    boolean hasStandard = (!filter.getColumnValue().isEmpty() || filter.getRestriction() != null);
-    if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
-      baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
-      lastQuery = baseQuery;
+  private EQDOCLinkedCriterion getLinkedCriterion(EQDOCCriterion parent,EQDOCLinkedCriterion parentLinkedCriterion) throws EQDException {
+    if (parentLinkedCriterion.getCriterion().getLinkedCriterion()==null){
+      return parentLinkedCriterion;
     }
-
-    if (hasStandard) {
-      standardQuery = this.convertStandardCriterion(eqCriterion, baseQuery);
-      if (baseQuery != null) {
-        if (standardQuery.getWhere() != null) {
-          if (baseQuery.getWhere() != null) {
-            throw new EQDException("Cannot combine base criteria and standard criteria where clauses");
+    EQDOCCriterion childCriterion = parentLinkedCriterion.getCriterion();
+    if (childCriterion.getBaseCriteriaGroup().isEmpty()
+    &&childCriterion.getFilterAttribute().getColumnValue().isEmpty()){
+      if (childCriterion.getFilterAttribute().getRestriction() != null){
+        if (childCriterion.getFilterAttribute().getRestriction().getColumnOrder() != null){
+          if (childCriterion.getFilterAttribute().getRestriction().getColumnOrder().getRecordCount()>50){
+            return getLinkedCriterion(parent,childCriterion.getLinkedCriterion());
           }
-          baseQuery.setWhere(standardQuery.getWhere());
+          if (sameOrderBy(parent,childCriterion.getLinkedCriterion().getCriterion())&&
+          sameRelationship(parentLinkedCriterion,childCriterion.getLinkedCriterion())){
+            return getLinkedCriterion(parent,childCriterion.getLinkedCriterion());
+          }
         }
-        if (standardQuery.getOrderBy() != null) {
-          baseQuery.setOrderBy(standardQuery.getOrderBy());
-        }
-        standardQuery = null;
-      } else lastQuery = standardQuery;
-      if (eqCriterion.getFilterAttribute().getRestriction() != null && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null) {
-        testQuery = this.convertTestCriterion(eqCriterion);
-        lastQuery.setThen(testQuery);
       }
     }
-    if (lastQuery == null) {
-      throw new EQDException("No matches found for criterion");
+    return parentLinkedCriterion;
+  }
+  private boolean sameRelationship(EQDOCLinkedCriterion parentLinked, EQDOCLinkedCriterion childLinked){
+    try {
+      String parentRel = new ObjectMapper().writeValueAsString(parentLinked.getRelationship());
+      String childRel = new ObjectMapper().writeValueAsString(childLinked.getRelationship());
+      return parentRel.equals(childRel);
+    } catch (JsonProcessingException e) {
+      return false;
     }
 
-    if (hasLinked) {
-      setKeepMatchNode(lastQuery, eqCriterion.getLinkedCriterion().getRelationship().getParentColumn());
-      linkedQuery = this.convertLinkedCriterion(eqCriterion, lastQuery);
-      setMatchNode(linkedQuery);
     }
+  private boolean sameOrderBy(EQDOCCriterion criterion1, EQDOCCriterion criterion2){
+    if (criterion1.getFilterAttribute().getRestriction()==null) return false;
+    if (criterion2.getFilterAttribute().getRestriction()==null) return false;
+    EQDOCColumnOrder order1 = criterion1.getFilterAttribute().getRestriction().getColumnOrder();
+    EQDOCColumnOrder order2 = criterion2.getFilterAttribute().getRestriction().getColumnOrder();
+    if (order1.getRecordCount()!=order2.getRecordCount()) return false;
+    if (order1.getColumns().size()!=order2.getColumns().size()) return false;
+    if (order1.getColumns().getFirst().getDirection()!=order2.getColumns().getFirst().getDirection()) return false;
+    return true;
+  }
+
+
+  private Query convertCriterion(EQDOCCriterion eqCriterion,Query parentQuery) throws IOException, QueryException, EQDException {
+    Query baseQuery = null;
+    Query standardQuery = null;
+    Query linkedQuery = null;
+    Query testQuery = null;
+    Query lastQuery = null;
     List<Query> steps = new ArrayList<>();
-
-    if (baseQuery != null) {
-      steps.add(baseQuery);
+    boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
+    boolean hasTest= eqCriterion.getFilterAttribute().getRestriction() != null
+      && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null;
+    if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
+      baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
+      if (baseQuery.getAnd()!=null){
+        for (Query and: baseQuery.getAnd()){
+          and.setBase(true);
+          steps.add(and);
+          lastQuery=and;
+        }
+      }
+      else {
+        baseQuery.setBase(true);
+        steps.add(baseQuery);
+        lastQuery=baseQuery;
+      }
     }
+    standardQuery = this.convertStandardCriterion(eqCriterion, baseQuery);
+    if (standardQuery != null) {
+        if (hasLinked) {
+          if (standardQuery.getWhere() == null && lastQuery != null) {
+            setKeepAs(standardQuery, lastQuery);
+          } else if (standardQuery.getWhere() == null) {
+            setKeepAs(standardQuery, parentQuery);
+          } else setKeepAs(standardQuery);
+        }
+        lastQuery = standardQuery;
+    }
+    if (hasTest &&standardQuery==null)
+      throw new EQDException("No match found for test criterion");
+    if (hasTest) {
+      testQuery = this.convertTestCriterion(eqCriterion);
+      standardQuery.setThen(testQuery);
+      testQuery.setTest(true);
+      lastQuery = testQuery;
+      if (hasLinked){
+        setKeepAs(testQuery, standardQuery);
+      }
+    }
+    if (hasLinked) {
+      if (lastQuery==null)
+        lastQuery= parentQuery;
+      if (lastQuery.getAs()==null)
+        setKeepAs(lastQuery);
+      linkedQuery = this.convertLinkedCriterion(eqCriterion, lastQuery);
+    }
+
     if (standardQuery != null) {
       steps.add(standardQuery);
     }
@@ -325,9 +373,15 @@ public class EqdResources {
 
     if (steps.size() > 1) {
       Query outerQuery = new Query();
+      if (eqCriterion.isNegation()) {
+        outerQuery.setNotExists(true);
+      }
       outerQuery.setAnd(steps);
       return outerQuery;
-    } else return lastQuery;
+    } else {
+      if (eqCriterion.isNegation()) steps.getFirst().setNotExists(true);
+      return steps.getFirst();
+    }
   }
 
   private Query convertBaseCriteriaGroups(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
@@ -351,51 +405,69 @@ public class EqdResources {
 
 
   private Query convertStandardCriterion(EQDOCCriterion eqCriterion, Query queryToTest) throws IOException, EQDException {
-    Query query = null;
+    Query query=null;
     if (!eqCriterion.getFilterAttribute().getColumnValue().isEmpty()) {
       query = this.convertColumns(eqCriterion.getTable(), eqCriterion.getId(), eqCriterion.getFilterAttribute().getColumnValue(), queryToTest);
     }
 
     if (eqCriterion.getFilterAttribute().getRestriction() != null) {
-      if (query == null) {
-        query = new Query();
-      }
-      this.setRestriction(eqCriterion, query);
+        if (query == null) {
+          query = new Query();
+        }
+        setRestriction(eqCriterion, query);
     }
 
-    if (query == null) {
-      throw new EQDException("No query found for standard criterion");
-    }
-    if (eqCriterion.isNegation()) query.setNotExists(true);
     return query;
+
+  }
+
+  private Query getLinkedChildQuery(Query query) throws EQDException{
+    if (query.getThen()==null&&query.getAnd()==null)
+      return query;
+    if (query.getThen()!=null){
+      return getLinkedChildQuery(query.getThen());
+    }
+    if (query.getAnd()!=null) {
+      for (Query and : query.getAnd()) {
+        if (!and.isBase()) {
+            return getLinkedChildQuery(and);
+        }
+      }
+    }
+    throw new EQDException("Looking for linked child and not found");
+  }
+  private void addThen(Query query, Query then){
+    if (query.getThen()==null){
+      query.setThen(then);
+    }
+    else {
+      addThen(query.getThen(),then);
+      }
   }
 
   private Query convertLinkedCriterion(EQDOCCriterion eqCriterion, Query parentQuery) throws IOException, QueryException, EQDException {
-    EQDOCCriterion eqLinkedCriterion = eqCriterion.getLinkedCriterion().getCriterion();
-    Query linkedQuery = this.convertCriterion(eqLinkedCriterion);
-    if (eqLinkedCriterion.getDescription() != null) linkedQuery.setName(eqLinkedCriterion.getDescription());
+    EQDOCLinkedCriterion criterionLinked = getLinkedCriterion(eqCriterion,eqCriterion.getLinkedCriterion());
+    EQDOCCriterion eqLinkedCriterion = criterionLinked.getCriterion();
+    Query linkedQuery = this.convertCriterion(eqLinkedCriterion,parentQuery);
+    Query relativeQuery = getLinkedChildQuery(linkedQuery);
     Where relationWhere = new Where();
-    addMatchWhere(linkedQuery, relationWhere);
+    addMatchWhere(relativeQuery, relationWhere);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
     ValueSource relationLeft = new ValueSource();
     relationLeft
-      .setNodeRef(getNodeRef(linkedQuery))
       .setIri(child.substring(child.lastIndexOf(" ") + 1));
-
     String parentProperty = eqRelationship.getParentColumn();
     if (!parentProperty.contains("DATE") && !parentProperty.contains("DOB"))
       throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight = new ValueSource();
     if (eqRelationship.getParentColumn().contains("DATE")) {
       relationRight.setIri(NAMESPACE.IM + "effectiveDate");
-      injectPropertyReturn(parentQuery, relationRight.getIri());
-      relationRight.setNodeRef(getAlias(parentQuery));
+      relationRight.setNodeRef(parentQuery.getAs());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
     } else if (eqRelationship.getParentColumn().contains("VALUE")) {
       relationRight.setIri(NAMESPACE.IM + "value");
-      injectPropertyReturn(parentQuery, relationRight.getIri());
       relationRight.setNodeRef(parentQuery.getAs());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
       parentQuery.setAs(parentQuery.getAs() + "_VAL");
@@ -407,7 +479,7 @@ public class EqdResources {
       String node = "patient_" + matchCounter;
       linkedMatchPath.setName(node);
       linkedMatchPath.setTypeOf(NAMESPACE.IM + "Patient");
-      linkedQuery.addPath(linkedMatchPath);
+      relativeQuery.addPath(linkedMatchPath);
       relationRight.setNodeRef(node).setIri(NAMESPACE.IM + "dateOfBirth");
     } else throw new EQDException("No match found for linked criterion");
 
@@ -516,7 +588,7 @@ public class EqdResources {
     query.setTypeOf(this.getIMPath(table));
     for (EQDOCColumnValue cv : columns) {
       ++index;
-      this.convertColumn(table, eqId, cv, query);
+      this.convertColumn(table, cv, query);
     }
     if (query.getPath() != null) {
       query.setTypeOf(new Node().setIri(query.getPath().getFirst().getTypeOf().getIri()));
@@ -525,18 +597,18 @@ public class EqdResources {
     return query;
   }
 
-  private Query convertTestColumns(String table, String eqId, List<EQDOCColumnValue> columns) throws EQDException, IOException {
+  private Query convertTestColumns(String table, List<EQDOCColumnValue> columns) throws EQDException, IOException {
     int index = 0;
     Query query = new Query();
     for (EQDOCColumnValue cv : columns) {
       ++index;
-      this.convertColumn(table, eqId, cv, query);
+      this.convertColumn(table, cv, query);
     }
 
     return query;
   }
 
-  private void convertColumn(String table, String eqId, EQDOCColumnValue cv, Query query) throws EQDException, IOException {
+  private void convertColumn(String table, EQDOCColumnValue cv, Query query) throws EQDException, IOException {
     String tablePath = this.getIMPath(table);
     String eqColumn = String.join("/", cv.getColumn());
     String eqURL = table + "/" + eqColumn;
@@ -563,34 +635,8 @@ public class EqdResources {
     } else if (query.getAs() == null) {
       matchCounter++;
       query.setAs("m_" + matchCounter);
-      nodeRefMap.put(query.getAs(), query);
     }
   }
-
-  private void injectPropertyReturn(Query queryToTest, String iri) {
-    if (queryToTest.getWhere() != null) {
-      boolean alreadyIn = false;
-      if (queryToTest.getReturn() != null) {
-        for (Return returnProp : queryToTest.getReturn()) {
-          if (returnProp.getIri().equals(iri)) {
-            alreadyIn = true;
-            break;
-          }
-        }
-      }
-      if (!alreadyIn) {
-        queryToTest.return_(p -> p.setNodeRef(getNodeRef(queryToTest)).setIri(iri).setAs(iri.substring(iri.lastIndexOf("#") + 1)));
-      }
-    } else if (queryToTest.getOr() != null) {
-      for (Query m : queryToTest.getOr()) {
-        injectPropertyReturn(m, iri);
-      }
-    } else if (queryToTest.getAnd() != null) {
-      Query lastQuery = queryToTest.getAnd().getLast();
-      injectPropertyReturn(lastQuery, iri);
-    }
-  }
-
 
   public String setMatchPath(Query query, String[] paths) {
     if (paths.length == 2) {
@@ -632,15 +678,7 @@ public class EqdResources {
     return "";
   }
 
-  public String getNodeRef(Query query) {
-    if (query.getPath() != null) {
-      Path pathMatch = query.getPath().getFirst();
-      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
-        return pathMatch.getNode();
-      } else return getNodeRef(pathMatch);
-    }
-    return null;
-  }
+
 
 
   private String getPathFromPath(Path pathMatch, String[] paths, int offset) {
@@ -748,7 +786,7 @@ public class EqdResources {
 
   private Query convertTestCriterion(EQDOCCriterion eqCriterion) throws EQDException, IOException {
     EQDOCTestAttribute testAtt = eqCriterion.getFilterAttribute().getRestriction().getTestAttribute();
-    return this.convertTestColumns(eqCriterion.getTable(), null, testAtt.getColumnValue());
+    return this.convertTestColumns(eqCriterion.getTable(), testAtt.getColumnValue());
   }
 
   private void setRestriction(EQDOCCriterion eqCriterion, Query restricted) throws EQDException {
@@ -762,15 +800,13 @@ public class EqdResources {
     String linkColumn = eqCriterion.getFilterAttribute().getRestriction().getColumnOrder().getColumns().getFirst().getColumn().getFirst();
     String table = eqCriterion.getTable();
     String orderBy = this.getIMPath(table + "/" + linkColumn);
-    if (restrict.getColumnOrder().getRecordCount() != 1000) {
-      String nodeRef = getNodeRef(restricted);
-      restricted.orderBy((o) -> o
+    restricted.orderBy((o) -> o
+      .addPartition(new IriLD().setIri(NAMESPACE.IM + "patient").setName("patient"))
         .addProperty(new OrderDirection()
-          .setNodeRef(nodeRef)
           .setIri(orderBy)
           .setDirection(direction))
         .setLimit(restrict.getColumnOrder().getRecordCount()));
-    }
+
   }
 
   private void addMatchWhere(Query query, Where where) {
@@ -870,8 +906,11 @@ public class EqdResources {
       String key = this.sourceContext + "/EMISINTERNAL/" + value;
       Object mapValue = this.dataMap.get(key);
       if (mapValue != null) {
-        pv.addIs(new Node().setIri(getValueIriResult(mapValue).stream().findFirst().get().getIri()));
-        if (!in) pv.setNot(true);
+        Optional<Node> node=getValueIriResult(mapValue).stream().findFirst();
+        if (node.isPresent()) {
+          pv.addIs(new Node().setIri(node.get().getIri()));
+          if (!in) pv.setNot(true);
+        }
       } else throw new EQDException("variable " + value + "and " + relative + " not supported");
     }
   }
@@ -941,7 +980,6 @@ public class EqdResources {
 
   private void setCompare(Where where, Assignable assignable, Operator comp, String value, TTIriRef units, VocRelation relation, String relativeTo, String leftProperty) throws EQDException {
 
-    String property = leftProperty;
 
     if (relativeTo != null) {
       relation = VocRelation.RELATIVE;
@@ -975,7 +1013,7 @@ public class EqdResources {
       ValueSource relationLeft = new ValueSource();
       where.setIri((String) null);
       where.setName(null);
-      relationLeft.setIri(property).setNodeRef(where.getNodeRef());
+      relationLeft.setIri(leftProperty).setNodeRef(where.getNodeRef());
       ValueSource relationRight = new ValueSource();
       relationRight.setParameter(relativeTo);
       if (assignable.getValue() == null) {
@@ -1519,6 +1557,15 @@ public class EqdResources {
       if (where.getShortLabel() != null) {
         keepAs.append(where.getShortLabel());
       }
+      else if (where.getOperator()!=null) {
+        keepAs.append(where.getOperator().toString());
+        if (where.getValue()!=null) {
+          keepAs.append(where.getValue()).append("_").append(where.getUnits()!=null?where.getUnits().getName():"");
+        }
+        if (where.getCompare()!=null) {
+          keepAs.append("_relative");
+        }
+      }
       if (where.getAnd() != null) {
         for (Where and : where.getAnd()) {
           if (and.getShortLabel() != null) {
@@ -1540,40 +1587,58 @@ public class EqdResources {
           keepAs.append("_");
         keepAs.append(this.createKeepAs(or));
       }
-    } else if (query.getFrom() != null) {
-      keepAs.append(createKeepAs(nodeRefMap.get(query.getFrom())));
     }
     matchCounter++;
     if (keepAs.isEmpty()) {
-      keepAs.append("match");
+      keepAs.append("match").append(matchCounter);
     }
-    return keepAs.toString() + "_" + matchCounter;
+    return keepAs.toString();
   }
 
-  private void setKeepMatchNode(Query query, String affix) {
-    if (query.getAnd() != null) {
-      setKeepMatchNode(query.getAnd().getLast(), affix);
-      return;
-    } else if (query.getOr() != null) {
-      query.setAs(createKeepAs(query) + affix);
+  private void setKeepAs(Query query, Query parent) {
+    String keepAs="";
+    if (query.getWhere() != null) {
+      keepAs = "_"+this.createKeepAs(query);
+    }
+
+    if (query.isTest()) {
+      query.setAs(parent.getAs()+keepAs);
+    } else if (query.getOrderBy() != null) {
+      Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
+      query.setAs(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs);
+    }
+  }
+
+  private void setKeepAs(Query query) {
+    if (query.getAs()!=null) return;
+    if (query.getAnd()!=null){
+      setKeepAs(query.getAnd().getLast());
       return;
     }
     StringBuilder keepAs = new StringBuilder();
     if (query.getWhere() != null) {
-      keepAs.append(createKeepAs(query));
-      if (keepAs.isEmpty() && query.getAs() == null) {
+      keepAs.append(createKeepAs(query).replace(" ","_"));
+      if (keepAs.isEmpty()) {
         matchCounter++;
         query.setAs("m_" + matchCounter);
-      } else {
-        matchCounter++;
-        query.setAs(keepAs + "_" + matchCounter + "_" + (affix != null ? affix : ""));
       }
-    } else if (query.getFrom() != null) {
-      query.setAs(createKeepAs(nodeRefMap.get(query.getFrom()))
-        + (affix != null ? ("_" + affix) : ""));
+      else query.setAs(getUniqueAs(keepAs.toString()));
+    }else {
+        matchCounter++;
+        query.setAs("match_" + matchCounter);
     }
-    else if (query.getOrderBy() != null) {
-      query.setAs(createKeepAs(query) + (affix != null ? ("_" + affix) : ""));
+    if (query.getOrderBy() != null) {
+      setKeepAs(query, query);
+    }
+  }
+  private String getUniqueAs(String as){
+    if (asMap.get(as)==null){
+      asMap.put(as,1);
+      return as;
+    }
+    else {
+      asMap.put(as,asMap.get(as)+1);
+      return as+"_"+asMap.get(as);
     }
   }
 }

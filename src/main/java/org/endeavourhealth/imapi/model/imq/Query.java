@@ -25,6 +25,7 @@ import java.util.function.Consumer;
   "not",
   "where",
   "return",
+  "orderBy",
   "then",
   ""
 })

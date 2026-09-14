@@ -317,51 +317,45 @@ public class EqdResources {
     Query lastQuery = null;
     List<Query> steps = new ArrayList<>();
     boolean hasLinked = eqCriterion.getLinkedCriterion() != null;
+    boolean hasRestriction= eqCriterion.getFilterAttribute().getRestriction() != null;
     boolean hasTest= eqCriterion.getFilterAttribute().getRestriction() != null
       && eqCriterion.getFilterAttribute().getRestriction().getTestAttribute() != null;
+    boolean hasColumns= !eqCriterion.getFilterAttribute().getColumnValue().isEmpty();
     if (!eqCriterion.getBaseCriteriaGroup().isEmpty()) {
       baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
-      if (baseQuery.getAnd()!=null){
-        for (Query and: baseQuery.getAnd()){
-          and.setBase(true);
-          steps.add(and);
-          lastQuery=and;
-        }
-      }
-      else {
-        baseQuery.setBase(true);
-        steps.add(baseQuery);
-        lastQuery=baseQuery;
-      }
     }
-    standardQuery = this.convertStandardCriterion(eqCriterion, baseQuery);
-    if (standardQuery != null) {
-        if (hasLinked) {
-          if (standardQuery.getWhere() == null && lastQuery != null) {
-            setKeepAs(standardQuery, lastQuery);
-          } else if (standardQuery.getWhere() == null) {
-            setKeepAs(standardQuery, parentQuery);
-          } else setKeepAs(standardQuery);
-        }
-        lastQuery = standardQuery;
+    if (hasColumns) {
+      standardQuery = this.convertStandardCriterion(eqCriterion, baseQuery);
     }
-    if (hasTest &&standardQuery==null)
-      throw new EQDException("No match found for test criterion");
+    else if (hasRestriction){
+      if (baseQuery == null) {
+        throw new EQDException("Restriction from nothing");
+      }
+      setRestriction(eqCriterion, baseQuery);
+    }
     if (hasTest) {
       testQuery = this.convertTestCriterion(eqCriterion);
-      standardQuery.setThen(testQuery);
-      testQuery.setTest(true);
-      lastQuery = testQuery;
-      if (hasLinked){
-        setKeepAs(testQuery, standardQuery);
+      if (standardQuery!=null)
+        standardQuery.setThen(testQuery);
+      else {
+        if (baseQuery == null) {
+          throw new EQDException("Restriction from nothing");
+        }
+        baseQuery.setThen(testQuery);
       }
     }
+    if (standardQuery != null)
+      lastQuery= standardQuery;
+    else lastQuery= baseQuery;
+    if (lastQuery== null){
+      throw new EQDException("No query found for linked criterion");
+    }
     if (hasLinked) {
-      if (lastQuery==null)
-        lastQuery= parentQuery;
-      if (lastQuery.getAs()==null)
-        setKeepAs(lastQuery);
+      setKeepAs(lastQuery);
       linkedQuery = this.convertLinkedCriterion(eqCriterion, lastQuery);
+    }
+    if (baseQuery != null) {
+      steps.add(baseQuery);
     }
 
     if (standardQuery != null) {
@@ -407,7 +401,7 @@ public class EqdResources {
   private Query convertStandardCriterion(EQDOCCriterion eqCriterion, Query queryToTest) throws IOException, EQDException {
     Query query=null;
     if (!eqCriterion.getFilterAttribute().getColumnValue().isEmpty()) {
-      query = this.convertColumns(eqCriterion.getTable(), eqCriterion.getId(), eqCriterion.getFilterAttribute().getColumnValue(), queryToTest);
+      query = this.convertColumns(eqCriterion.getTable(), eqCriterion.getFilterAttribute().getColumnValue());
     }
 
     if (eqCriterion.getFilterAttribute().getRestriction() != null) {
@@ -582,12 +576,10 @@ public class EqdResources {
   }
 
 
-  private Query convertColumns(String table, String eqId, List<EQDOCColumnValue> columns, Query queryToTest) throws EQDException, IOException {
-    int index = 0;
+  private Query convertColumns(String table, List<EQDOCColumnValue> columns) throws EQDException, IOException {
     Query query = new Query();
     query.setTypeOf(this.getIMPath(table));
     for (EQDOCColumnValue cv : columns) {
-      ++index;
       this.convertColumn(table, cv, query);
     }
     if (query.getPath() != null) {

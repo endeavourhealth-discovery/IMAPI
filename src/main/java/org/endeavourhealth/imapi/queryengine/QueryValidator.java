@@ -156,9 +156,6 @@ public class QueryValidator {
         }
       }
     }
-    if (query.getThen()!=null){
-      validateMatch(query.getThen());
-    }
     if (query.getWhere() != null) {
       validateWhere(query.getWhere(), query.getNode());
     }

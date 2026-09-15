@@ -100,9 +100,6 @@ public class IriCollector {
         }
       }
     }
-    if (query.getThen()!=null){
-      collectMatchIris(query.getThen(), iriSet);
-    }
 
 
 
@@ -111,9 +108,6 @@ public class IriCollector {
       collectWhereIris(query.getWhere(), iriSet);
     }
 
-    if (query.getThen() != null) {
-      collectMatchIris(query.getThen(), iriSet);
-    }
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         collectReturnIris(prop, iriSet);

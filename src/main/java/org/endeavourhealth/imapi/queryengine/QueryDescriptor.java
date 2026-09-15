@@ -306,10 +306,6 @@ public class QueryDescriptor {
     if (query.getWhere() != null) {
       describeWhere(query.getWhere(), query);
     }
-
-    if (query.getThen() != null) {
-      describeMatch(query.getThen());
-    }
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }

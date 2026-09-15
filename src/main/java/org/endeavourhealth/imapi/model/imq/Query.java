@@ -25,9 +25,7 @@ import java.util.function.Consumer;
   "not",
   "where",
   "return",
-  "orderBy",
-  "then",
-  ""
+  "orderBy"
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query implements HasPaths, Returnable {
@@ -68,7 +66,6 @@ public class Query implements HasPaths, Returnable {
   private boolean notExists;
   private String errorMessage;
   private boolean draft;
-  private Query then;
   private Having having;
   private Prefixes prefixes;
   private String imQuery;
@@ -209,21 +206,6 @@ public Query each(Consumer<Query> builder) {
   public Query having(Consumer<Having> builder) {
     Having having = new Having();
     setHaving(having);
-    return this;
-  }
-
-  public Query getThen() {
-    return then;
-  }
-
-  public Query setThen(Query then) {
-    this.then = then;
-    return this;
-  }
-
-  public Query then(Consumer<Query> builder) {
-    this.then = new Query();
-    builder.accept(this.then);
     return this;
   }
 

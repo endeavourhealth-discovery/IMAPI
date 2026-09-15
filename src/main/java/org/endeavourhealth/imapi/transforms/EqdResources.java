@@ -325,28 +325,43 @@ public class EqdResources {
       baseQuery = this.convertBaseCriteriaGroups(eqCriterion);
     }
     if (hasColumns) {
-      standardQuery = this.convertStandardCriterion(eqCriterion, baseQuery);
+      standardQuery = this.convertStandardCriterion(eqCriterion);
+      if (baseQuery!=null){
+        addReturns(standardQuery,baseQuery);
+      }
     }
     else if (hasRestriction){
       if (baseQuery == null) {
-        throw new EQDException("Restriction from nothing");
+        if (parentQuery!=null){
+          setRestriction(eqCriterion, parentQuery);
+        }
+        else throw new EQDException("Restriction from nothing");
       }
-      setRestriction(eqCriterion, baseQuery);
+      else setRestriction(eqCriterion, baseQuery);
     }
     if (hasTest) {
       testQuery = this.convertTestCriterion(eqCriterion);
-      if (standardQuery!=null)
-        standardQuery.setThen(testQuery);
+      if (standardQuery!=null) {
+        setKeepAs(standardQuery);
+        testQuery.setFrom(standardQuery.getAs());
+        setKeepAs(testQuery,standardQuery);
+      }
       else {
         if (baseQuery == null) {
           throw new EQDException("Restriction from nothing");
         }
-        baseQuery.setThen(testQuery);
+        setKeepAs(baseQuery);
+        setKeepAs(testQuery,baseQuery);
       }
     }
-    if (standardQuery != null)
+    if (testQuery!=null)
+      lastQuery= testQuery;
+    else if (standardQuery != null)
       lastQuery= standardQuery;
-    else lastQuery= baseQuery;
+    else if (baseQuery!=null)
+      lastQuery= baseQuery;
+    else if (parentQuery!=null)
+      lastQuery= parentQuery;
     if (lastQuery== null){
       throw new EQDException("No query found for linked criterion");
     }
@@ -360,6 +375,9 @@ public class EqdResources {
 
     if (standardQuery != null) {
       steps.add(standardQuery);
+    }
+    if (testQuery != null) {
+      steps.add(testQuery);
     }
     if (linkedQuery != null) {
       steps.add(linkedQuery);
@@ -376,6 +394,57 @@ public class EqdResources {
       if (eqCriterion.isNegation()) steps.getFirst().setNotExists(true);
       return steps.getFirst();
     }
+  }
+
+  private void addReturns(Query parentQuery,Query childQuery){
+    if (childQuery.getWhere()!=null){
+      addWhereReturns(parentQuery,childQuery.getWhere());
+    }
+  }
+
+  private void addWhereReturns(Query parentQuery, Where where) {
+    if (where.getIri()!=null){
+      addReturnIri(parentQuery,where.getIri());
+    }
+    for (List<Where> wheres:Arrays.asList(where.getAnd(),where.getOr())){
+      if (wheres!=null){
+        for (Where where1:wheres){
+          addWhereReturns(parentQuery,where1);
+        }
+      }
+    }
+  }
+
+
+  private void addReturnIri(Query parentQuery, String iri){
+    String as = iri.substring(iri.lastIndexOf("#")+1);
+
+    if (parentQuery.getReturn()!=null){
+      for (Return ret : parentQuery.getReturn()) {
+        if (ret.getIri().equals(iri)||ret.getAs().equals(as)) return;
+      }
+    }
+    if (parentQuery.getOr()!=null){
+      for (Query or : parentQuery.getOr()) {
+        addReturnIri(or,iri);
+      }
+      addReturnAs(parentQuery,as);
+    }
+    else if (parentQuery.getAnd()!=null){
+      for (Query and : parentQuery.getAnd()) {
+        addReturnIri(and,iri);
+      }
+      addReturnAs(parentQuery,as);
+    }
+    else parentQuery.addReturn(new Return().setIri(iri).setAs(as));
+  }
+  private void addReturnAs(Query query, String as){
+    if (query.getReturn()!=null){
+      for (Return ret : query.getReturn()) {
+        if (ret.getAs().equals(as)) return;
+      }
+    }
+    query.addReturn(new Return().setPropertyRef(as).setAs(as));
   }
 
   private Query convertBaseCriteriaGroups(EQDOCCriterion eqCriterion) throws QueryException, EQDException, IOException {
@@ -398,7 +467,7 @@ public class EqdResources {
   }
 
 
-  private Query convertStandardCriterion(EQDOCCriterion eqCriterion, Query queryToTest) throws IOException, EQDException {
+  private Query convertStandardCriterion(EQDOCCriterion eqCriterion) throws IOException, EQDException {
     Query query=null;
     if (!eqCriterion.getFilterAttribute().getColumnValue().isEmpty()) {
       query = this.convertColumns(eqCriterion.getTable(), eqCriterion.getFilterAttribute().getColumnValue());
@@ -416,11 +485,8 @@ public class EqdResources {
   }
 
   private Query getLinkedChildQuery(Query query) throws EQDException{
-    if (query.getThen()==null&&query.getAnd()==null)
+    if (query.getAnd()==null)
       return query;
-    if (query.getThen()!=null){
-      return getLinkedChildQuery(query.getThen());
-    }
     if (query.getAnd()!=null) {
       for (Query and : query.getAnd()) {
         if (!and.isBase()) {
@@ -430,14 +496,7 @@ public class EqdResources {
     }
     throw new EQDException("Looking for linked child and not found");
   }
-  private void addThen(Query query, Query then){
-    if (query.getThen()==null){
-      query.setThen(then);
-    }
-    else {
-      addThen(query.getThen(),then);
-      }
-  }
+
 
   private Query convertLinkedCriterion(EQDOCCriterion eqCriterion, Query parentQuery) throws IOException, QueryException, EQDException {
     EQDOCLinkedCriterion criterionLinked = getLinkedCriterion(eqCriterion,eqCriterion.getLinkedCriterion());

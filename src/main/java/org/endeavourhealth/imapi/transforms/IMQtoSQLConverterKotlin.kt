@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.model.sql
+package org.endeavourhealth.imapi.transforms
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -6,6 +6,22 @@ import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
+import org.endeavourhealth.imapi.model.sql.Field
+import org.endeavourhealth.imapi.model.sql.MappingParser
+import org.endeavourhealth.imapi.model.sql.MySQLBoolWhere
+import org.endeavourhealth.imapi.model.sql.MySQLCompareWhere
+import org.endeavourhealth.imapi.model.sql.MySQLJoin
+import org.endeavourhealth.imapi.model.sql.MySQLOrderBy
+import org.endeavourhealth.imapi.model.sql.MySQLOrderByItem
+import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsNullWhere
+import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsWhere
+import org.endeavourhealth.imapi.model.sql.MySQLPropertyValueWhere
+import org.endeavourhealth.imapi.model.sql.MySQLQuery
+import org.endeavourhealth.imapi.model.sql.MySQLSelect
+import org.endeavourhealth.imapi.model.sql.MySQLWhere
+import org.endeavourhealth.imapi.model.sql.MySQLWith
+import org.endeavourhealth.imapi.model.sql.Table
+import org.endeavourhealth.imapi.model.sql.TableMap
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
 import java.time.LocalDate

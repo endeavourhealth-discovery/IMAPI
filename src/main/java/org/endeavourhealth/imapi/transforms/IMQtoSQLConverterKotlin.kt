@@ -420,7 +420,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (match.orderBy == null) return emptyList()
     val props = linkedSetOf<String>()
     match.orderBy.property.forEach { props.add(it.iri) }
-    match.then?.where?.let { props.addAll(getPropsUsedInThen(it)) }
     return props.toList()
   }
 
@@ -452,7 +451,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       entityKeyField = keyField
     )
 
-    match.then?.where?.let { buildGroupThenWhere(it)?.let { w -> finalWith.wheres.add(w) } }
+
     return finalWith
   }
 
@@ -814,29 +813,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (!match.notExists() || previousWith == null) {
       rnWith.wheres.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
-    }
-
-    if (match.then != null) {
-      val properties = getPropsUsedInThen(match.then.where)
-      for (property in properties) {
-        val field = getPropertyNameByTableAndPropertyIri(with.table, property).field
-          ?: throw SQLConversionException("No field found for property $property")
-        with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field"))
-      }
-      val table = rnWith.table.copy(table = "sq")
-      addWheresRecursively(match.then.where, rnWith, mySQLQuery.nodeToTableMap, null, null, table)
-
-      match.then.`return`?.let { returns ->
-        val (thenSelects, _) = getSelects(with.table, returns, mySQLQuery, with.alias, mySQLQuery.nodeToTableMap)
-        for (select in thenSelects) {
-          if (with.selects.none { it.name == select.name && it.alias == select.alias }) {
-            with.selects.add(select)
-          }
-          val outputName = select.alias ?: select.name.substringAfterLast('.')
-          rnWith.selects.add(MySQLSelect("sq.$outputName"))
-        }
-      }
-      match.then.`as`?.let { keepAsMap[it] = rnWith }
     }
     return rnWith
   }

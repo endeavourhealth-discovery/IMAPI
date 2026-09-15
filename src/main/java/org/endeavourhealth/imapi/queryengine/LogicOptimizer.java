@@ -198,8 +198,6 @@ public class LogicOptimizer {
 
     if (query.getWhere() != null)
       query.setWhere(rewriteAgeWhere(query.getWhere()));
-    if (query.getThen() != null && query.getThen().getWhere() != null)
-      query.getThen().setWhere(rewriteAgeWhere(query.getThen().getWhere()));
   }
 
   private static Where rewriteAgeWhere(Where where) {
@@ -242,8 +240,6 @@ public class LogicOptimizer {
 
     if (query.getWhere() != null)
       query.setWhere(rewriteNegativeIntervalWhere(query.getWhere()));
-    if (query.getThen() != null && query.getThen().getWhere() != null)
-      query.getThen().setWhere(rewriteNegativeIntervalWhere(query.getThen().getWhere()));
   }
 
   private static Where rewriteNegativeIntervalWhere(Where where) {

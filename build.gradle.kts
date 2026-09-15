@@ -114,6 +114,7 @@ dependencies {
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
+  implementation(libs.jooq)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
   implementation(libs.reactor.core)

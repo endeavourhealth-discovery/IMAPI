@@ -261,6 +261,33 @@ public class QueryController {
     }
   }
 
+  @PostMapping("/sql/preview")
+  @Operation(
+    summary = "Generate SQL (jOOQ preview)",
+    description = "Generates SQL from the provided IMQ query request using the new jOOQ-based two-phase pipeline (IMQPreparer + IRToJooqConverter). Prototype scope only: flat 'and' chains of typeOf/where/return matches - 'or', 'is', notExists, path traversal, group order-by, column-group datasets and indicator queries are not yet supported and will return an error. Use /sql for full coverage."
+  )
+  public String getSQLFromIMQRPreview(@RequestBody QueryRequest queryRequest) throws SQLConversionException, QueryException, JsonProcessingException, IOException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQPreview.POST")) {
+      log.debug("getSQLFromIMQRPreview");
+      return queryService.getJooqSQLFromIMQ(queryRequest);
+    }
+  }
+
+  @GetMapping("/sql/preview")
+  @Operation(
+    summary = "Generate SQL from IRI (jOOQ preview)",
+    description = "Generates SQL from the given IMQ query IRI using the new jOOQ-based two-phase pipeline. Same prototype scope limitations as the POST variant - use /sql for full coverage."
+  )
+  public String getSQLFromIMQIriPreview(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri
+  ) throws IOException, QueryException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLFromIMQIriPreview.GET")) {
+      log.debug("getSQLFromIMQIriPreview");
+      return queryService.getJooqSQLFromIMQIri(queryIri);
+    }
+  }
+
   @GetMapping("/sqlDebug")
   @Operation(
     summary = "Generate a per-step patient trace SQL script",
@@ -275,6 +302,22 @@ public class QueryController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLPatientTraceFromIMQIri.GET")) {
       log.debug("getSQLPatientTraceFromIMQIri");
       return queryService.getSQLPatientTraceFromIMQIri(queryIri, patientId, lang);
+    }
+  }
+
+  @GetMapping("/sqlDebug/preview")
+  @Operation(
+    summary = "Generate a per-step patient trace SQL script (jOOQ preview)",
+    description = "Generates the diagnostic patient-trace script using the new jOOQ-based pipeline. Same prototype scope limitations as /sql/preview."
+  )
+  public String getSQLPatientTraceFromIMQIriPreview(
+    HttpServletRequest request,
+    @RequestParam(name = "queryIri") String queryIri,
+    @RequestParam(name = "patientId") String patientId
+  ) throws IOException, QueryException, SQLConversionException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetSQLPatientTraceFromIMQIriPreview.GET")) {
+      log.debug("getSQLPatientTraceFromIMQIriPreview");
+      return queryService.getJooqSQLPatientTraceFromIMQIri(queryIri, patientId);
     }
   }
 

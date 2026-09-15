@@ -18,6 +18,7 @@ hapiFHIRR4 = "7.4.0"
 hikari = "7.0.2"
 jackson = "2.18.0"
 jersey = "3.1.10"
+jooq = "3.19.18"
 junit = "5.10.1"
 junitSuite = "1.11.4"
 logback = "1.5.18"
@@ -66,6 +67,7 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jersey-client = { module = "org.glassfish.jersey.core:jersey-client", version.ref = "jersey" }
 jersey-inject = { module = "org.glassfish.jersey.inject:jersey-hk2", version.ref = "jersey" }
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
 logback-core = { module = "ch.qos.logback:logback-core", version.ref = "logback" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }

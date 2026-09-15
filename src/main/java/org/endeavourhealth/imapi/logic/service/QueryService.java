@@ -11,14 +11,19 @@ import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
+import org.endeavourhealth.imapi.transforms.IMQPreparer;
 import org.endeavourhealth.imapi.transforms.IMQtoSQLConverterKotlin;
+import org.endeavourhealth.imapi.transforms.IRToJooqConverter;
+import org.endeavourhealth.imapi.model.sql.MappingParser;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
+import org.endeavourhealth.imapi.model.sql.TableMap;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
 import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,6 +72,36 @@ public class QueryService {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverterKotlin(queryRequestForSql, new ObjectMapper(), null, null, null, patientId).getSql();
+  }
+
+  /**
+   * Preview of the new two-phase pipeline (IMQPreparer + IRToJooqConverter). Prototype scope
+   * only: flat 'and' chains of typeOf/where/return matches. 'or', 'is', notExists, path
+   * traversal, group order-by, column-group datasets and indicator queries are not yet
+   * supported and will throw - use {@link #getSQLFromIMQ} for full coverage.
+   */
+  public String getJooqSQLFromIMQ(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException, IOException {
+    if (queryRequest.getQuery().getQueryType() == IMQType.INDICATOR) {
+      throw new SQLConversionException("Indicator queries are not yet supported by the jOOQ preview pipeline");
+    }
+    QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
+    TableMap tableMap = new MappingParser().parse("IMQtoMYSQL.json");
+    IMQPreparer preparer = new IMQPreparer(tableMap, queryRequestForSql);
+    return new IRToJooqConverter().toSql(preparer.prepare(queryRequestForSql.getQuery()));
+  }
+
+  public String getJooqSQLFromIMQIri(String queryIri) throws JsonProcessingException, SQLConversionException, IOException {
+    QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri));
+    return getJooqSQLFromIMQ(queryRequest);
+  }
+
+  public String getJooqSQLPatientTraceFromIMQIri(String queryIri, String patientId) throws JsonProcessingException, SQLConversionException, IOException {
+    QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri));
+    QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
+    TableMap tableMap = new MappingParser().parse("IMQtoMYSQL.json");
+    IMQPreparer preparer = new IMQPreparer(tableMap, queryRequestForSql);
+    IMQPreparer.PatientTraceIR trace = preparer.preparePatientTrace(queryRequestForSql.getQuery(), patientId);
+    return new IRToJooqConverter().toPatientTraceSql(trace);
   }
 
   public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {

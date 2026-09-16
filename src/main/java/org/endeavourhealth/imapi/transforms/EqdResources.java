@@ -352,6 +352,7 @@ public class EqdResources {
         }
         setKeepAs(baseQuery);
         setKeepAs(testQuery,baseQuery);
+        testQuery.setFrom(baseQuery.getAs()); //thats the one
       }
     }
     if (testQuery!=null)

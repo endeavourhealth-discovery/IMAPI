@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.ConceptRepository;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
+import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.ConceptContextMap;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.dto.SimpleMap;
@@ -57,7 +58,7 @@ public class ConceptService {
     return conceptRepository.getMatchedTo(iri, schemes);
   }
 
-  public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) {
+  public List<SearchTermCode> getEntityTermCodes(String iri, boolean includeInactive) throws DataMissingException {
     if (iri == null || iri.isEmpty())
       return Collections.emptyList();
     TTBundle termsBundle = entityRepository.getBundle(iri, asHashSet(IM.HAS_TERM_CODE));
@@ -98,15 +99,18 @@ public class ConceptService {
   }
 
 
-  private void processTerm(TTValue term, List<SearchTermCode> termsSummary) {
+  private void processTerm(TTValue term, List<SearchTermCode> termsSummary) throws DataMissingException {
     if (null != term.asNode().get(iri(IM.CODE)) && null == termsSummary.stream().filter(t -> term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue().equals(t.getCode())).findAny().orElse(null)) {
       SearchTermCode newTerm = new SearchTermCode();
       if (term.asNode().has(iri(IM.CODE)))
         newTerm.setCode(term.asNode().get(iri(IM.CODE)).get(0).asLiteral().getValue());
+      else throw new DataMissingException("Iri is required");
       if (term.asNode().has(iri(RDFS.LABEL)))
         newTerm.setTerm(term.asNode().get(iri(RDFS.LABEL)).get(0).asLiteral().getValue());
+      else throw new DataMissingException("Label is required");
       if (term.asNode().has(iri(IM.HAS_STATUS)))
         newTerm.setStatus(term.asNode().get(iri(IM.HAS_STATUS)).get(0).asIriRef());
+      else throw new DataMissingException("Status is required");
       termsSummary.add(
         newTerm
       );

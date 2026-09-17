@@ -413,21 +413,23 @@ public class QueryDescriptor {
       where.getQualifier().setName(getTermInContext(where.getQualifier().getIri(), Context.PLURAL));
     }
     describeAssignable(where);
+    if (where.getCompare() != null) {
+      describeCompare(where.getCompare());
+    }
   }
 
   public void describeAssignable(Assignable assignable) {
-    if (assignable.getCompare() != null) {
-      describeCompare(assignable.getCompare());
+    if (assignable.getUnits() != null) {
+      assignable.getUnits().setName(getTermInContext(assignable.getUnits().getIri(), Context.PLURAL));
     }
+
 
   }
 
   private void describeCompare(Compare compare) {
     describeValueSource(compare.getLeft());
     describeValueSource(compare.getRight());
-    if (compare.getUnits() != null) {
-      compare.getUnits().setName(getTermInContext(compare.getUnits().getIri(), Context.PLURAL));
-    }
+
   }
 
   private void describeValueSource(ValueSource source) {

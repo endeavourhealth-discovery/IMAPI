@@ -225,7 +225,6 @@ public class LogicOptimizer {
     Compare compare = new Compare();
     compare.setLeft(left);
     compare.setRight(right);
-    compare.setUnits(where.getUnits());
 
     rewritten.setCompare(compare);
 
@@ -251,17 +250,17 @@ public class LogicOptimizer {
 
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null)
-        where.getRange().setFrom(rewriteNegativeIntervalValue(where.getRange().getFrom()));
+        where.getRange().setFrom(rewriteNegativeIntervalValue(where,where.getRange().getFrom()));
 
       if (where.getRange().getTo() != null)
-        where.getRange().setTo(rewriteNegativeIntervalValue(where.getRange().getTo()));
+        where.getRange().setTo(rewriteNegativeIntervalValue(where,where.getRange().getTo()));
 
       return where;
     }
 
     if (where.getCompare() == null) return where;
     if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
-    if (where.getCompare().getUnits() == null) return where;
+    if (where.getUnits() == null) return where;
 
     Compare compare = where.getCompare();
     String positiveValue = where.getValue().substring(1);
@@ -275,7 +274,6 @@ public class LogicOptimizer {
       Compare swapped = new Compare();
       swapped.setLeft(compare.getRight());
       swapped.setRight(compare.getLeft());
-      swapped.setUnits(compare.getUnits());
       where.setCompare(swapped);
       where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
       where.setValue(positiveValue);
@@ -286,12 +284,12 @@ public class LogicOptimizer {
     return where;
   }
 
-  private static Value rewriteNegativeIntervalValue(Value value) {
-    if (value.getCompare() == null) return value;
+  private static Value rewriteNegativeIntervalValue(Where where,Value value) {
+    if (where.getCompare() == null) return value;
     if (value.getValue() == null || !value.getValue().startsWith("-")) return value;
-    if (value.getCompare().getUnits() == null) return value;
+    if (value.getUnits() == null) return value;
 
-    Compare compare = value.getCompare();
+    Compare compare = where.getCompare();
     String positiveValue = value.getValue().substring(1);
 
     boolean leftIsSearchDate = compare.getLeft() != null
@@ -303,8 +301,7 @@ public class LogicOptimizer {
       Compare swapped = new Compare();
       swapped.setLeft(compare.getRight());
       swapped.setRight(compare.getLeft());
-      swapped.setUnits(compare.getUnits());
-      value.setCompare(swapped);
+      where.setCompare(swapped);
       value.setOperator(invertComparisonOperator(value.getOperator().getValue()));
       value.setValue(positiveValue);
     } else if (rightIsSearchDate) {

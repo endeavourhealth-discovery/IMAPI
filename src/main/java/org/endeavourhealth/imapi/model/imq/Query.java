@@ -8,21 +8,18 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({
+  "name",
+  "description",
   "notExists",
   "from",
+  "typeOf",
   "and",
   "ifTrue",
   "ifFalse",
-  "name",
-  "description",
-  "nodeRef",
-  "header",
-  "typeOf",
   "is",
   "path",
   "and",
   "or",
-  "not",
   "where",
   "return",
   "orderBy"
@@ -41,7 +38,7 @@ public class Query implements HasPaths, Returnable {
   private Node typeOf;
   private String parameter;
   private boolean isTest;
-
+  private String fromTypeIri;
   private List<Path> path;
   private FunctionClause function;
   private Entail entailment;
@@ -56,6 +53,7 @@ public class Query implements HasPaths, Returnable {
   private List<Query> and;
   private List<Query> rule;
   private List<Query> each;
+  private List<Query> union;
   private String libraryItem;
   private boolean invalid;
   private Node is;
@@ -75,6 +73,34 @@ public class Query implements HasPaths, Returnable {
   private String uuid;
   private boolean isBase;
 
+  public String getFromTypeIri() {
+    return fromTypeIri;
+  }
+  public Query setFromTypeIri(String fromTypeIri) {
+    this.fromTypeIri = fromTypeIri;
+    return this;
+  }
+
+  public List<Query> getUnion() {
+    return union;
+  }
+
+  public Query setUnion(List<Query> union) {
+    this.union = union;
+    return this;
+  }
+  public Query addUnion(Query query) {
+    if (this.union == null) this.union = new ArrayList<>();
+    this.union.add(query);
+    return this;
+  }
+
+  public Query union(Consumer<Query> builder) {
+    Query query = new Query();
+    addUnion(query);
+    builder.accept(query);
+    return this;
+  }
   public boolean isBase() {
     return isBase;
   }

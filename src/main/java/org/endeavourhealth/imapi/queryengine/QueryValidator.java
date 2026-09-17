@@ -184,22 +184,19 @@ public class QueryValidator {
   }
 
   private void validateAssignable(Assignable assignable) throws QueryException {
-    if
-    (assignable.getOperator() == null)
-      throw new QueryException("Operator must be specified");
-    if (assignable.getValue() == null && assignable.getCompare() == null) {
-      throw new QueryException("Either Value or a Compare and must be specified");
-    }
-    if (assignable.getCompare() != null)
-      validateCompare(assignable);
-  }
-
-  private void validateCompare(Assignable assignable) throws QueryException {
-    Compare compare = assignable.getCompare();
-    if (compare.getUnits() != null) {
+    if (assignable.getUnits() != null) {
       if (assignable.getValue() == null)
         throw new QueryException("Value must be specified when units are provided");
     }
+    if
+    (assignable.getOperator() == null)
+      throw new QueryException("Operator must be specified");
+
+  }
+
+  private void validateCompare(Where where) throws QueryException {
+    Compare compare = where.getCompare();
+
     if (compare.getRight() != null) validateSource(compare.getRight());
   }
 
@@ -246,6 +243,9 @@ public class QueryValidator {
     }
     if (where.getPropertyVariable() != null)
       variables.put(where.getPropertyVariable(), VarType.PATH);
+    if (where.getCompare() != null) {
+      validateCompare(where);
+    }
     if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null && where.getPropertyVariable() == null && where.getCompare() == null)
       throw new QueryException("Where clause has no criteria (property, compare or parameter");
     if (where.getNodeRef() != null && !variables.containsKey(where.getNodeRef()))

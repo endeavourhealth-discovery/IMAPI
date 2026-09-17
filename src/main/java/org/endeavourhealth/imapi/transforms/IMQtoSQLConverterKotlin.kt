@@ -831,21 +831,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return rnWith
   }
 
-  private fun getPropsUsedInThen(then: Where): MutableSet<String> {
-    val properties = mutableSetOf<String>()
-    fun collect(where: Where?) {
-      if (where == null) return
-      where.iri?.let { properties.add(it) }
-      where.and?.forEach { collect(it) }
-      where.or?.forEach { collect(it) }
-      where.range?.from?.compare?.left?.iri?.let { properties.add(it) }
-      where.range?.from?.compare?.right?.iri?.let { properties.add(it) }
-      where.compare?.left?.iri?.let { properties.add(it) }
-      where.compare?.right?.iri?.let { properties.add(it) }
-    }
-    collect(then)
-    return properties
-  }
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith) {
     with.selects.add(getDefaultSelect(with.table))
@@ -1274,7 +1259,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun resolveUnitAndTypeFromWhere(where: Where, rangeEndUnitsIri: String? = null): Pair<String?, String?> =
     when {
-      where.compare?.units?.iri != null -> getUnitNameAndType(where.compare.units.iri)
+      where.units?.iri != null -> getUnitNameAndType(where.units.iri)
       rangeEndUnitsIri != null -> getUnitNameAndType(rangeEndUnitsIri)
       where.qualifier?.iri != null -> getUnitNameAndType(where.qualifier.iri)
       else -> null to null
@@ -1312,7 +1297,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else if (where.range != null) {
       val from = where.range.from
       val to = where.range.to
-      val isDirectValue = from.compare == null && from.value != null
+      val isDirectValue = where.compare == null && from.value != null
 
       val fromWhere: MySQLWhere
       val toWhere: MySQLWhere
@@ -1331,16 +1316,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           table = tableRef
         )
       } else {
-        val fromRight = getValueFromRelativeTo(from, variableToTableMap)
-        val toRight = getValueFromRelativeTo(to, variableToTableMap)
+        val right = getValueFromRelativeTo(where,variableToTableMap)
 
-        val (fromUnit, fromUnitType) = resolveUnitAndTypeFromWhere(where, where.range.from.compare?.units?.iri)
-        val (toUnit, toType) = resolveUnitAndTypeFromWhere(where, where.range.to.compare?.units?.iri)
+
+        val (fromUnit, fromUnitType) = resolveUnitAndTypeFromWhere(where, where.range.from.units?.iri)
+        val (toUnit, toType) = resolveUnitAndTypeFromWhere(where, where.range.to.units?.iri)
 
         fromWhere = MySQLCompareWhere(
           property = field,
           operator = from.operator.value,
-          right = fromRight,
+          right = right,
           value = from.value?.let { toSqlLiteral(it) } ?: "",
           table = tableRef,
           units = if (fromUnitType == "Unit") fromUnit else null,
@@ -1350,7 +1335,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         toWhere = MySQLCompareWhere(
           property = field,
           operator = to.operator.value,
-          right = toRight,
+          right = right,
           value = to.value?.let { toSqlLiteral(it) } ?: "",
           table = tableRef,
           units = if (toType == "Unit") toUnit else null,
@@ -1406,9 +1391,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    ?: where.range?.from?.compare?.left?.nodeRef ?: where.range?.to?.compare?.left?.nodeRef
     val whereIri = where.compare?.left?.iri ?: where.iri
-    ?: where.range?.from?.compare?.left?.iri ?: where.range?.to?.compare?.left?.iri
+
     if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
@@ -1443,7 +1427,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return currentTable to field
   }
 
-  private fun getValueFromRelativeTo(where: Assignable, nodeToTableMap: HashMap<String, Table>): String {
+  private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String {
     val right = where.compare?.right
       ?: throw SQLConversionException("No value provided for where $where")
 

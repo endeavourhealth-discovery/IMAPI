@@ -165,9 +165,15 @@ public class IriCollector {
         collectAssignableIris(where.getRange().getTo(), iriSet);
       }
     }
+    if (where.getCompare() != null) {
+      collectCompareIris(where.getCompare(), iriSet);
+    }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
     }
+
+    if (where.getUnits() != null)
+      iriSet.add(where.getUnits().getIri());
   }
 
   private static void collectFunctionIris(FunctionClause function, Set<String> iriSet) {
@@ -188,18 +194,14 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-
-    if (assignable.getCompare() != null) {
-      collectCompareIris(assignable.getCompare(), iriSet);
-    }
+    if (assignable.getUnits() != null)
+      iriSet.add(assignable.getUnits().getIri());
 
   }
 
   private static void collectCompareIris(Compare compare, Set<String> iriSet) {
     collectValueSourceIris(compare.getLeft(), iriSet);
     collectValueSourceIris(compare.getRight(), iriSet);
-    if (compare.getUnits() != null)
-      iriSet.add(compare.getUnits().getIri());
   }
 
   private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {

@@ -134,9 +134,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
         if (definition.`return` == null) {
           val lastCTE = newMySqlQuery.withs.last { !it.exclude }
-          val (fk, _) = if (lastCTE.table.table == queryTypeOfTable.table)
-            queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
-          else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+          val fk = getLastCteEntityKeyField(lastCTE)
           newMySqlQuery.insert = "dataset.dataset_results"
           newMySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
@@ -150,9 +148,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } else {
       if (definition.`return` == null) {
         val lastCTE = mySqlQuery.withs.last { !it.exclude }
-        val (fk, _) = if (lastCTE.table.table == queryTypeOfTable.table)
-          queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
-        else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+        val fk = getLastCteEntityKeyField(lastCTE)
         mySqlQuery.insert = "dataset.cohort_results"
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
@@ -370,6 +366,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
 
     val finalWith = if (currentMatch.orderBy != null) wrapGroupOrderBy(unionWith, currentMatch) else unionWith
+    finalWith.isCarrierAliased = true
     mySqlQuery.withs.add(finalWith)
     currentMatch.`as`?.let { keepAsMap[it] = finalWith }
   }
@@ -512,11 +509,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (match.typeOf?.iri != null) {
       with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)
     } else if (match.from != null) {
+      val keptWith = keepAsMap[match.from]
       with.table = mySQLQuery.nodeToTableMap[match.from] ?: run {
-        val keptWith = keepAsMap[match.from]
-          ?: throw SQLConversionException("Table not found: ${match.from}")
-        keptWith.table.copy(table = keptWith.alias.trim('`'))
+        val kw = keptWith ?: throw SQLConversionException("Table not found: ${match.from}")
+        kw.table.copy(table = kw.alias.trim('`'))
       }
+      with.isCarrierAliased = keptWith?.isCarrierAliased ?: false
     } else {
       with.table = queryTypeOfTable
     }
@@ -704,12 +702,16 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return null
   }
 
+  private fun getLastCteEntityKeyField(lastCTE: MySQLWith): String? {
+    lastCTE.entityKeyField?.let { return it }
+    return if (lastCTE.table.table == queryTypeOfTable.table) queryTypeOfTable.primaryKey
+    else lastCTE.table.foreignKeyTo(queryTypeOfTable).first
+  }
+
   private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {
     val joinTable = getTableFromTypeAndProperty(queryTypeOfTable.dataModel, null)
     val lastCTE = mySqlQuery.withs.last { !it.exclude }
-    val (fk, _) = if (lastCTE.table.table == queryTypeOfTable.table)
-      queryTypeOfTable.primaryKey to queryTypeOfTable.primaryKey
-    else lastCTE.table.foreignKeyTo(queryTypeOfTable)
+    val fk = getLastCteEntityKeyField(lastCTE)
 
     val orgJoin = MySQLJoin(
       join = "JOIN",
@@ -779,7 +781,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       wheres = mutableListOf(),
       whereBool = Bool.and,
       subQuery = with,
-      entityKeyField = entityKeyField
+      entityKeyField = entityKeyField,
+      isCarrierAliased = with.isCarrierAliased
     )
 
     if (previousWith != null) {
@@ -833,7 +836,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith) {
-    with.selects.add(getDefaultSelect(with.table))
+    if (match.`as` != null) {
+      with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))
+    } else {
+      with.selects.add(getDefaultSelect(with.table))
+    }
     with.entityKeyField = getEntityKeyFieldName(with.table)
     if (match.`return` != null) {
       val (selects, _) =
@@ -1397,6 +1404,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: $nodeRef")
+
+    if (nodeRef == null && with.isCarrierAliased) {
+      val alias = whereIri.substringAfterLast('#')
+      val field = if (with.fromAlias != null) "${with.fromAlias}.$alias" else alias
+      return currentTable to field
+    }
+
     var rawField = getPropertyNameByTableAndPropertyIri(
       currentTable,
       whereIri
@@ -1438,24 +1452,29 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         ?: throw SQLConversionException("No property found for relativeTo ${where.compare?.right}")
 
     keepAsMap[nodeRef]?.let { keptWith ->
-      val field = right.propertyRef
-        ?: right.iri?.let { getPropertyNameByTableAndPropertyIri(keptWith.table, it).field }
-        ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
+      val field = if (keptWith.isCarrierAliased) {
+        right.propertyRef ?: right.iri?.substringAfterLast('#')
+          ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
+      } else {
+        right.iri?.let { getPropertyNameByTableAndPropertyIri(keptWith.table, it).field }
+          ?: right.propertyRef
+          ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
+      }
       return "${keptWith.alias}.$field"
     }
 
     var property = ""
     val nodeRefTable = nodeToTableMap[nodeRef]
     if (nodeRefTable != null) {
-      property = right.propertyRef
-        ?: right.iri?.let { getPropertyNameByTableAndPropertyIri(nodeRefTable, it).field }
+      property = right.iri?.let { getPropertyNameByTableAndPropertyIri(nodeRefTable, it).field }
+        ?: right.propertyRef
           ?: ""
     } else {
       getDataModelFromKeepAs(nodeRef)?.let {
-        property = right.propertyRef
-          ?: right.iri?.let { iri ->
-            getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), iri).field
-          }
+        property = right.iri?.let { iri ->
+          getPropertyNameByTableAndPropertyIri(getTableFromTypeAndProperty(it, null), iri).field
+        }
+          ?: right.propertyRef
             ?: ""
       }
     }

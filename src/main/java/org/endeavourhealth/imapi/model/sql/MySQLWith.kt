@@ -19,7 +19,8 @@ data class MySQLWith(
   val groupByColumns: MutableList<String> = mutableListOf(),
   var havingClause: String? = null,
   var entityKeyField: String? = null,
-  val isCohortRef: Boolean = false
+  val isCohortRef: Boolean = false,
+  var isCarrierAliased: Boolean = false
 ) {
   private fun toSqlBody(): String {
     if (unionWiths.isNotEmpty()) return toUnionSqlBody()

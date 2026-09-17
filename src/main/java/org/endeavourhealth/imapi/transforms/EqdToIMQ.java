@@ -375,8 +375,7 @@ public class EqdToIMQ {
       queryEntity.addType(iri(IM.QUERY));
       (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
     } else if (eqReport.getAuditReport() != null) {
-      queryEntity.addType(iri(IM.QUERY));
-      (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);
+      System.err.println("Audit reports not supported");
     } else if (eqReport.getAggregateReport() != null) {
       System.err.println("Aggregate reports not supported");
       return null;

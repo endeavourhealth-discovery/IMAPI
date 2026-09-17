@@ -50,6 +50,9 @@ public class EqdPopToIMQ {
               .setName(resources.reportNames.get(id))));
       }
     }
+    else if (eqReport.getParent().getParentType()== VocPopulationParentType.ALL){
+      query.setTypeOf(new Node().setIri(NAMESPACE.IM + "Patient"));
+    }
     if (query.getRule() != null) {
       query.getRule().getFirst()
         .setIfTrue(RuleAction.NEXT)

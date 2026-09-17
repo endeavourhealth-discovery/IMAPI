@@ -639,10 +639,6 @@ public class EqdResources {
     for (EQDOCColumnValue cv : columns) {
       this.convertColumn(table, cv, query);
     }
-    if (query.getPath() != null) {
-      query.setTypeOf(new Node().setIri(query.getPath().getFirst().getTypeOf().getIri()));
-    }
-
     return query;
   }
 

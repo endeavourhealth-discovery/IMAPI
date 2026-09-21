@@ -9,9 +9,18 @@ data class Table(
   var condition: Condition? = null,
   var dataModel: String = "",
   var fields: HashMap<String, Field> = HashMap(),
-  var relationships: HashMap<String, Relationship> = HashMap(),
+  var relationships: MutableList<Relationship> = mutableListOf(),
 ) {
   var alias: String? = null
+
+  fun relationshipTo(targetDataModel: String, viaProperty: String? = null): Relationship? {
+    val candidates = relationships.filter { it.dataModel == targetDataModel }
+    if (candidates.isEmpty()) return null
+    if (viaProperty != null) {
+      candidates.firstOrNull { it.viaProperty == viaProperty }?.let { return it }
+    }
+    return candidates.firstOrNull { it.viaProperty == null } ?: candidates.first()
+  }
 
   fun getJoinCondition(
     joinType: String = "JOIN",
@@ -21,15 +30,17 @@ data class Table(
     tableToAlias: String? = null,
     fromField: String? = null,
     toField: String? = null,
-    reference: Boolean? = false
+    reference: Boolean? = false,
+    viaProperty: String? = null,
   ): MySQLJoin {
-    if (relationships[tableTo.dataModel] == null && dataModel != tableTo.dataModel) {
+    val rel = relationshipTo(tableTo.dataModel, viaProperty)
+    if (rel == null && dataModel != tableTo.dataModel) {
       if (fromField == null && toField == null)
         throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     }
-    val innerField = fromField ?: relationships[tableTo.dataModel]?.fromField
+    val innerField = fromField ?: rel?.fromField
     ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
-    val outerField = relationships[tableTo.dataModel]?.toField
+    val outerField = rel?.toField
       ?: toField
       ?: if (dataModel == tableTo.dataModel) primaryKey else throw SQLConversionException("No primary key found for table ${tableTo.table}")
     return MySQLJoin(
@@ -47,9 +58,11 @@ data class Table(
     joinType: String = "JOIN",
     tableTo: Table,
     tableToAlias: String,
-    reference: Boolean? = false
+    reference: Boolean? = false,
+    viaProperty: String? = null,
   ): MySQLJoin {
-    if (relationships[tableTo.dataModel] == null && (dataModel != tableTo.dataModel && tableTo.table != table)) {
+    val rel = relationshipTo(tableTo.dataModel, viaProperty)
+    if (rel == null && (dataModel != tableTo.dataModel && tableTo.table != table)) {
       throw SQLConversionException("Relationship between $table and ${tableTo.table} not found")
     }
     return MySQLJoin(
@@ -57,8 +70,8 @@ data class Table(
       table,
       tableTo.table,
       tableToAlias,
-      relationships[tableTo.dataModel]?.fromField ?: primaryKey,
-      relationships[tableTo.dataModel]?.toField ?: primaryKey,
+      rel?.fromField ?: primaryKey,
+      rel?.toField ?: primaryKey,
       reference = reference
     )
   }
@@ -80,8 +93,8 @@ data class Table(
     )
   }
 
-  fun foreignKeyTo(target: Table): Pair<String?, String?> {
-    val rel = relationships[target.dataModel]
+  fun foreignKeyTo(target: Table, viaProperty: String? = null): Pair<String?, String?> {
+    val rel = relationshipTo(target.dataModel, viaProperty)
       ?: return null to null
     return rel.fromField to rel.toField
   }

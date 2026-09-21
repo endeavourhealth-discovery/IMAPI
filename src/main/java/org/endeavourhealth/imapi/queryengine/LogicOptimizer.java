@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.reasoner;
+package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +9,38 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Query> keepMatches = new HashMap<>();
+  private Map<String, Query> asMap;
+
+
+
+  public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
+    asMap = new HashMap<>();
+    try {
+      if (displayMode == DisplayMode.LOGICAL) {
+        getLogicFromRules(query);
+        optimiseMatch(query);
+      } else {
+        optimiseMatch(query);
+      }
+      flattenMatch(query);
+      operationalise(query,null);
+    } catch (Exception e) {
+      throw new QueryException("Error resolving logic", e);
+    }
+  }
+
+  private void operationalise(Query query,Query parent) {
+    if (query.getAnd() != null) {
+        for (int i = 0; i < query.getAnd().size(); i++) {
+          Query subQuery = query.getAnd().get(i);
+          operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+        }
+    }
+    if (query.getAs()!=null){
+      asMap.put(query.getAs(), query);
+    }
+  }
+
 
   public static void optimizeQuery(Query query) {
     cleanBooleans(query);
@@ -167,8 +198,6 @@ public class LogicOptimizer {
 
     if (query.getWhere() != null)
       query.setWhere(rewriteAgeWhere(query.getWhere()));
-    if (query.getThen() != null && query.getThen().getWhere() != null)
-      query.getThen().setWhere(rewriteAgeWhere(query.getThen().getWhere()));
   }
 
   private static Where rewriteAgeWhere(Where where) {
@@ -196,7 +225,6 @@ public class LogicOptimizer {
     Compare compare = new Compare();
     compare.setLeft(left);
     compare.setRight(right);
-    compare.setUnits(where.getUnits());
 
     rewritten.setCompare(compare);
 
@@ -211,8 +239,6 @@ public class LogicOptimizer {
 
     if (query.getWhere() != null)
       query.setWhere(rewriteNegativeIntervalWhere(query.getWhere()));
-    if (query.getThen() != null && query.getThen().getWhere() != null)
-      query.getThen().setWhere(rewriteNegativeIntervalWhere(query.getThen().getWhere()));
   }
 
   private static Where rewriteNegativeIntervalWhere(Where where) {
@@ -224,17 +250,17 @@ public class LogicOptimizer {
 
     if (where.getRange() != null) {
       if (where.getRange().getFrom() != null)
-        where.getRange().setFrom(rewriteNegativeIntervalValue(where.getRange().getFrom()));
+        where.getRange().setFrom(rewriteNegativeIntervalValue(where,where.getRange().getFrom()));
 
       if (where.getRange().getTo() != null)
-        where.getRange().setTo(rewriteNegativeIntervalValue(where.getRange().getTo()));
+        where.getRange().setTo(rewriteNegativeIntervalValue(where,where.getRange().getTo()));
 
       return where;
     }
 
     if (where.getCompare() == null) return where;
     if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
-    if (where.getCompare().getUnits() == null) return where;
+    if (where.getUnits() == null) return where;
 
     Compare compare = where.getCompare();
     String positiveValue = where.getValue().substring(1);
@@ -248,7 +274,6 @@ public class LogicOptimizer {
       Compare swapped = new Compare();
       swapped.setLeft(compare.getRight());
       swapped.setRight(compare.getLeft());
-      swapped.setUnits(compare.getUnits());
       where.setCompare(swapped);
       where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
       where.setValue(positiveValue);
@@ -259,12 +284,12 @@ public class LogicOptimizer {
     return where;
   }
 
-  private static Value rewriteNegativeIntervalValue(Value value) {
-    if (value.getCompare() == null) return value;
+  private static Value rewriteNegativeIntervalValue(Where where,Value value) {
+    if (where.getCompare() == null) return value;
     if (value.getValue() == null || !value.getValue().startsWith("-")) return value;
-    if (value.getCompare().getUnits() == null) return value;
+    if (value.getUnits() == null) return value;
 
-    Compare compare = value.getCompare();
+    Compare compare = where.getCompare();
     String positiveValue = value.getValue().substring(1);
 
     boolean leftIsSearchDate = compare.getLeft() != null
@@ -276,8 +301,7 @@ public class LogicOptimizer {
       Compare swapped = new Compare();
       swapped.setLeft(compare.getRight());
       swapped.setRight(compare.getLeft());
-      swapped.setUnits(compare.getUnits());
-      value.setCompare(swapped);
+      where.setCompare(swapped);
       value.setOperator(invertComparisonOperator(value.getOperator().getValue()));
       value.setValue(positiveValue);
     } else if (rightIsSearchDate) {
@@ -324,24 +348,12 @@ public class LogicOptimizer {
     }
   }
 
-  public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
-    try {
-      if (displayMode == DisplayMode.LOGICAL) {
-        getLogicFromRules(query);
-        optimiseMatch(query);
-      } else {
-        optimiseMatch(query);
-      }
-      flattenMatch(query);
-    } catch (Exception e) {
-      throw new QueryException("Error resolving logic", e);
-    }
-  }
-
   private void getLogicFromRules(Query query) {
     if (query.getRule() == null) return;
-    Query topOr = null;
-    for (Query subQuery : query.getRule()) {
+    Query or=null;
+    Query and=query;
+    for (int i=0;i<query.getRule().size();i++) {
+      Query subQuery = query.getRule().get(i);
       RuleAction ifTrue = subQuery.getIfTrue();
       RuleAction ifFalse = subQuery.getIfFalse();
       if (ifTrue == ifFalse) {
@@ -349,45 +361,58 @@ public class LogicOptimizer {
       }
       switch (ifTrue + "_" + ifFalse) {
         case "SELECT_REJECT":
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else query.addAnd(subQuery);
+          if (i<query.getRule().size()-1)
+            throw new IllegalArgumentException("Select /Reject must be last rule");
+          if (or!=null)
+            or.addOr(subQuery);
+          else and.addAnd(subQuery);
           break;
         case "SELECT_NEXT":
-          if (topOr != null) topOr.addOr(subQuery);
+          if (or!=null)
+            or.addOr(subQuery);
           else {
-            topOr = new Query();
-            query.addAnd(topOr);
-            topOr.addOr(subQuery);
+            or= new Query();
+            and.addAnd(or);
+            or.addOr(subQuery);
+          }
+          break;
+        case "NEXT_REJECT":
+          if (or!=null) {
+            or.addOr(subQuery);
+            or=null;
+          }
+          else and.addAnd(subQuery);
+          break;
+        case "NEXT_SELECT":
+          subQuery.setNotExists(true);
+          if (or!=null)
+            or.addOr(subQuery);
+          else {
+            or= new Query();
+            and.addAnd(or);
+            or.addOr(subQuery);
           }
           break;
         case "REJECT_SELECT":
           subQuery.setNotExists(true);
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else query.addAnd(subQuery);
+          if (i<query.getRule().size()-1)
+            throw new IllegalArgumentException("Reject /select must be last rule");
+          if (or!=null)
+            or.addOr(subQuery);
+          else and.addAnd(subQuery);
           break;
+
         case "REJECT_NEXT":
           subQuery.setNotExists(true);
-          query.addAnd(subQuery);
-          topOr = null;
-          break;
-        case "NEXT_SELECT":
-          subQuery.setNotExists(true);
-          if (topOr != null) {
-            topOr.addOr(subQuery);
-            topOr = null;
-          } else {
-            topOr = new Query();
-            query.addAnd(topOr);
-            topOr.addOr(subQuery);
+          if (or!=null){
+            and=new Query();
+            or.addOr(and);
+            and.addAnd(subQuery);
+            or=null;
           }
+          else and.addAnd(subQuery);
           break;
-        case "NEXT_REJECT":
-          query.addAnd(subQuery);
-          break;
+
       }
     }
     query.setRule(null);
@@ -398,6 +423,7 @@ public class LogicOptimizer {
     optimizeAndMatches(query);
     optimizeOrMatches(query);
   }
+
 
   private void flattenMatch(Query query) {
     if (query.getOr() != null && !query.isNotExists()) {
@@ -423,6 +449,7 @@ public class LogicOptimizer {
       }
     }
   }
+
 
   private void flattenOrs(Query query, List<Query> flatOrs) {
     for (Query subQuery : query.getOr()) {

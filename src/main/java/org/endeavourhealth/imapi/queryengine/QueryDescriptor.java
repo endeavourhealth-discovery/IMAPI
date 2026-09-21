@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -34,8 +33,9 @@ public class QueryDescriptor {
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
   private DisplayMode displayMode;
+  private String baseType;
 
-  public static String describeOrderBy(OrderLimit orderBy) {
+  public String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
@@ -52,8 +52,16 @@ public class QueryDescriptor {
         orderDisplay = orderDisplay + " " + orderBy.getLimit();
       else orderDisplay = orderDisplay + " several ";
     }
-    orderBy.setDescription(orderDisplay);
 
+    if (orderBy.getPartition()!=null){
+      int partitionCount=0;
+      for (IriLD partition : orderBy.getPartition()){
+        partitionCount++;
+        if (partitionCount>1)
+          orderDisplay = orderDisplay + "per " +  getTermInContext(partition.getIri());
+      }
+    }
+    orderBy.setDescription(orderDisplay);
     return orderDisplay;
   }
 
@@ -113,6 +121,9 @@ public class QueryDescriptor {
 
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
     this.displayMode = displayMode;
+    if (query.getTypeOf()!=null){
+      baseType= query.getTypeOf().getIri();
+    }
     setIriNames(query);
     if (iriContext == null || iriContext.isEmpty())
       return query;
@@ -295,10 +306,6 @@ public class QueryDescriptor {
     if (query.getWhere() != null) {
       describeWhere(query.getWhere(), query);
     }
-
-    if (query.getThen() != null) {
-      describeThen(query.getThen(), query);
-    }
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
     }
@@ -366,11 +373,6 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeThen(Query then, Query query) {
-    if (then.getWhere() != null) {
-      describeWhere(then.getWhere(), query);
-    }
-  }
 
   private void describeWhere(Where where, Query query) {
     if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
@@ -411,21 +413,23 @@ public class QueryDescriptor {
       where.getQualifier().setName(getTermInContext(where.getQualifier().getIri(), Context.PLURAL));
     }
     describeAssignable(where);
+    if (where.getCompare() != null) {
+      describeCompare(where.getCompare());
+    }
   }
 
   public void describeAssignable(Assignable assignable) {
-    if (assignable.getCompare() != null) {
-      describeCompare(assignable.getCompare());
+    if (assignable.getUnits() != null) {
+      assignable.getUnits().setName(getTermInContext(assignable.getUnits().getIri(), Context.PLURAL));
     }
+
 
   }
 
   private void describeCompare(Compare compare) {
     describeValueSource(compare.getLeft());
     describeValueSource(compare.getRight());
-    if (compare.getUnits() != null) {
-      compare.getUnits().setName(getTermInContext(compare.getUnits().getIri(), Context.PLURAL));
-    }
+
   }
 
   private void describeValueSource(ValueSource source) {

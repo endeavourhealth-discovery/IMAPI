@@ -1,6 +1,4 @@
 package org.endeavourhealth.imapi.model.sql
-
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
@@ -102,7 +100,7 @@ class MySQLCompareWhere(
             "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
             else -> "$prop - $right $operator $value"
           }
-        } else throw SQLConversionException("No units or qualifier provided")
+        } else "($prop) $operator $right"
       return if (not == true) "NOT ($base)" else base
     }
 }

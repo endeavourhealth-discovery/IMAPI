@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.reasoner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.Query;
+import org.endeavourhealth.imapi.queryengine.LogicComparer;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.junit.jupiter.api.Test;
 

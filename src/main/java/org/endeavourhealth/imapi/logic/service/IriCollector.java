@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import software.amazon.awssdk.services.s3.endpoints.internal.Partition;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -99,9 +100,6 @@ public class IriCollector {
         }
       }
     }
-    if (query.getThen()!=null){
-      collectMatchIris(query.getThen(), iriSet);
-    }
 
 
 
@@ -110,9 +108,6 @@ public class IriCollector {
       collectWhereIris(query.getWhere(), iriSet);
     }
 
-    if (query.getThen() != null) {
-      collectMatchIris(query.getThen(), iriSet);
-    }
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
         collectReturnIris(prop, iriSet);
@@ -127,6 +122,11 @@ public class IriCollector {
     if (orderBy.getProperty() != null) {
       for (OrderDirection property : orderBy.getProperty()) {
         iriSet.add(property.getIri());
+      }
+    }
+    if (orderBy.getPartition()!=null){
+      for (IriLD partition : orderBy.getPartition()){
+        iriSet.add(partition.getIri());
       }
     }
   }
@@ -165,9 +165,15 @@ public class IriCollector {
         collectAssignableIris(where.getRange().getTo(), iriSet);
       }
     }
+    if (where.getCompare() != null) {
+      collectCompareIris(where.getCompare(), iriSet);
+    }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
     }
+
+    if (where.getUnits() != null)
+      iriSet.add(where.getUnits().getIri());
   }
 
   private static void collectFunctionIris(FunctionClause function, Set<String> iriSet) {
@@ -188,18 +194,14 @@ public class IriCollector {
   }
 
   private static void collectAssignableIris(Assignable assignable, Set<String> iriSet) {
-
-    if (assignable.getCompare() != null) {
-      collectCompareIris(assignable.getCompare(), iriSet);
-    }
+    if (assignable.getUnits() != null)
+      iriSet.add(assignable.getUnits().getIri());
 
   }
 
   private static void collectCompareIris(Compare compare, Set<String> iriSet) {
     collectValueSourceIris(compare.getLeft(), iriSet);
     collectValueSourceIris(compare.getRight(), iriSet);
-    if (compare.getUnits() != null)
-      iriSet.add(compare.getUnits().getIri());
   }
 
   private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {

@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.logic.reasoner;
+package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

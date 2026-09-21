@@ -93,7 +93,8 @@ data class MySQLWith(
     return buildString {
       appendLine("$alias AS (")
       appendLine(body.prependIndent("  "))
-      append(")")
+      appendLine(")")
+      appendLine("-- row count: SELECT COUNT(*) FROM $alias")
     }
   }
 }

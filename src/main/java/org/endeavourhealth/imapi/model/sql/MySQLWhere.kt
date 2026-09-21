@@ -1,4 +1,5 @@
 package org.endeavourhealth.imapi.model.sql
+
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
@@ -91,7 +92,7 @@ class MySQLCompareWhere(
             "DAY", "MONTH", "YEAR" -> {
               val isNegative = value.trim().startsWith("-")
               val magnitude = if (isNegative) value.trim().removePrefix("-") else value
-              val function = if (isNegative) "DATE_ADD" else "DATE_SUB"
+              val function = if (isNegative) "DATE_SUB" else "DATE_ADD"
               "($prop) $operator $function($right, INTERVAL $magnitude $units)"
             }
 

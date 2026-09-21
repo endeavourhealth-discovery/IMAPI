@@ -303,11 +303,58 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     currentMatch: Query,
     mySqlQuery: MySQLQuery,
   ) {
+    if (currentMatch.notExists() && (currentMatch.and != null || currentMatch.or != null || currentMatch.`is` != null)) {
+      addNotExistsGroup(currentMatch, mySqlQuery)
+      return
+    }
     if (currentMatch.and != null) addAnds(currentMatch, mySqlQuery)
     if (currentMatch.or != null) addOrs(currentMatch, mySqlQuery)
     if (currentMatch.`is` != null) mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
   }
 
+  private fun addNotExistsGroup(group: Query, mySqlQuery: MySQLQuery) {
+    val previous = mySqlQuery.withs.lastOrNull()
+      ?: throw SQLConversionException("notExists on a group needs a preceding match to exclude from")
+    val withCount = mySqlQuery.withs.size
+    group.setNotExists(false)
+    try {
+      addMatchWithsRecursively(group, mySqlQuery)
+    } finally {
+      group.setNotExists(true)
+    }
+    if (mySqlQuery.withs.size == withCount) {
+      throw SQLConversionException("notExists group produced no match to exclude")
+    }
+    mySqlQuery.withs.add(getAntiJoinWith(previous, mySqlQuery.withs.last()))
+  }
+
+  private fun getAntiJoinWith(previous: MySQLWith, excluded: MySQLWith): MySQLWith {
+    val previousKey = getLastCteEntityKeyField(previous)
+    val excludedKey = getLastCteEntityKeyField(excluded)
+    if (previousKey == null || excludedKey == null) {
+      throw SQLConversionException("No entity key to exclude ${excluded.alias} from ${previous.alias}")
+    }
+    return MySQLWith(
+      table = previous.table,
+      alias = ensureUniqueAlias("not_exists"),
+      selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
+      joins = mutableListOf(
+        MySQLJoin(
+          join = "LEFT JOIN",
+          tableFrom = previous.alias,
+          tableTo = excluded.alias,
+          tableToAlias = excluded.alias,
+          fromProperty = previousKey,
+          toProperty = excludedKey,
+          reference = true
+        )
+      ),
+      wheres = mutableListOf(MySQLPropertyValueWhere(excludedKey, "IS", "NULL", table = excluded.alias.trim('`'))),
+      fromAlias = previous.alias,
+      entityKeyField = previousKey,
+      isCarrierAliased = previous.isCarrierAliased
+    )
+  }
 
   private fun addAnds(currentMatch: Query, mySqlQuery: MySQLQuery) {
     for (match in currentMatch.and) {

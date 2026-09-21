@@ -88,8 +88,12 @@ class MySQLCompareWhere(
       val base =
         if (units != null) {
           when (units) {
-            "DAY", "MONTH", "YEAR" ->
-              "($prop) $operator DATE_SUB($right, INTERVAL $value $units)"
+            "DAY", "MONTH", "YEAR" -> {
+              val isNegative = value.trim().startsWith("-")
+              val magnitude = if (isNegative) value.trim().removePrefix("-") else value
+              val function = if (isNegative) "DATE_ADD" else "DATE_SUB"
+              "($prop) $operator $function($right, INTERVAL $magnitude $units)"
+            }
 
             else -> throw SQLConversionException("Unsupported unit $units")
           }

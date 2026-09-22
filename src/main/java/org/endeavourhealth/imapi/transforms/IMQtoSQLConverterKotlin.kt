@@ -44,6 +44,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val MAX_ALIAS_LENGTH = 64
   private var longAliasCounter = 1
   private val usedAliases = mutableSetOf<String>()
+  private var cteCounter = 0
   private val carryPropertiesStack = ArrayDeque<List<String>>()
   private val DATE_FORMATS = listOf(
     DateTimeFormatter.ofPattern("yyyy-MM-dd"),
@@ -111,6 +112,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     usedAliases.clear()
     nodePathContextMap.clear()
     keepAsMap.clear()
+    cteCounter = 0
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -123,6 +125,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         usedAliases.clear()
         nodePathContextMap.clear()
         keepAsMap.clear()
+        cteCounter = 0
         val newMySqlQuery = MySQLQuery()
         if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
@@ -170,6 +173,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     usedAliases.clear()
     nodePathContextMap.clear()
     keepAsMap.clear()
+    cteCounter = 0
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -249,7 +253,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
     val isA = match.`is`
-    val isAlias = ensureUniqueAlias(getCteAliasFromTypeAndProperty(isA.iri, null))
+    val name = ensureAs(match) { isA.name ?: "cte" }
+    val isAlias = nextCteAlias(name)
     val withJoins = mutableListOf<MySQLJoin>()
     val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
     cohortTable.table = "dataset.cohort_results"
@@ -293,13 +298,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
   }
 
-  private fun getCteAliasFromTypeAndProperty(typeIri: String?, propertyIri: String?): String {
-    val typeIriSuffix = typeIri?.substringAfter('#')
-    if (propertyIri == null) return "${typeIriSuffix}_cte"
-    val propertyIriSuffix = propertyIri.substringAfter('#')
-    return "${typeIriSuffix}_${propertyIriSuffix}_cte"
-  }
-
   private fun addMatchWithsRecursively(
     currentMatch: Query,
     mySqlQuery: MySQLQuery,
@@ -316,6 +314,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun addNotExistsGroup(group: Query, mySqlQuery: MySQLQuery) {
     val previous = mySqlQuery.withs.lastOrNull()
       ?: throw SQLConversionException("notExists on a group needs a preceding match to exclude from")
+    val groupAs = group.`as`
     val withCount = mySqlQuery.withs.size
     group.setNotExists(false)
     try {
@@ -326,18 +325,19 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (mySqlQuery.withs.size == withCount) {
       throw SQLConversionException("notExists group produced no match to exclude")
     }
-    mySqlQuery.withs.add(getAntiJoinWith(previous, mySqlQuery.withs.last()))
+    mySqlQuery.withs.add(getAntiJoinWith(groupAs, previous, mySqlQuery.withs.last()))
   }
 
-  private fun getAntiJoinWith(previous: MySQLWith, excluded: MySQLWith): MySQLWith {
+  private fun getAntiJoinWith(groupAs: String?, previous: MySQLWith, excluded: MySQLWith): MySQLWith {
     val previousKey = getLastCteEntityKeyField(previous)
     val excludedKey = getLastCteEntityKeyField(excluded)
     if (previousKey == null || excludedKey == null) {
       throw SQLConversionException("No entity key to exclude ${excluded.alias} from ${previous.alias}")
     }
+    val name = groupAs ?: "not_exists"
     return MySQLWith(
       table = previous.table,
-      alias = ensureUniqueAlias("not_exists"),
+      alias = nextCteAlias(name),
       selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
       wheres = mutableListOf(
         MySQLNotExistsWhere(
@@ -951,15 +951,32 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getWithAlias(match: Query, mySQLQuery: MySQLQuery): String {
-    val baseAlias = if (match.name != null) sanitiseAlias(match.name)
-    else if (match.node != null) sanitiseAlias(match.node)
-    else "cte_${mySQLQuery.withs.size}"
-
-    return ensureUniqueAlias(baseAlias)
+    val name = ensureAs(match) {
+      match.name
+        ?: match.node
+        ?: match.typeOf?.name
+        ?: match.from?.let { "${it}_relative" }
+        ?: "match"
+    }
+    return nextCteAlias(name)
   }
 
   private fun sanitiseAlias(alias: String): String {
     return alias.replace("...", "_").replace(" ", "_").replace(".", "_").replace("-", "_").lowercase(getDefault())
+  }
+
+  private fun ensureAs(match: Query, fallback: () -> String): String {
+    if (match.`as` == null) match.setAs(fallback())
+    return match.`as`
+  }
+
+  private fun nextCteAlias(baseName: String): String {
+    cteCounter++
+    return ensureUniqueAlias("${sanitiseAlias(baseName)}_$cteCounter")
+  }
+
+  private fun cteNormalise(value: String): String {
+    return value.lowercase(getDefault()).replace(Regex("[^a-z0-9_]"), "_")
   }
 
   private fun getSelects(
@@ -1396,7 +1413,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           table = tableRef
         )
       } else {
-        val right = getValueFromRelativeTo(where,variableToTableMap)
+        val right = getValueFromRelativeTo(where, variableToTableMap)
 
 
         val (fromUnit, fromUnitType) = resolveUnitAndTypeFromWhere(where, where.range.from.units?.iri)
@@ -1524,10 +1541,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       ?: return right.propertyRef
         ?: throw SQLConversionException("No property found for relativeTo ${where.compare?.right}")
 
-    keepAsMap[nodeRef]?.let { keptWith ->
+    (keepAsMap[nodeRef] ?: keepAsMap[cteNormalise(nodeRef)])?.let { keptWith ->
       val field = if (keptWith.isCarrierAliased) {
         right.propertyRef ?: right.iri?.substringAfterLast('#')
-          ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
+        ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
       } else {
         right.iri?.let { getPropertyNameByTableAndPropertyIri(keptWith.table, it).field }
           ?: right.propertyRef
@@ -1754,6 +1771,25 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           addPathTableAndJoins(path.path, tableMap, with, parentTable, addJoins)
         }
       }
+    }
+  }
+
+  companion object {
+    @JvmStatic
+    fun preassignOrderByAs(query: Query?) {
+      var unknownCounter = 0
+      fun walk(match: Query?) {
+        if (match == null) return
+        if (match.orderBy != null && match.`as` == null) {
+          unknownCounter++
+          match.setAs("cte_$unknownCounter")
+        }
+        match.and?.forEach { walk(it) }
+        match.or?.forEach { walk(it) }
+        match.rule?.forEach { walk(it) }
+        match.columnGroup?.forEach { walk(it) }
+      }
+      walk(query)
     }
   }
 }

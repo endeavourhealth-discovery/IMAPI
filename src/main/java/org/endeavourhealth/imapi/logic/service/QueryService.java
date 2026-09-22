@@ -89,6 +89,7 @@ public class QueryService {
       query = queryRequest.getQuery();
     }
     try {
+      IMQtoSQLConverterKotlin.preassignOrderByAs(query);
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimiseAgeWheres(query);
     } catch (Exception e) {

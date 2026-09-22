@@ -93,7 +93,8 @@ public class IriCollector {
       else if (node.getIri() != null)
         iriSet.add(node.getIri());
     }
-    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd(), query.getRule())) {
+    for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd(),
+      query.getRule(),query.getUnion(),query.getEach())) {
       if (queries != null) {
         for (Query subQuery : queries) {
           collectMatchIris(subQuery, iriSet);

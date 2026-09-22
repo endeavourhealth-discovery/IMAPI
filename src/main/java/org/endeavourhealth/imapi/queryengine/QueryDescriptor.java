@@ -128,9 +128,7 @@ public class QueryDescriptor {
     if (iriContext == null || iriContext.isEmpty())
       return query;
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
-    if (displayMode == DisplayMode.RULES && query.getRule() == null) {
-      new LogicOptimizer().getRulesFromLogic(query);
-    } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
+    if (displayMode == DisplayMode.LOGICAL) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     }
     describeMatch(query);
@@ -289,7 +287,7 @@ public class QueryDescriptor {
     if (query.getIs() != null) {
       describeIs(query.getIs());
     }
-    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr())) {
+    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr(),query.getUnion(),query.getEach())) {
       if (subQueries != null) {
         for (Query subQuery : subQueries) {
           describeMatch(subQuery);

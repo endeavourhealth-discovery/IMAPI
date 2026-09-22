@@ -578,6 +578,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getMySQLWithFromMatch(match: Query, mySQLQuery: MySQLQuery): MySQLWith {
     var with = MySQLWith()
+    val isReferencedElsewhere = match.`as` != null
 
     if (match.typeOf?.iri != null) {
       with.table = getTableFromTypeAndProperty(match.typeOf.iri, null)
@@ -606,7 +607,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     }
 
-    addSelects(match, mySQLQuery, with)
+    addSelects(match, mySQLQuery, with, isReferencedElsewhere)
 
     if (match.orderBy != null) {
       with = getOrderByWith(with, match, mySQLQuery)
@@ -908,8 +909,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
 
-  private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith) {
-    if (match.`as` != null) {
+  private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
+    if (isReferencedElsewhere) {
       with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))
     } else {
       with.selects.add(getDefaultSelect(with.table))

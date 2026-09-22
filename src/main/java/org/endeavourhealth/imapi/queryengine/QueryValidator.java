@@ -149,7 +149,8 @@ public class QueryValidator {
       }
     }
 
-    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr())) {
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(),
+      query.getUnion(), query.getEach(),query.getRule())) {
       if (queries != null) {
         for (Query subQuery : queries) {
           validateMatch(subQuery);

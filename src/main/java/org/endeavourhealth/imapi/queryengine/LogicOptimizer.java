@@ -9,7 +9,8 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Query> asMap;
+  private Map<String, Integer> asMap;
+  private int matchCounter = 0;
 
 
 
@@ -30,16 +31,132 @@ public class LogicOptimizer {
   }
 
   private void operationalise(Query query,Query parent) {
-    if (query.getAnd() != null) {
-        for (int i = 0; i < query.getAnd().size(); i++) {
-          Query subQuery = query.getAnd().get(i);
-          operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
-        }
+    if (query.getFrom()!=null){
+      query.setFrom(cte(query.getFrom()));
     }
-    if (query.getAs()!=null){
-      asMap.put(query.getAs(), query);
+    if (query.getAnd() != null) {
+      for (int i = 0; i < query.getAnd().size(); i++) {
+        Query subQuery = query.getAnd().get(i);
+        operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+      }
+    }
+    if (query.getOr() != null) {
+      for (int i = 0; i < query.getOr().size(); i++) {
+        Query subQuery = query.getOr().get(i);
+        operationalise(subQuery,null);
+      }
+    }
+    if (query.getOrderBy()!=null||query.getWhere()!=null||query.getIs()!=null) {
+      setAs(query,parent);
     }
   }
+  private void setAs(Query query, Query parent) {
+    if (query.getAs()!=null) {
+      query.setAs(cte(query.getAs()));
+      return;
+    }
+    String keepAs="";
+    if (query.getWhere() != null) {
+      keepAs = createAs(query);
+      query.setAs(keepAs);
+    }
+
+    if (query.isTest()) {
+      query.setAs(cte(parent.getAs()+"_"+keepAs));
+    } else if (query.getOrderBy() != null) {
+      Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
+      query.setAs(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs);
+    }
+  }
+  private void setAs(Query query) {
+    if (query.getAs()!=null) {
+      query.setAs(cte(query.getAs()));
+      return;
+    }
+    if (query.getAnd()!=null){
+      setAs(query.getAnd().getLast());
+      return;
+    }
+    StringBuilder keepAs = new StringBuilder();
+    if (query.getWhere() != null) {
+      keepAs.append(createAs(query).replace(" ","_"));
+      if (keepAs.isEmpty()) {
+        matchCounter++;
+        query.setAs("cte_" + matchCounter);
+      }
+      else query.setAs(getUniqueAs(keepAs.toString()));
+    }else {
+      matchCounter++;
+      query.setAs("cte_" + matchCounter);
+    }
+    if (query.getOrderBy() != null) {
+      setAs(query, query);
+    }
+  }
+  private String getUniqueAs(String as){
+    if (asMap.get(as)==null){
+      asMap.put(as,1);
+      return as;
+    }
+    else {
+      asMap.put(as,asMap.get(as)+1);
+      return as+"_"+asMap.get(as);
+    }
+  }
+
+  private String createAs(Query query) {
+    StringBuilder keepAs = new StringBuilder();
+    if (query.getWhere() != null) {
+      Where where = query.getWhere();
+      if (where.getShortLabel() != null) {
+        keepAs.append(where.getShortLabel());
+      }
+      else if (where.getOperator()!=null) {
+        keepAs.append(where.getOperator().toString());
+        if (where.getValue()!=null) {
+          keepAs.append(where.getValue()).append("_").append(where.getUnits()!=null?where.getUnits().getName():"");
+        }
+        if (where.getCompare()!=null) {
+          keepAs.append("_relative");
+        }
+      }
+      if (where.getAnd() != null) {
+        for (Where and : where.getAnd()) {
+          if (and.getShortLabel() != null) {
+            keepAs.append(and.getShortLabel());
+          } else if (and.getValueLabel() != null) {
+            String valueLabel = and.getValueLabel();
+            keepAs.append(valueLabel, 0, Math.min(valueLabel.length(), 10));
+          } else if (and.getIs() != null) {
+            String isName = and.getIs().getFirst().getName().replace(" ", "");
+            keepAs.append(isName, 0, Math.min(isName.length(), 10));
+          }
+        }
+      }
+      return cte(keepAs.toString());
+    }
+    if (query.getOr() != null) {
+      for (Query or : query.getOr()) {
+        if (!keepAs.isEmpty())
+          keepAs.append("_");
+        keepAs.append(this.createAs(or));
+      }
+    }
+    matchCounter++;
+    if (keepAs.isEmpty()) {
+      keepAs.append("match").append(matchCounter);
+    }
+    return cte(keepAs.toString());
+  }
+
+  private String cte(String string) {
+    return string.toLowerCase(Locale.ROOT)
+      .replaceAll(" ", "_")
+      .replaceAll("[^a-z0-9_]", "_")
+      .replaceAll("-+", "_");
+
+  }
+
 
 
   public static void optimizeQuery(Query query) {

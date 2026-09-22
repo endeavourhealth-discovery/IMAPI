@@ -137,6 +137,27 @@ class MySQLPropertyValueWhere(
     }
 }
 
+class MySQLNotExistsWhere(
+  val outerTable: String,
+  val outerKey: String,
+  val innerTable: String,
+  val innerKey: String,
+  override val args: Map<String, String>? = null,
+  override var and: MutableList<MySQLWhere>? = null,
+  override var or: MutableList<MySQLWhere>? = null,
+  override val not: Boolean? = false,
+  override val table: String? = null,
+) : MySQLWhere {
+  override val property: String? = null
+  override val sqlTemplate: String
+    get() {
+      val outer = outerTable.trim('`')
+      val inner = innerTable.trim('`')
+      val base = "NOT EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )"
+      return if (not == true) "EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )" else base
+    }
+}
+
 class MySQLPropertyIsNullWhere(
   override val property: String,
   override val args: Map<String, String>? = null,

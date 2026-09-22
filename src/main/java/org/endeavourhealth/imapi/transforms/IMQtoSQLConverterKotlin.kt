@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.sql.MySQLOrderBy
 import org.endeavourhealth.imapi.model.sql.MySQLOrderByItem
 import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsNullWhere
 import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsWhere
+import org.endeavourhealth.imapi.model.sql.MySQLNotExistsWhere
 import org.endeavourhealth.imapi.model.sql.MySQLPropertyValueWhere
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
@@ -338,18 +339,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       table = previous.table,
       alias = ensureUniqueAlias("not_exists"),
       selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
-      joins = mutableListOf(
-        MySQLJoin(
-          join = "LEFT JOIN",
-          tableFrom = previous.alias,
-          tableTo = excluded.alias,
-          tableToAlias = excluded.alias,
-          fromProperty = previousKey,
-          toProperty = excludedKey,
-          reference = true
+      wheres = mutableListOf(
+        MySQLNotExistsWhere(
+          outerTable = previous.alias,
+          outerKey = previousKey,
+          innerTable = excluded.alias,
+          innerKey = excludedKey
         )
       ),
-      wheres = mutableListOf(MySQLPropertyValueWhere(excludedKey, "IS", "NULL", table = excluded.alias.trim('`'))),
       fromAlias = previous.alias,
       entityKeyField = previousKey,
       isCarrierAliased = previous.isCarrierAliased
@@ -367,6 +364,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun addOrs(currentMatch: Query, mySqlQuery: MySQLQuery) {
     val branchWiths = mutableListOf<MySQLWith>()
+    val branchEmitted = mutableListOf<Boolean>()
     val tempQuery = MySQLQuery()
     tempQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
     if (mySqlQuery.withs.isNotEmpty()) tempQuery.withs.add(mySqlQuery.withs.last())
@@ -380,14 +378,17 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         if (tempQuery.withs.isNotEmpty()) branchQuery.withs.add(tempQuery.withs.last())
         addMatchWithsRecursively(match, branchQuery)
 
+        var emitted = false
         if (match.and == null && match.or == null && match.`is` == null) {
           branchQuery.withs.add(buildChainedWith(match, branchQuery))
         } else {
           val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
           mySqlQuery.withs.addAll(newWiths)
+          emitted = newWiths.isNotEmpty()
         }
 
         branchWiths.add(branchQuery.withs.last())
+        branchEmitted.add(emitted)
         mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
       }
     } finally {
@@ -398,7 +399,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     explicitCarryProperties.forEach { carryAliases.add(it.substringAfterLast('#')) }
     branchWiths.forEach { carryAliases.addAll(getAvailableAliases(it)) }
 
-    val orWiths = branchWiths.map { normaliseForUnion(it, carryAliases.toList()) }.toMutableList()
+    val orWiths = branchWiths.mapIndexed { i, with ->
+      if (branchEmitted[i]) selectFromEmittedWith(with, carryAliases.toList())
+      else normaliseForUnion(with, carryAliases.toList())
+    }.toMutableList()
 
     if (orWiths.size == 1 && currentMatch.orderBy == null) {
       currentMatch.`as`?.let { keepAsMap[it] = branchWiths.first() }
@@ -416,6 +420,28 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     finalWith.isCarrierAliased = true
     mySqlQuery.withs.add(finalWith)
     currentMatch.`as`?.let { keepAsMap[it] = finalWith }
+  }
+
+  private fun selectFromEmittedWith(with: MySQLWith, carryProperties: List<String>): MySQLWith {
+    val keyField = with.entityKeyField ?: return with
+    val selects = mutableListOf(MySQLSelect("${with.alias}.$keyField"))
+    if (carryProperties.isNotEmpty()) {
+      val availableAliases = getAvailableAliases(with)
+      for (propIri in carryProperties) {
+        val alias = propIri.substringAfterLast('#')
+        selects.add(
+          if (with.isCohortRef || alias !in availableAliases) MySQLSelect("NULL", alias)
+          else MySQLSelect("${with.alias}.$alias", alias)
+        )
+      }
+    }
+    return MySQLWith(
+      table = with.table,
+      alias = with.alias,
+      selects = selects,
+      fromAlias = with.alias,
+      entityKeyField = keyField
+    )
   }
 
   private fun normaliseForUnion(with: MySQLWith, carryProperties: List<String> = emptyList()): MySQLWith {

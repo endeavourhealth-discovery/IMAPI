@@ -620,6 +620,20 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return with
   }
 
+  /**
+   * Resolves the (foreignKey, primaryKey) column pair linking [from] to [to]: when the two
+   * tables are considered the same entity (by table name or by data model — callers pick which
+   * comparison applies), [from]'s own primary key stands in for both sides; otherwise the
+   * explicit foreign-key relationship between the tables is used.
+   */
+  private fun resolveForeignKeyByTableName(from: Table, to: Table): Pair<String?, String?> =
+    if (from.table == to.table) from.primaryKey to from.primaryKey
+    else from.foreignKeyTo(to)
+
+  private fun resolveForeignKeyByDataModel(from: Table, to: Table): Pair<String?, String?> =
+    if (from.dataModel == to.dataModel) from.primaryKey to from.primaryKey
+    else from.foreignKeyTo(to)
+
   private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
     val (fk, pk) =
       if (fromWith.table.dataModel == toWith.table.dataModel) {
@@ -682,17 +696,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun wrapNotExistsMatch(with: MySQLWith, previous: MySQLWith): MySQLWith {
-    val (fk, _) = if (with.table.dataModel == queryTypeOfTable.dataModel) {
-      with.table.primaryKey to with.table.primaryKey
-    } else {
-      with.table.foreignKeyTo(queryTypeOfTable)
-    }
-
-    val (fkLast, pkLast) = if (previous.table.dataModel == queryTypeOfTable.dataModel) {
-      previous.table.primaryKey to previous.table.primaryKey
-    } else {
-      previous.table.foreignKeyTo(queryTypeOfTable)
-    }
+    val (fk, _) = resolveForeignKeyByDataModel(with.table, queryTypeOfTable)
+    val (fkLast, pkLast) = resolveForeignKeyByDataModel(previous.table, queryTypeOfTable)
 
     if (fk == null || fkLast == null || pkLast == null) {
       throw SQLConversionException(
@@ -750,9 +755,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       getPatientFilterWhere(patientTable)?.let { found.wheres.add(it) }
     } else {
       val lastCTE = mySqlQuery.withs.last { !it.exclude }
-      val (fk, _) = if (lastCTE.table.table == patientTable.table)
-        patientTable.primaryKey to patientTable.primaryKey
-      else lastCTE.table.foreignKeyTo(patientTable)
+      val (fk, _) = resolveForeignKeyByTableName(lastCTE.table, patientTable)
 
       val orgJoin = MySQLJoin(
         join = "JOIN",
@@ -782,8 +785,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun getLastCteEntityKeyField(lastCTE: MySQLWith): String? {
     lastCTE.entityKeyField?.let { return it }
-    return if (lastCTE.table.table == queryTypeOfTable.table) queryTypeOfTable.primaryKey
-    else lastCTE.table.foreignKeyTo(queryTypeOfTable).first
+    return resolveForeignKeyByTableName(lastCTE.table, queryTypeOfTable).first
   }
 
   private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {
@@ -820,11 +822,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getOrderByWith(with: MySQLWith, match: Query, mySQLQuery: MySQLQuery): MySQLWith {
     val previousWith = mySQLQuery.withs.lastOrNull()
 
-    val (fk, pk) = if (with.table.table == queryTypeOfTable.table) {
-      with.table.primaryKey to with.table.primaryKey
-    } else {
-      with.table.foreignKeyTo(queryTypeOfTable)
-    }
+    val (fk, pk) = resolveForeignKeyByTableName(with.table, queryTypeOfTable)
 
     if (fk == null || pk == null) {
       throw SQLConversionException(
@@ -864,11 +862,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
 
     if (previousWith != null) {
-      val (fkLast, pkLast) = if (previousWith.table.table == queryTypeOfTable.table) {
-        previousWith.table.primaryKey to previousWith.table.primaryKey
-      } else {
-        previousWith.table.foreignKeyTo(queryTypeOfTable)
-      }
+      val (fkLast, pkLast) = resolveForeignKeyByTableName(previousWith.table, queryTypeOfTable)
 
       if (fkLast == null || pkLast == null) {
         throw SQLConversionException(
@@ -948,8 +942,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getEntityKeyFieldName(table: Table): String {
-    if (table.dataModel == queryTypeOfTable.dataModel) return queryTypeOfTable.primaryKey
-    val (fk, _) = table.foreignKeyTo(queryTypeOfTable)
+    val (fk, _) = resolveForeignKeyByDataModel(table, queryTypeOfTable)
     return fk ?: throw SQLConversionException(
       "No relationship between ${table.table} and ${queryTypeOfTable.table}"
     )
@@ -1077,14 +1070,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     nodeToTableMap: HashMap<String, Table>
   ): String {
     if (whenClause.isExists) {
-      val existenceField = if (currentTable.dataModel == queryTypeOfTable.dataModel) {
-        "$currentWithAlias.${queryTypeOfTable.primaryKey}"
-      } else {
-        val fk = currentTable.foreignKeyTo(queryTypeOfTable).first
-          ?: throw SQLConversionException("No relationship from ${currentTable.table} to ${queryTypeOfTable.table}")
-        "$currentWithAlias.$fk"
-      }
-      return "$existenceField IS NOT NULL"
+      val fk = resolveForeignKeyByDataModel(currentTable, queryTypeOfTable).first
+        ?: throw SQLConversionException("No relationship from ${currentTable.table} to ${queryTypeOfTable.table}")
+      return "$currentWithAlias.$fk IS NOT NULL"
     }
 
     if (whenClause.iri != null) {
@@ -1643,7 +1631,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return "`$uniqueAlias`"
   }
 
-  fun getDataModelFromKeepAs(keepAs: String?): String? {
+  private fun getDataModelFromKeepAs(keepAs: String?): String? {
     var match: Query? = findMatchByKeepAs(queryRequest.query, keepAs)
     if (match == null && queryRequest.query.columnGroup != null) {
       for (child in queryRequest.query.columnGroup) {
@@ -1662,7 +1650,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return null
   }
 
-  fun findMatchByKeepAs(match: Query?, keepAs: String?): Query? {
+  private fun findMatchByKeepAs(match: Query?, keepAs: String?): Query? {
     if (match == null) return null
     if (match.node != null && match.node == keepAs) {
       return match

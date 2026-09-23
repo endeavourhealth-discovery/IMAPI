@@ -42,6 +42,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
   var queryTypeOfTable = Table()
   private val MAX_ALIAS_LENGTH = 64
+  private val COHORT_DATA_MODEL_IRI = "http://endhealth.info/im#Cohort"
+  private val ENTITY_ID_FIELD = "entity_id"
+  private val PATIENT_ID_FIELD = "patient_id"
+  private val ROW_NUMBER_ALIAS = "rn"
   private var longAliasCounter = 1
   private val usedAliases = mutableSetOf<String>()
   private var cteCounter = 0
@@ -141,7 +145,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           val fk = getLastCteEntityKeyField(lastCTE)
           newMySqlQuery.insert = "dataset.dataset_results"
           newMySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
-          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
+          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
         }
@@ -155,7 +159,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val fk = getLastCteEntityKeyField(lastCTE)
         mySqlQuery.insert = "dataset.cohort_results"
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
-        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", "entity_id"))
+        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
       }
       injectOrgReturnAndFilter(mySqlQuery)
       injectPatientFilter(mySqlQuery)
@@ -217,13 +221,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       lastWith.selects.first().name.contains("*")
     ) {
       if (lastWith.subQuery != null) {
-        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == "rn" }
+        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == ROW_NUMBER_ALIAS }
       } else {
         newMySqlQuery.withs
           .dropLast(1)
           .last()
           .selects
-          .filterNot { it.alias == "rn" || it.name == "patient.id" }
+          .filterNot { it.alias == ROW_NUMBER_ALIAS || it.name == "patient.id" }
       }
     } else {
       lastWith.selects.filterNot { it.name == "patient.id" }
@@ -256,7 +260,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val name = ensureAs(match) { isA.name ?: "cte" }
     val isAlias = nextCteAlias(name)
     val withJoins = mutableListOf<MySQLJoin>()
-    val cohortTable = getTableFromTypeAndProperty("http://endhealth.info/im#Cohort", null)
+    val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
     if (mySqlQuery.withs.isNotEmpty()) {
       val lastWith = mySqlQuery.withs.last()
@@ -270,11 +274,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           "JOIN",
           tableFrom = "dataset.cohort_results",
           tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
-          fromProperty = "entity_id",
+          fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
           wheres = if (isA.isExclude) mutableListOf(
             MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-            MySQLPropertyValueWhere("entity_id", "IS", "NULL", null, null)
+            MySQLPropertyValueWhere(ENTITY_ID_FIELD, "IS", "NULL", null, null)
           ) else mutableListOf(
             MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
           )
@@ -289,11 +293,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return MySQLWith(
       table = cohortTable,
       alias = isAlias,
-      selects = mutableListOf(MySQLSelect("${cohortTable.table}.entity_id")),
+      selects = mutableListOf(MySQLSelect("${cohortTable.table}.$ENTITY_ID_FIELD")),
       joins = withJoins.ifEmpty { mutableListOf() },
       exclude = isA.isExclude,
       wheres = topWheres,
-      entityKeyField = "entity_id",
+      entityKeyField = ENTITY_ID_FIELD,
       isCohortRef = true
     )
   }
@@ -483,7 +487,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val effectiveSelects = if (with.selects.size == 1 && with.selects.first().name.contains("*")) {
       with.subQuery?.selects ?: emptyList()
     } else with.selects
-    return effectiveSelects.mapNotNull { it.alias }.filterNot { it == "rn" }.toSet()
+    return effectiveSelects.mapNotNull { it.alias }.filterNot { it == ROW_NUMBER_ALIAS }.toSet()
   }
 
   private fun getGroupCarryProperties(match: Query): List<String> {
@@ -504,7 +508,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       table = with.table,
       selects = mutableListOf(
         MySQLSelect("u.*"),
-        MySQLSelect("ROW_NUMBER() OVER(PARTITION BY u.$keyField ORDER BY $orderClause)", "rn")
+        MySQLSelect("ROW_NUMBER() OVER(PARTITION BY u.$keyField ORDER BY $orderClause)", ROW_NUMBER_ALIAS)
       ),
       subQuery = with,
       fromAlias = "u",
@@ -517,7 +521,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       selects = mutableListOf(MySQLSelect("sq.*")),
       subQuery = rnLayer,
       fromAlias = "sq",
-      wheres = mutableListOf(MySQLPropertyValueWhere("rn", "<=", orderBy.limit.toString(), table = "sq")),
+      wheres = mutableListOf(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", orderBy.limit.toString(), table = "sq")),
       entityKeyField = keyField
     )
 
@@ -708,12 +712,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
 
-    val select = if (previous.table.dataModel == "http://endhealth.info/im#Cohort")
-      "${previous.alias}.*, ${previous.alias}.entity_id as patient_id"
+    val select = if (previous.table.dataModel == COHORT_DATA_MODEL_IRI)
+      "${previous.alias}.*, ${previous.alias}.$ENTITY_ID_FIELD as $PATIENT_ID_FIELD"
     else "${previous.alias}.*"
 
-    val entityKeyField = if (previous.table.dataModel == "http://endhealth.info/im#Cohort")
-      "patient_id"
+    val entityKeyField = if (previous.table.dataModel == COHORT_DATA_MODEL_IRI)
+      PATIENT_ID_FIELD
     else previous.entityKeyField
 
     val wrapped = MySQLWith(
@@ -833,18 +837,18 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLSelect(
         "ROW_NUMBER() OVER(PARTITION BY $partitionByField ${
           getMySQLOrderBy(with.table, match.orderBy, mySQLQuery.nodeToTableMap).toSql()
-        })", "rn"
+        })", ROW_NUMBER_ALIAS
       )
     )
 
     val select = if (match.notExists() && previousWith != null) {
-      if (previousWith.table.dataModel == "http://endhealth.info/im#Cohort") "${previousWith.alias}.*, ${previousWith.alias}.entity_id as patient_id"
+      if (previousWith.table.dataModel == COHORT_DATA_MODEL_IRI) "${previousWith.alias}.*, ${previousWith.alias}.$ENTITY_ID_FIELD as $PATIENT_ID_FIELD"
       else "${previousWith.alias}.*"
     } else "sq.*"
 
 
     val entityKeyField = if (match.notExists() && previousWith != null) {
-      if (previousWith.table.dataModel == "http://endhealth.info/im#Cohort") "patient_id"
+      if (previousWith.table.dataModel == COHORT_DATA_MODEL_IRI) PATIENT_ID_FIELD
       else previousWith.entityKeyField
     } else with.entityKeyField
 
@@ -896,14 +900,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         )
         rnWith.joins.add(notExistJoinCondition)
         val or = mutableListOf<MySQLWhere>()
-        or.add(MySQLPropertyValueWhere("rn", "!=", match.orderBy.limit.toString(), table = "sq"))
+        or.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "!=", match.orderBy.limit.toString(), table = "sq"))
         or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
         rnWith.wheres.add(MySQLBoolWhere(or = or))
       }
     }
 
     if (!match.notExists() || previousWith == null) {
-      rnWith.wheres.add(MySQLPropertyValueWhere("rn", "<=", match.orderBy.limit.toString(), table = "sq"))
+      rnWith.wheres.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", match.orderBy.limit.toString(), table = "sq"))
     }
     return rnWith
   }
@@ -1240,26 +1244,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     selects.add(MySQLSelect(field, returnProperty.`as`))
   }
 
-  private fun findToTable(
-    paths: MutableList<Return>,
-    startIndex: Int,
-    tableMap: TableMap,
-    currentIri: String = paths[startIndex].iri
-  ): Pair<Table?, Int> {
-    val toTable = tableMap.getTableFromProperty(listOf(currentIri))
-    if (toTable != null) return toTable to startIndex
-
-    val nextIndex = startIndex + 1
-    if (nextIndex >= paths.size) return null to startIndex
-
-    return findToTable(
-      paths,
-      nextIndex,
-      tableMap,
-      currentIri + paths[nextIndex].iri
-    )
-  }
-
   private fun getMySQLOrderBy(
     table: Table, orderBy: OrderLimit, nodeToTableMap: HashMap<String, Table>,
   ): MySQLOrderBy {
@@ -1277,15 +1261,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC", table = currentTable))
     }
     return MySQLOrderBy(items, orderBy.limit)
-  }
-
-  private fun walkMySQLWheres(
-    where: MySQLWhere,
-    visit: (MySQLWhere) -> Unit
-  ) {
-    visit(where)
-    where.and?.forEach { child -> walkMySQLWheres(child, visit) }
-    where.or?.forEach { child -> walkMySQLWheres(child, visit) }
   }
 
   private fun addWheresRecursively(

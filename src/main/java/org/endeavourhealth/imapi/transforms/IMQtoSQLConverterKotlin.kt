@@ -36,10 +36,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
   var queryTypeOfTable = Table()
-  private val COHORT_DATA_MODEL_IRI = "http://endhealth.info/im#Cohort"
-  private val ENTITY_ID_FIELD = "entity_id"
-  private val PATIENT_ID_FIELD = "patient_id"
-  private val ROW_NUMBER_ALIAS = "rn"
   private val carryPropertiesStack = ArrayDeque<List<String>>()
   private val aliases = AliasAllocator()
 
@@ -47,6 +43,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val selectCompiler = SelectClauseCompiler({ queryTypeOfTable }, nodePathContextMap)
 
   private val keepAsMap = HashMap<String, MySQLWith>()
+  private val filterInjector = FilterInjector(queryRequest, { queryTypeOfTable }, ::getTableFromTypeAndProperty)
   private val whereCompiler = WhereClauseCompiler(
     { queryTypeOfTable }, keepAsMap, aliases, ::getTableFromTypeAndProperty, ::getDataModelFromKeepAs
   )
@@ -61,7 +58,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         require(queryTypeOf != null) { "Queries need a type" }
         queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
         sql = generatePatientTraceSQL(queryRequest.query, debugPatientId)
-      } else if (queryRequest.query.queryType == IMQType.INDICATOR) sql = generateSQLforIndicator()
+      } else if (queryRequest.query.queryType == IMQType.INDICATOR) sql = IndicatorSqlGenerator.generate(denominator, numerator, dataset)
       else {
         require(queryTypeOf != null) { "Queries need a type" }
         queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
@@ -76,20 +73,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     } catch (e: Exception) {
       throw RuntimeException(e)
     }
-  }
-
-  private fun generateSQLforIndicator(): String {
-    if (denominator == null || numerator == null || dataset == null) {
-      throw SQLConversionException("Missing denominator, numerator or dataset")
-    }
-    val indSql = """
-      SELECT c.entity_id, !ISNULL(n.entity_id) as "Yes/No", d.json
-      FROM dataset.cohort_results c
-      LEFT JOIN dataset.cohort_results n ON n.entity_id = c.entity_id AND n.query_result_id = $numerator
-      LEFT JOIN dataset.dataset_results d ON d.entity_id = c.entity_id AND d.query_result_id = $dataset
-      WHERE c.query_result_id = $denominator;
-    """.trimIndent()
-    return indSql
   }
 
   private fun generateSQL(definition: Query): String {
@@ -120,27 +103,27 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
         if (definition.`return` == null) {
           val lastCTE = newMySqlQuery.withs.last { !it.exclude }
-          val fk = getLastCteEntityKeyField(lastCTE)
+          val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
           newMySqlQuery.insert = "dataset.dataset_results"
           newMySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
           newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
-          newMySqlQuery.selects.add(MySQLSelect(getJSONObject(newMySqlQuery), "json"))
+          newMySqlQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(newMySqlQuery), "json"))
         }
-        injectOrgReturnAndFilter(newMySqlQuery)
-        injectPatientFilter(newMySqlQuery)
+        filterInjector.injectOrgReturnAndFilter(newMySqlQuery)
+        filterInjector.injectPatientFilter(newMySqlQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
         val lastCTE = mySqlQuery.withs.last { !it.exclude }
-        val fk = getLastCteEntityKeyField(lastCTE)
+        val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
         mySqlQuery.insert = "dataset.cohort_results"
         mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
       }
-      injectOrgReturnAndFilter(mySqlQuery)
-      injectPatientFilter(mySqlQuery)
+      filterInjector.injectOrgReturnAndFilter(mySqlQuery)
+      filterInjector.injectPatientFilter(mySqlQuery)
       return mySqlQuery.toSql()
     }
   }
@@ -167,69 +150,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
     val isPatientRooted = queryTypeOfTable.dataModel == patientTable.dataModel
-    val queryIriLiteral = SqlLiteralUtils.toSqlLiteral(definition.iri)
-    val patientLiteral = SqlLiteralUtils.toSqlLiteral(patientId)
-
-    val checks = mySqlQuery.withs.mapIndexed { index, with ->
-      val stepLabel = SqlLiteralUtils.toSqlLiteral(with.alias.replace("`", ""))
-      val keyField = with.entityKeyField
-      val patientFoundSelect = if (isPatientRooted && keyField != null) {
-        "EXISTS(SELECT 1 FROM ${with.alias} WHERE ${with.alias}.$keyField = $patientLiteral)"
-      } else "NULL"
-      "SELECT $queryIriLiteral AS query_iri, $patientLiteral AS patient_id, " +
-        "$index AS step_no, $stepLabel AS cte_name, $patientFoundSelect AS patient_found"
-    }
-
-    return buildString {
-      append("INSERT INTO dataset.patient_exists (query_iri, patient_id, step_no, cte_name, patient_found)\n")
-      append("WITH ")
-      append(mySqlQuery.withs.joinToString(",\n") { it.toSql() })
-      append("\n")
-      append(checks.joinToString("\nUNION ALL\n"))
-      append(";")
-    }
-  }
-
-  private fun getJSONObject(newMySqlQuery: MySQLQuery): String {
-    val lastWith = newMySqlQuery.withs.last()
-
-    val selects = if (
-      lastWith.selects.size == 1 &&
-      lastWith.selects.first().name.contains("*")
-    ) {
-      if (lastWith.subQuery != null) {
-        lastWith.subQuery?.selects?.filterNot { it.alias == null || it.alias == ROW_NUMBER_ALIAS }
-      } else {
-        newMySqlQuery.withs
-          .dropLast(1)
-          .last()
-          .selects
-          .filterNot { it.alias == ROW_NUMBER_ALIAS || it.name == "patient.id" }
-      }
-    } else {
-      lastWith.selects.filterNot { it.name == "patient.id" }
-    }
-
-    if (selects == null) throw SQLConversionException("No selects found in last with")
-
-    return buildString {
-      append("JSON_OBJECT(\n")
-      append(
-        selects
-          .filterNot { it.alias == "id" }
-          .joinToString(",\n") { select ->
-            val rawAliasOrName = (select.alias ?: select.name).replace("`", "")
-            val key = "\"$rawAliasOrName\""
-            val value = if (select.alias != null) {
-              "`${rawAliasOrName}`"
-            } else {
-              select.name
-            }
-            " $key, $value"
-          }
-      )
-      append("\n)")
-    }
+    return PatientTraceSqlBuilder.build(mySqlQuery.withs, definition.iri, patientId, isPatientRooted)
   }
 
   private fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
@@ -310,8 +231,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getAntiJoinWith(groupAs: String?, previous: MySQLWith, excluded: MySQLWith): MySQLWith {
-    val previousKey = getLastCteEntityKeyField(previous)
-    val excludedKey = getLastCteEntityKeyField(excluded)
+    val previousKey = getLastCteEntityKeyField(previous, queryTypeOfTable)
+    val excludedKey = getLastCteEntityKeyField(excluded, queryTypeOfTable)
     if (previousKey == null || excludedKey == null) {
       throw SQLConversionException("No entity key to exclude ${excluded.alias} from ${previous.alias}")
     }
@@ -658,77 +579,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     )
     wrapped.wheres.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
     return wrapped
-  }
-
-  private fun injectPatientFilter(mySqlQuery: MySQLQuery) {
-    val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
-    val found = mySqlQuery.joins.find { it.tableTo == "patient" }
-    if (found != null) {
-      getPatientFilterWhere(patientTable)?.let { found.wheres.add(it) }
-    } else {
-      val lastCTE = mySqlQuery.withs.last { !it.exclude }
-      val (fk, _) = resolveForeignKeyByTableName(lastCTE.table, patientTable)
-
-      val orgJoin = MySQLJoin(
-        join = "JOIN",
-        tableFrom = lastCTE.alias,
-        tableTo = patientTable.table,
-        fromProperty = fk,
-        toProperty = patientTable.primaryKey,
-        reference = true,
-      )
-      getPatientFilterWhere(patientTable)?.let { orgJoin.wheres.add(it) }
-      mySqlQuery.joins.add(orgJoin)
-    }
-  }
-
-  private fun getPatientFilterWhere(table: Table): MySQLWhere? {
-    val patientIds = queryRequest.getArgumentDataList("\$patientId")
-    if (!patientIds.isNullOrEmpty()) {
-      return MySQLPropertyValueWhere(
-        property = table.primaryKey,
-        operator = if (patientIds.size == 1) "=" else "IN",
-        value = patientIds.joinToString(prefix = "(", separator = ",", postfix = ")"),
-        table = table.table,
-      )
-    }
-    return null
-  }
-
-  private fun getLastCteEntityKeyField(lastCTE: MySQLWith): String? {
-    lastCTE.entityKeyField?.let { return it }
-    return resolveForeignKeyByTableName(lastCTE.table, queryTypeOfTable).first
-  }
-
-  private fun injectOrgReturnAndFilter(mySqlQuery: MySQLQuery) {
-    val joinTable = getTableFromTypeAndProperty(queryTypeOfTable.dataModel, null)
-    val lastCTE = mySqlQuery.withs.last { !it.exclude }
-    val fk = getLastCteEntityKeyField(lastCTE)
-
-    val orgJoin = MySQLJoin(
-      join = "JOIN",
-      tableFrom = lastCTE.alias,
-      tableTo = joinTable.table,
-      fromProperty = fk,
-      toProperty = joinTable.primaryKey,
-      reference = true,
-    )
-    getOrgFilterWhere()?.let { orgJoin.wheres.add(it) }
-    mySqlQuery.joins.add(orgJoin)
-    mySqlQuery.selects.add(MySQLSelect("${queryTypeOfTable.table}.organization_id", "entity_org_id"))
-  }
-
-  private fun getOrgFilterWhere(): MySQLWhere? {
-    val orgIds = queryRequest.getArgumentDataList("\$organisationId")
-    if (!orgIds.isNullOrEmpty()) {
-      return MySQLPropertyValueWhere(
-        property = "organization_id",
-        operator = if (orgIds.size == 1) "=" else "IN",
-        value = "\$organisationId",
-        table = queryTypeOfTable.table
-      )
-    }
-    return null
   }
 
   private fun getOrderByWith(with: MySQLWith, match: Query, mySQLQuery: MySQLQuery): MySQLWith {

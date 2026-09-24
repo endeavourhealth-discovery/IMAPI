@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.sql.Field
+import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 
 /**
@@ -23,4 +24,9 @@ internal fun getPropertyNameByTableAndPropertyIri(table: Table, propertyIri: Str
     "Property $propertyIri not found in table ${table.table}"
   )
   return field
+}
+
+internal fun getLastCteEntityKeyField(lastCTE: MySQLWith, queryTypeOfTable: Table): String? {
+  lastCTE.entityKeyField?.let { return it }
+  return resolveForeignKeyByTableName(lastCTE.table, queryTypeOfTable).first
 }

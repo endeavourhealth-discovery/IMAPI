@@ -25,7 +25,6 @@ import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TableMap
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
-import java.util.Locale.getDefault
 
 @Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
@@ -38,15 +37,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
   var queryTypeOfTable = Table()
-  private val MAX_ALIAS_LENGTH = 64
   private val COHORT_DATA_MODEL_IRI = "http://endhealth.info/im#Cohort"
   private val ENTITY_ID_FIELD = "entity_id"
   private val PATIENT_ID_FIELD = "patient_id"
   private val ROW_NUMBER_ALIAS = "rn"
-  private var longAliasCounter = 1
-  private val usedAliases = mutableSetOf<String>()
-  private var cteCounter = 0
   private val carryPropertiesStack = ArrayDeque<List<String>>()
+  private val aliases = AliasAllocator()
 
   private data class NodePathContext(
     val parentTable: Table,
@@ -100,10 +96,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun generateSQL(definition: Query): String {
-    usedAliases.clear()
+    aliases.reset()
     nodePathContextMap.clear()
     keepAsMap.clear()
-    cteCounter = 0
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -113,10 +108,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (definition.columnGroup != null) {
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
-        usedAliases.clear()
+        aliases.reset()
         nodePathContextMap.clear()
         keepAsMap.clear()
-        cteCounter = 0
         val newMySqlQuery = MySQLQuery()
         if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
@@ -161,10 +155,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.iri == null) {
       throw SQLConversionException("Query iri is null")
     }
-    usedAliases.clear()
+    aliases.reset()
     nodePathContextMap.clear()
     keepAsMap.clear()
-    cteCounter = 0
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -245,7 +238,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
     val isA = match.`is`
     val name = ensureAs(match) { isA.name ?: "cte" }
-    val isAlias = nextCteAlias(name)
+    val isAlias = aliases.nextCteAlias(name)
     val withJoins = mutableListOf<MySQLJoin>()
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
@@ -328,7 +321,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val name = groupAs ?: "not_exists"
     return MySQLWith(
       table = previous.table,
-      alias = nextCteAlias(name),
+      alias = aliases.nextCteAlias(name),
       selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
       wheres = mutableListOf(
         MySQLNotExistsWhere(
@@ -401,7 +394,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     val unionWith = if (orWiths.size == 1) orWiths.first() else MySQLWith(
-      alias = ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
+      alias = aliases.ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
       table = orWiths.first().table,
       unionWiths = orWiths,
       entityKeyField = orWiths.first().entityKeyField
@@ -943,25 +936,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         ?: match.from?.let { "${it}_relative" }
         ?: "match"
     }
-    return nextCteAlias(name)
-  }
-
-  private fun sanitiseAlias(alias: String): String {
-    return alias.replace("...", "_").replace(" ", "_").replace(".", "_").replace("-", "_").lowercase(getDefault())
+    return aliases.nextCteAlias(name)
   }
 
   private fun ensureAs(match: Query, fallback: () -> String): String {
     if (match.`as` == null) match.setAs(fallback())
     return match.`as`
-  }
-
-  private fun nextCteAlias(baseName: String): String {
-    cteCounter++
-    return ensureUniqueAlias("${sanitiseAlias(baseName)}_$cteCounter")
-  }
-
-  private fun cteNormalise(value: String): String {
-    return value.lowercase(getDefault()).replace(Regex("[^a-z0-9_]"), "_")
   }
 
   private fun getSelects(
@@ -1472,7 +1452,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       ?: return right.propertyRef
         ?: throw SQLConversionException("No property found for relativeTo ${where.compare?.right}")
 
-    (keepAsMap[nodeRef] ?: keepAsMap[cteNormalise(nodeRef)])?.let { keptWith ->
+    (keepAsMap[nodeRef] ?: keepAsMap[aliases.cteNormalise(nodeRef)])?.let { keptWith ->
       val field = if (keptWith.isCarrierAliased) {
         right.propertyRef ?: right.iri?.substringAfterLast('#')
         ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
@@ -1500,7 +1480,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo $nodeRef")
-    if (nodeRefTable != null) return "${sanitiseAlias(nodeRef)}.$property"
+    if (nodeRefTable != null) return "${aliases.sanitiseAlias(nodeRef)}.$property"
     return "`${nodeRef}`.${property}"
   }
 
@@ -1521,7 +1501,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     val needsAlias = with.joins.any { it.tableTo == conceptTCT.table }
-    val alias = if (needsAlias) ensureUniqueAlias("${bareConceptTableRef}_$fromField") else null
+    val alias = if (needsAlias) aliases.ensureUniqueAlias("${bareConceptTableRef}_$fromField") else null
     joins.add(
       table.getJoinCondition(
         tableFromAlias = table.alias,
@@ -1545,40 +1525,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return IMtoMySQLMap.getTableFromProperty(listOfNotNull(propertyIri))
       ?: IMtoMySQLMap.getTableFromDataModel(typeIri)
       ?: throw SQLConversionException("Type $typeIri not found in table map")
-  }
-
-  private fun ensureUniqueAlias(baseAlias: String): String {
-    fun normalize(a: String) =
-      a.replace("`", "").lowercase()
-
-    val alias = baseAlias.replace("`", "")
-
-    if (alias.length > MAX_ALIAS_LENGTH) {
-      var newAlias: String
-      do {
-        newAlias = "cte_${longAliasCounter++}"
-      } while (usedAliases.contains(normalize(newAlias)))
-      usedAliases.add(normalize(newAlias))
-      return "`$newAlias`"
-    }
-
-    var uniqueAlias = alias
-    var index = 2
-
-    while (
-      usedAliases.contains(normalize(uniqueAlias)) ||
-      uniqueAlias.length > MAX_ALIAS_LENGTH
-    ) {
-      uniqueAlias = if (uniqueAlias.length > MAX_ALIAS_LENGTH) {
-        "cte_${longAliasCounter++}"
-      } else {
-        "${alias}_$index"
-      }
-      index++
-    }
-
-    usedAliases.add(normalize(uniqueAlias))
-    return "`$uniqueAlias`"
   }
 
   private fun getDataModelFromKeepAs(keepAs: String?): String? {

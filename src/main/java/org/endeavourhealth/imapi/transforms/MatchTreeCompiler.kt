@@ -81,6 +81,10 @@ internal class MatchTreeCompiler(
       addNotExistsGroup(currentMatch, mySqlQuery)
       return
     }
+    addGroupBody(currentMatch, mySqlQuery)
+  }
+
+  private fun addGroupBody(currentMatch: Query, mySqlQuery: MySQLQuery) {
     if (currentMatch.and != null) addAnds(currentMatch, mySqlQuery)
     if (currentMatch.or != null) addOrs(currentMatch, mySqlQuery)
     if (currentMatch.`is` != null) mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
@@ -91,12 +95,7 @@ internal class MatchTreeCompiler(
       ?: throw SQLConversionException("notExists on a group needs a preceding match to exclude from")
     val groupAs = group.`as`
     val withCount = mySqlQuery.withs.size
-    group.setNotExists(false)
-    try {
-      addMatchWithsRecursively(group, mySqlQuery)
-    } finally {
-      group.setNotExists(true)
-    }
+    addGroupBody(group, mySqlQuery)
     if (mySqlQuery.withs.size == withCount) {
       throw SQLConversionException("notExists group produced no match to exclude")
     }

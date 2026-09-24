@@ -25,9 +25,6 @@ import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TableMap
 import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import java.util.Locale.getDefault
 
 @Slf4j
@@ -50,16 +47,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val usedAliases = mutableSetOf<String>()
   private var cteCounter = 0
   private val carryPropertiesStack = ArrayDeque<List<String>>()
-  private val DATE_FORMATS = listOf(
-    DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-    DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-    DateTimeFormatter.ofPattern("MM/dd/yyyy"),
-    DateTimeFormatter.ofPattern("dd-MM-yyyy"),
-    DateTimeFormatter.ofPattern("MM-dd-yyyy"),
-    DateTimeFormatter.ofPattern("d/M/yyyy"),
-    DateTimeFormatter.ofPattern("yyyy/MM/dd"),
-  )
-  private val SQL_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
   private data class NodePathContext(
     val parentTable: Table,
@@ -190,11 +177,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
     val isPatientRooted = queryTypeOfTable.dataModel == patientTable.dataModel
-    val queryIriLiteral = toSqlLiteral(definition.iri)
-    val patientLiteral = toSqlLiteral(patientId)
+    val queryIriLiteral = SqlLiteralUtils.toSqlLiteral(definition.iri)
+    val patientLiteral = SqlLiteralUtils.toSqlLiteral(patientId)
 
     val checks = mySqlQuery.withs.mapIndexed { index, with ->
-      val stepLabel = toSqlLiteral(with.alias.replace("`", ""))
+      val stepLabel = SqlLiteralUtils.toSqlLiteral(with.alias.replace("`", ""))
       val keyField = with.entityKeyField
       val patientFoundSelect = if (isPatientRooted && keyField != null) {
         "EXISTS(SELECT 1 FROM ${with.alias} WHERE ${with.alias}.$keyField = $patientLiteral)"
@@ -559,7 +546,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         property = alias,
         operator = where.operator.value,
         right = compareValue,
-        value = where.value?.let { toSqlLiteral(it) } ?: "",
+        value = where.value?.let { SqlLiteralUtils.toSqlLiteral(it) } ?: "",
         units = if (type == "Unit") name else null,
         qualifier = if (type == "Qualifier") name else null,
         not = where.isNot,
@@ -574,7 +561,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     return MySQLPropertyValueWhere(
       alias,
       where.operator.value,
-      toSqlLiteral(where.value),
+      SqlLiteralUtils.toSqlLiteral(where.value),
       not = where.isNot,
       table = "sq"
     )
@@ -1004,7 +991,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
 
         ret.value != null -> {
-          selects.add(MySQLSelect(toSqlLiteral(ret.value), ret.`as`))
+          selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(ret.value), ret.`as`))
         }
 
         else -> throw SQLConversionException("Unsupported return $ret")
@@ -1093,7 +1080,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       val operator = whenClause.operator?.value ?: "="
       val value = whenClause.value ?: throw SQLConversionException("When clause value is null")
 
-      return "$tableAlias.$field $operator ${toSqlLiteral(value)}"
+      return "$tableAlias.$field $operator ${SqlLiteralUtils.toSqlLiteral(value)}"
     }
 
     if (whenClause.compare != null || whenClause.range != null || whenClause.and != null || whenClause.or != null || whenClause.`is` != null || whenClause.isNull) {
@@ -1113,7 +1100,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     expression.value?.let {
-      return toSqlLiteral(it)
+      return SqlLiteralUtils.toSqlLiteral(it)
     }
 
     val sourceTable = if (expression.nodeRef != null) {
@@ -1135,26 +1122,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
 
     throw SQLConversionException("Unsupported CASE expression branch")
-  }
-
-  private fun tryParseDate(value: String): LocalDate? {
-    for (formatter in DATE_FORMATS) {
-      try {
-        return LocalDate.parse(value, formatter)
-      } catch (_: DateTimeParseException) {
-        continue
-      }
-    }
-    return null
-  }
-
-  private fun toSqlLiteral(value: String): String {
-    if (value.toBigDecimalOrNull() != null) return value
-
-    val date = tryParseDate(value)
-    if (date != null) return "'${date.format(SQL_DATE_FORMAT)}'"
-
-    return "'${value.replace("'", "''")}'"
   }
 
   private fun getFunctionSelect(
@@ -1320,9 +1287,9 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private fun resolveUnitAndTypeFromWhere(where: Where, rangeEndUnitsIri: String? = null): Pair<String?, String?> =
     when {
-      where.units?.iri != null -> getUnitNameAndType(where.units.iri)
-      rangeEndUnitsIri != null -> getUnitNameAndType(rangeEndUnitsIri)
-      where.qualifier?.iri != null -> getUnitNameAndType(where.qualifier.iri)
+      where.units?.iri != null -> SqlLiteralUtils.getUnitNameAndType(where.units.iri)
+      rangeEndUnitsIri != null -> SqlLiteralUtils.getUnitNameAndType(rangeEndUnitsIri)
+      where.qualifier?.iri != null -> SqlLiteralUtils.getUnitNameAndType(where.qualifier.iri)
       else -> null to null
     }
 
@@ -1367,13 +1334,13 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         fromWhere = MySQLPropertyValueWhere(
           property = field,
           operator = from.operator.value,
-          value = toSqlLiteral("${from.value}"),
+          value = SqlLiteralUtils.toSqlLiteral("${from.value}"),
           table = tableRef
         )
         toWhere = MySQLPropertyValueWhere(
           property = field,
           operator = to.operator.value,
-          value = toSqlLiteral("${to.value}"),
+          value = SqlLiteralUtils.toSqlLiteral("${to.value}"),
           table = tableRef
         )
       } else {
@@ -1387,7 +1354,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = from.operator.value,
           right = right,
-          value = from.value?.let { toSqlLiteral(it) } ?: "",
+          value = from.value?.let { SqlLiteralUtils.toSqlLiteral(it) } ?: "",
           table = tableRef,
           units = if (fromUnitType == "Unit") fromUnit else null,
           qualifier = if (fromUnitType == "Qualifier") fromUnit else null,
@@ -1397,7 +1364,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           property = field,
           operator = to.operator.value,
           right = right,
-          value = to.value?.let { toSqlLiteral(it) } ?: "",
+          value = to.value?.let { SqlLiteralUtils.toSqlLiteral(it) } ?: "",
           table = tableRef,
           units = if (toType == "Unit") toUnit else null,
           qualifier = if (toType == "Qualifier") toUnit else null,
@@ -1438,7 +1405,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       MySQLPropertyValueWhere(
         field,
         where.operator.value,
-        toSqlLiteral(where.value),
+        SqlLiteralUtils.toSqlLiteral(where.value),
         not = where.isNot,
         table = tableRef,
       )
@@ -1565,23 +1532,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       )
     )
     return joins to (alias?.replace("`", "") ?: bareConceptTableRef)
-  }
-
-  private fun getUnitNameAndType(iri: String): Pair<String, String> {
-    return when (IM.from(iri)) {
-      IM.YEARS -> "YEAR" to "Unit"
-      IM.YEAR -> "YEAR" to "Qualifier"
-      IM.MONTHS -> "MONTH" to "Unit"
-      IM.MONTH -> "MONTH" to "Qualifier"
-      IM.DAYS -> "DAY" to "Unit"
-      IM.DAY -> "DAY" to "Qualifier"
-      IM.HOURS -> "HOUR" to "Unit"
-      IM.MINUTES -> "MINUTE" to "Unit"
-      IM.SECONDS -> "SECOND" to "Unit"
-      IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
-      IM.QUARTER -> "QUARTER" to "Qualifier"
-      else -> throw SQLConversionException("No unit name found for $iri")
-    }
   }
 
   private fun getPropertyNameByTableAndPropertyIri(table: Table, propertyIri: String): Field {

@@ -7,22 +7,11 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.model.sql.MappingParser
-import org.endeavourhealth.imapi.model.sql.MySQLBoolWhere
-import org.endeavourhealth.imapi.model.sql.MySQLCompareWhere
-import org.endeavourhealth.imapi.model.sql.MySQLJoin
-import org.endeavourhealth.imapi.model.sql.MySQLOrderBy
-import org.endeavourhealth.imapi.model.sql.MySQLOrderByItem
-import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsNullWhere
-import org.endeavourhealth.imapi.model.sql.MySQLPropertyIsWhere
-import org.endeavourhealth.imapi.model.sql.MySQLNotExistsWhere
-import org.endeavourhealth.imapi.model.sql.MySQLPropertyValueWhere
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
-import org.endeavourhealth.imapi.model.sql.MySQLWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TableMap
-import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
 
 @Slf4j
@@ -80,10 +69,14 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
   }
 
-  private fun generateSQL(definition: Query): String {
+  private fun resetPerQueryState() {
     aliases.reset()
     nodePathContextMap.clear()
     keepAsMap.clear()
+  }
+
+  private fun generateSQL(definition: Query): String {
+    resetPerQueryState()
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -93,9 +86,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
     if (definition.columnGroup != null) {
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
-        aliases.reset()
-        nodePathContextMap.clear()
-        keepAsMap.clear()
+        resetPerQueryState()
         val newMySqlQuery = MySQLQuery()
         if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
         mySQLQueries.add(newMySqlQuery)
@@ -140,9 +131,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.iri == null) {
       throw SQLConversionException("Query iri is null")
     }
-    aliases.reset()
-    nodePathContextMap.clear()
-    keepAsMap.clear()
+    resetPerQueryState()
     val mySqlQuery = MySQLQuery()
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")

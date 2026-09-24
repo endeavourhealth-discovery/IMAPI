@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.transforms
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-import org.endeavourhealth.imapi.model.imq.Bool
 import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.sql.MySQLJoin
 import org.endeavourhealth.imapi.model.sql.MySQLNotExistsWhere
@@ -360,11 +359,10 @@ internal class MatchTreeCompiler(
     }
     with.entityKeyField = getEntityKeyFieldName(with.table)
     if (match.`return` != null) {
-      val (selects, _) =
+      val selects =
         selectCompiler.getSelects(
           with.table,
           match.`return`,
-          mySQLQuery,
           with.alias,
           mySQLQuery.nodeToTableMap,
         )

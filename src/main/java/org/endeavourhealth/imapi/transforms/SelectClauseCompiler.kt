@@ -4,8 +4,6 @@ import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Expression
 import org.endeavourhealth.imapi.model.imq.Return
 import org.endeavourhealth.imapi.model.imq.When
-import org.endeavourhealth.imapi.model.sql.MySQLJoin
-import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.vocabulary.IM
@@ -22,12 +20,10 @@ internal class SelectClauseCompiler(
   fun getSelects(
     table: Table,
     returx: MutableList<Return>,
-    mySqlQuery: MySQLQuery,
     currentWithAlias: String,
     nodeToTableMap: HashMap<String, Table>,
-  ): Pair<MutableList<MySQLSelect>, MutableList<MySQLJoin>> {
+  ): MutableList<MySQLSelect> {
     val selects = mutableListOf<MySQLSelect>()
-    val joins = mutableListOf<MySQLJoin>()
 
     for (ret in returx) {
       when {
@@ -52,7 +48,7 @@ internal class SelectClauseCompiler(
         else -> throw SQLConversionException("Unsupported return $ret")
       }
     }
-    return Pair(selects, joins)
+    return selects
   }
 
   private fun getCaseSelect(

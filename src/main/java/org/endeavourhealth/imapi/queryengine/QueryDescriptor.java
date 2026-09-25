@@ -35,6 +35,35 @@ public class QueryDescriptor {
   private DisplayMode displayMode;
   private String baseType;
 
+  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    if (query.getIri() == null)
+      query.setIri(queryIri);
+    query = describeQuery(query, displayMode);
+    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
+    return query;
+  }
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    this.displayMode = displayMode;
+    if (query.getTypeOf()!=null){
+      baseType= query.getTypeOf().getIri();
+    }
+    setIriNames(query);
+    if (iriContext == null || iriContext.isEmpty())
+      return query;
+    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    describeMatch(query);
+    if (displayMode == DisplayMode.LOGICAL) {
+      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    }
+
+
+
+    return query;
+  }
+
   public String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
     for (OrderDirection property : orderBy.getProperty()) {
@@ -102,16 +131,7 @@ public class QueryDescriptor {
     } else return startShort.toString();
   }
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    if (query.getIri() == null)
-      query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
-    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
-    return query;
-  }
+
 
   public Query describeSingleMatch(Query query) throws QueryException {
     setIriNames(query);
@@ -119,23 +139,6 @@ public class QueryDescriptor {
     return query;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    this.displayMode = displayMode;
-    if (query.getTypeOf()!=null){
-      baseType= query.getTypeOf().getIri();
-    }
-    setIriNames(query);
-    if (iriContext == null || iriContext.isEmpty())
-      return query;
-    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
-    if (displayMode == DisplayMode.LOGICAL) {
-      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
-    }
-    describeMatch(query);
-
-
-    return query;
-  }
 
   private void describeGroupBys(List<GroupBy> groupBys) {
     for (GroupBy groupBy : groupBys) {

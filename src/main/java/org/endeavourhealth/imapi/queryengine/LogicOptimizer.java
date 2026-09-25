@@ -50,49 +50,34 @@ public class LogicOptimizer {
       setAs(query,parent);
     }
   }
+  private String negative(Query query) {
+    if (query.isNotExists()) return "not_";
+    else return "";
+  }
+
+
   private void setAs(Query query, Query parent) {
+    String negative=negative(query);
     if (query.getAs()!=null) {
-      query.setAs(cte(query.getAs()));
+      query.setAs(cte(negative+query.getAs()));
       return;
     }
     String keepAs="";
     if (query.getWhere() != null) {
       keepAs = createAs(query);
-      query.setAs(keepAs);
+      query.setAs(negative+keepAs);
     }
 
     if (query.isTest()) {
-      query.setAs(cte(parent.getAs()+"_"+keepAs));
-    } else if (query.getOrderBy() != null) {
+      query.setAs(cte(negative+parent.getAs()+"_"+keepAs));
+    }
+    else if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs);
+      query.setAs(negative+ (direction == Order.descending ? "Latest_"
+        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs));
     }
   }
-  private void setAs(Query query) {
-    if (query.getAs()!=null) {
-      query.setAs(cte(query.getAs()));
-      return;
-    }
-    if (query.getAnd()!=null){
-      setAs(query.getAnd().getLast());
-      return;
-    }
-    StringBuilder keepAs = new StringBuilder();
-    if (query.getWhere() != null) {
-      keepAs.append(createAs(query).replace(" ","_"));
-      if (keepAs.isEmpty()) {
-        matchCounter++;
-        query.setAs("cte_" + matchCounter);
-      }
-      else query.setAs(getUniqueAs(keepAs.toString()));
-    }else {
-      matchCounter++;
-      query.setAs("cte_" + matchCounter);
-    }
-    if (query.getOrderBy() != null) {
-      setAs(query, query);
-    }
-  }
+
   private String getUniqueAs(String as){
     if (asMap.get(as)==null){
       asMap.put(as,1);
@@ -104,48 +89,36 @@ public class LogicOptimizer {
     }
   }
 
+  private String createAs(Where where) {
+
+    if (where.getAnd()==null&&where.getOr()==null) {
+      return cte(WhereAsGenerator.getWhereAs(where));
+    }
+    else {
+      for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+        if (wheres != null) {
+          List<String> asList = new ArrayList<>();
+          for (Where subWhere : wheres) {
+            String subAs = createAs(subWhere);
+            asList.add(subAs);
+          }
+          return String.join("_", asList);
+        }
+      }
+    }
+    return null;
+}
+
   private String createAs(Query query) {
     StringBuilder keepAs = new StringBuilder();
-    if (query.getWhere() != null) {
-      Where where = query.getWhere();
-      if (where.getShortLabel() != null) {
-        keepAs.append(where.getShortLabel());
-      }
-      else if (where.getOperator()!=null) {
-        keepAs.append(where.getOperator().toString());
-        if (where.getValue()!=null) {
-          keepAs.append(where.getValue()).append("_").append(where.getUnits()!=null?where.getUnits().getName():"");
-        }
-        if (where.getCompare()!=null) {
-          keepAs.append("_relative");
-        }
-      }
-      if (where.getAnd() != null) {
-        for (Where and : where.getAnd()) {
-          if (and.getShortLabel() != null) {
-            keepAs.append(and.getShortLabel());
-          } else if (and.getValueLabel() != null) {
-            String valueLabel = and.getValueLabel();
-            keepAs.append(valueLabel, 0, Math.min(valueLabel.length(), 10));
-          } else if (and.getIs() != null) {
-            String isName = and.getIs().getFirst().getName().replace(" ", "");
-            keepAs.append(isName, 0, Math.min(isName.length(), 10));
-          }
-        }
-      }
-      return cte(keepAs.toString());
+    if (query.getIs()!=null){
+      return cte(query.getIs().getName());
     }
-    if (query.getOr() != null) {
-      for (Query or : query.getOr()) {
-        if (!keepAs.isEmpty())
-          keepAs.append("_");
-        keepAs.append(this.createAs(or));
-      }
+    if (query.getWhere() != null) {
+      return createAs(query.getWhere());
     }
     matchCounter++;
-    if (keepAs.isEmpty()) {
       keepAs.append("match").append(matchCounter);
-    }
     return cte(keepAs.toString());
   }
 

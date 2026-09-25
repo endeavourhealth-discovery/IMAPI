@@ -63,6 +63,11 @@ public class LogicOptimizer {
       return;
     }
     String keepAs="";
+    if (query.getIs()!=null){
+      keepAs=cte(query.getIs().getName());
+      query.setAs(negative+keepAs);
+      return;
+    }
     if (query.getWhere() != null) {
       keepAs = createAs(query);
       query.setAs(negative+keepAs);

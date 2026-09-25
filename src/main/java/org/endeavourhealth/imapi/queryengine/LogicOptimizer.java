@@ -65,21 +65,21 @@ public class LogicOptimizer {
     String keepAs="";
     if (query.getIs()!=null){
       keepAs=cte(query.getIs().getName());
-      query.setAs(negative+keepAs);
+      query.setAs(getUniqueAs(negative+keepAs));
       return;
     }
     if (query.getWhere() != null) {
       keepAs = createAs(query);
-      query.setAs(negative+keepAs);
+      query.setAs(getUniqueAs(negative+keepAs));
     }
 
-    if (query.isTest()) {
-      query.setAs(cte(negative+parent.getAs()+"_"+keepAs));
+    if (query.getFrom()!=null) {
+      query.setAs(getUniqueAs(cte(query.getFrom()+"_"+keepAs)));
     }
     else if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(negative+ (direction == Order.descending ? "Latest_"
-        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs));
+      query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
+        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs)));
     }
   }
 
@@ -128,11 +128,12 @@ public class LogicOptimizer {
   }
 
   private String cte(String string) {
-    return string.toLowerCase(Locale.ROOT)
-      .replaceAll(" ", "_")
-      .replaceAll("[^a-z0-9_]", "_")
-      .replaceAll("-+", "_");
-
+    String cte= string.toLowerCase(Locale.ROOT)
+      .replaceAll("[^a-zA-Z0-9]", "_")
+      .replaceAll("_+", "_");
+    if (cte.contains("-"))
+      System.out.println("CTE contains dash: "+cte);
+    return cte;
   }
 
 

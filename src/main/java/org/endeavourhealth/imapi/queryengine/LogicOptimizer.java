@@ -80,7 +80,7 @@ public class LogicOptimizer {
     }
     if (query.getWhere() != null) {
       keepAs = createAs(query);
-      query.setAs(getUniqueAs(negative+keepAs));
+      query.setAs(getUniqueAs(cte(negative+keepAs)));
     }
 
     if (query.getFrom()!=null) {
@@ -139,9 +139,15 @@ public class LogicOptimizer {
   }
 
   public static String cte(String string) {
-    return string.toLowerCase(Locale.ROOT)
+    String as= string.toLowerCase(Locale.ROOT)
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
+    if (as.length()>20){
+      as=as.substring(0,20)+"etc";
+    }
+    if (as.startsWith("_")) as=as.substring(1);
+    if (as.endsWith("_")) as=as.substring(0,as.length()-1);
+    return as;
   }
 
 

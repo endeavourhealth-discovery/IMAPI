@@ -351,6 +351,7 @@ public class EqdToIMQ {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     this.resources.setMatchCounter(0);
+    this.resources.getAsMap().clear();
     String id = getId(eqReport);
     if (versionMap.containsKey(id)) {
       id = versionMap.get(id);

@@ -487,16 +487,19 @@ public class LogicOptimizer {
         flatAnds.add(subQuery);
         flatAnds.add(thenQuery);
         flattenMatch(thenQuery);
+        continue;
       }
       if (subQuery.getThen()!=null && subQuery.isNotExists()) {
         Query thenQuery = subQuery.getThen();
         Query notExists= new Query();
         notExists.setNotExists(true);
         flatAnds.add(notExists);
+        subQuery.setNotExists(false);
         notExists.addAnd(subQuery);
         notExists.addAnd(thenQuery);
         subQuery.setThen(null);
         flattenMatch(thenQuery);
+        continue;
       }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);
@@ -518,11 +521,13 @@ public class LogicOptimizer {
         Query thenQuery = subQuery.getThen();
         Query andQuery = new Query();
         andQuery.setNotExists(subQuery.isNotExists());
+        subQuery.setNotExists(false);
         flatOrs.add(andQuery);
         andQuery.addAnd(subQuery);
         subQuery.setThen(null);
         andQuery.addAnd(thenQuery);
         flattenMatch(thenQuery);
+        continue;
       }
       if (subQuery.getOr() == null) {
         flatOrs.add(subQuery);

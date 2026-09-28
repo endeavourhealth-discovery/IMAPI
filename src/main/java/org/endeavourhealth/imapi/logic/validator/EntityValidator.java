@@ -2,10 +2,6 @@ package org.endeavourhealth.imapi.logic.validator;
 
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.logic.service.EntityService;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
-import org.endeavourhealth.imapi.vocabulary.SHACL;
-import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.EntityValidationRequest;
 import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
@@ -13,6 +9,10 @@ import org.endeavourhealth.imapi.model.tripletree.TTArray;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
+import org.endeavourhealth.imapi.vocabulary.SHACL;
+import org.endeavourhealth.imapi.vocabulary.VALIDATION;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -175,7 +175,7 @@ public class EntityValidator {
             !isValidIriOrIriList(property.asNode().get(iri(SHACL.CLASS)), 1, 1)
         ) response.setValid(false);
       }
-      if (!response.isValid()) response.setMessage("One or more invalid properties");
+      if (!response.getValid()) response.setMessage("One or more invalid properties");
     }
     return response;
   }

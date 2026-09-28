@@ -128,7 +128,7 @@ public class FilerService {
 
       if (entity.isType(iri(IM.VALUESET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
-        new SetBinder().bindSet(entity.getIri(), insertGraph);
+        new SetBinder().bindSet(entity.getIri());
       }
 
 

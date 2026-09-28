@@ -5,12 +5,11 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
-import org.endeavourhealth.imapi.vocabulary.GRAPH;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.RDF;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTNode;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.RDF;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
 public class SetBinder {
   private final SetRepository setRepository = new SetRepository();
 
-  public void bindSets(GRAPH insertGraph) {
+  public void bindSets() {
     log.info("Getting value sets....");
     Set<String> sets = getSets();
     int count = 0;
@@ -29,7 +28,7 @@ public class SetBinder {
       if (count % 100 == 0) {
         log.info("{} sets bound", count);
       }
-      bindSet(iri, insertGraph);
+      bindSet(iri);
     }
   }
 
@@ -56,12 +55,12 @@ public class SetBinder {
     return setIris;
   }
 
-  public void bindSet(String iri, GRAPH insertGraph) {
+  public void bindSet(String iri) {
     Set<Concept> members = setRepository.getSomeMembers(iri, 100);
     if (!members.isEmpty()) {
       Set<String> memberIris = members.stream().map(Entity::getIri).collect(Collectors.toSet());
       Set<TTNode> dataModels = setRepository.getBindingsForConcept(memberIris);
-      setRepository.bindConceptSetToDataModel(iri, dataModels, insertGraph);
+      setRepository.bindConceptSetToDataModel(iri, dataModels);
     }
   }
 

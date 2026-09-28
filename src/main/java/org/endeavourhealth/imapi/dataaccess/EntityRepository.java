@@ -588,7 +588,7 @@ public class EntityRepository {
       try (TupleQueryResult qr = tupleQuery.evaluate()) {
         while (qr.hasNext()) {
           BindingSet rs = qr.next();
-          entityDocument.getIsA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
+          entityDocument.isA().add(TTIriRef.iri(rs.getValue("superType").stringValue()));
         }
       }
     }
@@ -1342,7 +1342,7 @@ public class EntityRepository {
         }
         BIND(EXISTS{?child (%s) ?s} AS ?hasChildren)
         BIND(EXISTS{?grandChild (%s) ?child. ?child (%s) ?s} AS ?hasGrandchildren)
-      """.formatted(valueList("scheme", schemeIris), iri,PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
+      """.formatted(valueList("scheme", schemeIris), iri, PARENT_PREDICATES, PARENT_PREDICATES, PARENT_PREDICATES));
 
     if (!inactive) {
       sql.add("""

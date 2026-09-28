@@ -67,7 +67,10 @@ open class UPRNController(
   ): UprnSearchResponse? {
     MetricsHelper.recordTime("API.UPRN.getinfo.GET").use {
       log.debug("getinfo")
-      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(
+        Permission(Resource.UPRN, mutableListOf(UserRole.UPRN), mutableListOf()),
+        request
+      );
 
       val uprnReq = HttpRequest.newBuilder()
         .uri(

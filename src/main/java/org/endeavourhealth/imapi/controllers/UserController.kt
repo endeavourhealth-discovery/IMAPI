@@ -5,10 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
-import org.endeavourhealth.imapi.logic.service.SecurityService
-import org.endeavourhealth.imapi.utility.APIGuard
-import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
+import org.endeavourhealth.imapi.logic.service.SecurityService
 import org.endeavourhealth.imapi.model.dto.BooleanBody
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto
 import org.endeavourhealth.imapi.model.primevue.FontSize
@@ -19,6 +17,8 @@ import org.endeavourhealth.imapi.model.security.Permission
 import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
+import org.endeavourhealth.imapi.utility.APIGuard
+import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
@@ -201,7 +201,7 @@ open class UserController(
   open fun updateUserNamespaces(
     request: HttpServletRequest,
     @RequestParam("UserId") userId: String,
-    @RequestBody namespaces: List<NamespacePermission>
+    @RequestBody namespaces: MutableList<NamespacePermission>
   ) {
     MetricsHelper.recordTime("API.User.Namespaces.POST").use {
       log.debug("updateUserNamespaces")

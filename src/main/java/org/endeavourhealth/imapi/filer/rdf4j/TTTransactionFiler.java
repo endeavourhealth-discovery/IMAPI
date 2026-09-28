@@ -318,7 +318,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         log.info("Binding set {}", entity.getIri());
-        new SetBinder().bindSet(entity.getIri(), insertGraph);
+        new SetBinder().bindSet(entity.getIri());
       }
     }
   }

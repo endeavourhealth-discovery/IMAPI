@@ -55,8 +55,8 @@ class TTLiteralTest {
 
     SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-    assertEquals("Mickey Mouse", tc.getTerm());
-    assertEquals("EM-EYE-CEE", tc.getCode());
+    assertEquals("Mickey Mouse", tc.term);
+    assertEquals("EM-EYE-CEE", tc.code);
   }
 
   @Test
@@ -84,8 +84,8 @@ class TTLiteralTest {
 
     SearchTermCode tc = val.asLiteral().objectValue(SearchTermCode.class);
 
-    assertEquals("Mickey Mouse", tc.getTerm());
-    assertEquals("EM-EYE-CEE", tc.getCode());
+    assertEquals("Mickey Mouse", tc.term);
+    assertEquals("EM-EYE-CEE", tc.code);
   }
 
   @Test

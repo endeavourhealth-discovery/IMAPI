@@ -56,7 +56,7 @@ public class ConceptModelServiceTest {
       .setCode("24951000252112")
       .setTerm("Adverse reaction to Testogel")
       .setStatus(new TTIriRef().setIri(IM.ACTIVE).setName(TTIriRef.iri(IM.ACTIVE).getName()));
-    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.getCode())).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.getTerm())).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.getStatus()))))));
+    when(entityRepository.getBundle("http://endhealth.info/im#25451000252115", asHashSet(IM.HAS_TERM_CODE))).thenReturn(new TTBundle().setEntity(new TTEntity().set(TTIriRef.iri(IM.HAS_TERM_CODE), new TTArray().add(new TTNode().set(TTIriRef.iri(IM.CODE), new TTLiteral(termCode.code)).set(TTIriRef.iri(RDFS.LABEL), new TTLiteral(termCode.term)).set(TTIriRef.iri(IM.HAS_STATUS), new TTArray().add(termCode.status))))));
     List<SearchTermCode> actual = conceptService.getEntityTermCodes("http://endhealth.info/im#25451000252115", false);
     assertNotNull(actual);
   }

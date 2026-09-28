@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.endeavourhealth.imapi.logic.exporters.ImportMaps;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
+import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.transforms.eqd.*;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
@@ -345,6 +346,7 @@ public class EqdResources {
         setKeepAs(standardQuery);
         testQuery.setFrom(standardQuery.getAs());
         setKeepAs(testQuery,standardQuery);
+        standardQuery.setThen(testQuery);
       }
       else {
         if (baseQuery == null) {
@@ -353,6 +355,7 @@ public class EqdResources {
         setKeepAs(baseQuery);
         setKeepAs(testQuery,baseQuery);
         testQuery.setFrom(baseQuery.getAs());
+        baseQuery.setThen(testQuery);
       }
     }
     if (testQuery!=null)
@@ -376,9 +379,6 @@ public class EqdResources {
 
     if (standardQuery != null) {
       steps.add(standardQuery);
-    }
-    if (testQuery != null) {
-      steps.add(testQuery);
     }
     if (linkedQuery != null) {
       steps.add(linkedQuery);
@@ -1030,7 +1030,7 @@ public class EqdResources {
     if (relativeTo != null) {
       relation = VocRelation.RELATIVE;
       if (relativeTo.equals("BASELINE")) {
-        relativeTo = "$achievementDate";
+        relativeTo = "$searchDate";
       } else throw new EQDException("relative to " + relativeTo + " not supported");
     }
     if (units != null) {
@@ -1648,10 +1648,10 @@ public class EqdResources {
     }
 
     if (query.isTest()) {
-      query.setAs(parent.getAs()+keepAs);
+      query.setAs(LogicOptimizer.cte(parent.getAs()+keepAs));
     } else if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs);
+      query.setAs(LogicOptimizer.cte(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs));
     }
   }
 
@@ -1668,7 +1668,7 @@ public class EqdResources {
         matchCounter++;
         query.setAs("m_" + matchCounter);
       }
-      else query.setAs(getUniqueAs(keepAs.toString()));
+      else query.setAs(getUniqueAs(LogicOptimizer.cte(keepAs.toString())));
     }else {
         matchCounter++;
         query.setAs("match_" + matchCounter);

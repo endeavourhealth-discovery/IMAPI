@@ -72,6 +72,29 @@ public class Query implements HasPaths, Returnable {
   private IMQType queryType;
   private String uuid;
   private boolean isBase;
+  private Query then;
+  private boolean isReferenced;
+
+  public boolean isReferenced() {
+    return isReferenced;
+  }
+  public Query setReferenced(boolean referenced) {
+    isReferenced = referenced;
+    return this;
+  }
+
+  public Query then(Consumer<Query> builder) {
+    this.then = new Query();
+    builder.accept(this.then);
+    return this;
+  }
+  public Query getThen() {
+    return then;
+  }
+  public Query setThen(Query then) {
+    this.then = then;
+    return this;
+  }
 
   public String getFromTypeIri() {
     return fromTypeIri;

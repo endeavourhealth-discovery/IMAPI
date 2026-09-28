@@ -89,9 +89,9 @@ public class QueryService {
       query = queryRequest.getQuery();
     }
     try {
+      IMQtoSQLConverterKotlin.preassignOrderByAs(query);
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimiseAgeWheres(query);
-      LogicOptimizer.optimiseNegativeIntervalWheres(query);
     } catch (Exception e) {
       throw new SQLConversionException(e.getMessage(), e);
     }
@@ -137,7 +137,7 @@ public class QueryService {
   }
 
   public Query flattenQuery(Query query) {
-    LogicOptimizer.optimizeQuery(query);
+    //LogicOptimizer.optimizeQuery(query);
     return query;
   }
 

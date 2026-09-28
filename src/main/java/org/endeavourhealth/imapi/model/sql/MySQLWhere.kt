@@ -1,4 +1,5 @@
 package org.endeavourhealth.imapi.model.sql
+
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 
@@ -88,8 +89,12 @@ class MySQLCompareWhere(
       val base =
         if (units != null) {
           when (units) {
-            "DAY", "MONTH", "YEAR" ->
-              "($prop) $operator DATE_SUB($right, INTERVAL $value $units)"
+            "DAY", "MONTH", "YEAR" -> {
+              val isNegative = value.trim().startsWith("-")
+              val magnitude = if (isNegative) value.trim().removePrefix("-") else value
+              val function = if (isNegative) "DATE_SUB" else "DATE_ADD"
+              "($prop) $operator $function($right, INTERVAL $magnitude $units)"
+            }
 
             else -> throw SQLConversionException("Unsupported unit $units")
           }
@@ -129,6 +134,27 @@ class MySQLPropertyValueWhere(
         "$prop $operator $value"
       }
       return if (not == true) "NOT ($base)" else base
+    }
+}
+
+class MySQLNotExistsWhere(
+  val outerTable: String,
+  val outerKey: String,
+  val innerTable: String,
+  val innerKey: String,
+  override val args: Map<String, String>? = null,
+  override var and: MutableList<MySQLWhere>? = null,
+  override var or: MutableList<MySQLWhere>? = null,
+  override val not: Boolean? = false,
+  override val table: String? = null,
+) : MySQLWhere {
+  override val property: String? = null
+  override val sqlTemplate: String
+    get() {
+      val outer = outerTable.trim('`')
+      val inner = innerTable.trim('`')
+      val base = "NOT EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )"
+      return if (not == true) "EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )" else base
     }
 }
 

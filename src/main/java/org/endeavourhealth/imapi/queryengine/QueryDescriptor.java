@@ -32,8 +32,35 @@ public class QueryDescriptor {
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-  private DisplayMode displayMode;
-  private String baseType;
+  private Map<String,Query> nodeRefMap=new HashMap<>();
+
+  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    if (query.getIri() == null)
+      query.setIri(queryIri);
+    query = describeQuery(query, displayMode);
+    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
+    return query;
+  }
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    setIriNames(query);
+    if (iriContext == null || iriContext.isEmpty())
+      return query;
+    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    describeMatch(query);
+    if (displayMode == DisplayMode.LOGICAL) {
+      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    }
+    if (displayMode== DisplayMode.EDIT){
+      new LogicOptimizer().resolveLogic(query, DisplayMode.EDIT);
+    }
+
+
+
+    return query;
+  }
 
   public String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
@@ -102,16 +129,7 @@ public class QueryDescriptor {
     } else return startShort.toString();
   }
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    if (query.getIri() == null)
-      query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
-    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
-    return query;
-  }
+
 
   public Query describeSingleMatch(Query query) throws QueryException {
     setIriNames(query);
@@ -119,25 +137,6 @@ public class QueryDescriptor {
     return query;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    this.displayMode = displayMode;
-    if (query.getTypeOf()!=null){
-      baseType= query.getTypeOf().getIri();
-    }
-    setIriNames(query);
-    if (iriContext == null || iriContext.isEmpty())
-      return query;
-    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
-    if (displayMode == DisplayMode.RULES && query.getRule() == null) {
-      new LogicOptimizer().getRulesFromLogic(query);
-    } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
-      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
-    }
-    describeMatch(query);
-
-
-    return query;
-  }
 
   private void describeGroupBys(List<GroupBy> groupBys) {
     for (GroupBy groupBy : groupBys) {
@@ -261,6 +260,8 @@ public class QueryDescriptor {
 
   public void describeMatch(Query query) {
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    if (query.getAs()!=null)
+      nodeRefMap.put(query.getAs(), query);
 
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
@@ -289,7 +290,7 @@ public class QueryDescriptor {
     if (query.getIs() != null) {
       describeIs(query.getIs());
     }
-    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr())) {
+    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr(),query.getUnion(),query.getEach())) {
       if (subQueries != null) {
         for (Query subQuery : subQueries) {
           describeMatch(subQuery);
@@ -308,6 +309,9 @@ public class QueryDescriptor {
     }
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
+    }
+    if (query.getThen() != null) {
+      describeMatch(query.getThen());
     }
   }
 
@@ -436,6 +440,13 @@ public class QueryDescriptor {
     if (source.getIri() != null) {
       source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
     }
+    if (source.getNodeRef()!=null){
+      Query refMatch = nodeRefMap.get(source.getNodeRef());
+      if (refMatch!=null){
+        refMatch.setReferenced(true);
+      }
+    }
+
     if (source.getParameter() != null) {
       if (source.getParameter().toLowerCase().contains("searchdate"))
         source.setName("search date");

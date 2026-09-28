@@ -9,7 +9,8 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Query> asMap;
+  private Map<String, Integer> asMap;
+  private int matchCounter = 0;
 
 
 
@@ -19,27 +20,129 @@ public class LogicOptimizer {
       if (displayMode == DisplayMode.LOGICAL) {
         getLogicFromRules(query);
         optimiseMatch(query);
-      } else {
+        flattenMatch(query);
+        operationalise(query,null);
+      }
+      else if (displayMode == DisplayMode.EDIT) {
+        getLogicFromRules(query);
+        optimiseMatch(query);
+        operationalise(query,null);
+      }
+      else {
         optimiseMatch(query);
       }
-      flattenMatch(query);
-      operationalise(query,null);
+
     } catch (Exception e) {
       throw new QueryException("Error resolving logic", e);
     }
   }
 
   private void operationalise(Query query,Query parent) {
-    if (query.getAnd() != null) {
-        for (int i = 0; i < query.getAnd().size(); i++) {
-          Query subQuery = query.getAnd().get(i);
-          operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
-        }
+    if (query.getFrom()!=null){
+      query.setFrom(cte(query.getFrom()));
     }
-    if (query.getAs()!=null){
-      asMap.put(query.getAs(), query);
+    if (query.getAnd() != null) {
+      for (int i = 0; i < query.getAnd().size(); i++) {
+        Query subQuery = query.getAnd().get(i);
+        operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+      }
+    }
+    if (query.getOr() != null) {
+      for (int i = 0; i < query.getOr().size(); i++) {
+        Query subQuery = query.getOr().get(i);
+        operationalise(subQuery,null);
+      }
+    }
+    if (query.getOrderBy()!=null||query.getWhere()!=null||query.getIs()!=null) {
+      setAs(query,parent);
+    }
+    if (query.getThen()!=null) {
+      operationalise(query.getThen(),query);
     }
   }
+  private String negative(Query query) {
+    if (query.isNotExists()) return "not_";
+    else return "";
+  }
+
+
+  private void setAs(Query query, Query parent) {
+    String negative=negative(query);
+    if (query.getAs()!=null) {
+      query.setAs(cte(negative+query.getAs()));
+      return;
+    }
+    String keepAs="";
+    if (query.getIs()!=null){
+      keepAs=cte(query.getIs().getName());
+      query.setAs(getUniqueAs(negative+keepAs));
+      return;
+    }
+    if (query.getWhere() != null) {
+      keepAs = createAs(query);
+      query.setAs(getUniqueAs(negative+keepAs));
+    }
+
+    if (query.getFrom()!=null) {
+      query.setAs(getUniqueAs(cte(query.getFrom()+"_"+keepAs)));
+    }
+    else if (query.getOrderBy() != null) {
+      Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
+      query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
+        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs)));
+    }
+  }
+
+  private String getUniqueAs(String as){
+    if (asMap.get(as)==null){
+      asMap.put(as,1);
+      return as;
+    }
+    else {
+      asMap.put(as,asMap.get(as)+1);
+      return as+"_"+asMap.get(as);
+    }
+  }
+
+  private String createAs(Where where) {
+
+    if (where.getAnd()==null&&where.getOr()==null) {
+      return cte(WhereAsGenerator.getWhereAs(where));
+    }
+    else {
+      for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+        if (wheres != null) {
+          List<String> asList = new ArrayList<>();
+          for (Where subWhere : wheres) {
+            String subAs = createAs(subWhere);
+            asList.add(subAs);
+          }
+          return String.join("_", asList);
+        }
+      }
+    }
+    return null;
+}
+
+  private String createAs(Query query) {
+    StringBuilder keepAs = new StringBuilder();
+    if (query.getIs()!=null){
+      return cte(query.getIs().getName());
+    }
+    if (query.getWhere() != null) {
+      return createAs(query.getWhere());
+    }
+    matchCounter++;
+      keepAs.append("match").append(matchCounter);
+    return cte(keepAs.toString());
+  }
+
+  public static String cte(String string) {
+    return string.toLowerCase(Locale.ROOT)
+      .replaceAll("[^a-zA-Z0-9]", "_")
+      .replaceAll("_+", "_");
+  }
+
 
 
   public static void optimizeQuery(Query query) {
@@ -81,6 +184,15 @@ public class LogicOptimizer {
       Query andQuery = query.getAnd().getFirst();
       mergeMatch(query, andQuery);
     }
+  }
+
+  public static void injectReturn(Query query, String iri,String nodeRef){
+    if (query.getReturn() != null) {
+      for (Return ret : query.getReturn()) {
+        if (ret.getIri().equals(iri)&&ret.getNodeRef().equals(nodeRef)) return;
+      }
+    }
+    query.addReturn(new Return().setIri(iri).setNodeRef(nodeRef));
   }
 
   public static boolean isLinkedMatch(Query query) {
@@ -213,7 +325,8 @@ public class LogicOptimizer {
 
     Where rewritten = new Where();
     rewritten.setOperator(invertComparisonOperator(where.getOperator().getValue()));
-    rewritten.setValue(where.getValue());
+    rewritten.setValue(negateInterval(where.getValue()));
+    rewritten.setUnits(where.getUnits());
     rewritten.setNot(where.isNot());
 
     ValueSource left = new ValueSource();
@@ -231,84 +344,11 @@ public class LogicOptimizer {
     return rewritten;
   }
 
-  public static void optimiseNegativeIntervalWheres(Query query) {
-    if (query.getAnd() != null)
-      for (Query child : query.getAnd()) optimiseNegativeIntervalWheres(child);
-    if (query.getOr() != null)
-      for (Query child : query.getOr()) optimiseNegativeIntervalWheres(child);
-
-    if (query.getWhere() != null)
-      query.setWhere(rewriteNegativeIntervalWhere(query.getWhere()));
-  }
-
-  private static Where rewriteNegativeIntervalWhere(Where where) {
-    if (where.getAnd() != null)
-      where.getAnd().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
-
-    if (where.getOr() != null)
-      where.getOr().replaceAll(LogicOptimizer::rewriteNegativeIntervalWhere);
-
-    if (where.getRange() != null) {
-      if (where.getRange().getFrom() != null)
-        where.getRange().setFrom(rewriteNegativeIntervalValue(where,where.getRange().getFrom()));
-
-      if (where.getRange().getTo() != null)
-        where.getRange().setTo(rewriteNegativeIntervalValue(where,where.getRange().getTo()));
-
-      return where;
-    }
-
-    if (where.getCompare() == null) return where;
-    if (where.getValue() == null || !where.getValue().startsWith("-")) return where;
-    if (where.getUnits() == null) return where;
-
-    Compare compare = where.getCompare();
-    String positiveValue = where.getValue().substring(1);
-
-    boolean leftIsSearchDate = compare.getLeft() != null
-      && "$searchDate".equals(compare.getLeft().getParameter());
-    boolean rightIsSearchDate = compare.getRight() != null
-      && "$searchDate".equals(compare.getRight().getParameter());
-
-    if (leftIsSearchDate) {
-      Compare swapped = new Compare();
-      swapped.setLeft(compare.getRight());
-      swapped.setRight(compare.getLeft());
-      where.setCompare(swapped);
-      where.setOperator(invertComparisonOperator(where.getOperator().getValue()));
-      where.setValue(positiveValue);
-    } else if (rightIsSearchDate) {
-      where.setValue(positiveValue);
-    }
-
-    return where;
-  }
-
-  private static Value rewriteNegativeIntervalValue(Where where,Value value) {
-    if (where.getCompare() == null) return value;
-    if (value.getValue() == null || !value.getValue().startsWith("-")) return value;
-    if (value.getUnits() == null) return value;
-
-    Compare compare = where.getCompare();
-    String positiveValue = value.getValue().substring(1);
-
-    boolean leftIsSearchDate = compare.getLeft() != null
-      && "$searchDate".equals(compare.getLeft().getParameter());
-    boolean rightIsSearchDate = compare.getRight() != null
-      && "$searchDate".equals(compare.getRight().getParameter());
-
-    if (leftIsSearchDate) {
-      Compare swapped = new Compare();
-      swapped.setLeft(compare.getRight());
-      swapped.setRight(compare.getLeft());
-      where.setCompare(swapped);
-      value.setOperator(invertComparisonOperator(value.getOperator().getValue()));
-      value.setValue(positiveValue);
-    } else if (rightIsSearchDate) {
-      value.setValue(positiveValue);
-    }
-
-    return value;
+  private static String negateInterval(String value) {
+    String trimmed = value.trim();
+    if (trimmed.startsWith("-")) return trimmed.substring(1);
+    if (trimmed.matches("0+(\\.0+)?")) return trimmed;
+    return "-" + trimmed;
   }
 
   public Query getLogicalMatch(Query query) throws JsonProcessingException {
@@ -425,12 +465,13 @@ public class LogicOptimizer {
   }
 
 
-  private void flattenMatch(Query query) {
-    if (query.getOr() != null && !query.isNotExists()) {
+  private void flattenMatch(Query query){
+    if (query.getOr() != null) {
       List<Query> flatOrs = new ArrayList<>();
       flattenOrs(query, flatOrs);
       if (!flatOrs.isEmpty()) query.setOr(flatOrs);
-    } else if (query.getAnd() != null && !query.isNotExists()) {
+    }
+    else if (query.getAnd() != null) {
       List<Query> flatAnds = new ArrayList<>();
       flattenAnds(query, flatAnds);
       if (!flatAnds.isEmpty()) query.setAnd(flatAnds);
@@ -439,13 +480,32 @@ public class LogicOptimizer {
 
   private void flattenAnds(Query query, List<Query> flatAnds) {
     for (Query subQuery : query.getAnd()) {
+      if (subQuery.getThen() != null &&!subQuery.isNotExists()) {
+        Query thenQuery = subQuery.getThen();
+        subQuery.setThen(null);
+        flatAnds.add(subQuery);
+        flatAnds.add(thenQuery);
+        flattenMatch(thenQuery);
+      }
+      if (subQuery.getThen()!=null && subQuery.isNotExists()) {
+        Query thenQuery = subQuery.getThen();
+        Query notExists= new Query();
+        notExists.setNotExists(true);
+        flatAnds.add(notExists);
+        notExists.addAnd(subQuery);
+        notExists.addAnd(thenQuery);
+        subQuery.setThen(null);
+        flattenMatch(thenQuery);
+      }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);
         flattenMatch(subQuery);
       } else {
         if (subQuery.isNotExists()) {
           flatAnds.add(subQuery);
-        } else flattenAnds(subQuery, flatAnds);
+          flattenMatch(subQuery);
+        }
+        else flattenAnds(subQuery, flatAnds);
       }
     }
   }
@@ -453,12 +513,23 @@ public class LogicOptimizer {
 
   private void flattenOrs(Query query, List<Query> flatOrs) {
     for (Query subQuery : query.getOr()) {
+      if (subQuery.getThen() != null) {
+        Query thenQuery = subQuery.getThen();
+        Query andQuery = new Query();
+        andQuery.setNotExists(subQuery.isNotExists());
+        flatOrs.add(andQuery);
+        andQuery.addAnd(subQuery);
+        subQuery.setThen(null);
+        andQuery.addAnd(thenQuery);
+        flattenMatch(thenQuery);
+      }
       if (subQuery.getOr() == null) {
         flatOrs.add(subQuery);
         flattenMatch(subQuery);
       } else {
         if (subQuery.isNotExists()) {
           flatOrs.add(subQuery);
+          flattenMatch(subQuery);
         } else flattenOrs(subQuery, flatOrs);
       }
     }

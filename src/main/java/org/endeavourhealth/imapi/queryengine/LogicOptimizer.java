@@ -73,7 +73,7 @@ public class LogicOptimizer {
       return;
     }
     String keepAs="";
-    if (query.getIs()!=null){
+    if (query.getIs()!=null&&query.getIs().getName()!=null){
       keepAs=cte(query.getIs().getName());
       query.setAs(getUniqueAs(negative+keepAs));
       return;
@@ -87,9 +87,10 @@ public class LogicOptimizer {
       query.setAs(getUniqueAs(cte(query.getFrom()+"_"+keepAs)));
     }
     else if (query.getOrderBy() != null) {
+      String parentAs= parent!=null ? parent.getAs() : "";
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
       query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
-        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs)));
+        + parentAs: "Earliest_" + parentAs+"_"+keepAs)));
     }
   }
 
@@ -126,7 +127,7 @@ public class LogicOptimizer {
 
   private String createAs(Query query) {
     StringBuilder keepAs = new StringBuilder();
-    if (query.getIs()!=null){
+    if (query.getIs()!=null&&query.getIs().getName()!=null){
       return cte(query.getIs().getName());
     }
     if (query.getWhere() != null) {

@@ -89,8 +89,7 @@ public class QueryService {
       query = queryRequest.getQuery();
     }
     try {
-      IMQtoSQLConverterKotlin.preassignOrderByAs(query);
-      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+      query = describeQuery(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimiseAgeWheres(query);
     } catch (Exception e) {
       throw new SQLConversionException(e.getMessage(), e);
@@ -304,43 +303,37 @@ public class QueryService {
   }
 
 
-
-
-
-
   public void checkDependency(TTEntity report, Query query) {
     if (query.getRule() != null) {
       for (Query subQuery : query.getRule()) {
         if (subQuery.getIs() != null) {
           Node node = subQuery.getIs();
-          report.addObject(iri(IM.DEPENDENT_ON),iri(node.getIri()));
+          report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
         }
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getColumnGroup() != null) {
       for (Query subQuery : query.getColumnGroup()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getAnd() != null) {
       for (Query subQuery : query.getAnd()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getOr() != null) {
       for (Query subQuery : query.getOr()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getEach() != null) {
       for (Query subQuery : query.getEach()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
   }
-
-
 
 
 }

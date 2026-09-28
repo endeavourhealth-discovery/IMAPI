@@ -506,6 +506,7 @@ public class LogicOptimizer {
         subQuery.setThen(null);
         flattenMatch(thenQuery);
         continue;
+        
       }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);

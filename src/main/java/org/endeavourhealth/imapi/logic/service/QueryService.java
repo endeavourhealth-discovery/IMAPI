@@ -137,7 +137,7 @@ public class QueryService {
   }
 
   public Query flattenQuery(Query query) {
-    LogicOptimizer.optimizeQuery(query);
+    //LogicOptimizer.optimizeQuery(query);
     return query;
   }
 

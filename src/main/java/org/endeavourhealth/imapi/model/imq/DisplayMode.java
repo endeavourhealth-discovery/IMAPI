@@ -4,5 +4,5 @@ public enum DisplayMode {
   ORIGINAL,
   RULES,
   LOGICAL,
-  OPERATIONAL
+  EDIT
 }

@@ -117,6 +117,9 @@ public class IriCollector {
     if (query.getOrderBy() != null) {
       collectOrderByIris(query.getOrderBy(), iriSet);
     }
+    if (query.getThen() != null) {
+      collectMatchIris(query.getThen(), iriSet);
+    }
   }
 
   private static void collectOrderByIris(OrderLimit orderBy, Set<String> iriSet) {

@@ -32,8 +32,7 @@ public class QueryDescriptor {
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-  private DisplayMode displayMode;
-  private String baseType;
+  private Map<String,Query> nodeRefMap=new HashMap<>();
 
   public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
@@ -46,10 +45,6 @@ public class QueryDescriptor {
     return query;
   }
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    this.displayMode = displayMode;
-    if (query.getTypeOf()!=null){
-      baseType= query.getTypeOf().getIri();
-    }
     setIriNames(query);
     if (iriContext == null || iriContext.isEmpty())
       return query;
@@ -57,6 +52,9 @@ public class QueryDescriptor {
     describeMatch(query);
     if (displayMode == DisplayMode.LOGICAL) {
       new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    }
+    if (displayMode== DisplayMode.EDIT){
+      new LogicOptimizer().resolveLogic(query, DisplayMode.EDIT);
     }
 
 
@@ -262,6 +260,8 @@ public class QueryDescriptor {
 
   public void describeMatch(Query query) {
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    if (query.getAs()!=null)
+      nodeRefMap.put(query.getAs(), query);
 
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
@@ -309,6 +309,9 @@ public class QueryDescriptor {
     }
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
+    }
+    if (query.getThen() != null) {
+      describeMatch(query.getThen());
     }
   }
 
@@ -437,6 +440,13 @@ public class QueryDescriptor {
     if (source.getIri() != null) {
       source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
     }
+    if (source.getNodeRef()!=null){
+      Query refMatch = nodeRefMap.get(source.getNodeRef());
+      if (refMatch!=null){
+        refMatch.setReferenced(true);
+      }
+    }
+
     if (source.getParameter() != null) {
       if (source.getParameter().toLowerCase().contains("searchdate"))
         source.setName("search date");

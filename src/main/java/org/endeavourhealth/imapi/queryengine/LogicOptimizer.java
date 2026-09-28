@@ -20,11 +20,18 @@ public class LogicOptimizer {
       if (displayMode == DisplayMode.LOGICAL) {
         getLogicFromRules(query);
         optimiseMatch(query);
-      } else {
+        flattenMatch(query);
+        operationalise(query,null);
+      }
+      else if (displayMode == DisplayMode.EDIT) {
+        getLogicFromRules(query);
+        optimiseMatch(query);
+        operationalise(query,null);
+      }
+      else {
         optimiseMatch(query);
       }
-      flattenMatch(query);
-      operationalise(query,null);
+
     } catch (Exception e) {
       throw new QueryException("Error resolving logic", e);
     }
@@ -48,6 +55,9 @@ public class LogicOptimizer {
     }
     if (query.getOrderBy()!=null||query.getWhere()!=null||query.getIs()!=null) {
       setAs(query,parent);
+    }
+    if (query.getThen()!=null) {
+      operationalise(query.getThen(),query);
     }
   }
   private String negative(Query query) {
@@ -127,13 +137,10 @@ public class LogicOptimizer {
     return cte(keepAs.toString());
   }
 
-  private String cte(String string) {
-    String cte= string.toLowerCase(Locale.ROOT)
+  public static String cte(String string) {
+    return string.toLowerCase(Locale.ROOT)
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
-    if (cte.contains("-"))
-      System.out.println("CTE contains dash: "+cte);
-    return cte;
   }
 
 
@@ -177,6 +184,15 @@ public class LogicOptimizer {
       Query andQuery = query.getAnd().getFirst();
       mergeMatch(query, andQuery);
     }
+  }
+
+  public static void injectReturn(Query query, String iri,String nodeRef){
+    if (query.getReturn() != null) {
+      for (Return ret : query.getReturn()) {
+        if (ret.getIri().equals(iri)&&ret.getNodeRef().equals(nodeRef)) return;
+      }
+    }
+    query.addReturn(new Return().setIri(iri).setNodeRef(nodeRef));
   }
 
   public static boolean isLinkedMatch(Query query) {
@@ -449,12 +465,13 @@ public class LogicOptimizer {
   }
 
 
-  private void flattenMatch(Query query) {
-    if (query.getOr() != null && !query.isNotExists()) {
+  private void flattenMatch(Query query){
+    if (query.getOr() != null) {
       List<Query> flatOrs = new ArrayList<>();
       flattenOrs(query, flatOrs);
       if (!flatOrs.isEmpty()) query.setOr(flatOrs);
-    } else if (query.getAnd() != null && !query.isNotExists()) {
+    }
+    else if (query.getAnd() != null) {
       List<Query> flatAnds = new ArrayList<>();
       flattenAnds(query, flatAnds);
       if (!flatAnds.isEmpty()) query.setAnd(flatAnds);
@@ -463,13 +480,32 @@ public class LogicOptimizer {
 
   private void flattenAnds(Query query, List<Query> flatAnds) {
     for (Query subQuery : query.getAnd()) {
+      if (subQuery.getThen() != null &&!subQuery.isNotExists()) {
+        Query thenQuery = subQuery.getThen();
+        subQuery.setThen(null);
+        flatAnds.add(subQuery);
+        flatAnds.add(thenQuery);
+        flattenMatch(thenQuery);
+      }
+      if (subQuery.getThen()!=null && subQuery.isNotExists()) {
+        Query thenQuery = subQuery.getThen();
+        Query notExists= new Query();
+        notExists.setNotExists(true);
+        flatAnds.add(notExists);
+        notExists.addAnd(subQuery);
+        notExists.addAnd(thenQuery);
+        subQuery.setThen(null);
+        flattenMatch(thenQuery);
+      }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);
         flattenMatch(subQuery);
       } else {
         if (subQuery.isNotExists()) {
           flatAnds.add(subQuery);
-        } else flattenAnds(subQuery, flatAnds);
+          flattenMatch(subQuery);
+        }
+        else flattenAnds(subQuery, flatAnds);
       }
     }
   }
@@ -477,12 +513,23 @@ public class LogicOptimizer {
 
   private void flattenOrs(Query query, List<Query> flatOrs) {
     for (Query subQuery : query.getOr()) {
+      if (subQuery.getThen() != null) {
+        Query thenQuery = subQuery.getThen();
+        Query andQuery = new Query();
+        andQuery.setNotExists(subQuery.isNotExists());
+        flatOrs.add(andQuery);
+        andQuery.addAnd(subQuery);
+        subQuery.setThen(null);
+        andQuery.addAnd(thenQuery);
+        flattenMatch(thenQuery);
+      }
       if (subQuery.getOr() == null) {
         flatOrs.add(subQuery);
         flattenMatch(subQuery);
       } else {
         if (subQuery.isNotExists()) {
           flatOrs.add(subQuery);
+          flattenMatch(subQuery);
         } else flattenOrs(subQuery, flatOrs);
       }
     }

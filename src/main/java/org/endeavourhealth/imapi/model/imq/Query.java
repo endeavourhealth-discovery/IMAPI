@@ -73,13 +73,13 @@ public class Query implements HasPaths, Returnable {
   private String uuid;
   private boolean isBase;
   private Query then;
-  private boolean isReferenced;
+  private boolean referenced;
 
   public boolean isReferenced() {
-    return isReferenced;
+    return referenced;
   }
   public Query setReferenced(boolean referenced) {
-    isReferenced = referenced;
+    this.referenced = referenced;
     return this;
   }
 

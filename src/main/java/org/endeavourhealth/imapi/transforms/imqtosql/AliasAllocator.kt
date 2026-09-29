@@ -1,5 +1,6 @@
-package org.endeavourhealth.imapi.transforms
+package org.endeavourhealth.imapi.transforms.imqtosql
 
+import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import java.util.Locale.getDefault
 
 /**
@@ -24,6 +25,14 @@ class AliasAllocator {
   fun nextCteAlias(baseName: String): String {
     cteCounter++
     return ensureUniqueAlias("${sanitiseAlias(baseName)}_$cteCounter")
+  }
+
+  /** Registers a match's `as` verbatim as its CTE alias. The logic optimiser guarantees uniqueness, so a clash is an error. */
+  fun useAs(matchAs: String): String {
+    if (!usedAliases.add(matchAs.lowercase())) {
+      throw SQLConversionException("Duplicate 'as' in query: $matchAs")
+    }
+    return "`$matchAs`"
   }
 
   fun cteNormalise(value: String): String {

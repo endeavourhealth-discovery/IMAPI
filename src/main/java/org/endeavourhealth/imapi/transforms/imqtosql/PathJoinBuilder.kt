@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.transforms
+package org.endeavourhealth.imapi.transforms.imqtosql
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Path

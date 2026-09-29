@@ -30,7 +30,9 @@ public class EqdResources {
   private final Map<String, Set<Node>> valueMap = new HashMap<>();
   private final Properties dataMap;
   private final Set<String> acronyms = new HashSet<>();
+  @Getter
   private final Map<String,Integer> asMap= new HashMap<>();
+
   @Getter
   Map<String, String> reportNames = new HashMap<>();
   @Setter
@@ -164,7 +166,6 @@ public class EqdResources {
 
   private Query getMatchFromGroup(List<EQDOCCriteria> groupCriteria, VocMemberOperator memberOp) throws QueryException, EQDException, IOException {
     this.subRule = 0;
-    asMap.clear();
     Query boolQuery = new Query();
     if (memberOp == null) {
       memberOp = VocMemberOperator.OR;
@@ -502,10 +503,9 @@ public class EqdResources {
   private Query convertLinkedCriterion(EQDOCCriterion eqCriterion, Query parentQuery) throws IOException, QueryException, EQDException {
     EQDOCLinkedCriterion criterionLinked = getLinkedCriterion(eqCriterion,eqCriterion.getLinkedCriterion());
     EQDOCCriterion eqLinkedCriterion = criterionLinked.getCriterion();
-    Query linkedQuery = this.convertCriterion(eqLinkedCriterion,parentQuery);
-    Query relativeQuery = getLinkedChildQuery(linkedQuery);
+    Query childQuery = this.convertCriterion(eqLinkedCriterion,parentQuery);
     Where relationWhere = new Where();
-    addMatchWhere(relativeQuery, relationWhere);
+    addMatchWhere(childQuery, relationWhere);
     EQDOCRelationship eqRelationship = eqCriterion.getLinkedCriterion().getRelationship();
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
@@ -527,15 +527,12 @@ public class EqdResources {
       parentQuery.setAs(parentQuery.getAs() + "_VAL");
       relationRight.setNodeRef(parentQuery.getAs());
     } else if (eqRelationship.getParentColumn().contains("DOB")) {
-      Path linkedMatchPath = new Path();
-      linkedMatchPath.setIri(NAMESPACE.IM + "patient");
-      matchCounter++;
-      String node = "patient_" + matchCounter;
-      linkedMatchPath.setName(node);
-      linkedMatchPath.setTypeOf(NAMESPACE.IM + "Patient");
-      relativeQuery.addPath(linkedMatchPath);
-      relationRight.setNodeRef(node).setIri(NAMESPACE.IM + "dateOfBirth");
-    } else throw new EQDException("No match found for linked criterion");
+      if (!parentQuery.getTypeOf().getIri().contains("Patient"))
+        throw new EQDException("testing a date of birth in parent that is not a patient");
+      relationRight.setIri(NAMESPACE.IM + "dateOfBirth");
+      relationRight.setNodeRef(parentQuery.getAs());
+    }
+
 
     if (eqRelationship.getRangeValue() != null) {
       EQDOCRangeValue eqRange = eqRelationship.getRangeValue();
@@ -596,7 +593,7 @@ public class EqdResources {
       relationWhere.getCompare().setRight(relationRight);
       relationWhere.setOperator(Operator.eq);
     }
-    return linkedQuery;
+    return childQuery;
   }
 
   private String getAlias(Query parentQuery) throws EQDException {
@@ -1648,10 +1645,11 @@ public class EqdResources {
     }
 
     if (query.isTest()) {
-      query.setAs(LogicOptimizer.cte(parent.getAs()+keepAs));
+      query.setAs(cte(parent.getAs()+keepAs));
     } else if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(LogicOptimizer.cte(direction == Order.descending ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs));
+      query.setAs(getUniqueAs(cte(direction == Order.descending
+        ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs)));
     }
   }
 
@@ -1668,7 +1666,7 @@ public class EqdResources {
         matchCounter++;
         query.setAs("m_" + matchCounter);
       }
-      else query.setAs(getUniqueAs(LogicOptimizer.cte(keepAs.toString())));
+      else query.setAs(getUniqueAs(cte(keepAs.toString())));
     }else {
         matchCounter++;
         query.setAs("match_" + matchCounter);
@@ -1676,6 +1674,10 @@ public class EqdResources {
     if (query.getOrderBy() != null) {
       setKeepAs(query, query);
     }
+  }
+
+  private String cte(String string) {
+    return LogicOptimizer.cte(string);
   }
   private String getUniqueAs(String as){
     if (asMap.get(as)==null){

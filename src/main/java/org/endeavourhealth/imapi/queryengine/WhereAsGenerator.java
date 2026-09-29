@@ -13,6 +13,7 @@ public class WhereAsGenerator {
    return String.join(" ", parts);
   }
 
+
   public static List<String> buildWhereSentence(Where where) {
     List<String> parts = new ArrayList<>();
     if (where.getShortLabel() != null) {
@@ -23,6 +24,8 @@ public class WhereAsGenerator {
       parts.add(where.getIs().getFirst().getName()+ (where.getIs().size()>1? " more":""));
       return parts;
     }
+    else if (where.getName()!=null)
+      parts.add(where.getName());
 
     if (where.getRange() != null) {
       buildRangeSentence(where, parts);
@@ -61,7 +64,7 @@ public class WhereAsGenerator {
 
     if (where.getOperator() != null) {
       parts.add(
-        where.getOperator().getValue());
+        where.getOperator().toString());
     }
 
     if (value != null && !value.isEmpty()) {

@@ -69,7 +69,7 @@ public class LogicOptimizer {
   private void setAs(Query query, Query parent) {
     String negative=negative(query);
     if (query.getAs()!=null) {
-      query.setAs(cte(negative+query.getAs()));
+      query.setAs(getUniqueAs(cte(negative+query.getAs())));
       return;
     }
     String keepAs="";
@@ -79,12 +79,12 @@ public class LogicOptimizer {
       return;
     }
     if (query.getWhere() != null) {
-      keepAs = createAs(query);
+      keepAs = createWhereAs(query.getWhere());
       query.setAs(getUniqueAs(cte(negative+keepAs)));
     }
 
     if (query.getFrom()!=null) {
-      query.setAs(getUniqueAs(cte(query.getFrom()+"_"+keepAs)));
+      query.setAs(getUniqueAs(cte("then"+"_"+keepAs)));
     }
     else if (query.getOrderBy() != null) {
       String parentAs= parent!=null ? parent.getAs() : "";
@@ -105,7 +105,7 @@ public class LogicOptimizer {
     }
   }
 
-  private String createAs(Where where) {
+  private String createWhereAs(Where where) {
 
     if (where.getAnd()==null&&where.getOr()==null) {
       return cte(WhereAsGenerator.getWhereAs(where));
@@ -115,35 +115,24 @@ public class LogicOptimizer {
         if (wheres != null) {
           List<String> asList = new ArrayList<>();
           for (Where subWhere : wheres) {
-            String subAs = createAs(subWhere);
+            String subAs = createWhereAs(subWhere);
             asList.add(subAs);
           }
           return String.join("_", asList);
         }
       }
     }
-    return null;
+    matchCounter++;
+    return cte("match_"+matchCounter);
 }
 
-  private String createAs(Query query) {
-    StringBuilder keepAs = new StringBuilder();
-    if (query.getIs()!=null&&query.getIs().getName()!=null){
-      return cte(query.getIs().getName());
-    }
-    if (query.getWhere() != null) {
-      return createAs(query.getWhere());
-    }
-    matchCounter++;
-      keepAs.append("match").append(matchCounter);
-    return cte(keepAs.toString());
-  }
 
   public static String cte(String string) {
     String as= string.toLowerCase(Locale.ROOT)
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
-    if (as.length()>20){
-      as=as.substring(0,20)+"_etc";
+    if (as.length()>30){
+      as=as.substring(0,30)+"_etc";
     }
     if (as.startsWith("_")) as=as.substring(1);
     if (as.endsWith("_")) as=as.substring(0,as.length()-1);

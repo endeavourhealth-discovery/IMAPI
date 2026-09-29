@@ -516,7 +516,7 @@ public class EqdResources {
     if (!parentProperty.contains("DATE") && !parentProperty.contains("DOB"))
       throw new EQDException("No match found for linked criterion parent property");
     ValueSource relationRight = new ValueSource();
-    if (eqRelationship.getParentColumn().contains("DATE")) {
+    if (eqRelationship.getParentColumn().equals("DATE")) {
       relationRight.setIri(NAMESPACE.IM + "effectiveDate");
       relationRight.setNodeRef(parentQuery.getAs());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
@@ -532,6 +532,7 @@ public class EqdResources {
       relationRight.setIri(NAMESPACE.IM + "dateOfBirth");
       relationRight.setNodeRef(parentQuery.getAs());
     }
+    else throw new EQDException("No map fpr parent column "+ eqRelationship.getParentColumn());
 
 
     if (eqRelationship.getRangeValue() != null) {

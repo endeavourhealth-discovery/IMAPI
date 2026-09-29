@@ -119,7 +119,18 @@ public class EntityController {
     }
   }
 
+
   // ============================ PROTECTED ============================
+
+
+  @GetMapping(value = "/protected/getmatchedsnomed")
+  @Operation(summary = "Get matched to iri", description = "fetches an iri matched to an iri")
+  public Set<String> getMatchedTo(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetMatchedSnomed.GET")) {
+      log.debug("get matched snomed " + iri + "");
+      return entityService.getMatchedTo(iri,NAMESPACE.SNOMED);
+    }
+  }
 
   @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")

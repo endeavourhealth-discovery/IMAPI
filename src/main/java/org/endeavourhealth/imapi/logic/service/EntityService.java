@@ -580,6 +580,10 @@ public class EntityService {
   public Map<String, Entity> getIriDetails(Set<String> iris) {
     return entityRepository.getIriDetails(iris);
   }
+
+  public Set<String> getMatchedTo(String iri, NAMESPACE namespace) {
+    return entityRepository.getMatchedTo(iri,namespace);
+  }
 }
 
 

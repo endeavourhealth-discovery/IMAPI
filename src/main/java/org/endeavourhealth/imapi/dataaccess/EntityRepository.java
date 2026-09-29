@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
@@ -2502,5 +2503,27 @@ public class EntityRepository {
       }
     }
     return results;
+  }
+
+  public Set<String> getMatchedTo(String iri, @MonotonicNonNull NAMESPACE namespace) {
+   String scheme= namespace.toString();
+    String sql= """
+      Select ?matched
+      where {
+      <%s> im:matchedTo ?matched .
+      ?matched im:scheme ?scheme.
+      }
+      """.formatted(iri);
+    Set<String>matches= new HashSet<>();
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry= conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          matches.add(bs.getValue("matched").stringValue());
+        }
+      }
+    }
+    return matches;
   }
 }

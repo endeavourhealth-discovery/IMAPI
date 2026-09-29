@@ -24,8 +24,15 @@ public class WhereAsGenerator {
       parts.add(where.getIs().getFirst().getName()+ (where.getIs().size()>1? " more":""));
       return parts;
     }
-    else if (where.getName()!=null)
+    else if (where.getName()!=null&&!where.getName().isEmpty())
       parts.add(where.getName());
+    else if (where.getCompare() != null) {
+      if (where.getCompare().getLeft() != null) {
+        if (where.getCompare().getLeft().getName() != null &&!where.getCompare().getLeft().getName().isEmpty()) {
+          parts.add(where.getCompare().getLeft().getName());
+        }
+      }
+    }
 
     if (where.getRange() != null) {
       buildRangeSentence(where, parts);

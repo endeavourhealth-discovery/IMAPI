@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.transforms
+package org.endeavourhealth.imapi.transforms.imqtosql
 
 import java.util.Locale.getDefault
 

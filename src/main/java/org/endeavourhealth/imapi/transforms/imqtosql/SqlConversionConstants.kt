@@ -1,4 +1,4 @@
-package org.endeavourhealth.imapi.transforms
+package org.endeavourhealth.imapi.transforms.imqtosql
 
 internal const val COHORT_DATA_MODEL_IRI = "http://endhealth.info/im#Cohort"
 internal const val ENTITY_ID_FIELD = "entity_id"

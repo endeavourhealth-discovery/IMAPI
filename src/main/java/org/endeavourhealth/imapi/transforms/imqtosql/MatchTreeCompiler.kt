@@ -28,8 +28,7 @@ internal class MatchTreeCompiler(
 
   fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
     val isA = match.`is`
-    val name = ensureAs(match) { isA.name ?: "cte" }
-    val isAlias = aliases.nextCteAlias(name)
+    val isAlias = aliases.useAs(requireAs(match))
     val withJoins = mutableListOf<MySQLJoin>()
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
@@ -108,10 +107,9 @@ internal class MatchTreeCompiler(
     if (previousKey == null || excludedKey == null) {
       throw SQLConversionException("No entity key to exclude ${excluded.alias} from ${previous.alias}")
     }
-    val name = groupAs ?: "not_exists"
     return MySQLWith(
       table = previous.table,
-      alias = aliases.nextCteAlias(name),
+      alias = aliases.nextCteAlias(groupAs ?: "not_exists"),
       selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
       wheres = mutableListOf(
         MySQLNotExistsWhere(
@@ -184,7 +182,7 @@ internal class MatchTreeCompiler(
     }
 
     val unionWith = if (orWiths.size == 1) orWiths.first() else MySQLWith(
-      alias = aliases.ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
+      alias = currentMatch.`as`?.let { aliases.useAs(it) } ?: aliases.ensureUniqueAlias("union_${mySqlQuery.withs.size}"),
       table = orWiths.first().table,
       unionWiths = orWiths,
       entityKeyField = orWiths.first().entityKeyField
@@ -215,7 +213,7 @@ internal class MatchTreeCompiler(
 
     if (match.path != null) pathJoinBuilder.addPathTableAndJoins(match.path, mySQLQuery.nodeToTableMap, with, addJoins = true)
     if (match.node != null) mySQLQuery.nodeToTableMap[match.node] = with.table
-    with.alias = getWithAlias(match, mySQLQuery)
+    with.alias = aliases.useAs(requireAs(match))
 
     if (match.where != null) {
       whereCompiler.addWheresRecursively(
@@ -390,19 +388,10 @@ internal class MatchTreeCompiler(
     )
   }
 
-  private fun getWithAlias(match: Query, mySQLQuery: MySQLQuery): String {
-    val name = ensureAs(match) {
-      match.name
-        ?: match.node
-        ?: match.typeOf?.name
-        ?: match.from?.let { "${it}_relative" }
-        ?: "match"
-    }
-    return aliases.nextCteAlias(name)
-  }
-
-  private fun ensureAs(match: Query, fallback: () -> String): String {
-    if (match.`as` == null) match.setAs(fallback())
-    return match.`as`
+  /** The logic optimiser assigns every match its `as`; it is used verbatim as the CTE alias. */
+  private fun requireAs(match: Query): String {
+    return match.`as` ?: throw SQLConversionException(
+      "Match has no 'as' assigned by the logic optimiser: ${match.name ?: match.typeOf?.iri ?: match.`is`?.iri ?: match.from ?: "unnamed"}"
+    )
   }
 }

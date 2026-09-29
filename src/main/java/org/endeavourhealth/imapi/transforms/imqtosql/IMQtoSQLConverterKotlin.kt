@@ -152,23 +152,4 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       ?: IMtoMySQLMap.getTableFromDataModel(typeIri)
       ?: throw SQLConversionException("Type $typeIri not found in table map")
   }
-
-  companion object {
-    @JvmStatic
-    fun preassignOrderByAs(query: Query?) {
-      var unknownCounter = 0
-      fun walk(match: Query?) {
-        if (match == null) return
-        if (match.orderBy != null && match.`as` == null) {
-          unknownCounter++
-          match.setAs("cte_$unknownCounter")
-        }
-        match.and?.forEach { walk(it) }
-        match.or?.forEach { walk(it) }
-        match.rule?.forEach { walk(it) }
-        match.columnGroup?.forEach { walk(it) }
-      }
-      walk(query)
-    }
-  }
 }

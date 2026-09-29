@@ -143,7 +143,7 @@ public class LogicOptimizer {
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
     if (as.length()>20){
-      as=as.substring(0,20)+"etc";
+      as=as.substring(0,20)+"_etc";
     }
     if (as.startsWith("_")) as=as.substring(1);
     if (as.endsWith("_")) as=as.substring(0,as.length()-1);
@@ -506,7 +506,7 @@ public class LogicOptimizer {
         subQuery.setThen(null);
         flattenMatch(thenQuery);
         continue;
-        
+
       }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);

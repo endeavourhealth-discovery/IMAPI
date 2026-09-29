@@ -90,7 +90,7 @@ public class LogicOptimizer {
       String parentAs= parent!=null ? parent.getAs() : "";
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
       query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
-        + parentAs: "Earliest_" + parentAs+"_"+keepAs)));
+        + parentAs: "Earliest_" + "_"+keepAs)));
     }
   }
 

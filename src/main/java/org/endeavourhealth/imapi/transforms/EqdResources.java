@@ -538,6 +538,7 @@ public class EqdResources {
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
     }
 
+    
     else throw new EQDException("No map fpr parent column "+ eqRelationship.getParentColumn());
 
 

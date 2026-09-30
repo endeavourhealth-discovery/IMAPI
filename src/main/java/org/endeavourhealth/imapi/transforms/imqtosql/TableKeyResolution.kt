@@ -30,3 +30,7 @@ internal fun getLastCteEntityKeyField(lastCTE: MySQLWith, queryTypeOfTable: Tabl
   lastCTE.entityKeyField?.let { return it }
   return resolveForeignKeyByTableName(lastCTE.table, queryTypeOfTable).first
 }
+
+/** The alias of the table joined onto a CTE to resolve a functional property. */
+internal fun functionalJoinAlias(propertyIri: String, field: Field): String =
+  field.join?.alias ?: propertyIri.substringAfterLast('#')

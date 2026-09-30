@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.Bool
 import org.endeavourhealth.imapi.model.imq.Where
+import org.endeavourhealth.imapi.model.sql.Field
 import org.endeavourhealth.imapi.model.sql.MySQLBoolWhere
 import org.endeavourhealth.imapi.model.sql.MySQLCompareWhere
 import org.endeavourhealth.imapi.model.sql.MySQLJoin
@@ -240,10 +241,13 @@ internal class WhereClauseCompiler(
       return currentTable to field
     }
 
-    var rawField = getPropertyNameByTableAndPropertyIri(
-      currentTable,
-      whereIri
-    ).field
+    val mappedField = getPropertyNameByTableAndPropertyIri(currentTable, whereIri)
+    if (mappedField.join != null) {
+      val fromRef = (if (nodeRef == null) with.fromAlias else null) ?: currentTable.alias ?: currentTable.table
+      return addFunctionalPropertyJoin(with, currentTable, fromRef, whereIri, mappedField) to mappedField.field
+    }
+
+    var rawField = mappedField.field
     if (rawField.isEmpty()) {
       rawField = getPropertyNameByTableAndPropertyIri(currentTable, whereIri).field
         ?: throw SQLConversionException("No field found for property $whereIri")
@@ -270,6 +274,35 @@ internal class WhereClauseCompiler(
     return currentTable to field
   }
 
+  /**
+   * Joins the table holding a functional property's column onto the CTE (once per alias) and returns that
+   * table, aliased, so conditions on the property are qualified by the join alias.
+   */
+  private fun addFunctionalPropertyJoin(
+    with: MySQLWith,
+    fromTable: Table,
+    fromRef: String,
+    propertyIri: String,
+    field: Field,
+  ): Table {
+    val fieldJoin = field.join ?: throw SQLConversionException("Property $propertyIri has no join")
+    val joinTable = getTableFromTypeAndProperty(fieldJoin.dataModel, null)
+    val alias = functionalJoinAlias(propertyIri, field)
+    joinTable.alias = alias
+    if (with.joins.none { it.tableToAlias == alias }) {
+      val join = fromTable.getJoinCondition(
+        tableFromAlias = fromRef,
+        tableTo = joinTable,
+        tableToAlias = alias,
+      )
+      fieldJoin.condition?.let {
+        join.wheres.add(MySQLPropertyValueWhere(it.field, "=", it.value, table = alias))
+      }
+      with.joins.add(join)
+    }
+    return joinTable
+  }
+
   private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String {
     val right = where.compare?.right
       ?: throw SQLConversionException("No value provided for where $where")
@@ -285,7 +318,11 @@ internal class WhereClauseCompiler(
         right.propertyRef ?: right.iri?.substringAfterLast('#')
         ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
       } else {
-        right.iri?.let { getPropertyNameByTableAndPropertyIri(keptWith.table, it).field }
+        right.iri?.let {
+          val keptField = getPropertyNameByTableAndPropertyIri(keptWith.table, it)
+          // functional properties are exposed by the referenced CTE under the property name
+          if (keptField.join != null) it.substringAfterLast('#') else keptField.field
+        }
           ?: right.propertyRef
           ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
       }

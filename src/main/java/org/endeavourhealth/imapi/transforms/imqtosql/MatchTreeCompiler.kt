@@ -351,6 +351,13 @@ internal class MatchTreeCompiler(
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
     if (isReferencedElsewhere) {
       with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))
+      for ((propIri, field) in with.table.fields) {
+        if (field.join == null) continue
+        val joinAlias = functionalJoinAlias(propIri, field)
+        if (with.joins.any { it.tableToAlias == joinAlias }) {
+          with.selects.add(MySQLSelect("$joinAlias.${field.field}", propIri.substringAfterLast('#')))
+        }
+      }
     } else {
       with.selects.add(getDefaultSelect(with.table))
     }

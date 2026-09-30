@@ -232,7 +232,12 @@
           "field": "TIMESTAMPDIFF(YEAR, date_of_birth, $searchDate)",
           "type": "number"
         },
-        "http://endhealth.info/im#patient": {"field": "id", "type": "string"}
+        "http://endhealth.info/im#patient": {"field": "id", "type": "string"},
+        "http://endhealth.info/im#gmsDateOfRegistration": {
+          "field": "date_registered",
+          "type": "date",
+          "join": {"dataModel": "http://endhealth.info/im#EpisodeOfCare", "alias": "gms_registration"}
+        }
       },
       "relationships": [
         {

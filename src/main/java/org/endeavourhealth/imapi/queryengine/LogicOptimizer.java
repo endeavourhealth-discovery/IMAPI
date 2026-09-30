@@ -11,6 +11,8 @@ public class LogicOptimizer {
   Set<String> commonMatches;
   private Map<String, Integer> asMap;
   private int matchCounter = 0;
+  public static final int MAX_AS_LENGTH = 63;
+  private static final String TRUNCATED = "_etc";
 
 
 
@@ -95,14 +97,31 @@ public class LogicOptimizer {
   }
 
   private String getUniqueAs(String as){
-    if (asMap.get(as)==null){
-      asMap.put(as,1);
-      return as;
+    String base = limitAs(as, MAX_AS_LENGTH);
+    Integer count = asMap.get(base);
+    if (count == null) {
+      asMap.put(base, 1);
+      return base;
     }
-    else {
-      asMap.put(as,asMap.get(as)+1);
-      return as+"_"+asMap.get(as);
-    }
+    String unique;
+    do {
+      count++;
+      String suffix = "_" + count;
+      unique = limitAs(base, MAX_AS_LENGTH - suffix.length()) + suffix;
+    } while (asMap.containsKey(unique));
+    asMap.put(base, count);
+    asMap.put(unique, 1);
+    return unique;
+  }
+
+  /**
+   * Truncates an alias to at most maxLength characters, marking truncation with "_etc"
+   */
+  public static String limitAs(String as, int maxLength) {
+    if (as == null || as.length() <= maxLength) return as;
+    String trimmed = as.substring(0, maxLength - TRUNCATED.length());
+    while (trimmed.endsWith("_")) trimmed = trimmed.substring(0, trimmed.length() - 1);
+    return trimmed + TRUNCATED;
   }
 
   private String createWhereAs(Where where) {

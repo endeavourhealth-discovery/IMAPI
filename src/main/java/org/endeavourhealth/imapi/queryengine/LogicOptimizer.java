@@ -709,6 +709,47 @@ public class LogicOptimizer {
     query.setOr(null);
   }
 
+  public static void injectRelativeToReturns(Query query) {
+    Map<String, Set<String>> referenced = new HashMap<>();
+    collectRelativeToRefs(query, referenced);
+    if (!referenced.isEmpty()) injectGroupReturns(query, referenced);
+  }
 
+  private static void collectRelativeToRefs(Query query, Map<String, Set<String>> referenced) {
+    if (query == null) return;
+    if (query.getWhere() != null) collectRelativeToRefs(query.getWhere(), referenced);
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(), query.getColumnGroup())) {
+      if (queries != null) queries.forEach(subQuery -> collectRelativeToRefs(subQuery, referenced));
+    }
+    collectRelativeToRefs(query.getThen(), referenced);
+  }
 
+  private static void collectRelativeToRefs(Where where, Map<String, Set<String>> referenced) {
+    if (where.getCompare() != null && where.getCompare().getRight() != null) {
+      ValueSource right = where.getCompare().getRight();
+      if (right.getNodeRef() != null && right.getIri() != null) {
+        referenced.computeIfAbsent(right.getNodeRef(), k -> new LinkedHashSet<>()).add(right.getIri());
+      }
+    }
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) wheres.forEach(subWhere -> collectRelativeToRefs(subWhere, referenced));
+    }
+  }
+
+  private static void injectGroupReturns(Query query, Map<String, Set<String>> referenced) {
+    if (query == null) return;
+    if (query.getOr() != null && query.getAs() != null) {
+      Set<String> iris = referenced.getOrDefault(query.getAs(), referenced.get(cte(query.getAs())));
+      if (iris != null) iris.forEach(iri -> injectReturn(query, iri));
+    }
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(), query.getColumnGroup())) {
+      if (queries != null) queries.forEach(subQuery -> injectGroupReturns(subQuery, referenced));
+    }
+    injectGroupReturns(query.getThen(), referenced);
+  }
+
+  private static void injectReturn(Query query, String iri) {
+    if (query.getReturn() != null && query.getReturn().stream().anyMatch(ret -> iri.equals(ret.getIri()))) return;
+    query.addReturn(new Return().setIri(iri));
+  }
 }

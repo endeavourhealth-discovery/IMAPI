@@ -91,6 +91,7 @@ public class QueryService {
     try {
       query = describeQuery(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimiseAgeWheres(query);
+      LogicOptimizer.injectRelativeToReturns(query);
     } catch (Exception e) {
       throw new SQLConversionException(e.getMessage(), e);
     }

@@ -17,9 +17,9 @@ import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 
 internal fun getGroupCarryProperties(match: Query): List<String> {
-  if (match.orderBy == null) return emptyList()
   val props = linkedSetOf<String>()
-  match.orderBy.property.forEach { props.add(it.iri) }
+  match.orderBy?.property?.forEach { props.add(it.iri) }
+  match.`return`?.forEach { ret -> ret.iri?.let { props.add(it) } }
   return props.toList()
 }
 

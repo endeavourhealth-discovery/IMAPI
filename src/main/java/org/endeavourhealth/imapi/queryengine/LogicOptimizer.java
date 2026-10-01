@@ -61,6 +61,15 @@ public class LogicOptimizer {
     if (query.getThen()!=null) {
       operationalise(query.getThen(),query);
     }
+    if (query.getColumnGroup()!=null) {
+      for (Query columnGroup : query.getColumnGroup()) {
+        operationalise(columnGroup,null);
+        if (columnGroup.getAs()==null) {
+          String name = columnGroup.getName()!=null ? columnGroup.getName() : "column_group";
+          columnGroup.setAs(getUniqueAs(cte(name)));
+        }
+      }
+    }
   }
   private String negative(Query query) {
     if (query.isNotExists()) return "not_";
@@ -75,8 +84,10 @@ public class LogicOptimizer {
       return;
     }
     String keepAs="";
-    if (query.getIs()!=null&&query.getIs().getName()!=null){
-      keepAs=cte(query.getIs().getName());
+    if (query.getIs()!=null&&(query.getIs().getName()!=null||query.getIs().getIri()!=null)){
+      String isName = query.getIs().getName()!=null ? query.getIs().getName()
+        : query.getIs().getIri().substring(query.getIs().getIri().lastIndexOf('#')+1);
+      keepAs=cte(isName);
       query.setAs(getUniqueAs(negative+keepAs));
       return;
     }

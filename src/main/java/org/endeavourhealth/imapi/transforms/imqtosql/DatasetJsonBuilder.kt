@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
+import org.endeavourhealth.imapi.model.sql.MySQLSelect
 
 internal object DatasetJsonBuilder {
   fun build(newMySqlQuery: MySQLQuery): String {
@@ -18,10 +19,10 @@ internal object DatasetJsonBuilder {
           .dropLast(1)
           .last()
           .selects
-          .filterNot { it.alias == ROW_NUMBER_ALIAS || it.name == "patient.id" }
+          .filterNot { it.alias == ROW_NUMBER_ALIAS || isEntityKeySelect(it) }
       }
     } else {
-      lastWith.selects.filterNot { it.name == "patient.id" }
+      lastWith.selects.filterNot { isEntityKeySelect(it) || it.name.contains("*") }
     }
 
     if (selects == null) throw SQLConversionException("No selects found in last with")
@@ -45,4 +46,7 @@ internal object DatasetJsonBuilder {
       append("\n)")
     }
   }
+
+  // the bare key select identifies the row; an aliased one is a requested column
+  private fun isEntityKeySelect(select: MySQLSelect) = select.name == "patient.id" && select.alias == null
 }

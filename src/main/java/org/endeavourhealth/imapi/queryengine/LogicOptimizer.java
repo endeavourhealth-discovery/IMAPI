@@ -9,7 +9,7 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Integer> asMap;
+  public static final Map<String, Integer> asMap= new HashMap<>();
   private int matchCounter = 0;
   public static final int MAX_AS_LENGTH = 63;
   private static final String TRUNCATED = "_etc";
@@ -17,18 +17,18 @@ public class LogicOptimizer {
 
 
   public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
-    asMap = new HashMap<>();
+    asMap.clear();
     try {
       if (displayMode == DisplayMode.LOGICAL) {
         getLogicFromRules(query);
         optimiseMatch(query);
         flattenMatch(query);
-        operationalise(query,null);
+        operationalise(query);
       }
       else if (displayMode == DisplayMode.EDIT) {
         getLogicFromRules(query);
         optimiseMatch(query);
-        operationalise(query,null);
+        operationalise(query);
       }
       else {
         optimiseMatch(query);
@@ -39,75 +39,77 @@ public class LogicOptimizer {
     }
   }
 
-  private void operationalise(Query query,Query parent) {
+  private void operationalise(Query query) {
     if (query.getFrom()!=null){
       query.setFrom(cte(query.getFrom()));
     }
     if (query.getAnd() != null) {
       for (int i = 0; i < query.getAnd().size(); i++) {
         Query subQuery = query.getAnd().get(i);
-        operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+        operationalise(subQuery);
       }
     }
     if (query.getOr() != null) {
       for (int i = 0; i < query.getOr().size(); i++) {
         Query subQuery = query.getOr().get(i);
-        operationalise(subQuery,null);
+        operationalise(subQuery);
       }
     }
     if (query.getOrderBy()!=null||query.getWhere()!=null||query.getIs()!=null) {
-      setAs(query,parent);
+      setAs(query);
     }
     if (query.getThen()!=null) {
-      operationalise(query.getThen(),query);
+      operationalise(query.getThen());
     }
     if (query.getColumnGroup()!=null) {
       for (Query columnGroup : query.getColumnGroup()) {
-        operationalise(columnGroup,null);
+        operationalise(columnGroup);
         if (columnGroup.getAs()==null) {
           String name = columnGroup.getName()!=null ? columnGroup.getName() : "column_group";
-          columnGroup.setAs(getUniqueAs(cte(name)));
+          columnGroup.setAs(getUniqueAs(name));
         }
       }
     }
   }
-  private String negative(Query query) {
+  private static String negative(Query query) {
     if (query.isNotExists()) return "not_";
     else return "";
   }
 
 
-  private void setAs(Query query, Query parent) {
-    String negative=negative(query);
+  public static void setAs(Query query) {
     if (query.getAs()!=null) {
-      query.setAs(getUniqueAs(cte(negative+query.getAs())));
+      asMap.put(query.getAs(), 1);
       return;
     }
+    String negative=negative(query);
     String keepAs="";
     if (query.getIs()!=null&&(query.getIs().getName()!=null||query.getIs().getIri()!=null)){
       String isName = query.getIs().getName()!=null ? query.getIs().getName()
         : query.getIs().getIri().substring(query.getIs().getIri().lastIndexOf('#')+1);
-      keepAs=cte(isName);
-      query.setAs(getUniqueAs(negative+keepAs));
-      return;
+      keepAs=isName;
     }
-    if (query.getWhere() != null) {
+    else if (query.getWhere() != null) {
       keepAs = createWhereAs(query.getWhere());
-      query.setAs(getUniqueAs(cte(negative+keepAs)));
+    }
+    else {
+      keepAs = "match_";
     }
 
     if (query.getFrom()!=null) {
-      query.setAs(getUniqueAs(cte("then"+"_"+keepAs)));
+      keepAs="then_"+keepAs;
     }
-    else if (query.getOrderBy() != null) {
-      String parentAs= parent!=null ? parent.getAs() : "";
+    if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
-        + parentAs: "Earliest_" + "_"+keepAs)));
+      keepAs= (direction == Order.descending ? "Latest_"
+        : "Earliest_")+keepAs;
     }
+    query.setAs(getUniqueAs(cte(negative+keepAs)));
   }
 
-  private String getUniqueAs(String as){
+
+  public static String getUniqueAs(String as){
+    as= cte(as);
     String base = limitAs(as, MAX_AS_LENGTH);
     Integer count = asMap.get(base);
     if (count == null) {
@@ -135,7 +137,7 @@ public class LogicOptimizer {
     return trimmed + TRUNCATED;
   }
 
-  private String createWhereAs(Where where) {
+  private static String createWhereAs(Where where) {
 
     if (where.getAnd()==null&&where.getOr()==null) {
       return cte(WhereAsGenerator.getWhereAs(where));
@@ -152,17 +154,16 @@ public class LogicOptimizer {
         }
       }
     }
-    matchCounter++;
-    return cte("match_"+matchCounter);
+    return cte("where_");
 }
 
 
-  public static String cte(String string) {
-    String as= string.toLowerCase(Locale.ROOT)
+  private static String cte(String string) {
+    String as= string
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
-    if (as.length()>30){
-      as=as.substring(0,30)+"_etc";
+    if (as.length()>40){
+      as=as.substring(0,40)+"_etc";
     }
     if (as.startsWith("_")) as=as.substring(1);
     if (as.endsWith("_")) as=as.substring(0,as.length()-1);
@@ -762,5 +763,9 @@ public class LogicOptimizer {
   private static void injectReturn(Query query, String iri) {
     if (query.getReturn() != null && query.getReturn().stream().anyMatch(ret -> iri.equals(ret.getIri()))) return;
     query.addReturn(new Return().setIri(iri));
+  }
+
+  public static void clearAsMap() {
+    asMap.clear();
   }
 }

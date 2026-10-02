@@ -77,6 +77,7 @@ public class WhereAsGenerator {
     if (value != null && !value.isEmpty()) {
       parts.add(value + " " + units + " ");
     }
+
   }
 
   private static void buildRangeSentence(
@@ -154,14 +155,10 @@ public class WhereAsGenerator {
     List<String> parts,
     ValueSource source
   ) {
-
-    if (source.getParameter() != null) {
-      return;
+    if (source.getName()!=null&&!source.getName().isEmpty()){
+      parts.add(source.getName()
+      );
     }
-    if (source.getNodeRef() != null)
-        parts.add(" of "+
-          source.getName()
-        );
   }
 
 

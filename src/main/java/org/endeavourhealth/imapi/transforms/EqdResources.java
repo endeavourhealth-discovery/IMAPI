@@ -30,8 +30,7 @@ public class EqdResources {
   private final Map<String, Set<Node>> valueMap = new HashMap<>();
   private final Properties dataMap;
   private final Set<String> acronyms = new HashSet<>();
-  @Getter
-  private final Map<String,Integer> asMap= new HashMap<>();
+
 
   @Getter
   Map<String, String> reportNames = new HashMap<>();
@@ -344,17 +343,15 @@ public class EqdResources {
     if (hasTest) {
       testQuery = this.convertTestCriterion(eqCriterion);
       if (standardQuery!=null) {
-        setKeepAs(standardQuery);
+        LogicOptimizer.setAs(standardQuery);
         testQuery.setFrom(standardQuery.getAs());
-        setKeepAs(testQuery,standardQuery);
         standardQuery.setThen(testQuery);
       }
       else {
         if (baseQuery == null) {
           throw new EQDException("Restriction from nothing");
         }
-        setKeepAs(baseQuery);
-        setKeepAs(testQuery,baseQuery);
+        LogicOptimizer.setAs(baseQuery);
         testQuery.setFrom(baseQuery.getAs());
         baseQuery.setThen(testQuery);
       }
@@ -371,7 +368,7 @@ public class EqdResources {
       throw new EQDException("No query found for linked criterion");
     }
     if (hasLinked) {
-      setKeepAs(lastQuery);
+      LogicOptimizer.setAs(lastQuery);
       linkedQuery = this.convertLinkedCriterion(eqCriterion, lastQuery);
     }
     if (baseQuery != null) {
@@ -605,12 +602,6 @@ public class EqdResources {
     return childQuery;
   }
 
-  private String getAlias(Query parentQuery) throws EQDException {
-    if (parentQuery.getAs() != null) return parentQuery.getAs();
-    if (parentQuery.getAnd() != null) return getAlias(parentQuery.getAnd().getLast());
-    if (parentQuery.getOr() != null) return getAlias(parentQuery.getOr().getLast());
-    throw new EQDException("Could not find node for match");
-  }
 
 
 
@@ -874,44 +865,6 @@ public class EqdResources {
   }
 
 
-  private String getRelationship(EQDOCRelationship eqRelationship) throws QueryException {
-    StringBuilder relationship = new StringBuilder();
-    relationship.append(eqRelationship.getParentColumnDisplayName());
-    if (eqRelationship.getRangeValue() == null) {
-      relationship.append(" on same date as");
-    } else {
-      EQDOCRangeFrom eqFrom = eqRelationship.getRangeValue().getRangeFrom();
-      if (eqFrom != null) {
-        VocRangeFromOperator op = eqFrom.getOperator();
-        switch (op) {
-          case GT:
-            relationship.append(" after");
-            break;
-          case GTEQ:
-            relationship.append(" on or after");
-            break;
-          default:
-            throw new QueryException("Unknown operator " + op);
-        }
-      } else {
-        EQDOCRangeTo eqTo = eqRelationship.getRangeValue().getRangeTo();
-        if (eqTo != null) {
-          VocRangeToOperator op = eqTo.getOperator();
-          switch (op) {
-            case LT:
-              relationship.append(" before");
-              break;
-            case LTEQ:
-              relationship.append(" on or before");
-              break;
-          }
-        }
-
-      }
-    }
-    return relationship.toString();
-  }
-
   private void setSingleValue(EQDOCColumnValue cv, Where pv, boolean in) throws IOException, EQDException {
     EQDOCSingleValue sv = cv.getSingleValue();
     EQDOCValue variable = sv.getVariable();
@@ -1064,8 +1017,6 @@ public class EqdResources {
         relativeTo = "$searchDate";
       }
       ValueSource relationLeft = new ValueSource();
-      where.setIri((String) null);
-      where.setName(null);
       relationLeft.setIri(leftProperty).setNodeRef(where.getNodeRef());
       ValueSource relationRight = new ValueSource();
       relationRight.setParameter(relativeTo);
@@ -1647,55 +1598,6 @@ public class EqdResources {
     return keepAs.toString();
   }
 
-  private void setKeepAs(Query query, Query parent) {
-    String keepAs="";
-    if (query.getWhere() != null) {
-      keepAs = "_"+this.createKeepAs(query);
-    }
 
-    if (query.isTest()) {
-      query.setAs(cte(parent.getAs()+keepAs));
-    } else if (query.getOrderBy() != null) {
-      Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(getUniqueAs(cte(direction == Order.descending
-        ? "Latest_" + parent.getAs() : "Earliest_" + parent.getAs()+keepAs)));
-    }
-  }
 
-  private void setKeepAs(Query query) {
-    if (query.getAs()!=null) return;
-    if (query.getAnd()!=null){
-      setKeepAs(query.getAnd().getLast());
-      return;
-    }
-    StringBuilder keepAs = new StringBuilder();
-    if (query.getWhere() != null) {
-      keepAs.append(createKeepAs(query).replace(" ","_"));
-      if (keepAs.isEmpty()) {
-        matchCounter++;
-        query.setAs("m_" + matchCounter);
-      }
-      else query.setAs(getUniqueAs(cte(keepAs.toString())));
-    }else {
-        matchCounter++;
-        query.setAs("match_" + matchCounter);
-    }
-    if (query.getOrderBy() != null) {
-      setKeepAs(query, query);
-    }
-  }
-
-  private String cte(String string) {
-    return LogicOptimizer.cte(string);
-  }
-  private String getUniqueAs(String as){
-    if (asMap.get(as)==null){
-      asMap.put(as,1);
-      return as;
-    }
-    else {
-      asMap.put(as,asMap.get(as)+1);
-      return as+"_"+asMap.get(as);
-    }
-  }
 }

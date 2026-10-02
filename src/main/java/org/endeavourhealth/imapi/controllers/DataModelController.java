@@ -34,6 +34,7 @@ public class DataModelController {
     summary = "Retrieve a node shape with data model properties",
     description = "Fetches the data model properties for the given IRI."
   )
+
   @GetMapping("/dataModelProperties")
   public NodeShape getDataModelProperties(
     HttpServletRequest request,

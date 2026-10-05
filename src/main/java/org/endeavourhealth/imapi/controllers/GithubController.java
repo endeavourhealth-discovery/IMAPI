@@ -13,6 +13,7 @@ import org.endeavourhealth.imapi.utility.MetricsHelper;
 import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.model.github.REPO;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +56,7 @@ public class GithubController {
   public void updateGithubConfig(HttpServletRequest request, @RequestBody REPOBody repoBody) throws IOException, InterruptedException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Config.githubConfig.UPDATE")) {
       log.debug("updateGithubConfig");
-      securityService.requiresPermission(new Permission(Resource.GITHUB, List.of(UserRole.ADMIN), List.of()), request);
+      securityService.requiresPermission(Resource.GITHUB, Action.UPDATE);
       githubService.updateGithubConfig(repoBody.getRepo());
     }
   }

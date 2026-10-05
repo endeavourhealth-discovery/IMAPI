@@ -6,5 +6,8 @@ public enum Action {
   DELETE,
   PUBLISH,
   APPROVE,
-  EXECUTE
+  EXECUTE,
+  CREATE,
+  UPDATE,
+  REJECT
 }

@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.logic.service.SecurityService
 import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Action
 import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.uprn.Activity
 import org.endeavourhealth.imapi.model.uprn.UploadStatus
@@ -67,7 +68,7 @@ open class UPRNController(
   ): UprnSearchResponse? {
     MetricsHelper.recordTime("API.UPRN.getinfo.GET").use {
       log.debug("getinfo")
-      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Resource.UPRN, Action.EXECUTE);
 
       val uprnReq = HttpRequest.newBuilder()
         .uri(
@@ -82,7 +83,7 @@ open class UPRNController(
         )
         .GET()
 
-      val response = callUPRNAndParse(uprnReq, securityService.getUser(request).id, UprnSearchResponse::class.java)
+      val response = callUPRNAndParse(uprnReq, securityService.getUser().id, UprnSearchResponse::class.java)
 
       return response
     }
@@ -101,14 +102,14 @@ open class UPRNController(
   ): List<Activity>? {
     MetricsHelper.recordTime("API.UPRN.activity.GET").use {
       log.debug("activity")
-      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Resource.UPRN, Action.EXECUTE);
 
       val uprnReq = HttpRequest.newBuilder()
         // .uri(URI.create("$uprnUrl/api2/activity?u=${user}"))
         .uri(URI.create("$uprnUrl/api2/activity?u=${uprnUsername}"))
         .GET()
 
-      return callUPRNAndParse(uprnReq, securityService.getUser(request).id, object : TypeReference<List<Activity>>() {})
+      return callUPRNAndParse(uprnReq, securityService.getUser().id, object : TypeReference<List<Activity>>() {})
     }
   }
 
@@ -125,7 +126,7 @@ open class UPRNController(
   ): String? {
     MetricsHelper.recordTime("API.UPRN.download.GET").use {
       log.debug("download")
-      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Resource.UPRN, Action.EXECUTE);
 
       val encodedFilename = encode(file, Charsets.UTF_8)
 
@@ -133,7 +134,7 @@ open class UPRNController(
         .uri(URI.create("$uprnUrl/api2/download3?filename=${encodedFilename}"))
         .GET()
 
-      val response = callUPRN(uprnReq, securityService.getUser(request).id)
+      val response = callUPRN(uprnReq, securityService.getUser().id)
       return response;
     }
   }
@@ -151,7 +152,7 @@ open class UPRNController(
   ): UploadStatus? {
     MetricsHelper.recordTime("API.UPRN.upload.POST").use {
       log.debug("upload")
-      securityService.requiresPermission(Permission(Resource.UPRN, listOf(UserRole.UPRN), listOf()), request);
+      securityService.requiresPermission(Resource.UPRN, Action.EXECUTE);
 
       val fileContent = String(file.bytes)
       val filename = file.originalFilename!!.replace(" ", "_");
@@ -167,7 +168,7 @@ open class UPRNController(
         .POST(HttpRequest.BodyPublishers.ofString(multipartBody))
         .setHeader("Content-Type", "multipart/form-data; boundary=$boundary")
 
-      return callUPRNAndParse(uprnReq, securityService.getUser(request).id, UploadStatus::class.java)
+      return callUPRNAndParse(uprnReq, securityService.getUser().id, UploadStatus::class.java)
     }
   }
 

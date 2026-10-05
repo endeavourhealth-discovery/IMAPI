@@ -20,6 +20,7 @@ import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -295,7 +296,7 @@ public class QueryController {
   ) throws QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
-      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
+      securityService.requiresPermission(Resource.QUERY, Action.EXECUTE);
       return queryService.findMissingArguments(queryRequest);
     }
   }
@@ -308,7 +309,7 @@ public class QueryController {
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
-      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
+      securityService.requiresPermission(Resource.QUERY, Action.EXECUTE);
       return queryService.getArgumentType(referenceIri);
     }
   }

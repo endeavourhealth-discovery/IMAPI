@@ -2314,17 +2314,17 @@ public class EntityRepository {
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
                  BIND(7 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
                  BIND(8 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
                  BIND(9 AS ?depth)
              }
              UNION

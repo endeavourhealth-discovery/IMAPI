@@ -246,7 +246,10 @@ internal class SelectClauseCompiler(
     }
 
     val property = getPropertyNameByTableAndPropertyIri(currentWithTable, returnProperty.iri)
-    val field = "${currentWithTable.alias ?: currentWithTable.table}.${property.field}"
+    val tableRef =
+      if (property.join != null) functionalJoinAlias(returnProperty.iri, property)
+      else currentWithTable.alias ?: currentWithTable.table
+    val field = "$tableRef.${property.field}"
     selects.add(MySQLSelect(field, returnProperty.`as`))
   }
 }

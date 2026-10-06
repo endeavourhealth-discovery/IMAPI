@@ -349,6 +349,7 @@ internal class MatchTreeCompiler(
   }
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
+    if (match.`return` != null) addReturnFunctionalJoins(match, with)
     if (isReferencedElsewhere) {
       with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))
       for ((propIri, field) in with.table.fields) {
@@ -378,6 +379,17 @@ internal class MatchTreeCompiler(
         val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
         with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field", alias))
       }
+    }
+  }
+
+  /** Joins the tables holding functional properties returned directly from this match's own table. */
+  private fun addReturnFunctionalJoins(match: Query, with: MySQLWith) {
+    for (ret in match.`return`) {
+      if (ret.iri == null || ret.nodeRef != null) continue
+      val field = getPropertyNameByTableAndPropertyIri(with.table, ret.iri)
+      if (field.join == null) continue
+      val fromRef = with.fromAlias ?: with.table.alias ?: with.table.table
+      whereCompiler.addFunctionalPropertyJoin(with, with.table, fromRef, ret.iri, field)
     }
   }
 

@@ -278,7 +278,7 @@ internal class WhereClauseCompiler(
    * Joins the table holding a functional property's column onto the CTE (once per alias) and returns that
    * table, aliased, so conditions on the property are qualified by the join alias.
    */
-  private fun addFunctionalPropertyJoin(
+  fun addFunctionalPropertyJoin(
     with: MySQLWith,
     fromTable: Table,
     fromRef: String,

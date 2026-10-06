@@ -40,9 +40,6 @@ public class LogicOptimizer {
   }
 
   private void operationalise(Query query) {
-    if (query.getFrom()!=null){
-      query.setFrom(cte(query.getFrom()));
-    }
     if (query.getAnd() != null) {
       for (int i = 0; i < query.getAnd().size(); i++) {
         Query subQuery = query.getAnd().get(i);

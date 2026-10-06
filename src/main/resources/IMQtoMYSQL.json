@@ -237,6 +237,16 @@
           "field": "date_registered",
           "type": "date",
           "join": {"dataModel": "http://endhealth.info/im#EpisodeOfCare", "alias": "gms_registration"}
+        },
+        "http://endhealth.info/im#caseloadStatus": {
+          "field": "registration_status_concept_id",
+          "type": "iri",
+          "join": {"dataModel": "http://endhealth.info/im#EpisodeOfCare", "alias": "gms_registration_status"}
+        },
+        "http://endhealth.info/im#gpPatientTypeAtEvent": {
+          "field": "registration_type_concept_id",
+          "type": "iri",
+          "join": {"dataModel": "http://endhealth.info/im#EpisodeOfCare", "alias": "gms_registration_type"}
         }
       },
       "relationships": [

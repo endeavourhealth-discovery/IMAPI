@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest;
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.workflow.*;
@@ -40,7 +41,7 @@ public class WorkflowController {
   public void createBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST")) {
       log.debug("createBugReport");
-      User user = securityService.getUser(request);
+      User user = securityService.getUser();
       if (null == bugReport.getCreatedBy()) bugReport.setCreatedBy(user.getId());
       workflowService.createBugReport(bugReport);
     }
@@ -60,7 +61,7 @@ public class WorkflowController {
   public void updateBugReport(HttpServletRequest request, @RequestBody BugReport bugReport) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateBugReport.POST")) {
       log.debug("updateBugReport");
-      securityService.requiresPermission(new Permission(Resource.BUG_REPORT, List.of(UserRole.DEVELOPER), List.of()), request);
+      securityService.requiresPermission(Resource.BUG_REPORT, Action.UPDATE);
       workflowService.updateBugReport(bugReport, request);
     }
   }
@@ -70,8 +71,8 @@ public class WorkflowController {
   public WorkflowResponse getTasksByCreatedBy(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") int size) throws UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.tasksByCreator.GET")) {
       log.debug("getWorkflowsByCreatedBy");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      String userId = securityService.getUser(request).getId();
+      securityService.requiresPermission(Resource.TASK, Action.READ);
+      String userId = securityService.getUser().getId();
       WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
@@ -84,8 +85,8 @@ public class WorkflowController {
   public WorkflowResponse getTasksByAssignedTo(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.tasksByAssignedTo.GET")) {
       log.debug("getWorkflowsByAssignedTo");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      String userId = securityService.getUser(request).getId();
+      securityService.requiresPermission(Resource.TASK, Action.READ);
+      String userId = securityService.getUser().getId();
       WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
@@ -98,8 +99,8 @@ public class WorkflowController {
   public WorkflowResponse getUnassignedTasks(HttpServletRequest request, @RequestParam(name = "page", required = false, defaultValue = "1") Integer page, @RequestParam(name = "size", required = false, defaultValue = "25") Integer size) throws UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.unassignedTasks.GET")) {
       log.debug("getUnassignedTasks");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
-      String userId = securityService.getUser(request).getId();
+      securityService.requiresPermission(Resource.TASK, Action.READ);
+      String userId = securityService.getUser().getId();
       WorkflowRequest wfRequest = new WorkflowRequest(userId);
       if (page != 0) wfRequest.setPage(page);
       if (size != 0) wfRequest.setSize(size);
@@ -112,7 +113,7 @@ public class WorkflowController {
   public Task getTask(HttpServletRequest request, @RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workfflow.task.GET")) {
       log.debug("getTask");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.TASK, Action.READ);
       return workflowService.getTask(id);
     }
   }
@@ -122,7 +123,7 @@ public class WorkflowController {
   public void deleteTask(HttpServletRequest request, @RequestParam(name = "id") String id) throws TaskFilerException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.task.DELETE")) {
       log.debug("deleteTask");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.DEVELOPER, UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.TASK, Action.DELETE);
       workflowService.deleteTask(id);
     }
   }
@@ -131,7 +132,7 @@ public class WorkflowController {
   @PostMapping(value = "/createRoleRequest")
   public void createRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST")) {
-      User user = securityService.getUser(request);
+      User user = securityService.getUser();
       if (null == roleRequest.getCreatedBy()) roleRequest.setCreatedBy(user.getId());
       workflowService.createRoleRequest(roleRequest);
     }
@@ -142,7 +143,7 @@ public class WorkflowController {
   public RoleRequest getRoleRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.roleRequest.GET")) {
       log.debug("getRoleRequest");
-      securityService.requiresPermission(new Permission(Resource.ROLE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.READ);
       return workflowService.getRoleRequest(id);
     }
   }
@@ -152,7 +153,7 @@ public class WorkflowController {
   public void updateRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateRoleRequest.POST")) {
       log.debug("updateRoleRequest");
-      securityService.requiresPermission(new Permission(Resource.ROLE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.UPDATE);
       workflowService.updateRoleRequest(roleRequest, request);
     }
   }
@@ -162,7 +163,7 @@ public class WorkflowController {
   public void approveRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveRoleRequest.POST")) {
       log.debug("approveRoleRequest");
-      securityService.requiresPermission(new Permission(Resource.ROLE_REQUEST, List.of(UserRole.APPROVER), List.of()), request);
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.APPROVE);
       workflowService.approveRoleRequest(request, roleRequest);
     }
   }
@@ -172,7 +173,7 @@ public class WorkflowController {
   public void rejectRoleRequest(HttpServletRequest request, @RequestBody RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST")) {
       log.debug("rejectRoleRequest");
-      securityService.requiresPermission(new Permission(Resource.ROLE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.REJECT);
       workflowService.rejectRoleRequest(request, roleRequest);
     }
   }
@@ -181,7 +182,7 @@ public class WorkflowController {
   @PostMapping(value = "/createNamespaceRequest")
   public void createGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createNamespaceRequest.POST")) {
-      User user = securityService.getUser(request);
+      User user = securityService.getUser();
       if (null == namespaceRequest.getCreatedBy()) namespaceRequest.setCreatedBy(user.getId());
       workflowService.createNamespaceRequest(namespaceRequest);
     }
@@ -192,7 +193,7 @@ public class WorkflowController {
   public NamespaceRequest getNamespaceRequest(@RequestParam(name = "id") String id, HttpServletRequest request) throws UserNotFoundException, UserAuthorisationException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.namespaceRequest.GET")) {
       log.debug("getNamespaceRequest");
-      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.READ);
       return workflowService.getNamespaceRequest(id);
     }
   }
@@ -202,7 +203,7 @@ public class WorkflowController {
   public void updateGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateNamespaceRequest.POST")) {
       log.debug("updateNamespaceRequest");
-      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.UPDATE);
       workflowService.updateNamespaceRequest(namespaceRequest, request);
     }
   }
@@ -212,7 +213,7 @@ public class WorkflowController {
   public void approveNamespaceRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveNamespaceRequest.POST")) {
       log.debug("approveNamespaceRequest");
-      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.APPROVER), List.of()), request);
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.APPROVE);
       workflowService.approveNamespaceRequest(request, namespaceRequest);
     }
   }
@@ -222,7 +223,7 @@ public class WorkflowController {
   public void rejectGraphRequest(HttpServletRequest request, @RequestBody NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectNamespaceRequest.POST")) {
       log.debug("rejectGraphRequest");
-      securityService.requiresPermission(new Permission(Resource.NAMESPACE_REQUEST, List.of(UserRole.APPROVER), List.of()), request);
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.REJECT);
       workflowService.rejectNamespaceRequest(request, namespaceRequest);
     }
   }
@@ -232,8 +233,8 @@ public class WorkflowController {
   public void createEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST")) {
       log.debug("createEntityApproval");
-      securityService.requiresPermission(new Permission(Resource.ENTITY_APPROVAL, List.of(UserRole.EDITOR, UserRole.CREATOR), List.of()), request);
-      User user = securityService.getUser(request);
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.CREATE);
+      User user = securityService.getUser();
       if (null == entityApproval.getCreatedBy()) entityApproval.setCreatedBy(user.getId());
       workflowService.createEntityApproval(entityApproval);
     }
@@ -244,7 +245,7 @@ public class WorkflowController {
   public EntityApproval getEntityApproval(HttpServletRequest request, @RequestParam(name = "id") String id) throws UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.entityApproval.GET")) {
       log.debug("getEntityApproval");
-      securityService.requiresPermission(new Permission(Resource.ENTITY_APPROVAL, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.READ);
       return workflowService.getEntityApproval(id);
     }
   }
@@ -254,7 +255,7 @@ public class WorkflowController {
   public void updateEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateEntityApproval.POST")) {
       log.debug("updateEntityApproval");
-      securityService.requiresPermission(new Permission(Resource.ENTITY_APPROVAL, List.of(UserRole.TASK_MANAGER), List.of()), request);
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.UPDATE);
       workflowService.updateEntityApproval(entityApproval, request);
     }
   }
@@ -264,7 +265,7 @@ public class WorkflowController {
   public void approveEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.approveEntityApproval.POST")) {
       log.debug("approveEntityApproval");
-      securityService.requiresPermission(new Permission(Resource.ENTITY_APPROVAL, List.of(UserRole.APPROVER), List.of()), request);
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.APPROVE);
       workflowService.approveEntityApproval(request, entityApproval);
     }
   }
@@ -274,7 +275,7 @@ public class WorkflowController {
   public void rejectEntityApproval(HttpServletRequest request, @RequestBody EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.rejectEntityApproval.POST")) {
       log.debug("rejectEntityApproval");
-      securityService.requiresPermission(new Permission(Resource.ENTITY_APPROVAL, List.of(UserRole.APPROVER), List.of()), request);
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.REJECT);
       workflowService.rejectEntityApproval(request, entityApproval);
     }
   }
@@ -284,8 +285,8 @@ public class WorkflowController {
   public void updateTask(HttpServletRequest request, @RequestBody Task task) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Workflow.updateTask.POST")) {
       log.debug("updateTask");
-      securityService.requiresPermission(new Permission(Resource.TASK, List.of(UserRole.TASK_MANAGER), List.of()), request);
-      User user = securityService.getUser(request);
+      securityService.requiresPermission(Resource.TASK, Action.UPDATE);
+      User user = securityService.getUser();
       workflowService.updateTask(task, user.getId());
     }
   }

@@ -135,7 +135,7 @@ public class FunctionService {
   private JsonNode getUserEditableSchemes(HttpServletRequest request) throws JsonProcessingException, UserNotFoundException {
     List<EntityReferenceNode> results = entityService.getImmediateChildren(IM.ROOT_NAMESPACE.toString(), null, 1, 200, false);
     List<TTIriRef> resultsAsIri = results.stream().map(r -> new TTIriRef(r.getIri(), r.getName())).toList();
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     List<TTIriRef> editableSchemes = resultsAsIri.stream().filter(r -> user.getNamespaces().stream().anyMatch(o -> o.getIri().asIri().equals(r))).toList();
     try (CachedObjectMapper om = new CachedObjectMapper()) {
       return om.valueToTree(editableSchemes);

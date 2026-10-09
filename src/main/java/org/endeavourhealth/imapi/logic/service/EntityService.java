@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.logic.cache.ReferenceDataCache;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
@@ -502,7 +503,7 @@ public class EntityService {
   }
 
   public List<Namespace> getNamespaces() {
-    return entityRepository.findNamespaces();
+    return ReferenceDataCache.getNamespaces(entityRepository::findNamespaces);
   }
 
 
@@ -524,6 +525,10 @@ public class EntityService {
   }
 
   public FilterOptionsDto getFilterOptions() {
+    return ReferenceDataCache.getFilterOptions(this::loadFilterOptions);
+  }
+
+  private FilterOptionsDto loadFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
     filterOptions.setSchemes(getAllChildren(IM.ROOT_NAMESPACE));
     filterOptions.setStatus(getAllChildren(IM.STATUS));
@@ -534,6 +539,10 @@ public class EntityService {
   }
 
   public FilterOptionsDto getFilterDefaults() {
+    return ReferenceDataCache.getFilterDefaults(this::loadFilterDefaults);
+  }
+
+  private FilterOptionsDto loadFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
     filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));

@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.rdf4j.TTEntityFilerRdf4j;
 import org.endeavourhealth.imapi.filer.rdf4j.TTTransactionFiler;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.logic.cache.ReferenceDataCache;
 import org.endeavourhealth.imapi.logic.reasoner.SetBinder;
 import org.endeavourhealth.imapi.logic.reasoner.SetMemberGenerator;
 import org.endeavourhealth.imapi.model.cdm.ProvActivity;
@@ -110,6 +111,8 @@ public class FilerService {
         fileProvDoc(document, agentName);
       } catch (TTFilerException | JsonProcessingException | QueryException e) {
         throw new RuntimeException(e);
+      } finally {
+        ReferenceDataCache.invalidateAll();
       }
     }).start();
   }
@@ -140,6 +143,8 @@ public class FilerService {
       fileOpenSearch(entity.getIri());
     } catch (Exception e) {
       throw new TTFilerException("Error filing entity: " + e.getMessage(), e);
+    } finally {
+      ReferenceDataCache.invalidateAll();
     }
   }
 

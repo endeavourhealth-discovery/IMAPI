@@ -33,17 +33,15 @@ internal class MatchTreeCompiler(
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
     if (mySqlQuery.withs.isNotEmpty()) {
-      val lastWith = mySqlQuery.withs.last()
-      val (fk, _) =
-        if (cohortTable.table == lastWith.table.table)
-          lastWith.table.primaryKey to cohortTable.primaryKey
-        else
-          lastWith.table.foreignKeyTo(cohortTable)
+      val lastWith = mySqlQuery.withs.last { !it.exclude }
+      val fk = lastWith.entityKeyField
+        ?: if (cohortTable.table == lastWith.table.table) lastWith.table.primaryKey
+        else lastWith.table.foreignKeyTo(cohortTable).first
       withJoins.add(
         MySQLJoin(
           "JOIN",
           tableFrom = "dataset.cohort_results",
-          tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
+          tableTo = lastWith.alias,
           fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
           wheres = if (isA.isExclude) mutableListOf(
@@ -93,12 +91,43 @@ internal class MatchTreeCompiler(
     val previous = mySqlQuery.withs.lastOrNull()
       ?: throw SQLConversionException("notExists on a group needs a preceding match to exclude from")
     val groupAs = group.`as`
+    if (group.`is` != null && group.and == null && group.or == null && !group.`is`.isExclude) {
+      mySqlQuery.withs.add(getCohortAntiJoinWith(requireAs(group), previous, group.`is`.iri))
+      return
+    }
     val withCount = mySqlQuery.withs.size
     addGroupBody(group, mySqlQuery)
     if (mySqlQuery.withs.size == withCount) {
       throw SQLConversionException("notExists group produced no match to exclude")
     }
     mySqlQuery.withs.add(getAntiJoinWith(groupAs, previous, mySqlQuery.withs.last()))
+  }
+
+  /**
+   * Excludes a cohort by testing dataset.cohort_results directly, rather than through a CTE joined back to
+   * [previous]: MySQL's TempTable engine can fail ("Table '#sql...' doesn't exist") when a materialised CTE is
+   * referenced both by the outer query and by a CTE inside its NOT EXISTS.
+   */
+  private fun getCohortAntiJoinWith(matchAs: String, previous: MySQLWith, cohortIri: String): MySQLWith {
+    val previousKey = getLastCteEntityKeyField(previous, queryTypeOfTable)
+      ?: throw SQLConversionException("No entity key to exclude cohort $cohortIri from ${previous.alias}")
+    return MySQLWith(
+      table = previous.table,
+      alias = aliases.useAs(matchAs),
+      selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
+      wheres = mutableListOf(
+        MySQLNotExistsWhere(
+          outerTable = previous.alias,
+          outerKey = previousKey,
+          innerTable = "dataset.cohort_results",
+          innerKey = ENTITY_ID_FIELD,
+          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", cohortIri, table = null))
+        )
+      ),
+      fromAlias = previous.alias,
+      entityKeyField = previousKey,
+      isCarrierAliased = previous.isCarrierAliased
+    )
   }
 
   private fun getAntiJoinWith(groupAs: String?, previous: MySQLWith, excluded: MySQLWith): MySQLWith {
@@ -228,6 +257,7 @@ internal class MatchTreeCompiler(
     addSelects(match, mySQLQuery, with, isReferencedElsewhere)
 
     if (match.orderBy != null) {
+      addOrderByFunctionalJoins(match, with)
       with = getOrderByWith(with, match, mySQLQuery, queryTypeOfTable)
     }
     match.`as`?.let { keepAsMap[it] = with }
@@ -297,7 +327,8 @@ internal class MatchTreeCompiler(
 
   private fun wrapNotExistsMatch(with: MySQLWith, previous: MySQLWith): MySQLWith {
     val (fk, _) = resolveForeignKeyByDataModel(with.table, queryTypeOfTable)
-    val (fkLast, pkLast) = resolveForeignKeyByDataModel(previous.table, queryTypeOfTable)
+    val (resolvedFkLast, pkLast) = resolveForeignKeyByDataModel(previous.table, queryTypeOfTable)
+    val fkLast = previous.entityKeyField ?: resolvedFkLast
 
     if (fk == null || fkLast == null || pkLast == null) {
       throw SQLConversionException(
@@ -379,6 +410,17 @@ internal class MatchTreeCompiler(
         val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
         with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field", alias))
       }
+    }
+  }
+
+  /** Joins the tables holding functional properties this match's own table is ordered by. */
+  private fun addOrderByFunctionalJoins(match: Query, with: MySQLWith) {
+    for (prop in match.orderBy.property) {
+      if (prop.nodeRef != null) continue
+      val field = getPropertyNameByTableAndPropertyIri(with.table, prop.iri)
+      if (field.join == null) continue
+      val fromRef = with.fromAlias ?: with.table.alias ?: with.table.table
+      whereCompiler.addFunctionalPropertyJoin(with, with.table, fromRef, prop.iri, field)
     }
   }
 

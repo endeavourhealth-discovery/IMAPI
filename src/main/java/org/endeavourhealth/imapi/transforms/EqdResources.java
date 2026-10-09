@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
@@ -290,8 +291,8 @@ public class EqdResources {
   }
   private boolean sameRelationship(EQDOCLinkedCriterion parentLinked, EQDOCLinkedCriterion childLinked){
     try {
-      String parentRel = new ObjectMapper().writeValueAsString(parentLinked.getRelationship());
-      String childRel = new ObjectMapper().writeValueAsString(childLinked.getRelationship());
+      String parentRel = SharedObjectMapper.INSTANCE.writeValueAsString(parentLinked.getRelationship());
+      String childRel = SharedObjectMapper.INSTANCE.writeValueAsString(childLinked.getRelationship());
       return parentRel.equals(childRel);
     } catch (JsonProcessingException e) {
       return false;
@@ -1434,7 +1435,7 @@ public class EqdResources {
   private TTEntity createValueSet(EQDOCValueSet vs, Query definition, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
     String name = description == null ? this.getNameFromSet(vs, setContent) : description;
-    String entailedMembers = (new ObjectMapper()).writeValueAsString(definition);
+    String entailedMembers = SharedObjectMapper.INSTANCE.writeValueAsString(definition);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
       this.addUsedIn(duplicate);
@@ -1455,7 +1456,7 @@ public class EqdResources {
   private TTEntity createValueSet(EQDOCValueSet vs, Set<Node> setContent) throws JsonProcessingException {
     String description = vs.getDescription();
     String name = description == null ? this.getNameFromSet(vs, setContent) : description;
-    String entailedMembers = (new ObjectMapper()).writeValueAsString(setContent);
+    String entailedMembers = SharedObjectMapper.INSTANCE.writeValueAsString(setContent);
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
       this.addUsedIn(duplicate);

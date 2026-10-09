@@ -19,6 +19,13 @@ description = "Information Model API"
 repositories {
   gradlePluginPortal()
   mavenCentral()
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
+  }
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
+  }
+  mavenLocal()
 }
 
 val ENV = System.getenv("ENV") ?: "dev"
@@ -97,8 +104,8 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
-  implementation(libs.apache.commons.text)
-  implementation(libs.assert.j)
+  implementation(libs.caffeine)
+  implementation(libs.lucene.analyzers.common)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -110,13 +117,11 @@ dependencies {
   implementation(libs.jackson.kotlin)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
-  implementation(libs.elasticsearch)
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
   implementation(libs.rdf4j.iterator)
@@ -126,7 +131,6 @@ dependencies {
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
   implementation(libs.spring.context)
-  implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
   implementation(libs.spring.security)
   implementation(libs.spring.web)
@@ -135,8 +139,9 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  runtimeOnly(libs.spring.dev.tools)
+  providedRuntime(libs.spring.dev.tools)
 
+  testImplementation(libs.assert.j)
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
   testImplementation(libs.cucumber.spring)
@@ -154,18 +159,6 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
-  implementation(kotlin("stdlib-jdk8"))
-}
-
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
-  }
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
-  }
 }
 
 tasks.test {
@@ -173,7 +166,9 @@ tasks.test {
   useJUnitPlatform {
     excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
   }
-  finalizedBy("jacocoTestReport")
+  if (CI != "false") {
+    finalizedBy("jacocoTestReport")
+  }
 }
 
 tasks.register("imqTests", Test::class.java) {
@@ -217,4 +212,11 @@ tasks.jacocoTestReport {
 
 kotlin {
   jvmToolchain(21)
+}
+configurations.all {
+  // log4j-core clashes with the log4j-to-slf4j bridge (log4j API -> logback). The Elasticsearch client used to pull it in; kept so it cannot return transitively.
+  exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+  // icu4j (14 MB) is only used by org.hl7.fhir.utilities.i18n.I18nBase for plural rules in validation/rendering messages,
+  // which IMAPI never uses (it only builds and encodes FHIR resources). FhirContextHolderTest covers that path.
+  exclude(group = "com.ibm.icu", module = "icu4j")
 }

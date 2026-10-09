@@ -5,7 +5,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
-import org.endeavourhealth.imapi.cache.TimedCache;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
@@ -24,6 +25,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,8 +37,12 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
+  private static final int TYPE_LOOKUP_BATCH_SIZE = 200;
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf| im:isSubIndicatorOf";
-  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
+  private static final Cache<String, String> iriNameCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofSeconds(30))
+    .maximumSize(100)
+    .build();
   private int row = 0;
 
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
@@ -78,11 +84,16 @@ public class EntityRepository {
     if (iris == null || iris.isEmpty()) return;
 
     Set<String> toFetch = new HashSet<>();
+    // iri -> the reference to fill in, so each result row is matched with a lookup instead of a scan of all iris
+    Map<String, TTIriRef> pending = new HashMap<>();
 
     iris.forEach(i -> {
-      String name = iriNameCache.get(i.getIri());
+      String name = iriNameCache.getIfPresent(i.getIri());
       if (name != null) i.setName(name);
-      else toFetch.add("<" + i.getIri() + ">");
+      else {
+        toFetch.add("<" + i.getIri() + ">");
+        pending.putIfAbsent(i.getIri(), i);
+      }
     });
 
     if (toFetch.isEmpty()) {
@@ -102,12 +113,12 @@ public class EntityRepository {
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        TTIriRef iri = TTIriRef.iri(bs.getValue("iri").stringValue());
-        iris.stream().filter(i -> i.equals(iri)).findFirst().ifPresent(i -> {
+        TTIriRef i = pending.get(bs.getValue("iri").stringValue());
+        if (i != null) {
           i.setName(bs.getValue("label").stringValue());
           iriNameCache.put(i.getIri(), i.getName());
           if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-        });
+        }
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);
@@ -1093,6 +1104,45 @@ public class EntityRepository {
         node.set(tripleMap.get(predicate).asIriRef(), tripleMap.get(value).asLiteral());
       }
     }
+  }
+
+  /**
+   * Types (with names) of many entities in as few queries as possible. Entities with no type are absent from the map.
+   * Replaces calling {@link #getEntityTypes(String)} or a single-predicate bundle once per entity.
+   *
+   * @param iris the entities to look up
+   * @return map of entity iri to its types
+   */
+  public Map<String, TTArray> getTypesForEntities(Collection<String> iris) {
+    Map<String, TTArray> result = new HashMap<>();
+    if (iris == null || iris.isEmpty()) return result;
+
+    List<String> distinct = iris.stream().distinct().toList();
+    for (int from = 0; from < distinct.size(); from += TYPE_LOOKUP_BATCH_SIZE) {
+      List<String> batch = distinct.subList(from, Math.min(from + TYPE_LOOKUP_BATCH_SIZE, distinct.size()));
+      String sql = """
+        SELECT ?s ?o ?oname
+        WHERE {
+          %s
+          ?s rdf:type ?o .
+          OPTIONAL { ?o rdfs:label ?oname }
+        }
+        """.formatted(SparqlHelper.valueList("s", batch));
+
+      try (IMDB conn = IMDB.getConnection()) {
+        TupleQuery qry = conn.prepareTupleSparql(sql);
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            TTIriRef type = TTIriRef.iri(bs.getValue("o").stringValue());
+            if (bs.hasBinding("oname")) type.setName(bs.getValue("oname").stringValue());
+            TTArray types = result.computeIfAbsent(bs.getValue("s").stringValue(), k -> new TTArray());
+            if (!types.contains(type)) types.add(type);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   public TTArray getEntityTypes(String iri) {

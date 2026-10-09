@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
@@ -30,7 +31,7 @@ public class SparqlOptimizer {
     is.sort(Comparator.comparing(Node::getIri));
     try {
 
-      String isString = new ObjectMapper().writeValueAsString(is);
+      String isString = SharedObjectMapper.INSTANCE.writeValueAsString(is);
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hash = digest.digest(isString.getBytes(StandardCharsets.UTF_8));
       return HexFormat.of().formatHex(hash);

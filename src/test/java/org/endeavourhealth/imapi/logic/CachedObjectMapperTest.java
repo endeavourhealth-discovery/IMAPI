@@ -139,6 +139,39 @@ class CachedObjectMapperTest {
     }
   }
 
+  @Test
+  void inclusionChangeDoesNotLeakToOtherInstances() throws JsonProcessingException {
+    try (CachedObjectMapper first = new CachedObjectMapper()) {
+      first.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+      assertThat(first.writeValueAsString(new TestObjectAlways())).contains("\"name\":null");
+    }
+    try (CachedObjectMapper second = new CachedObjectMapper()) {
+      // default is NON_EMPTY again, as it was when instances were pooled and reset on close
+      assertThat(second.writeValueAsString(new TestObjectAlways())).doesNotContain("\"name\"");
+    }
+  }
+
+  @Test
+  void sharedMapperIsSafeUnderConcurrentUse() throws Exception {
+    java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(8);
+    List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+    for (int t = 0; t < 8; t++) {
+      final int id = t;
+      futures.add(pool.submit(() -> {
+        for (int i = 0; i < 1000; i++) {
+          try (CachedObjectMapper mapper = new CachedObjectMapper()) {
+            if (id % 2 == 0) mapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+            String json = mapper.writeValueAsString(new TestObject("n" + i, i));
+            assertThat(mapper.readValue(json, TestObject.class).getValue()).isEqualTo(i);
+          }
+        }
+        return null;
+      }));
+    }
+    for (java.util.concurrent.Future<?> f : futures) f.get(60, java.util.concurrent.TimeUnit.SECONDS);
+    pool.shutdown();
+  }
+
   public static class TestObjectAlways {
     private String name;
 

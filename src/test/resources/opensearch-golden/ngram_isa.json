@@ -1,0 +1,58 @@
+{
+  "_source" : {
+    "includes" : [ "code", "iri", "name", "preferredName", "scheme", "status", "type", "usageTotal" ]
+  },
+  "from" : 0.0,
+  "query" : {
+    "bool" : {
+      "filter" : [ {
+        "terms" : {
+          "isA.iri" : [ "http://snomed.info/sct#57148006" ]
+        }
+      } ],
+      "must" : [ {
+        "nested" : {
+          "inner_hits" : {
+            "_source" : {
+              "includes" : [ "termCode.term" ]
+            }
+          },
+          "path" : "termCode",
+          "query" : {
+            "bool" : {
+              "must" : [ {
+                "match" : {
+                  "termCode.term" : {
+                    "analyzer" : "standard",
+                    "fuzziness" : "0",
+                    "operator" : "AND",
+                    "query" : "FOXG1"
+                  }
+                }
+              }, {
+                "exists" : {
+                  "field" : "termCode.length"
+                }
+              } ],
+              "should" : [ {
+                "script_score" : {
+                  "query" : {
+                    "match_all" : { }
+                  },
+                  "script" : {
+                    "params" : {
+                      "term" : "FOXG1"
+                    },
+                    "source" : "double s= 100000; if (doc['termCode.term.keyword'].value.toLowerCase().startsWith(params.term)) s=200000; return s - doc['termCode.length'].value"
+                  }
+                }
+              } ]
+            }
+          },
+          "score_mode" : "max"
+        }
+      } ]
+    }
+  },
+  "size" : 1000.0
+}

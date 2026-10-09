@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.dataaccess;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -305,7 +306,7 @@ public class QueryRepository {
           node.put(predicate, nodeValue);
       } else {
         if (node.path(predicate).isMissingNode()) {
-          ArrayNode arrayNode = new ObjectMapper().createArrayNode();
+          ArrayNode arrayNode = SharedObjectMapper.INSTANCE.createArrayNode();
           node.set(predicate, arrayNode);
         }
         ArrayNode arrayNode = (ArrayNode) node.path(predicate);

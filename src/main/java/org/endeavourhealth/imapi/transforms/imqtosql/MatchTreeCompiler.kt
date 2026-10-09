@@ -33,17 +33,15 @@ internal class MatchTreeCompiler(
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
     if (mySqlQuery.withs.isNotEmpty()) {
-      val lastWith = mySqlQuery.withs.last()
-      val (fk, _) =
-        if (cohortTable.table == lastWith.table.table)
-          lastWith.table.primaryKey to cohortTable.primaryKey
-        else
-          lastWith.table.foreignKeyTo(cohortTable)
+      val lastWith = mySqlQuery.withs.last { !it.exclude }
+      val fk = lastWith.entityKeyField
+        ?: if (cohortTable.table == lastWith.table.table) lastWith.table.primaryKey
+        else lastWith.table.foreignKeyTo(cohortTable).first
       withJoins.add(
         MySQLJoin(
           "JOIN",
           tableFrom = "dataset.cohort_results",
-          tableTo = mySqlQuery.withs.last { !it.exclude }.alias,
+          tableTo = lastWith.alias,
           fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
           wheres = if (isA.isExclude) mutableListOf(
@@ -297,7 +295,8 @@ internal class MatchTreeCompiler(
 
   private fun wrapNotExistsMatch(with: MySQLWith, previous: MySQLWith): MySQLWith {
     val (fk, _) = resolveForeignKeyByDataModel(with.table, queryTypeOfTable)
-    val (fkLast, pkLast) = resolveForeignKeyByDataModel(previous.table, queryTypeOfTable)
+    val (resolvedFkLast, pkLast) = resolveForeignKeyByDataModel(previous.table, queryTypeOfTable)
+    val fkLast = previous.entityKeyField ?: resolvedFkLast
 
     if (fk == null || fkLast == null || pkLast == null) {
       throw SQLConversionException(

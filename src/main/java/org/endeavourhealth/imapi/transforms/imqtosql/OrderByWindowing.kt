@@ -122,7 +122,8 @@ internal fun getOrderByWith(
   )
 
   if (previousWith != null) {
-    val (fkLast, pkLast) = resolveForeignKeyByTableName(previousWith.table, queryTypeOfTable)
+    val (resolvedFkLast, pkLast) = resolveForeignKeyByTableName(previousWith.table, queryTypeOfTable)
+    val fkLast = previousWith.entityKeyField ?: resolvedFkLast
 
     if (fkLast == null || pkLast == null) {
       throw SQLConversionException(

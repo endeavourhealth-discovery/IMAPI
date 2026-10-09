@@ -105,6 +105,7 @@ dependencies {
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
   implementation(libs.caffeine)
+  implementation(libs.lucene.analyzers.common)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -116,7 +117,6 @@ dependencies {
   implementation(libs.jackson.kotlin)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
-  implementation(libs.elasticsearch)
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
@@ -214,6 +214,9 @@ kotlin {
   jvmToolchain(21)
 }
 configurations.all {
-  // elasticsearch-rest-high-level-client pulls in log4j-core 2.17.1, which clashes with the log4j-to-slf4j bridge (log4j API -> logback).
+  // log4j-core clashes with the log4j-to-slf4j bridge (log4j API -> logback). The Elasticsearch client used to pull it in; kept so it cannot return transitively.
   exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+  // icu4j (14 MB) is only used by org.hl7.fhir.utilities.i18n.I18nBase for plural rules in validation/rendering messages,
+  // which IMAPI never uses (it only builds and encodes FHIR resources). FhirContextHolderTest covers that path.
+  exclude(group = "com.ibm.icu", module = "icu4j")
 }

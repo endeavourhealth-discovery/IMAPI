@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -89,6 +91,25 @@ sonar {
 
 tasks.war {
   archiveFileName.set("imapi.war")
+
+  // spring-boot-devtools is only for running from the IDE, so leave just that jar out of the war. Do not declare it
+  // providedRuntime instead: the war task drops everything in providedRuntime *and its transitive dependencies*, which
+  // removed spring-boot, spring-boot-autoconfigure, spring-core and others, so Tomcat deployed the war and never started Spring.
+  classpath = classpath?.filter { !it.name.startsWith("spring-boot-devtools") }
+
+  doLast {
+    val entries = ZipFile(archiveFile.get().asFile).use { zip -> zip.entries().asSequence().map { it.name }.toList() }
+    val required = mapOf(
+      "spring-boot" to Regex("""WEB-INF/lib/spring-boot-\d.*\.jar"""),
+      "spring-boot-autoconfigure" to Regex("""WEB-INF/lib/spring-boot-autoconfigure-.*\.jar"""),
+      "spring-core" to Regex("""WEB-INF/lib/spring-core-.*\.jar"""),
+      "spring-context" to Regex("""WEB-INF/lib/spring-context-.*\.jar"""),
+      "spring-web" to Regex("""WEB-INF/lib/spring-web-.*\.jar"""),
+    )
+    val missing = required.filterValues { pattern -> entries.none { pattern.matches(it) } }.keys
+    if (missing.isNotEmpty()) throw GradleException("imapi.war is missing required jars $missing; Tomcat would deploy it but never start Spring")
+    if (entries.any { it.startsWith("WEB-INF/lib/spring-boot-devtools") }) throw GradleException("imapi.war must not contain spring-boot-devtools")
+  }
 }
 
 tasks {
@@ -139,7 +160,7 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  providedRuntime(libs.spring.dev.tools)
+  runtimeOnly(libs.spring.dev.tools)
 
   testImplementation(libs.assert.j)
   testImplementation(libs.cucumber)

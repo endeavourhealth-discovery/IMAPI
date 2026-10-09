@@ -257,6 +257,7 @@ internal class MatchTreeCompiler(
     addSelects(match, mySQLQuery, with, isReferencedElsewhere)
 
     if (match.orderBy != null) {
+      addOrderByFunctionalJoins(match, with)
       with = getOrderByWith(with, match, mySQLQuery, queryTypeOfTable)
     }
     match.`as`?.let { keepAsMap[it] = with }
@@ -409,6 +410,17 @@ internal class MatchTreeCompiler(
         val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
         with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field", alias))
       }
+    }
+  }
+
+  /** Joins the tables holding functional properties this match's own table is ordered by. */
+  private fun addOrderByFunctionalJoins(match: Query, with: MySQLWith) {
+    for (prop in match.orderBy.property) {
+      if (prop.nodeRef != null) continue
+      val field = getPropertyNameByTableAndPropertyIri(with.table, prop.iri)
+      if (field.join == null) continue
+      val fromRef = with.fromAlias ?: with.table.alias ?: with.table.table
+      whereCompiler.addFunctionalPropertyJoin(with, with.table, fromRef, prop.iri, field)
     }
   }
 

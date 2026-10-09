@@ -65,11 +65,13 @@ internal fun getMySQLOrderBy(
 
     if (currentTable == null) throw SQLConversionException("No table exists for ${p.iri}")
     val propertyIri = p.iri.substringAfterLast(' ')
-    val field = getPropertyNameByTableAndPropertyIri(
-      currentTable,
-      propertyIri
-    ).field ?: throw SQLConversionException("No field found for property $propertyIri")
-    items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC", table = currentTable))
+    val mappedField = getPropertyNameByTableAndPropertyIri(currentTable, propertyIri)
+    val field = mappedField.field ?: throw SQLConversionException("No field found for property $propertyIri")
+    // a functional property's column lives on the table joined in under its own alias
+    val fieldTable =
+      if (mappedField.join != null) currentTable.copy().also { it.alias = functionalJoinAlias(propertyIri, mappedField) }
+      else currentTable
+    items.add(MySQLOrderByItem(field, if (p.direction == Order.descending) "DESC" else "ASC", table = fieldTable))
   }
   return MySQLOrderBy(items, orderBy.limit)
 }

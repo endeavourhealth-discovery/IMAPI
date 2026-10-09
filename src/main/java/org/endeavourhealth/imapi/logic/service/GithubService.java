@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,7 +44,7 @@ public class GithubService {
 
   private void setGithubLatest(REPO repo, GithubRelease githubRelease) throws JsonProcessingException {
     Config config = getLatestReleaseConfigFromRepo(repo);
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = SharedObjectMapper.INSTANCE;
     String gitHubReleaseJson = mapper.writeValueAsString(githubRelease);
     config.setData(gitHubReleaseJson);
     CONFIG url = getLatestReleaseUrlFromRepo(repo);
@@ -93,7 +94,7 @@ public class GithubService {
 
   private void setGithubReleases(REPO repo, List<GithubRelease> githubReleases) throws JsonProcessingException {
     Config config = getAllReleasesConfigFromRepo(repo);
-    ObjectMapper mapper = new ObjectMapper();
+    ObjectMapper mapper = SharedObjectMapper.INSTANCE;
     String gitHubReleaseJson = mapper.writeValueAsString(githubReleases);
     config.setData(gitHubReleaseJson);
     CONFIG url = getAllReleasesUrlFromRepo(repo);

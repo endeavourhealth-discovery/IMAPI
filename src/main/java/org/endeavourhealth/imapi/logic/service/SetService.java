@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.endeavourhealth.imapi.utility.FhirContextHolder;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -221,7 +222,7 @@ public class SetService {
     expansion.setContains(contains);
     valueSet.setExpansion(expansion);
 
-    FhirContext ctx = FhirContext.forR4();
+    FhirContext ctx = FhirContextHolder.r4();
     IParser parser = ctx.newJsonParser();
     return parser.encodeResourceToString(valueSet);
   }

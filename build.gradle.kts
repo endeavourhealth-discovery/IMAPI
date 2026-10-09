@@ -19,6 +19,13 @@ description = "Information Model API"
 repositories {
   gradlePluginPortal()
   mavenCentral()
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
+  }
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
+  }
+  mavenLocal()
 }
 
 val ENV = System.getenv("ENV") ?: "dev"
@@ -97,7 +104,6 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
-  implementation(libs.apache.commons.text)
   implementation(libs.assert.j)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
@@ -135,7 +141,7 @@ dependencies {
   implementation(libs.woodstox)
   implementation(libs.wsrs)
 
-  runtimeOnly(libs.spring.dev.tools)
+  providedRuntime(libs.spring.dev.tools)
 
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
@@ -154,18 +160,6 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
-  implementation(kotlin("stdlib-jdk8"))
-}
-
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
-  }
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
-  }
 }
 
 tasks.test {
@@ -173,7 +167,9 @@ tasks.test {
   useJUnitPlatform {
     excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
   }
-  finalizedBy("jacocoTestReport")
+  if (CI != "false") {
+    finalizedBy("jacocoTestReport")
+  }
 }
 
 tasks.register("imqTests", Test::class.java) {

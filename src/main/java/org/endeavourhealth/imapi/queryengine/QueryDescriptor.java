@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.queryengine;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import org.endeavourhealth.imapi.cache.TimedCache;
@@ -41,7 +42,7 @@ public class QueryDescriptor {
     if (query.getIri() == null)
       query.setIri(queryIri);
     query = describeQuery(query, displayMode);
-    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
+    queryCache.put(queryIri, SharedObjectMapper.INSTANCE.writeValueAsString(query));
     return query;
   }
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {

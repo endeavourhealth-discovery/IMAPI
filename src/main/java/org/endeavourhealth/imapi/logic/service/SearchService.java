@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -50,7 +51,7 @@ public class SearchService {
    * @throws QueryException if query format is invalid
    */
   public JsonNode queryIM(QueryRequest queryRequest) throws QueryException, OpenSearchException {
-    ObjectNode result = new ObjectMapper().createObjectNode();
+    ObjectNode result = SharedObjectMapper.INSTANCE.createObjectNode();
     QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest, result);
     if (null != queryRequest.getTextSearch()) {
@@ -81,7 +82,7 @@ public class SearchService {
    * @throws QueryException if query format is invalid
    */
   public SearchResponse queryIMSearch(QueryRequest queryRequest) throws OpenSearchException, QueryException, DataMissingException {
-    ObjectMapper om = new ObjectMapper();
+    ObjectMapper om = SharedObjectMapper.INSTANCE;
 
     QueryRepository repo = new QueryRepository();
     repo.unpackQueryRequest(queryRequest, om.createObjectNode());
@@ -155,7 +156,7 @@ public class SearchService {
       QueryRequest request = new QueryRequest();
       request.setQuery(new Query().setIri(imQuery));
       request.setArgument(queryRequest.getArgument());
-      ObjectMapper om = new ObjectMapper();
+      ObjectMapper om = SharedObjectMapper.INSTANCE;
       repo.unpackQueryRequest(request, om.createObjectNode());
       JsonNode results = repo.queryIM(request, false);
       if (results != null & results.get(ENTITIES) != null) {

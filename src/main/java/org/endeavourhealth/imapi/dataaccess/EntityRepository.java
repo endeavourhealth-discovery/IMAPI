@@ -5,7 +5,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.Values;
 import org.eclipse.rdf4j.query.*;
-import org.endeavourhealth.imapi.cache.TimedCache;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
@@ -24,6 +25,7 @@ import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.*;
 
+import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,10 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 @Slf4j
 public class EntityRepository {
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf| im:isSubIndicatorOf";
-  private static final TimedCache<String, String> iriNameCache = new TimedCache<>("IriNameCache", 30, 5, 100);
+  private static final Cache<String, String> iriNameCache = Caffeine.newBuilder()
+    .expireAfterAccess(Duration.ofSeconds(30))
+    .maximumSize(100)
+    .build();
   private int row = 0;
 
   private static void hydrateCorePropertiesSetEntityDocumentProperties(EntityDocument entityDocument, TupleQueryResult qr) {
@@ -80,7 +85,7 @@ public class EntityRepository {
     Set<String> toFetch = new HashSet<>();
 
     iris.forEach(i -> {
-      String name = iriNameCache.get(i.getIri());
+      String name = iriNameCache.getIfPresent(i.getIri());
       if (name != null) i.setName(name);
       else toFetch.add("<" + i.getIri() + ">");
     });

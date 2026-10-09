@@ -104,6 +104,7 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
+  implementation(libs.caffeine)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)

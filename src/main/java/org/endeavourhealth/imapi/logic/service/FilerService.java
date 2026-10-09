@@ -34,21 +34,34 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 @Component
 public class FilerService {
 
-  private final ProvService provService;
+  private ProvService provService;
   private final EntityService entityService;
-  private final OpenSearchService openSearchService;
-  private final TTEntityFiler entityProvFiler;
+  private OpenSearchService openSearchService;
+  private TTEntityFiler entityProvFiler;
   private final GRAPH insertGraph = GRAPH.IM;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
   private IMDB imdb;
 
   public FilerService() {
-    ProvDB provDB = ProvDB.getConnection();
-    entityProvFiler = new TTEntityFilerRdf4j(provDB, GRAPH.PROV);
-    provService = new ProvService();
     entityService = new EntityService();
-    openSearchService = new OpenSearchService();
+  }
+
+  // These are only needed when something is filed. Building them eagerly meant every request through a controller that
+  // holds a FilerService opened a provenance connection (never closed), prepared a DELETE and created a JAX-RS client.
+  private synchronized ProvService getProvService() {
+    if (null == provService) provService = new ProvService();
+    return provService;
+  }
+
+  private synchronized OpenSearchService getOpenSearchService() {
+    if (null == openSearchService) openSearchService = new OpenSearchService();
+    return openSearchService;
+  }
+
+  private synchronized TTEntityFiler getEntityProvFiler() {
+    if (null == entityProvFiler) entityProvFiler = new TTEntityFilerRdf4j(ProvDB.getConnection(), GRAPH.PROV);
+    return entityProvFiler;
   }
 
   private static boolean isValidIri(TTEntity entity) {
@@ -172,8 +185,8 @@ public class FilerService {
   }
 
   private ProvAgent fileProvAgent(TTEntity entity, String agentName) throws TTFilerException {
-    ProvAgent agent = provService.buildProvenanceAgent(entity, agentName);
-    entityProvFiler.fileEntity(agent);
+    ProvAgent agent = getProvService().buildProvenanceAgent(entity, agentName);
+    getEntityProvFiler().fileEntity(agent);
     return agent;
   }
 
@@ -181,8 +194,8 @@ public class FilerService {
     if (null == usedEntity)
       return null;
 
-    TTEntity provUsedEntity = provService.buildUsedEntity(usedEntity);
-    entityProvFiler.fileEntity(provUsedEntity);
+    TTEntity provUsedEntity = getProvService().buildUsedEntity(usedEntity);
+    getEntityProvFiler().fileEntity(provUsedEntity);
 
     return provUsedEntity;
   }
@@ -190,8 +203,8 @@ public class FilerService {
   private ProvActivity fileProvActivity(TTEntity entity, ProvAgent agent, TTEntity provUsedEntity) throws TTFilerException {
     String provUsedIri = provUsedEntity == null ? null : provUsedEntity.getIri();
 
-    ProvActivity activity = provService.buildProvenanceActivity(entity, agent, provUsedIri);
-    entityProvFiler.fileEntity(activity);
+    ProvActivity activity = getProvService().buildProvenanceActivity(entity, agent, provUsedIri);
+    getEntityProvFiler().fileEntity(activity);
     return activity;
 
   }
@@ -199,7 +212,7 @@ public class FilerService {
   private void fileOpenSearch(String iri) throws TTFilerException {
     try {
       EntityDocument doc = entityService.getOSDocument(iri);
-      openSearchService.fileDocument(doc);
+      getOpenSearchService().fileDocument(doc);
     } catch (Exception e) {
       throw new TTFilerException("Unable to file opensearch", e);
     }

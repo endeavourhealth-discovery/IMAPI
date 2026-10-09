@@ -91,12 +91,43 @@ internal class MatchTreeCompiler(
     val previous = mySqlQuery.withs.lastOrNull()
       ?: throw SQLConversionException("notExists on a group needs a preceding match to exclude from")
     val groupAs = group.`as`
+    if (group.`is` != null && group.and == null && group.or == null && !group.`is`.isExclude) {
+      mySqlQuery.withs.add(getCohortAntiJoinWith(requireAs(group), previous, group.`is`.iri))
+      return
+    }
     val withCount = mySqlQuery.withs.size
     addGroupBody(group, mySqlQuery)
     if (mySqlQuery.withs.size == withCount) {
       throw SQLConversionException("notExists group produced no match to exclude")
     }
     mySqlQuery.withs.add(getAntiJoinWith(groupAs, previous, mySqlQuery.withs.last()))
+  }
+
+  /**
+   * Excludes a cohort by testing dataset.cohort_results directly, rather than through a CTE joined back to
+   * [previous]: MySQL's TempTable engine can fail ("Table '#sql...' doesn't exist") when a materialised CTE is
+   * referenced both by the outer query and by a CTE inside its NOT EXISTS.
+   */
+  private fun getCohortAntiJoinWith(matchAs: String, previous: MySQLWith, cohortIri: String): MySQLWith {
+    val previousKey = getLastCteEntityKeyField(previous, queryTypeOfTable)
+      ?: throw SQLConversionException("No entity key to exclude cohort $cohortIri from ${previous.alias}")
+    return MySQLWith(
+      table = previous.table,
+      alias = aliases.useAs(matchAs),
+      selects = mutableListOf(MySQLSelect("${previous.alias}.*")),
+      wheres = mutableListOf(
+        MySQLNotExistsWhere(
+          outerTable = previous.alias,
+          outerKey = previousKey,
+          innerTable = "dataset.cohort_results",
+          innerKey = ENTITY_ID_FIELD,
+          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", cohortIri, table = null))
+        )
+      ),
+      fromAlias = previous.alias,
+      entityKeyField = previousKey,
+      isCarrierAliased = previous.isCarrierAliased
+    )
   }
 
   private fun getAntiJoinWith(groupAs: String?, previous: MySQLWith, excluded: MySQLWith): MySQLWith {

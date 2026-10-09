@@ -84,11 +84,16 @@ public class EntityRepository {
     if (iris == null || iris.isEmpty()) return;
 
     Set<String> toFetch = new HashSet<>();
+    // iri -> the reference to fill in, so each result row is matched with a lookup instead of a scan of all iris
+    Map<String, TTIriRef> pending = new HashMap<>();
 
     iris.forEach(i -> {
       String name = iriNameCache.getIfPresent(i.getIri());
       if (name != null) i.setName(name);
-      else toFetch.add("<" + i.getIri() + ">");
+      else {
+        toFetch.add("<" + i.getIri() + ">");
+        pending.putIfAbsent(i.getIri(), i);
+      }
     });
 
     if (toFetch.isEmpty()) {
@@ -108,12 +113,12 @@ public class EntityRepository {
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        TTIriRef iri = TTIriRef.iri(bs.getValue("iri").stringValue());
-        iris.stream().filter(i -> i.equals(iri)).findFirst().ifPresent(i -> {
+        TTIriRef i = pending.get(bs.getValue("iri").stringValue());
+        if (i != null) {
           i.setName(bs.getValue("label").stringValue());
           iriNameCache.put(i.getIri(), i.getName());
           if (bs.getValue("description") != null) i.setDescription(bs.getValue("description").stringValue());
-        });
+        }
       }
     } catch (Exception e) {
       log.error(e.getMessage(), e);

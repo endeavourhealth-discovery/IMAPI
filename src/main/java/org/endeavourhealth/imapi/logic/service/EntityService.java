@@ -36,6 +36,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
+  public static final int MAX_USAGES = 200;
   private final EntityRepository entityRepository;
   private final EntityValidator validator = new EntityValidator();
   private final ObjectMapper mapper = new ObjectMapper();
@@ -182,12 +183,14 @@ public class EntityService {
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = pageIndex * pageSize;
 
-    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
+    // an absent page size used to mean "every usage"; cap it so one request cannot load them all
+    Integer limit = pageSize != null ? pageSize : MAX_USAGES;
+    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, limit).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
 
     usageRefs = usageRefs.stream().filter(usage -> !usage.getIri().equals(iri)).toList();
+    Map<String, TTArray> typesByIri = entityRepository.getTypesForEntities(usageRefs.stream().map(TTIriRef::getIri).toList());
     for (TTIriRef usage : usageRefs) {
-      TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.toString())).getEntity().getType();
-      usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
+      usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(typesByIri.get(usage.getIri())));
     }
 
     return usageEntities;

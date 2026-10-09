@@ -37,6 +37,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 
 @Slf4j
 public class EntityRepository {
+  private static final int TYPE_LOOKUP_BATCH_SIZE = 200;
   static final String PARENT_PREDICATES = "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf| im:isSubIndicatorOf";
   private static final Cache<String, String> iriNameCache = Caffeine.newBuilder()
     .expireAfterAccess(Duration.ofSeconds(30))
@@ -1098,6 +1099,45 @@ public class EntityRepository {
         node.set(tripleMap.get(predicate).asIriRef(), tripleMap.get(value).asLiteral());
       }
     }
+  }
+
+  /**
+   * Types (with names) of many entities in as few queries as possible. Entities with no type are absent from the map.
+   * Replaces calling {@link #getEntityTypes(String)} or a single-predicate bundle once per entity.
+   *
+   * @param iris the entities to look up
+   * @return map of entity iri to its types
+   */
+  public Map<String, TTArray> getTypesForEntities(Collection<String> iris) {
+    Map<String, TTArray> result = new HashMap<>();
+    if (iris == null || iris.isEmpty()) return result;
+
+    List<String> distinct = iris.stream().distinct().toList();
+    for (int from = 0; from < distinct.size(); from += TYPE_LOOKUP_BATCH_SIZE) {
+      List<String> batch = distinct.subList(from, Math.min(from + TYPE_LOOKUP_BATCH_SIZE, distinct.size()));
+      String sql = """
+        SELECT ?s ?o ?oname
+        WHERE {
+          %s
+          ?s rdf:type ?o .
+          OPTIONAL { ?o rdfs:label ?oname }
+        }
+        """.formatted(SparqlHelper.valueList("s", batch));
+
+      try (IMDB conn = IMDB.getConnection()) {
+        TupleQuery qry = conn.prepareTupleSparql(sql);
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            TTIriRef type = TTIriRef.iri(bs.getValue("o").stringValue());
+            if (bs.hasBinding("oname")) type.setName(bs.getValue("oname").stringValue());
+            TTArray types = result.computeIfAbsent(bs.getValue("s").stringValue(), k -> new TTArray());
+            if (!types.contains(type)) types.add(type);
+          }
+        }
+      }
+    }
+    return result;
   }
 
   public TTArray getEntityTypes(String iri) {

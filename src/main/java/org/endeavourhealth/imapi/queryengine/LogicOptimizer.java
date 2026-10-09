@@ -726,7 +726,10 @@ public class LogicOptimizer {
 
   private static void collectRelativeToRefs(Query query, Map<String, Set<String>> referenced) {
     if (query == null) return;
-    if (query.getWhere() != null) collectRelativeToRefs(query.getWhere(), referenced);
+    if (query.getWhere() != null) {
+      collectRelativeToRefs(query.getWhere(), referenced);
+      if (query.getFrom() != null) collectFromWhereRefs(query.getFrom(), query.getWhere(), referenced);
+    }
     for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(), query.getColumnGroup())) {
       if (queries != null) queries.forEach(subQuery -> collectRelativeToRefs(subQuery, referenced));
     }
@@ -742,6 +745,20 @@ public class LogicOptimizer {
     }
     for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
       if (wheres != null) wheres.forEach(subWhere -> collectRelativeToRefs(subWhere, referenced));
+    }
+  }
+
+  /** Properties a 'from' match filters on must be carried out of the group it reads from. */
+  private static void collectFromWhereRefs(String from, Where where, Map<String, Set<String>> referenced) {
+    String nodeRef = where.getCompare() != null && where.getCompare().getLeft() != null
+      ? where.getCompare().getLeft().getNodeRef() : where.getNodeRef();
+    String iri = where.getCompare() != null && where.getCompare().getLeft() != null && where.getCompare().getLeft().getIri() != null
+      ? where.getCompare().getLeft().getIri() : where.getIri();
+    if (nodeRef == null && iri != null) {
+      referenced.computeIfAbsent(from, k -> new LinkedHashSet<>()).add(iri);
+    }
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) wheres.forEach(subWhere -> collectFromWhereRefs(from, subWhere, referenced));
     }
   }
 

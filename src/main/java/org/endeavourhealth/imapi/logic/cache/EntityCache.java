@@ -10,12 +10,14 @@ import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.vocabulary.SHACL;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 
 /**
  * Class that holds the IM schema as a cache of static maps, including shapes, predicate display ordeers,
- * predicate names, domains and ranges
+ * predicate names, domains and ranges. The maps are concurrent: reads are lock-free and the locks only stop
+ * duplicate repository loads. Concurrent maps reject null keys and values.
  */
 
 public class EntityCache implements Runnable {
@@ -32,13 +34,13 @@ public class EntityCache implements Runnable {
   public static final Object entityLock = new Object();
 
   @Getter
-  static final Map<String, TTEntity> shapes = new HashMap<>();
+  static final Map<String, TTEntity> shapes = new ConcurrentHashMap<>();
   @Getter
-  static final Map<String, TTEntity> properties = new HashMap<>();
-  static final Map<String, TTEntity> entities = new HashMap<>();
-  static final Map<String, List<TTIriRef>> predicateOrder = new HashMap<>();
+  static final Map<String, TTEntity> properties = new ConcurrentHashMap<>();
+  static final Map<String, TTEntity> entities = new ConcurrentHashMap<>();
+  static final Map<String, List<TTIriRef>> predicateOrder = new ConcurrentHashMap<>();
   @Getter
-  static final Map<String, String> predicateNames = new HashMap<>();
+  static final Map<String, String> predicateNames = new ConcurrentHashMap<>();
 
 
   /**
@@ -97,7 +99,8 @@ public class EntityCache implements Runnable {
         TTBundle bundle = entityRepository.getBundle(iri);
         if (bundle != null) {
           entities.put(iri, bundle.getEntity());
-          predicateNames.putAll(bundle.getPredicates());
+          if (bundle.getPredicates() != null)
+            bundle.getPredicates().forEach(EntityCache::addPredicateName);
           return bundle;
         }
       }
@@ -190,10 +193,11 @@ public class EntityCache implements Runnable {
    * adds an iri to name map for a predicate to enable applications to display predicate names
    *
    * @param iri  iri of the predicate
-   * @param name name of the predicate
+   * @param name name of the predicate; a null name is ignored (the maps are concurrent and cannot hold nulls)
    */
   public static void addPredicateName(String iri, String name) {
-    predicateNames.put(iri, name);
+    if (name != null)
+      predicateNames.put(iri, name);
   }
 
   /**

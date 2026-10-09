@@ -104,7 +104,6 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
-  implementation(libs.assert.j)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -122,7 +121,6 @@ dependencies {
   implementation(libs.jersey.inject)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
   implementation(libs.rdf4j.iterator)
@@ -132,7 +130,6 @@ dependencies {
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
   implementation(libs.spring.context)
-  implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
   implementation(libs.spring.security)
   implementation(libs.spring.web)
@@ -143,6 +140,7 @@ dependencies {
 
   providedRuntime(libs.spring.dev.tools)
 
+  testImplementation(libs.assert.j)
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
   testImplementation(libs.cucumber.spring)
@@ -213,4 +211,8 @@ tasks.jacocoTestReport {
 
 kotlin {
   jvmToolchain(21)
+}
+configurations.all {
+  // elasticsearch-rest-high-level-client pulls in log4j-core 2.17.1, which clashes with the log4j-to-slf4j bridge (log4j API -> logback).
+  exclude(group = "org.apache.logging.log4j", module = "log4j-core")
 }

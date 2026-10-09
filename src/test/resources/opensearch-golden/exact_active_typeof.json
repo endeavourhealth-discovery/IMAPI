@@ -1,0 +1,44 @@
+{
+  "_source" : {
+    "includes" : [ "code", "iri", "name", "preferredName", "scheme", "status", "type", "usageTotal" ]
+  },
+  "query" : {
+    "bool" : {
+      "filter" : [ {
+        "terms" : {
+          "status.iri" : [ "http://endhealth.info/im#Active" ]
+        }
+      }, {
+        "terms" : {
+          "type.iri" : [ "http://endhealth.info/im#Concept" ]
+        }
+      } ],
+      "minimum_should_match" : "1",
+      "should" : [ {
+        "term" : {
+          "code" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "alternativeCode" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "iri" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "termCode.code" : {
+            "value" : "FOXG1"
+          }
+        }
+      } ]
+    }
+  }
+}

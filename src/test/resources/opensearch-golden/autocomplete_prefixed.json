@@ -1,0 +1,46 @@
+{
+  "from" : 0.0,
+  "query" : {
+    "bool" : {
+      "minimum_should_match" : "1",
+      "should" : [ {
+        "nested" : {
+          "inner_hits" : {
+            "_source" : {
+              "includes" : [ "termCode.term" ]
+            }
+          },
+          "path" : "termCode",
+          "query" : {
+            "bool" : {
+              "must" : [ {
+                "prefix" : {
+                  "termCode.keyTerm" : {
+                    "case_insensitive" : true,
+                    "value" : "http:snomedinfosct#22298006"
+                  }
+                }
+              }, {
+                "exists" : {
+                  "field" : "termCode.length"
+                }
+              } ],
+              "should" : [ {
+                "script_score" : {
+                  "query" : {
+                    "match_all" : { }
+                  },
+                  "script" : {
+                    "source" : "100000 - doc['termCode.length'].value"
+                  }
+                }
+              } ]
+            }
+          },
+          "score_mode" : "max"
+        }
+      } ]
+    }
+  },
+  "size" : 1000.0
+}

@@ -1,180 +1,138 @@
 package org.endeavourhealth.imapi.logic.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.HttpException;
-import org.eclipse.rdf4j.http.protocol.UnauthorizedException;
-import org.endeavourhealth.imapi.errorhandling.UserAuthorisationException;
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException;
-import org.endeavourhealth.imapi.model.responses.LoginResponse;
-import org.endeavourhealth.imapi.model.responses.LoginResponseES;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
-import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole;
+import org.endeavourhealth.imapi.security.CasdoorClient;
+import org.endeavourhealth.imapi.security.CasdoorUserMapper;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
-import static org.endeavourhealth.imapi.utility.IpExtractor.getIpAddress;
-
+/**
+ * Identity and authorisation, backed directly by Casdoor. Callers are authenticated by a Casdoor access token (see SecurityConfig); the
+ * token only proves who is calling. Roles, namespaces and preferences are read from Casdoor (briefly cached), so changes take effect
+ * within a minute whatever the token lifetime.
+ */
 @Component
 @Slf4j
 public class SecurityService {
-  private EndeavourSecurityService endeavourSecurityService = new EndeavourSecurityService();
+  private static final String APPLICATION_TOKEN_TYPE = "application";
 
-  public User getUser(HttpServletRequest request) throws UserNotFoundException, JsonProcessingException {
-    String sessionId = getSessionId(request);
-    String ipAddress = getIpAddress(request);
-    return endeavourSecurityService.getUser(ipAddress, sessionId);
+  private final Supplier<CasdoorClient> casdoor;
+
+  public SecurityService() {
+    this(CasdoorClient::getInstance);
   }
 
-  public String getUserUrl(HttpServletRequest request) {
-    String sessionId = getSessionId(request);
-    String ipAddress = getIpAddress(request);
-    return endeavourSecurityService.getProfileUrl(ipAddress, sessionId);
+  public SecurityService(Supplier<CasdoorClient> casdoor) {
+    this.casdoor = casdoor;
   }
 
-  public User updateUser(HttpServletRequest request, User user) throws UserNotFoundException, IOException {
-    String sessionId = getSessionId(request);
-    String ipAddress = getIpAddress(request);
-    return endeavourSecurityService.updateUser(ipAddress, sessionId, user);
+  /** The signed-in user. Calls made with an application (client credentials) token get a user with no roles or namespaces. */
+  public User getUser() throws UserNotFoundException {
+    Jwt jwt = currentJwt();
+    String name = jwt.getClaimAsString("name");
+    if (name == null || name.isBlank()) throw new BadCredentialsException("The token does not identify a user");
+
+    if (APPLICATION_TOKEN_TYPE.equals(jwt.getClaimAsString("type"))) return applicationUser(jwt, name);
+
+    String owner = jwt.getClaimAsString("owner");
+    String organisation = casdoor.get().settings().organisation();
+    if (!organisation.equals(owner)) throw new AccessDeniedException("The token was issued to a user outside organisation " + organisation);
+    return CasdoorUserMapper.fromCasdoor(casdoor.get().findUser(name).orElseThrow(() -> new UserNotFoundException("User not found: " + name)));
   }
 
-  public LoginResponse loginUser(String code, String state, HttpServletRequest request, HttpServletResponse response) throws UserAuthorisationException {
-    String ipAddress = getIpAddress(request);
-    try {
-      LoginResponseES loginResponseES = endeavourSecurityService.login(ipAddress, code, state);
-      Cookie cookie = new Cookie("session_id", loginResponseES.getSessionId());
-      cookie.setPath("/");
-      cookie.setHttpOnly(true);
-      response.addCookie(cookie);
-      LoginResponse loginResponse = new LoginResponse();
-      loginResponse.setUser(loginResponseES.getUser());
-      loginResponse.setState(loginResponseES.getState());
-      return loginResponse;
-    } catch (UserAuthorisationException e) {
-      Cookie cookie = new Cookie("session_id", null);
-      cookie.setPath("/");
-      cookie.setHttpOnly(true);
-      cookie.setMaxAge(0);
-      response.addCookie(cookie);
-      throw e;
-    }
+  /** Another user of the organisation, by username. */
+  public User getUserByUsername(String username) throws UserNotFoundException {
+    return CasdoorUserMapper.fromCasdoor(casdoor.get().findUser(username).orElseThrow(() -> new UserNotFoundException("User not found: " + username)));
   }
 
-  public String getLoginUrl(String redirectUrl, HttpServletRequest request) throws HttpException {
-    String ipAddress = getIpAddress(request);
-    return endeavourSecurityService.getLoginUrl(ipAddress, redirectUrl);
+  public String getUserUrl() {
+    return casdoor.get().settings().profileUrl();
   }
 
-  public String getRegisterUrl(HttpServletRequest request, String redirectUrl) {
-    String ipAddress = getIpAddress(request);
-    return endeavourSecurityService.getRegisterUrl(ipAddress, redirectUrl);
+  /** Saves the signed-in user's preferences (not their roles or namespaces). */
+  public User updateUser(User user) throws UserNotFoundException {
+    String name = getUser().getUsername();
+    ObjectNode casdoorUser = casdoor.get().findUser(name).orElseThrow(() -> new UserNotFoundException("User not found: " + name));
+    CasdoorUserMapper.applyPreferences(casdoorUser, user);
+    casdoor.get().updateUser(casdoorUser);
+    return getUser();
   }
 
-  public void logout(HttpServletRequest request, HttpServletResponse response) throws HttpException {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    endeavourSecurityService.logout(ipAddress, sessionId);
-    Cookie accessCookie = new Cookie("session_id", "");
-    accessCookie.setPath("/");
-    accessCookie.setHttpOnly(true);
-    accessCookie.setMaxAge(0);
-    response.addCookie(accessCookie);
+  public boolean userExists(String userId) {
+    return casdoor.get().findUserById(userId).isPresent();
   }
 
-  public String getSessionId(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("session_id")) {
-          return cookie.getValue();
-        }
-      }
-    }
-    throw new UnauthorizedException("No session id found");
-  }
-
-  public boolean userExists(String userId, HttpServletRequest request) throws IOException {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    return endeavourSecurityService.isUser(ipAddress, sessionId, userId);
-  }
-
-  public List<User> adminGetUsersInGroup(UserRole role, HttpServletRequest request) throws UserNotFoundException {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    return endeavourSecurityService.adminGetUsersWithRole(ipAddress, sessionId, role);
+  public List<User> adminGetUsersInGroup(UserRole role) {
+    return casdoor.get().getUsers().stream()
+      .map(CasdoorUserMapper::fromCasdoor)
+      .filter(user -> user.getRoles().contains(role))
+      .toList();
   }
 
   public List<UserRole> adminGetGroups() {
     return Arrays.stream(UserRole.values()).toList();
   }
 
-  public User updateUserNamespaces(String userId, List<NamespacePermission> namespaces, HttpServletRequest request) throws UserNotFoundException {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    User user = endeavourSecurityService.adminGetUser(ipAddress, sessionId, userId);
-    user.setNamespaces(namespaces);
-    return endeavourSecurityService.adminUpdateUser(ipAddress, sessionId, user);
+  /** Administrative change to another user's namespaces. Callers must have checked the caller is allowed to do this. */
+  public void updateUserNamespaces(String userId, List<NamespacePermission> namespaces) throws UserNotFoundException {
+    ObjectNode casdoorUser = casdoor.get().findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
+    CasdoorUserMapper.applyNamespaces(casdoorUser, namespaces);
+    casdoor.get().updateUser(casdoorUser);
   }
 
-/*  public void emailTemporaryPasswords(String path) throws IOException, MessagingException {
-    List<User> users = excelReader.readUserImportFile(path);
-    EmailService emailService = new EmailService(
-      System.getenv("EMAILER_NOREPLY_HOST"),
-      Integer.parseInt(System.getenv("EMAILER_NOREPLY_PORT")),
-      System.getenv("EMAILER_NOREPLY_USERNAME"),
-      System.getenv("EMAILER_NOREPLY_PASSWORD")
-    );
-    for (User user : users) {
-      String emailSubject = "Temporary password";
-      String contentTemplate = """
-        <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset='UTF-8'>
-              <style>
-                body { font-family: Arial, sans-serif; background-color: #f7f7f7; padding: 20px; }
-                .container { max-width: 600px; margin: auto; background: #ffffff; padding: 20px;
-                border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-                .title { font-size: 20px; font-weight: bold; color: #333333; }
-                .content { margin-top: 15px; font-size: 15px; color: #555555; }
-                .password-box { margin-top: 20px; padding: 12px; background: #f0f4ff; border-left: 4px solid #4a74f5;
-                font-size: 16px; font-weight: bold; color: #2a2a2a; }
-                .footer { margin-top: 30px; font-size: 13px; color: #888888; }
-              </style>
-            </head>
-            <body>
-              <div class='container'>
-                <div class='title'>Temporary Password Request</div>
-                <div class='content'>
-                  Hello <b>%s</b>,<br><br>
-                  A temporary password has been generated for your account. Use the credentials below to log in and be sure to change your password after signing in.
-                </div>
-                <div class='password-box'>
-                  Temporary Password: %s
-                </div>
-                <div class='footer'>
-                  If you did not request this, please contact support immediately.
-                </div>
-              </div>
-            </body>
-          </html>
-        """.formatted(user.getUsername(), user.getPassword());
-      emailService.sendMail(emailSubject, contentTemplate, user.getEmail());
-    }
-  }*/
+  /** Requires that the Casdoor enforcer permits the signed-in user to perform `action` on `resource`. */
+  public void requiresPermission(Resource resource, Action action) {
+    User user = signedInUser();
+    if (!casdoor.get().enforce(CasdoorUserMapper.toEnforceSubject(user), resource.name(), action.name()))
+      throw new AccessDeniedException("Insufficient authorisation to " + action + " " + resource);
+  }
 
-  public void requiresPermission(Permission permission, HttpServletRequest request) {
-    String ipAddress = getIpAddress(request);
-    String sessionId = getSessionId(request);
-    endeavourSecurityService.requiresPermission(ipAddress, sessionId, permission);
+  /** Requires that the signed-in user holds the given access to a namespace. This depends on the data being touched, so it is not part of the enforcer request. */
+  public void requiresNamespace(NAMESPACE namespace, boolean read, boolean write) {
+    boolean permitted = signedInUser().getNamespaces().stream()
+      .anyMatch(held -> held.getIri() == namespace && (!read || held.isRead()) && (!write || held.isWrite()));
+    if (!permitted) throw new AccessDeniedException("Insufficient authorisation for namespace " + namespace);
+  }
+
+  /** For authorisation checks, which have no checked exceptions: a token for a user Casdoor does not know is simply not authorised. */
+  private User signedInUser() {
+    try {
+      return getUser();
+    } catch (UserNotFoundException e) {
+      throw new AccessDeniedException(e.getMessage(), e);
+    }
+  }
+
+  private static Jwt currentJwt() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken token) return token.getToken();
+    throw new AuthenticationCredentialsNotFoundException("No authenticated user");
+  }
+
+  private static User applicationUser(Jwt jwt, String name) {
+    User user = new User();
+    user.setId(jwt.getSubject() == null ? "" : jwt.getSubject());
+    user.setType(APPLICATION_TOKEN_TYPE);
+    user.setUsername(name);
+    user.setNamespaces(List.of());
+    return user;
   }
 }

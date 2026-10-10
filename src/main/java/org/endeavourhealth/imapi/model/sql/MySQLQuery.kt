@@ -14,7 +14,9 @@ data class MySQLQuery(
     insert?.let { append("INSERT INTO $it\n") }
     append("WITH ")
     append(withs.joinToString(",\n") { it.toSql() })
-    append("\nSELECT ")
+    // MySQL's TempTable engine loses materialised CTEs that are referenced from several places in long CTE
+    // chains ("Table '#sql...' doesn't exist"); the MEMORY engine does not have this bug.
+    append("\nSELECT $TEMP_TABLE_ENGINE_HINT ")
     append(selects.joinToString(",\n") { it.toSql() })
     append("\nFROM ${withs.last().alias}")
     append(joins.joinToString("\n") { it.toSql() })
@@ -27,5 +29,9 @@ data class MySQLQuery(
       append(it)
     }
     append(";")
+  }
+
+  companion object {
+    const val TEMP_TABLE_ENGINE_HINT = "/*+ SET_VAR(internal_tmp_mem_storage_engine=MEMORY) */"
   }
 }

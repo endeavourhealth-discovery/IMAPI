@@ -5,13 +5,13 @@ apacheCollections4 = "4.4"
 apachePoi = "5.4.0"
 apacheText = "1.13.1"
 assertJ = "3.27.7"
+caffeine = "3.1.1"
+lucene = "8.11.3"
 awsS3 = "2.39.0"
 awsSDKBOM = "2.42.10"
 awsSDKCore = "2.39.0"
 cucumber = "7.22.0"
-commons-text = "1.10.0"
 dropwizard = "4.2.30"
-elasticSearch = "7.17.29"
 factPlusPlus = "1.6.5"
 h2 = "2.3.232"
 hapiFHIRR4 = "7.4.0"
@@ -29,7 +29,6 @@ owlApi = "5.5.0"
 postgres = "42.7.4"
 rabbitmqAmqpClient = "5.24.0"
 rdf4j = "4.3.13"
-reactor = "3.6.10"
 slf4j = "2.0.17"
 spring = "3.5.7"
 springContext = "6.2.5"
@@ -49,14 +48,14 @@ apache-collections4 = { module = "org.apache.commons:commons-collections4", vers
 apache-poi = { module = "org.apache.poi:poi-ooxml", version.ref = "apachePoi" }
 apache-text = { module = "org.apache.commons:commons-text", version.ref = "apacheText" }
 assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
-apache-commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+lucene-analyzers-common = { module = "org.apache.lucene:lucene-analyzers-common", version.ref = "lucene" }
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
 aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }
 dropwizard-graphite = { module = "io.dropwizard.metrics:metrics-graphite", version.ref = "dropwizard" }
 dropwizard-servlets = { module = "io.dropwizard.metrics:metrics-servlets", version.ref = "dropwizard" }
-elasticsearch = { module = "org.elasticsearch.client:elasticsearch-rest-high-level-client", version.ref = "elasticSearch" }
 fact-plus-plus = { module = "uk.ac.manchester.cs:factplusplus", version.ref = "factPlusPlus" }
 h2database = { module = "com.h2database:h2", version.ref = "h2" }
 hapi-fhir-r4 = { module = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4", version.ref = "hapiFHIRR4" }
@@ -81,11 +80,9 @@ rdf4j-repo-api = { module = "org.eclipse.rdf4j:rdf4j-repository-api", version.re
 rdf4j-repo-http = { module = "org.eclipse.rdf4j:rdf4j-repository-http", version.ref = "rdf4j" }
 rdf4j-repo-sail = { module = "org.eclipse.rdf4j:rdf4j-repository-sail", version.ref = "rdf4j" }
 rdf4j-sail-native = { module = "org.eclipse.rdf4j:rdf4j-sail-nativerdf", version.ref = "rdf4j" }
-reactor-core = { module = "io.projectreactor:reactor-core", version.ref = "reactor" }
 slf4j = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 spring-amqp = { module = "org.springframework.boot:spring-boot-starter-amqp", version.ref = "spring" }
 spring-context = { module = "org.springframework:spring-context", version.ref = "springContext" }
-spring-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring" }
 spring-dev-tools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "spring" }
 springdoc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 spring-oauth-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server", version.ref = "spring" }

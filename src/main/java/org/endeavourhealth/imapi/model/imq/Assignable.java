@@ -19,9 +19,6 @@ public interface Assignable {
 
   Assignable setDescription(String description);
 
-  Compare getCompare();
-
-  Assignable setCompare(Compare compare);
 
   boolean isInvalid();
 

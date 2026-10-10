@@ -1,3 +1,5 @@
+import java.util.zip.ZipFile
+
 plugins {
   // Support convention plugins written in Groovy. Convention plugins are build scripts in 'src/main' that automatically become available as plugins in the main build.
   alias(libs.plugins.sonar)
@@ -19,6 +21,13 @@ description = "Information Model API"
 repositories {
   gradlePluginPortal()
   mavenCentral()
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
+  }
+  maven {
+    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
+  }
+  mavenLocal()
 }
 
 val ENV = System.getenv("ENV") ?: "dev"
@@ -82,6 +91,25 @@ sonar {
 
 tasks.war {
   archiveFileName.set("imapi.war")
+
+  // spring-boot-devtools is only for running from the IDE, so leave just that jar out of the war. Do not declare it
+  // providedRuntime instead: the war task drops everything in providedRuntime *and its transitive dependencies*, which
+  // removed spring-boot, spring-boot-autoconfigure, spring-core and others, so Tomcat deployed the war and never started Spring.
+  classpath = classpath?.filter { !it.name.startsWith("spring-boot-devtools") }
+
+  doLast {
+    val entries = ZipFile(archiveFile.get().asFile).use { zip -> zip.entries().asSequence().map { it.name }.toList() }
+    val required = mapOf(
+      "spring-boot" to Regex("""WEB-INF/lib/spring-boot-\d.*\.jar"""),
+      "spring-boot-autoconfigure" to Regex("""WEB-INF/lib/spring-boot-autoconfigure-.*\.jar"""),
+      "spring-core" to Regex("""WEB-INF/lib/spring-core-.*\.jar"""),
+      "spring-context" to Regex("""WEB-INF/lib/spring-context-.*\.jar"""),
+      "spring-web" to Regex("""WEB-INF/lib/spring-web-.*\.jar"""),
+    )
+    val missing = required.filterValues { pattern -> entries.none { pattern.matches(it) } }.keys
+    if (missing.isNotEmpty()) throw GradleException("imapi.war is missing required jars $missing; Tomcat would deploy it but never start Spring")
+    if (entries.any { it.startsWith("WEB-INF/lib/spring-boot-devtools") }) throw GradleException("imapi.war must not contain spring-boot-devtools")
+  }
 }
 
 tasks {
@@ -97,8 +125,8 @@ dependencies {
   implementation(libs.apache.collections4)
   implementation(libs.apache.poi)
   implementation(libs.apache.text)
-  implementation(libs.apache.commons.text)
-  implementation(libs.assert.j)
+  implementation(libs.caffeine)
+  implementation(libs.lucene.analyzers.common)
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
@@ -110,13 +138,11 @@ dependencies {
   implementation(libs.jackson.kotlin)
   implementation(libs.logback.core)
   implementation(libs.logback.classic)
-  implementation(libs.elasticsearch)
   implementation(libs.hapi.fhir.r4)
   implementation(libs.jersey.client)
   implementation(libs.jersey.inject)
   implementation(libs.owl.api)
   implementation(libs.open.llet)
-  implementation(libs.reactor.core)
   implementation(libs.rdf4j.common)
   implementation(libs.rdf4j.query)
   implementation(libs.rdf4j.iterator)
@@ -126,7 +152,6 @@ dependencies {
   implementation(libs.rdf4j.sail.native)
   implementation(libs.slf4j)
   implementation(libs.spring.context)
-  implementation(libs.spring.data.jpa)
   implementation(libs.spring.oauth.server)
   implementation(libs.spring.security)
   implementation(libs.spring.web)
@@ -137,6 +162,7 @@ dependencies {
 
   runtimeOnly(libs.spring.dev.tools)
 
+  testImplementation(libs.assert.j)
   testImplementation(libs.cucumber)
   testImplementation(libs.cucumber.junit)
   testImplementation(libs.cucumber.spring)
@@ -154,26 +180,16 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
-  implementation(kotlin("stdlib-jdk8"))
-}
-
-repositories {
-  mavenLocal()
-  mavenCentral()
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-releases")
-  }
-  maven {
-    url = uri("https://artifactory.endhealth.co.uk/repository/maven-snapshots")
-  }
 }
 
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
   useJUnitPlatform {
-    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest")
+    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
   }
-  finalizedBy("jacocoTestReport")
+  if (CI != "false") {
+    finalizedBy("jacocoTestReport")
+  }
 }
 
 tasks.register("imqTests", Test::class.java) {
@@ -192,6 +208,22 @@ tasks.register("imqQOFQueriesTest", Test::class.java) {
   }
 }
 
+tasks.register("imqSMHQueriesTest", Test::class.java) {
+  testClassesDirs = sourceSets["test"].output.classesDirs
+  classpath = sourceSets["test"].runtimeClasspath
+  useJUnitPlatform {
+    includeTags("IMQSMHQueriesTest")
+  }
+}
+
+tasks.register("imqREGQueriesTest", Test::class.java) {
+  testClassesDirs = sourceSets["test"].output.classesDirs
+  classpath = sourceSets["test"].runtimeClasspath
+  useJUnitPlatform {
+    includeTags("IMQREGQueriesTest")
+  }
+}
+
 tasks.jacocoTestReport {
   reports {
     xml.required.set(true)
@@ -201,4 +233,11 @@ tasks.jacocoTestReport {
 
 kotlin {
   jvmToolchain(21)
+}
+configurations.all {
+  // log4j-core clashes with the log4j-to-slf4j bridge (log4j API -> logback). The Elasticsearch client used to pull it in; kept so it cannot return transitively.
+  exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+  // icu4j (14 MB) is only used by org.hl7.fhir.utilities.i18n.I18nBase for plural rules in validation/rendering messages,
+  // which IMAPI never uses (it only builds and encodes FHIR resources). FhirContextHolderTest covers that path.
+  exclude(group = "com.ibm.icu", module = "icu4j")
 }

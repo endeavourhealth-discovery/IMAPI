@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.common.unit.Fuzziness;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.dataaccess.opensearch.Fuzziness;
+import org.endeavourhealth.imapi.dataaccess.opensearch.SearchSource;
 import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
@@ -100,7 +100,7 @@ public class OSQuery {
 
   }
 
-  private void runAndAddResults(ObjectNode fullResults, SearchSourceBuilder builder, Set<String> found) throws OpenSearchException {
+  private void runAndAddResults(ObjectNode fullResults, SearchSource builder, Set<String> found) throws OpenSearchException {
     JsonNode results = runQuery(builder);
     if (results.get("hits").get("hits").isEmpty()) return;
     fullResults.put("totalCount", fullResults.get("totalCount").asInt() + results.get("hits").get("total").get("value").asInt());
@@ -133,7 +133,7 @@ public class OSQuery {
     ObjectNode hitsNode = fullResults.putObject("hits");  // creates and assigns "hits" node
     hitsNode.put("total", 0);
     hitsNode.putArray("hits");
-    SearchSourceBuilder builder;
+    SearchSource builder;
     Set<String> found = new HashSet<>();
     builder = converter.buildQuery(request, query, TextSearchStyle.exact);
     runAndAddResults(fullResults, builder, found);
@@ -235,7 +235,7 @@ public class OSQuery {
     return -1;
   }
 
-  private JsonNode runQuery(SearchSourceBuilder bld) throws OpenSearchException {
+  private JsonNode runQuery(SearchSource bld) throws OpenSearchException {
     String elastic = bld.toString();
     HttpResponse<String> response = getResponse(elastic);
     try (CachedObjectMapper om = new CachedObjectMapper()) {

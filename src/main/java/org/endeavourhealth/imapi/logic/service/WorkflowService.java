@@ -18,6 +18,7 @@ import org.endeavourhealth.imapi.model.workflow.*;
 import org.endeavourhealth.imapi.model.workflow.task.TaskState;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class WorkflowService {
   }
 
   public void updateBugReport(BugReport bugReport, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     if (!user.getUsername().equals(bugReport.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update bug report");
     BugReport originalBugReport = getBugReport(bugReport.getId().getIri());
@@ -98,7 +99,7 @@ public class WorkflowService {
   }
 
   public void updateRoleRequest(RoleRequest roleRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     if (!user.getUsername().equals(roleRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update role request");
     RoleRequest originalRoleRequest = getRoleRequest(roleRequest.getId().getIri());
@@ -108,7 +109,7 @@ public class WorkflowService {
   }
 
   public void approveRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
@@ -116,7 +117,7 @@ public class WorkflowService {
   }
 
   public void rejectRoleRequest(HttpServletRequest request, RoleRequest roleRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     workflowRepository.update(roleRequest.getId().getIri(), WORKFLOW.STATE, roleRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
@@ -130,7 +131,7 @@ public class WorkflowService {
   }
 
   public void updateNamespaceRequest(NamespaceRequest namespaceRequest, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     if (!user.getUsername().equals(namespaceRequest.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update namespace request");
     NamespaceRequest originalNamespaceRequest = getNamespaceRequest(namespaceRequest.getId().getIri());
@@ -140,18 +141,20 @@ public class WorkflowService {
   }
 
   public void approveNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
-    List<NamespacePermission> namespaces = user.getNamespaces();
-    if (!namespaces.contains(namespaceRequest.getNamespacePermission())) {
-      namespaces.add(namespaceRequest.getNamespacePermission());
-      securityService.updateUserNamespaces(user.getId(), namespaces, request);
-    }
+    User user = securityService.getUser();
+    // The requested access is granted to the user who asked for it, not to the approver
+    User requester = securityService.getUserByUsername(namespaceRequest.getCreatedBy());
+    NamespacePermission requested = namespaceRequest.getNamespacePermission();
+    List<NamespacePermission> namespaces = new ArrayList<>(requester.getNamespaces());
+    namespaces.removeIf(held -> held.getIri() == requested.getIri());
+    namespaces.add(requested);
+    securityService.updateUserNamespaces(requester.getId(), namespaces);
     workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, namespaceRequest.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
   public void rejectNamespaceRequest(HttpServletRequest request, NamespaceRequest namespaceRequest) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     workflowRepository.update(namespaceRequest.getId().getIri(), WORKFLOW.STATE, namespaceRequest.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 
@@ -165,7 +168,7 @@ public class WorkflowService {
   }
 
   public void updateEntityApproval(EntityApproval entityApproval, HttpServletRequest request) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     if (!user.getUsername().equals(entityApproval.getCreatedBy()))
       throw new TaskFilerException("User does not have permission to update entity approval");
     EntityApproval originalEntityApproval = getEntityApproval(entityApproval.getId().getIri());
@@ -175,14 +178,14 @@ public class WorkflowService {
   }
 
   public void approveEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, UserNotFoundException, JsonProcessingException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     //TODO entity draft replace active
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.APPROVED.toString(), user.getId());
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, TaskState.APPROVED.toString(), TaskState.COMPLETE.toString(), user.getId());
   }
 
   public void rejectEntityApproval(HttpServletRequest request, EntityApproval entityApproval) throws TaskFilerException, JsonProcessingException, UserNotFoundException {
-    User user = securityService.getUser(request);
+    User user = securityService.getUser();
     workflowRepository.update(entityApproval.getId().getIri(), WORKFLOW.STATE, entityApproval.getState().toString(), TaskState.REJECTED.toString(), user.getId());
   }
 

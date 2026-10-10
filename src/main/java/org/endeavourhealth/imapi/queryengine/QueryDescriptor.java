@@ -3,9 +3,7 @@ package org.endeavourhealth.imapi.queryengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -27,15 +25,41 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
-  private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
   @Getter
   private EntityRepository repo = new EntityRepository();
   @Getter
   private Map<String, TTEntity> iriContext;
   private StringBuilder shortDescription = new StringBuilder();
-  private DisplayMode displayMode;
+  private Map<String,Query> nodeRefMap=new HashMap<>();
 
-  public static String describeOrderBy(OrderLimit orderBy) {
+  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
+    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
+    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
+    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
+    if (query.getIri() == null)
+      query.setIri(queryIri);
+    query = describeQuery(query, displayMode);
+    return query;
+  }
+  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
+    setIriNames(query);
+    if (iriContext == null || iriContext.isEmpty())
+      return query;
+    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    describeMatch(query);
+    if (displayMode == DisplayMode.LOGICAL) {
+      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+    }
+    if (displayMode== DisplayMode.EDIT){
+      new LogicOptimizer().resolveLogic(query, DisplayMode.EDIT);
+    }
+
+
+
+    return query;
+  }
+
+  public String describeOrderBy(OrderLimit orderBy) {
     String orderDisplay = "";
     for (OrderDirection property : orderBy.getProperty()) {
       String field = property.getIri();
@@ -52,8 +76,16 @@ public class QueryDescriptor {
         orderDisplay = orderDisplay + " " + orderBy.getLimit();
       else orderDisplay = orderDisplay + " several ";
     }
-    orderBy.setDescription(orderDisplay);
 
+    if (orderBy.getPartition()!=null){
+      int partitionCount=0;
+      for (IriLD partition : orderBy.getPartition()){
+        partitionCount++;
+        if (partitionCount>1)
+          orderDisplay = orderDisplay + "per " +  getTermInContext(partition.getIri());
+      }
+    }
+    orderBy.setDescription(orderDisplay);
     return orderDisplay;
   }
 
@@ -94,16 +126,7 @@ public class QueryDescriptor {
     } else return startShort.toString();
   }
 
-  public Query describeQuery(String queryIri, DisplayMode displayMode) throws JsonProcessingException, QueryException {
-    TTEntity queryEntity = repo.getEntityPredicates(queryIri, asHashSet(RDFS.LABEL, IM.DEFINITION)).getEntity();
-    if (queryEntity.get(iri(IM.DEFINITION)) == null) return null;
-    Query query = queryEntity.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
-    if (query.getIri() == null)
-      query.setIri(queryIri);
-    query = describeQuery(query, displayMode);
-    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
-    return query;
-  }
+
 
   public Query describeSingleMatch(Query query) throws QueryException {
     setIriNames(query);
@@ -111,22 +134,6 @@ public class QueryDescriptor {
     return query;
   }
 
-  public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {
-    this.displayMode = displayMode;
-    setIriNames(query);
-    if (iriContext == null || iriContext.isEmpty())
-      return query;
-    if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
-    if (displayMode == DisplayMode.RULES && query.getRule() == null) {
-      new LogicOptimizer().getRulesFromLogic(query);
-    } else if (displayMode == DisplayMode.LOGICAL && query.getRule() != null) {
-      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
-    }
-    describeMatch(query);
-
-
-    return query;
-  }
 
   private void describeGroupBys(List<GroupBy> groupBys) {
     for (GroupBy groupBy : groupBys) {
@@ -250,6 +257,8 @@ public class QueryDescriptor {
 
   public void describeMatch(Query query) {
     if (query.getUuid() == null) query.setUuid(UUID.randomUUID().toString());
+    if (query.getAs()!=null)
+      nodeRefMap.put(query.getAs(), query);
 
     if (query.getReturn() != null) {
       for (Return prop : query.getReturn()) {
@@ -278,7 +287,7 @@ public class QueryDescriptor {
     if (query.getIs() != null) {
       describeIs(query.getIs());
     }
-    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr())) {
+    for (List<Query> subQueries: Arrays.asList(query.getRule(), query.getAnd(), query.getOr(),query.getUnion(),query.getEach())) {
       if (subQueries != null) {
         for (Query subQuery : subQueries) {
           describeMatch(subQuery);
@@ -295,12 +304,11 @@ public class QueryDescriptor {
     if (query.getWhere() != null) {
       describeWhere(query.getWhere(), query);
     }
-
-    if (query.getThen() != null) {
-      describeThen(query.getThen(), query);
-    }
     if (query.getGroupBy() != null) {
       describeGroupBys(query.getGroupBy());
+    }
+    if (query.getThen() != null) {
+      describeMatch(query.getThen());
     }
   }
 
@@ -366,11 +374,6 @@ public class QueryDescriptor {
     }
   }
 
-  private void describeThen(Query then, Query query) {
-    if (then.getWhere() != null) {
-      describeWhere(then.getWhere(), query);
-    }
-  }
 
   private void describeWhere(Where where, Query query) {
     if (where.getUuid() == null) where.setUuid(UUID.randomUUID().toString());
@@ -411,27 +414,36 @@ public class QueryDescriptor {
       where.getQualifier().setName(getTermInContext(where.getQualifier().getIri(), Context.PLURAL));
     }
     describeAssignable(where);
+    if (where.getCompare() != null) {
+      describeCompare(where.getCompare());
+    }
   }
 
   public void describeAssignable(Assignable assignable) {
-    if (assignable.getCompare() != null) {
-      describeCompare(assignable.getCompare());
+    if (assignable.getUnits() != null) {
+      assignable.getUnits().setName(getTermInContext(assignable.getUnits().getIri(), Context.PLURAL));
     }
+
 
   }
 
   private void describeCompare(Compare compare) {
     describeValueSource(compare.getLeft());
     describeValueSource(compare.getRight());
-    if (compare.getUnits() != null) {
-      compare.getUnits().setName(getTermInContext(compare.getUnits().getIri(), Context.PLURAL));
-    }
+
   }
 
   private void describeValueSource(ValueSource source) {
     if (source.getIri() != null) {
       source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
     }
+    if (source.getNodeRef()!=null){
+      Query refMatch = nodeRefMap.get(source.getNodeRef());
+      if (refMatch!=null){
+        refMatch.setReferenced(true);
+      }
+    }
+
     if (source.getParameter() != null) {
       if (source.getParameter().toLowerCase().contains("searchdate"))
         source.setName("search date");

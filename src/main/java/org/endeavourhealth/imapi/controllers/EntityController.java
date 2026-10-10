@@ -32,6 +32,7 @@ import org.endeavourhealth.imapi.model.search.DownloadByQueryOptions;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTBundle;
@@ -119,7 +120,18 @@ public class EntityController {
     }
   }
 
+  @GetMapping(value = "/public/getmatchedsnomed")
+  @Operation(summary = "Get matched to iri", description = "fetches an iri matched to an iri")
+  public Set<String> getMatchedTo(HttpServletRequest request, @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.GetMatchedSnomed.GET")) {
+      log.debug("get matched snomed " + iri + "");
+      return entityService.getMatchedTo(iri,NAMESPACE.SNOMED);
+    }
+  }
+
   // ============================ PROTECTED ============================
+
+
 
   @GetMapping(value = "/protected/partial", produces = "application/json")
   @Operation(summary = "Get partial entity", description = "Fetches partial entity details using IRI and a set of predicates")
@@ -312,7 +324,7 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.entityExists.GET")) {
       log.debug("entityExists");
       NAMESPACE namespace = NAMESPACE.from(iri.substring(0, iri.indexOf("#") + 1));
-      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(), List.of(new NamespacePermission(namespace, true, false))), request);
+      securityService.requiresNamespace(namespace, true, false);
       return entityService.entityExists(iri);
     }
   }
@@ -528,8 +540,9 @@ public class EntityController {
   public TTEntity createEntity(@RequestBody EditRequest editRequest, HttpServletRequest request) throws JsonProcessingException, UserAuthorisationException, TTFilerException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Create.POST")) {
       log.debug("createEntity");
-      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.CREATOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
-      User user = securityService.getUser(request);
+      securityService.requiresNamespace(editRequest.getNamespace(), true, true);
+      securityService.requiresPermission(Resource.ENTITY, Action.CREATE);
+      User user = securityService.getUser();
       return filerService.createEntity(editRequest, user.getUsername());
     }
   }
@@ -539,8 +552,9 @@ public class EntityController {
   public TTEntity updateEntity(HttpServletRequest request, @RequestBody EditRequest editRequest) throws TTFilerException, IOException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Update.POST")) {
       log.debug("updateEntity");
-      securityService.requiresPermission(new Permission(Resource.ENTITY, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
-      User user = securityService.getUser(request);
+      securityService.requiresNamespace(editRequest.getNamespace(), true, true);
+      securityService.requiresPermission(Resource.ENTITY, Action.UPDATE);
+      User user = securityService.getUser();
       return filerService.updateEntity(editRequest.getEntity(), user.getUsername());
     }
   }

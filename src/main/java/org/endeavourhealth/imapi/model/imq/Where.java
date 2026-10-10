@@ -145,12 +145,11 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  @Override
+
   public Compare getCompare() {
     return this.compare;
   }
 
-  @Override
   public Where setCompare(Compare compare) {
     this.compare = compare;
     return this;

@@ -195,10 +195,7 @@ public class SparqlConverter {
     }
     String subject=null;
     if (query.getFrom() != null){
-      for (From from : query.getFrom()) {
-        if (from.getAlias()!=null)
-          subject = from.getAlias();
-      }
+          subject = query.getFrom();
     }
     else if (query.getNode() != null)
       subject = query.getNode();

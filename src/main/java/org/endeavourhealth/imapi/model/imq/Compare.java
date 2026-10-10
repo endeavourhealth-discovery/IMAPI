@@ -9,7 +9,6 @@ public class Compare {
 
   private ValueSource left;
   private ValueSource right;
-  private TTIriRef units;
 
   public ValueSource getLeft() {
     return left;
@@ -41,12 +40,4 @@ public class Compare {
     return this;
   }
 
-  public TTIriRef getUnits() {
-    return units;
-  }
-
-  public Compare setUnits(TTIriRef units) {
-    this.units = units;
-    return this;
-  }
 }

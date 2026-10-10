@@ -72,7 +72,7 @@ public class Value implements Assignable {
   private TTIriRef units;
   private boolean invalid;
   private String valueTerm;
-  private Compare compare;
+
 
   public boolean isInvalid() {
     return invalid;
@@ -147,19 +147,5 @@ public class Value implements Assignable {
     return this;
   }
 
-  public Compare getCompare() {
-    return this.compare;
-  }
 
-  @Override
-  public Value setCompare(Compare compare) {
-    this.compare = compare;
-    return this;
-  }
-
-  public Value compare(Consumer<Compare> builder) {
-    this.compare = new Compare();
-    builder.accept(this.compare);
-    return this;
-  }
 }

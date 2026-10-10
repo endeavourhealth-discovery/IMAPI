@@ -25,6 +25,7 @@ import org.endeavourhealth.imapi.model.requests.SetDistillationRequest;
 import org.endeavourhealth.imapi.model.requests.SetExportRequest;
 import org.endeavourhealth.imapi.model.security.NamespacePermission;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.security.User;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -70,7 +71,7 @@ public class SetController {
   ) throws IOException, QueryException, UserAuthorisationException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Set.Publish.GET")) {
       log.debug("publish {}", iri);
-      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.PUBLISHER), List.of()), request);
+      securityService.requiresPermission(Resource.SET, Action.PUBLISH);
       setService.publishSetToIM1(iri);
     }
   }
@@ -207,8 +208,9 @@ public class SetController {
   public void updateSubsetsFromSuper(@RequestBody EditRequest editRequest, HttpServletRequest request) throws IOException, TTFilerException, UserAuthorisationException, UserNotFoundException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.UpdateSubsetsFromSuper.POST")) {
       log.debug("updateSubsetsFromSuper");
-      securityService.requiresPermission(new Permission(Resource.SET, List.of(UserRole.EDITOR), List.of(new NamespacePermission(editRequest.getNamespace(), true, true))), request);
-      User user = securityService.getUser(request);
+      securityService.requiresNamespace(editRequest.getNamespace(), true, true);
+      securityService.requiresPermission(Resource.SET, Action.UPDATE);
+      User user = securityService.getUser();
       setService.updateSubsetsFromSuper(user.getUsername(), editRequest.getEntity(), editRequest.getNamespace());
     }
   }

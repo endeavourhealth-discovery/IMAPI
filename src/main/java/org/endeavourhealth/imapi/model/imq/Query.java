@@ -8,25 +8,21 @@ import java.util.List;
 import java.util.function.Consumer;
 
 @JsonPropertyOrder({
+  "name",
+  "description",
   "notExists",
   "from",
+  "typeOf",
   "and",
   "ifTrue",
   "ifFalse",
-  "name",
-  "description",
-  "nodeRef",
-  "header",
-  "typeOf",
   "is",
   "path",
   "and",
   "or",
-  "not",
   "where",
   "return",
-  "then",
-  ""
+  "orderBy"
 })
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Query implements HasPaths, Returnable {
@@ -37,11 +33,12 @@ public class Query implements HasPaths, Returnable {
   private Node graph;
   private Where where;
   private String iri;
-  private List<From> from;
+  private String from;
   private boolean optional;
   private Node typeOf;
   private String parameter;
-
+  private boolean isTest;
+  private String fromTypeIri;
   private List<Path> path;
   private FunctionClause function;
   private Entail entailment;
@@ -56,6 +53,7 @@ public class Query implements HasPaths, Returnable {
   private List<Query> and;
   private List<Query> rule;
   private List<Query> each;
+  private List<Query> union;
   private String libraryItem;
   private boolean invalid;
   private Node is;
@@ -66,7 +64,6 @@ public class Query implements HasPaths, Returnable {
   private boolean notExists;
   private String errorMessage;
   private boolean draft;
-  private Query then;
   private Having having;
   private Prefixes prefixes;
   private String imQuery;
@@ -74,7 +71,74 @@ public class Query implements HasPaths, Returnable {
   private List<Query> columnGroup;
   private IMQType queryType;
   private String uuid;
+  private boolean isBase;
+  private Query then;
+  private boolean referenced;
 
+  public boolean isReferenced() {
+    return referenced;
+  }
+  public Query setReferenced(boolean referenced) {
+    this.referenced = referenced;
+    return this;
+  }
+
+  public Query then(Consumer<Query> builder) {
+    this.then = new Query();
+    builder.accept(this.then);
+    return this;
+  }
+  public Query getThen() {
+    return then;
+  }
+  public Query setThen(Query then) {
+    this.then = then;
+    return this;
+  }
+
+  public String getFromTypeIri() {
+    return fromTypeIri;
+  }
+  public Query setFromTypeIri(String fromTypeIri) {
+    this.fromTypeIri = fromTypeIri;
+    return this;
+  }
+
+  public List<Query> getUnion() {
+    return union;
+  }
+
+  public Query setUnion(List<Query> union) {
+    this.union = union;
+    return this;
+  }
+  public Query addUnion(Query query) {
+    if (this.union == null) this.union = new ArrayList<>();
+    this.union.add(query);
+    return this;
+  }
+
+  public Query union(Consumer<Query> builder) {
+    Query query = new Query();
+    addUnion(query);
+    builder.accept(query);
+    return this;
+  }
+  public boolean isBase() {
+    return isBase;
+  }
+  public Query setBase(boolean base) {
+    isBase = base;
+    return this;
+  }
+
+  public boolean isTest() {
+    return isTest;
+  }
+  public Query setTest(boolean test) {
+    isTest = test;
+    return this;
+  }
 public List<Query> getEach() {
   return each;
 }
@@ -191,21 +255,6 @@ public Query each(Consumer<Query> builder) {
   public Query having(Consumer<Having> builder) {
     Having having = new Having();
     setHaving(having);
-    return this;
-  }
-
-  public Query getThen() {
-    return then;
-  }
-
-  public Query setThen(Query then) {
-    this.then = then;
-    return this;
-  }
-
-  public Query then(Consumer<Query> builder) {
-    this.then = new Query();
-    builder.accept(this.then);
     return this;
   }
 
@@ -580,22 +629,12 @@ public Query each(Consumer<Query> builder) {
     return this;
   }
 
-  public List<From> getFrom() {
+  public String getFrom() {
     return from;
   }
-  public Query setFrom(List<From> from) {
+
+  public Query setFrom(String from) {
     this.from = from;
-    return this;
-  }
-  public Query addFrom(From from) {
-    if (this.from == null) this.from = new ArrayList<>();
-    this.from.add(from);
-    return this;
-  }
-  public Query from(Consumer<From> builder) {
-    From from = new From();
-    addFrom(from);
-    builder.accept(from);
     return this;
   }
 

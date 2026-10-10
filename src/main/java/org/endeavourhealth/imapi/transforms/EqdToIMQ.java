@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
 import org.endeavourhealth.imapi.model.imq.Query;
@@ -351,6 +351,7 @@ public class EqdToIMQ {
     this.resources.setActiveReport(eqReport.getId());
     this.resources.setActiveReportName(eqReport.getName());
     this.resources.setMatchCounter(0);
+    LogicOptimizer.clearAsMap();
     String id = getId(eqReport);
     if (versionMap.containsKey(id)) {
       id = versionMap.get(id);
@@ -375,8 +376,7 @@ public class EqdToIMQ {
       queryEntity.addType(iri(IM.QUERY));
       (new EqdListToIMQ()).convertReport(eqReport, this.document, qry, this.resources);
     } else if (eqReport.getAuditReport() != null) {
-      queryEntity.addType(iri(IM.QUERY));
-      (new EqdAuditToIMQ()).convertReport(eqReport, qry, this.resources);
+      System.err.println("Audit reports not supported");
     } else if (eqReport.getAggregateReport() != null) {
       System.err.println("Aggregate reports not supported");
       return null;
@@ -385,7 +385,7 @@ public class EqdToIMQ {
     if (qry == null) {
       return null;
     } else {
-      flattenRules(qry);
+      //flattenRules(qry);
       queryEntity.addType(iri(IM.QUERY));
       if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");

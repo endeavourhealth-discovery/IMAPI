@@ -8,8 +8,8 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.endeavourhealth.imapi.dataaccess.opensearch.TermQuery;
+import org.endeavourhealth.imapi.dataaccess.opensearch.SearchSource;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
@@ -31,10 +31,10 @@ public class OpenSearchService {
       throw new OpenSearchException("Environmental variable OPENSEARCH_AUTH token is not set");
 
     try (CachedObjectMapper om = new CachedObjectMapper()) {
-      SearchSourceBuilder bld = new SearchSourceBuilder()
+      SearchSource bld = new SearchSource()
         .size(1)
         .query(
-          new TermQueryBuilder("iri", iri)
+          new TermQuery("iri", iri)
         );
 
       WebTarget target = client.target(osUrl).path(index + "/_search");

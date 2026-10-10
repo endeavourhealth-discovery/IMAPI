@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.errorhandling.GeneralCustomException
 import org.endeavourhealth.imapi.logic.service.SecurityService
-import org.endeavourhealth.imapi.utility.APIGuard
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
 import org.endeavourhealth.imapi.model.dto.BooleanBody
@@ -16,6 +15,7 @@ import org.endeavourhealth.imapi.model.primevue.PrimeVueColors
 import org.endeavourhealth.imapi.model.primevue.PrimeVuePresetThemes
 import org.endeavourhealth.imapi.model.security.NamespacePermission
 import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Action
 import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.security.User
 import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
@@ -36,7 +36,6 @@ open class UserController(
   private val securityService: SecurityService
 ) {
   private val log = LoggerFactory.getLogger(UserController::class.java)
-  private val apiGuard = APIGuard()
 
   @Operation(summary = "Update user preset", description = "Updates the user preset configuration.")
   @PostMapping(value = ["/preset"], consumes = ["text/plain"])
@@ -53,9 +52,9 @@ open class UserController(
       log.debug("updateUserPreset")
       val theme = PrimeVuePresetThemes.fromValue(preset)
       requireNotNull(theme)
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.theme = theme
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -77,9 +76,9 @@ open class UserController(
       log.debug("updateUserPrimaryColor")
       val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.primaryColor = colorEnum
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -99,9 +98,9 @@ open class UserController(
       log.debug("updateUserSurfaceColor")
       val colorEnum = PrimeVueColors.fromValue(color)
       requireNotNull(colorEnum)
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.surfaceColor = colorEnum
-      return securityService.updateUser(request, user);
+      return securityService.updateUser(user);
     }
   }
 
@@ -119,9 +118,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.DarkMode.POST").use {
       log.debug("updateUserDarkMode")
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.darkMode = darkMode.bool
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -143,9 +142,9 @@ open class UserController(
       log.debug("updateUserFontSize")
       val fontSizeEnum = FontSize.fromValue(fontSize)
       requireNotNull(fontSizeEnum)
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.fontSize = fontSizeEnum
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -163,9 +162,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.RecentActivity.POST").use {
       log.debug("updateUserRecentActivity")
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.recentActivity = recentActivity
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -183,9 +182,9 @@ open class UserController(
   ): User {
     MetricsHelper.recordTime("API.User.Favourites.POST").use {
       log.debug("updateUserFavourites")
-      val user = securityService.getUser(request)
+      val user = securityService.getUser()
       user.favourites = favourites
-      return securityService.updateUser(request, user)
+      return securityService.updateUser(user)
     }
   }
 
@@ -205,12 +204,12 @@ open class UserController(
   ) {
     MetricsHelper.recordTime("API.User.Namespaces.POST").use {
       log.debug("updateUserNamespaces")
-      securityService.requiresPermission(Permission(Resource.USER, mutableListOf(UserRole.ADMIN), emptyList()), request)
-      if (!securityService.userExists(userId, request)) throw GeneralCustomException(
+      securityService.requiresPermission(Resource.USER, Action.UPDATE)
+      if (!securityService.userExists(userId)) throw GeneralCustomException(
         "user not found",
         HttpStatus.BAD_REQUEST
       )
-      securityService.updateUserNamespaces(userId, namespaces, request)
+      securityService.updateUserNamespaces(userId, namespaces)
     }
   }
 

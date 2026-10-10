@@ -14,13 +14,13 @@ import org.endeavourhealth.imapi.logic.service.SearchService;
 import org.endeavourhealth.imapi.logic.service.SecurityService;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.iml.Indicator;
-import org.endeavourhealth.imapi.model.iml.MatchMap;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.MatchDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryDisplayRequest;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.security.Permission;
+import org.endeavourhealth.imapi.model.security.Action;
 import org.endeavourhealth.imapi.model.security.Resource;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -296,7 +296,7 @@ public class QueryController {
   ) throws QueryException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.FindMissingArguments.POST")) {
       log.debug("findRequestMissingArguments");
-      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
+      securityService.requiresPermission(Resource.QUERY, Action.EXECUTE);
       return queryService.findMissingArguments(queryRequest);
     }
   }
@@ -309,7 +309,7 @@ public class QueryController {
   ) {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
       log.debug("getArgumentType");
-      securityService.requiresPermission(new Permission(Resource.QUERY, List.of(UserRole.EXECUTOR), List.of()), request);
+      securityService.requiresPermission(Resource.QUERY, Action.EXECUTE);
       return queryService.getArgumentType(referenceIri);
     }
   }
@@ -353,19 +353,14 @@ public class QueryController {
       return queryService.validateQuery(query);
     }
   }
-
-
-  @PostMapping("/semanticMapsForMatch")
-  @Operation(
-    summary = "optimises logical boolean of query",
-    description = "Returns the query and boolean optimisation"
-  )
-  public Set<TTEntity> semanticMapsForMatch(
-    @RequestBody MatchMap matchMap) {
-
-    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.GetQuery.POST")) {
-      log.debug("getSemanticMapsForSourceEntities");
-      return queryService.getSemanticMapsForMatch(matchMap);
+  @GetMapping("/semanticMaps")
+  @Operation(summary = "Get the list of semanticMaps for a source type")
+  public Set<TTEntity> getSemanticMaps(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
+      log.debug("getSemanticMaps");
+      return queryService.getSemanticMaps(iri);
     }
   }
 }

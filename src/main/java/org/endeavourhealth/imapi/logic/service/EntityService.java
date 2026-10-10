@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.DataMissingException;
-import org.endeavourhealth.imapi.logic.reasoner.LogicOptimizer;
+import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
+import org.endeavourhealth.imapi.logic.cache.ReferenceDataCache;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
@@ -35,6 +36,7 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 @Component
 public class EntityService {
   public static final int MAX_CHILDREN = 200;
+  public static final int MAX_USAGES = 200;
   private final EntityRepository entityRepository;
   private final EntityValidator validator = new EntityValidator();
   private final ObjectMapper mapper = new ObjectMapper();
@@ -181,12 +183,14 @@ public class EntityService {
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = pageIndex * pageSize;
 
-    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, pageSize).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
+    // an absent page size used to mean "every usage"; cap it so one request cannot load them all
+    Integer limit = pageSize != null ? pageSize : MAX_USAGES;
+    List<TTIriRef> usageRefs = entityRepository.getConceptUsages(iri, rowNumber, limit).stream().sorted(Comparator.comparing(TTIriRef::getName, Comparator.nullsLast(Comparator.naturalOrder()))).distinct().toList();
 
     usageRefs = usageRefs.stream().filter(usage -> !usage.getIri().equals(iri)).toList();
+    Map<String, TTArray> typesByIri = entityRepository.getTypesForEntities(usageRefs.stream().map(TTIriRef::getIri).toList());
     for (TTIriRef usage : usageRefs) {
-      TTArray type = getBundle(usage.getIri(), Collections.singleton(RDF.TYPE.toString())).getEntity().getType();
-      usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(type));
+      usageEntities.add(new TTEntity().setIri(usage.getIri()).setName(usage.getName()).setType(typesByIri.get(usage.getIri())));
     }
 
     return usageEntities;
@@ -502,7 +506,7 @@ public class EntityService {
   }
 
   public List<Namespace> getNamespaces() {
-    return entityRepository.findNamespaces();
+    return ReferenceDataCache.getNamespaces(entityRepository::findNamespaces);
   }
 
 
@@ -524,6 +528,10 @@ public class EntityService {
   }
 
   public FilterOptionsDto getFilterOptions() {
+    return ReferenceDataCache.getFilterOptions(this::loadFilterOptions);
+  }
+
+  private FilterOptionsDto loadFilterOptions() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
     filterOptions.setSchemes(getAllChildren(IM.ROOT_NAMESPACE));
     filterOptions.setStatus(getAllChildren(IM.STATUS));
@@ -534,6 +542,10 @@ public class EntityService {
   }
 
   public FilterOptionsDto getFilterDefaults() {
+    return ReferenceDataCache.getFilterDefaults(this::loadFilterDefaults);
+  }
+
+  private FilterOptionsDto loadFilterDefaults() {
     FilterOptionsDto filterOptions = new FilterOptionsDto();
     filterOptions.setStatus(getAllChildren(IM.STATUS_FILTER_DEFAULTS));
     filterOptions.setTypes(getAllChildren(IM.TYPE_FILTER_DEFAULTS));
@@ -579,6 +591,10 @@ public class EntityService {
 
   public Map<String, Entity> getIriDetails(Set<String> iris) {
     return entityRepository.getIriDetails(iris);
+  }
+
+  public Set<String> getMatchedTo(String iri, NAMESPACE namespace) {
+    return entityRepository.getMatchedTo(iri,namespace);
   }
 }
 

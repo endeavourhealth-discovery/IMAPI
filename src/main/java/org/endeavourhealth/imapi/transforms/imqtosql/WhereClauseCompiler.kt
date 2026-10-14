@@ -13,6 +13,8 @@ import org.endeavourhealth.imapi.model.sql.MySQLPropertyValueWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
+import org.endeavourhealth.imapi.model.sql.TABLE_PLACEHOLDER
+import org.endeavourhealth.imapi.model.sql.qualifyField
 import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
@@ -261,13 +263,13 @@ internal class WhereClauseCompiler(
           toProperty = pk
         )
       )
-      rawField = queryTypeOfTable.table + "." + rawField
+      rawField = qualifyField(queryTypeOfTable.table, rawField)
       return queryTypeOfTable to rawField
     }
 
     val field =
-      if (with.fromAlias != null && nodeRef == null && !rawField.contains(".") && !rawField.contains("(")) {
-        "${with.fromAlias}.$rawField"
+      if (with.fromAlias != null && nodeRef == null && (rawField.contains(TABLE_PLACEHOLDER) || !rawField.contains("."))) {
+        qualifyField(with.fromAlias, rawField)
       } else {
         rawField
       }
@@ -326,7 +328,7 @@ internal class WhereClauseCompiler(
           ?: right.propertyRef
           ?: throw SQLConversionException("No property found for relativeTo $nodeRef")
       }
-      return "${keptWith.alias}.$field"
+      return qualifyField(keptWith.alias, field)
     }
 
     var property = ""
@@ -345,8 +347,8 @@ internal class WhereClauseCompiler(
       }
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo $nodeRef")
-    if (nodeRefTable != null) return "${aliases.sanitiseAlias(nodeRef)}.$property"
-    return "`${nodeRef}`.${property}"
+    if (nodeRefTable != null) return qualifyField(aliases.sanitiseAlias(nodeRef), property)
+    return qualifyField("`$nodeRef`", property)
   }
 
   private fun addWhereConceptJoin(

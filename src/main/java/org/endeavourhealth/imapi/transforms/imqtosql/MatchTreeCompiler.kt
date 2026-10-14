@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.MySQLWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
+import org.endeavourhealth.imapi.model.sql.qualifyField
 
 /**
  * Compiles the IMQ match tree (and/or/is/notExists groups and individual matches) into an ordered list of CTEs.
@@ -387,7 +388,7 @@ internal class MatchTreeCompiler(
         if (field.join == null) continue
         val joinAlias = functionalJoinAlias(propIri, field)
         if (with.joins.any { it.tableToAlias == joinAlias }) {
-          with.selects.add(MySQLSelect("$joinAlias.${field.field}", propIri.substringAfterLast('#')))
+          with.selects.add(MySQLSelect(qualifyField(joinAlias, field.field), propIri.substringAfterLast('#')))
         }
       }
     } else {
@@ -408,7 +409,7 @@ internal class MatchTreeCompiler(
       val alias = propIri.substringAfterLast('#')
       if (with.selects.none { it.alias == alias }) {
         val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
-        with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.$field", alias))
+        with.selects.add(MySQLSelect(qualifyField(with.table.alias ?: with.table.table, field), alias))
       }
     }
   }

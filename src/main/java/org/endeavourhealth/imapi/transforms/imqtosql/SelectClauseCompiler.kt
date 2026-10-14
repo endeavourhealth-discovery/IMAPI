@@ -6,6 +6,7 @@ import org.endeavourhealth.imapi.model.imq.Return
 import org.endeavourhealth.imapi.model.imq.When
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.Table
+import org.endeavourhealth.imapi.model.sql.qualifyField
 import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
@@ -131,7 +132,7 @@ internal class SelectClauseCompiler(
       val operator = whenClause.operator?.value ?: "="
       val value = whenClause.value ?: throw SQLConversionException("When clause value is null")
 
-      return "$tableAlias.$field $operator ${SqlLiteralUtils.toSqlLiteral(value)}"
+      return "${qualifyField(tableAlias, field)} $operator ${SqlLiteralUtils.toSqlLiteral(value)}"
     }
 
     if (whenClause.compare != null || whenClause.range != null || whenClause.and != null || whenClause.or != null || whenClause.`is` != null || whenClause.isNull) {
@@ -169,7 +170,7 @@ internal class SelectClauseCompiler(
     if (expression.iri != null) {
       val field = getPropertyNameByTableAndPropertyIri(sourceTable, expression.iri).field
       val tableAlias = sourceTable.alias ?: sourceTable.table
-      return "$tableAlias.$field"
+      return qualifyField(tableAlias, field)
     }
 
     throw SQLConversionException("Unsupported CASE expression branch")
@@ -196,9 +197,9 @@ internal class SelectClauseCompiler(
             "Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}"
           )
         val resolved = getPropertyNameByTableAndPropertyIri(currentTable, arg.valuePath.iri).field
-        "${currentTable.alias}.$resolved"
+        qualifyField(currentTable.alias, resolved)
       } else {
-        getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
+        qualifyField(null, getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field)
       }
 
       if (field.isEmpty()) {
@@ -240,7 +241,7 @@ internal class SelectClauseCompiler(
         ?: throw SQLConversionException("No table exists for ${returnProperty.iri}")
 
       val property = getPropertyNameByTableAndPropertyIri(currentTable, returnProperty.iri)
-      val field = "${currentTable.alias ?: currentTable.table}.${property.field}"
+      val field = qualifyField(currentTable.alias ?: currentTable.table, property.field)
       selects.add(MySQLSelect(field, returnProperty.`as`))
       return
     }
@@ -249,7 +250,7 @@ internal class SelectClauseCompiler(
     val tableRef =
       if (property.join != null) functionalJoinAlias(returnProperty.iri, property)
       else currentWithTable.alias ?: currentWithTable.table
-    val field = "$tableRef.${property.field}"
+    val field = qualifyField(tableRef, property.field)
     selects.add(MySQLSelect(field, returnProperty.`as`))
   }
 }

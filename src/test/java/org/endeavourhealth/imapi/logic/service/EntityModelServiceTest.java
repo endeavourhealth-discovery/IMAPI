@@ -25,6 +25,9 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -415,5 +418,39 @@ class EntityModelServiceTest {
     when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
     TTDocument actual = entityService.getConceptList(Collections.singletonList("http://endhealth.info/im#25451000252115"));
     assertNotNull(actual);
+  }
+
+  @Test
+  void usages_typesAreLoadedInOneBatch() {
+    String iri = "http://endhealth.info/im#25451000252115";
+    when(entityRepository.getByNamespace(any())).thenReturn(Collections.emptySet());
+    when(entityRepository.getConceptUsages(eq(iri), eq(0), eq(10))).thenReturn(Arrays.asList(
+      new TTIriRef("http://example.org/a", "A"),
+      new TTIriRef("http://example.org/b", "B"),
+      new TTIriRef(iri, "Self")));
+    TTArray typesOfA = new TTArray().add(new TTIriRef("http://endhealth.info/im#Concept", "Concept"));
+    when(entityRepository.getTypesForEntities(argThat(c -> c.size() == 2 && c.contains("http://example.org/a") && c.contains("http://example.org/b"))))
+      .thenReturn(java.util.Map.of("http://example.org/a", typesOfA));
+
+    List<TTEntity> actual = entityService.usages(iri, 0, 10);
+
+    assertEquals(2, actual.size());
+    assertEquals("http://example.org/a", actual.get(0).getIri());
+    assertEquals(typesOfA, actual.get(0).getType());
+    assertNull(actual.get(1).getType());
+    verify(entityRepository, never()).getBundle(anyString(), any());
+    verify(entityRepository, times(1)).getTypesForEntities(any());
+  }
+
+  @Test
+  void usages_missingPageSizeIsCapped() {
+    String iri = "http://endhealth.info/im#25451000252115";
+    when(entityRepository.getByNamespace(any())).thenReturn(Collections.emptySet());
+    when(entityRepository.getConceptUsages(eq(iri), eq(0), eq(EntityService.MAX_USAGES))).thenReturn(Collections.emptyList());
+    when(entityRepository.getTypesForEntities(any())).thenReturn(java.util.Map.of());
+
+    assertTrue(entityService.usages(iri, null, null).isEmpty());
+
+    verify(entityRepository).getConceptUsages(iri, 0, EntityService.MAX_USAGES);
   }
 }

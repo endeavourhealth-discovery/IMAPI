@@ -1,0 +1,4 @@
+# The vocabulary classes are written by the staticConstGenerator Gradle task (see vocab.json), which emits mixed CRLF/LF
+# line endings. Git does not convert mixed files under core.autocrlf=true, so every regeneration showed up as a change
+# to ~30 files. Forcing LF normalises them, and a regeneration with unchanged content produces no diff.
+src/main/java/org/endeavourhealth/imapi/vocabulary/*.java text eol=lf

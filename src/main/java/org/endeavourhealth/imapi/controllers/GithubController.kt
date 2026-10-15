@@ -2,16 +2,14 @@ package org.endeavourhealth.imapi.controllers
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.HttpServletRequest
 import org.endeavourhealth.imapi.logic.service.GithubService
 import org.endeavourhealth.imapi.logic.service.SecurityService
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException
 import org.endeavourhealth.imapi.model.github.GithubRelease
 import org.endeavourhealth.imapi.model.github.REPO
 import org.endeavourhealth.imapi.model.postRequestPrimatives.REPOBody
-import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Action
 import org.endeavourhealth.imapi.model.security.Resource
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
@@ -59,16 +57,10 @@ class GithubController(
   )
   @PostMapping(value = ["/private/updateGithubConfig"])
   @Throws(IOException::class, InterruptedException::class)
-  fun updateGithubConfig(request: HttpServletRequest, @RequestBody repoBody: REPOBody) {
+  fun updateGithubConfig(@RequestBody repoBody: REPOBody) {
     MetricsHelper.recordTime("API.Config.githubConfig.UPDATE").use {
       log.debug("updateGithubConfig")
-      securityService.requiresPermission(
-        Permission(
-          Resource.GITHUB,
-          mutableListOf(UserRole.ADMIN),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.GITHUB, Action.UPDATE)
       githubService.updateGithubConfig(repoBody.repo)
     }
   }

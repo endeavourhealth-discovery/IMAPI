@@ -11,26 +11,35 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
+/**
+ * Facade over shared, never-reconfigured ObjectMappers (one per inclusion setting; default NON_EMPTY).
+ * ObjectMapper is thread-safe once configured, so instances are no longer pooled or borrowed. Calling
+ * setSerializationInclusion switches this instance to the shared mapper for that inclusion rather than
+ * mutating a mapper that other callers use. close() is kept so existing try-with-resources callers still compile.
+ */
 public class CachedObjectMapper implements AutoCloseable {
 
-  private static final Deque<ObjectMapper> pool = new ArrayDeque<>();
+  private static final Map<JsonInclude.Include, ObjectMapper> MAPPERS = new ConcurrentHashMap<>();
 
-  private final ObjectMapper objectMapper;
+  private ObjectMapper objectMapper = forInclusion(JsonInclude.Include.NON_EMPTY);
 
-  public CachedObjectMapper() {
-    objectMapper = pop();
+  private static ObjectMapper forInclusion(JsonInclude.Include incl) {
+    return MAPPERS.computeIfAbsent(incl, i -> {
+      ObjectMapper om = new ObjectMapper();
+      om.setDefaultPropertyInclusion(i);
+      return om;
+    });
   }
 
   @Override
   public void close() {
-    objectMapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
-    push(objectMapper);
+    // nothing to release: the underlying mappers are shared
   }
 
   public <T> T readValue(String content, Class<T> valueType) throws JsonProcessingException {
@@ -49,25 +58,8 @@ public class CachedObjectMapper implements AutoCloseable {
     return objectMapper.writeValueAsString(value);
   }
 
-  private void push(ObjectMapper objectMapper) {
-    synchronized (pool) {
-      pool.push(objectMapper);
-    }
-  }
-
-  private ObjectMapper pop() {
-    synchronized (pool) {
-      if (!pool.isEmpty()) return pool.pop();
-      else {
-        ObjectMapper om = new ObjectMapper();
-        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
-        return om;
-      }
-    }
-  }
-
   public void setSerializationInclusion(JsonInclude.Include incl) {
-    objectMapper.setSerializationInclusion(incl);
+    objectMapper = forInclusion(incl);
   }
 
   public ObjectWriter writerWithDefaultPrettyPrinter() {

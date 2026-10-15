@@ -1,0 +1,32 @@
+{
+  "query" : {
+    "bool" : {
+      "minimum_should_match" : "1",
+      "should" : [ {
+        "term" : {
+          "code" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "alternativeCode" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "iri" : {
+            "value" : "FOXG1"
+          }
+        }
+      }, {
+        "term" : {
+          "termCode.code" : {
+            "value" : "FOXG1"
+          }
+        }
+      } ]
+    }
+  }
+}

@@ -9,24 +9,26 @@ import java.util.*;
 public class LogicOptimizer {
   final ObjectMapper mapper = new ObjectMapper();
   Set<String> commonMatches;
-  private Map<String, Integer> asMap;
+  public static final Map<String, Integer> asMap= new HashMap<>();
   private int matchCounter = 0;
+  public static final int MAX_AS_LENGTH = 63;
+  private static final String TRUNCATED = "_etc";
 
 
 
   public void resolveLogic(Query query, DisplayMode displayMode) throws QueryException {
-    asMap = new HashMap<>();
+    asMap.clear();
     try {
       if (displayMode == DisplayMode.LOGICAL) {
         getLogicFromRules(query);
         optimiseMatch(query);
         flattenMatch(query);
-        operationalise(query,null);
+        operationalise(query);
       }
       else if (displayMode == DisplayMode.EDIT) {
         getLogicFromRules(query);
         optimiseMatch(query);
-        operationalise(query,null);
+        operationalise(query);
       }
       else {
         optimiseMatch(query);
@@ -37,74 +39,102 @@ public class LogicOptimizer {
     }
   }
 
-  private void operationalise(Query query,Query parent) {
-    if (query.getFrom()!=null){
-      query.setFrom(cte(query.getFrom()));
-    }
+  private void operationalise(Query query) {
     if (query.getAnd() != null) {
       for (int i = 0; i < query.getAnd().size(); i++) {
         Query subQuery = query.getAnd().get(i);
-        operationalise(subQuery,i>0?query.getAnd().get(i-1):null);
+        operationalise(subQuery);
       }
     }
     if (query.getOr() != null) {
       for (int i = 0; i < query.getOr().size(); i++) {
         Query subQuery = query.getOr().get(i);
-        operationalise(subQuery,null);
+        operationalise(subQuery);
       }
     }
     if (query.getOrderBy()!=null||query.getWhere()!=null||query.getIs()!=null) {
-      setAs(query,parent);
+      setAs(query);
     }
     if (query.getThen()!=null) {
-      operationalise(query.getThen(),query);
+      operationalise(query.getThen());
+    }
+    if (query.getColumnGroup()!=null) {
+      for (Query columnGroup : query.getColumnGroup()) {
+        operationalise(columnGroup);
+        if (columnGroup.getAs()==null) {
+          String name = columnGroup.getName()!=null ? columnGroup.getName() : "column_group";
+          columnGroup.setAs(getUniqueAs(name));
+        }
+      }
     }
   }
-  private String negative(Query query) {
+  private static String negative(Query query) {
     if (query.isNotExists()) return "not_";
     else return "";
   }
 
 
-  private void setAs(Query query, Query parent) {
-    String negative=negative(query);
+  public static void setAs(Query query) {
     if (query.getAs()!=null) {
-      query.setAs(cte(negative+query.getAs()));
+      asMap.put(query.getAs(), 1);
       return;
     }
+    String negative=negative(query);
     String keepAs="";
-    if (query.getIs()!=null){
-      keepAs=cte(query.getIs().getName());
-      query.setAs(getUniqueAs(negative+keepAs));
-      return;
+    if (query.getIs()!=null&&(query.getIs().getName()!=null||query.getIs().getIri()!=null)){
+      String isName = query.getIs().getName()!=null ? query.getIs().getName()
+        : query.getIs().getIri().substring(query.getIs().getIri().lastIndexOf('#')+1);
+      keepAs=isName;
     }
-    if (query.getWhere() != null) {
-      keepAs = createAs(query);
-      query.setAs(getUniqueAs(negative+keepAs));
+    else if (query.getWhere() != null) {
+      keepAs = createWhereAs(query.getWhere());
+    }
+    else {
+      keepAs = "match_";
     }
 
     if (query.getFrom()!=null) {
-      query.setAs(getUniqueAs(cte(query.getFrom()+"_"+keepAs)));
+      keepAs="then_"+keepAs;
     }
-    else if (query.getOrderBy() != null) {
+    if (query.getOrderBy() != null) {
       Order direction = query.getOrderBy().getProperty().getFirst().getDirection();
-      query.setAs(getUniqueAs(negative+ (direction == Order.descending ? "Latest_"
-        + parent.getAs() : "Earliest_" + parent.getAs()+"_"+keepAs)));
+      keepAs= (direction == Order.descending ? "Latest_"
+        : "Earliest_")+keepAs;
     }
+    query.setAs(getUniqueAs(cte(negative+keepAs)));
   }
 
-  private String getUniqueAs(String as){
-    if (asMap.get(as)==null){
-      asMap.put(as,1);
-      return as;
+
+  public static String getUniqueAs(String as){
+    as= cte(as);
+    String base = limitAs(as, MAX_AS_LENGTH);
+    Integer count = asMap.get(base);
+    if (count == null) {
+      asMap.put(base, 1);
+      return base;
     }
-    else {
-      asMap.put(as,asMap.get(as)+1);
-      return as+"_"+asMap.get(as);
-    }
+    String unique;
+    do {
+      count++;
+      String suffix = "_" + count;
+      unique = limitAs(base, MAX_AS_LENGTH - suffix.length()) + suffix;
+    } while (asMap.containsKey(unique));
+    asMap.put(base, count);
+    asMap.put(unique, 1);
+    return unique;
   }
 
-  private String createAs(Where where) {
+  /**
+   * Truncates an alias to at most maxLength characters, marking truncation with "_etc"
+   */
+  public static String limitAs(String as, int maxLength) {
+    if (as == null || as.length() <= maxLength) return as;
+    String trimmed = as.substring(0, maxLength - TRUNCATED.length());
+    while (trimmed.endsWith("_")) trimmed = trimmed.substring(0, trimmed.length() - 1);
+    return trimmed + TRUNCATED;
+  }
+
+  private static String createWhereAs(Where where) {
 
     if (where.getAnd()==null&&where.getOr()==null) {
       return cte(WhereAsGenerator.getWhereAs(where));
@@ -114,33 +144,27 @@ public class LogicOptimizer {
         if (wheres != null) {
           List<String> asList = new ArrayList<>();
           for (Where subWhere : wheres) {
-            String subAs = createAs(subWhere);
+            String subAs = createWhereAs(subWhere);
             asList.add(subAs);
           }
           return String.join("_", asList);
         }
       }
     }
-    return null;
+    return cte("where_");
 }
 
-  private String createAs(Query query) {
-    StringBuilder keepAs = new StringBuilder();
-    if (query.getIs()!=null){
-      return cte(query.getIs().getName());
-    }
-    if (query.getWhere() != null) {
-      return createAs(query.getWhere());
-    }
-    matchCounter++;
-      keepAs.append("match").append(matchCounter);
-    return cte(keepAs.toString());
-  }
 
-  public static String cte(String string) {
-    return string.toLowerCase(Locale.ROOT)
+  private static String cte(String string) {
+    String as= string
       .replaceAll("[^a-zA-Z0-9]", "_")
       .replaceAll("_+", "_");
+    if (as.length()>40){
+      as=as.substring(0,40)+"_etc";
+    }
+    if (as.startsWith("_")) as=as.substring(1);
+    if (as.endsWith("_")) as=as.substring(0,as.length()-1);
+    return as;
   }
 
 
@@ -486,16 +510,21 @@ public class LogicOptimizer {
         flatAnds.add(subQuery);
         flatAnds.add(thenQuery);
         flattenMatch(thenQuery);
+        continue;
       }
       if (subQuery.getThen()!=null && subQuery.isNotExists()) {
         Query thenQuery = subQuery.getThen();
         Query notExists= new Query();
         notExists.setNotExists(true);
         flatAnds.add(notExists);
+        subQuery.setNotExists(false);
         notExists.addAnd(subQuery);
         notExists.addAnd(thenQuery);
+        subQuery.setNotExists(false);
         subQuery.setThen(null);
         flattenMatch(thenQuery);
+        continue;
+
       }
       if (subQuery.getAnd() == null) {
         flatAnds.add(subQuery);
@@ -517,11 +546,13 @@ public class LogicOptimizer {
         Query thenQuery = subQuery.getThen();
         Query andQuery = new Query();
         andQuery.setNotExists(subQuery.isNotExists());
+        subQuery.setNotExists(false);
         flatOrs.add(andQuery);
         andQuery.addAnd(subQuery);
         subQuery.setThen(null);
         andQuery.addAnd(thenQuery);
         flattenMatch(thenQuery);
+        continue;
       }
       if (subQuery.getOr() == null) {
         flatOrs.add(subQuery);
@@ -687,6 +718,68 @@ public class LogicOptimizer {
     query.setOr(null);
   }
 
+  public static void injectRelativeToReturns(Query query) {
+    Map<String, Set<String>> referenced = new HashMap<>();
+    collectRelativeToRefs(query, referenced);
+    if (!referenced.isEmpty()) injectGroupReturns(query, referenced);
+  }
 
+  private static void collectRelativeToRefs(Query query, Map<String, Set<String>> referenced) {
+    if (query == null) return;
+    if (query.getWhere() != null) {
+      collectRelativeToRefs(query.getWhere(), referenced);
+      if (query.getFrom() != null) collectFromWhereRefs(query.getFrom(), query.getWhere(), referenced);
+    }
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(), query.getColumnGroup())) {
+      if (queries != null) queries.forEach(subQuery -> collectRelativeToRefs(subQuery, referenced));
+    }
+    collectRelativeToRefs(query.getThen(), referenced);
+  }
 
+  private static void collectRelativeToRefs(Where where, Map<String, Set<String>> referenced) {
+    if (where.getCompare() != null && where.getCompare().getRight() != null) {
+      ValueSource right = where.getCompare().getRight();
+      if (right.getNodeRef() != null && right.getIri() != null) {
+        referenced.computeIfAbsent(right.getNodeRef(), k -> new LinkedHashSet<>()).add(right.getIri());
+      }
+    }
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) wheres.forEach(subWhere -> collectRelativeToRefs(subWhere, referenced));
+    }
+  }
+
+  /** Properties a 'from' match filters on must be carried out of the group it reads from. */
+  private static void collectFromWhereRefs(String from, Where where, Map<String, Set<String>> referenced) {
+    String nodeRef = where.getCompare() != null && where.getCompare().getLeft() != null
+      ? where.getCompare().getLeft().getNodeRef() : where.getNodeRef();
+    String iri = where.getCompare() != null && where.getCompare().getLeft() != null && where.getCompare().getLeft().getIri() != null
+      ? where.getCompare().getLeft().getIri() : where.getIri();
+    if (nodeRef == null && iri != null) {
+      referenced.computeIfAbsent(from, k -> new LinkedHashSet<>()).add(iri);
+    }
+    for (List<Where> wheres : Arrays.asList(where.getAnd(), where.getOr())) {
+      if (wheres != null) wheres.forEach(subWhere -> collectFromWhereRefs(from, subWhere, referenced));
+    }
+  }
+
+  private static void injectGroupReturns(Query query, Map<String, Set<String>> referenced) {
+    if (query == null) return;
+    if (query.getOr() != null && query.getAs() != null) {
+      Set<String> iris = referenced.getOrDefault(query.getAs(), referenced.get(cte(query.getAs())));
+      if (iris != null) iris.forEach(iri -> injectReturn(query, iri));
+    }
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(), query.getColumnGroup())) {
+      if (queries != null) queries.forEach(subQuery -> injectGroupReturns(subQuery, referenced));
+    }
+    injectGroupReturns(query.getThen(), referenced);
+  }
+
+  private static void injectReturn(Query query, String iri) {
+    if (query.getReturn() != null && query.getReturn().stream().anyMatch(ret -> iri.equals(ret.getIri()))) return;
+    query.addReturn(new Return().setIri(iri));
+  }
+
+  public static void clearAsMap() {
+    asMap.clear();
+  }
 }

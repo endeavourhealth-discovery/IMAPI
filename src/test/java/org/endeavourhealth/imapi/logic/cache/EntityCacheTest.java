@@ -174,4 +174,47 @@ class EntityCacheTest {
     EntityCache.setPredicateOrder("http://example.org/e1", order);
     assertThat(EntityCache.getPredicateOrder("http://example.org/e1")).isEqualTo(order);
   }
+
+  @Test
+  void addPredicateName_NullNameIsIgnored() {
+    EntityCache.addPredicateName("http://example.org/p1", "Name 1");
+    EntityCache.addPredicateName("http://example.org/p1", null);
+    EntityCache.addPredicateName("http://example.org/p2", null);
+
+    assertThat(EntityCache.getPredicateName("http://example.org/p1")).isEqualTo("Name 1");
+    assertThat(EntityCache.getPredicateName("http://example.org/p2")).isNull();
+  }
+
+  @Test
+  void concurrentReadsAndWrites_doNotFail() throws Exception {
+    int threads = 8;
+    int iterations = 2000;
+    java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+    java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+    List<java.util.concurrent.Future<?>> futures = new java.util.ArrayList<>();
+    for (int t = 0; t < threads; t++) {
+      final int id = t;
+      futures.add(pool.submit(() -> {
+        start.await();
+        for (int i = 0; i < iterations; i++) {
+          String iri = "http://example.org/e" + id + "_" + i;
+          EntityCache.addEntity(new TTEntity(iri));
+          EntityCache.addShape(new TTEntity(iri));
+          EntityCache.addProperty(new TTEntity(iri));
+          EntityCache.addPredicateName(iri, "Name " + i);
+          EntityCache.setPredicateOrder(iri, List.of(iri(iri)));
+          EntityCache.getPredicateName("http://example.org/e" + ((id + 1) % threads) + "_" + i);
+          EntityCache.getPredicateOrder(iri);
+          EntityCache.getShapes().size();
+        }
+        return null;
+      }));
+    }
+    start.countDown();
+    for (java.util.concurrent.Future<?> f : futures) f.get(60, java.util.concurrent.TimeUnit.SECONDS);
+    pool.shutdown();
+
+    assertThat(EntityCache.getShapes()).hasSize(threads * iterations);
+    assertThat(EntityCache.getPredicateNames()).hasSize(threads * iterations);
+  }
 }

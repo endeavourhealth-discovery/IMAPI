@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import ca.uhn.fhir.context.FhirContext;
+import org.endeavourhealth.imapi.utility.FhirContextHolder;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
@@ -60,7 +61,7 @@ public class FhirService {
     expansion.setContains(contains);
     result.setExpansion(expansion);
 
-    FhirContext ctx = FhirContext.forR4();
+    FhirContext ctx = FhirContextHolder.r4();
     IParser parser = ctx.newJsonParser();
 
     return parser.encodeResourceToString(result);

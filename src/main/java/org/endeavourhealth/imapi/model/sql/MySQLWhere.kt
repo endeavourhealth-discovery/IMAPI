@@ -85,7 +85,7 @@ class MySQLCompareWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base =
         if (units != null) {
           when (units) {
@@ -123,7 +123,7 @@ class MySQLPropertyValueWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = if (qualifier != null) {
         when (qualifier) {
           "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value)))"
@@ -142,6 +142,7 @@ class MySQLNotExistsWhere(
   val outerKey: String,
   val innerTable: String,
   val innerKey: String,
+  val innerWheres: List<MySQLWhere> = emptyList(),
   override val args: Map<String, String>? = null,
   override var and: MutableList<MySQLWhere>? = null,
   override var or: MutableList<MySQLWhere>? = null,
@@ -153,8 +154,11 @@ class MySQLNotExistsWhere(
     get() {
       val outer = outerTable.trim('`')
       val inner = innerTable.trim('`')
-      val base = "NOT EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )"
-      return if (not == true) "EXISTS (\n    SELECT 1 FROM `$inner`\n    WHERE `$outer`.$outerKey = `$inner`.$innerKey\n  )" else base
+      // a schema-qualified table is referenced as-is; a CTE alias is quoted
+      val innerRef = if (inner.contains('.')) inner else "`$inner`"
+      val conditions = listOf("`$outer`.$outerKey = $innerRef.$innerKey") + innerWheres.map { it.toSql() }
+      val body = "(\n    SELECT 1 FROM $innerRef\n    WHERE ${conditions.joinToString(" AND ")}\n  )"
+      return if (not == true) "EXISTS $body" else "NOT EXISTS $body"
     }
 }
 
@@ -168,9 +172,9 @@ class MySQLPropertyIsNullWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = "$prop IS NULL"
-      return if (not == true) "$property IS NOT NULL" else base
+      return if (not == true) "$prop IS NOT NULL" else base
     }
 }
 
@@ -189,7 +193,7 @@ class MySQLPropertyRangeWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = "$prop $operator $value AND $prop $operator2 $value2"
       return if (not == true) "NOT ($base)" else base
     }

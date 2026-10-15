@@ -1,0 +1,50 @@
+{
+  "from" : 50.0,
+  "query" : {
+    "bool" : {
+      "must" : [ {
+        "nested" : {
+          "inner_hits" : {
+            "_source" : {
+              "includes" : [ "termCode.term" ]
+            }
+          },
+          "path" : "termCode",
+          "query" : {
+            "bool" : {
+              "must" : [ {
+                "match" : {
+                  "termCode.term" : {
+                    "analyzer" : "standard",
+                    "fuzziness" : "0",
+                    "operator" : "AND",
+                    "query" : "heart"
+                  }
+                }
+              }, {
+                "exists" : {
+                  "field" : "termCode.length"
+                }
+              } ],
+              "should" : [ {
+                "script_score" : {
+                  "query" : {
+                    "match_all" : { }
+                  },
+                  "script" : {
+                    "params" : {
+                      "term" : "heart"
+                    },
+                    "source" : "double s= 100000; if (doc['termCode.term.keyword'].value.toLowerCase().startsWith(params.term)) s=200000; return s - doc['termCode.length'].value"
+                  }
+                }
+              } ]
+            }
+          },
+          "score_mode" : "max"
+        }
+      } ]
+    }
+  },
+  "size" : 10.0
+}

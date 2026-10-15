@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.dataaccess.DataModelRepository;
@@ -11,7 +12,7 @@ import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.model.iml.Indicator;
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
-import org.endeavourhealth.imapi.transforms.IMQtoSQLConverterKotlin;
+import org.endeavourhealth.imapi.transforms.imqtosql.IMQtoSQLConverterKotlin;
 import org.endeavourhealth.imapi.model.sql.SubQueryDependency;
 import org.endeavourhealth.imapi.model.tripletree.*;
 import org.endeavourhealth.imapi.queryengine.QueryDescriptor;
@@ -51,7 +52,7 @@ public class QueryService {
       String denominator = bundle.getEntity().get(IM.DENOMINATOR).getElements().getFirst().asIriRef().getIri();
       String numerator = bundle.getEntity().get(IM.NUMERATOR).getElements().getFirst().asIriRef().getIri();
       String dataset = bundle.getEntity().get(IM.HAS_DATASET).getElements().getFirst().asIriRef().getIri();
-      return new IMQtoSQLConverterKotlin(queryRequest, new ObjectMapper(), denominator, numerator, dataset).getSql();
+      return new IMQtoSQLConverterKotlin(queryRequest, SharedObjectMapper.INSTANCE, denominator, numerator, dataset).getSql();
     }
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
     return new IMQtoSQLConverterKotlin(queryRequestForSql).getSql();
@@ -66,7 +67,7 @@ public class QueryService {
   public String getSQLPatientTraceFromIMQIri(String queryIri, String patientId, DatabaseOption lang) throws JsonProcessingException, SQLConversionException {
     QueryRequest queryRequest = new QueryRequest().setQuery(new Query().setIri(queryIri)).setLanguage(lang);
     QueryRequest queryRequestForSql = getQueryRequestForSqlConversion(queryRequest);
-    return new IMQtoSQLConverterKotlin(queryRequestForSql, new ObjectMapper(), null, null, null, patientId).getSql();
+    return new IMQtoSQLConverterKotlin(queryRequestForSql, SharedObjectMapper.INSTANCE, null, null, null, patientId).getSql();
   }
 
   public QueryRequest getQueryRequestForSqlConversion(QueryRequest queryRequest) throws SQLConversionException, JsonProcessingException {
@@ -89,9 +90,9 @@ public class QueryService {
       query = queryRequest.getQuery();
     }
     try {
-      IMQtoSQLConverterKotlin.preassignOrderByAs(query);
-      new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
+      query = describeQuery(query, DisplayMode.LOGICAL);
       LogicOptimizer.optimiseAgeWheres(query);
+      LogicOptimizer.injectRelativeToReturns(query);
     } catch (Exception e) {
       throw new SQLConversionException(e.getMessage(), e);
     }
@@ -304,43 +305,37 @@ public class QueryService {
   }
 
 
-
-
-
-
   public void checkDependency(TTEntity report, Query query) {
     if (query.getRule() != null) {
       for (Query subQuery : query.getRule()) {
         if (subQuery.getIs() != null) {
           Node node = subQuery.getIs();
-          report.addObject(iri(IM.DEPENDENT_ON),iri(node.getIri()));
+          report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
         }
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getColumnGroup() != null) {
       for (Query subQuery : query.getColumnGroup()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getAnd() != null) {
       for (Query subQuery : query.getAnd()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getOr() != null) {
       for (Query subQuery : query.getOr()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
     if (query.getEach() != null) {
       for (Query subQuery : query.getEach()) {
-        checkDependency(report,subQuery);
+        checkDependency(report, subQuery);
       }
     }
   }
-
-
 
 
 }

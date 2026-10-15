@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import jakarta.servlet.http.HttpServletRequest
 import org.endeavourhealth.imapi.dataaccess.WorkflowRepository
 import org.endeavourhealth.imapi.errorhandling.UserNotFoundException
 import org.endeavourhealth.imapi.filer.TaskFilerException
@@ -35,8 +34,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateBugReport(bugReport: BugReport, request: HttpServletRequest) {
-    val user = securityService.getUser(request)
+  fun updateBugReport(bugReport: BugReport) {
+    val user = securityService.user
     if (user.username != bugReport.createdBy) throw TaskFilerException("User does not have permission to update bug report")
     val id = requireNotNull(bugReport.id) { "Id is required" }
     val originalBugReport = getBugReport(id.iri)
@@ -134,7 +133,7 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class)
-  fun deleteTask(id: String?) {
+  fun deleteTask(id: String) {
     workflowRepository.deleteTask(id)
   }
 
@@ -154,8 +153,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateRoleRequest(roleRequest: RoleRequest, request: HttpServletRequest) {
-    val user = securityService.getUser(request)
+  fun updateRoleRequest(roleRequest: RoleRequest) {
+    val user = securityService.user
     if (user.username != roleRequest.createdBy) throw TaskFilerException("User does not have permission to update role request")
     val id = requireNotNull(roleRequest.id) { "Id is required" }
     val originalRoleRequest = requireNotNull(getRoleRequest(id.iri))
@@ -170,8 +169,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun approveRoleRequest(request: HttpServletRequest, roleRequest: RoleRequest) {
-    val user = securityService.getUser(request)
+  fun approveRoleRequest(roleRequest: RoleRequest) {
+    val user = securityService.user
     val id = requireNotNull(roleRequest.id) { "Id is required" }
     // TODO
     // new AWSCognitoClient().adminAddUserToGroup(roleRequest.getCreatedBy(), roleRequest.getRole());
@@ -192,8 +191,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun rejectRoleRequest(request: HttpServletRequest, roleRequest: RoleRequest) {
-    val user = securityService.getUser(request)
+  fun rejectRoleRequest(roleRequest: RoleRequest) {
+    val user = securityService.user
     val id = requireNotNull(roleRequest.id) { "Id is required" }
     workflowRepository.update(
       id.iri,
@@ -216,35 +215,37 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateNamespaceRequest(namespaceRequest: NamespaceRequest, request: HttpServletRequest) {
-    val user = securityService.getUser(request)
+  fun updateNamespaceRequest(namespaceRequest: NamespaceRequest) {
+    val user = securityService.user
     if (user.username != namespaceRequest.createdBy) throw TaskFilerException("User does not have permission to update namespace request")
     val id = requireNotNull(namespaceRequest.id) { "Id is required" }
+    val originalNamespaceRequest = requireNotNull(getNamespaceRequest(id.iri))
     val namespacePermission =
       requireNotNull(namespaceRequest.namespacePermission) { "Namespace permission is required" }
-    val originalNamespaceRequest =
-      requireNotNull(getNamespaceRequest(id.iri)) { "Failed to update namespace request" }
-    val originalNamespacePermission = requireNotNull(originalNamespaceRequest.namespacePermission)
+    val originalNamespacePermission =
+      requireNotNull(originalNamespaceRequest.namespacePermission) { "Namespace permission is required" }
     if ((originalNamespacePermission.iri != namespacePermission.iri) || !originalNamespacePermission.read == namespacePermission.read || !originalNamespacePermission.write == namespacePermission.write) workflowRepository.update(
       id.iri,
       WORKFLOW.REQUESTED_NAMESPACE,
-      objectMapper.writeValueAsString(originalNamespacePermission),
-      objectMapper.writeValueAsString(namespacePermission),
+      objectMapper.writeValueAsString(originalNamespaceRequest.namespacePermission),
+      objectMapper.writeValueAsString(namespaceRequest.namespacePermission),
       user.id
     )
     updateTask(namespaceRequest, user.id)
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun approveNamespaceRequest(request: HttpServletRequest, namespaceRequest: NamespaceRequest) {
-    val user = securityService.getUser(request)
-    val namespaces: MutableList<NamespacePermission> = user.namespaces.toMutableList()
-    val namespacePermission =
-      requireNotNull(namespaceRequest.namespacePermission) { "namespace permissions is required" }
+  fun approveNamespaceRequest(namespaceRequest: NamespaceRequest) {
+    val user = securityService.user
+    // The requested access is granted to the user who asked for it, not to the approver
+    val createdBy = requireNotNull(namespaceRequest.createdBy) { "createdBy is required" }
+    val requester = securityService.getUserByUsername(createdBy)
+    val requested = requireNotNull(namespaceRequest.namespacePermission) { "Namespace permission is required" }
+    val namespaces: MutableList<NamespacePermission> = requester.namespaces.toMutableList()
     val id = requireNotNull(namespaceRequest.id) { "Id is required" }
-    if (!namespaces.contains(namespacePermission)) {
-      namespaces.add(namespacePermission)
-      securityService.updateUserNamespaces(user.id, namespaces, request)
+    if (!namespaces.contains(requested)) {
+      namespaces.add(requested)
+      securityService.updateUserNamespaces(requester.id, namespaces)
     }
     workflowRepository.update(
       id.iri,
@@ -263,8 +264,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun rejectNamespaceRequest(request: HttpServletRequest, namespaceRequest: NamespaceRequest) {
-    val user = securityService.getUser(request)
+  fun rejectNamespaceRequest(namespaceRequest: NamespaceRequest) {
+    val user = securityService.user
     val id = requireNotNull(namespaceRequest.id) { "Id is required" }
     workflowRepository.update(
       id.iri,
@@ -287,8 +288,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateEntityApproval(entityApproval: EntityApproval, request: HttpServletRequest) {
-    val user = securityService.getUser(request)
+  fun updateEntityApproval(entityApproval: EntityApproval) {
+    val user = securityService.user
     if (user.username != entityApproval.createdBy) throw TaskFilerException("User does not have permission to update entity approval")
     val id = requireNotNull(entityApproval.id) { "Id is required" }
     val originalEntityApproval = requireNotNull(getEntityApproval(id.iri)) { "Failed to update entity approval" }
@@ -303,8 +304,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun approveEntityApproval(request: HttpServletRequest, entityApproval: EntityApproval) {
-    val user = securityService.getUser(request)
+  fun approveEntityApproval(entityApproval: EntityApproval) {
+    val user = securityService.user
     val id = requireNotNull(entityApproval.id) { "Id is required" }
     //TODO entity draft replace active
     workflowRepository.update(
@@ -324,8 +325,8 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, JsonProcessingException::class, UserNotFoundException::class)
-  fun rejectEntityApproval(request: HttpServletRequest, entityApproval: EntityApproval) {
-    val user = securityService.getUser(request)
+  fun rejectEntityApproval(entityApproval: EntityApproval) {
+    val user = securityService.user
     val id = requireNotNull(entityApproval.id) { "Id is required" }
     workflowRepository.update(
       id.iri,
@@ -337,7 +338,7 @@ class WorkflowService {
   }
 
   @Throws(TaskFilerException::class, UserNotFoundException::class)
-  fun updateTask(task: Task, userId: String?) {
+  fun updateTask(task: Task, userId: String) {
     val id = requireNotNull(task.id) { "Id is required" }
     val originalTask = requireNotNull(getTask(id.iri)) { "Failed to update task" }
     if (task.type != originalTask.type) workflowRepository.update(

@@ -3,7 +3,6 @@ package org.endeavourhealth.imapi.queryengine;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import org.endeavourhealth.imapi.cache.TimedCache;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.logic.service.IriCollector;
 import org.endeavourhealth.imapi.model.imq.*;
@@ -26,7 +25,6 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asHashSet;
 
 public class QueryDescriptor {
-  private static final TimedCache<String, String> queryCache = new TimedCache<>("queryCache", 120, 5, 10);
   @Getter
   private EntityRepository repo = new EntityRepository();
   @Getter
@@ -41,7 +39,6 @@ public class QueryDescriptor {
     if (query.getIri() == null)
       query.setIri(queryIri);
     query = describeQuery(query, displayMode);
-    queryCache.put(queryIri, new ObjectMapper().writeValueAsString(query));
     return query;
   }
   public Query describeQuery(Query query, DisplayMode displayMode) throws QueryException, JsonProcessingException {

@@ -12,10 +12,9 @@ import org.endeavourhealth.imapi.logic.service.SecurityService
 import org.endeavourhealth.imapi.logic.service.WorkflowService
 import org.endeavourhealth.imapi.model.requests.WorkflowRequest
 import org.endeavourhealth.imapi.model.responses.WorkflowResponse
-import org.endeavourhealth.imapi.model.security.Permission
+import org.endeavourhealth.imapi.model.security.Action
 import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.workflow.*
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.*
@@ -30,15 +29,15 @@ import org.springframework.web.context.annotation.RequestScope
 class WorkflowController {
   private val workflowService = WorkflowService()
   private val securityService = SecurityService()
-  private val log = LoggerFactory.getLogger(WorkflowController::class.java)
+  private val log = LoggerFactory.getLogger(javaClass)
 
   @Operation(summary = "Create Bug Report", description = "Endpoint to create a new bug report.")
   @PostMapping(value = ["/createBugReport"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun createBugReport(request: HttpServletRequest, @RequestBody bugReport: BugReport) {
-    MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST").use { t ->
+  fun createBugReport(request: HttpServletRequest?, @RequestBody bugReport: BugReport) {
+    MetricsHelper.recordTime("API.Workflow.CreateBugReport.POST").use {
       log.debug("createBugReport")
-      val user = securityService.getUser(request)
+      val user = securityService.user
       if (null == bugReport.createdBy) bugReport.createdBy = user.id
       workflowService.createBugReport(bugReport)
     }
@@ -47,8 +46,8 @@ class WorkflowController {
   @Operation(summary = "Get Bug Report", description = "Fetch a bug report using its unique ID.")
   @GetMapping(value = ["/getBugReport"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, UserAuthorisationException::class)
-  fun getBugReport(@RequestParam(name = "id") id: String, request: HttpServletRequest): BugReport {
-    MetricsHelper.recordTime("API.Workflow.bugReport.GET").use { t ->
+  fun getBugReport(@RequestParam(name = "id") id: String): BugReport {
+    MetricsHelper.recordTime("API.Workflow.bugReport.GET").use {
       log.debug("getBugReport")
       return workflowService.getBugReport(id)
     }
@@ -62,17 +61,11 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun updateBugReport(request: HttpServletRequest, @RequestBody bugReport: BugReport) {
-    MetricsHelper.recordTime("API.Workflow.updateBugReport.POST").use { t ->
+  fun updateBugReport(@RequestBody bugReport: BugReport) {
+    MetricsHelper.recordTime("API.Workflow.updateBugReport.POST").use {
       log.debug("updateBugReport")
-      securityService.requiresPermission(
-        Permission(
-          Resource.BUG_REPORT,
-          mutableListOf(UserRole.DEVELOPER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.updateBugReport(bugReport, request)
+      securityService.requiresPermission(Resource.BUG_REPORT, Action.UPDATE)
+      workflowService.updateBugReport(bugReport)
     }
   }
 
@@ -83,20 +76,13 @@ class WorkflowController {
   @GetMapping(value = ["/getTasksByCreatedBy"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, JsonProcessingException::class)
   fun getTasksByCreatedBy(
-    request: HttpServletRequest,
     @RequestParam(name = "page", required = false, defaultValue = "1") page: Int,
     @RequestParam(name = "size", required = false, defaultValue = "25") size: Int
   ): WorkflowResponse {
-    MetricsHelper.recordTime("API.Workflow.tasksByCreator.GET").use { t ->
+    MetricsHelper.recordTime("API.Workflow.tasksByCreator.GET").use {
       log.debug("getWorkflowsByCreatedBy")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.DEVELOPER, UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      val userId = securityService.getUser(request).id
+      securityService.requiresPermission(Resource.TASK, Action.READ)
+      val userId = securityService.user.id
       val wfRequest = WorkflowRequest(userId)
       if (page != 0) wfRequest.setPage(page)
       if (size != 0) wfRequest.setSize(size)
@@ -111,20 +97,13 @@ class WorkflowController {
   @GetMapping(value = ["/getTasksByAssignedTo"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, JsonProcessingException::class)
   fun getTasksByAssignedTo(
-    request: HttpServletRequest,
     @RequestParam(name = "page", required = false, defaultValue = "1") page: Int,
     @RequestParam(name = "size", required = false, defaultValue = "25") size: Int
   ): WorkflowResponse {
-    MetricsHelper.recordTime("API.Workflow.tasksByAssignedTo.GET").use { t ->
+    MetricsHelper.recordTime("API.Workflow.tasksByAssignedTo.GET").use {
       log.debug("getWorkflowsByAssignedTo")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.DEVELOPER, UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      val userId = securityService.getUser(request).id
+      securityService.requiresPermission(Resource.TASK, Action.READ)
+      val userId = securityService.user.id
       val wfRequest = WorkflowRequest(userId)
       if (page != 0) wfRequest.setPage(page)
       if (size != 0) wfRequest.setSize(size)
@@ -136,20 +115,13 @@ class WorkflowController {
   @GetMapping(value = ["/getUnassignedTasks"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, JsonProcessingException::class, UserAuthorisationException::class)
   fun getUnassignedTasks(
-    request: HttpServletRequest,
     @RequestParam(name = "page", required = false, defaultValue = "1") page: Int,
     @RequestParam(name = "size", required = false, defaultValue = "25") size: Int
   ): WorkflowResponse {
-    MetricsHelper.recordTime("API.Workflow.unassignedTasks.GET").use { t ->
+    MetricsHelper.recordTime("API.Workflow.unassignedTasks.GET").use {
       log.debug("getUnassignedTasks")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.DEVELOPER, UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      val userId = securityService.getUser(request).id
+      securityService.requiresPermission(Resource.TASK, Action.READ)
+      val userId = securityService.user.id
       val wfRequest = WorkflowRequest(userId)
       if (page != 0) wfRequest.setPage(page)
       if (size != 0) wfRequest.setSize(size)
@@ -160,16 +132,10 @@ class WorkflowController {
   @Operation(summary = "Get a Task", description = "Fetch a task using its unique ID.")
   @GetMapping(value = ["/getTask"], produces = ["application/json"])
   @Throws(UserNotFoundException::class)
-  fun getTask(request: HttpServletRequest, @RequestParam(name = "id") id: String): Task? {
-    MetricsHelper.recordTime("API.Workfflow.task.GET").use { t ->
+  fun getTask(@RequestParam(name = "id") id: String): Task? {
+    MetricsHelper.recordTime("API.Workfflow.task.GET").use {
       log.debug("getTask")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.DEVELOPER, UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.TASK, Action.READ)
       return workflowService.getTask(id)
     }
   }
@@ -177,16 +143,10 @@ class WorkflowController {
   @Operation(summary = "Delete a Task", description = "Delete a task by its unique ID.")
   @DeleteMapping(value = ["/deleteTask"])
   @Throws(TaskFilerException::class)
-  fun deleteTask(request: HttpServletRequest, @RequestParam(name = "id") id: String?) {
-    MetricsHelper.recordTime("API.Workflow.task.DELETE").use { t ->
+  fun deleteTask(@RequestParam(name = "id") id: String) {
+    MetricsHelper.recordTime("API.Workflow.task.DELETE").use {
       log.debug("deleteTask")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.DEVELOPER, UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.TASK, Action.DELETE)
       workflowService.deleteTask(id)
     }
   }
@@ -194,9 +154,10 @@ class WorkflowController {
   @Operation(summary = "Create Role Request", description = "Submit a role request created by the user.")
   @PostMapping(value = ["/createRoleRequest"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun createRoleRequest(request: HttpServletRequest, @RequestBody roleRequest: RoleRequest) {
-    MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST").use { t ->
-      val user = securityService.getUser(request)
+  fun createRoleRequest(@RequestBody roleRequest: RoleRequest) {
+    MetricsHelper.recordTime("API.Workflow.createRoleRequest.POST").use {
+      log.debug("createRoleRequest")
+      val user = securityService.user
       if (null == roleRequest.createdBy) roleRequest.createdBy = user.id
       workflowService.createRoleRequest(roleRequest)
     }
@@ -205,16 +166,10 @@ class WorkflowController {
   @Operation(summary = "Get Role Request", description = "Retrieve a role request using its unique ID.")
   @GetMapping(value = ["/roleRequest"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, UserAuthorisationException::class)
-  fun getRoleRequest(@RequestParam(name = "id") id: String, request: HttpServletRequest): RoleRequest? {
-    MetricsHelper.recordTime("API.Workflow.roleRequest.GET").use { t ->
+  fun getRoleRequest(@RequestParam(name = "id") id: String): RoleRequest? {
+    MetricsHelper.recordTime("API.Workflow.roleRequest.GET").use {
       log.debug("getRoleRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ROLE_REQUEST,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.READ)
       return workflowService.getRoleRequest(id)
     }
   }
@@ -222,17 +177,11 @@ class WorkflowController {
   @Operation(summary = "Update role request", description = "Update a role request workflow task")
   @PostMapping(value = ["/updateRoleRequest"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateRoleRequest(request: HttpServletRequest, @RequestBody roleRequest: RoleRequest) {
-    MetricsHelper.recordTime("API.Workflow.updateRoleRequest.POST").use { t ->
+  fun updateRoleRequest(@RequestBody roleRequest: RoleRequest) {
+    MetricsHelper.recordTime("API.Workflow.updateRoleRequest.POST").use {
       log.debug("updateRoleRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ROLE_REQUEST,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.updateRoleRequest(roleRequest, request)
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.UPDATE)
+      workflowService.updateRoleRequest(roleRequest)
     }
   }
 
@@ -244,17 +193,11 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun approveRoleRequest(request: HttpServletRequest, @RequestBody roleRequest: RoleRequest) {
-    MetricsHelper.recordTime("API.Workflow.approveRoleRequest.POST").use { t ->
+  fun approveRoleRequest(@RequestBody roleRequest: RoleRequest) {
+    MetricsHelper.recordTime("API.Workflow.approveRoleRequest.POST").use {
       log.debug("approveRoleRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ROLE_REQUEST,
-          mutableListOf(UserRole.APPROVER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.approveRoleRequest(request, roleRequest)
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.APPROVE)
+      workflowService.approveRoleRequest(roleRequest)
     }
   }
 
@@ -266,26 +209,21 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun rejectRoleRequest(request: HttpServletRequest, @RequestBody roleRequest: RoleRequest) {
-    MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST").use { t ->
+  fun rejectRoleRequest(@RequestBody roleRequest: RoleRequest) {
+    MetricsHelper.recordTime("API.Workflow.rejectRoleRequest.POST").use {
       log.debug("rejectRoleRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ROLE_REQUEST,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.rejectRoleRequest(request, roleRequest)
+      securityService.requiresPermission(Resource.ROLE_REQUEST, Action.REJECT)
+      workflowService.rejectRoleRequest(roleRequest)
     }
   }
 
   @Operation(summary = "Create Namespace Request", description = "Submit a namespace request created by the user.")
   @PostMapping(value = ["/createNamespaceRequest"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun createGraphRequest(request: HttpServletRequest, @RequestBody namespaceRequest: NamespaceRequest) {
-    MetricsHelper.recordTime("API.Workflow.createNamespaceRequest.POST").use { t ->
-      val user = securityService.getUser(request)
+  fun createGraphRequest(@RequestBody namespaceRequest: NamespaceRequest) {
+    MetricsHelper.recordTime("API.Workflow.createNamespaceRequest.POST").use {
+      log.debug("createNamespaceRequest")
+      val user = securityService.user
       if (null == namespaceRequest.createdBy) namespaceRequest.createdBy = user.id
       workflowService.createNamespaceRequest(namespaceRequest)
     }
@@ -294,16 +232,10 @@ class WorkflowController {
   @Operation(summary = "Get Namespace Request", description = "Retrieve a namespace request using its unique ID.")
   @GetMapping(value = ["/namespaceRequest"], produces = ["application/json"])
   @Throws(UserNotFoundException::class, UserAuthorisationException::class, JsonProcessingException::class)
-  fun getNamespaceRequest(@RequestParam(name = "id") id: String, request: HttpServletRequest): NamespaceRequest? {
-    MetricsHelper.recordTime("API.Workflow.namespaceRequest.GET").use { t ->
+  fun getNamespaceRequest(@RequestParam(name = "id") id: String): NamespaceRequest? {
+    MetricsHelper.recordTime("API.Workflow.namespaceRequest.GET").use {
       log.debug("getNamespaceRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.NAMESPACE_REQUEST,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.READ)
       return workflowService.getNamespaceRequest(id)
     }
   }
@@ -311,17 +243,11 @@ class WorkflowController {
   @Operation(summary = "Update namespace request", description = "Update a graph request workflow task")
   @PostMapping(value = ["/updateNamespaceRequest"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateGraphRequest(request: HttpServletRequest, @RequestBody namespaceRequest: NamespaceRequest) {
-    MetricsHelper.recordTime("API.Workflow.updateNamespaceRequest.POST").use { t ->
+  fun updateGraphRequest(@RequestBody namespaceRequest: NamespaceRequest) {
+    MetricsHelper.recordTime("API.Workflow.updateNamespaceRequest.POST").use {
       log.debug("updateNamespaceRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.NAMESPACE_REQUEST,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.updateNamespaceRequest(namespaceRequest, request)
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.UPDATE)
+      workflowService.updateNamespaceRequest(namespaceRequest)
     }
   }
 
@@ -333,17 +259,11 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun approveNamespaceRequest(request: HttpServletRequest, @RequestBody namespaceRequest: NamespaceRequest) {
-    MetricsHelper.recordTime("API.Workflow.approveNamespaceRequest.POST").use { t ->
+  fun approveNamespaceRequest(@RequestBody namespaceRequest: NamespaceRequest) {
+    MetricsHelper.recordTime("API.Workflow.approveNamespaceRequest.POST").use {
       log.debug("approveNamespaceRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.NAMESPACE_REQUEST,
-          mutableListOf(UserRole.APPROVER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.approveNamespaceRequest(request, namespaceRequest)
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.APPROVE)
+      workflowService.approveNamespaceRequest(namespaceRequest)
     }
   }
 
@@ -355,34 +275,22 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun rejectGraphRequest(request: HttpServletRequest, @RequestBody namespaceRequest: NamespaceRequest) {
-    MetricsHelper.recordTime("API.Workflow.rejectNamespaceRequest.POST").use { t ->
+  fun rejectGraphRequest(@RequestBody namespaceRequest: NamespaceRequest) {
+    MetricsHelper.recordTime("API.Workflow.rejectNamespaceRequest.POST").use {
       log.debug("rejectGraphRequest")
-      securityService.requiresPermission(
-        Permission(
-          Resource.NAMESPACE_REQUEST,
-          mutableListOf(UserRole.APPROVER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.rejectNamespaceRequest(request, namespaceRequest)
+      securityService.requiresPermission(Resource.NAMESPACE_REQUEST, Action.REJECT)
+      workflowService.rejectNamespaceRequest(namespaceRequest)
     }
   }
 
   @Operation(summary = "Create Entity Approval", description = "Submit an approval request for an entity.")
   @PostMapping(value = ["/createEntityApproval"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun createEntityApproval(request: HttpServletRequest, @RequestBody entityApproval: EntityApproval) {
-    MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST").use { t ->
+  fun createEntityApproval(@RequestBody entityApproval: EntityApproval) {
+    MetricsHelper.recordTime("API.Workflow.createEntityApproval.POST").use {
       log.debug("createEntityApproval")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ENTITY_APPROVAL,
-          mutableListOf(UserRole.EDITOR, UserRole.CREATOR),
-          mutableListOf()
-        ), request
-      )
-      val user = securityService.getUser(request)
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.CREATE)
+      val user = securityService.user
       if (null == entityApproval.createdBy) entityApproval.createdBy = user.id
       workflowService.createEntityApproval(entityApproval)
     }
@@ -391,16 +299,10 @@ class WorkflowController {
   @Operation(summary = "Get entity approval", description = "Get an approval request for an entity by id")
   @GetMapping(value = ["/entityApproval"])
   @Throws(UserNotFoundException::class)
-  fun getEntityApproval(request: HttpServletRequest, @RequestParam(name = "id") id: String): EntityApproval? {
-    MetricsHelper.recordTime("API.Workflow.entityApproval.GET").use { t ->
+  fun getEntityApproval(@RequestParam(name = "id") id: String): EntityApproval? {
+    MetricsHelper.recordTime("API.Workflow.entityApproval.GET").use {
       log.debug("getEntityApproval")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ENTITY_APPROVAL,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.READ)
       return workflowService.getEntityApproval(id)
     }
   }
@@ -408,17 +310,11 @@ class WorkflowController {
   @Operation(summary = "Update entity approval", description = "Update an approval request for an entity")
   @PostMapping(value = ["/updateEntityApproval"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateEntityApproval(request: HttpServletRequest, @RequestBody entityApproval: EntityApproval) {
-    MetricsHelper.recordTime("API.Workflow.updateEntityApproval.POST").use { t ->
+  fun updateEntityApproval(@RequestBody entityApproval: EntityApproval) {
+    MetricsHelper.recordTime("API.Workflow.updateEntityApproval.POST").use {
       log.debug("updateEntityApproval")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ENTITY_APPROVAL,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.updateEntityApproval(entityApproval, request)
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.UPDATE)
+      workflowService.updateEntityApproval(entityApproval)
     }
   }
 
@@ -431,16 +327,10 @@ class WorkflowController {
     UserAuthorisationException::class
   )
   fun approveEntityApproval(request: HttpServletRequest, @RequestBody entityApproval: EntityApproval) {
-    MetricsHelper.recordTime("API.Workflow.approveEntityApproval.POST").use { t ->
+    MetricsHelper.recordTime("API.Workflow.approveEntityApproval.POST").use {
       log.debug("approveEntityApproval")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ENTITY_APPROVAL,
-          mutableListOf(UserRole.APPROVER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.approveEntityApproval(request, entityApproval)
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.APPROVE)
+      workflowService.approveEntityApproval(entityApproval)
     }
   }
 
@@ -452,34 +342,22 @@ class WorkflowController {
     JsonProcessingException::class,
     UserAuthorisationException::class
   )
-  fun rejectEntityApproval(request: HttpServletRequest, @RequestBody entityApproval: EntityApproval) {
-    MetricsHelper.recordTime("API.Workflow.rejectEntityApproval.POST").use { t ->
+  fun rejectEntityApproval(@RequestBody entityApproval: EntityApproval) {
+    MetricsHelper.recordTime("API.Workflow.rejectEntityApproval.POST").use {
       log.debug("rejectEntityApproval")
-      securityService.requiresPermission(
-        Permission(
-          Resource.ENTITY_APPROVAL,
-          mutableListOf(UserRole.APPROVER),
-          mutableListOf()
-        ), request
-      )
-      workflowService.rejectEntityApproval(request, entityApproval)
+      securityService.requiresPermission(Resource.ENTITY_APPROVAL, Action.REJECT)
+      workflowService.rejectEntityApproval(entityApproval)
     }
   }
 
   @Operation(summary = "Update Task", description = "Update details of an existing task.")
   @PostMapping(value = ["/updateTask"])
   @Throws(TaskFilerException::class, UserNotFoundException::class, JsonProcessingException::class)
-  fun updateTask(request: HttpServletRequest, @RequestBody task: Task) {
-    MetricsHelper.recordTime("API.Workflow.updateTask.POST").use { t ->
+  fun updateTask(@RequestBody task: Task) {
+    MetricsHelper.recordTime("API.Workflow.updateTask.POST").use {
       log.debug("updateTask")
-      securityService.requiresPermission(
-        Permission(
-          Resource.TASK,
-          mutableListOf(UserRole.TASK_MANAGER),
-          mutableListOf()
-        ), request
-      )
-      val user = securityService.getUser(request)
+      securityService.requiresPermission(Resource.TASK, Action.UPDATE)
+      val user = securityService.user
       workflowService.updateTask(task, user.id)
     }
   }

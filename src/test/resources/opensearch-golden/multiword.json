@@ -1,0 +1,50 @@
+{
+  "from" : 0.0,
+  "query" : {
+    "bool" : {
+      "must" : [ {
+        "nested" : {
+          "inner_hits" : {
+            "_source" : {
+              "includes" : [ "termCode.term" ]
+            }
+          },
+          "path" : "termCode",
+          "query" : {
+            "bool" : {
+              "must" : [ {
+                "match_phrase_prefix" : {
+                  "termCode.term" : {
+                    "analyzer" : "standard",
+                    "boost" : 4.0,
+                    "query" : "myocardial infarction acute",
+                    "slop" : 2.0
+                  }
+                }
+              }, {
+                "exists" : {
+                  "field" : "termCode.length"
+                }
+              } ],
+              "should" : [ {
+                "script_score" : {
+                  "query" : {
+                    "match_all" : { }
+                  },
+                  "script" : {
+                    "params" : {
+                      "term" : "myocardial infarction acute"
+                    },
+                    "source" : "double s= 100000; if (doc['termCode.term.keyword'].value.toLowerCase().startsWith(params.term)) s=200000; return s - doc['termCode.length'].value"
+                  }
+                }
+              } ]
+            }
+          },
+          "score_mode" : "max"
+        }
+      } ]
+    }
+  },
+  "size" : 1000.0
+}

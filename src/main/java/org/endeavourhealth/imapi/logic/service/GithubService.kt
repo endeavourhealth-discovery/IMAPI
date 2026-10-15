@@ -5,16 +5,18 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
+import lombok.extern.slf4j.Slf4j
 import org.endeavourhealth.imapi.config.ConfigManager
 import org.endeavourhealth.imapi.model.config.Config
 import org.endeavourhealth.imapi.model.customexceptions.ConfigException
 import org.endeavourhealth.imapi.model.github.GithubDTO
 import org.endeavourhealth.imapi.model.github.GithubRelease
 import org.endeavourhealth.imapi.model.github.REPO
+import org.endeavourhealth.imapi.utility.SharedObjectMapper
 import org.endeavourhealth.imapi.vocabulary.CONFIG
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import java.io.IOException
 import java.net.URI
 import java.net.http.HttpClient
@@ -23,80 +25,94 @@ import java.net.http.HttpResponse
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@Service
+@Slf4j
+@Component
 class GithubService {
-  private val configManager = ConfigManager()
+  val configManager: ConfigManager = ConfigManager()
   private val log = LoggerFactory.getLogger(javaClass)
-  private val objectMapper =
-    ObjectMapper().apply { configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) }
-  private val httpClient = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build()
 
   @Throws(ConfigException::class, JsonProcessingException::class)
   fun getGithubLatestRelease(repo: REPO): GithubRelease {
-    val config = configManager.getConfig(getLatestReleaseUrl(repo), object : TypeReference<GithubRelease>() {
+    val url = getLatestReleaseUrlFromRepo(repo)
+    val config = configManager.getConfig(url, object : TypeReference<GithubRelease>() {
     })
-    return config ?: throw ConfigException("Github latest release config not found.")
+    if (null == config) throw ConfigException("Github latest release config not found.")
+    return config
   }
 
   @Throws(JsonProcessingException::class)
-  private fun setGithubLatest(repo: REPO, githubRelease: GithubRelease) {
-    val config = getLatestReleaseConfig(repo).setData(objectMapper.writeValueAsString(githubRelease))
-    val url = getLatestReleaseUrl(repo)
+  private fun setGithubLatest(repo: REPO, githubRelease: GithubRelease?) {
+    val config = getLatestReleaseConfigFromRepo(repo)
+    val mapper = SharedObjectMapper.INSTANCE
+    val gitHubReleaseJson = mapper.writeValueAsString(githubRelease)
+    config.setData(gitHubReleaseJson)
+    val url = getLatestReleaseUrlFromRepo(repo)
     configManager.setConfig(url, config)
   }
 
   @Throws(JsonProcessingException::class, ConfigException::class)
   fun getGithubReleases(repo: REPO): MutableList<GithubRelease> {
-    val config = configManager.getConfig(getAllReleasesUrl(repo), object : TypeReference<MutableList<GithubRelease>>() {
+    val url = getAllReleasesUrlFromRepo(repo)
+    val config = configManager.getConfig(url, object : TypeReference<MutableList<GithubRelease>>() {
     })
-    return config ?: throw ConfigException("Github releases config not found.")
+    if (null == config) throw ConfigException("Github release config not found.")
+    return config
   }
 
-  private fun getLatestReleaseUrl(repo: REPO): CONFIG =
-    when (repo) {
+  private fun getLatestReleaseUrlFromRepo(repo: REPO): CONFIG {
+    return when (repo) {
       REPO.IM_DIRECTORY -> CONFIG.IMDIRECTORY_LATEST_RELEASE
       REPO.IM_QUERY_RUNNER -> CONFIG.IMQUERY_RUNNER_LATEST_RELEASE
     }
+  }
 
-  private fun getAllReleasesUrl(repo: REPO): CONFIG =
-    when (repo) {
+  private fun getAllReleasesUrlFromRepo(repo: REPO): CONFIG {
+    return when (repo) {
       REPO.IM_DIRECTORY -> CONFIG.IMDIRECTORY_ALL_RELEASES
       REPO.IM_QUERY_RUNNER -> CONFIG.IMQUERY_RUNNER_ALL_RELEASES
     }
+  }
 
-  private fun getLatestReleaseConfig(repo: REPO): Config =
-    when (repo) {
+  private fun getLatestReleaseConfigFromRepo(repo: REPO): Config {
+    return when (repo) {
       REPO.IM_DIRECTORY -> Config().setName("IMDirectory latest release")
         .setComment("Latest github release details for IMDirectory repository")
 
       REPO.IM_QUERY_RUNNER -> Config().setName("QueryRunner latest release")
         .setComment("Latest github release details for QueryRunner")
     }
+  }
 
-  private fun getAllReleasesConfigFromRepo(repo: REPO): Config =
-    when (repo) {
+  private fun getAllReleasesConfigFromRepo(repo: REPO): Config {
+    return when (repo) {
       REPO.IM_DIRECTORY -> Config().setName("IMDirectory all releases")
         .setComment("All github release details for IMDirectory repository")
 
       REPO.IM_QUERY_RUNNER -> Config().setName("QueryRunner all releases")
         .setComment("All github release details for QueryRunner repository")
     }
+  }
 
   @Throws(JsonProcessingException::class)
-  private fun setGithubReleases(repo: REPO, githubReleases: List<GithubRelease>) {
-    val config = getAllReleasesConfigFromRepo(repo).setData(objectMapper.writeValueAsString(githubReleases))
-    configManager.setConfig(getAllReleasesUrl(repo), config)
+  private fun setGithubReleases(repo: REPO, githubReleases: MutableList<GithubRelease>?) {
+    val config = getAllReleasesConfigFromRepo(repo)
+    val mapper = SharedObjectMapper.INSTANCE
+    val gitHubReleaseJson = mapper.writeValueAsString(githubReleases)
+    config.setData(gitHubReleaseJson)
+    val url = getAllReleasesUrlFromRepo(repo)
+    configManager.setConfig(url, config)
   }
 
   @Scheduled(cron = "0 0 0 * * *")
   @Throws(IOException::class, InterruptedException::class)
   fun updateAllGithubConfigs() {
-    REPO.entries.forEach(::updateGithubConfig)
+    updateGithubConfig(REPO.IM_DIRECTORY)
+    updateGithubConfig(REPO.IM_QUERY_RUNNER)
   }
 
   @Throws(IOException::class, InterruptedException::class)
   fun updateGithubConfig(repo: REPO) {
-    log.info("Updating github config for {}", repo)
+    log.info("updating github config")
     val owner = "endeavourhealth-discovery"
     val latestRelease = getLatestReleaseFromGithub(owner, repo)
     val allReleases = getAllReleasesFromGithub(owner, repo)
@@ -113,31 +129,53 @@ class GithubService {
   }
 
   @Throws(IOException::class, InterruptedException::class)
-  private fun getLatestReleaseFromGithub(owner: String, repo: REPO): GithubRelease = getFromGithub(
-    "/repos/$owner/$repo/releases/latest",
-    object : TypeReference<GithubDTO>() {}).let(::processGithubRelease)
+  private fun getLatestReleaseFromGithub(owner: String, repo: REPO): GithubRelease {
+    val response: HttpResponse<String>
+    HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build().use { client ->
+        val request = HttpRequest.newBuilder()
+          .uri(URI.create("https://api.github.com/repos/$owner/$repo/releases/latest"))
+          .GET()
+          .setHeader("Accept", "application/vnd.github+json")
+          .setHeader("Authorization", "Bearer ${System.getenv("GITHUB_TOKEN")}")
+          .setHeader("X-GitHub-Api-Version", "2022-11-28")
+          .build()
+        response = client.send(request, HttpResponse.BodyHandlers.ofString())
+      }
+    val mapper = ObjectMapper()
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+    val jsonReleaseMap = mapper.readValue(response.body(), GithubDTO::class.java)
+    return processGithubRelease(jsonReleaseMap)
+  }
 
   @Throws(IOException::class, InterruptedException::class)
-  private fun getAllReleasesFromGithub(owner: String, repo: REPO): List<GithubRelease> =
-    getFromGithub(
-      "/repos/$owner/$repo/releases",
-      object : TypeReference<MutableList<GithubDTO>>() {}).map(::processGithubRelease)
+  private fun getAllReleasesFromGithub(owner: String, repo: REPO): MutableList<GithubRelease> {
+    val response: HttpResponse<String>
+    HttpClient.newBuilder()
+      .followRedirects(HttpClient.Redirect.NORMAL)
+      .build().use { client ->
+        val request = HttpRequest.newBuilder()
+          .uri(URI.create("https://api.github.com/repos/$owner/$repo/releases"))
+          .GET()
+          .setHeader("Accept", "application/vnd.github+json")
+          .setHeader("Authorization", "Bearer ${System.getenv("GITHUB_TOKEN")}")
+          .setHeader("X-GitHub-Api-Version", "2022-11-28")
+          .build()
+        response = client.send(request, HttpResponse.BodyHandlers.ofString())
+      }
+    val mapper = ObjectMapper()
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  @Throws(IOException::class, InterruptedException::class)
-  private fun <T> getFromGithub(path: String, type: TypeReference<T>): T {
-    val request = HttpRequest.newBuilder()
-      .uri(URI.create("$GITHUB_API$path"))
-      .GET()
-      .header("ACCEPT", "application/vnd.github+json")
-      .header("Authorization", "Bearer ${System.getenv("GITHUB_TOKEN")}")
-      .header("X-GitHub-Api-Version", "2022-11-28")
-      .build()
-
-    val response: HttpResponse<String?> = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-    if (response.statusCode() !in 200..299) {
-      throw IOException("Github API request failed: ${response.statusCode()}")
+    val results: MutableList<GithubRelease> = ArrayList<GithubRelease>()
+    val githubDTOList: MutableList<GithubDTO> =
+      mapper.readValue(response.body(), object : TypeReference<MutableList<GithubDTO>>() {
+      })
+    for (githubDTO in githubDTOList) {
+      results.add(processGithubRelease(githubDTO))
     }
-    return objectMapper.readValue(response.body(), type)
+    return results
   }
 
   private fun processReleaseNotes(releaseNotes: String?): MutableList<String> {
@@ -157,16 +195,17 @@ class GithubService {
     return dateTime.format(formatterOutput)
   }
 
-  private fun processGithubRelease(githubDTO: GithubDTO): GithubRelease = GithubRelease()
-    .setVersion(githubDTO.tag_name)
-    .setTitle(githubDTO.name)
-    .setCreatedDate(processDate(githubDTO.created_at))
-    .setPublishedDate(processDate(githubDTO.published_at))
-    .setReleaseNotes(processReleaseNotes(githubDTO.body))
-    .setUrl(githubDTO.html_url)
-    .apply { githubDTO.author?.let { setAuthor(it.login) } }
+  private fun processGithubRelease(githubDTO: GithubDTO): GithubRelease {
+    val release = GithubRelease()
+      .setVersion(githubDTO.tag_name)
+      .setTitle(githubDTO.name)
+      .setCreatedDate(processDate(githubDTO.created_at))
+      .setPublishedDate(processDate(githubDTO.published_at))
+      .setReleaseNotes(processReleaseNotes(githubDTO.body))
+      .setUrl(githubDTO.html_url)
 
-  companion object {
-    private const val GITHUB_API = "https://api.github.com/"
+    if (githubDTO.author != null) release.setAuthor(githubDTO.author.login)
+
+    return release
   }
 }

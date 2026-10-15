@@ -14,6 +14,7 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException;
+import org.endeavourhealth.imapi.utility.QueryCounter;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public abstract class BaseDB implements AutoCloseable {
   protected RepositoryConnection conn;
 
   protected BaseDB(GRAPH... graphs) {
+    QueryCounter.connectionOpened();
     for (GRAPH graph : graphs) {
       if (graph == null)
         dataset.addDefaultGraph(null);
@@ -109,6 +111,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public TupleQuery prepareTupleSparql(String sparql) {
+    QueryCounter.queryPrepared(sparql);
     if (sparql.toUpperCase().startsWith("INSERT"))
       throw new DALException("This appears to be an INSERT statement, use `prepareInsertSparql` instead");
 
@@ -164,6 +167,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   private Update prepareSparql(String sparql) {
+    QueryCounter.queryPrepared(sparql);
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
       sj.add(DEFAULT_PREFIXES);
@@ -177,6 +181,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public GraphQuery prepareGraphSparql(String sparql) {
+    QueryCounter.queryPrepared(sparql);
 
     try {
       StringJoiner sj = new StringJoiner(System.lineSeparator());
@@ -191,6 +196,7 @@ public abstract class BaseDB implements AutoCloseable {
   }
 
   public BooleanQuery prepareBooleanSparql(String sparql) {
+    QueryCounter.queryPrepared(sparql);
     sparql = sparql.trim();
     if (!sparql.toUpperCase().startsWith("ASK"))
       throw new DALException("This doesnt appear to be an ASK statement");

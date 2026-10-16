@@ -15,11 +15,11 @@ class SearchResponse {
     private set
   var entities: MutableList<SearchResultSummary> = arrayListOf()
     private set
-  var isExactMatch: Boolean = false
+  var exactMatch: Boolean = false
     private set
 
   fun setExactMatch(exactMatch: Boolean): SearchResponse {
-    isExactMatch = exactMatch
+    this.exactMatch = exactMatch
     return this
   }
 

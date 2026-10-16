@@ -7,7 +7,7 @@ class PropertyDisplay {
     private set
   var group: TTIriRef? = null
     private set
-  var property: MutableList<TTIriRef> = mutableListOf(TTIriRef())
+  var property: MutableList<TTIriRef> = mutableListOf()
     private set
   var type: MutableList<TTIriRef> = mutableListOf()
     private set

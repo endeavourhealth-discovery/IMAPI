@@ -39,20 +39,12 @@ if (CI == "false") {
     dependsOn("staticConstGenerator")
   }
 } else {
-  tasks.build { finalizedBy("safeSonar") }
   tasks.build { finalizedBy("publish") }
 }
 
-tasks.register("safeSonar") {
-  //Action block
-  doLast {
-    try {
-      sonar
-    } catch (e: Error) {
-      throw StopActionException(e.toString())
-    }
-  }
-}
+// `gradle build` (local or CI) compiles and runs the unit tests. Sonar is never part of it; CI runs `gradle sonar` instead,
+// which does the build and unit tests, then the jacoco coverage report, then uploads to Sonar.
+tasks.sonar { dependsOn(tasks.build, tasks.jacocoTestReport) }
 
 publishing {
   publications {
@@ -81,6 +73,7 @@ sonar {
     property("sonar.sources", "src/main/java")
     property("sonar.tests", "src/test/java")
     property("sonar.junit.reportPaths", "build/test-results/test")
+    property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml")
     property("sonar.exclusions", "**/parser/**, **/transforms/**/eqd/")
     property(
       "sonar.coverage.exclusions",
@@ -187,9 +180,7 @@ tasks.test {
   useJUnitPlatform {
     excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
   }
-  if (CI != "false") {
-    finalizedBy("jacocoTestReport")
-  }
+  finalizedBy("jacocoTestReport")
 }
 
 tasks.register("imqTests", Test::class.java) {
@@ -225,6 +216,7 @@ tasks.register("imqREGQueriesTest", Test::class.java) {
 }
 
 tasks.jacocoTestReport {
+  dependsOn(tasks.test)
   reports {
     xml.required.set(true)
   }

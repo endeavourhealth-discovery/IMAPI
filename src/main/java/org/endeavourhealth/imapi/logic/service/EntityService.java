@@ -75,6 +75,7 @@ public class EntityService {
   }
 
   public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
+    if (bundle.getEntity() == null || bundle.getEntity().get(iri(IM.DEFINITION)) == null) return;
     Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));

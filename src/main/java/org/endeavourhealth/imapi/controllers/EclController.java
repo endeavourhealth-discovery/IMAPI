@@ -12,6 +12,8 @@ import org.endeavourhealth.imapi.utility.MetricsTimer;
 import org.endeavourhealth.imapi.model.imq.ECLQueryRequest;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 
@@ -34,10 +36,10 @@ public class EclController {
     summary = "Retrieve ECL string",
     description = "Generates an ECL string from the provided IMQ Query object"
   )
-  public String getEcl(HttpServletRequest request, @RequestBody ECLQueryRequest inferred) throws QueryException {
+  public ResponseEntity<String> getEcl(HttpServletRequest request, @RequestBody ECLQueryRequest inferred) throws QueryException {
     try (MetricsTimer t = MetricsHelper.recordTime("ECL.Ecl.POST")) {
       log.debug("getEcl");
-      return eclService.getEcl(inferred);
+      return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body(eclService.getEcl(inferred));
     }
   }
 

@@ -149,6 +149,8 @@ public class QueryService {
 
   public Query getQueryFromIri(String iri) throws JsonProcessingException, QueryException {
     TTEntity queryEntity = entityRepository.getEntityPredicates(iri, Set.of(IM.DEFINITION.toString())).getEntity();
+    if (queryEntity == null || queryEntity.get(IM.DEFINITION) == null)
+      throw new QueryException("No query definition found for " + iri);
     Query query = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     new QueryDescriptor().describeQuery(query, DisplayMode.ORIGINAL);
     return query;

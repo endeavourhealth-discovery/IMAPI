@@ -682,7 +682,7 @@ public class EqdResources {
   }
 
   public String setMatchPath(Query query, String[] paths) {
-    if (paths.length == 2) {
+    if (paths.length <= 2) {
       return null;
     } else {
       String path = paths[1];
@@ -1426,7 +1426,9 @@ public class EqdResources {
 
   private void updateSetName(TTEntity setName, String thisName) {
     String currentName = setName.getName();
-    if (!currentName.contains(thisName)) {
+    if (currentName == null) {
+      setName.setName(thisName);
+    } else if (thisName != null && !currentName.contains(thisName)) {
       setName.setName(currentName.split(" (set)")[0] + " ... (set");
     }
 
@@ -1460,11 +1462,7 @@ public class EqdResources {
     TTEntity duplicate = EqdToIMQ.definitionToEntity.get(entailedMembers);
     if (duplicate != null) {
       this.addUsedIn(duplicate);
-      if (this.columnGroup != null) {
-        this.updateSetName(duplicate, name);
-      } else {
-        this.updateSetName(duplicate, name);
-      }
+      this.updateSetName(duplicate, name);
 
       return duplicate;
     } else {

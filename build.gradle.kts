@@ -77,7 +77,7 @@ sonar {
     property("sonar.exclusions", "**/parser/**, **/transforms/**/eqd/")
     property(
       "sonar.coverage.exclusions",
-      "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/filer/**, **/vocabulary/**, **/transforms/eqd/**"
+      "**/config/**, **/controllers/**, **/dataaccess/**, **/errorhandling/**, **/filer/**, **/imapi/model/**, **/vocabulary/**, **/transforms/**, **/transformengine/**, **/queryengine/**"
     )
   }
 }

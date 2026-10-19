@@ -51,6 +51,19 @@ object SqlLiteralUtils {
     return quoteSqlString(value)
   }
 
+  private val QUERY_IRI_TOKEN = Regex("[A-Za-z0-9:/#._~%@+,-]+")
+
+  /**
+   * A query IRI as it must appear in generated SQL: bare and unquoted. The query runner replaces each query IRI in
+   * the SQL with a bound parameter holding that query's numeric query_result_id, so quoting it would turn the
+   * parameter into the literal text '?'. Because it is spliced in unquoted, anything outside a safe character set
+   * is rejected rather than escaped.
+   */
+  fun queryResultIdToken(iri: String): String {
+    if (!QUERY_IRI_TOKEN.matches(iri)) throw SQLConversionException("Query iri contains characters that cannot be used in SQL: $iri")
+    return iri
+  }
+
   /** For values spliced into SQL as numbers (e.g. INTERVAL magnitudes): rejects anything that is not a number. */
   fun requireNumber(value: String): String {
     if (value.trim().toBigDecimalOrNull() == null) throw SQLConversionException("Expected a numeric value but got: $value")

@@ -118,7 +118,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val fk = getLastCteEntityKeyField(lastCTE, ctx.queryTypeOfTable)
       ?: throw SQLConversionException("No entity key on ${lastCTE.alias}")
     query.insert = insertTable
-    query.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(queryIri), QUERY_RESULT_ID_FIELD))
+    query.selects.add(MySQLSelect(SqlLiteralUtils.queryResultIdToken(queryIri), QUERY_RESULT_ID_FIELD))
     query.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
   }
 

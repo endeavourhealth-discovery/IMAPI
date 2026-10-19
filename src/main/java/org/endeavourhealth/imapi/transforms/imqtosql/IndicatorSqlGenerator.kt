@@ -7,9 +7,9 @@ internal object IndicatorSqlGenerator {
     if (denominator == null || numerator == null || dataset == null) {
       throw SQLConversionException("Missing denominator, numerator or dataset")
     }
-    val numeratorLiteral = SqlLiteralUtils.toSqlLiteral(numerator)
-    val datasetLiteral = SqlLiteralUtils.toSqlLiteral(dataset)
-    val denominatorLiteral = SqlLiteralUtils.toSqlLiteral(denominator)
+    val numeratorLiteral = SqlLiteralUtils.queryResultIdToken(numerator)
+    val datasetLiteral = SqlLiteralUtils.queryResultIdToken(dataset)
+    val denominatorLiteral = SqlLiteralUtils.queryResultIdToken(denominator)
     val indSql = """
       SELECT c.entity_id, !ISNULL(n.entity_id) as "Yes/No", d.json
       FROM $COHORT_RESULTS_TABLE c

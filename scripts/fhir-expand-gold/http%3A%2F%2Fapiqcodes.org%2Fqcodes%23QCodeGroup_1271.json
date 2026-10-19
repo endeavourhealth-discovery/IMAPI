@@ -1,0 +1,303 @@
+{
+  "expansion": {
+    "contains": [
+      {
+        "code": "111353003",
+        "display": "Acute peptic ulcer with hemorrhage and perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "12274003",
+        "display": "Acute peptic ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "12847006",
+        "display": "Acute duodenal ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "139340005",
+        "display": "Vomiting blood - coffee ground (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15238002",
+        "display": "Esophageal bleeding (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "155838009",
+        "display": "Haematemesis (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15902003",
+        "display": "Gastric ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "161538007",
+        "display": "History of hematemesis (situation)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "161539004",
+        "display": "History of melena (situation)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "173842008",
+        "display": "Closure of perforated gastric ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19850005",
+        "display": "Acute gastric ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "226891000000104",
+        "display": "Oversew of blood vessel of duodenal ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "235232008",
+        "display": "Oversewing perforated gastric ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "2367005",
+        "display": "Acute hemorrhagic gastritis (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "249498003",
+        "display": "Haematemesis (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "249627005",
+        "display": "Black feces symptom (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "267051003",
+        "display": "Vomiting blood - fresh (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "267055007",
+        "display": "Black feces (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "269899009",
+        "display": "Feces color: tarry (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "272045003",
+        "display": "Complaining of melena (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "27281001",
+        "display": "Duodenal ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "275782008",
+        "display": "Melena on examination of feces (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "281102003",
+        "display": "Blood in vomit - symptom (finding)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "2901004",
+        "display": "Melena (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "307190008",
+        "display": "Laparoscopic closure of perforated gastric ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "308904008",
+        "display": "Hematemesis of unknown cause (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "312489007",
+        "display": "History of upper gastrointestinal tract hemorrhage (situation)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "31301004",
+        "display": "Chronic gastric ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "314627002",
+        "display": "Endoscopic injection hemostasis of duodenal ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "314629004",
+        "display": "Endoscopic injection hemostasis of gastric ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "3483000",
+        "display": "Chronic peptic ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35892001",
+        "display": "Oversewing of perforated duodenal ulcer (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36975000",
+        "display": "Chronic duodenal ulcer with hemorrhage AND perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37372002",
+        "display": "Upper gastrointestinal hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40835002",
+        "display": "Coffee ground vomiting (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "45640006",
+        "display": "Chronic gastrojejunal ulcer with hemorrhage and perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "48974009",
+        "display": "Acute gastric ulcer with hemorrhage and perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "49232000",
+        "display": "Chronic peptic ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "49916007",
+        "display": "Chronic duodenal ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "57246001",
+        "display": "Chronic gastric ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "61300005",
+        "display": "Chronic peptic ulcer with hemorrhage AND perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "61347001",
+        "display": "Acute duodenal ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "61401005",
+        "display": "Gastric hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "62366003",
+        "display": "Gastric ulcer with hemorrhage and perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "62838000",
+        "display": "Chronic gastrojejunal ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "63954007",
+        "display": "Acute gastrojejunal ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "66636001",
+        "display": "Acute gastrojejunal ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "74474003",
+        "display": "Gastrointestinal hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "76181002",
+        "display": "Chronic gastric ulcer with hemorrhage and with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "79118000",
+        "display": "Acute peptic ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "81387001",
+        "display": "Acute gastrojejunal ulcer with hemorrhage and perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "86895006",
+        "display": "Acute duodenal ulcer with hemorrhage AND perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8765009",
+        "display": "Hematemesis (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "88169003",
+        "display": "Peptic ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "88968005",
+        "display": "Duodenal ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "89469000",
+        "display": "Chronic duodenal ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "89748001",
+        "display": "Acute gastric ulcer with hemorrhage (disorder)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9829001",
+        "display": "Gastric ulcer with perforation (disorder)",
+        "system": "http://snomed.info/sct#"
+      }
+    ]
+  },
+  "language": "en",
+  "name": "Q code group haematemesis or evidence of upper GI bleed (draft)",
+  "resourceType": "ValueSet",
+  "status": "active",
+  "title": "Q code group haematemesis or evidence of upper GI bleed (draft)",
+  "url": "http://apiqcodes.org/qcodes#QCodeGroup_1271",
+  "version": "7"
+}

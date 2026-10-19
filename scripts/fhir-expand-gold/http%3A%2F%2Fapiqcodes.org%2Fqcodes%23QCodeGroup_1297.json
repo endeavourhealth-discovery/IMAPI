@@ -1,0 +1,83 @@
+{
+  "expansion": {
+    "contains": [
+      {
+        "code": "1013211000000103",
+        "display": "Plasma alanine aminotransferase level (observable entity)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "1018251000000107",
+        "display": "Serum alanine aminotransferase level (observable entity)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "104481004",
+        "display": "Alanine aminotransferase measurement, method with pyridoxal-5'-phosphate (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "104482006",
+        "display": "Alanine aminotransferase measurement, method without pyridoxal-5'-phosphate (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "1105851000000108",
+        "display": "Enzyme activity of alanine aminotransferase in plasma (observable entity)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "1106081000000100",
+        "display": "Enzyme activity of alanine aminotransferase in serum (observable entity)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "201321000000108",
+        "display": "Serum alanine aminotransferase level (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "219651000000107",
+        "display": "Serum alanine aminotransferase level",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "219661000000105",
+        "display": "Serum alanine aminotransferase level",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "250637003",
+        "display": "Alanine aminotransferase - blood measurement (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34608000",
+        "display": "Alanine aminotransferase measurement (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "389586005",
+        "display": "Plasma alanine aminotransferase level (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "390318006",
+        "display": "Plasma alanine aminotransferase level (procedure)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "390961000",
+        "display": "Plasma alanine aminotransferase level (procedure)",
+        "system": "http://snomed.info/sct#"
+      }
+    ]
+  },
+  "language": "en",
+  "name": "Q code group alt (draft)",
+  "resourceType": "ValueSet",
+  "status": "active",
+  "title": "Q code group alt (draft)",
+  "url": "http://apiqcodes.org/qcodes#QCodeGroup_1297",
+  "version": "5"
+}

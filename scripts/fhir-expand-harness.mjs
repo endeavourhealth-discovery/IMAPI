@@ -173,6 +173,7 @@ async function runGold() {
   if (limit > 0) iris = iris.slice(0, limit);
   console.log(`\nExpanding ${iris.length} sets -> ${outDir}${update ? " (update mode)" : ""}\n`);
 
+  const wallStart = performance.now();
   const counts = { saved: 0, updated: 0, match: 0, mismatch: 0, error: 0 };
   const problems = [];
   const note = (i, iri, status, detail = "") =>
@@ -223,7 +224,10 @@ async function runGold() {
     note(i, iri, "MISMATCH", `${diff} (${ms}) -> ${path.basename(actualFile)}`);
   });
 
+  const totalSec = (performance.now() - wallStart) / 1000;
+  const fmt = (s) => (s >= 60 ? `${Math.floor(s / 60)}m ${(s % 60).toFixed(1)}s` : `${s.toFixed(1)}s`);
   console.log("\n--- Summary ---");
+  console.log(`Total time: ${fmt(totalSec)} (expansion only, excludes set listing)`);
   console.log(
     `Sets: ${iris.length}  saved ${counts.saved}  updated ${counts.updated}  match ${counts.match}  ` +
       `mismatch ${counts.mismatch}  error ${counts.error}`

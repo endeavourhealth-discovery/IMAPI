@@ -129,7 +129,9 @@ internal class MatchTreeCompiler(
       ),
       fromAlias = previous.alias,
       entityKeyField = previousKey,
-      isCarrierAliased = previous.isCarrierAliased
+      isCarrierAliased = previous.isCarrierAliased,
+      // keeps a subset of the previous step's rows, which are already distinct
+      distinct = false
     )
   }
 
@@ -153,7 +155,9 @@ internal class MatchTreeCompiler(
       ),
       fromAlias = previous.alias,
       entityKeyField = previousKey,
-      isCarrierAliased = previous.isCarrierAliased
+      isCarrierAliased = previous.isCarrierAliased,
+      // keeps a subset of the previous step's rows, which are already distinct
+      distinct = false
     )
   }
 
@@ -345,7 +349,8 @@ internal class MatchTreeCompiler(
       alias = with.alias,
       selects = mutableListOf(MySQLSelect(carrySelectFrom(previous))),
       subQuery = with,
-      entityKeyField = carryEntityKeyFrom(previous)
+      entityKeyField = carryEntityKeyFrom(previous),
+      distinct = false
     )
 
     wrapped.joins.add(rightJoinSubqueryTo(previous, fk, fkLast))

@@ -221,9 +221,9 @@ class MySQLPropertyIsWhere(
       val iri = node.iri
       val selfValue =
         if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
-      val base = if (selfValue == 0) "$conceptTable.parent $operator '$iri'"
+      val base = if (selfValue == 0) "$conceptTable.parent $operator ${quoteSqlString(iri)}"
       else """(
-        $conceptTable.parent $operator '$iri'
+        $conceptTable.parent $operator ${quoteSqlString(iri)}
         AND $conceptTable.self = $selfValue
       )
       """.trimIndent()

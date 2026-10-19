@@ -35,7 +35,7 @@ internal class MatchTreeCompiler(
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = "dataset.cohort_results"
     if (mySqlQuery.withs.isNotEmpty()) {
-      val lastWith = mySqlQuery.withs.last { !it.exclude }
+      val lastWith = mySqlQuery.withs.lastIncluded()
       val fk = lastWith.entityKeyField
         ?: if (cohortTable.table == lastWith.table.table) lastWith.table.primaryKey
         else lastWith.table.foreignKeyTo(cohortTable).first
@@ -47,17 +47,17 @@ internal class MatchTreeCompiler(
           fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
           wheres = if (isA.isExclude) mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
             MySQLPropertyValueWhere(ENTITY_ID_FIELD, "IS", "NULL", null, null)
           ) else mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
           )
         )
       )
     }
 
     val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
-      MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
+      MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
     ) else mutableListOf()
 
     return MySQLWith(
@@ -123,7 +123,7 @@ internal class MatchTreeCompiler(
           outerKey = previousKey,
           innerTable = "dataset.cohort_results",
           innerKey = ENTITY_ID_FIELD,
-          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", cohortIri, table = null))
+          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(cohortIri), table = null))
         )
       ),
       fromAlias = previous.alias,
@@ -279,7 +279,7 @@ internal class MatchTreeCompiler(
 
     if (fk == null || pk == null) {
       throw SQLConversionException(
-        "No relationship between ${fromWith.table.table} and ${toWith.table}"
+        "No relationship between ${fromWith.table.table} and ${toWith.table.table}"
       )
     }
 

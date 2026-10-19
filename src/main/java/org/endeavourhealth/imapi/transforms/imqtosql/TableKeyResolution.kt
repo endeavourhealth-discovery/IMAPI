@@ -26,6 +26,10 @@ internal fun getPropertyNameByTableAndPropertyIri(table: Table, propertyIri: Str
   return field
 }
 
+/** The last CTE that is not an exclusion; the one the final select reads from. */
+internal fun List<MySQLWith>.lastIncluded(): MySQLWith =
+  lastOrNull { !it.exclude } ?: throw SQLConversionException("Query produced no CTE to select from")
+
 internal fun getLastCteEntityKeyField(lastCTE: MySQLWith, queryTypeOfTable: Table): String? {
   lastCTE.entityKeyField?.let { return it }
   return resolveForeignKeyByTableName(lastCTE.table, queryTypeOfTable).first

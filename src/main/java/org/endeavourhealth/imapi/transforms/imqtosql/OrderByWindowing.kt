@@ -64,9 +64,9 @@ internal fun getMySQLOrderBy(
       if (p.nodeRef != null) nodeToTableMap[p.nodeRef] else table
 
     if (currentTable == null) throw SQLConversionException("No table exists for ${p.iri}")
-    val propertyIri = p.iri.substringAfterLast(' ')
+    val propertyIri = p.iri
     val mappedField = getPropertyNameByTableAndPropertyIri(currentTable, propertyIri)
-    val field = mappedField.field ?: throw SQLConversionException("No field found for property $propertyIri")
+    val field = mappedField.field
     // a functional property's column lives on the table joined in under its own alias
     val fieldTable =
       if (mappedField.join != null) currentTable.copy().also { it.alias = functionalJoinAlias(propertyIri, mappedField) }

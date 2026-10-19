@@ -2,7 +2,7 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import lombok.extern.slf4j.Slf4j
+import org.slf4j.LoggerFactory
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.imq.*
 import org.endeavourhealth.imapi.model.requests.QueryRequest
@@ -12,9 +12,9 @@ import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TableMap
+import org.endeavourhealth.imapi.model.sql.quoteSqlString
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
 
-@Slf4j
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper(),
   val denominator: String? = null, val numerator: String? = null, val dataset: String? = null,
@@ -28,7 +28,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private val aliases = AliasAllocator()
 
   private val nodePathContextMap = HashMap<String, NodePathContext>()
-  private val pathJoinBuilder = PathJoinBuilder(nodePathContextMap, ::getTableFromTypeAndProperty)
+  private val pathJoinBuilder = PathJoinBuilder(nodePathContextMap, ::findTableFromTypeAndProperty)
   private val keepAsLookup = KeepAsLookup(queryRequest)
   private val selectCompiler = SelectClauseCompiler({ queryTypeOfTable }, nodePathContextMap)
 
@@ -59,14 +59,21 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         sql = generateSQL(queryRequest.query)
       }
     } catch (e: SQLConversionException) {
-      println("SQL Conversion Error: $e")
+      log.error("SQL Conversion Error", e)
       throw e
     } catch (e: JsonProcessingException) {
-      println("SQL Conversion Error: $e")
+      log.error("SQL Conversion Error", e)
+      throw e
+    } catch (e: IllegalArgumentException) {
+      log.error("Invalid query for SQL conversion", e)
       throw e
     } catch (e: Exception) {
       throw RuntimeException(e)
     }
+  }
+
+  private companion object {
+    private val log = LoggerFactory.getLogger(IMQtoSQLConverterKotlin::class.java)
   }
 
   private fun resetPerQueryState() {
@@ -98,12 +105,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           newMySqlQuery.withs.add(matchCompiler.buildChainedWith(columnGroup, newMySqlQuery))
         }
         if (definition.`return` == null) {
-          val lastCTE = newMySqlQuery.withs.last { !it.exclude }
+          val lastCTE = newMySqlQuery.withs.lastIncluded()
           val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
           newMySqlQuery.insert = "dataset.dataset_results"
-          newMySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
+          newMySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
-          newMySqlQuery.selects.add(MySQLSelect("'${columnGroup.name.replace(" ", "")}'", "column_group"))
+          newMySqlQuery.selects.add(MySQLSelect(quoteSqlString(columnGroup.name.replace(" ", "")), "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(newMySqlQuery), "json"))
         }
         filterInjector.injectOrgReturnAndFilter(newMySqlQuery)
@@ -112,10 +119,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
       if (definition.`return` == null) {
-        val lastCTE = mySqlQuery.withs.last { !it.exclude }
+        val lastCTE = mySqlQuery.withs.lastIncluded()
         val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
         mySqlQuery.insert = "dataset.cohort_results"
-        mySqlQuery.selects.add(MySQLSelect(definition.iri, "query_result_id"))
+        mySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
       }
       filterInjector.injectOrgReturnAndFilter(mySqlQuery)
@@ -148,8 +155,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    return IMtoMySQLMap.getTableFromProperty(listOfNotNull(propertyIri))
-      ?: IMtoMySQLMap.getTableFromDataModel(typeIri)
+    return findTableFromTypeAndProperty(typeIri, propertyIri)
       ?: throw SQLConversionException("Type $typeIri not found in table map")
   }
+
+  private fun findTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table? =
+    IMtoMySQLMap.findTable(typeIri, propertyIri)
 }

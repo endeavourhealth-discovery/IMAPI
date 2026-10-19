@@ -15,6 +15,7 @@ import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TABLE_PLACEHOLDER
 import org.endeavourhealth.imapi.model.sql.qualifyField
+import org.endeavourhealth.imapi.model.sql.quoteIdentifier
 import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
@@ -134,8 +135,8 @@ internal class WhereClauseCompiler(
         conceptTable = conceptAlias,
       )
     } else if (where.range != null) {
-      val from = where.range.from
-      val to = where.range.to
+      val from = where.range.from ?: throw SQLConversionException("Range on $field has no 'from' bound")
+      val to = where.range.to ?: throw SQLConversionException("Range on $field has no 'to' bound")
       val isDirectValue = where.compare == null && from.value != null
 
       val fromWhere: MySQLWhere
@@ -145,13 +146,13 @@ internal class WhereClauseCompiler(
         fromWhere = MySQLPropertyValueWhere(
           property = field,
           operator = from.operator.value,
-          value = SqlLiteralUtils.toSqlLiteral("${from.value}"),
+          value = SqlLiteralUtils.toSqlLiteral(from.value),
           table = tableRef
         )
         toWhere = MySQLPropertyValueWhere(
           property = field,
           operator = to.operator.value,
-          value = SqlLiteralUtils.toSqlLiteral("${to.value}"),
+          value = SqlLiteralUtils.toSqlLiteral(to.value ?: throw SQLConversionException("Range on $field has no 'to' value")),
           table = tableRef
         )
       } else {
@@ -199,7 +200,7 @@ internal class WhereClauseCompiler(
           property = field,
           operator = where.operator.value,
           right = compareValue,
-          value = where.value,
+          value = SqlLiteralUtils.requireNumber(where.value),
           units = if (type == "Unit") name else null,
           qualifier = if (type == "Qualifier") name else null,
           not = where.isNot,
@@ -232,7 +233,7 @@ internal class WhereClauseCompiler(
     val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
     val whereIri = where.compare?.left?.iri ?: where.iri
 
-    if (whereIri == null) throw SQLConversionException("No property found for where $whereIri")
+    if (whereIri == null) throw SQLConversionException("No property found for where $where")
     val currentTable =
       if (nodeRef != null) variableToTableMap[nodeRef] else with.table
     if (currentTable == null) throw SQLConversionException("No table found: $nodeRef")
@@ -249,22 +250,19 @@ internal class WhereClauseCompiler(
       return addFunctionalPropertyJoin(with, currentTable, fromRef, whereIri, mappedField) to mappedField.field
     }
 
-    var rawField = mappedField.field
+    val rawField = mappedField.field
     if (rawField.isEmpty()) {
-      rawField = getPropertyNameByTableAndPropertyIri(currentTable, whereIri).field
-        ?: throw SQLConversionException("No field found for property $whereIri")
+      // the property lives on the query's own type table, so join to it (once) and qualify by that table
       val (fk, pk) = with.table.foreignKeyTo(queryTypeOfTable)
-      with.joins.add(
-        MySQLJoin(
-          join = "JOIN",
-          with.table.table,
-          queryTypeOfTable.table,
-          fromProperty = fk,
-          toProperty = pk
-        )
+      val join = MySQLJoin(
+        join = "JOIN",
+        with.table.table,
+        queryTypeOfTable.table,
+        fromProperty = fk,
+        toProperty = pk
       )
-      rawField = qualifyField(queryTypeOfTable.table, rawField)
-      return queryTypeOfTable to rawField
+      if (!with.joins.contains(join)) with.joins.add(join)
+      return queryTypeOfTable to qualifyField(queryTypeOfTable.table, rawField)
     }
 
     val field =
@@ -348,7 +346,7 @@ internal class WhereClauseCompiler(
     }
     if (property.isEmpty()) throw SQLConversionException("No property found for relativeTo $nodeRef")
     if (nodeRefTable != null) return qualifyField(aliases.sanitiseAlias(nodeRef), property)
-    return qualifyField("`$nodeRef`", property)
+    return qualifyField(quoteIdentifier(nodeRef), property)
   }
 
   private fun addWhereConceptJoin(

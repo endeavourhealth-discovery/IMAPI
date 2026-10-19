@@ -83,7 +83,7 @@ public class SetService {
 
   private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
     TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(IM.DEFINITION)).getEntity();
-    if (null != entityDefinition.get(iri(IM.DEFINITION))) {
+    if (null != entityDefinition && null != entityDefinition.get(iri(IM.DEFINITION))) {
       filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
       includeConcept.setFilter(filters);

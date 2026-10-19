@@ -1426,7 +1426,9 @@ public class EqdResources {
 
   private void updateSetName(TTEntity setName, String thisName) {
     String currentName = setName.getName();
-    if (!currentName.contains(thisName)) {
+    if (currentName == null) {
+      setName.setName(thisName);
+    } else if (thisName != null && !currentName.contains(thisName)) {
       setName.setName(currentName.split(" (set)")[0] + " ... (set");
     }
 

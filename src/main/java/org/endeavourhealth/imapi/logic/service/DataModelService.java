@@ -196,7 +196,8 @@ public class DataModelService {
 
   private void handleOr(TTValue ttProperty, String cardinality, String reverseCardinality, List<PropertyDisplay> propertyList) {
     PropertyDisplay propertyDisplay = new PropertyDisplay();
-    propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
+    if (ttProperty.asNode().get(iri(SHACL.ORDER)) != null)
+      propertyDisplay.setOrder(ttProperty.asNode().get(iri(SHACL.ORDER)).asLiteral().intValue());
     propertyDisplay.setCardinality(cardinality);
     propertyDisplay.setReverseCardinality(reverseCardinality);
     propertyDisplay.setIsOr(true);

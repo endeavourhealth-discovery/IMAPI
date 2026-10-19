@@ -9,7 +9,6 @@ import org.endeavourhealth.imapi.model.requests.QueryRequest
 import org.endeavourhealth.imapi.model.sql.MappingParser
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
-import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.TableMap
 import org.endeavourhealth.imapi.model.sql.quoteSqlString
@@ -20,26 +19,20 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val denominator: String? = null, val numerator: String? = null, val dataset: String? = null,
   val debugPatientId: String? = null
 ) {
-  private val imToMySqlMap: TableMap get() = tableMap
   var sql: String? = null
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
-  var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
-  var queryTypeOfTable = Table()
-  private val aliases = AliasAllocator()
+  val mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
 
-  private val nodePathContextMap = HashMap<String, NodePathContext>()
-  private val pathJoinBuilder = PathJoinBuilder(nodePathContextMap, ::findTableFromTypeAndProperty)
+  private val ctx = ConversionContext(tableMap)
+  val queryTypeOfTable: Table get() = ctx.queryTypeOfTable
+
   private val keepAsLookup = KeepAsLookup(queryRequest)
-  private val selectCompiler = SelectClauseCompiler({ queryTypeOfTable }, nodePathContextMap)
-
-  private val keepAsMap = HashMap<String, MySQLWith>()
-  private val filterInjector = FilterInjector(queryRequest, { queryTypeOfTable }, ::getTableFromTypeAndProperty)
-  private val whereCompiler = WhereClauseCompiler(
-    { queryTypeOfTable }, keepAsMap, aliases, ::getTableFromTypeAndProperty, keepAsLookup::getDataModelFromKeepAs
-  )
+  private val filterInjector = FilterInjector(queryRequest, ctx)
   private val matchCompiler = MatchTreeCompiler(
-    { queryTypeOfTable }, aliases, keepAsMap, selectCompiler, whereCompiler, pathJoinBuilder,
-    ::getTableFromTypeAndProperty
+    ctx,
+    SelectClauseCompiler(ctx),
+    WhereClauseCompiler(ctx, keepAsLookup::getDataModelFromKeepAs),
+    PathJoinBuilder(ctx),
   )
 
   init {
@@ -49,13 +42,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   init {
     try {
       if (debugPatientId != null) {
-        require(queryTypeOf != null) { "Queries need a type" }
-        queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+        ctx.queryTypeOfTable = requireQueryTypeTable()
         sql = generatePatientTraceSQL(queryRequest.query, debugPatientId)
       } else if (queryRequest.query.queryType == IMQType.INDICATOR) sql = IndicatorSqlGenerator.generate(denominator, numerator, dataset)
       else {
-        require(queryTypeOf != null) { "Queries need a type" }
-        queryTypeOfTable = getTableFromTypeAndProperty(queryTypeOf, null)
+        ctx.queryTypeOfTable = requireQueryTypeTable()
         sql = generateSQL(queryRequest.query)
       }
     } catch (e: SQLConversionException) {
@@ -82,58 +73,63 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     private val tableMap: TableMap by lazy { MappingParser().parse("IMQtoMYSQL.json") }
   }
 
-  private fun resetPerQueryState() {
-    aliases.reset()
-    nodePathContextMap.clear()
-    keepAsMap.clear()
+  private fun requireQueryTypeTable(): Table {
+    require(queryTypeOf != null) { "Queries need a type" }
+    return ctx.getTable(queryTypeOf, null)
   }
 
   private fun generateSQL(definition: Query): String {
-    resetPerQueryState()
-    val mySqlQuery = MySQLQuery()
-    if (definition.typeOf == null || definition.typeOf.iri == null) {
-      throw SQLConversionException("Query typeOf is null")
-    }
+    ctx.resetPerQueryState()
+    requireTypeOf(definition)
 
     if (definition.columnGroup != null) {
+      // each column group compiles its own query
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
-        resetPerQueryState()
-        val newMySqlQuery = MySQLQuery()
-        if (columnGroup.name == null) columnGroup.name = "ColumnGroup$index"
-        mySQLQueries.add(newMySqlQuery)
-        if (definition.`is` != null) newMySqlQuery.withs.add(matchCompiler.getIsWith(definition, newMySqlQuery))
-        matchCompiler.addMatchWithsRecursively(columnGroup, newMySqlQuery)
-        if (columnGroup.and == null && columnGroup.or == null &&
-          columnGroup.`is` == null
-        ) {
-          newMySqlQuery.withs.add(matchCompiler.buildChainedWith(columnGroup, newMySqlQuery))
+        ctx.resetPerQueryState()
+        val groupQuery = MySQLQuery()
+        val groupName = columnGroup.name ?: "ColumnGroup$index"
+        mySQLQueries.add(groupQuery)
+        if (definition.`is` != null) groupQuery.withs.add(matchCompiler.getIsWith(definition, groupQuery))
+        matchCompiler.addMatchWithsRecursively(columnGroup, groupQuery)
+        if (columnGroup.and == null && columnGroup.or == null && columnGroup.`is` == null) {
+          groupQuery.withs.add(matchCompiler.buildChainedWith(columnGroup, groupQuery))
         }
         if (definition.`return` == null) {
-          val lastCTE = newMySqlQuery.withs.lastIncluded()
-          val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
-          newMySqlQuery.insert = "dataset.dataset_results"
-          newMySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
-          newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
-          newMySqlQuery.selects.add(MySQLSelect(quoteSqlString(columnGroup.name.replace(" ", "")), "column_group"))
-          newMySqlQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(newMySqlQuery), "json"))
+          addResultSelects(groupQuery, DATASET_RESULTS_TABLE, definition)
+          groupQuery.selects.add(MySQLSelect(quoteSqlString(groupName.replace(" ", "")), "column_group"))
+          groupQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(groupQuery), "json"))
         }
-        filterInjector.injectOrgReturnAndFilter(newMySqlQuery)
-        filterInjector.injectPatientFilter(newMySqlQuery)
+        addFilters(groupQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
-    } else {
-      // column groups each compile their own query, so the main tree is only needed when there are none
-      matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
-      if (definition.`return` == null) {
-        val lastCTE = mySqlQuery.withs.lastIncluded()
-        val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
-        mySqlQuery.insert = "dataset.cohort_results"
-        mySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
-        mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
-      }
-      filterInjector.injectOrgReturnAndFilter(mySqlQuery)
-      filterInjector.injectPatientFilter(mySqlQuery)
-      return mySqlQuery.toSql()
+    }
+
+    val mySqlQuery = MySQLQuery()
+    matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
+    if (definition.`return` == null) addResultSelects(mySqlQuery, COHORT_RESULTS_TABLE, definition)
+    addFilters(mySqlQuery)
+    return mySqlQuery.toSql()
+  }
+
+  /** Makes the query insert its rows, tagged with the query's iri, into [insertTable]. */
+  private fun addResultSelects(query: MySQLQuery, insertTable: String, definition: Query) {
+    val queryIri = definition.iri ?: throw SQLConversionException("Query iri is null")
+    val lastCTE = query.withs.lastIncluded()
+    val fk = getLastCteEntityKeyField(lastCTE, ctx.queryTypeOfTable)
+      ?: throw SQLConversionException("No entity key on ${lastCTE.alias}")
+    query.insert = insertTable
+    query.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(queryIri), QUERY_RESULT_ID_FIELD))
+    query.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
+  }
+
+  private fun addFilters(query: MySQLQuery) {
+    filterInjector.injectOrgReturnAndFilter(query)
+    filterInjector.injectPatientFilter(query)
+  }
+
+  private fun requireTypeOf(definition: Query) {
+    if (definition.typeOf == null || definition.typeOf.iri == null) {
+      throw SQLConversionException("Query typeOf is null")
     }
   }
 
@@ -144,27 +140,17 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.iri == null) {
       throw SQLConversionException("Query iri is null")
     }
-    resetPerQueryState()
-    val mySqlQuery = MySQLQuery()
-    if (definition.typeOf == null || definition.typeOf.iri == null) {
-      throw SQLConversionException("Query typeOf is null")
-    }
+    ctx.resetPerQueryState()
+    requireTypeOf(definition)
 
+    val mySqlQuery = MySQLQuery()
     matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
     if (mySqlQuery.withs.isEmpty()) {
       throw SQLConversionException("Query produced no steps to trace")
     }
 
-    val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)
-    val isPatientRooted = queryTypeOfTable.dataModel == patientTable.dataModel
+    val patientTable = ctx.getTable("${NAMESPACE.IM.asIri().iri}Patient", null)
+    val isPatientRooted = ctx.queryTypeOfTable.dataModel == patientTable.dataModel
     return PatientTraceSqlBuilder.build(mySqlQuery.withs, definition.iri, patientId, isPatientRooted)
   }
-
-  private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table {
-    return findTableFromTypeAndProperty(typeIri, propertyIri)
-      ?: throw SQLConversionException("Type $typeIri not found in table map")
-  }
-
-  private fun findTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table? =
-    imToMySqlMap.findTable(typeIri, propertyIri)
 }

@@ -3,19 +3,23 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 
+/**
+ * The selects that carry each of [carryProperties] through a union branch, reading them from [sourceRef]. A branch
+ * that does not expose a property (or is a cohort reference) contributes NULL so every branch has the same columns.
+ */
+private fun carrySelects(with: MySQLWith, carryProperties: List<String>, sourceRef: String): List<MySQLSelect> {
+  val availableAliases = getAvailableAliases(with)
+  return carryProperties.map { propIri ->
+    val alias = propIri.substringAfterLast('#')
+    if (with.isCohortRef || alias !in availableAliases) MySQLSelect("NULL", alias)
+    else MySQLSelect("$sourceRef.$alias", alias)
+  }
+}
+
 internal fun selectFromEmittedWith(with: MySQLWith, carryProperties: List<String>): MySQLWith {
   val keyField = with.entityKeyField ?: return with
   val selects = mutableListOf(MySQLSelect("${with.alias}.$keyField"))
-  if (carryProperties.isNotEmpty()) {
-    val availableAliases = getAvailableAliases(with)
-    for (propIri in carryProperties) {
-      val alias = propIri.substringAfterLast('#')
-      selects.add(
-        if (with.isCohortRef || alias !in availableAliases) MySQLSelect("NULL", alias)
-        else MySQLSelect("${with.alias}.$alias", alias)
-      )
-    }
-  }
+  selects.addAll(carrySelects(with, carryProperties, with.alias))
   return MySQLWith(
     table = with.table,
     alias = with.alias,
@@ -31,31 +35,16 @@ internal fun normaliseForUnion(with: MySQLWith, carryProperties: List<String> = 
   if (carryProperties.isEmpty()) {
     val onlySelect = with.selects.singleOrNull()
     if (onlySelect != null && onlySelect.alias == null && !onlySelect.name.contains("*")) return with
-    return MySQLWith(
-      table = with.table,
-      alias = with.alias,
-      selects = mutableListOf(MySQLSelect("t.$keyField")),
-      subQuery = with,
-      fromAlias = "t",
-      entityKeyField = keyField
-    )
   }
 
-  val availableAliases = getAvailableAliases(with)
-  val selects = mutableListOf(MySQLSelect("t.$keyField"))
-  for (propIri in carryProperties) {
-    val alias = propIri.substringAfterLast('#')
-    selects.add(
-      if (with.isCohortRef || alias !in availableAliases) MySQLSelect("NULL", alias)
-      else MySQLSelect("t.$alias", alias)
-    )
-  }
+  val selects = mutableListOf(MySQLSelect("$UNION_SOURCE_ALIAS.$keyField"))
+  selects.addAll(carrySelects(with, carryProperties, UNION_SOURCE_ALIAS))
   return MySQLWith(
     table = with.table,
     alias = with.alias,
     selects = selects,
     subQuery = with,
-    fromAlias = "t",
+    fromAlias = UNION_SOURCE_ALIAS,
     entityKeyField = keyField
   )
 }

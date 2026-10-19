@@ -15,10 +15,12 @@ import org.endeavourhealth.imapi.vocabulary.NAMESPACE
  */
 internal class FilterInjector(
   private val queryRequest: QueryRequest,
-  private val queryTypeOfTableProvider: () -> Table,
-  private val getTableFromTypeAndProperty: (String?, String?) -> Table,
+  private val ctx: ConversionContext,
 ) {
-  private val queryTypeOfTable: Table get() = queryTypeOfTableProvider()
+  private val queryTypeOfTable: Table get() = ctx.queryTypeOfTable
+
+  private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table =
+    ctx.getTable(typeIri, propertyIri)
 
   fun injectPatientFilter(mySqlQuery: MySQLQuery) {
     val patientTable = getTableFromTypeAndProperty("${NAMESPACE.IM.asIri().iri}Patient", null)

@@ -46,6 +46,15 @@ public class DataModelController {
       return dataModelService.getDataModelDisplayProperties(iri, pathsOnly);
     }
   }
+  @GetMapping("/flatDataModelProperties")
+  public NodeShape getFlatDataModelProperties(
+    HttpServletRequest request,
+    @Parameter(description = "IRI of the data model") @RequestParam(name = "iri") String iri) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.DataModelProperties.GET")) {
+      log.debug("getFlatDataModelProperties for " + iri);
+      return dataModelService.getFlatDataModelDisplayProperties(iri);
+    }
+  }
 
   @Operation(
     summary = "Fetches the property display information",

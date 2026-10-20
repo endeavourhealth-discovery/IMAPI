@@ -4,16 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
-import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
 import org.endeavourhealth.imapi.transforms.eqd.EnquiryDocument;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.model.tripletree.TTDocument;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTLiteral;
@@ -122,7 +120,10 @@ public class EqdToIMQ {
             qry.set(IM.DEFINITION, TTLiteral.literal(query));
           }
           if (qry != null) {
-            this.document.addEntity(qry);
+            List<TTEntity> splitQueries = splitQuery(qry);
+            for (TTEntity splitQuery : splitQueries) {
+              this.document.addEntity(splitQuery);
+            }
           }
         }
       }
@@ -269,7 +270,10 @@ public class EqdToIMQ {
       log.info(eqReport.getName());
       TTEntity qry = this.convertReport(eqReport);
       if (qry != null) {
-        this.document.addEntity(qry);
+        List<TTEntity> splitQueries = splitQuery(qry);
+        for (TTEntity splitQuery : splitQueries) {
+          this.document.addEntity(splitQuery);
+        }
       }
     }
 
@@ -283,6 +287,99 @@ public class EqdToIMQ {
         }
       }
     }
+
+  }
+
+  private List<TTEntity> splitQuery(TTEntity queryEntity) throws JsonProcessingException {
+    List<TTEntity> splitQueries = new ArrayList<>();
+
+    Integer clauseCount = this.getClauseCount(queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class));
+    if (clauseCount < 40) {
+      splitQueries.add(queryEntity);
+      return splitQueries;
+    }
+    collectQueries(queryEntity, splitQueries);
+    return splitQueries;
+  }
+
+
+
+
+  private void collectQueries(TTEntity queryEntity, List<TTEntity> splitQueries) throws JsonProcessingException {
+    splitQueries.add(queryEntity);
+    Query query = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    Query mainQuery = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    mainQuery.setRule(null);
+    mainQuery.addRule(query.getRule().getFirst());
+    String parentIri = query.getRule().getFirst().getIs().getIri();
+    for (int ruleNumber = 1; ruleNumber < query.getRule().size(); ruleNumber++) {
+      Query rule = query.getRule().get(ruleNumber);
+      if (rule.getAnd()!=null || rule.getOr()!=null) {
+        TTEntity subEntity = createSubQuery(rule, ruleNumber, parentIri, queryEntity.getName(), splitQueries);
+        Query newRule= new Query()
+          .setIs(new Node().setIri(subEntity.getIri()).setIsCohort(true).setName(subEntity.getName()))
+          .setIfTrue(rule.getIfTrue())
+          .setIfFalse(rule.getIfFalse());
+        mainQuery.addRule(newRule);
+        if (rule.getIfTrue()==RuleAction.NEXT&&rule.getIfFalse()==RuleAction.REJECT) {
+          parentIri= newRule.getIs().getIri();
+        }
+      }
+      else mainQuery.addRule(rule);
+    }
+    queryEntity.set(IM.DEFINITION, TTLiteral.literal(mainQuery));
+  }
+
+  private TTEntity createSubQuery(Query rule, int ruleNumber, String parentIri, String parentName, List<TTEntity> splitQueries) throws JsonProcessingException {
+    TTEntity subQueryEntity = createQueryEntity(splitQueries, ruleNumber,parentIri,parentName);
+    Query subQuery= subQueryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
+    if (rule.getAnd() != null) {
+      subQuery.getAnd().addAll(rule.getAnd());
+    }
+    else if (rule.getOr() != null) {
+      Query and= new Query();
+      subQuery.addAnd(and);
+      and.setOr(rule.getOr());
+    }
+    subQueryEntity.set(IM.DEFINITION, TTLiteral.literal(subQuery));
+    return subQueryEntity;
+  }
+
+
+
+  private TTEntity createQueryEntity(List<TTEntity> splitQueries, int ruleNumber,String parentIri,String parentName) throws JsonProcessingException {
+    TTEntity queryEntity= new TTEntity();
+    queryEntity.setIri(namespace+UUID.randomUUID().toString());
+    queryEntity.setScheme(iri(namespace));
+    queryEntity.addType(iri(IM.QUERY));
+    queryEntity.setName("Rule " + ruleNumber+" +of "+parentName);
+    splitQueries.add(queryEntity);
+    Query query= new Query();
+    query.setTypeOf(NAMESPACE.IM+"Patient");
+    query.setIri(queryEntity.getIri());
+    query.addAnd(new Query()
+      .setIs(new Node()
+        .setIri(parentIri)
+        .setIsCohort(true)));
+    queryEntity.set(IM.DEFINITION, TTLiteral.literal(query));
+    return queryEntity;
+  }
+
+  private Integer getClauseCount(Query query) {
+    int count=0;
+    for (List<Query> queries : Arrays.asList(query.getAnd(), query.getOr(),query.getRule())) {
+      if (queries != null) {
+        for (Query subQuery : queries) {
+          count++;
+          count=count+this.getClauseCount(subQuery);
+          if (subQuery.getThen() != null) {
+            count++;
+            count=count+this.getClauseCount(subQuery.getThen());
+          }
+        }
+      }
+    }
+    return count;
 
   }
 

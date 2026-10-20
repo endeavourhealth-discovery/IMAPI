@@ -176,6 +176,29 @@ public class DataModelRepository {
   }
 
 
+  public NodeShape getFlatDataModelDisplayProperties(String iri) {
+    NodeShape nodeShape = new NodeShape();
+    nodeShape.setIri(iri);
+    addDataModelSubtypes(nodeShape);
+    try (IMDB conn = IMDB.getConnection()) {
+      String sql = getPropertySql(iri);
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          nodeShape.setName(bs.getValue("entityName").stringValue());
+          PropertyShape group = null;
+          if (bs.getValue("path") != null) {
+            addProperty(nodeShape, null, bs);
+          }
+        }
+      }
+    }
+    return nodeShape;
+  }
+
+
   public NodeShape getDataModelDisplayProperties(String iri, boolean pathsOnly) {
     NodeShape nodeShape = new NodeShape();
     nodeShape.setIri(iri);

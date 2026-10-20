@@ -122,10 +122,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     query.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
   }
 
-  /** Adds the organisation and patient filters, then drops the columns no step uses. */
+  /** Adds the organisation and patient filters, shares identical steps, then drops the columns no step uses. */
   private fun finishQuery(query: MySQLQuery) {
     filterInjector.injectOrgReturnAndFilter(query)
     filterInjector.injectPatientFilter(query)
+    val shared = CteSharing.share(query)
+    if (shared > 0) log.debug("Shared {} identical step(s)", shared)
     ColumnPruning.prune(query)
   }
 

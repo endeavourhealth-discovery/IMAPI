@@ -18,7 +18,8 @@ import java.io.*;
 import java.nio.file.Path;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 public class SetMemberExport {
@@ -28,6 +29,10 @@ public class SetMemberExport {
   private static final String SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
   private static final String BUCKET_REGION = System.getenv("BUCKET_REGION");
   private static final String BUCKET_NAME = System.getenv("BUCKET_NAME");
+
+  private SetMemberExport() {
+    // prevent instantiation - static methods only
+  }
 
   public static void execute(Path basePath) {
     SetMemberExport.execute(basePath, Collections.emptyList());
@@ -67,11 +72,11 @@ public class SetMemberExport {
           }
         }
         if (!conceptSetBuilder.toString().isEmpty()) {
-        try (FileWriter fwSet = new FileWriter(baseFilename + "_set_members.csv")) {
-          fwSet.write(conceptSetBuilder.toString());
-        } catch (IOException e) {
-          log.error("Failed to export file: {}", baseFilename + "_set_members.csv", e);
-        }
+          try (FileWriter fwSet = new FileWriter(baseFilename + "_set_members.csv")) {
+            fwSet.write(conceptSetBuilder.toString());
+          } catch (IOException e) {
+            log.error("Failed to export file: {}", baseFilename + "_set_members.csv", e);
+          }
         }
       }
     }
@@ -79,7 +84,7 @@ public class SetMemberExport {
   }
 
   private static void executeConcept(StringBuilder builder, String iri) {
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       SetMemberExport.runExport(builder, conn, """
         select ?set ?member ?im1DbId
         where {
@@ -92,7 +97,7 @@ public class SetMemberExport {
   }
 
   private static void executeConceptSet(StringBuilder builder, String iri) {
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       SetMemberExport.runExport(builder, conn, """
         select ?set ?member ?im1DbId
         where {
@@ -160,9 +165,5 @@ public class SetMemberExport {
 
       client.putObject(objRequest, RequestBody.fromInputStream(stream, byteData.length));
     }
-  }
-
-  private SetMemberExport() {
-    // prevent instantiation - static methods only
   }
 }

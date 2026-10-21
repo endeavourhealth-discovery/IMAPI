@@ -9,8 +9,8 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.model.codegen.DataModel;
 import org.endeavourhealth.imapi.model.codegen.DataModelProperty;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -44,7 +44,7 @@ public class CodeGenJava {
       }
       """;
 
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
@@ -94,7 +94,7 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {

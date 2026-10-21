@@ -34,7 +34,7 @@ public class SetBinder {
 
   private Set<String> getSets() {
     Set<String> setIris = new HashSet<>();
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT distinct ?iri
         WHERE {

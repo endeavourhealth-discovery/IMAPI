@@ -15,7 +15,7 @@ import java.util.List;
 public class LuceneIndexer {
 
   public void buildIndexes(GRAPH insertGraph) {
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       dropIndex(conn, insertGraph);
       String sql = """
         PREFIX con: <http://www.ontotext.com/connectors/lucene#>

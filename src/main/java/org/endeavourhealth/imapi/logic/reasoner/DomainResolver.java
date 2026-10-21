@@ -15,7 +15,7 @@ import java.util.StringJoiner;
 public class DomainResolver {
 
   public void updateDomains(GRAPH insertGraph) {
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       Set<String> domains = getDomains(conn);
       for (String domain : domains) {
         updateDomain(conn, domain, insertGraph);

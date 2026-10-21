@@ -15,7 +15,7 @@ public class PathRepository {
   private final PathDocument document = new PathDocument();
 
   public PathDocument pathQuery(PathQuery pathQuery) {
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String targetIri = pathQuery.getTarget().getIri();
       String source = pathQuery.getSource().getIri();
       List<Query> paths = getPaths(conn, source, targetIri);

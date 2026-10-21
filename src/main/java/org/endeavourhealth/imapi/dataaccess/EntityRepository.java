@@ -2317,8 +2317,8 @@ public class EntityRepository {
           if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
-          if (!results.containsKey(subqIri))
-            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+          results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, label, Integer.parseInt(depth), new HashSet<>()))
+            .getParentIris().add(iri);
         }
       }
     }
@@ -2331,7 +2331,7 @@ public class EntityRepository {
   public List<SubQueryDependency> getOrderedSubqueries(String iri) {
     Map<String, SubQueryDependency> results = new HashMap<>();
     String sql = """
-          SELECT DISTINCT ?o ?label ?depth
+          SELECT DISTINCT ?o ?label ?depth ?parent
           WHERE {
              {
                  ?s im:dependentOn ?o .
@@ -2339,47 +2339,56 @@ public class EntityRepository {
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(2 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(3 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(4 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(5 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(6 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(7 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(8 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(9 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(10 AS ?depth)
              }
              OPTIONAL {
@@ -2399,8 +2408,9 @@ public class EntityRepository {
           if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
-          if (!results.containsKey(subqIri))
-            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+          String parentIri = bs.getValue("parent") != null ? bs.getValue("parent").stringValue() : iri;
+          results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, label, Integer.parseInt(depth), new HashSet<>()))
+            .getParentIris().add(parentIri);
         }
       }
     }

@@ -99,7 +99,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           groupQuery.selects.add(MySQLSelect(quoteSqlString(groupName.replace(" ", "")), "column_group"))
           groupQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(groupQuery), "json"))
         }
-        addFilters(groupQuery)
+        finishQuery(groupQuery)
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     }
@@ -107,7 +107,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     val mySqlQuery = MySQLQuery()
     matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
     if (definition.`return` == null) addResultSelects(mySqlQuery, COHORT_RESULTS_TABLE, definition)
-    addFilters(mySqlQuery)
+    finishQuery(mySqlQuery)
     return mySqlQuery.toSql()
   }
 
@@ -122,9 +122,11 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     query.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
   }
 
-  private fun addFilters(query: MySQLQuery) {
+  /** Adds the organisation and patient filters, then drops the columns no step uses. */
+  private fun finishQuery(query: MySQLQuery) {
     filterInjector.injectOrgReturnAndFilter(query)
     filterInjector.injectPatientFilter(query)
+    ColumnPruning.prune(query)
   }
 
   private fun requireTypeOf(definition: Query) {

@@ -20,10 +20,13 @@ data class MySQLWith(
   var havingClause: String? = null,
   var entityKeyField: String? = null,
   val isCohortRef: Boolean = false,
-  var isCarrierAliased: Boolean = false
+  var isCarrierAliased: Boolean = false,
+  /** False where the rows are already unique (window wrappers, anti-joins, union branches), so DISTINCT would only cost a dedupe pass. */
+  var distinct: Boolean = true
 ) {
-  private fun toSqlBody(): String {
+  private fun toSqlBody(inUnion: Boolean = false): String {
     if (unionWiths.isNotEmpty()) return toUnionSqlBody()
+    val distinctSql = if (distinct && !inUnion) "DISTINCT " else ""
 
     val selectSql = selects.joinToString(", ") { sel ->
       sel.toSql()
@@ -41,7 +44,7 @@ data class MySQLWith(
 
     return buildString {
       appendLine(
-        "SELECT DISTINCT $selectSql"
+        "SELECT $distinctSql$selectSql"
       )
       if (subQuery != null) {
         appendLine("FROM (")
@@ -78,7 +81,7 @@ data class MySQLWith(
   private fun toUnionSqlBody(): String {
     val unionKeyword = if (unionAll) "UNION ALL" else "UNION"
     val unionSql = unionWiths.joinToString("\n$unionKeyword\n") { unionWith ->
-      "(${unionWith.toSqlBody()})"
+      "(${unionWith.toSqlBody(inUnion = !unionAll)})"
     }
     val orderBySql = orderBy?.toSql()
     return if (orderBySql != null) {

@@ -12,9 +12,9 @@ internal object IndicatorSqlGenerator {
     val denominatorLiteral = SqlLiteralUtils.queryResultIdToken(denominator)
     val indSql = """
       SELECT c.entity_id, !ISNULL(n.entity_id) as "Yes/No", d.json
-      FROM dataset.cohort_results c
-      LEFT JOIN dataset.cohort_results n ON n.entity_id = c.entity_id AND n.query_result_id = $numeratorLiteral
-      LEFT JOIN dataset.dataset_results d ON d.entity_id = c.entity_id AND d.query_result_id = $datasetLiteral
+      FROM $COHORT_RESULTS_TABLE c
+      LEFT JOIN $COHORT_RESULTS_TABLE n ON n.entity_id = c.entity_id AND n.query_result_id = $numeratorLiteral
+      LEFT JOIN $DATASET_RESULTS_TABLE d ON d.entity_id = c.entity_id AND d.query_result_id = $datasetLiteral
       WHERE c.query_result_id = $denominatorLiteral;
     """.trimIndent()
     return indSql

@@ -10,10 +10,12 @@ import org.endeavourhealth.imapi.model.sql.Table
 /**
  * Resolves IMQ match paths to tables, registering node tables and adding the joins along the path.
  */
-internal class PathJoinBuilder(
-  private val nodePathContextMap: MutableMap<String, NodePathContext>,
-  private val findTableFromTypeAndProperty: (String?, String?) -> Table?,
-) {
+internal class PathJoinBuilder(private val ctx: ConversionContext) {
+  private val nodePathContextMap: MutableMap<String, NodePathContext> get() = ctx.nodePathContextMap
+
+  private fun findTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table? =
+    ctx.findTable(typeIri, propertyIri)
+
   fun addPathTableAndJoins(
     paths: MutableList<Path>,
     tableMap: HashMap<String, Table>,

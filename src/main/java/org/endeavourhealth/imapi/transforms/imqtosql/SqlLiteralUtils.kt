@@ -70,19 +70,30 @@ object SqlLiteralUtils {
     return value
   }
 
-  fun getUnitNameAndType(iri: String): Pair<String, String> {
+  /** Whether a unit is a quantity to add/subtract (e.g. "5 days") or a calendar part to compare (e.g. "same day"). */
+  enum class UnitKind { UNIT, QUALIFIER }
+
+  data class UnitSpec(val sqlName: String, val kind: UnitKind) {
+    /** The SQL interval unit when this is a quantity, else null. */
+    val unitName: String? get() = sqlName.takeIf { kind == UnitKind.UNIT }
+
+    /** The SQL calendar part when this is a qualifier, else null. */
+    val qualifierName: String? get() = sqlName.takeIf { kind == UnitKind.QUALIFIER }
+  }
+
+  fun getUnitNameAndType(iri: String): UnitSpec {
     return when (IM.from(iri)) {
-      IM.YEARS -> "YEAR" to "Unit"
-      IM.YEAR -> "YEAR" to "Qualifier"
-      IM.MONTHS -> "MONTH" to "Unit"
-      IM.MONTH -> "MONTH" to "Qualifier"
-      IM.DAYS -> "DAY" to "Unit"
-      IM.DAY -> "DAY" to "Qualifier"
-      IM.HOURS -> "HOUR" to "Unit"
-      IM.MINUTES -> "MINUTE" to "Unit"
-      IM.SECONDS -> "SECOND" to "Unit"
-      IM.FISCAL_YEAR -> "FISCAL_YEAR" to "Qualifier"
-      IM.QUARTER -> "QUARTER" to "Qualifier"
+      IM.YEARS -> UnitSpec("YEAR", UnitKind.UNIT)
+      IM.YEAR -> UnitSpec("YEAR", UnitKind.QUALIFIER)
+      IM.MONTHS -> UnitSpec("MONTH", UnitKind.UNIT)
+      IM.MONTH -> UnitSpec("MONTH", UnitKind.QUALIFIER)
+      IM.DAYS -> UnitSpec("DAY", UnitKind.UNIT)
+      IM.DAY -> UnitSpec("DAY", UnitKind.QUALIFIER)
+      IM.HOURS -> UnitSpec("HOUR", UnitKind.UNIT)
+      IM.MINUTES -> UnitSpec("MINUTE", UnitKind.UNIT)
+      IM.SECONDS -> UnitSpec("SECOND", UnitKind.UNIT)
+      IM.FISCAL_YEAR -> UnitSpec("FISCAL_YEAR", UnitKind.QUALIFIER)
+      IM.QUARTER -> UnitSpec("QUARTER", UnitKind.QUALIFIER)
       else -> throw SQLConversionException("No unit name found for $iri")
     }
   }

@@ -16,11 +16,11 @@ import org.endeavourhealth.imapi.model.sql.quoteSqlString
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
 
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
-  val queryRequest: QueryRequest, val mapper: ObjectMapper? = ObjectMapper(),
+  val queryRequest: QueryRequest, val mapper: ObjectMapper? = null,
   val denominator: String? = null, val numerator: String? = null, val dataset: String? = null,
   val debugPatientId: String? = null
 ) {
-  private var IMtoMySQLMap: TableMap = MappingParser().parse("IMQtoMYSQL.json")
+  private val imToMySqlMap: TableMap get() = tableMap
   var sql: String? = null
   var queryTypeOf: String? = queryRequest.query?.typeOf?.iri
   var mySQLQueries: MutableList<MySQLQuery> = mutableListOf()
@@ -74,6 +74,12 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
 
   private companion object {
     private val log = LoggerFactory.getLogger(IMQtoSQLConverterKotlin::class.java)
+
+    /**
+     * Parsed once and shared by every conversion. It is read-only after parsing: [TableMap.getTableFromDataModel]
+     * hands out fresh [Table] instances, so per-query alias/condition changes never touch the shared map.
+     */
+    private val tableMap: TableMap by lazy { MappingParser().parse("IMQtoMYSQL.json") }
   }
 
   private fun resetPerQueryState() {
@@ -88,8 +94,6 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
     }
-
-    matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
 
     if (definition.columnGroup != null) {
       for ((index, columnGroup) in definition.columnGroup.withIndex()) {
@@ -118,6 +122,8 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
       }
       return mySQLQueries.joinToString(separator = "\n----------------------------------------\n") { it.toSql() }
     } else {
+      // column groups each compile their own query, so the main tree is only needed when there are none
+      matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)
       if (definition.`return` == null) {
         val lastCTE = mySqlQuery.withs.lastIncluded()
         val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
@@ -160,5 +166,5 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   }
 
   private fun findTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table? =
-    IMtoMySQLMap.findTable(typeIri, propertyIri)
+    imToMySqlMap.findTable(typeIri, propertyIri)
 }

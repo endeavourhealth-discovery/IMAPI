@@ -353,6 +353,22 @@ public class QueryController {
       return queryService.validateQuery(query);
     }
   }
+
+
+  @PostMapping("/validateMatch")
+  @Operation(
+    summary = "Validate Match",
+    description = "Validates a single clause"
+  )
+  public Query validateMatch(
+    HttpServletRequest request,
+    @RequestBody Query query
+  ) throws QueryException, OpenSearchException {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Query.QueryIM.POST")) {
+      log.debug("validateMatch");
+      return queryService.validateMatch(query);
+    }
+  }
   @GetMapping("/semanticMaps")
   @Operation(summary = "Get the list of semanticMaps for a source type")
   public Set<TTEntity> getSemanticMaps(

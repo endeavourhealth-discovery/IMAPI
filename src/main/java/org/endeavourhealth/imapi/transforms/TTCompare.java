@@ -71,7 +71,7 @@ public class TTCompare {
     if (from.isIriRef())
       return from.equals(to);
     if (from.isLiteral())
-      return from.asLiteral().getValue().equals(to.asLiteral().getValue());
+      return to.isLiteral() && from.asLiteral().getValue().equals(to.asLiteral().getValue());
     else if (from.isNode() && to.isNode())
       return equals((TTNode) from, (TTNode) to);
     else

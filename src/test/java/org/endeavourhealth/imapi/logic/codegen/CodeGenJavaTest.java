@@ -100,7 +100,7 @@ class CodeGenJavaTest {
   void generate_ShouldGenerateZipWithJavaFiles() throws IOException {
     try (MockedStatic<IMDB> mockedImdb = mockStatic(IMDB.class)) {
       IMDB mockConn = mock(IMDB.class);
-      mockedImdb.when(IMDB::getConnection).thenReturn(mockConn);
+      mockedImdb.when(IMDB.Companion::getConnection).thenReturn(mockConn);
 
       // Mock getModelList
       TupleQuery modelListQuery = mock(TupleQuery.class);

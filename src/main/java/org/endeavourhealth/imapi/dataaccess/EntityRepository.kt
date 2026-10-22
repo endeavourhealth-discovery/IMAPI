@@ -2428,7 +2428,7 @@ class EntityRepository {
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
                  BIND(10 AS ?depth)
              }
              OPTIONAL {

@@ -11,6 +11,7 @@ import static org.endeavourhealth.imapi.model.tripletree.TTIriRef.iri;
 public class Inferrer {
 
   private void inheritDomains(TTEntity property, TTEntityMap propertyMap) {
+    if (property.get(iri(RDFS.SUBCLASS_OF)) == null) return;
     for (TTValue superProp : property.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
       TTIriRef superIri = superProp.asIriRef();
       TTEntity superEntity = propertyMap.getEntity(superIri.getIri());
@@ -21,6 +22,7 @@ public class Inferrer {
   }
 
   private void inheritRanges(TTEntity property, TTEntityMap propertyMap) {
+    if (property.get(iri(RDFS.SUBCLASS_OF)) == null) return;
     for (TTValue superProp : property.get(iri(RDFS.SUBCLASS_OF)).getElements()) {
       TTIriRef superIri = superProp.asIriRef();
       TTEntity superEntity = propertyMap.getEntity(superIri.getIri());

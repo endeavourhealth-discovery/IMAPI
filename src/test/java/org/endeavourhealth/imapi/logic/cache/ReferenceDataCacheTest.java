@@ -16,14 +16,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ReferenceDataCacheTest {
 
-  @BeforeEach
-  @AfterEach
-  void clear() {
-    ReferenceDataCache.invalidateAll();
-  }
-
   private static List<Namespace> namespaces() {
-    return new ArrayList<>(List.of(new Namespace("http://endhealth.info/im#", "im", "Information model")));
+    return new ArrayList<>(List.of(new Namespace().setIri("http://endhealth.info/im#").setPrefix("im").setName("Information model")));
   }
 
   private static FilterOptionsDto options() {
@@ -31,6 +25,12 @@ class ReferenceDataCacheTest {
     dto.setStatus(new ArrayList<>(List.of(new TTIriRef("http://endhealth.info/im#Active", "Active"))));
     dto.setTypeSchemes(Map.of("http://endhealth.info/im#Concept", new ArrayList<>(List.of(new TTIriRef("http://endhealth.info/im#", "IM")))));
     return dto;
+  }
+
+  @BeforeEach
+  @AfterEach
+  void clear() {
+    ReferenceDataCache.invalidateAll();
   }
 
   @Test

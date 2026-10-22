@@ -19,10 +19,10 @@ internal object DatasetJsonBuilder {
           .dropLast(1)
           .last()
           .selects
-          .filterNot { it.alias == ROW_NUMBER_ALIAS || isEntityKeySelect(it) }
+          .filterNot { it.alias == ROW_NUMBER_ALIAS || isEntityKeySelect(it, null) }
       }
     } else {
-      lastWith.selects.filterNot { isEntityKeySelect(it) || it.name.contains("*") }
+      lastWith.selects.filterNot { isEntityKeySelect(it, lastWith.entityKeyField) || (it.name.contains("*") && !it.isAggregate) }
     }
 
     if (selects == null) throw SQLConversionException("No selects found in last with")
@@ -48,5 +48,6 @@ internal object DatasetJsonBuilder {
   }
 
   // the bare key select identifies the row; an aliased one is a requested column
-  private fun isEntityKeySelect(select: MySQLSelect) = select.name == "patient.id" && select.alias == null
+  private fun isEntityKeySelect(select: MySQLSelect, entityKeyField: String?) =
+    select.alias == null && (select.name == "patient.id" || (entityKeyField != null && select.name.endsWith(".$entityKeyField")))
 }

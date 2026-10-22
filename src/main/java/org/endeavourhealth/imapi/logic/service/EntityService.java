@@ -5,10 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.xml.bind.ValidationException;
 import org.endeavourhealth.imapi.dataaccess.EntityRepository;
 import org.endeavourhealth.imapi.errorhandling.DataMissingException;
-import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
+import org.endeavourhealth.imapi.logic.cache.ReferenceDataCache;
 import org.endeavourhealth.imapi.logic.validator.EntityValidator;
 import org.endeavourhealth.imapi.model.EntityReferenceNode;
-import org.endeavourhealth.imapi.logic.cache.ReferenceDataCache;
 import org.endeavourhealth.imapi.model.Namespace;
 import org.endeavourhealth.imapi.model.Pageable;
 import org.endeavourhealth.imapi.model.ValidatedEntity;
@@ -23,6 +22,7 @@ import org.endeavourhealth.imapi.model.responses.EntityValidationResponse;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.endeavourhealth.imapi.model.search.SearchResultSummary;
 import org.endeavourhealth.imapi.model.tripletree.*;
+import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.vocabulary.*;
 import org.springframework.stereotype.Component;
 
@@ -75,6 +75,7 @@ public class EntityService {
   }
 
   public void convertRuleToLogicalJson(TTBundle bundle) throws JsonProcessingException, QueryException {
+    if (bundle.getEntity() == null || bundle.getEntity().get(iri(IM.DEFINITION)) == null) return;
     Query query = bundle.getEntity().get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
     new LogicOptimizer().resolveLogic(query, DisplayMode.LOGICAL);
     bundle.getEntity().set(IM.DEFINITION.asIri(), mapper.writeValueAsString(query));
@@ -594,7 +595,7 @@ public class EntityService {
   }
 
   public Set<String> getMatchedTo(String iri, NAMESPACE namespace) {
-    return entityRepository.getMatchedTo(iri,namespace);
+    return entityRepository.getMatchedTo(iri, namespace);
   }
 }
 

@@ -32,7 +32,7 @@ internal class SelectClauseCompiler(
 
         ret.function != null -> {
           if (ret.function.iri == IM.COUNT.toString()) {
-            selects.add(MySQLSelect("COUNT(*)", ret.`as`))
+            selects.add(MySQLSelect("COUNT(*)", ret.`as` ?: COUNT_ALIAS, isAggregate = true))
           } else {
             selects.add(getFunctionSelect(table, ret, nodeToTableMap))
           }

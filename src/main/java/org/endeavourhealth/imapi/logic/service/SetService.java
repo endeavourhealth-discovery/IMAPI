@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import ca.uhn.fhir.context.FhirContext;
-import org.endeavourhealth.imapi.utility.FhirContextHolder;
 import ca.uhn.fhir.parser.IParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +28,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 import org.endeavourhealth.imapi.model.tripletree.TTValue;
 import org.endeavourhealth.imapi.transforms.IMQToECL;
+import org.endeavourhealth.imapi.utility.FhirContextHolder;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
 import org.endeavourhealth.imapi.vocabulary.IM;
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
@@ -83,7 +83,7 @@ public class SetService {
 
   private static void getIncludes(SetOptions options, ValueSet.ConceptSetFilterComponent filter, List<ValueSet.ConceptSetFilterComponent> filters, ValueSet.ConceptSetComponent includeConcept, List<ValueSet.ConceptSetComponent> includes, SetContent result) {
     TTEntity entityDefinition = new EntityRepository().getEntityPredicates(options.getSetIri(), asHashSet(IM.DEFINITION)).getEntity();
-    if (null != entityDefinition.get(iri(IM.DEFINITION))) {
+    if (null != entityDefinition && null != entityDefinition.get(iri(IM.DEFINITION))) {
       filter.setValue(entityDefinition.get(iri(IM.DEFINITION)).asLiteral().getValue());
       filters.add(filter);
       includeConcept.setFilter(filters);

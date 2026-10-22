@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.vocabulary.IM
 import org.endeavourhealth.imapi.vocabulary.RDFS
 import org.endeavourhealth.imapi.vocabulary.XSD
 
+
 class DataModelRepository {
   fun getProperties(): MutableList<TTIriRef> {
     val result: MutableList<TTIriRef> = mutableListOf()
@@ -155,6 +156,26 @@ class DataModelRepository {
       }
     }
     return result
+  }
+
+  fun getFlatDataModelDisplayProperties(iri: String): NodeShape {
+    val nodeShape = NodeShape()
+    nodeShape.setIri(iri)
+    addDataModelSubtypes(nodeShape)
+    IMDB.getConnection().use { conn ->
+      val sql = getPropertySql(iri)
+      val qry = conn.prepareTupleSparql(sql)
+      qry.evaluate().use { rs ->
+        while (rs.hasNext()) {
+          val bs = rs.next()
+          nodeShape.setName(bs.getValue("entityName").stringValue())
+          if (bs.getValue("path") != null) {
+            addProperty(nodeShape, null, bs)
+          }
+        }
+      }
+    }
+    return nodeShape
   }
 
 

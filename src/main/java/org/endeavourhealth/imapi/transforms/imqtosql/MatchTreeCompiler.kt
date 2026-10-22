@@ -11,6 +11,7 @@ import org.endeavourhealth.imapi.model.sql.MySQLWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.qualifyField
+import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
  * Compiles the IMQ match tree (and/or/is/notExists groups and individual matches) into an ordered list of CTEs.
@@ -382,7 +383,9 @@ internal class MatchTreeCompiler(
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
     if (match.`return` != null) addReturnFunctionalJoins(match, with)
-    if (isReferencedElsewhere) {
+    val isAggregate = match.`return`?.any { it.function?.iri == IM.COUNT.toString() } == true
+    // an aggregate collapses rows to one per entity, so only grouped columns can be selected, not table.*
+    if (isReferencedElsewhere && !isAggregate) {
       with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))
       for ((propIri, field) in with.table.fields) {
         if (field.join == null) continue
@@ -411,6 +414,9 @@ internal class MatchTreeCompiler(
         val field = getPropertyNameByTableAndPropertyIri(with.table, propIri).field
         with.selects.add(MySQLSelect(qualifyField(with.table.alias ?: with.table.table, field), alias))
       }
+    }
+    if (isAggregate) {
+      with.groupByColumns.addAll(with.selects.filterNot { it.isAggregate }.map { it.name }.distinct())
     }
   }
 

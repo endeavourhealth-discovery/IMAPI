@@ -100,9 +100,11 @@ class MySQLCompareWhere(
           }
         } else if (qualifier != null) {
           when (qualifier) {
-            "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"
+            "QUARTER" -> "((CAST(YEAR($prop) AS SIGNED) - CAST(YEAR($right) AS SIGNED)) * 4 + (CAST(QUARTER($prop) AS SIGNED) - CAST(QUARTER($right) AS SIGNED))) $operator $value"
             "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) - (YEAR(DATE_SUB($right, INTERVAL 3 MONTH)) + 1) $operator $value"
-            "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            "DAY" -> "DATEDIFF($prop, $right) $operator $value"
+            "MONTH" -> "PERIOD_DIFF(DATE_FORMAT($prop, '%Y%m'), DATE_FORMAT($right, '%Y%m')) $operator $value"
+            "YEAR" -> "(CAST(YEAR($prop) AS SIGNED) - CAST(YEAR($right) AS SIGNED)) $operator $value"
             else -> "$prop - $right $operator $value"
           }
         } else "($prop) $operator $right"

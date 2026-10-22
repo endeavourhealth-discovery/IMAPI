@@ -35,7 +35,7 @@ internal class MatchTreeCompiler(
     val isAlias = aliases.useAs(requireAs(match))
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
     cohortTable.table = COHORT_RESULTS_TABLE
-    val resultIdWhere = MySQLPropertyValueWhere(QUERY_RESULT_ID_FIELD, "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null)
+    val resultIdWhere = MySQLPropertyValueWhere(QUERY_RESULT_ID_FIELD, "=", SqlLiteralUtils.queryResultIdToken(isA.iri), null, null)
 
     // the first step filters the cohort results directly; later steps join them to the previous step
     val joins = mutableListOf<MySQLJoin>()

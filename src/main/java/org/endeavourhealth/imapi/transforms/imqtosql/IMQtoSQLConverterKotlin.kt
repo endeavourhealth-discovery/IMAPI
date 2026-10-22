@@ -108,7 +108,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
           val lastCTE = newMySqlQuery.withs.lastIncluded()
           val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
           newMySqlQuery.insert = "dataset.dataset_results"
-          newMySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
+          newMySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.queryResultIdToken(definition.iri), "query_result_id"))
           newMySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
           newMySqlQuery.selects.add(MySQLSelect(quoteSqlString(columnGroup.name.replace(" ", "")), "column_group"))
           newMySqlQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(newMySqlQuery), "json"))
@@ -122,7 +122,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         val lastCTE = mySqlQuery.withs.lastIncluded()
         val fk = getLastCteEntityKeyField(lastCTE, queryTypeOfTable)
         mySqlQuery.insert = "dataset.cohort_results"
-        mySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.toSqlLiteral(definition.iri), "query_result_id"))
+        mySqlQuery.selects.add(MySQLSelect(SqlLiteralUtils.queryResultIdToken(definition.iri), "query_result_id"))
         mySqlQuery.selects.add(MySQLSelect("${lastCTE.alias}.$fk", ENTITY_ID_FIELD))
       }
       filterInjector.injectOrgReturnAndFilter(mySqlQuery)

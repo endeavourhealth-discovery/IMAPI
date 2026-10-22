@@ -7,16 +7,13 @@ import org.endeavourhealth.imapi.model.imq.When
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.qualifyField
-import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
  * Compiles IMQ return clauses (properties, functions, CASE expressions, literals) into SQL select items.
  */
-internal class SelectClauseCompiler(
-  private val queryTypeOfTableProvider: () -> Table,
-  private val nodePathContextMap: Map<String, NodePathContext>,
-) {
-  private val queryTypeOfTable: Table get() = queryTypeOfTableProvider()
+internal class SelectClauseCompiler(private val ctx: ConversionContext) {
+  private val queryTypeOfTable: Table get() = ctx.queryTypeOfTable
+  private val nodePathContextMap: Map<String, NodePathContext> get() = ctx.nodePathContextMap
 
   fun getSelects(
     table: Table,
@@ -31,7 +28,7 @@ internal class SelectClauseCompiler(
         ret.iri != null -> addSelectFromProperty(ret, selects, nodeToTableMap, table)
 
         ret.function != null -> {
-          if (ret.function.iri == IM.COUNT.toString()) {
+          if (ret.function.iri == COUNT_FUNCTION_IRI) {
             selects.add(MySQLSelect("COUNT(*)", ret.`as` ?: COUNT_ALIAS, isAggregate = true))
           } else {
             selects.add(getFunctionSelect(table, ret, nodeToTableMap))
@@ -164,7 +161,7 @@ internal class SelectClauseCompiler(
 
     if (expression.propertyRef != null) {
       val tableAlias = sourceTable.alias ?: sourceTable.table
-      return "$tableAlias.${expression.propertyRef}"
+      return qualifyField(tableAlias, expression.propertyRef)
     }
 
     if (expression.iri != null) {
@@ -181,7 +178,7 @@ internal class SelectClauseCompiler(
     returnProperty: Return,
     nodeToTableMap: HashMap<String, Table>
   ): MySQLSelect {
-    if (returnProperty.function.iri != IM.CONCATENATE.toString()) {
+    if (returnProperty.function.iri != CONCATENATE_FUNCTION_IRI) {
       throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     }
 

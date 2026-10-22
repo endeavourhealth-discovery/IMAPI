@@ -18,3 +18,4 @@ gradle.properties
 /src/main/resources/application.properties
 /src/main/resources/casdoor-cert.txt
 .ollamassist
+/scripts/fhir-expand-gold/

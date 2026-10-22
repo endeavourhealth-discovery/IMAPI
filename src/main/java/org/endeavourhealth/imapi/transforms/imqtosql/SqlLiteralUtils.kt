@@ -1,6 +1,7 @@
 package org.endeavourhealth.imapi.transforms.imqtosql
 
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
+import org.endeavourhealth.imapi.model.sql.quoteSqlString
 import org.endeavourhealth.imapi.vocabulary.IM
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -21,7 +22,12 @@ object SqlLiteralUtils {
   )
   private val SQL_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+  private val NUMBER_PATTERN = Regex("-?(0|[1-9]\\d*)(\\.\\d+)?")
+  private val DATE_SHAPE = Regex("\\d{1,4}[/-]\\d{1,2}[/-]\\d{1,4}")
+
+  /** Formats are tried in order, so ambiguous values such as 01-02-2020 are read day-first. */
   private fun tryParseDate(value: String): LocalDate? {
+    if (!DATE_SHAPE.matches(value)) return null
     for (formatter in DATE_FORMATS) {
       try {
         return LocalDate.parse(value, formatter)
@@ -32,13 +38,23 @@ object SqlLiteralUtils {
     return null
   }
 
+  /**
+   * Renders [value] as a SQL literal: plain numbers unquoted, dates normalised to 'yyyy-MM-dd', anything else
+   * a quoted, escaped string. Numeric-looking codes with leading zeros (e.g. "0123") stay strings.
+   */
   fun toSqlLiteral(value: String): String {
-    if (value.toBigDecimalOrNull() != null) return value
+    if (NUMBER_PATTERN.matches(value)) return value
 
     val date = tryParseDate(value)
     if (date != null) return "'${date.format(SQL_DATE_FORMAT)}'"
 
-    return "'${value.replace("'", "''")}'"
+    return quoteSqlString(value)
+  }
+
+  /** For values spliced into SQL as numbers (e.g. INTERVAL magnitudes): rejects anything that is not a number. */
+  fun requireNumber(value: String): String {
+    if (value.trim().toBigDecimalOrNull() == null) throw SQLConversionException("Expected a numeric value but got: $value")
+    return value
   }
 
   fun getUnitNameAndType(iri: String): Pair<String, String> {

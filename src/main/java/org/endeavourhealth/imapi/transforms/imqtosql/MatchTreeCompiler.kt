@@ -47,17 +47,17 @@ internal class MatchTreeCompiler(
           fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
           wheres = if (isA.isExclude) mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
+            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.queryResultIdToken(isA.iri), null, null),
             MySQLPropertyValueWhere(ENTITY_ID_FIELD, "IS", "NULL", null, null)
           ) else mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
+            MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.queryResultIdToken(isA.iri), null, null),
           )
         )
       )
     }
 
     val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
-      MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(isA.iri), null, null),
+      MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.queryResultIdToken(isA.iri), null, null),
     ) else mutableListOf()
 
     return MySQLWith(
@@ -123,7 +123,7 @@ internal class MatchTreeCompiler(
           outerKey = previousKey,
           innerTable = "dataset.cohort_results",
           innerKey = ENTITY_ID_FIELD,
-          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.toSqlLiteral(cohortIri), table = null))
+          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", SqlLiteralUtils.queryResultIdToken(cohortIri), table = null))
         )
       ),
       fromAlias = previous.alias,

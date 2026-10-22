@@ -44,6 +44,22 @@ class SqlSafetyTest {
   }
 
   @Test
+  fun queryIrisStayBareForTheQueryRunner() {
+    assertEquals("http://endhealth.info/im#Q_RegisteredGMS", SqlLiteralUtils.queryResultIdToken("http://endhealth.info/im#Q_RegisteredGMS"))
+    assertEquals(
+      "http://endhealth.info/qof#36e70531-462a-427a-8ee2-eeb584018cc9",
+      SqlLiteralUtils.queryResultIdToken("http://endhealth.info/qof#36e70531-462a-427a-8ee2-eeb584018cc9")
+    )
+  }
+
+  @Test
+  fun queryIriWithSqlMetaCharactersIsRejected() {
+    assertThrows(SQLConversionException::class.java) { SqlLiteralUtils.queryResultIdToken("http://x#a' OR '1'='1") }
+    assertThrows(SQLConversionException::class.java) { SqlLiteralUtils.queryResultIdToken("http://x#a; DROP TABLE t") }
+    assertThrows(SQLConversionException::class.java) { SqlLiteralUtils.queryResultIdToken("http://x#a?") }
+  }
+
+  @Test
   fun identifiersAndStringsAreQuoted() {
     assertEquals("`a``b`", quoteIdentifier("a`b"))
     assertEquals("'it''s'", quoteSqlString("it's"))

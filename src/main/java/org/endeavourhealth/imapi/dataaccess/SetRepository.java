@@ -216,17 +216,27 @@ public class SetRepository {
   }
 
   private Set<Concept> expand(TupleQuery qry, boolean includeLegacy, boolean subsumedBy, List<String> schemes, String entityVariable) {
-    Set<Concept> result = new HashSet<>();
+    return expandBySet(qry, includeLegacy, subsumedBy, schemes, entityVariable, null).getOrDefault("", new LinkedHashSet<>());
+  }
+
+  /**
+   * Builds the concepts for a result set, grouped by the set they belong to. When {@code setVariable} is null every row
+   * belongs to the single group "".
+   */
+  private Map<String, Set<Concept>> expandBySet(TupleQuery qry, boolean includeLegacy, boolean subsumedBy, List<String> schemes, String entityVariable, String setVariable) {
+    Map<String, Set<Concept>> resultBySet = new HashMap<>();
     Set<String> coreSchemes = asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM);
     Map<String, Concept> conceptMap = new HashMap<>();
     try (TupleQueryResult rs = qry.evaluate()) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
+        String setKey = setVariable == null ? "" : bs.getValue(setVariable).stringValue();
         String concept = bs.getValue(entityVariable).stringValue();
-        Concept cl = conceptMap.get(concept);
+        String conceptKey = setKey + "\n" + concept;
+        Concept cl = conceptMap.get(conceptKey);
         Value scheme = bs.getValue("scheme");
         if (cl == null) {
-          cl = buildConcept(concept, conceptMap, result, bs);
+          cl = buildConcept(concept, conceptKey, conceptMap, resultBySet.computeIfAbsent(setKey, k -> new HashSet<>()), bs);
           if (subsumedBy)
             cl.setSubsumed(bs.getValue("subsumed").stringValue().equals("Y"));
         } else {
@@ -254,12 +264,15 @@ public class SetRepository {
         }
       }
     }
-    return result.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new));
+    Map<String, Set<Concept>> sortedBySet = new HashMap<>();
+    resultBySet.forEach((setKey, concepts) -> sortedBySet.put(setKey,
+      concepts.stream().sorted(Comparator.comparing(Concept::getName)).collect(Collectors.toCollection(LinkedHashSet::new))));
+    return sortedBySet;
   }
 
-  private Concept buildConcept(String concept, Map<String, Concept> conceptMap, Set<Concept> result, BindingSet bs) {
+  private Concept buildConcept(String concept, String conceptKey, Map<String, Concept> conceptMap, Set<Concept> result, BindingSet bs) {
     Concept cl = new Concept();
-    conceptMap.put(concept, cl);
+    conceptMap.put(conceptKey, cl);
     result.add(cl);
     Value name = bs.getValue("term");
     Value code = bs.getValue("code");
@@ -560,7 +573,18 @@ public class SetRepository {
 
   public Set<Concept> getExpansionFromIri(String setIri, boolean includeLegacy, List<String> schemes,
                                           List<String> subsumptionPredicates) {
-    StringBuilder select = new StringBuilder().append("Select distinct ?entity ?subsumed ");
+    return getExpansionFromIris(List.of(setIri), includeLegacy, schemes, subsumptionPredicates)
+      .getOrDefault(setIri, new LinkedHashSet<>());
+  }
+
+  /**
+   * Expands several sets in a single query. The result is keyed by set iri; a set with no members has no entry. A
+   * concept that is a member of more than one of the sets is returned once per set.
+   */
+  public Map<String, Set<Concept>> getExpansionFromIris(Collection<String> setIris, boolean includeLegacy, List<String> schemes,
+                                                        List<String> subsumptionPredicates) {
+    if (setIris.isEmpty()) return new HashMap<>();
+    StringBuilder select = new StringBuilder().append("Select distinct ?setIri ?entity ?subsumed ");
     if (!subsumptionPredicates.isEmpty()) {
       select.append("?subsumed ");
     }
@@ -569,10 +593,8 @@ public class SetRepository {
       select.append("?legacy ?legacyTerm ?legacyCode ?legacyScheme ?legacySchemeName ?legacyIm1Id ?legacyUse ?legacyCodeId ?legacyAlternativeCode");
     }
     select.append("\n")
-      .append("""
-         WHERE {
-          Values ?setIri{%s}
-        """.formatted("<" + setIri + ">"))
+      .append(" WHERE {\n")
+      .append(valueList("setIri", setIris))
       .append("\n");
     select.append(addOr(true, includeLegacy, schemes, null));
     select.append(addOr(false, includeLegacy, schemes, subsumptionPredicates));
@@ -580,8 +602,67 @@ public class SetRepository {
     boolean subsumedBy = !subsumptionPredicates.isEmpty();
     try (IMDB conn = IMDB.getConnection()) {
       TupleQuery qry = conn.prepareTupleSparql(select.toString());
-      return expand(qry, includeLegacy, subsumedBy, List.of(), "entity");
+      return expandBySet(qry, includeLegacy, subsumedBy, List.of(), "entity", "setIri");
     }
+  }
+
+  /**
+   * A direct subset relationship within the subset tree of a set.
+   */
+  public record SubsetEdge(String subset, String name, String parent) {
+  }
+
+  /**
+   * Every labelled subset below {@code setIri} (at any depth) as child/parent edges, in one query. Only edges whose
+   * parent is {@code setIri} or one of its descendants are returned.
+   */
+  public List<SubsetEdge> getSubsetEdges(String setIri) {
+    List<SubsetEdge> edges = new ArrayList<>();
+    String sql = """
+      SELECT DISTINCT ?subset ?name ?parent
+      WHERE {
+        ?subset im:isSubsetOf+ ?root .
+        ?subset im:isSubsetOf ?parent .
+        ?parent im:isSubsetOf* ?root .
+        ?subset rdfs:label ?name .
+      }
+      """;
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      qry.setBinding("root", Values.iri(setIri));
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          BindingSet bs = rs.next();
+          edges.add(new SubsetEdge(bs.getValue("subset").stringValue(), bs.getValue("name").stringValue(), bs.getValue("parent").stringValue()));
+        }
+      }
+    }
+    return edges;
+  }
+
+  /**
+   * Of the given sets, those that have a definition but no members yet (so their members need generating).
+   */
+  public Set<String> getSetsWithDefinitionButNoMembers(Collection<String> setIris) {
+    Set<String> result = new HashSet<>();
+    if (setIris.isEmpty()) return result;
+    String sql = """
+      SELECT ?set
+      WHERE {
+        %s
+        FILTER NOT EXISTS { ?set im:hasMember ?member }
+        FILTER EXISTS { ?set im:definition ?definition }
+      }
+      """.formatted(valueList("set", setIris));
+    try (IMDB conn = IMDB.getConnection()) {
+      TupleQuery qry = conn.prepareTupleSparql(sql);
+      try (TupleQueryResult rs = qry.evaluate()) {
+        while (rs.hasNext()) {
+          result.add(rs.next().getValue("set").stringValue());
+        }
+      }
+    }
+    return result;
   }
 
   private String addOr(boolean first, boolean includeLegacy, List<String> schemes, List<String> subsumptionPredicates) {

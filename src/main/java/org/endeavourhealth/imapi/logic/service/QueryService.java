@@ -302,6 +302,18 @@ public class QueryService {
     return query;
   }
 
+  public Query validateMatch(Query query) {
+    QueryValidator validator = new QueryValidator();
+    query.setInvalid(false);
+    try {
+      validator.validateSingleMatch(query);
+    } catch (Exception e) {
+      query.setInvalid(true);
+      query.setErrorMessage(e.getMessage());
+    }
+    return query;
+  }
+
   public Set<TTEntity> getSemanticMaps(String sourceIri) {
     return new QueryRepository().getSemanticMapsForSourceIri(sourceIri);
   }

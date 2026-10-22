@@ -10,7 +10,13 @@ public class QueryValidator {
   private final Map<String, Map<String, Set<String>>> nodeMap = new HashMap<>();
   private int o = 0;
   private String mainEntity;
+  private boolean singleMatch;
 
+  public void validateSingleMatch(Query match) throws QueryException {
+    singleMatch= true;
+    processMatch(match);
+    validateMatch(match);
+  }
   public void validateQuery(Query query) throws QueryException {
     String mainEntity = "entity";
     if (query.getNode() != null) {
@@ -197,12 +203,11 @@ public class QueryValidator {
 
   private void validateCompare(Where where) throws QueryException {
     Compare compare = where.getCompare();
-
     if (compare.getRight() != null) validateSource(compare.getRight());
   }
 
   private void validateSource(ValueSource source) throws QueryException {
-    if (source.getNodeRef() != null)
+    if (source.getNodeRef() != null &&!singleMatch)
       if (variables.get(source.getNodeRef()) == null)
         throw new QueryException("Variable " + source.getNodeRef() + " not found");
 

@@ -1,0 +1,4058 @@
+{
+  "expansion": {
+    "contains": [
+      {
+        "code": "10294811000001100",
+        "display": "Simvastatin 80mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10295411000001101",
+        "display": "Simvastatin 40mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10295711000001107",
+        "display": "Simvastatin 20mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10295911000001109",
+        "display": "Simvastatin 10mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10296911000001102",
+        "display": "Simvastatin 10mg tablets (Relonchem Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10297311000001100",
+        "display": "Simvastatin 20mg tablets (Relonchem Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10297511000001106",
+        "display": "Simvastatin 40mg tablets (Relonchem Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10298011000001102",
+        "display": "Pravastatin 40mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10298411000001106",
+        "display": "Pravastatin 20mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10298911000001103",
+        "display": "Pravastatin 10mg tablets (Focus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10403811000001101",
+        "display": "Pravastatin 10mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10404011000001109",
+        "display": "Pravastatin 20mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10404211000001104",
+        "display": "Pravastatin 40mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10413811000001103",
+        "display": "Simvastatin 10mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10414011000001106",
+        "display": "Simvastatin 20mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10414211000001101",
+        "display": "Simvastatin 40mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10414411000001102",
+        "display": "Simvastatin 80mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10512911000001108",
+        "display": "Crestor 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10513311000001102",
+        "display": "Crestor 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10513711000001103",
+        "display": "Crestor 40mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10618511000001107",
+        "display": "Simvastatin 10mg tablets (Somex Pharma) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10618711000001102",
+        "display": "Simvastatin 20mg tablets (Somex Pharma) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10618911000001100",
+        "display": "Simvastatin 40mg tablets (Somex Pharma) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10733011000001107",
+        "display": "Simvastatin 10mg tablets (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10733511000001104",
+        "display": "Simvastatin 20mg tablets (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10733711000001109",
+        "display": "Simvastatin 40mg tablets (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10767611000001104",
+        "display": "Lescol XL 80mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10769311000001104",
+        "display": "Rosuvastatin 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "108111000001106",
+        "display": "Zocor 10mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "10892211000001104",
+        "display": "Simvastatin 80mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "113211000001106",
+        "display": "Zocor 80mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11410411000001102",
+        "display": "Pravastatin 10mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11410611000001104",
+        "display": "Pravastatin 20mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11410811000001100",
+        "display": "Pravastatin 40mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11414211000001109",
+        "display": "Simvastatin 10mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11414411000001108",
+        "display": "Simvastatin 20mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11414611000001106",
+        "display": "Simvastatin 40mg tablets (Pliva Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11551311000001101",
+        "display": "Simvastatin 10mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11551511000001107",
+        "display": "Simvastatin 20mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11551711000001102",
+        "display": "Simvastatin 40mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "11580111000001101",
+        "display": "Rosuvastatin 20mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "12198211000001102",
+        "display": "Crestor 5mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "12561111000001105",
+        "display": "Rosuvastatin 5mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13110211000001109",
+        "display": "Crestor 5mg tablets (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13110511000001107",
+        "display": "Crestor 10mg tablets (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13110811000001105",
+        "display": "Crestor 20mg tablets (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13190011000001100",
+        "display": "Rosuvastatin 10mg tablets (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "134491009",
+        "display": "Product containing precisely cerivastatin sodium 800 microgram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13761111000001104",
+        "display": "Pravastatin 10mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13761311000001102",
+        "display": "Pravastatin 20mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13761511000001108",
+        "display": "Pravastatin 40mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13762911000001107",
+        "display": "Simvastatin 10mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13763111000001103",
+        "display": "Simvastatin 20mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13763311000001101",
+        "display": "Simvastatin 40mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13763511000001107",
+        "display": "Simvastatin 80mg tablets (Tillomed Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13768211000001101",
+        "display": "Pravastatin 10mg tablets (Apotex Europe Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13768411000001102",
+        "display": "Pravastatin 20mg tablets (Apotex Europe Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13768611000001104",
+        "display": "Pravastatin 40mg tablets (Apotex Europe Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13831111000001108",
+        "display": "Atorvastatin 10mg tablets (PI) (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13831511000001104",
+        "display": "Atorvastatin 20mg tablets (PI) (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13831811000001101",
+        "display": "Atorvastatin 40mg tablets (PI) (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13857611000001108",
+        "display": "Crestor 5mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13857911000001102",
+        "display": "Crestor 10mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13858111000001104",
+        "display": "Lloydspharmacy Cholesterol Lowering 10mg tablets (Lloyds Pharmacy Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13858311000001102",
+        "display": "Crestor 20mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13858511000001108",
+        "display": "Crestor 40mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13885511000001105",
+        "display": "Simvastatin 20mg/5ml oral solution (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13885811000001108",
+        "display": "Simvastatin 40mg/5ml oral solution (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13886111000001107",
+        "display": "Simvastatin 40mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13894211000001107",
+        "display": "Simvastatin 20mg/5ml oral solution (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13894311000001104",
+        "display": "Simvastatin 40mg/5ml oral solution (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13894411000001106",
+        "display": "Simvastatin 40mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13920811000001104",
+        "display": "Lescol 20mg capsules (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13921111000001100",
+        "display": "Lescol 40mg capsules (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13921411000001105",
+        "display": "Lescol XL 80mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13922611000001102",
+        "display": "Lipitor 10mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13923011000001100",
+        "display": "Lipitor 20mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13923311000001102",
+        "display": "Lipitor 80mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13923511000001108",
+        "display": "Lipostat 10mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "13991911000001105",
+        "display": "Zocor 20mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14011411000001109",
+        "display": "Atorvastatin 20mg/5ml oral solution (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14012011000001108",
+        "display": "Atorvastatin 20mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14018211000001101",
+        "display": "Atorvastatin 20mg/5ml oral solution (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14018311000001109",
+        "display": "Atorvastatin 20mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14036511000001107",
+        "display": "Fluvastatin 20mg capsules (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14036711000001102",
+        "display": "Fluvastatin 40mg capsules (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14037111000001100",
+        "display": "Fluvastatin 20mg capsules (UniChem Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14037311000001103",
+        "display": "Fluvastatin 40mg capsules (UniChem Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14157311000001109",
+        "display": "Atorvastatin 10mg/5ml oral solution (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14157611000001104",
+        "display": "Atorvastatin 10mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14158611000001100",
+        "display": "Atorvastatin 10mg/5ml oral solution (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14158711000001109",
+        "display": "Atorvastatin 10mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14163111000001107",
+        "display": "Simvastatin 80mg tablets (Chanelle Medical UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14168511000001107",
+        "display": "Fluvastatin 20mg capsules (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14168911000001100",
+        "display": "Fluvastatin 40mg capsules (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14197911000001103",
+        "display": "Atorvastatin 10mg tablets (PI) (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14198211000001106",
+        "display": "Atorvastatin 20mg tablets (PI) (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14198611000001108",
+        "display": "Atorvastatin 40mg tablets (PI) (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14211711000001106",
+        "display": "Crestor 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14212311000001103",
+        "display": "Crestor 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14212711000001104",
+        "display": "Crestor 5mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14239111000001103",
+        "display": "Fluvastatin 20mg capsules (PI) (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14309911000001100",
+        "display": "Lipitor 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14312111000001105",
+        "display": "Lipitor 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14584311000001100",
+        "display": "Fluvastatin 20mg capsules (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14584511000001106",
+        "display": "Fluvastatin 40mg capsules (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14593011000001101",
+        "display": "Lipitor 40mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14732411000001109",
+        "display": "Zocor 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14732811000001106",
+        "display": "Zocor 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14733311000001107",
+        "display": "Zocor 40mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14764711000001103",
+        "display": "Lescol 20mg capsules (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14765111000001100",
+        "display": "Lescol 40mg capsules (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14766611000001103",
+        "display": "Lescol XL 80mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14951411000001107",
+        "display": "Pravastatin 5mg/5ml oral solution (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14951711000001101",
+        "display": "Pravastatin 5mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14957711000001105",
+        "display": "Pravastatin 5mg/5ml oral solution (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "14957811000001102",
+        "display": "Pravastatin 5mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15088911000001103",
+        "display": "Fluvastatin 40mg capsules (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15158611000001106",
+        "display": "Simvador 80mg tablets (Discovery Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15171911000001107",
+        "display": "Simvastatin 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15172411000001109",
+        "display": "Simvastatin 40mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15172911000001101",
+        "display": "Simvastatin 80mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15174911000001105",
+        "display": "Pravastatin 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15175111000001106",
+        "display": "Pravastatin 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15175311000001108",
+        "display": "Pravastatin 40mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15188311000001107",
+        "display": "Simvastatin 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15364211000001102",
+        "display": "Luvinsta XL 80mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15523811000001109",
+        "display": "Pravastatin 40mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "15534511000001107",
+        "display": "Pravastatin 40mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16066711000001104",
+        "display": "Simvastatin 10mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16066911000001102",
+        "display": "Simvastatin 20mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16067211000001108",
+        "display": "Simvastatin 40mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16154711000001108",
+        "display": "Crestor 5mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16155011000001105",
+        "display": "Crestor 40mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16198411000001104",
+        "display": "Lescol 20mg capsules (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16198611000001101",
+        "display": "Lescol 40mg capsules (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16199611000001105",
+        "display": "Lipitor 10mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16201611000001109",
+        "display": "Lipitor 80mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16237911000001102",
+        "display": "Fluvastatin 20mg capsules (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16238111000001104",
+        "display": "Fluvastatin 40mg capsules (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16269211000001107",
+        "display": "Atorvastatin 10mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16451411000001100",
+        "display": "Zocor 10mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16451611000001102",
+        "display": "Zocor 40mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16499511000001107",
+        "display": "Lescol XL 80mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16506411000001106",
+        "display": "Lipitor 10mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16506711000001100",
+        "display": "Lipitor 20mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16507211000001109",
+        "display": "Lipitor 40mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16507511000001107",
+        "display": "Lipitor 80mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16511811000001100",
+        "display": "Inegy 10mg/20mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16512711000001101",
+        "display": "Inegy 10mg/40mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16513811000001101",
+        "display": "Inegy 10mg/80mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16538511000001103",
+        "display": "Lescol 20mg capsules (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16538711000001108",
+        "display": "Lescol 40mg capsules (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16631611000001101",
+        "display": "Fluvastatin 20mg capsules (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16631811000001102",
+        "display": "Fluvastatin 40mg capsules (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16727711000001105",
+        "display": "Inegy 10mg/80mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "16735311000001101",
+        "display": "Pinmactil 80mg modified-release tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17282011000001107",
+        "display": "Dorisin XL 80mg tablets (Aspire Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17305411000001100",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (Rosemont Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17305711000001106",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (Rosemont Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17332011000001106",
+        "display": "Stefluvin XL 80mg tablets (Winthrop Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17339411000001108",
+        "display": "Crestor 5mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17339611000001106",
+        "display": "Crestor 40mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17369311000001105",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17429811000001102",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17481511000001106",
+        "display": "Zocor 20mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17481711000001101",
+        "display": "Zocor 40mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17500611000001108",
+        "display": "Crestor 10mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17500811000001107",
+        "display": "Crestor 20mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17513611000001101",
+        "display": "Lipostat 40mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17610511000001104",
+        "display": "Atorvastatin 10mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17785511000001104",
+        "display": "Simvastatin 20mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17793911000001109",
+        "display": "Simvastatin 40mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17795611000001104",
+        "display": "Simvastatin 80mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17841911000001100",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17842111000001108",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17910811000001100",
+        "display": "Fluvastatin 20mg capsules (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17911011000001102",
+        "display": "Fluvastatin 40mg capsules (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17915411000001109",
+        "display": "Pravastatin 10mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17915711000001103",
+        "display": "Pravastatin 20mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17916111000001105",
+        "display": "Pravastatin 40mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "17928611000001107",
+        "display": "Simvastatin 10mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18055211000001103",
+        "display": "Crestor 10mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18202311000001102",
+        "display": "Rosuvastatin 5mg tablets (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18210411000001105",
+        "display": "Zocor 10mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18210811000001107",
+        "display": "Zocor 20mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18211211000001100",
+        "display": "Zocor 40mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18228511000001104",
+        "display": "Crestor 10mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18228811000001101",
+        "display": "Crestor 20mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18229111000001101",
+        "display": "Crestor 40mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18229811000001108",
+        "display": "Crestor 5mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18263611000001103",
+        "display": "Fluvastatin 20mg capsules (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18465211000001102",
+        "display": "Pravastatin 10mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18465411000001103",
+        "display": "Pravastatin 20mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18465611000001100",
+        "display": "Pravastatin 40mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18467811000001106",
+        "display": "Simvastatin 10mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18468011000001104",
+        "display": "Simvastatin 20mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18468511000001107",
+        "display": "Simvastatin 40mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18468711000001102",
+        "display": "Simvastatin 80mg tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18492011000001104",
+        "display": "Lescol 20mg capsules (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18492211000001109",
+        "display": "Lescol 40mg capsules (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18492411000001108",
+        "display": "Lescol XL 80mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18492811000001105",
+        "display": "Lipitor 10mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18493111000001109",
+        "display": "Lipitor 20mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18493311000001106",
+        "display": "Lipitor 40mg tablets (Necessity Supplies Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18718611000001102",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18757511000001106",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "18758211000001107",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19197411000001105",
+        "display": "Simvastatin 10mg tablets (Aurobindo Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19197611000001108",
+        "display": "Simvastatin 20mg tablets (Aurobindo Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19197811000001107",
+        "display": "Simvastatin 40mg tablets (Aurobindo Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19198011000001100",
+        "display": "Simvastatin 80mg tablets (Aurobindo Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19614711000001106",
+        "display": "Inegy 10mg/20mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19614911000001108",
+        "display": "Inegy 10mg/40mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19615111000001109",
+        "display": "Inegy 10mg/80mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19719311000001104",
+        "display": "Lipitor 10mg chewable tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19719611000001109",
+        "display": "Lipitor 20mg chewable tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19722411000001106",
+        "display": "Atorvastatin 10mg chewable tablets sugar free (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19722511000001105",
+        "display": "Atorvastatin 20mg chewable tablets sugar free (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19731611000001100",
+        "display": "Pravastatin 10mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19731911000001106",
+        "display": "Pravastatin 20mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19732111000001103",
+        "display": "Pravastatin 40mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19733211000001103",
+        "display": "Simvastatin 10mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19733411000001104",
+        "display": "Simvastatin 20mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19733611000001101",
+        "display": "Simvastatin 40mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19733811000001102",
+        "display": "Simvastatin 80mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19870211000001107",
+        "display": "Crestor 20mg tablets (Lexon (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "19875111000001109",
+        "display": "Lipitor 40mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20289311000001105",
+        "display": "Fluvastatin 20mg capsules (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20289511000001104",
+        "display": "Fluvastatin 40mg capsules (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20448211000001101",
+        "display": "Atorvastatin 10mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20448411000001102",
+        "display": "Atorvastatin 20mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20448611000001104",
+        "display": "Atorvastatin 40mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20482711000001104",
+        "display": "Atorvastatin 10mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20482911000001102",
+        "display": "Atorvastatin 20mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20483111000001106",
+        "display": "Atorvastatin 40mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20483311000001108",
+        "display": "Atorvastatin 80mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20491711000001105",
+        "display": "Atorvastatin 10mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20491911000001107",
+        "display": "Atorvastatin 20mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20492311000001102",
+        "display": "Atorvastatin 40mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20492611000001107",
+        "display": "Atorvastatin 80mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20492811000001106",
+        "display": "Atorvastatin 10mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20494411000001102",
+        "display": "Atorvastatin 20mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20494711000001108",
+        "display": "Atorvastatin 40mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20495411000001101",
+        "display": "Atorvastatin 80mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20496111000001100",
+        "display": "Atorvastatin 10mg tablets (Aspire Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20496611000001108",
+        "display": "Atorvastatin 20mg tablets (Aspire Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20496911000001102",
+        "display": "Atorvastatin 40mg tablets (Aspire Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20497611000001105",
+        "display": "Atorvastatin 80mg tablets (Aspire Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20507911000001106",
+        "display": "Atorvastatin 10mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20508111000001109",
+        "display": "Atorvastatin 20mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20508311000001106",
+        "display": "Atorvastatin 40mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20508511000001100",
+        "display": "Atorvastatin 80mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20512911000001107",
+        "display": "Atorvastatin 30mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20513211000001109",
+        "display": "Atorvastatin 60mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20513411000001108",
+        "display": "Atorvastatin 80mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20528511000001106",
+        "display": "Atorvastatin 30mg tablets (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20528611000001105",
+        "display": "Atorvastatin 60mg tablets (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20529411000001104",
+        "display": "Atorvastatin 10mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20529611000001101",
+        "display": "Atorvastatin 20mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20529811000001102",
+        "display": "Atorvastatin 40mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20569311000001104",
+        "display": "Atorvastatin 10mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20569511000001105",
+        "display": "Atorvastatin 20mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20570211000001109",
+        "display": "Atorvastatin 40mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20570911000001100",
+        "display": "Atorvastatin 80mg tablets (Arrow Generics Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20572511000001108",
+        "display": "Atorvastatin 10mg tablets (Wockhardt UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20572711000001103",
+        "display": "Atorvastatin 20mg tablets (Wockhardt UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20573211000001104",
+        "display": "Atorvastatin 40mg tablets (Wockhardt UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20573911000001108",
+        "display": "Atorvastatin 80mg tablets (Wockhardt UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20576911000001102",
+        "display": "Atorvastatin 10mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20577211000001108",
+        "display": "Atorvastatin 20mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20577411000001107",
+        "display": "Atorvastatin 40mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20577611000001105",
+        "display": "Atorvastatin 80mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20970011000001106",
+        "display": "Atorvastatin 30mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20970211000001101",
+        "display": "Atorvastatin 60mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20977811000001101",
+        "display": "Atorvastatin 10mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20978111000001109",
+        "display": "Atorvastatin 20mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20978811000001102",
+        "display": "Atorvastatin 40mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20979511000001106",
+        "display": "Atorvastatin 80mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20982011000001104",
+        "display": "Atorvastatin 10mg tablets (Dr Reddy's Laboratories (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20982411000001108",
+        "display": "Atorvastatin 20mg tablets (Dr Reddy's Laboratories (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20982611000001106",
+        "display": "Atorvastatin 40mg tablets (Dr Reddy's Laboratories (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "20982911000001100",
+        "display": "Atorvastatin 80mg tablets (Dr Reddy's Laboratories (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21099211000001101",
+        "display": "Atorvastatin 30mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21099411000001102",
+        "display": "Atorvastatin 60mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21779211000001107",
+        "display": "Atorvastatin 10mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21779411000001106",
+        "display": "Atorvastatin 20mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21779611000001109",
+        "display": "Atorvastatin 40mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21779811000001108",
+        "display": "Atorvastatin 80mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21850611000001104",
+        "display": "Pravastatin 10mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21850811000001100",
+        "display": "Pravastatin 20mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21851011000001102",
+        "display": "Pravastatin 40mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21898011000001102",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21898211000001107",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21899011000001107",
+        "display": "Simvastatin 10mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21899311000001105",
+        "display": "Simvastatin 20mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21899611000001100",
+        "display": "Simvastatin 40mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "21899811000001101",
+        "display": "Simvastatin 80mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22015311000001107",
+        "display": "Fluvastatin 20mg capsules (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22015511000001101",
+        "display": "Fluvastatin 40mg capsules (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22047311000001108",
+        "display": "Atorvastatin 10mg tablets (Almus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22047511000001102",
+        "display": "Atorvastatin 20mg tablets (Almus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22047711000001107",
+        "display": "Atorvastatin 40mg tablets (Almus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22047911000001109",
+        "display": "Atorvastatin 80mg tablets (Almus Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22201511000001108",
+        "display": "Atorvastatin 10mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22201711000001103",
+        "display": "Atorvastatin 20mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22202111000001109",
+        "display": "Atorvastatin 40mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22202511000001100",
+        "display": "Atorvastatin 80mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22612811000001102",
+        "display": "Atorvastatin 10mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22613011000001104",
+        "display": "Atorvastatin 20mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22613211000001109",
+        "display": "Atorvastatin 40mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22613511000001107",
+        "display": "Atorvastatin 80mg tablets (Doncaster Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22940511000001105",
+        "display": "Atorvastatin 10mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22940911000001103",
+        "display": "Atorvastatin 20mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22941211000001101",
+        "display": "Atorvastatin 40mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "22941511000001103",
+        "display": "Atorvastatin 80mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "232011000001102",
+        "display": "Lipitor 20mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23484111000001107",
+        "display": "Fluvastatin 80mg modified-release tablets (Accord Healthcare Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23645611000001106",
+        "display": "Atorvastatin 30mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23645811000001105",
+        "display": "Atorvastatin 60mg tablets (Phoenix Healthcare Distribution Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23864311000001100",
+        "display": "Nandovar XL 80mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23980611000001109",
+        "display": "Fluvastatin 20mg capsules (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "23980811000001108",
+        "display": "Fluvastatin 40mg capsules (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "28918111000001101",
+        "display": "Simvastatin 40mg tablets (Crescent Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "28918311000001104",
+        "display": "Simvastatin 10mg tablets (Crescent Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "28921611000001106",
+        "display": "Inegy 10mg/40mg tablets (Waymade Healthcare Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "28988511000001107",
+        "display": "Simvastatin 20mg tablets (Crescent Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29771911000001107",
+        "display": "Atorvastatin 10mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29772111000001104",
+        "display": "Atorvastatin 20mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29772311000001102",
+        "display": "Atorvastatin 30mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29772511000001108",
+        "display": "Atorvastatin 40mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29772711000001103",
+        "display": "Atorvastatin 60mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29772911000001101",
+        "display": "Atorvastatin 80mg tablets (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "29866311000001108",
+        "display": "Fluvastatin 20mg capsules (Sigma Pharmaceuticals Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30097311000001108",
+        "display": "Simvastatin 10mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30097511000001102",
+        "display": "Simvastatin 20mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30097711000001107",
+        "display": "Simvastatin 40mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30097911000001109",
+        "display": "Simvastatin 80mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30113411000001104",
+        "display": "Pravastatin 10mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30113611000001101",
+        "display": "Pravastatin 20mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30113811000001102",
+        "display": "Pravastatin 40mg tablets (DE Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30132511000001101",
+        "display": "Fluvastatin 20mg capsules (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "30132711000001106",
+        "display": "Fluvastatin 40mg capsules (Mawdsley-Brooks & Company Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "319996000",
+        "display": "Product containing precisely simvastatin 10 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "319997009",
+        "display": "Product containing precisely simvastatin 20 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320000009",
+        "display": "Product containing precisely simvastatin 40 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320006003",
+        "display": "Product containing precisely simvastatin 80 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320012008",
+        "display": "Product containing precisely pravastatin sodium 10 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320013003",
+        "display": "Product containing precisely pravastatin sodium 20 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320014009",
+        "display": "Product containing precisely pravastatin sodium 40 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320035006",
+        "display": "Product containing precisely cerivastatin sodium 100 microgram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320036007",
+        "display": "Product containing precisely cerivastatin sodium 200 microgram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320037003",
+        "display": "Product containing precisely cerivastatin sodium 300 microgram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "320041004",
+        "display": "Product containing precisely cerivastatin sodium 400 microgram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32169911000001103",
+        "display": "Cholib 145mg/40mg tablets (BGP Products Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32170911000001100",
+        "display": "Cholib 145mg/20mg tablets (BGP Products Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32234211000001101",
+        "display": "Fenofibrate 145mg / Simvastatin 20mg tablets (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32234311000001109",
+        "display": "Fenofibrate 145mg / Simvastatin 40mg tablets (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32394611000001102",
+        "display": "Atorvastatin 10mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32394811000001103",
+        "display": "Atorvastatin 20mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32395011000001108",
+        "display": "Atorvastatin 40mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32395211000001103",
+        "display": "Atorvastatin 80mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32494611000001109",
+        "display": "Simvastatin 10mg tablets (Brown & Burk UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32494811000001108",
+        "display": "Simvastatin 20mg tablets (Brown & Burk UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32495011000001103",
+        "display": "Simvastatin 40mg tablets (Brown & Burk UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32495311000001100",
+        "display": "Simvastatin 80mg tablets (Brown & Burk UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "32809411000001100",
+        "display": "Simvastatin 40mg tablets (Genesis Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33555611000001103",
+        "display": "Simvastatin 20mg tablets (Genesis Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33556411000001105",
+        "display": "Atorvastatin 10mg tablets (Mylan Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33556611000001108",
+        "display": "Atorvastatin 20mg tablets (Mylan Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33556811000001107",
+        "display": "Atorvastatin 40mg tablets (Mylan Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33557011000001103",
+        "display": "Atorvastatin 80mg tablets (Mylan Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "33654911000001100",
+        "display": "Simvastatin 10mg tablets (Genesis Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34952711000001106",
+        "display": "Rosuvastatin 5mg tablets (Aristo Pharma GmbH) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34953211000001105",
+        "display": "Rosuvastatin 10mg tablets (Aristo Pharma GmbH) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34954211000001108",
+        "display": "Rosuvastatin 20mg tablets (Aristo Pharma GmbH) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34954611000001105",
+        "display": "Rosuvastatin 40mg tablets (Aristo Pharma GmbH) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34961511000001102",
+        "display": "Atorvastatin 10mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "34961811000001104",
+        "display": "Atorvastatin 20mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35018711000001101",
+        "display": "Rosuvastatin 40mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35018911000001104",
+        "display": "Rosuvastatin 5mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35019311000001106",
+        "display": "Rosuvastatin 10mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35019611000001101",
+        "display": "Rosuvastatin 20mg tablets (Zentiva) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35027211000001100",
+        "display": "Rosuvastatin 5mg tablets (Mylan) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35027411000001101",
+        "display": "Rosuvastatin 10mg tablets (Mylan) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35027611000001103",
+        "display": "Rosuvastatin 5mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35027811000001104",
+        "display": "Rosuvastatin 20mg tablets (Mylan) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35028011000001106",
+        "display": "Rosuvastatin 40mg tablets (Mylan) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35028211000001101",
+        "display": "Rosuvastatin 20mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35028411000001102",
+        "display": "Rosuvastatin 40mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35028611000001104",
+        "display": "Rosuvastatin 10mg tablets (Teva UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35031711000001101",
+        "display": "Rosuvastatin 5mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35031911000001104",
+        "display": "Rosuvastatin 10mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35032111000001107",
+        "display": "Rosuvastatin 20mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35032311000001109",
+        "display": "Rosuvastatin 40mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35034211000001105",
+        "display": "Rosuvastatin 5mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35034411000001109",
+        "display": "Rosuvastatin 10mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35034611000001107",
+        "display": "Rosuvastatin 20mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35035011000001101",
+        "display": "Rosuvastatin 40mg tablets (Actavis UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35035711000001104",
+        "display": "Rosuvastatin 5mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35035911000001102",
+        "display": "Rosuvastatin 10mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35036111000001106",
+        "display": "Rosuvastatin 20mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35036311000001108",
+        "display": "Rosuvastatin 40mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35039311000001101",
+        "display": "Rosuvastatin 5mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35039511000001107",
+        "display": "Rosuvastatin 10mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35039711000001102",
+        "display": "Rosuvastatin 20mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35039911000001100",
+        "display": "Rosuvastatin 40mg tablets (Alliance Healthcare (Distribution) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35041411000001106",
+        "display": "Rosuvastatin 5mg tablets (Sun Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35041611000001109",
+        "display": "Rosuvastatin 40mg tablets (Sun Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35042011000001105",
+        "display": "Rosuvastatin 10mg tablets (Sun Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35042411000001101",
+        "display": "Rosuvastatin 20mg tablets (Sun Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35136011000001102",
+        "display": "Atorvastatin 10mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35136211000001107",
+        "display": "Atorvastatin 20mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35136411000001106",
+        "display": "Atorvastatin 40mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35136611000001109",
+        "display": "Atorvastatin 80mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35175811000001102",
+        "display": "Pravastatin 10mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35176011000001104",
+        "display": "Pravastatin 20mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35176211000001109",
+        "display": "Pravastatin 40mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35182911000001108",
+        "display": "Rosuvastatin 5mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35183311000001102",
+        "display": "Rosuvastatin 10mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35184211000001108",
+        "display": "Rosuvastatin 20mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35184411000001107",
+        "display": "Rosuvastatin 40mg tablets (Milpharm Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35290911000001107",
+        "display": "Cholesterol 2% / Simvastatin 2% cream (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35299511000001108",
+        "display": "Cholesterol 2% / Simvastatin 2% cream (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35364311000001108",
+        "display": "Atorvastatin 80mg tablets (Dexcel-Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35651611000001100",
+        "display": "Rosuvastatin 5mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35651811000001101",
+        "display": "Rosuvastatin 10mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35652011000001104",
+        "display": "Rosuvastatin 20mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "35652211000001109",
+        "display": "Rosuvastatin 40mg tablets (Consilient Health Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36114011000001103",
+        "display": "Simvastatin 80mg tablets (Crescent Pharma Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36237611000001106",
+        "display": "Rosuvastatin 5mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36237811000001105",
+        "display": "Rosuvastatin 10mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36238011000001103",
+        "display": "Rosuvastatin 20mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36238211000001108",
+        "display": "Rosuvastatin 40mg tablets (Medreich Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36491211000001106",
+        "display": "Atorvastatin 10mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36491411000001105",
+        "display": "Atorvastatin 20mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36491611000001108",
+        "display": "Atorvastatin 40mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36491811000001107",
+        "display": "Atorvastatin 80mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36499711000001100",
+        "display": "Rosuvastatin 5mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36499911000001103",
+        "display": "Rosuvastatin 10mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36500111000001102",
+        "display": "Rosuvastatin 20mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36500311000001100",
+        "display": "Rosuvastatin 40mg tablets (Xiromed) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36566411000001105",
+        "display": "Fluvastatin 80mg modified-release tablets (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36566711000001104",
+        "display": "Atorvastatin 40mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36566911000001102",
+        "display": "Atorvastatin 80mg tablets (Bristol Laboratories Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36725911000001100",
+        "display": "Rosuvastatin 5mg tablets (Macleods Pharma UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36730611000001101",
+        "display": "Rosuvastatin 10mg tablets (Macleods Pharma UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36732311000001105",
+        "display": "Rosuvastatin 20mg tablets (Macleods Pharma UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36734011000001101",
+        "display": "Rosuvastatin 40mg tablets (Macleods Pharma UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36835711000001103",
+        "display": "Fluvastatin 20mg capsules (Torrent Pharma (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36836011000001109",
+        "display": "Fluvastatin 40mg capsules (Torrent Pharma (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36836411000001100",
+        "display": "Cadaff XL 80mg tablets (Torrent Pharma (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36954211000001102",
+        "display": "Atorvastatin 10mg tablets (Flamingo Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36954411000001103",
+        "display": "Atorvastatin 20mg tablets (Flamingo Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36954611000001100",
+        "display": "Atorvastatin 40mg tablets (Flamingo Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "36954811000001101",
+        "display": "Atorvastatin 80mg tablets (Flamingo Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37037211000001102",
+        "display": "Atorvastatin 10mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37037611000001100",
+        "display": "Atorvastatin 20mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37038711000001105",
+        "display": "Atorvastatin 40mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37039111000001102",
+        "display": "Atorvastatin 80mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37106911000001105",
+        "display": "Atorvastatin 30mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37107111000001105",
+        "display": "Atorvastatin 60mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37129211000001100",
+        "display": "Pravastatin 10mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37129411000001101",
+        "display": "Pravastatin 20mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37129811000001104",
+        "display": "Pravastatin 40mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37140311000001102",
+        "display": "Simvastatin 20mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37140511000001108",
+        "display": "Simvastatin 40mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37140711000001103",
+        "display": "Simvastatin 80mg tablets (Mawdsley-Brooks & Company Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37358011000001108",
+        "display": "Crestor 5mg tablets (CST Pharma Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37568411000001107",
+        "display": "Atorvastatin 80mg tablets (NorthStar Healthcare Unlimited Company) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37568611000001105",
+        "display": "Atorvastatin 10mg tablets (NorthStar Healthcare Unlimited Company) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37569111000001109",
+        "display": "Atorvastatin 40mg tablets (NorthStar Healthcare Unlimited Company) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37569711000001105",
+        "display": "Atorvastatin 20mg tablets (NorthStar Healthcare Unlimited Company) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37611211000001106",
+        "display": "Rosuvastatin 5mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37611411000001105",
+        "display": "Rosuvastatin 10mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37611611000001108",
+        "display": "Rosuvastatin 20mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37611811000001107",
+        "display": "Rosuvastatin 40mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37627211000001105",
+        "display": "Crestor 5mg tablets (Pilsco Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37742911000001106",
+        "display": "Atorvastatin 30mg tablets (CST Pharma Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37797511000001105",
+        "display": "Rosuvastatin 5mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37798011000001101",
+        "display": "Rosuvastatin 10mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37798511000001109",
+        "display": "Rosuvastatin 20mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37798711000001104",
+        "display": "Rosuvastatin 40mg tablets (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37804611000001103",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "37805111000001105",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (DE Pharmaceuticals) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "378111000001106",
+        "display": "Lescol XL 80mg tablets (Novartis Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38748111000001101",
+        "display": "Atorvastatin 30mg tablets (Zentiva Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38748511000001105",
+        "display": "Atorvastatin 60mg tablets (Zentiva Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38800011000001109",
+        "display": "Atorvastatin 10mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38800211000001104",
+        "display": "Atorvastatin 20mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38800411000001100",
+        "display": "Atorvastatin 30mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38800611000001102",
+        "display": "Atorvastatin 40mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38800811000001103",
+        "display": "Atorvastatin 60mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38801211000001105",
+        "display": "Atorvastatin 80mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38921811000001109",
+        "display": "Fluvastatin 20mg capsules (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "38922111000001107",
+        "display": "Fluvastatin 40mg capsules (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39099711000001100",
+        "display": "Atorvastatin 60mg tablets (Pilsco Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39169411000001102",
+        "display": "Pravastatin 40mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39171111000001104",
+        "display": "Pravastatin 10mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39173111000001103",
+        "display": "Pravastatin 20mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39240911000001107",
+        "display": "Rosuvastatin 10mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39241111000001103",
+        "display": "Rosuvastatin 20mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39241311000001101",
+        "display": "Rosuvastatin 40mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39241511000001107",
+        "display": "Rosuvastatin 5mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39248311000001108",
+        "display": "Simvastatin 10mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39251111000001100",
+        "display": "Simvastatin 20mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39251311000001103",
+        "display": "Simvastatin 20mg/5ml oral suspension sugar free (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39251511000001109",
+        "display": "Simvastatin 40mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39251711000001104",
+        "display": "Simvastatin 40mg/5ml oral suspension sugar free (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39252311000001107",
+        "display": "Simvastatin 80mg tablets (Medihealth (Northern) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39480011000001100",
+        "display": "Rosuvastatin 5mg tablets (Relonchem Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39480211000001105",
+        "display": "Rosuvastatin 10mg tablets (Relonchem Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39480411000001109",
+        "display": "Rosuvastatin 20mg tablets (Relonchem Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39480611000001107",
+        "display": "Rosuvastatin 40mg tablets (Relonchem Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39693011000001106",
+        "display": "Product containing precisely fluvastatin (as fluvastatin sodium) 20 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39693111000001107",
+        "display": "Product containing precisely fluvastatin (as fluvastatin sodium) 40 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39695411000001103",
+        "display": "Product containing precisely atorvastatin (as atorvastatin calcium trihydrate) 10 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39733011000001106",
+        "display": "Product containing precisely atorvastatin (as atorvastatin calcium trihydrate) 20 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39733111000001107",
+        "display": "Product containing precisely atorvastatin (as atorvastatin calcium trihydrate) 40 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39733211000001101",
+        "display": "Product containing precisely atorvastatin (as atorvastatin calcium trihydrate) 80 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39824211000001103",
+        "display": "Rosuvastatin 5mg capsules (Sun Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39824711000001105",
+        "display": "Rosuvastatin 10mg capsules (Sun Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39825011000001107",
+        "display": "Rosuvastatin 20mg capsules (Sun Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39825611000001100",
+        "display": "Rosuvastatin 40mg capsules (Sun Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39832311000001101",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 10 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39832411000001108",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 20 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39832511000001107",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 40 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39832611000001106",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 5 milligram/1 each conventional release oral capsule 1 capsule capsule (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "39836311000001102",
+        "display": "Inegy 10mg/40mg tablets (CST Pharma Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40509311000001103",
+        "display": "Rosuvastatin 40mg capsules (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40509811000001107",
+        "display": "Rosuvastatin 20mg capsules (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40510111000001108",
+        "display": "Rosuvastatin 10mg capsules (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40510411000001103",
+        "display": "Rosuvastatin 5mg capsules (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40514711000001103",
+        "display": "Atorvastatin 20mg/5ml oral suspension sugar free (Rosemont Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40573211000001102",
+        "display": "Product containing precisely atorvastatin (as atorvastatin calcium trihydrate) 4 milligram/1 milliliter conventional release oral suspension sugar free (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40575311000001106",
+        "display": "Rosuvastatin 5mg capsules (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40575611000001101",
+        "display": "Rosuvastatin 40mg capsules (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40575811000001102",
+        "display": "Rosuvastatin 20mg capsules (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40576011000001104",
+        "display": "Rosuvastatin 10mg capsules (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40670611000001101",
+        "display": "Atorvastatin 20mg/5ml oral suspension sugar free (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40678811000001104",
+        "display": "Atorvastatin 10mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40679211000001105",
+        "display": "Atorvastatin 20mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40679411000001109",
+        "display": "Atorvastatin 40mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40679611000001107",
+        "display": "Atorvastatin 80mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "408024009",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 40 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "408036003",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 10 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "408037007",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 20 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40846611000001106",
+        "display": "Rosuvastatin 15mg tablets (Zentiva Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40847111000001100",
+        "display": "Rosuvastatin 30mg tablets (Zentiva Pharma UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40848311000001102",
+        "display": "Rosuvastatin 5mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40848711000001103",
+        "display": "Rosuvastatin 40mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40849211000001100",
+        "display": "Rosuvastatin 20mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40849411000001101",
+        "display": "Rosuvastatin 10mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40902011000001103",
+        "display": "Fluvastatin 80mg modified-release tablets (Aspire Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "409108001",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 5 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40917211000001108",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 15 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "40917311000001100",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 30 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "409611000001108",
+        "display": "Lescol 40mg capsules (Novartis Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41136911000001103",
+        "display": "Atorvastatin 30mg tablets (Milpharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41139011000001108",
+        "display": "Atorvastatin 10mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41139211000001103",
+        "display": "Atorvastatin 20mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41139411000001104",
+        "display": "Atorvastatin 60mg tablets (Milpharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41140011000001101",
+        "display": "Atorvastatin 40mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41140311000001103",
+        "display": "Atorvastatin 80mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41163411000001107",
+        "display": "Rosuvastatin 5mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41163611000001105",
+        "display": "Rosuvastatin 10mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41165211000001107",
+        "display": "Rosuvastatin 20mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41165411000001106",
+        "display": "Rosuvastatin 40mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41218111000001107",
+        "display": "Rosuvastatin 10mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41222711000001104",
+        "display": "Rosuvastatin 5mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41222911000001102",
+        "display": "Rosuvastatin 20mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41223611000001103",
+        "display": "Rosuvastatin 40mg tablets (Amarox Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41368011000001101",
+        "display": "Simvastatin 20mg / Ezetimibe 10mg tablets (Accord-UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41368611000001108",
+        "display": "Simvastatin 40mg / Ezetimibe 10mg tablets (Accord-UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41368811000001107",
+        "display": "Simvastatin 80mg / Ezetimibe 10mg tablets (Accord-UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "414177002",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 20 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "414178007",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 40 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "414179004",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 80 milligram/1 each conventional release oral tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41475511000001101",
+        "display": "Rosuvastatin 40mg tablets (Glenmark Pharmaceuticals Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41475811000001103",
+        "display": "Rosuvastatin 20mg tablets (Glenmark Pharmaceuticals Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41476011000001100",
+        "display": "Rosuvastatin 10mg tablets (Glenmark Pharmaceuticals Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41476311000001102",
+        "display": "Rosuvastatin 5mg tablets (Glenmark Pharmaceuticals Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41498211000001104",
+        "display": "Atorvastatin 10mg tablets (JCSH Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41498411000001100",
+        "display": "Atorvastatin 20mg tablets (JCSH Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41498611000001102",
+        "display": "Atorvastatin 40mg tablets (JCSH Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41499211000001109",
+        "display": "Atorvastatin 80mg tablets (JCSH Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41513911000001106",
+        "display": "Rosuvastatin 15mg tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41514111000001105",
+        "display": "Rosuvastatin 30mg tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41546811000001100",
+        "display": "Atorvastatin 10mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41547511000001101",
+        "display": "Atorvastatin 20mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41548011000001105",
+        "display": "Atorvastatin 40mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41575811000001107",
+        "display": "Rosuvastatin 15mg tablets (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41576011000001105",
+        "display": "Rosuvastatin 30mg tablets (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41620211000001107",
+        "display": "Atorvastatin 80mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4171011000001104",
+        "display": "Crestor 10mg tablets (AstraZeneca) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4171311000001101",
+        "display": "Crestor 20mg tablets (AstraZeneca) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4172111000001108",
+        "display": "Crestor 40mg tablets (AstraZeneca) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41753611000001108",
+        "display": "Simvastatin 20mg / Ezetimibe 10mg tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41753811000001107",
+        "display": "Simvastatin 40mg / Ezetimibe 10mg tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41754011000001104",
+        "display": "Simvastatin 80mg / Ezetimibe 10mg tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41957911000001102",
+        "display": "Atorvastatin 10mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41958211000001105",
+        "display": "Atorvastatin 20mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41958411000001109",
+        "display": "Atorvastatin 40mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41958611000001107",
+        "display": "Atorvastatin 80mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41964211000001109",
+        "display": "Rosuvastatin 10mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41964411000001108",
+        "display": "Rosuvastatin 20mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41964611000001106",
+        "display": "Rosuvastatin 40mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "41964811000001105",
+        "display": "Rosuvastatin 5mg tablets (MSN Laboratories Europe Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42050211000001104",
+        "display": "Simvastatin 20mg / Ezetimibe 10mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42050411000001100",
+        "display": "Simvastatin 40mg / Ezetimibe 10mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42050911000001108",
+        "display": "Simvastatin 80mg / Ezetimibe 10mg tablets (Torrent Pharma (UK) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42248411000001106",
+        "display": "Rosuvastatin 5mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42297211000001100",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 10 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42297311000001108",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 20 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42297411000001101",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 40 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42297611000001103",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 80 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42297711000001107",
+        "display": "Product containing precisely simvastatin 80 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42302711000001102",
+        "display": "Atorvastatin 10mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42302911000001100",
+        "display": "Atorvastatin 20mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42303111000001109",
+        "display": "Atorvastatin 30mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42303311000001106",
+        "display": "Atorvastatin 40mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42303511000001100",
+        "display": "Atorvastatin 60mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42308911000001102",
+        "display": "Atorvastatin 80mg tablets (Medreich Plc) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42379811000001108",
+        "display": "Product containing precisely pravastatin sodium 10 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42379911000001103",
+        "display": "Product containing precisely pravastatin sodium 20 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42380011000001102",
+        "display": "Product containing precisely pravastatin sodium 40 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42381811000001100",
+        "display": "Product containing precisely rosuvastatin (as rosuvastatin calcium) 5 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42381911000001105",
+        "display": "Product containing precisely simvastatin 10 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42382011000001103",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 20 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42382111000001102",
+        "display": "Product containing precisely simvastatin 20 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42382211000001108",
+        "display": "Product containing precisely ezetimibe 10 milligram and simvastatin 40 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42382311000001100",
+        "display": "Product containing precisely simvastatin 40 milligram/1 each conventional release oral tablet 1 tablet tablet (clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42439511000001102",
+        "display": "Atorvastatin 30mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42439911000001109",
+        "display": "Atorvastatin 60mg tablets (Brown & Burk UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42518411000001105",
+        "display": "Rosuvastatin 5mg tablets (Manx Healthcare Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42518911000001102",
+        "display": "Rosuvastatin 10mg tablets (Manx Healthcare Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42519911000001105",
+        "display": "Rosuvastatin 20mg tablets (Manx Healthcare Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42520611000001100",
+        "display": "Rosuvastatin 40mg tablets (Manx Healthcare Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42616311000001108",
+        "display": "Atorvastatin 20mg tablets (AAH Hillcross) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42617411000001104",
+        "display": "Simvastatin 20mg / Ezetimibe 10mg tablets (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42617611000001101",
+        "display": "Simvastatin 40mg / Ezetimibe 10mg tablets (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42618311000001107",
+        "display": "Simvastatin 80mg / Ezetimibe 10mg tablets (Alliance Healthcare (Distribution) Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42619511000001107",
+        "display": "Atorvastatin 10mg tablets (AAH Hillcross) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42620211000001108",
+        "display": "Atorvastatin 40mg tablets (AAH Hillcross) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42620511000001106",
+        "display": "Atorvastatin 80mg tablets (AAH Hillcross) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42706211000001109",
+        "display": "Atorvastatin 10mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42706411000001108",
+        "display": "Atorvastatin 20mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42706911000001100",
+        "display": "Atorvastatin 40mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42707211000001106",
+        "display": "Atorvastatin 80mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42848411000001101",
+        "display": "Atorvastatin 10mg tablets (Sandoz Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42849311000001102",
+        "display": "Atorvastatin 20mg tablets (Sandoz Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42850211000001100",
+        "display": "Atorvastatin 40mg tablets (Sandoz Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42850411000001101",
+        "display": "Atorvastatin 80mg tablets (Sandoz Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "42853411000001109",
+        "display": "Inegy 10mg/40mg tablets (Necessity Supplies Ltd) (parallel import) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "43166611000001109",
+        "display": "Fluvastatin 80mg modified-release tablets (A A H Pharmaceuticals Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4380611000001102",
+        "display": "Simvastatin 10mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4380911000001108",
+        "display": "Simvastatin 20mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4381111000001104",
+        "display": "Simvastatin 40mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4436811000001101",
+        "display": "Simvastatin 10mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4437011000001105",
+        "display": "Simvastatin 20mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4437211000001100",
+        "display": "Simvastatin 40mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4463811000001100",
+        "display": "Simvastatin 10mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4464011000001108",
+        "display": "Simvastatin 20mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4464211000001103",
+        "display": "Simvastatin 40mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4464511000001100",
+        "display": "Simvastatin 80mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4465011000001107",
+        "display": "Simvastatin 10mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4465311000001105",
+        "display": "Simvastatin 20mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4465611000001100",
+        "display": "Simvastatin 40mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4466211000001108",
+        "display": "Simvastatin 10mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4466511000001106",
+        "display": "Simvastatin 20mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4466711000001101",
+        "display": "Simvastatin 40mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4466911000001104",
+        "display": "Simvastatin 10mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4467111000001104",
+        "display": "Simvastatin 20mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4467311000001102",
+        "display": "Simvastatin 40mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4467711000001103",
+        "display": "Simvastatin 10mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4467911000001101",
+        "display": "Simvastatin 20mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4468111000001103",
+        "display": "Simvastatin 40mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4480311000001101",
+        "display": "Simvastatin 10mg tablets (C P Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4480511000001107",
+        "display": "Simvastatin 20mg tablets (C P Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4480711000001102",
+        "display": "Simvastatin 40mg tablets (C P Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "45265111000001102",
+        "display": "Atorvastatin 60mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "45265311000001100",
+        "display": "Atorvastatin 30mg tablets (Rudipharm Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4535911000001106",
+        "display": "Lipobay 100microgram tablets (Bayer Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4537511000001108",
+        "display": "Lipobay 200microgram tablets (Bayer Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4538111000001103",
+        "display": "Lipobay 400microgram tablets (Bayer Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "454111000001107",
+        "display": "Lipostat 20mg tablets (Bristol-Myers Squibb Pharmaceuticals Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4566311000001105",
+        "display": "Lipobay 300microgram tablets (Bayer Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4568511000001103",
+        "display": "Lipobay 800microgram tablets (Bayer Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4574411000001101",
+        "display": "Simvastatin 10mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4574611000001103",
+        "display": "Simvastatin 20mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4574811000001104",
+        "display": "Simvastatin 40mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4575011000001109",
+        "display": "Simvastatin 80mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4578011000001101",
+        "display": "Simvastatin 10mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4578811000001107",
+        "display": "Simvastatin 20mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4579011000001106",
+        "display": "Simvastatin 40mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4579211000001101",
+        "display": "Simvastatin 80mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4579911000001105",
+        "display": "Simvastatin 10mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4580111000001107",
+        "display": "Simvastatin 20mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4580311000001109",
+        "display": "Simvastatin 40mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46004911000001106",
+        "display": "Atorvastatin 10mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46007211000001109",
+        "display": "Atorvastatin 20mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46007411000001108",
+        "display": "Atorvastatin 40mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46007611000001106",
+        "display": "Atorvastatin 80mg tablets (Crescent Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46053211000001105",
+        "display": "Simvastatin 40mg tablets (Medley Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46053711000001103",
+        "display": "Simvastatin 20mg tablets (Medley Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46054111000001102",
+        "display": "Simvastatin 10mg tablets (Medley Pharma Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46093811000001102",
+        "display": "Rosuvastatin 5mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46094011000001105",
+        "display": "Rosuvastatin 10mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46094211000001100",
+        "display": "Rosuvastatin 20mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46094411000001101",
+        "display": "Rosuvastatin 40mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46116311000001105",
+        "display": "Atorvastatin 10mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46116811000001101",
+        "display": "Atorvastatin 20mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46117411000001101",
+        "display": "Atorvastatin 40mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "46118211000001101",
+        "display": "Atorvastatin 80mg tablets (Umedica Laboratories UK Ltd) (real clinical drug)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "484211000001108",
+        "display": "Lipitor 40mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4896211000001101",
+        "display": "Simvador 10mg tablets (Discovery Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4896511000001103",
+        "display": "Simvador 20mg tablets (Discovery Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "4896711000001108",
+        "display": "Simvador 40mg tablets (Discovery Pharmaceuticals) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5336611000001100",
+        "display": "Atorvastatin 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5337711000001107",
+        "display": "Atorvastatin 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "535011000001102",
+        "display": "Lipostat 40mg tablets (Bristol-Myers Squibb Pharmaceuticals Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5381111000001109",
+        "display": "Lipitor 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5382011000001100",
+        "display": "Lipitor 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5382211000001105",
+        "display": "Lescol 20mg capsules (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5382611000001107",
+        "display": "Lipostat 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5382811000001106",
+        "display": "Lescol 40mg capsules (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5383411000001100",
+        "display": "Lipostat 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5401211000001109",
+        "display": "Pravastatin 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5409611000001107",
+        "display": "Simvastatin 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5411111000001101",
+        "display": "Simvastatin 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5429711000001107",
+        "display": "Zocor 10mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5430911000001100",
+        "display": "Zocor 20mg tablets (PI) (Waymade Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5450211000001108",
+        "display": "Atorvastatin 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5451011000001107",
+        "display": "Atorvastatin 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5451311000001105",
+        "display": "Atorvastatin 40mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5458311000001103",
+        "display": "Pravastatin 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5465011000001101",
+        "display": "Fluvastatin 40mg capsules (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5476111000001102",
+        "display": "Simvastatin 80mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5492311000001107",
+        "display": "Fluvastatin 20mg capsules (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5494211000001108",
+        "display": "Simvastatin 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5502111000001103",
+        "display": "Pravastatin 40mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5502811000001105",
+        "display": "Pravastatin 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5509611000001104",
+        "display": "Simvastatin 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5510511000001108",
+        "display": "Simvastatin 40mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5523411000001108",
+        "display": "Lipitor 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5524311000001104",
+        "display": "Lipitor 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5526211000001102",
+        "display": "Lipitor 40mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5540611000001104",
+        "display": "Lipostat 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5558511000001102",
+        "display": "Lipostat 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5568511000001105",
+        "display": "Lescol 20mg capsules (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5570211000001100",
+        "display": "Lescol 40mg capsules (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5573811000001106",
+        "display": "Lipostat 40mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5602911000001109",
+        "display": "Zocor 10mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "5603211000001106",
+        "display": "Zocor 20mg tablets (PI) (Dowelhurst Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "6326511000001104",
+        "display": "Simvastatin 80mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "643911000001108",
+        "display": "Lipitor 10mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7402811000001100",
+        "display": "Simvastatin 80mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "756111000001109",
+        "display": "Lipitor 80mg tablets (Pfizer Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7630211000001106",
+        "display": "Ranzolont 10mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7631911000001109",
+        "display": "Ranzolont 20mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7632811000001108",
+        "display": "Ranzolont 40mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "776811000001104",
+        "display": "Zocor 20mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7943211000001101",
+        "display": "Pravastatin 10mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7943411000001102",
+        "display": "Pravastatin 20mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7943611000001104",
+        "display": "Pravastatin 40mg tablets (Approved Prescription Services) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7952311000001102",
+        "display": "Zocor Heart-Pro 10mg tablets (McNeil Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7958411000001106",
+        "display": "Pravastatin 10mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7958811000001108",
+        "display": "Pravastatin 20mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7959111000001108",
+        "display": "Pravastatin 40mg tablets (Alpharma Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7959511000001104",
+        "display": "Pravastatin 10mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7959711000001109",
+        "display": "Pravastatin 20mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7959911000001106",
+        "display": "Pravastatin 40mg tablets (IVAX Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7976411000001108",
+        "display": "Pravastatin 10mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7976911000001100",
+        "display": "Pravastatin 20mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7977111000001100",
+        "display": "Pravastatin 40mg tablets (A A H Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7997711000001109",
+        "display": "Pravastatin 10mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7998011000001108",
+        "display": "Pravastatin 20mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "7999211000001108",
+        "display": "Pravastatin 40mg tablets (Sandoz Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "802411000001108",
+        "display": "Lipostat 10mg tablets (Bristol-Myers Squibb Pharmaceuticals Limited) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8027011000001101",
+        "display": "Pravastatin 10mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8027311000001103",
+        "display": "Pravastatin 20mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8027611000001108",
+        "display": "Pravastatin 40mg tablets (Unichem Plc) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8098211000001102",
+        "display": "Pravastatin 10mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8099311000001104",
+        "display": "Pravastatin 20mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8099711000001100",
+        "display": "Pravastatin 40mg tablets (Kent Pharmaceuticals Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8101611000001104",
+        "display": "Pravastatin 10mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8101811000001100",
+        "display": "Pravastatin 20mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8102011000001103",
+        "display": "Pravastatin 40mg tablets (Sterwin Medicines) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8103411000001103",
+        "display": "Pravastatin 10mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8103611000001100",
+        "display": "Pravastatin 20mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8103911000001106",
+        "display": "Pravastatin 40mg tablets (Ranbaxy (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8112911000001101",
+        "display": "Pravastatin 10mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8113111000001105",
+        "display": "Pravastatin 20mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8113311000001107",
+        "display": "Pravastatin 40mg tablets (Generics (UK) Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "84811000001104",
+        "display": "Lescol 20mg capsules (Novartis Pharmaceuticals UK Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "859611000001107",
+        "display": "Zocor 40mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8697911000001101",
+        "display": "Simvastatin 20mg/5ml oral suspension (Special Order) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "8722111000001104",
+        "display": "Simvastatin 20mg/5ml oral suspension (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9309911000001100",
+        "display": "Inegy 10mg/20mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9310311000001108",
+        "display": "Inegy 10mg/40mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9310611000001103",
+        "display": "Inegy 10mg/80mg tablets (Merck Sharp & Dohme Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9747511000001107",
+        "display": "Crestor 5mg tablets (AstraZeneca) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9804011000001103",
+        "display": "Simvastatin 80mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9804311000001100",
+        "display": "Simvastatin 40mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9804811000001109",
+        "display": "Simvastatin 20mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9805011000001104",
+        "display": "Simvastatin 10mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9806311000001106",
+        "display": "Pravastatin 10mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9806911000001107",
+        "display": "Pravastatin 20mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      },
+      {
+        "code": "9807511000001103",
+        "display": "Pravastatin 40mg tablets (Almus Pharmaceutical Ltd) (product)",
+        "system": "http://snomed.info/sct#"
+      }
+    ]
+  },
+  "language": "en",
+  "name": "Q code group Statins (draft)",
+  "resourceType": "ValueSet",
+  "status": "active",
+  "title": "Q code group Statins (draft)",
+  "url": "http://apiqcodes.org/qcodes#QCodeGroup_1183",
+  "version": "5"
+}

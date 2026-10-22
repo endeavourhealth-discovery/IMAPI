@@ -263,4 +263,8 @@ public class DataModelService {
   public SemanticMap getSemanticMap(String iri) {
     return dataModelRepository.getSemanticMap(iri);
   }
+
+  public NodeShape getFlatDataModelDisplayProperties(String iri) {
+    return dataModelRepository.getFlatDataModelDisplayProperties(iri);
+  }
 }

@@ -149,6 +149,37 @@ public class EntityRepository {
     return result;
   }
 
+  /**
+   * Resolves the labels of many iris using a single connection and query per batch, rather than one per iri.
+   * Iris without a label are absent from the result.
+   */
+  public Map<String, String> getNamesByIris(Collection<String> iris) {
+    Map<String, String> names = new HashMap<>();
+    if (iris == null || iris.isEmpty()) return names;
+    String sql = """
+      SELECT ?s ?sname
+      WHERE {
+        VALUES ?s { %s }
+        ?s rdfs:label ?sname .
+      }
+      """;
+    List<String> all = new ArrayList<>(iris);
+    int batchSize = 1000;
+    try (IMDB conn = IMDB.getConnection()) {
+      for (int i = 0; i < all.size(); i += batchSize) {
+        List<String> batch = all.subList(i, Math.min(all.size(), i + batchSize));
+        TupleQuery qry = conn.prepareTupleSparql(sql.formatted(getIriLine(batch)));
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            names.putIfAbsent(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue());
+          }
+        }
+      }
+    }
+    return names;
+  }
+
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));

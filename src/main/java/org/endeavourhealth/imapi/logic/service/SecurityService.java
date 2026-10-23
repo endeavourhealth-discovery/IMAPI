@@ -44,7 +44,24 @@ public class SecurityService {
     this.casdoor = casdoor;
   }
 
-  /** The signed-in user. Calls made with an application (client credentials) token get a user with no roles or namespaces. */
+  private static Jwt currentJwt() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication instanceof JwtAuthenticationToken token) return token.getToken();
+    throw new AuthenticationCredentialsNotFoundException("No authenticated user");
+  }
+
+  private static User applicationUser(Jwt jwt, String name) {
+    User user = new User();
+    user.setId(jwt.getSubject() == null ? "" : jwt.getSubject());
+    user.setType(APPLICATION_TOKEN_TYPE);
+    user.setUsername(name);
+    user.setNamespaces(List.of());
+    return user;
+  }
+
+  /**
+   * The signed-in user. Calls made with an application (client credentials) token get a user with no roles or namespaces.
+   */
   public User getUser() throws UserNotFoundException {
     Jwt jwt = currentJwt();
     String name = jwt.getClaimAsString("name");
@@ -54,11 +71,16 @@ public class SecurityService {
 
     String owner = jwt.getClaimAsString("owner");
     String organisation = casdoor.get().settings().organisation();
-    if (!organisation.equals(owner)) throw new AccessDeniedException("The token was issued to a user outside organisation " + organisation);
+    if (!organisation.equals(owner)) {
+      SecurityContextHolder.clearContext();
+      throw new BadCredentialsException("The token was issued to a user outside organisation " + organisation);
+    }
     return CasdoorUserMapper.fromCasdoor(casdoor.get().findUser(name).orElseThrow(() -> new UserNotFoundException("User not found: " + name)));
   }
 
-  /** Another user of the organisation, by username. */
+  /**
+   * Another user of the organisation, by username.
+   */
   public User getUserByUsername(String username) throws UserNotFoundException {
     return CasdoorUserMapper.fromCasdoor(casdoor.get().findUser(username).orElseThrow(() -> new UserNotFoundException("User not found: " + username)));
   }
@@ -67,7 +89,9 @@ public class SecurityService {
     return casdoor.get().settings().profileUrl();
   }
 
-  /** Saves the signed-in user's preferences (not their roles or namespaces). */
+  /**
+   * Saves the signed-in user's preferences (not their roles or namespaces).
+   */
   public User updateUser(User user) throws UserNotFoundException {
     String name = getUser().getUsername();
     ObjectNode casdoorUser = casdoor.get().findUser(name).orElseThrow(() -> new UserNotFoundException("User not found: " + name));
@@ -91,48 +115,41 @@ public class SecurityService {
     return Arrays.stream(UserRole.values()).toList();
   }
 
-  /** Administrative change to another user's namespaces. Callers must have checked the caller is allowed to do this. */
+  /**
+   * Administrative change to another user's namespaces. Callers must have checked the caller is allowed to do this.
+   */
   public void updateUserNamespaces(String userId, List<NamespacePermission> namespaces) throws UserNotFoundException {
     ObjectNode casdoorUser = casdoor.get().findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found: " + userId));
     CasdoorUserMapper.applyNamespaces(casdoorUser, namespaces);
     casdoor.get().updateUser(casdoorUser);
   }
 
-  /** Requires that the Casdoor enforcer permits the signed-in user to perform `action` on `resource`. */
+  /**
+   * Requires that the Casdoor enforcer permits the signed-in user to perform `action` on `resource`.
+   */
   public void requiresPermission(Resource resource, Action action) {
     User user = signedInUser();
     if (!casdoor.get().enforce(CasdoorUserMapper.toEnforceSubject(user), resource.name(), action.name()))
       throw new AccessDeniedException("Insufficient authorisation to " + action + " " + resource);
   }
 
-  /** Requires that the signed-in user holds the given access to a namespace. This depends on the data being touched, so it is not part of the enforcer request. */
+  /**
+   * Requires that the signed-in user holds the given access to a namespace. This depends on the data being touched, so it is not part of the enforcer request.
+   */
   public void requiresNamespace(NAMESPACE namespace, boolean read, boolean write) {
     boolean permitted = signedInUser().getNamespaces().stream()
       .anyMatch(held -> held.getIri() == namespace && (!read || held.isRead()) && (!write || held.isWrite()));
     if (!permitted) throw new AccessDeniedException("Insufficient authorisation for namespace " + namespace);
   }
 
-  /** For authorisation checks, which have no checked exceptions: a token for a user Casdoor does not know is simply not authorised. */
+  /**
+   * For authorisation checks, which have no checked exceptions: a token for a user Casdoor does not know is simply not authorised.
+   */
   private User signedInUser() {
     try {
       return getUser();
     } catch (UserNotFoundException e) {
       throw new AccessDeniedException(e.getMessage(), e);
     }
-  }
-
-  private static Jwt currentJwt() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    if (authentication instanceof JwtAuthenticationToken token) return token.getToken();
-    throw new AuthenticationCredentialsNotFoundException("No authenticated user");
-  }
-
-  private static User applicationUser(Jwt jwt, String name) {
-    User user = new User();
-    user.setId(jwt.getSubject() == null ? "" : jwt.getSubject());
-    user.setType(APPLICATION_TOKEN_TYPE);
-    user.setUsername(name);
-    user.setNamespaces(List.of());
-    return user;
   }
 }

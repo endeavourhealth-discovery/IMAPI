@@ -189,7 +189,7 @@ public class IMQToOS {
     } else {
       List<Query> ands = query.getAnd();
       List<Query> ors = query.getOr();
-      for (List<Query> queries : Arrays.asList(ands, ors)) {
+      for (List<Query> queries : Arrays.<List<Query>>asList(ands, ors)) {
         if (queries != null) {
           for (Query query : queries) {
             if (!addMatch(boolBuilder, query)) {
@@ -228,7 +228,7 @@ public class IMQToOS {
   }
 
   private boolean addReturns(SearchSource sourceBuilder) {
-    Set<String> sources = new HashSet<>(List.of("name", "iri", "preferredName", "code", "usageTotal", "type", "scheme", "status"));
+    Set<String> sources = new HashSet<>(List.<String>of("name", "iri", "preferredName", "code", "usageTotal", "type", "scheme", "status"));
     if (query == null)
       return true;
     if (query.getReturn() != null) {
@@ -273,7 +273,7 @@ public class IMQToOS {
         }
       }
     }
-    String[] sourceArray = sources.toArray(String[]::new);
+    String[] sourceArray = sources.<String>toArray(String[]::new);
     sourceBuilder.fetchSource(sourceArray);
     return true;
   }
@@ -355,7 +355,7 @@ public class IMQToOS {
   }
 
   private boolean addBoolProperties(Where where, BoolQuery nestedBool) throws QueryException {
-    for (List<Where> nested : Arrays.asList(where.getOr(), where.getAnd())) {
+    for (List<Where> nested : Arrays.<List<Where>>asList(where.getOr(), where.getAnd())) {
       if (nested != null) {
         for (Where nestedWhere : nested) {
           if (!addProperty(nestedWhere, where.getAnd() != null ? Bool.and : Bool.or, nestedBool)) return false;
@@ -460,7 +460,7 @@ public class IMQToOS {
       }
       if (path == null || node == null)
         throw new QueryException("Invalid binding in where clause. Should have query where path and query where node");
-      addFilter(Set.of(path + " " + node), bool, boolBldr);
+      addFilter(Set.<String>of(path + " " + node), bool, boolBldr);
     } catch (Exception e) {
       throw new QueryException("Invalid binding in where clause. Should have query where path and query where node");
     }

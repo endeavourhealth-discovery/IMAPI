@@ -44,7 +44,7 @@ public class CodeGenJava {
       }
       """;
 
-    try (IMDB conn = IMDB.Companion.getConnection()) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       try (TupleQueryResult result = query.evaluate()) {
         while (result.hasNext()) {
@@ -94,7 +94,7 @@ public class CodeGenJava {
         } ORDER BY ?order
       """;
 
-    try (IMDB conn = IMDB.Companion.getConnection()) {
+    try (IMDB conn = IMDB.getConnection()) {
       TupleQuery query = conn.prepareTupleSparql(sql);
       query.setBinding("iri", Values.iri(iri));
       try (TupleQueryResult result = query.evaluate()) {

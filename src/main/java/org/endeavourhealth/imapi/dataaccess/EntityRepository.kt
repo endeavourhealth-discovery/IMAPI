@@ -325,8 +325,8 @@ class EntityRepository {
     }
   }
 
-  fun findParentHierarchies(iri: String): MutableList<ParentDto?> {
-    val result: MutableList<ParentDto?> = ArrayList<ParentDto?>()
+  fun findParentHierarchies(iri: String): MutableList<ParentDto> {
+    val result: MutableList<ParentDto> = mutableListOf()
 
     val spql: String = """
       SELECT *

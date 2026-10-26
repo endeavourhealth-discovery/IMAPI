@@ -42,7 +42,7 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_nullIriPredicates() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+//    when(entityRepository.getBundle(isNull(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle(null, null);
     assertNotNull(actual);
@@ -52,7 +52,7 @@ class EntityModelServiceTest {
   @Test
   void getEntityPredicates_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+//    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
     TTBundle actual = entityService.getBundle("", null);
     assertNotNull(actual);
@@ -176,17 +176,10 @@ class EntityModelServiceTest {
 
   @Test
   void getImmediateParents_NotNullIriAndInactiveTrue() {
-
-    EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
-      .setChildren(Collections.singletonList(
-        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
-          "Adverse reaction to Amlodipine Besilate")))
-      .setParents(Collections.singletonList(
-        new EntityReferenceNode("http://endhealth.info/im#25451000252115",
-          "Adverse reaction to Amlodipine Besilate")));
+    TTIriRef parent = new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction to Amlodipine Besilate");
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 20, true))
-      .thenReturn(Collections.singletonList(entityReferenceNode));
+      .thenReturn(Collections.singletonList(parent));
     TTArray ttArray = new TTArray()
       .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
@@ -199,12 +192,10 @@ class EntityModelServiceTest {
 
   @Test
   void getImmediateParents_NotNullIriAndInactiveFalse() {
-    EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
-      .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
-      .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
+    TTIriRef parent = new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction to Amlodipine Besilate");
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
       0, 10, false))
-      .thenReturn(Collections.singletonList(entityReferenceNode));
+      .thenReturn(Collections.singletonList(parent));
     TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
     when(entityRepository.getEntityTypes(any())).thenReturn(ttArray);
     List<EntityReferenceNode> actual = entityService.getImmediateParents
@@ -403,7 +394,7 @@ class EntityModelServiceTest {
   @Test
   void getConceptList_EmptyIri() {
     TTEntity entity = new TTEntity();
-    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
+//    when(entityRepository.getBundle(any(), isNull())).thenReturn(new TTBundle().setEntity(entity));
 
     TTDocument actual = entityService.getConceptList(Collections.singletonList(""));
     assertNotNull(actual);

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.time.LocalDate
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
@@ -43,14 +42,15 @@ class CodeGenService(
   }
 
   fun generateCodeForModel(modelIri: String, template: CodeGenDto, namespace: String): String {
-    val model = getModelSummary(modelIri)
+    val model = getModelSummary(modelIri) ?: throw IllegalArgumentException("Iri is invalid")
     return generateCodeForModel(template, model, namespace)
   }
 
   fun generateCode(iri: String?, templateName: String, namespace: String): HttpEntity<Any?> {
-    val models: MutableList<TTIriRef> = if (iri.isNullOrEmpty())
-      this.getIMModels()
-    else mutableListOf(getModelSummary(iri))
+    val models: MutableList<TTIriRef> = when {
+      iri.isNullOrEmpty() -> getIMModels()
+      else -> getModelSummary(iri)?.let { mutableListOf(it) } ?: mutableListOf()
+    }
 
     val template = codeGenRepository.getCodeTemplate(templateName)
 
@@ -64,7 +64,7 @@ class CodeGenService(
       .toMutableList()
   }
 
-  private fun getModelSummary(iri: String): TTIriRef {
+  private fun getModelSummary(iri: String): TTIriRef? {
     return entityService.getEntityReference(iri)
   }
 
@@ -201,7 +201,7 @@ class CodeGenService(
     val property = prop?.property
     if (property?.hasName() == true && prop.hasType()) {
       val type = prop.type
-      val dataType = type?.let { template.getDataType(it.name) }
+      val dataType = type?.let { template.getDataType(it.iri) }
       result = when {
         dataType != null -> replaceTypedPropertyTokens(template, prop, result)
         prop.isArray && template.hasCollectionWrapper() -> replaceArrayPropertyTokens(template, prop, result)
@@ -225,7 +225,7 @@ class CodeGenService(
     var result = result
     val collectionWrapper = template.collectionWrapper ?: return result
 
-    if (collectionWrapper.contains($$"${")) result =
+    if (!collectionWrapper.contains($$"${")) result =
       replaceVariants(result, "DATA TYPE", collectionWrapper)
     else {
       val basePropertyType = prop.type?.name ?: "!!UNKNOWN!!"
@@ -260,7 +260,7 @@ class CodeGenService(
       .replace($$"${$$name}", value) // Unaltered
       .replace($$"${$${toTitleCase(name)}}", toTitleCase(value)) // Title Case
       .replace($$"${$${toCamelCase(name)}}", toCamelCase(value)) // camel Case
-      .replace($$"${$${name.lowercase(Locale.getDefault())}}", value.lowercase(Locale.getDefault())) // lower case
+      .replace($$"${$${name.lowercase()}}", value.lowercase()) // lower case
       .replace($$"${$${clean(codify(name))}}", clean(codify(value))) // Codified
       .replace(
         $$"${$${clean(toTitleCase(codify(name)))}}",
@@ -271,8 +271,8 @@ class CodeGenService(
         clean(toCamelCase(codify(value)))
       ) // camelCase (codified)
       .replace(
-        $$"${$${clean(codify(name).lowercase(Locale.getDefault()))}}",
-        clean(codify(value).lowercase(Locale.getDefault()))
+        $$"${$${clean(codify(name).lowercase())}}",
+        clean(codify(value).lowercase())
       ) // lowercase (codified)
   }
 
@@ -280,8 +280,8 @@ class CodeGenService(
     return template
       .replace($$"${$${name}}", value)
       .replace($$"${$${clean(name)}}", value)
-      .replace($$"${$${name.lowercase(Locale.getDefault())}}", value)
-      .replace($$"${$${clean(name.lowercase(Locale.getDefault()))}}", value)
+      .replace($$"${$${name.lowercase()}}", value)
+      .replace($$"${$${clean(name.lowercase())}}", value)
       .replace($$"${$${toCamelCase(name)}}", value)
       .replace($$"${$${clean(toCamelCase(name))}}", value)
       .replace($$"${$${toTitleCase(name)}}", value)
@@ -308,7 +308,7 @@ class CodeGenService(
   private fun toCamelCase(str: String): String {
     var str = str
     str = toTitleCase(str)
-    str = str.substring(0, 1).lowercase(Locale.getDefault()) + str.substring(1)
+    str = str.substring(0, 1).lowercase() + str.substring(1)
     return str
   }
 

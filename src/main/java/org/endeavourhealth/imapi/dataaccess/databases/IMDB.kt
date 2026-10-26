@@ -11,6 +11,7 @@ class IMDB private constructor() : BaseDB(GRAPH.IM) {
   }
 
   companion object {
+    @JvmStatic
     fun getConnection(): IMDB {
       return IMDB()
     }

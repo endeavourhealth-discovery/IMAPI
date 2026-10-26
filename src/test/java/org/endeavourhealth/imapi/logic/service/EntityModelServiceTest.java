@@ -188,7 +188,7 @@ class EntityModelServiceTest {
         new EntityReferenceNode("http://endhealth.info/im#25451000252115",
           "Adverse reaction to Amlodipine Besilate")));
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 20, true))
+      null,0, 20, true))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray()
       .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
@@ -205,7 +205,7 @@ class EntityModelServiceTest {
     EntityReferenceNode entityReferenceNode = new EntityReferenceNode()
       .setChildren(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")))
       .setParents(Collections.singletonList(new EntityReferenceNode("http://endhealth.info/im#25451000252115")));
-    when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
+    when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null, null,
       0, 10, false))
       .thenReturn(Collections.singletonList(entityReferenceNode));
     TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));

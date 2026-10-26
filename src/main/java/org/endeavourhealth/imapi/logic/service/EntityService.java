@@ -130,7 +130,25 @@ public class EntityService {
     int rowNumber = 0;
     if (page != null && size != null) rowNumber = (page - 1) * size;
 
-    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes);
+    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes, null);
+    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri);
+  }
+
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedForTree(
+    String iri,
+    List<String> schemeIris,
+    Integer page,
+    Integer size,
+    boolean inactive,
+    List<String> entityTypes,
+    String predicate
+  ) {
+    if (iri == null || iri.isEmpty()) return null;
+
+    int rowNumber = 0;
+    if (page != null && size != null) rowNumber = (page - 1) * size;
+
+    Pageable<TTIriRef> childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(iri, schemeIris, rowNumber, size, inactive, entityTypes, predicate);
     return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri);
   }
 
@@ -156,7 +174,7 @@ public class EntityService {
     int rowNumber = 0;
     if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
 
-    List<EntityReferenceNode> parents = getParents(iri, schemeIris, rowNumber, pageSize, inactive).stream().map(p -> new EntityReferenceNode(p.getIri(), p.getName())).toList();
+    List<EntityReferenceNode> parents = getParents(iri, schemeIris, null, rowNumber, pageSize, inactive).stream().map(p -> new EntityReferenceNode(p.getIri(), p.getName())).toList();
 
     for (EntityReferenceNode parent : parents)
       parent.setType(entityRepository.getEntityTypes(parent.getIri()));
@@ -164,9 +182,25 @@ public class EntityService {
     return parents;
   }
 
-  private List<TTIriRef> getParents(String iri, List<String> schemeIris, int rowNumber, Integer pageSize, boolean inactive) {
+  public List<EntityReferenceNode> getParentEntitiesForTree(String iri, List<String> schemeIris, String predicate, Integer pageIndex, Integer pageSize, boolean inactive) {
 
-    return entityRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive);
+    if (null == predicate || predicate.isEmpty()) return getImmediateParents(iri, schemeIris, pageIndex, pageSize, inactive);
+
+    if (iri == null || iri.isEmpty()) return Collections.emptyList();
+
+    int rowNumber = 0;
+    if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize;
+
+    List<EntityReferenceNode> parents = getParents(iri, schemeIris, predicate, rowNumber, pageSize, inactive).stream().map(p -> new EntityReferenceNode(p.getIri(), p.getName())).toList();
+
+    for (EntityReferenceNode parent : parents)
+      parent.setType(entityRepository.getEntityTypes(parent.getIri()));
+
+    return parents;
+  }
+
+  private List<TTIriRef> getParents(String iri, List<String> schemeIris, String predicate, int rowNumber, Integer pageSize, boolean inactive) {
+    return entityRepository.findImmediateParentsByIri(iri, schemeIris, predicate, rowNumber, pageSize, inactive);
   }
 
   public List<TTIriRef> isWhichType(String iri, List<String> candidates) {

@@ -250,6 +250,27 @@ public class EntityController {
     }
   }
 
+  @GetMapping(value = "/protected/childrenPagedForTree")
+  @Operation(summary = "Get entity children with paging", description = "Fetches immediate children of the specified entity with pagination and total count")
+  public Pageable<EntityReferenceNode> getEntityChildrenPagedWithTotalCount(
+    HttpServletRequest request,
+    @RequestParam(name = "iri") String iri,
+    @RequestParam(name = "schemeIris", required = false) List<String> schemeIris,
+    @RequestParam(name = "page", required = false) Integer page,
+    @RequestParam(name = "size", required = false) Integer size,
+    @RequestParam(name = "typeFilter", required = false) List<String> typeFilter,
+    @RequestParam(name = "predicate") String predicate
+  ) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ChildrenPagedForTree.GET")) {
+      log.debug("getEntityChildrenPagedWithTotalCount" + ((typeFilter != null) ? "entity types= " + typeFilter : ""));
+      if (page == null && size == null) {
+        page = 1;
+        size = 10;
+      }
+      return entityService.getEntityChildrenPagedForTree(iri, schemeIris, page, size, false, typeFilter, predicate);
+    }
+  }
+
   @GetMapping(value = "/protected/partialAndTotalCount")
   @Operation(summary = "Get partial and total count", description = "Fetches partial results and provides total count for the given entity and predicate")
   public Pageable<TTIriRef> getPartialAndTotalCount(
@@ -297,6 +318,15 @@ public class EntityController {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.Parents.GET")) {
       log.debug("getEntityParents");
       return entityService.getImmediateParents(iri, schemeIris, page, size, false);
+    }
+  }
+
+  @GetMapping(value = "/protected/parentsForTree")
+  @Operation(summary = "Get entity parents", description = "Fetches immediate parent entities of the specified entity by IRI")
+  public List<EntityReferenceNode> getParentEntitiesForTree(HttpServletRequest request, @RequestParam(name = "iri") String iri, @RequestParam(name = "schemeIris", required = false) List<String> schemeIris, @RequestParam(name = "predicate", required = false) String predicate, @RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "size", required = false) Integer size) {
+    try (MetricsTimer t = MetricsHelper.recordTime("API.Entity.ParentsForTree.GET")) {
+      log.debug("getParentEntitiesForTree");
+      return entityService.getParentEntitiesForTree(iri, schemeIris, predicate, page, size, false);
     }
   }
 

@@ -1480,18 +1480,22 @@ public class EntityRepository {
     Integer rowNumber,
     Integer pageSize,
     boolean inactive,
-    List<String> entityTypes
+    List<String> entityTypes,
+    String predicate
   ) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .");
+    String predicates = PARENT_PREDICATES;
+    if (null != predicate) predicates = "<" + predicate + ">";
+
+    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + predicates + ") ?p .");
     if (!inactive) {
       sqlCount.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
     }
     sqlCount.add("}");
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {").add("  ?c ( " + PARENT_PREDICATES + ") ?p .");
+    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {").add("  ?c ( " + predicates + ") ?p .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add("?c im:scheme ?scheme . ?c rdfs:label ?cname .").add(valueList("scheme", schemeIris));
     } else {
@@ -1619,13 +1623,16 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, String predicate, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> result = new ArrayList<>();
+
+    String predicates = PARENT_PREDICATES;
+    if (null != predicate) predicates = "<" + predicate + ">";
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add("SELECT DISTINCT ?p ?pname")
       .add("WHERE {")
-      .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
+      .add("  ?c (" + predicates + ") ?p .")
       .add(valueList("schemes", schemeIris))
       .add("?c im:scheme ?schemes .")
       .add("?p rdfs:label ?pname .");

@@ -2,17 +2,13 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.slf4j.LoggerFactory
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
-import org.endeavourhealth.imapi.model.imq.*
+import org.endeavourhealth.imapi.model.imq.IMQType
+import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.requests.QueryRequest
-import org.endeavourhealth.imapi.model.sql.MappingParser
-import org.endeavourhealth.imapi.model.sql.MySQLQuery
-import org.endeavourhealth.imapi.model.sql.MySQLSelect
-import org.endeavourhealth.imapi.model.sql.Table
-import org.endeavourhealth.imapi.model.sql.TableMap
-import org.endeavourhealth.imapi.model.sql.quoteSqlString
+import org.endeavourhealth.imapi.model.sql.*
 import org.endeavourhealth.imapi.vocabulary.NAMESPACE
+import org.slf4j.LoggerFactory
 
 class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   val queryRequest: QueryRequest, val mapper: ObjectMapper? = null,
@@ -96,7 +92,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
         }
         if (definition.`return` == null) {
           addResultSelects(groupQuery, DATASET_RESULTS_TABLE, definition)
-          groupQuery.selects.add(MySQLSelect(quoteSqlString(groupName.replace(" ", "")), "column_group"))
+          groupQuery.selects.add(MySQLSelect(quoteSqlString(groupName), "column_group"))
           groupQuery.selects.add(MySQLSelect(DatasetJsonBuilder.build(groupQuery), "json"))
         }
         addFilters(groupQuery)

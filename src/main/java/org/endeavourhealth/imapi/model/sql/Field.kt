@@ -17,3 +17,16 @@ data class FieldJoin(
   var alias: String? = null,
   var condition: Condition? = null
 )
+
+const val TABLE_PLACEHOLDER = "{table}"
+
+/**
+ * Qualifies a mapped field with its table reference. An expression field marks where the reference goes with
+ * {table}, e.g. TIMESTAMPDIFF(YEAR, {table}.date_of_birth, $searchDate); a plain column is prefixed.
+ */
+fun qualifyField(tableRef: String?, field: String): String = when {
+  field.contains(TABLE_PLACEHOLDER) ->
+    if (tableRef == null) field.replace("$TABLE_PLACEHOLDER.", "") else field.replace(TABLE_PLACEHOLDER, tableRef)
+  tableRef == null || field.contains("(") -> field
+  else -> "$tableRef.$field"
+}

@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
+import org.endeavourhealth.imapi.model.sql.quoteIdentifier
 
 internal object DatasetJsonBuilder {
   fun build(newMySqlQuery: MySQLQuery): String {
@@ -19,10 +20,10 @@ internal object DatasetJsonBuilder {
           .dropLast(1)
           .last()
           .selects
-          .filterNot { it.alias == ROW_NUMBER_ALIAS || isEntityKeySelect(it) }
+          .filterNot { it.alias == ROW_NUMBER_ALIAS || isEntityKeySelect(it, null) }
       }
     } else {
-      lastWith.selects.filterNot { isEntityKeySelect(it) || it.name.contains("*") }
+      lastWith.selects.filterNot { isEntityKeySelect(it, lastWith.entityKeyField) || (it.name.contains("*") && !it.isAggregate) }
     }
 
     if (selects == null) throw SQLConversionException("No selects found in last with")
@@ -34,9 +35,9 @@ internal object DatasetJsonBuilder {
           .filterNot { it.alias == "id" }
           .joinToString(",\n") { select ->
             val rawAliasOrName = (select.alias ?: select.name).replace("`", "")
-            val key = "\"$rawAliasOrName\""
+            val key = "\"${rawAliasOrName.replace("\\", "\\\\").replace("\"", "\\\"")}\""
             val value = if (select.alias != null) {
-              "`${rawAliasOrName}`"
+              quoteIdentifier(rawAliasOrName)
             } else {
               select.name
             }
@@ -48,5 +49,6 @@ internal object DatasetJsonBuilder {
   }
 
   // the bare key select identifies the row; an aliased one is a requested column
-  private fun isEntityKeySelect(select: MySQLSelect) = select.name == "patient.id" && select.alias == null
+  private fun isEntityKeySelect(select: MySQLSelect, entityKeyField: String?) =
+    select.alias == null && (select.name == "patient.id" || (entityKeyField != null && select.name.endsWith(".$entityKeyField")))
 }

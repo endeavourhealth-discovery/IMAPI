@@ -35,7 +35,7 @@ public class LogicOptimizer {
       }
 
     } catch (Exception e) {
-      throw new QueryException("Error resolving logic", e);
+      throw new QueryException("Error resolving logic "+e.getMessage(), e);
     }
   }
 
@@ -216,7 +216,8 @@ public class LogicOptimizer {
         if (ret.getIri().equals(iri)&&ret.getNodeRef().equals(nodeRef)) return;
       }
     }
-    query.addReturn(new Return().setIri(iri).setNodeRef(nodeRef));
+    String as=(nodeRef!=null ?nodeRef+"_" : "")+ iri.substring(iri.lastIndexOf('#')+1).replaceAll("[^a-zA-Z0-9_]", "_");
+    query.addReturn(new Return().setIri(iri).setNodeRef(nodeRef).setAs(as));
   }
 
   public static boolean isLinkedMatch(Query query) {

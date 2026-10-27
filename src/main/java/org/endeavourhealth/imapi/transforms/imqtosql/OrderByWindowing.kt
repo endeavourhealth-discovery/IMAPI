@@ -33,21 +33,21 @@ internal fun wrapGroupOrderBy(with: MySQLWith, match: Query): MySQLWith {
   val rnLayer = MySQLWith(
     table = with.table,
     selects = mutableListOf(
-      MySQLSelect("u.*"),
-      MySQLSelect("ROW_NUMBER() OVER(PARTITION BY u.$keyField ORDER BY $orderClause)", ROW_NUMBER_ALIAS)
+      MySQLSelect("$ROW_NUMBER_SOURCE_ALIAS.*"),
+      MySQLSelect("ROW_NUMBER() OVER(PARTITION BY $ROW_NUMBER_SOURCE_ALIAS.$keyField ORDER BY $orderClause)", ROW_NUMBER_ALIAS)
     ),
     subQuery = with,
-    fromAlias = "u",
+    fromAlias = ROW_NUMBER_SOURCE_ALIAS,
     entityKeyField = keyField
   )
 
   val finalWith = MySQLWith(
     table = with.table,
     alias = with.alias,
-    selects = mutableListOf(MySQLSelect("sq.*")),
+    selects = mutableListOf(MySQLSelect("$SUBQUERY_ALIAS.*")),
     subQuery = rnLayer,
-    fromAlias = "sq",
-    wheres = mutableListOf(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", orderBy.limit.toString(), table = "sq")),
+    fromAlias = SUBQUERY_ALIAS,
+    wheres = mutableListOf(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", orderBy.limit.toString(), table = SUBQUERY_ALIAS)),
     entityKeyField = keyField
   )
 
@@ -64,9 +64,9 @@ internal fun getMySQLOrderBy(
       if (p.nodeRef != null) nodeToTableMap[p.nodeRef] else table
 
     if (currentTable == null) throw SQLConversionException("No table exists for ${p.iri}")
-    val propertyIri = p.iri.substringAfterLast(' ')
+    val propertyIri = p.iri
     val mappedField = getPropertyNameByTableAndPropertyIri(currentTable, propertyIri)
-    val field = mappedField.field ?: throw SQLConversionException("No field found for property $propertyIri")
+    val field = mappedField.field
     // a functional property's column lives on the table joined in under its own alias
     val fieldTable =
       if (mappedField.join != null) currentTable.copy().also { it.alias = functionalJoinAlias(propertyIri, mappedField) }
@@ -101,16 +101,9 @@ internal fun getOrderByWith(
     )
   )
 
-  val select = if (match.notExists() && previousWith != null) {
-    if (previousWith.table.dataModel == COHORT_DATA_MODEL_IRI) "${previousWith.alias}.*, ${previousWith.alias}.$ENTITY_ID_FIELD as $PATIENT_ID_FIELD"
-    else "${previousWith.alias}.*"
-  } else "sq.*"
-
-
-  val entityKeyField = if (match.notExists() && previousWith != null) {
-    if (previousWith.table.dataModel == COHORT_DATA_MODEL_IRI) PATIENT_ID_FIELD
-    else previousWith.entityKeyField
-  } else with.entityKeyField
+  val isAntiJoin = match.notExists() && previousWith != null
+  val select = if (isAntiJoin) carrySelectFrom(previousWith!!) else "$SUBQUERY_ALIAS.*"
+  val entityKeyField = if (isAntiJoin) carryEntityKeyFrom(previousWith!!) else with.entityKeyField
 
   val rnWith = MySQLWith(
     table = with.table,
@@ -146,25 +139,16 @@ internal fun getOrderByWith(
     with.joins.add(innerQueryJoin)
 
     if (match.notExists()) {
-      val notExistJoinCondition = MySQLJoin(
-        join = "RIGHT JOIN",
-        tableFrom = "sq",
-        tableTo = previousWith.alias,
-        tableToAlias = previousWith.alias,
-        fromProperty = fk,
-        toProperty = fkLast,
-        reference = true
-      )
-      rnWith.joins.add(notExistJoinCondition)
+      rnWith.joins.add(rightJoinSubqueryTo(previousWith, fk, fkLast))
       val or = mutableListOf<MySQLWhere>()
-      or.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "!=", match.orderBy.limit.toString(), table = "sq"))
-      or.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
+      or.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "!=", match.orderBy.limit.toString(), table = SUBQUERY_ALIAS))
+      or.add(subqueryKeyIsNull(fk))
       rnWith.wheres.add(MySQLBoolWhere(or = or))
     }
   }
 
-  if (!match.notExists() || previousWith == null) {
-    rnWith.wheres.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", match.orderBy.limit.toString(), table = "sq"))
+  if (!isAntiJoin) {
+    rnWith.wheres.add(MySQLPropertyValueWhere(ROW_NUMBER_ALIAS, "<=", match.orderBy.limit.toString(), table = SUBQUERY_ALIAS))
   }
   return rnWith
 }

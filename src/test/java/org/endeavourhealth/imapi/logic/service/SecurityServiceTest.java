@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -32,9 +33,16 @@ import static org.mockito.Mockito.*;
 
 class SecurityServiceTest {
   private static final ObjectMapper MAPPER = new ObjectMapper();
-
+  private static final String EXECUTOR = """
+    {"owner":"Endeavour","name":"jbloggs","id":"1111","roles":[{"name":"EXECUTOR"}],
+     "properties":{"namespaces":"[{\\"iri\\":\\"http://endhealth.info/im#\\",\\"read\\":true,\\"write\\":false}]"}}""";
   private final CasdoorClient casdoor = mock(CasdoorClient.class);
   private final SecurityService service = new SecurityService(() -> casdoor);
+
+  private static void signInAs(Map<String, Object> claims) {
+    Jwt jwt = new Jwt("token", Instant.now(), Instant.now().plusSeconds(60), Map.of("alg", "RS256"), claims);
+    SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
+  }
 
   @BeforeEach
   void setUp() {
@@ -46,19 +54,10 @@ class SecurityServiceTest {
     SecurityContextHolder.clearContext();
   }
 
-  private static void signInAs(Map<String, Object> claims) {
-    Jwt jwt = new Jwt("token", Instant.now(), Instant.now().plusSeconds(60), Map.of("alg", "RS256"), claims);
-    SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(jwt));
-  }
-
   private void signInAsUser(String casdoorUserJson) throws Exception {
     signInAs(Map.of("name", "jbloggs", "owner", "Endeavour", "sub", "1111"));
     when(casdoor.findUser("jbloggs")).thenAnswer(invocation -> Optional.of((ObjectNode) MAPPER.readTree(casdoorUserJson)));
   }
-
-  private static final String EXECUTOR = """
-    {"owner":"Endeavour","name":"jbloggs","id":"1111","roles":[{"name":"EXECUTOR"}],
-     "properties":{"namespaces":"[{\\"iri\\":\\"http://endhealth.info/im#\\",\\"read\\":true,\\"write\\":false}]"}}""";
 
   @Test
   void theSignedInUserIsReadFromCasdoorNotTheToken() throws Exception {
@@ -76,7 +75,7 @@ class SecurityServiceTest {
   @Test
   void aTokenForAUserOutsideTheOrganisationIsRejected() {
     signInAs(Map.of("name", "jbloggs", "owner", "SomeoneElse"));
-    assertThrows(AccessDeniedException.class, service::getUser);
+    assertThrows(BadCredentialsException.class, service::getUser);
   }
 
   @Test

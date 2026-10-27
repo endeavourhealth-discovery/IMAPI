@@ -6,16 +6,14 @@ import org.endeavourhealth.imapi.model.imq.Return
 import org.endeavourhealth.imapi.model.imq.When
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
 import org.endeavourhealth.imapi.model.sql.Table
-import org.endeavourhealth.imapi.vocabulary.IM
+import org.endeavourhealth.imapi.model.sql.qualifyField
 
 /**
  * Compiles IMQ return clauses (properties, functions, CASE expressions, literals) into SQL select items.
  */
-internal class SelectClauseCompiler(
-  private val queryTypeOfTableProvider: () -> Table,
-  private val nodePathContextMap: Map<String, NodePathContext>,
-) {
-  private val queryTypeOfTable: Table get() = queryTypeOfTableProvider()
+internal class SelectClauseCompiler(private val ctx: ConversionContext) {
+  private val queryTypeOfTable: Table get() = ctx.queryTypeOfTable
+  private val nodePathContextMap: Map<String, NodePathContext> get() = ctx.nodePathContextMap
 
   fun getSelects(
     table: Table,
@@ -30,8 +28,8 @@ internal class SelectClauseCompiler(
         ret.iri != null -> addSelectFromProperty(ret, selects, nodeToTableMap, table)
 
         ret.function != null -> {
-          if (ret.function.iri == IM.COUNT.toString()) {
-            selects.add(MySQLSelect("COUNT(*)", ret.`as`))
+          if (ret.function.iri == COUNT_FUNCTION_IRI) {
+            selects.add(MySQLSelect("COUNT(*)", ret.`as` ?: COUNT_ALIAS, isAggregate = true))
           } else {
             selects.add(getFunctionSelect(table, ret, nodeToTableMap))
           }
@@ -131,7 +129,7 @@ internal class SelectClauseCompiler(
       val operator = whenClause.operator?.value ?: "="
       val value = whenClause.value ?: throw SQLConversionException("When clause value is null")
 
-      return "$tableAlias.$field $operator ${SqlLiteralUtils.toSqlLiteral(value)}"
+      return "${qualifyField(tableAlias, field)} $operator ${SqlLiteralUtils.toSqlLiteral(value)}"
     }
 
     if (whenClause.compare != null || whenClause.range != null || whenClause.and != null || whenClause.or != null || whenClause.`is` != null || whenClause.isNull) {
@@ -163,13 +161,13 @@ internal class SelectClauseCompiler(
 
     if (expression.propertyRef != null) {
       val tableAlias = sourceTable.alias ?: sourceTable.table
-      return "$tableAlias.${expression.propertyRef}"
+      return qualifyField(tableAlias, expression.propertyRef)
     }
 
     if (expression.iri != null) {
       val field = getPropertyNameByTableAndPropertyIri(sourceTable, expression.iri).field
       val tableAlias = sourceTable.alias ?: sourceTable.table
-      return "$tableAlias.$field"
+      return qualifyField(tableAlias, field)
     }
 
     throw SQLConversionException("Unsupported CASE expression branch")
@@ -180,7 +178,7 @@ internal class SelectClauseCompiler(
     returnProperty: Return,
     nodeToTableMap: HashMap<String, Table>
   ): MySQLSelect {
-    if (returnProperty.function.iri != IM.CONCATENATE.toString()) {
+    if (returnProperty.function.iri != CONCATENATE_FUNCTION_IRI) {
       throw SQLConversionException("Unsupported function ${returnProperty.function.iri}")
     }
 
@@ -196,9 +194,9 @@ internal class SelectClauseCompiler(
             "Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}"
           )
         val resolved = getPropertyNameByTableAndPropertyIri(currentTable, arg.valuePath.iri).field
-        "${currentTable.alias}.$resolved"
+        qualifyField(currentTable.alias, resolved)
       } else {
-        getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field
+        qualifyField(null, getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field)
       }
 
       if (field.isEmpty()) {
@@ -240,7 +238,7 @@ internal class SelectClauseCompiler(
         ?: throw SQLConversionException("No table exists for ${returnProperty.iri}")
 
       val property = getPropertyNameByTableAndPropertyIri(currentTable, returnProperty.iri)
-      val field = "${currentTable.alias ?: currentTable.table}.${property.field}"
+      val field = qualifyField(currentTable.alias ?: currentTable.table, property.field)
       selects.add(MySQLSelect(field, returnProperty.`as`))
       return
     }
@@ -249,7 +247,7 @@ internal class SelectClauseCompiler(
     val tableRef =
       if (property.join != null) functionalJoinAlias(returnProperty.iri, property)
       else currentWithTable.alias ?: currentWithTable.table
-    val field = "$tableRef.${property.field}"
+    val field = qualifyField(tableRef, property.field)
     selects.add(MySQLSelect(field, returnProperty.`as`))
   }
 }

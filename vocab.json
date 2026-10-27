@@ -2701,6 +2701,14 @@
         "value": "IM.QUERY"
       },
       {
+        "name": "CONCEPT_SET",
+        "value": "IM.CONCEPT_SET"
+      },
+      {
+        "name": "VALUE_SET",
+        "value": "IM.VALUE_SET"
+      },
+      {
         "name": "NODESHAPE",
         "value": "SHACL.NODESHAPE"
       }

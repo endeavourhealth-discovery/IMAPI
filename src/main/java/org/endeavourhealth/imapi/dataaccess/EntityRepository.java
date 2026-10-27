@@ -149,6 +149,37 @@ public class EntityRepository {
     return result;
   }
 
+  /**
+   * Resolves the labels of many iris using a single connection and query per batch, rather than one per iri.
+   * Iris without a label are absent from the result.
+   */
+  public Map<String, String> getNamesByIris(Collection<String> iris) {
+    Map<String, String> names = new HashMap<>();
+    if (iris == null || iris.isEmpty()) return names;
+    String sql = """
+      SELECT ?s ?sname
+      WHERE {
+        VALUES ?s { %s }
+        ?s rdfs:label ?sname .
+      }
+      """;
+    List<String> all = new ArrayList<>(iris);
+    int batchSize = 1000;
+    try (IMDB conn = IMDB.getConnection()) {
+      for (int i = 0; i < all.size(); i += batchSize) {
+        List<String> batch = all.subList(i, Math.min(all.size(), i + batchSize));
+        TupleQuery qry = conn.prepareTupleSparql(sql.formatted(getIriLine(batch)));
+        try (TupleQueryResult rs = qry.evaluate()) {
+          while (rs.hasNext()) {
+            BindingSet bs = rs.next();
+            names.putIfAbsent(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue());
+          }
+        }
+      }
+    }
+    return names;
+  }
+
   public List<TTEntity> getEntitiesByType(String type, Integer offset, Integer limit, String... predicates) {
     Map<String, TTEntity> entities = new HashMap<>();
     String predicateList = Arrays.stream(predicates).map(p -> "<" + p + ">").collect(Collectors.joining(" "));
@@ -1449,18 +1480,22 @@ public class EntityRepository {
     Integer rowNumber,
     Integer pageSize,
     boolean inactive,
-    List<String> entityTypes
+    List<String> entityTypes,
+    String predicate
   ) {
     List<TTIriRef> children = new ArrayList<>();
     Pageable<TTIriRef> result = new Pageable<>();
 
-    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + PARENT_PREDICATES + ") ?p .");
+    String predicates = PARENT_PREDICATES;
+    if (null != predicate) predicates = "<" + predicate + ">";
+
+    StringJoiner sqlCount = new StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {").add("  ?c (" + predicates + ") ?p .");
     if (!inactive) {
       sqlCount.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .");
     }
     sqlCount.add("}");
 
-    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {").add("  ?c ( " + PARENT_PREDICATES + ") ?p .");
+    StringJoiner sql = new StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {").add("  ?c ( " + predicates + ") ?p .");
     if (schemeIris != null && !schemeIris.isEmpty()) {
       sql.add("?c im:scheme ?scheme . ?c rdfs:label ?cname .").add(valueList("scheme", schemeIris));
     } else {
@@ -1588,13 +1623,16 @@ public class EntityRepository {
     return result;
   }
 
-  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, Integer rowNumber, Integer pageSize, boolean inactive) {
+  public List<TTIriRef> findImmediateParentsByIri(String childIri, List<String> schemeIris, String predicate, Integer rowNumber, Integer pageSize, boolean inactive) {
     List<TTIriRef> result = new ArrayList<>();
+
+    String predicates = PARENT_PREDICATES;
+    if (null != predicate) predicates = "<" + predicate + ">";
 
     StringJoiner sql = new StringJoiner(System.lineSeparator())
       .add("SELECT DISTINCT ?p ?pname")
       .add("WHERE {")
-      .add("  ?c (" + PARENT_PREDICATES + ") ?p .")
+      .add("  ?c (" + predicates + ") ?p .")
       .add(valueList("schemes", schemeIris))
       .add("?c im:scheme ?schemes .")
       .add("?p rdfs:label ?pname .");
@@ -2317,8 +2355,8 @@ public class EntityRepository {
           if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
-          if (!results.containsKey(subqIri))
-            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+          results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, label, Integer.parseInt(depth), new HashSet<>()))
+            .getParentIris().add(iri);
         }
       }
     }
@@ -2331,7 +2369,7 @@ public class EntityRepository {
   public List<SubQueryDependency> getOrderedSubqueries(String iri) {
     Map<String, SubQueryDependency> results = new HashMap<>();
     String sql = """
-          SELECT DISTINCT ?o ?label ?depth
+          SELECT DISTINCT ?o ?label ?depth ?parent
           WHERE {
              {
                  ?s im:dependentOn ?o .
@@ -2339,47 +2377,56 @@ public class EntityRepository {
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(2 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(3 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(4 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(5 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(6 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(7 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(8 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(9 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o .
                  BIND(10 AS ?depth)
              }
              OPTIONAL {
@@ -2399,8 +2446,9 @@ public class EntityRepository {
           if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
           String label = bs.getValue("label").stringValue();
           String depth = bs.getValue("depth").stringValue();
-          if (!results.containsKey(subqIri))
-            results.put(subqIri, new SubQueryDependency(subqIri, label, Integer.parseInt(depth)));
+          String parentIri = bs.getValue("parent") != null ? bs.getValue("parent").stringValue() : iri;
+          results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, label, Integer.parseInt(depth), new HashSet<>()))
+            .getParentIris().add(parentIri);
         }
       }
     }

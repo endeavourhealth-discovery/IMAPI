@@ -85,7 +85,7 @@ class MySQLCompareWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base =
         if (units != null) {
           when (units) {
@@ -100,9 +100,11 @@ class MySQLCompareWhere(
           }
         } else if (qualifier != null) {
           when (qualifier) {
-            "QUARTER" -> "((YEAR($prop) - YEAR($right)) * 4 + (QUARTER($prop) - QUARTER($right))) $operator $value"
+            "QUARTER" -> "((CAST(YEAR($prop) AS SIGNED) - CAST(YEAR($right) AS SIGNED)) * 4 + (CAST(QUARTER($prop) AS SIGNED) - CAST(QUARTER($right) AS SIGNED))) $operator $value"
             "FISCAL_YEAR" -> "(YEAR(DATE_SUB($prop, INTERVAL 3 MONTH)) + 1) - (YEAR(DATE_SUB($right, INTERVAL 3 MONTH)) + 1) $operator $value"
-            "DAYS", "MONTHS", "YEARS" -> "$qualifier($prop) - $qualifier($right) $operator $value"
+            "DAY" -> "DATEDIFF($prop, $right) $operator $value"
+            "MONTH" -> "PERIOD_DIFF(DATE_FORMAT($prop, '%Y%m'), DATE_FORMAT($right, '%Y%m')) $operator $value"
+            "YEAR" -> "(CAST(YEAR($prop) AS SIGNED) - CAST(YEAR($right) AS SIGNED)) $operator $value"
             else -> "$prop - $right $operator $value"
           }
         } else "($prop) $operator $right"
@@ -123,7 +125,7 @@ class MySQLPropertyValueWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = if (qualifier != null) {
         when (qualifier) {
           "QUARTER" -> "(YEAR($prop) $operator YEAR($value) AND (QUARTER($prop) $operator QUARTER($value)))"
@@ -172,9 +174,9 @@ class MySQLPropertyIsNullWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = "$prop IS NULL"
-      return if (not == true) "$property IS NOT NULL" else base
+      return if (not == true) "$prop IS NOT NULL" else base
     }
 }
 
@@ -193,7 +195,7 @@ class MySQLPropertyRangeWhere(
 ) : MySQLWhere {
   override val sqlTemplate: String
     get() {
-      val prop = if (table != null && !property.startsWith("TIMESTAMPDIFF")) "`${table}`.$property" else property
+      val prop = qualifyField(table?.let { "`$it`" }, property)
       val base = "$prop $operator $value AND $prop $operator2 $value2"
       return if (not == true) "NOT ($base)" else base
     }
@@ -219,9 +221,9 @@ class MySQLPropertyIsWhere(
       val iri = node.iri
       val selfValue =
         if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
-      val base = if (selfValue == 0) "$conceptTable.parent $operator '$iri'"
+      val base = if (selfValue == 0) "$conceptTable.parent $operator ${quoteSqlString(iri)}"
       else """(
-        $conceptTable.parent $operator '$iri'
+        $conceptTable.parent $operator ${quoteSqlString(iri)}
         AND $conceptTable.self = $selfValue
       )
       """.trimIndent()

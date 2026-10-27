@@ -36,6 +36,11 @@ class TableMap {
     }
   }
 
+  /** As [getTableFromProperty] then [getTableFromDataModel], but null (rather than an exception) when neither maps. */
+  fun findTable(dataModelIri: String?, propertyIri: String?): Table? =
+    getTableFromProperty(listOfNotNull(propertyIri))
+      ?: dataModelIri?.takeIf { it in tables }?.let { getTableFromDataModel(it) }
+
   fun getTableFromProperty(iris: List<String>?): Table? {
     if (iris.isNullOrEmpty()) return null
     val pmi = propertiesMap[iris] ?: return null

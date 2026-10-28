@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.transforms.imqtosql
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
 import org.endeavourhealth.imapi.model.sql.MySQLQuery
 import org.endeavourhealth.imapi.model.sql.MySQLSelect
+import org.endeavourhealth.imapi.model.sql.quoteIdentifier
 
 internal object DatasetJsonBuilder {
   fun build(newMySqlQuery: MySQLQuery): String {
@@ -34,9 +35,9 @@ internal object DatasetJsonBuilder {
           .filterNot { it.alias == "id" }
           .joinToString(",\n") { select ->
             val rawAliasOrName = (select.alias ?: select.name).replace("`", "")
-            val key = "\"$rawAliasOrName\""
+            val key = "\"${rawAliasOrName.replace("\\", "\\\\").replace("\"", "\\\"")}\""
             val value = if (select.alias != null) {
-              "`${rawAliasOrName}`"
+              quoteIdentifier(rawAliasOrName)
             } else {
               select.name
             }

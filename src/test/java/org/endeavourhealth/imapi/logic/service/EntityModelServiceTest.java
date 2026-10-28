@@ -178,7 +178,7 @@ class EntityModelServiceTest {
   void getImmediateParents_NotNullIriAndInactiveTrue() {
     TTIriRef parent = new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction to Amlodipine Besilate");
     when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
-      0, 20, true))
+      null, 0, 20, true))
       .thenReturn(Collections.singletonList(parent));
     TTArray ttArray = new TTArray()
       .add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));
@@ -193,7 +193,7 @@ class EntityModelServiceTest {
   @Test
   void getImmediateParents_NotNullIriAndInactiveFalse() {
     TTIriRef parent = new TTIriRef("http://endhealth.info/im#25451000252115", "Adverse reaction to Amlodipine Besilate");
-    when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null,
+    when(entityRepository.findImmediateParentsByIri("http://endhealth.info/im#25451000252115", null, null,
       0, 10, false))
       .thenReturn(Collections.singletonList(parent));
     TTArray ttArray = new TTArray().add(iri("http://endhealth.info/im#25451000252115", "Adverse reaction caused by drug (disorder)"));

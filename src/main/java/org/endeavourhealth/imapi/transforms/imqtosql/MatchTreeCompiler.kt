@@ -11,62 +11,63 @@ import org.endeavourhealth.imapi.model.sql.MySQLWhere
 import org.endeavourhealth.imapi.model.sql.MySQLWith
 import org.endeavourhealth.imapi.model.sql.Table
 import org.endeavourhealth.imapi.model.sql.qualifyField
-import org.endeavourhealth.imapi.vocabulary.IM
 
 /**
  * Compiles the IMQ match tree (and/or/is/notExists groups and individual matches) into an ordered list of CTEs.
  */
 internal class MatchTreeCompiler(
-  private val queryTypeOfTableProvider: () -> Table,
-  private val aliases: AliasAllocator,
-  private val keepAsMap: MutableMap<String, MySQLWith>,
+  private val ctx: ConversionContext,
   private val selectCompiler: SelectClauseCompiler,
   private val whereCompiler: WhereClauseCompiler,
   private val pathJoinBuilder: PathJoinBuilder,
-  private val getTableFromTypeAndProperty: (String?, String?) -> Table,
 ) {
-  private val queryTypeOfTable: Table get() = queryTypeOfTableProvider()
+  private val queryTypeOfTable: Table get() = ctx.queryTypeOfTable
+  private val aliases: AliasAllocator get() = ctx.aliases
+  private val keepAsMap: MutableMap<String, MySQLWith> get() = ctx.keepAsMap
+
+  private fun getTableFromTypeAndProperty(typeIri: String?, propertyIri: String?): Table =
+    ctx.getTable(typeIri, propertyIri)
+
   private val carryPropertiesStack = ArrayDeque<List<String>>()
 
   fun getIsWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
     val isA = match.`is`
     val isAlias = aliases.useAs(requireAs(match))
-    val withJoins = mutableListOf<MySQLJoin>()
     val cohortTable = getTableFromTypeAndProperty(COHORT_DATA_MODEL_IRI, null)
-    cohortTable.table = "dataset.cohort_results"
-    if (mySqlQuery.withs.isNotEmpty()) {
-      val lastWith = mySqlQuery.withs.last { !it.exclude }
+    cohortTable.table = COHORT_RESULTS_TABLE
+    val resultIdWhere = MySQLPropertyValueWhere(QUERY_RESULT_ID_FIELD, "=", SqlLiteralUtils.queryResultIdToken(isA.iri), null, null)
+
+    // the first step filters the cohort results directly; later steps join them to the previous step
+    val joins = mutableListOf<MySQLJoin>()
+    val wheres = mutableListOf<MySQLWhere>()
+    if (mySqlQuery.withs.isEmpty()) {
+      wheres.add(resultIdWhere)
+    } else {
+      val lastWith = mySqlQuery.withs.lastIncluded()
       val fk = lastWith.entityKeyField
         ?: if (cohortTable.table == lastWith.table.table) lastWith.table.primaryKey
         else lastWith.table.foreignKeyTo(cohortTable).first
-      withJoins.add(
+      val joinWheres = mutableListOf<MySQLWhere>(resultIdWhere)
+      if (isA.isExclude) joinWheres.add(MySQLPropertyValueWhere(ENTITY_ID_FIELD, "IS", "NULL", null, null))
+      joins.add(
         MySQLJoin(
           "JOIN",
-          tableFrom = "dataset.cohort_results",
+          tableFrom = COHORT_RESULTS_TABLE,
           tableTo = lastWith.alias,
           fromProperty = ENTITY_ID_FIELD,
           toProperty = fk,
-          wheres = if (isA.isExclude) mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-            MySQLPropertyValueWhere(ENTITY_ID_FIELD, "IS", "NULL", null, null)
-          ) else mutableListOf(
-            MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-          )
+          wheres = joinWheres
         )
       )
     }
-
-    val topWheres = if (withJoins.isEmpty()) mutableListOf<MySQLWhere>(
-      MySQLPropertyValueWhere("query_result_id", "=", "${isA.iri}", null, null),
-    ) else mutableListOf()
 
     return MySQLWith(
       table = cohortTable,
       alias = isAlias,
       selects = mutableListOf(MySQLSelect("${cohortTable.table}.$ENTITY_ID_FIELD")),
-      joins = withJoins.ifEmpty { mutableListOf() },
+      joins = joins,
       exclude = isA.isExclude,
-      wheres = topWheres,
+      wheres = wheres,
       entityKeyField = ENTITY_ID_FIELD,
       isCohortRef = true
     )
@@ -121,9 +122,9 @@ internal class MatchTreeCompiler(
         MySQLNotExistsWhere(
           outerTable = previous.alias,
           outerKey = previousKey,
-          innerTable = "dataset.cohort_results",
+          innerTable = COHORT_RESULTS_TABLE,
           innerKey = ENTITY_ID_FIELD,
-          innerWheres = listOf(MySQLPropertyValueWhere("query_result_id", "=", cohortIri, table = null))
+          innerWheres = listOf(MySQLPropertyValueWhere(QUERY_RESULT_ID_FIELD, "=", SqlLiteralUtils.queryResultIdToken(cohortIri), table = null))
         )
       ),
       fromAlias = previous.alias,
@@ -165,46 +166,49 @@ internal class MatchTreeCompiler(
     }
   }
 
+  /** One branch of an `or` group: its final CTE, and whether the branch's own CTEs were already added to the query. */
+  private class OrBranch(val with: MySQLWith, val emitted: Boolean)
+
   private fun addOrs(currentMatch: Query, mySqlQuery: MySQLQuery) {
-    val branchWiths = mutableListOf<MySQLWith>()
-    val branchEmitted = mutableListOf<Boolean>()
-    val tempQuery = MySQLQuery()
-    tempQuery.nodeToTableMap.putAll(mySqlQuery.nodeToTableMap)
-    if (mySqlQuery.withs.isNotEmpty()) tempQuery.withs.add(mySqlQuery.withs.last())
+    val branches = mutableListOf<OrBranch>()
+    // every branch starts from the query as it was before the group, not from its sibling branches
+    val startNodes = HashMap(mySqlQuery.nodeToTableMap)
+    val startWith = mySqlQuery.withs.lastOrNull()
+    val startCount = if (startWith != null) 1 else 0
 
     val explicitCarryProperties = getGroupCarryProperties(currentMatch)
     if (explicitCarryProperties.isNotEmpty()) carryPropertiesStack.addLast(explicitCarryProperties)
     try {
       for (match in currentMatch.or) {
         val branchQuery = MySQLQuery()
-        branchQuery.nodeToTableMap.putAll(tempQuery.nodeToTableMap)
-        if (tempQuery.withs.isNotEmpty()) branchQuery.withs.add(tempQuery.withs.last())
+        branchQuery.nodeToTableMap.putAll(startNodes)
+        if (startWith != null) branchQuery.withs.add(startWith)
         addMatchWithsRecursively(match, branchQuery)
 
         var emitted = false
         if (match.and == null && match.or == null && match.`is` == null) {
           branchQuery.withs.add(buildChainedWith(match, branchQuery))
         } else {
-          val newWiths = branchQuery.withs.drop(tempQuery.withs.size)
+          val newWiths = branchQuery.withs.drop(startCount)
           mySqlQuery.withs.addAll(newWiths)
           emitted = newWiths.isNotEmpty()
         }
 
-        branchWiths.add(branchQuery.withs.last())
-        branchEmitted.add(emitted)
+        branches.add(OrBranch(branchQuery.withs.last(), emitted))
         mySqlQuery.nodeToTableMap.putAll(branchQuery.nodeToTableMap)
       }
     } finally {
       if (explicitCarryProperties.isNotEmpty()) carryPropertiesStack.removeLast()
     }
 
+    val branchWiths = branches.map { it.with }
     val carryAliases = linkedSetOf<String>()
     explicitCarryProperties.forEach { carryAliases.add(it.substringAfterLast('#')) }
     branchWiths.forEach { carryAliases.addAll(getAvailableAliases(it)) }
 
-    val orWiths = branchWiths.mapIndexed { i, with ->
-      if (branchEmitted[i]) selectFromEmittedWith(with, carryAliases.toList())
-      else normaliseForUnion(with, carryAliases.toList())
+    val orWiths = branches.map { branch ->
+      if (branch.emitted) selectFromEmittedWith(branch.with, carryAliases.toList())
+      else normaliseForUnion(branch.with, carryAliases.toList())
     }.toMutableList()
 
     if (orWiths.size == 1 && currentMatch.orderBy == null) {
@@ -269,44 +273,30 @@ internal class MatchTreeCompiler(
   private fun getJoinBetweenWiths(fromWith: MySQLWith, toWith: MySQLWith): MySQLJoin {
     val (fk, pk) =
       if (fromWith.table.dataModel == toWith.table.dataModel) {
-        val (ffk, _) = fromWith.table.foreignKeyTo(queryTypeOfTable)
-          .takeIf { it.first != null }
-          ?: (fromWith.table.primaryKey to fromWith.table.primaryKey)
-        ffk to ffk
+        val key = fromWith.table.foreignKeyTo(queryTypeOfTable).first ?: fromWith.table.primaryKey
+        key to key
       } else {
         fromWith.table.foreignKeyTo(toWith.table)
       }
 
     if (fk == null || pk == null) {
       throw SQLConversionException(
-        "No relationship between ${fromWith.table.table} and ${toWith.table}"
+        "No relationship between ${fromWith.table.table} and ${toWith.table.table}"
       )
     }
 
     val actualPk = toWith.entityKeyField ?: pk
-    return if (toWith.exclude) {
-      MySQLJoin(
-        join = "LEFT JOIN",
-        tableFrom = fromWith.table.alias ?: fromWith.table.table,
-        tableTo = toWith.table.table,
-        tableToAlias = toWith.alias,
-        fromProperty = fk,
-        toProperty = actualPk,
-        reference = true
-      ).apply {
-        wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$actualPk", "IS", "NULL"))
-      }
-    } else {
-      MySQLJoin(
-        join = "JOIN",
-        tableFrom = fromWith.table.alias ?: fromWith.table.table,
-        tableTo = toWith.table.table,
-        tableToAlias = toWith.alias,
-        fromProperty = fk,
-        toProperty = actualPk,
-        reference = true
-      )
-    }
+    val join = MySQLJoin(
+      join = if (toWith.exclude) "LEFT JOIN" else "JOIN",
+      tableFrom = fromWith.table.alias ?: fromWith.table.table,
+      tableTo = toWith.table.table,
+      tableToAlias = toWith.alias,
+      fromProperty = fk,
+      toProperty = actualPk,
+      reference = true
+    )
+    if (toWith.exclude) join.wheres.add(MySQLPropertyValueWhere("${toWith.alias}.$actualPk", "IS", "NULL"))
+    return join
   }
 
   fun buildChainedWith(match: Query, mySqlQuery: MySQLQuery): MySQLWith {
@@ -350,40 +340,22 @@ internal class MatchTreeCompiler(
       )
     )
 
-    val select = if (previous.table.dataModel == COHORT_DATA_MODEL_IRI)
-      "${previous.alias}.*, ${previous.alias}.$ENTITY_ID_FIELD as $PATIENT_ID_FIELD"
-    else "${previous.alias}.*"
-
-    val entityKeyField = if (previous.table.dataModel == COHORT_DATA_MODEL_IRI)
-      PATIENT_ID_FIELD
-    else previous.entityKeyField
-
     val wrapped = MySQLWith(
       table = with.table,
       alias = with.alias,
-      selects = mutableListOf(MySQLSelect(select)),
+      selects = mutableListOf(MySQLSelect(carrySelectFrom(previous))),
       subQuery = with,
-      entityKeyField = entityKeyField
+      entityKeyField = carryEntityKeyFrom(previous)
     )
 
-    wrapped.joins.add(
-      MySQLJoin(
-        join = "RIGHT JOIN",
-        tableFrom = "sq",
-        tableTo = previous.alias,
-        tableToAlias = previous.alias,
-        fromProperty = fk,
-        toProperty = fkLast,
-        reference = true
-      )
-    )
-    wrapped.wheres.add(MySQLPropertyValueWhere(fk, "IS", "NULL", table = "sq"))
+    wrapped.joins.add(rightJoinSubqueryTo(previous, fk, fkLast))
+    wrapped.wheres.add(subqueryKeyIsNull(fk))
     return wrapped
   }
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
     if (match.`return` != null) addReturnFunctionalJoins(match, with)
-    val isAggregate = match.`return`?.any { it.function?.iri == IM.COUNT.toString() } == true
+    val isAggregate = match.`return`?.any { it.function?.iri == COUNT_FUNCTION_IRI } == true
     // an aggregate collapses rows to one per entity, so only grouped columns can be selected, not table.*
     if (isReferencedElsewhere && !isAggregate) {
       with.selects.add(MySQLSelect("${with.table.alias ?: with.table.table}.*"))

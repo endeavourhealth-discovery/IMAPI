@@ -102,7 +102,31 @@ class EntityService {
       rowNumber,
       size,
       inactive,
-      entityTypes
+      entityTypes,
+      null
+    )
+    return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri)
+  }
+
+  fun getEntityChildrenPagedForTree(
+    iri: String,
+    schemeIris: MutableList<String>?,
+    page: Int?,
+    size: Int?,
+    inactive: Boolean,
+    entityTypes: MutableList<String>?,
+    predicate: String?
+  ): Pageable<EntityReferenceNode>? {
+    if (iri.isEmpty()) return null
+    val rowNumber = if (page != null && size != null) (page - 1) * size else 0
+    val childrenAndTotalCount = entityRepository.findImmediateChildrenPagedByIriWithTotalCount(
+      iri,
+      schemeIris,
+      rowNumber,
+      size,
+      inactive,
+      entityTypes,
+      predicate
     )
     return iriRefPageableToEntityReferenceNodePageable(childrenAndTotalCount, schemeIris, inactive, iri)
   }
@@ -147,22 +171,37 @@ class EntityService {
     var rowNumber = 0
     if (pageIndex != null && pageSize != null) rowNumber = (pageIndex - 1) * pageSize
 
-    val parentsInt = getParents(iri, schemeIris, rowNumber, pageSize, inactive)
-    val parents = parentsInt.map { p -> EntityReferenceNode(p.iri, p.name) }
+    val parents = getParents(iri, schemeIris, null, rowNumber, pageSize, inactive).map { p -> EntityReferenceNode(p.iri, p.name) }
 
     for (parent in parents) parent.setType(entityRepository.getEntityTypes(parent.iri))
 
     return parents.toMutableList()
   }
 
+  fun getParentEntitiesForTree(iri: String?,
+                               schemeIris: MutableList<String>?,
+                               predicate: String?,
+                               pageIndex: Int?,
+                               pageSize: Int?,
+                               inactive: Boolean
+  ): MutableList<EntityReferenceNode> {
+    if (predicate.isNullOrEmpty()) return getImmediateParents(iri, schemeIris, pageIndex, pageSize, inactive)
+    if (iri.isNullOrEmpty()) return mutableListOf()
+    var rowNumber = if (pageIndex != null && pageSize != null) (pageIndex - 1) * pageSize else 0
+    val parents = getParents(iri, schemeIris, predicate,rowNumber,pageSize, inactive).map { p -> EntityReferenceNode(p.iri, p.name) }.toMutableList()
+    parents.forEach { parent -> parent.setType(entityRepository.getEntityTypes(parent.iri)) }
+    return parents
+  }
+
   private fun getParents(
     iri: String,
     schemeIris: MutableList<String>?,
+    predicate: String?,
     rowNumber: Int,
     pageSize: Int?,
     inactive: Boolean
   ): MutableList<TTIriRef> {
-    return entityRepository.findImmediateParentsByIri(iri, schemeIris, rowNumber, pageSize, inactive)
+    return entityRepository.findImmediateParentsByIri(iri, schemeIris, predicate,rowNumber, pageSize, inactive)
   }
 
   fun isWhichType(iri: String?, candidates: MutableList<String>?): MutableList<TTIriRef> {

@@ -14,6 +14,8 @@ public class IMQToECL {
 
   private final EntityRepository entityRepository = new EntityRepository();
   private final Map<String, String> names = new HashMap<>();
+  private final Set<String> pendingNames = new HashSet<>();
+  private boolean collectingNames;
   private Prefixes prefixes;
   @Getter
   @Setter
@@ -38,6 +40,20 @@ public class IMQToECL {
       }
     }
     try {
+      if (eclQuery.isShowNames()) {
+        // Dry run to gather every iri needing a name, then resolve them all in one go instead of one query each
+        collectingNames = true;
+        try {
+          expressionMatch(query, new StringBuilder(), true, false);
+        } finally {
+          collectingNames = false;
+        }
+        pendingNames.removeAll(names.keySet());
+        Map<String, String> resolved = entityRepository.getNamesByIris(pendingNames);
+        // iris without a label are recorded as null so they are not looked up again one by one
+        for (String pending : pendingNames) names.put(pending, resolved.get(pending));
+        pendingNames.clear();
+      }
       expressionMatch(query, ecl, eclQuery.isShowNames(), false);
       eclQuery.setEcl(ecl.toString().trim());
     } catch (Exception ex) {
@@ -382,11 +398,15 @@ public class IMQToECL {
     if (iri == null || iri.isEmpty())
       return "*";
     if (name == null && includeNames) {
-      if (names.get(iri) == null) {
-        name = entityRepository.getEntityReferenceByIri(iri).getName();
-        names.put(iri, name);
+      if (collectingNames) {
+        pendingNames.add(iri);
+      } else {
+        if (!names.containsKey(iri)) {
+          name = entityRepository.getEntityReferenceByIri(iri).getName();
+          names.put(iri, name);
+        }
+        name = names.get(iri);
       }
-      name = names.get(iri);
     }
     if (iri.startsWith(NAMESPACE.SNOMED.toString())) {
       iri = iri.substring(iri.lastIndexOf("#") + 1);

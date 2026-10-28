@@ -5,6 +5,7 @@ import org.eclipse.rdf4j.model.util.Values
 import org.eclipse.rdf4j.query.BindingSet
 import org.eclipse.rdf4j.query.TupleQuery
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB.Companion.getConnection
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList
 import org.endeavourhealth.imapi.model.Pageable
 import org.endeavourhealth.imapi.model.iml.Concept
@@ -19,6 +20,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode
 import org.endeavourhealth.imapi.vocabulary.*
 import org.slf4j.LoggerFactory
 import java.util.*
+
 
 class SetRepository {
   private val log = LoggerFactory.getLogger(javaClass)
@@ -234,17 +236,36 @@ class SetRepository {
     schemes: MutableList<String>,
     entityVariable: String
   ): MutableSet<Concept> {
-    val result: MutableSet<Concept> = mutableSetOf()
+    return expandBySet(qry, includeLegacy, subsumedBy, schemes, entityVariable, null).getOrDefault("", LinkedHashSet())
+  }
+
+  private fun expandBySet(
+    qry: TupleQuery,
+    includeLegacy: Boolean,
+    subsumedBy: Boolean,
+    schemes: MutableList<String>,
+    entityVariable: String,
+    setVariable: String?
+  ): Map<String, MutableSet<Concept>> {
+    val resultBySet = hashMapOf<String, Set<Concept>>()
     val coreSchemes: MutableSet<String> = VocabUtils.asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM)
     val conceptMap: MutableMap<String, Concept> = mutableMapOf()
     qry.evaluate().use { rs ->
       while (rs.hasNext()) {
         val bs = rs.next()
+        val setKey = if (setVariable != null) bs.getValue(setVariable).stringValue() else ""
         val concept = bs.getValue(entityVariable).stringValue()
-        var cl = conceptMap[concept]
+        val conceptKey = setKey + "\n" + concept
+        var cl = conceptMap[conceptKey]
         val scheme = bs.getValue("scheme")
         if (cl == null) {
-          cl = buildConcept(concept, conceptMap, result, bs)
+          cl = buildConcept(
+            concept,
+            conceptKey,
+            conceptMap,
+            resultBySet.computeIfAbsent(setKey) { hashSetOf() }.toMutableSet(),
+            bs
+          )
           if (subsumedBy) cl.isSubsumed = bs.getValue("subsumed").stringValue() == "Y"
         } else {
           val type = bs.getValue(ENTITY_TYPE)
@@ -271,17 +292,20 @@ class SetRepository {
         }
       }
     }
-    return result.sortedBy { it.name }.toCollection(LinkedHashSet())
+    val sortedBySet = hashMapOf<String, MutableSet<Concept>>()
+    resultBySet.forEach { (setKey, concepts) -> sortedBySet[setKey] = concepts.sortedBy { it.name }.toMutableSet() }
+    return sortedBySet
   }
 
   private fun buildConcept(
     concept: String,
+    conceptKey: String,
     conceptMap: MutableMap<String, Concept>,
     result: MutableSet<Concept>,
     bs: BindingSet
   ): Concept {
     val cl = Concept()
-    conceptMap[concept] = cl
+    conceptMap[conceptKey] = cl
     result.add(cl)
     val name = bs.getValue("term")
     val code = bs.getValue("code")
@@ -585,12 +609,27 @@ class SetRepository {
     return result
   }
 
-
   fun getExpansionFromIri(
     setIri: String, includeLegacy: Boolean, schemes: MutableList<String>,
     subsumptionPredicates: MutableList<String>
   ): MutableSet<Concept> {
-    val select = StringBuilder().append("Select distinct ?entity ?subsumed ")
+    return getExpansionFromIris(mutableListOf(setIri), includeLegacy, schemes, subsumptionPredicates).getOrDefault(
+      setIri,
+      hashSetOf()
+    )
+  }
+
+
+  /**
+   * Expands several sets in a single query. The result is keyed by set iri; a set with no members has no entry. A
+   * concept that is a member of more than one of the sets is returned once per set.
+   */
+  fun getExpansionFromIris(
+    setIris: MutableCollection<String>, includeLegacy: Boolean, schemes: MutableList<String>,
+    subsumptionPredicates: MutableList<String>
+  ): Map<String, MutableSet<Concept>> {
+    if (setIris.isEmpty()) return mutableMapOf()
+    val select = StringBuilder().append("Select distinct ?setIri ?entity ?subsumed ")
     if (subsumptionPredicates.isNotEmpty()) {
       select.append("?subsumed ")
     }
@@ -602,8 +641,7 @@ class SetRepository {
       .append(
         """
          WHERE {
-          Values ?setIri{<${setIri}>}
-        
+          ${valueList("setIri", setIris)}
         """.trimIndent()
       )
       .append("\n")
@@ -613,8 +651,78 @@ class SetRepository {
     val subsumedBy = subsumptionPredicates.isNotEmpty()
     IMDB.getConnection().use { conn ->
       val qry = conn.prepareTupleSparql(select.toString())
-      return expand(qry, includeLegacy, subsumedBy, mutableListOf(), "entity")
+      return expandBySet(qry, includeLegacy, subsumedBy, mutableListOf(), "entity", "setIri")
     }
+  }
+
+  /**
+   * A direct subset relationship within the subset tree of a set.
+   */
+  data class SubsetEdge(
+    val subset: String,
+    val name: String,
+    val parent: String
+  )
+
+  /**
+   * Every labelled subset below `setIri` (at any depth) as child/parent edges, in one query. Only edges whose
+   * parent is `setIri` or one of its descendants are returned.
+   */
+  fun getSubsetEdges(setIri: String): MutableList<SubsetEdge> {
+    val edges = mutableListOf<SubsetEdge>()
+    val sql = """
+      SELECT DISTINCT ?subset ?name ?parent
+      WHERE {
+        ?subset im:isSubsetOf+ ?root .
+        ?subset im:isSubsetOf ?parent .
+        ?parent im:isSubsetOf* ?root .
+        ?subset rdfs:label ?name .
+      }
+      
+      """.trimIndent()
+    getConnection().use { conn ->
+      val qry = conn.prepareTupleSparql(sql)
+      qry.setBinding("root", Values.iri(setIri))
+      qry.evaluate().use { rs ->
+        while (rs.hasNext()) {
+          val bs = rs.next()
+          edges.add(
+            SubsetEdge(
+              bs.getValue("subset").stringValue(),
+              bs.getValue("name").stringValue(),
+              bs.getValue("parent").stringValue()
+            )
+          )
+        }
+      }
+    }
+    return edges
+  }
+
+  /**
+   * Of the given sets, those that have a definition but no members yet (so their members need generating).
+   */
+  fun getSetsWithDefinitionButNoMembers(setIris: MutableCollection<String>): MutableSet<String> {
+    val result = mutableSetOf<String>()
+    if (setIris.isEmpty()) return result
+    val sql: String = """
+      SELECT ?set
+      WHERE {
+        ${valueList("set", setIris)}
+        FILTER NOT EXISTS { ?set im:hasMember ?member }
+        FILTER EXISTS { ?set im:definition ?definition }
+      }
+      
+      """.trimIndent()
+    getConnection().use { conn ->
+      val qry = conn.prepareTupleSparql(sql)
+      qry.evaluate().use { rs ->
+        while (rs.hasNext()) {
+          result.add(rs.next().getValue("set").stringValue())
+        }
+      }
+    }
+    return result
   }
 
   private fun addOr(

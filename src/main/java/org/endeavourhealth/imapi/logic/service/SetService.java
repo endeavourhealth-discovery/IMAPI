@@ -130,6 +130,10 @@ public class SetService {
     return setDiffObject;
   }
 
+  private static String containerSortKey(Concept member) {
+    if (null == member.getIsContainedIn()) return "";
+    return member.getIsContainedIn().stream().map(TTEntity::getName).filter(Objects::nonNull).min(Comparator.naturalOrder()).orElse("");
+  }
 
   public Pageable<Node> getDirectOrEntailedMembersFromIri(String iri, boolean entailments, Integer pageNumber, Integer pageSize) {
     return setRepository.getMembers(iri, entailments, pageNumber, pageSize);
@@ -154,7 +158,6 @@ public class SetService {
     }
     return result;
   }
-
 
   public SetContent getSetContent(SetOptions options) throws QueryException, JsonProcessingException {
     SetContent result = new SetContent();
@@ -312,44 +315,68 @@ public class SetService {
     List<String> subsumption
   ) throws QueryException, JsonProcessingException {
     if (!(core || legacy || subsets)) return new HashSet<>();
-    boolean hasMembers = entityRepository.hasPredicates(iri, asHashSet(IM.HAS_MEMBER));
-    if (!hasMembers && (entityRepository.hasPredicates(iri, asHashSet(IM.DEFINITION)))) {
-      new SetMemberGenerator().generateMembers(iri, GRAPH.IM);
+
+    if (!subsets) {
+      generateMissingMembers(List.of(iri));
+      Set<Concept> result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumption);
+      return null == result ? new HashSet<>() : result;
     }
 
-    Set<Concept> result = null;
+    // The whole subset tree is read with a fixed number of queries, however many subsets it has.
+    SubsetTree tree = getSubsetTree(iri);
+    log.trace("Expanding {} with {} subsets...", iri, tree.names.size());
+    generateMissingMembers(tree.setIris());
+    if (!(core || legacy)) return new LinkedHashSet<>();
 
-    if (core || legacy) {
-      result = setRepository.getExpansionFromIri(iri, legacy, schemes, subsumption);
+    Map<String, Set<Concept>> membersBySet = setRepository.getExpansionFromIris(tree.setIris(), legacy, schemes, subsumption);
+    Set<Concept> result = new LinkedHashSet<>(membersBySet.getOrDefault(iri, Set.of()));
+
+    Map<String, TTEntity> containerEntities = new HashMap<>();
+    tree.names.forEach((subsetIri, name) -> containerEntities.put(subsetIri, new TTEntity(subsetIri).setName(name)));
+
+    for (String subsetIri : tree.names.keySet()) {
+      Set<Concept> subsetMembers = membersBySet.get(subsetIri);
+      if (null == subsetMembers || subsetMembers.isEmpty()) continue;
+      // A member is contained in its own subset and in every subset above it (other than the set being expanded).
+      List<TTEntity> containers = tree.containers(subsetIri).stream().map(containerEntities::get).toList();
+      for (Concept member : subsetMembers) {
+        containers.forEach(member::addIsContainedIn);
+        if (member.getMatchedFrom() != null)
+          member.getMatchedFrom().forEach(matchedFrom -> containers.forEach(matchedFrom::addIsContainedIn));
+      }
+      result.addAll(subsetMembers);
     }
 
-    if (null == result) result = new HashSet<>();
-
-    if (subsets) {
-      expandSubsets(iri, core, legacy, schemes, result, subsumption);
-      result = result.stream().sorted(Comparator.comparing(m -> (null == m.getIsContainedIn() || m.getIsContainedIn().isEmpty()) ? "" : m.getIsContainedIn().iterator().next().getName())).collect(Collectors.toCollection(LinkedHashSet::new));
-    }
-
-    return result;
+    return result.stream().sorted(Comparator.comparing(SetService::containerSortKey)).collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
-  private void expandSubsets(String iri, boolean core, boolean legacy, List<String> schemes, Set<Concept> result,
-                             List<String> subsumptions) throws QueryException, JsonProcessingException {
-    log.trace("Expanding subsets for {}...", iri);
-    Set<TTIriRef> subSetIris = setRepository.getSubsetIrisWithNames(iri);
-    log.trace("Found {} subsets...", subSetIris.size());
-    for (TTIriRef subset : subSetIris) {
-      Set<Concept> subsetMembers = getExpandedSetMembers(subset.getIri(), core, legacy, true, schemes, subsumptions);
-      if (null != subsetMembers && !subsetMembers.isEmpty()) {
-        TTEntity subsetEntity = new TTEntity(subset.getIri()).setName(subset.getName());
-        subsetMembers.forEach(ss -> {
-          ss.addIsContainedIn(subsetEntity);
-          if (ss.getMatchedFrom() != null)
-            ss.getMatchedFrom().forEach(matchedFrom -> matchedFrom.addIsContainedIn(subsetEntity));
-        });
-        result.addAll(subsetMembers);
+  private void generateMissingMembers(Collection<String> setIris) throws QueryException, JsonProcessingException {
+    for (String setIri : setRepository.getSetsWithDefinitionButNoMembers(setIris)) {
+      new SetMemberGenerator().generateMembers(setIri, GRAPH.IM);
+    }
+  }
+
+  private SubsetTree getSubsetTree(String rootIri) {
+    List<SetRepository.SubsetEdge> edges = new ArrayList<>(setRepository.getSubsetEdges(rootIri));
+    edges.sort(Comparator.comparing(SetRepository.SubsetEdge::getName).thenComparing(SetRepository.SubsetEdge::getSubset));
+    Map<String, List<SetRepository.SubsetEdge>> childrenByParent = new HashMap<>();
+    for (SetRepository.SubsetEdge edge : edges)
+      childrenByParent.computeIfAbsent(edge.getParent(), k -> new ArrayList<>()).add(edge);
+
+    // Walk down from the root. Each set is expanded once, so overlapping branches and cycles cannot repeat or loop.
+    SubsetTree tree = new SubsetTree(rootIri);
+    Deque<String> queue = new ArrayDeque<>(List.of(rootIri));
+    Set<String> visited = new HashSet<>();
+    while (!queue.isEmpty()) {
+      String parent = queue.poll();
+      if (!visited.add(parent)) continue;
+      for (SetRepository.SubsetEdge edge : childrenByParent.getOrDefault(parent, List.of())) {
+        if (edge.getSubset().equals(rootIri)) continue;
+        tree.addSubset(edge.getSubset(), edge.getName(), parent);
+        queue.add(edge.getSubset());
       }
     }
+    return tree;
   }
 
   public void updateSubsetsFromSuper(String agentName, TTEntity entity, NAMESPACE updateNamespace) throws TTFilerException, JsonProcessingException {
@@ -406,6 +433,42 @@ public class SetService {
 
   public Integer getMemberCount(String iri) {
     return setRepository.getMemberCount(iri);
+  }
+
+  private static final class SubsetTree {
+    private final String root;
+    private final Map<String, String> names = new LinkedHashMap<>();
+    private final Map<String, Set<String>> parents = new HashMap<>();
+
+    private SubsetTree(String root) {
+      this.root = root;
+    }
+
+    private void addSubset(String subset, String name, String parent) {
+      names.putIfAbsent(subset, name);
+      parents.computeIfAbsent(subset, k -> new LinkedHashSet<>()).add(parent);
+    }
+
+    private List<String> setIris() {
+      List<String> iris = new ArrayList<>();
+      iris.add(root);
+      iris.addAll(names.keySet());
+      return iris;
+    }
+
+    /**
+     * The subset itself plus every subset above it, excluding the root.
+     */
+    private Set<String> containers(String subset) {
+      Set<String> result = new LinkedHashSet<>();
+      Deque<String> queue = new ArrayDeque<>(List.of(subset));
+      while (!queue.isEmpty()) {
+        String next = queue.poll();
+        if (next.equals(root) || !result.add(next)) continue;
+        queue.addAll(parents.getOrDefault(next, Set.of()));
+      }
+      return result;
+    }
   }
 }
 

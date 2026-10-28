@@ -10,6 +10,7 @@ import org.eclipse.rdf4j.model.Statement
 import org.eclipse.rdf4j.model.util.Values
 import org.eclipse.rdf4j.query.*
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB
+import org.endeavourhealth.imapi.dataaccess.databases.IMDB.Companion.getConnection
 import org.endeavourhealth.imapi.dataaccess.entity.Tpl
 import org.endeavourhealth.imapi.dataaccess.helpers.DALException
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.getString
@@ -32,6 +33,7 @@ import java.time.Duration
 import java.util.*
 import java.util.function.Consumer
 import kotlin.math.min
+
 
 class EntityRepository {
   private var row = 0
@@ -60,6 +62,41 @@ class EntityRepository {
       }
     }
     return result
+  }
+
+  /**
+   * Resolves the labels of many iris using a single connection and query per batch, rather than one per iri.
+   * Iris without a label are absent from the result.
+   */
+  fun getNamesByIris(iris: MutableCollection<String>?): MutableMap<String, String> {
+    val names: MutableMap<String, String> = hashMapOf()
+    if (iris.isNullOrEmpty()) return names
+
+    val all = iris.toMutableList()
+    val batchSize = 1000
+    getConnection().use { conn ->
+      var i = 0
+      while (i < all.size) {
+        val batch = all.subList(i, min(all.size, i + batchSize))
+        val sql = """
+          SELECT ?s ?sname
+          WHERE {
+            VALUES ?s { ${getIriLine(batch)} }
+            ?s rdfs:label ?sname .
+          }
+      
+      """.trimIndent()
+        val qry = conn.prepareTupleSparql(sql)
+        qry.evaluate().use { rs ->
+          while (rs.hasNext()) {
+            val bs = rs.next()
+            names.putIfAbsent(bs.getValue("s").stringValue(), bs.getValue("sname").stringValue())
+          }
+        }
+        i += batchSize
+      }
+    }
+    return names
   }
 
   fun getEntitiesByType(type: String, offset: Int, limit: Int, vararg predicates: String): MutableList<TTEntity> {
@@ -1467,20 +1504,22 @@ class EntityRepository {
     rowNumber: Int?,
     pageSize: Int?,
     inactive: Boolean,
-    entityTypes: MutableList<String>?
+    entityTypes: MutableList<String>?,
+    predicate: String?
   ): Pageable<TTIriRef> {
     val children: MutableList<TTIriRef> = mutableListOf()
     val result = Pageable<TTIriRef>()
 
+    val predicates = if (predicate != null) "<$predicate>" else PARENT_PREDICATES
     val sqlCount = StringJoiner(System.lineSeparator()).add("SELECT (COUNT(?c) as ?count)").add("WHERE {")
-      .add("  ?c ($PARENT_PREDICATES) ?p .")
+      .add("  ?c ($predicates) ?p .")
     if (!inactive) {
       sqlCount.add("  OPTIONAL { ?c im:status ?s}").add("  FILTER (?s != im:Inactive) .")
     }
     sqlCount.add("}")
 
     val sql = StringJoiner(System.lineSeparator()).add("SELECT ?c ?cname ").add("WHERE {")
-      .add("  ?c ( $PARENT_PREDICATES) ?p .")
+      .add("  ?c ( $predicates) ?p .")
     if (!schemeIris.isNullOrEmpty()) {
       sql.add("?c im:scheme ?scheme . ?c rdfs:label ?cname .").add(valueList("scheme", schemeIris))
     } else {
@@ -1621,16 +1660,19 @@ class EntityRepository {
   fun findImmediateParentsByIri(
     childIri: String,
     schemeIris: MutableList<String>?,
+    predicate: String?,
     rowNumber: Int?,
     pageSize: Int?,
     inactive: Boolean
   ): MutableList<TTIriRef> {
     val result: MutableList<TTIriRef> = mutableListOf()
 
+    val predicates = if (predicate != null) "<$predicate>" else PARENT_PREDICATES
+
     val sql = StringJoiner(System.lineSeparator())
       .add("SELECT DISTINCT ?p ?pname")
       .add("WHERE {")
-      .add("  ?c ($PARENT_PREDICATES) ?p .")
+      .add("  ?c ($predicates) ?p .")
       .add(valueList("schemes", schemeIris))
       .add("?c im:scheme ?schemes .")
       .add("?p rdfs:label ?pname .")
@@ -2365,7 +2407,14 @@ class EntityRepository {
           if (bs.getValue("label") == null) throw RuntimeException("No label for subquery: $subqIri")
           val label = bs.getValue("label").stringValue()
           val depth = bs.getValue("depth").stringValue()
-          if (!results.containsKey(subqIri)) results[subqIri] = SubQueryDependency(subqIri, label, depth.toInt())
+          results.computeIfAbsent(subqIri) {
+            SubQueryDependency(
+              subqIri,
+              label,
+              depth.toInt(),
+              hashSetOf()
+            )
+          }.parentIris.add(iri)
         }
       }
     }
@@ -2380,7 +2429,7 @@ class EntityRepository {
   fun getOrderedSubqueries(iri: String): MutableList<SubQueryDependency> {
     val results: MutableMap<String, SubQueryDependency> = hashMapOf()
     val sql = """
-          SELECT DISTINCT ?o ?label ?depth
+          SELECT DISTINCT ?o ?label ?depth ?parent
           WHERE {
              {
                  ?s im:dependentOn ?o .
@@ -2388,47 +2437,56 @@ class EntityRepository {
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(2 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(3 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(4 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(5 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(6 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(7 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(8 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(9 AS ?depth)
              }
              UNION
              {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?o .
+                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
+                 ?parent im:dependentOn ?o
                  BIND(10 AS ?depth)
              }
              OPTIONAL {
@@ -2449,7 +2507,9 @@ class EntityRepository {
           if (bs.getValue("label") == null) throw RuntimeException("No label for subquery: $subqIri")
           val label = bs.getValue("label").stringValue()
           val depth = bs.getValue("depth").stringValue()
-          if (!results.containsKey(subqIri)) results[subqIri] = SubQueryDependency(subqIri, label, depth.toInt())
+          val parentIri = bs.getValue("parent")?.stringValue() ?: iri
+          results.computeIfAbsent(subqIri) { SubQueryDependency(subqIri, label, depth.toInt(), hashSetOf()) }
+            .getParentIris().add(parentIri)
         }
       }
     }

@@ -38,7 +38,10 @@ class SecurityService(private val casdoor: Supplier<CasdoorClient> = Supplier { 
 
       val owner = jwt.getClaimAsString("owner")
       val organisation = casdoor.get().settings().organisation
-      if (organisation != owner) throw AccessDeniedException("The token was issued to a user outside organisation $organisation")
+      if (organisation != owner) {
+        SecurityContextHolder.clearContext()
+        throw AccessDeniedException("The token was issued to a user outside organisation $organisation")
+      }
       return CasdoorUserMapper.fromCasdoor(
         casdoor.get().findUser(name).orElseThrow(Supplier { UserNotFoundException("User not found: $name") })
       )

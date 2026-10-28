@@ -334,7 +334,7 @@ class EntityService {
   fun getShortestPathBetweenNodes(ancestor: String, descendant: String): MutableList<TTIriRef> {
     var shortestPath: MutableList<TTIriRef> = mutableListOf()
     var paths = getParentHierarchies(descendant)
-    paths = paths.filter { path -> path.any { it.iri === ancestor } }.toMutableList()
+    paths = paths.filter { path -> path.any { it.iri == ancestor } }.toMutableList()
 
     paths.sortByDescending { it.size }
 

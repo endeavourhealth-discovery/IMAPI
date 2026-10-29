@@ -539,7 +539,7 @@ public class EqdResources {
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
       LogicOptimizer.injectReturn(parentQuery, relationRight.getIri(), relationRight.getPropertyRef());
     }
-    
+
 
     else throw new EQDException("No map fpr parent column "+ eqRelationship.getParentColumn());
 
@@ -746,7 +746,7 @@ public class EqdResources {
     subPathMatch.setIri(pathIri);
     subPathMatch.setInverse(inverse);
     matchCounter++;
-    String node = paths[offset + 1] + "_" + matchCounter;
+    String node = getAcronym(paths[offset + 1]) + "_" + matchCounter;
     subPathMatch.setNode(node);
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
     return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);

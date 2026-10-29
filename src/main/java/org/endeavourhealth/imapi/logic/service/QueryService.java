@@ -324,7 +324,7 @@ public class QueryService {
       for (Query subQuery : query.getRule()) {
         if (subQuery.getIs() != null) {
           Node node = subQuery.getIs();
-          report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
+          report.addObject(iri(IM.SUBQUERY), iri(node.getIri()));
         }
         checkDependency(report, subQuery);
       }

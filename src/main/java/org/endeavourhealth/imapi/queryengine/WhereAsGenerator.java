@@ -26,13 +26,6 @@ public class WhereAsGenerator {
     }
     else if (where.getName()!=null&&!where.getName().isEmpty())
       parts.add(where.getName());
-    else if (where.getCompare() != null) {
-      if (where.getCompare().getLeft() != null) {
-        if (where.getCompare().getLeft().getName() != null &&!where.getCompare().getLeft().getName().isEmpty()) {
-          parts.add(where.getCompare().getLeft().getName());
-        }
-      }
-    }
 
     if (where.getRange() != null) {
       buildRangeSentence(where, parts);
@@ -41,7 +34,7 @@ public class WhereAsGenerator {
     }
 
     if (where.getCompare() != null) {
-      addReference(parts, where.getCompare().getRight());
+      addReference(parts, where.getCompare());
     }
 
     return parts;
@@ -62,22 +55,13 @@ public class WhereAsGenerator {
       ? where.getUnits().getName()
       : "";
 
-    String value = null;
-
-    if (where.getValue() != null
-      && (!where.getValue().equals("0") || where.getOperator() != null)) {
-      value = where.getValue();
+    if (where.getValue() != null && (!where.getValue().equals("0"))) {
+      if (where.getOperator() != null) {
+        parts.add(
+          where.getOperator().toString());
+        parts.add(where.getValue() + " " + (units.isEmpty() ? units + " " : ""));
+      }
     }
-
-    if (where.getOperator() != null) {
-      parts.add(
-        where.getOperator().toString());
-    }
-
-    if (value != null && !value.isEmpty()) {
-      parts.add(value + " " + units + " ");
-    }
-
   }
 
   private static void buildRangeSentence(

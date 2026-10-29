@@ -62,7 +62,7 @@ public class Where extends Element implements Assignable {
   private boolean invalid;
   private boolean linked;
   private String valueTerm;
-  private Compare compare;
+  private ValueSource compare;
 
   public Where() {
   }
@@ -146,17 +146,17 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Compare getCompare() {
+  public ValueSource getCompare() {
     return this.compare;
   }
 
-  public Where setCompare(Compare compare) {
+  public Where setCompare(ValueSource compare) {
     this.compare = compare;
     return this;
   }
 
-  public Where compare(Consumer<Compare> builder) {
-    this.compare = new Compare();
+  public Where compare(Consumer<ValueSource> builder) {
+    this.compare = new ValueSource();
     builder.accept(this.compare);
     return this;
   }

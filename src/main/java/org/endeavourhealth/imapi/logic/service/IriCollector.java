@@ -203,9 +203,8 @@ public class IriCollector {
 
   }
 
-  private static void collectCompareIris(Compare compare, Set<String> iriSet) {
-    collectValueSourceIris(compare.getLeft(), iriSet);
-    collectValueSourceIris(compare.getRight(), iriSet);
+  private static void collectCompareIris(ValueSource compare, Set<String> iriSet) {
+    collectValueSourceIris(compare, iriSet);
   }
 
   private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {

@@ -174,8 +174,8 @@ internal class WhereClauseCompiler(
     where: Where,
     variableToTableMap: HashMap<String, Table>
   ): Pair<Table, String> {
-    val nodeRef = where.compare?.left?.nodeRef ?: where.nodeRef
-    val whereIri = where.compare?.left?.iri ?: where.iri
+    val nodeRef = where.compare?.nodeRef ?: where.compare.nodeRef
+    val whereIri = where.iri ?: where.iri
 
     if (whereIri == null) throw SQLConversionException("No property found for where $where")
     val currentTable =
@@ -249,14 +249,13 @@ internal class WhereClauseCompiler(
 
   /** The SQL reference for the value a `compare` is made against: a parameter, a literal property, or a node's property. */
   private fun getValueFromRelativeTo(where: Where, nodeToTableMap: HashMap<String, Table>): String {
-    val right = where.compare?.right
-      ?: throw SQLConversionException("No value provided for where $where")
+    val right = where.compare
 
     right.parameter?.let { return it }
 
     val nodeRef = right.nodeRef
       ?: return right.propertyRef
-        ?: throw SQLConversionException("No property found for relativeTo ${where.compare?.right}")
+        ?: throw SQLConversionException("No property found for relativeTo ${where.compare}")
 
     (keepAsMap[nodeRef] ?: keepAsMap[aliases.cteNormalise(nodeRef)])?.let { keptWith ->
       return qualifyField(keptWith.alias, getKeptWithField(keptWith, right, nodeRef))

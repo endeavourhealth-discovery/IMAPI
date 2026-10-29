@@ -200,12 +200,6 @@ public class QueryValidator {
       throw new QueryException("Operator must be specified");
 
   }
-
-  private void validateCompare(Where where) throws QueryException {
-    Compare compare = where.getCompare();
-    if (compare.getRight() != null) validateSource(compare.getRight());
-  }
-
   private void validateSource(ValueSource source) throws QueryException {
     if (source.getNodeRef() != null &&!singleMatch)
       if (variables.get(source.getNodeRef()) == null)
@@ -250,7 +244,7 @@ public class QueryValidator {
     if (where.getPropertyVariable() != null)
       variables.put(where.getPropertyVariable(), VarType.PATH);
     if (where.getCompare() != null) {
-      validateCompare(where);
+      validateSource(where.getCompare());
     }
     if (where.getIri() == null && where.getParameter() == null && where.getAnd() == null && where.getOr() == null && where.getPropertyVariable() == null && where.getCompare() == null)
       throw new QueryException("Where clause has no criteria (property, compare or parameter");

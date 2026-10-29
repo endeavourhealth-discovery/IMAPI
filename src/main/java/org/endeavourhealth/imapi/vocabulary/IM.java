@@ -223,6 +223,7 @@ public enum IM implements VocabEnum {
     IS_SUBINDICATOR_OF(NAMESPACE.IM + "isSubIndicatorOf"),
     QUERY_SET(NAMESPACE.IM + "QuerySet"),
     DEPENDENT_ON(NAMESPACE.IM + "dependentOn"),
+    SUBQUERY(NAMESPACE.IM + "subquery"),
     CARE_ACTIVITY(NAMESPACE.IM + "CareActivity"),
     CARE_TARGET(NAMESPACE.IM + "CareTarget"),
     QUERY_TEMPLATE(NAMESPACE.IM + "QueryTemplate"),

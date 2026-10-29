@@ -910,6 +910,11 @@
         "value": "NAMESPACE.IM + \"dependentOn\""
       },
       {
+        "name": "SUBQUERY",
+        "value": "NAMESPACE.IM + \"subquery\""
+      },
+
+      {
         "name": "CARE_ACTIVITY",
         "value": "NAMESPACE.IM + \"CareActivity\""
       },

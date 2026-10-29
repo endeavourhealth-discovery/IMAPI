@@ -28,7 +28,7 @@ public class EqdListToIMQ {
     query.setIs(Node.iri(id)
       .setIsCohort(true)
       .setName(resources.reportNames.get(id)));
-    resources.getQueryEntity().addObject(TTIriRef.iri(IM.DEPENDENT_ON), TTIriRef.iri(id));
+    resources.getQueryEntity().addObject(TTIriRef.iri(IM.DENOMINATOR), TTIriRef.iri(id));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
       EQDOCListColumnGroup eqColGroup = eqColGroups.getColumnGroup();
       Query subQuery = new Query();

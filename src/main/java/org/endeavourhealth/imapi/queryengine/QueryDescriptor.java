@@ -415,7 +415,7 @@ public class QueryDescriptor {
     }
     describeAssignable(where);
     if (where.getCompare() != null) {
-      describeCompare(where.getCompare());
+      describeValueSource(where.getCompare());
     }
   }
 
@@ -427,21 +427,11 @@ public class QueryDescriptor {
 
   }
 
-  private void describeCompare(Compare compare) {
-    describeValueSource(compare.getLeft());
-    describeValueSource(compare.getRight());
 
-  }
 
   private void describeValueSource(ValueSource source) {
     if (source.getIri() != null) {
       source.setName(getTermInContext(source.getIri(), Context.PROPERTY));
-    }
-    if (source.getNodeRef()!=null){
-      Query refMatch = nodeRefMap.get(source.getNodeRef());
-      if (refMatch!=null){
-        refMatch.setReferenced(true);
-      }
     }
 
     if (source.getParameter() != null) {

@@ -119,12 +119,14 @@ public class EqdToIMQ {
             query.setIri(qry.getIri());
             qry.set(IM.DEFINITION, TTLiteral.literal(query));
           }
+
           if (qry != null) {
             List<TTEntity> splitQueries = splitQuery(qry);
             for (TTEntity splitQuery : splitQueries) {
               this.document.addEntity(splitQuery);
             }
           }
+
         }
       }
     }
@@ -270,10 +272,7 @@ public class EqdToIMQ {
       log.info(eqReport.getName());
       TTEntity qry = this.convertReport(eqReport);
       if (qry != null) {
-        List<TTEntity> splitQueries = splitQuery(qry);
-        for (TTEntity splitQuery : splitQueries) {
-          this.document.addEntity(splitQuery);
-        }
+        document.addEntity(qry);
       }
     }
 
@@ -310,19 +309,20 @@ public class EqdToIMQ {
     Query query = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     Query mainQuery = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     mainQuery.setRule(null);
-    mainQuery.addRule(query.getRule().getFirst());
-    String parentIri = query.getRule().getFirst().getIs().getIri();
-    for (int ruleNumber = 1; ruleNumber < query.getRule().size(); ruleNumber++) {
+    String denominatorIri= null;
+    if (mainQuery.getIs()!=null)
+      denominatorIri= mainQuery.getIs().getIri();
+    for (int ruleNumber = 0; ruleNumber < query.getRule().size(); ruleNumber++) {
       Query rule = query.getRule().get(ruleNumber);
       if (rule.getAnd()!=null || rule.getOr()!=null) {
-        TTEntity subEntity = createSubQuery(rule, ruleNumber, parentIri, queryEntity.getName(), splitQueries);
+        TTEntity subEntity = createSubQuery(rule, ruleNumber,denominatorIri,queryEntity.getName(), splitQueries);
         Query newRule= new Query()
           .setIs(new Node().setIri(subEntity.getIri()).setIsCohort(true).setName(subEntity.getName()))
           .setIfTrue(rule.getIfTrue())
           .setIfFalse(rule.getIfFalse());
         mainQuery.addRule(newRule);
         if (rule.getIfTrue()==RuleAction.NEXT&&rule.getIfFalse()==RuleAction.REJECT) {
-          parentIri= newRule.getIs().getIri();
+          denominatorIri= newRule.getIs().getIri();
         }
       }
       else mainQuery.addRule(rule);
@@ -334,12 +334,10 @@ public class EqdToIMQ {
     TTEntity subQueryEntity = createQueryEntity(splitQueries, ruleNumber,parentIri,parentName);
     Query subQuery= subQueryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     if (rule.getAnd() != null) {
-      subQuery.getAnd().addAll(rule.getAnd());
+      subQuery.setAnd(rule.getAnd());
     }
     else if (rule.getOr() != null) {
-      Query and= new Query();
-      subQuery.addAnd(and);
-      and.setOr(rule.getOr());
+      subQuery.setOr(rule.getOr());
     }
     subQueryEntity.set(IM.DEFINITION, TTLiteral.literal(subQuery));
     return subQueryEntity;
@@ -347,21 +345,24 @@ public class EqdToIMQ {
 
 
 
-  private TTEntity createQueryEntity(List<TTEntity> splitQueries, int ruleNumber,String parentIri,String parentName) throws JsonProcessingException {
+  private TTEntity createQueryEntity(List<TTEntity> splitQueries, int ruleNumber,String denominatorIri,String parentName) throws JsonProcessingException {
     TTEntity queryEntity= new TTEntity();
     queryEntity.setIri(namespace+UUID.randomUUID().toString());
     queryEntity.setScheme(iri(namespace));
     queryEntity.addType(iri(IM.QUERY));
-    queryEntity.setName("Rule " + ruleNumber+" +of "+parentName);
+    queryEntity.setName("Rule " + (ruleNumber+1)+" of "+parentName);
     splitQueries.add(queryEntity);
     Query query= new Query();
     query.setTypeOf(NAMESPACE.IM+"Patient");
     query.setIri(queryEntity.getIri());
-    query.addAnd(new Query()
-      .setIs(new Node()
-        .setIri(parentIri)
-        .setIsCohort(true)));
+    if (denominatorIri!=null) {
+      query.setIs(new Node()
+          .setIri(denominatorIri)
+          .setIsCohort(true));
+      queryEntity.set(IM.DENOMINATOR, iri(denominatorIri));
+    }
     queryEntity.set(IM.DEFINITION, TTLiteral.literal(query));
+
     return queryEntity;
   }
 
@@ -492,6 +493,9 @@ public class EqdToIMQ {
       //this.flattenRules(qry);
       //(new LogicOptimizer()).resolveLogic(qry, DisplayMode.ORIGINAL);
       queryEntity.set(iri(IM.DEFINITION), TTLiteral.literal(qry));
+      if (qry.getIs()!=null) {
+        queryEntity.set(IM.DENOMINATOR, iri(qry.getIs().getIri()));
+      }
       return queryEntity;
     }
   }

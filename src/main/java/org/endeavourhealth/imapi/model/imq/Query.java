@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.imq;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +14,10 @@ import java.util.function.Consumer;
   "notExists",
   "from",
   "typeOf",
+  "is",
   "and",
   "ifTrue",
   "ifFalse",
-  "is",
   "path",
   "and",
   "or",
@@ -34,7 +35,7 @@ public class Query implements HasPaths, Returnable {
   private Where where;
   private String iri;
   private String from;
-  private boolean optional;
+  private Query optional;
   private Node typeOf;
   private String parameter;
   private boolean isTest;
@@ -71,7 +72,6 @@ public class Query implements HasPaths, Returnable {
   private List<Query> columnGroup;
   private IMQType queryType;
   private String uuid;
-  private boolean isBase;
   private Query then;
   private boolean referenced;
 
@@ -124,13 +124,7 @@ public class Query implements HasPaths, Returnable {
     builder.accept(query);
     return this;
   }
-  public boolean isBase() {
-    return isBase;
-  }
-  public Query setBase(boolean base) {
-    isBase = base;
-    return this;
-  }
+
 
   public boolean isTest() {
     return isTest;
@@ -619,13 +613,17 @@ public Query each(Consumer<Query> builder) {
     builder.accept(is);
     return this;
   }
-
-  public boolean isOptional() {
+  public Query getOptional() {
     return optional;
   }
-
-  public Query setOptional(boolean optional) {
+  public Query setOptional(Query optional) {
     this.optional = optional;
+    return this;
+  }
+  public Query optional(Consumer<Query> builder) {
+    Query optional = new Query();
+    setOptional(optional);
+    builder.accept(optional);
     return this;
   }
 

@@ -328,13 +328,13 @@ public class QueryController {
   }
 
   @PostMapping("/queryRequestForSQL")
-  @Operation(summary = "Get all subQueries ordered of a query using the query iri")
+  @Operation(summary = "Get query request for SQL conversion using the query iri")
   public QueryRequest getQueryRequestForSql(
     HttpServletRequest request,
     @RequestBody QueryRequest queryRequest
   ) throws SQLConversionException, JsonProcessingException {
     try (MetricsTimer t = MetricsHelper.recordTime("API.Query.ArgumentType.GET")) {
-      log.debug("getSubQueries");
+      log.debug("getQueryRequestForSql");
       return queryService.getQueryRequestForSqlConversion(queryRequest);
     }
   }

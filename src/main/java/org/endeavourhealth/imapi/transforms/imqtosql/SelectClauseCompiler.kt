@@ -194,9 +194,9 @@ internal class SelectClauseCompiler(private val ctx: ConversionContext) {
             "Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}"
           )
         val resolved = getPropertyNameByTableAndPropertyIri(currentTable, arg.valuePath.iri).field
-        qualifyField(currentTable.alias, resolved)
+        qualifyField(currentTable.alias ?: currentTable.table, resolved)
       } else {
-        qualifyField(null, getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field)
+        qualifyField(table.alias ?: table.table, getPropertyNameByTableAndPropertyIri(table, arg.valuePath.iri).field)
       }
 
       if (field.isEmpty()) {

@@ -318,37 +318,20 @@ public class QueryService {
     return new QueryRepository().getSemanticMapsForSourceIri(sourceIri);
   }
 
-
   public void checkDependency(TTEntity report, Query query) {
-    if (query.getRule() != null) {
-      for (Query subQuery : query.getRule()) {
-        if (subQuery.getIs() != null) {
-          Node node = subQuery.getIs();
-          report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
+    if (query == null) return;
+    Node node = query.getIs();
+    if (node != null && node.getIri() != null) {
+      report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
+    }
+    for (List<Query> subQueries : Arrays.asList(query.getRule(), query.getAnd(), query.getOr(), query.getEach(), query.getUnion(), query.getColumnGroup())) {
+      if (subQueries != null) {
+        for (Query subQuery : subQueries) {
+          checkDependency(report, subQuery);
         }
-        checkDependency(report, subQuery);
       }
     }
-    if (query.getColumnGroup() != null) {
-      for (Query subQuery : query.getColumnGroup()) {
-        checkDependency(report, subQuery);
-      }
-    }
-    if (query.getAnd() != null) {
-      for (Query subQuery : query.getAnd()) {
-        checkDependency(report, subQuery);
-      }
-    }
-    if (query.getOr() != null) {
-      for (Query subQuery : query.getOr()) {
-        checkDependency(report, subQuery);
-      }
-    }
-    if (query.getEach() != null) {
-      for (Query subQuery : query.getEach()) {
-        checkDependency(report, subQuery);
-      }
-    }
+    checkDependency(report, query.getThen());
   }
 
 

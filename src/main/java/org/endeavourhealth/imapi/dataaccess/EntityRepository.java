@@ -2367,73 +2367,17 @@ public class EntityRepository {
 
 
   public List<SubQueryDependency> getOrderedSubqueries(String iri) {
-    Map<String, SubQueryDependency> results = new HashMap<>();
+    Map<String, Set<String>> dependencies = new HashMap<>();
+    Map<String, String> labels = new HashMap<>();
     String sql = """
-          SELECT DISTINCT ?o ?label ?depth ?parent
+          SELECT DISTINCT ?parent ?o ?label
           WHERE {
-             {
-                 ?s im:dependentOn ?o .
-                 BIND(1 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(2 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(3 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(4 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(5 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(6 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(7 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(8 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(9 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o .
-                 BIND(10 AS ?depth)
-             }
+             ?s im:dependentOn* ?parent .
+             ?parent im:dependentOn ?o .
              OPTIONAL {
                  ?o rdfs:label ?label
              }
           }
-          ORDER BY DESC(?depth) ?label
       """;
 
     try (IMDB conn = IMDB.getConnection()) {
@@ -2444,17 +2388,50 @@ public class EntityRepository {
           BindingSet bs = rs.next();
           String subqIri = bs.getValue("o").stringValue();
           if (bs.getValue("label") == null) throw new RuntimeException("No label for subquery: " + subqIri);
-          String label = bs.getValue("label").stringValue();
-          String depth = bs.getValue("depth").stringValue();
-          String parentIri = bs.getValue("parent") != null ? bs.getValue("parent").stringValue() : iri;
-          results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, label, Integer.parseInt(depth), new HashSet<>()))
-            .getParentIris().add(parentIri);
+          labels.put(subqIri, bs.getValue("label").stringValue());
+          dependencies.computeIfAbsent(bs.getValue("parent").stringValue(), k -> new HashSet<>()).add(subqIri);
         }
       }
     }
-    List<SubQueryDependency> valuelist = new ArrayList<>(results.values().stream().toList());
-    valuelist.sort((a, b) -> Integer.compare(b.getDepth(), a.getDepth()));
+    return orderSubqueries(iri, dependencies, labels);
+  }
+
+  /**
+   * Orders every query reachable from the root so that each one comes after all the queries it depends on.
+   * Depth is the longest dependency path from the root, so sorting by depth descending is a valid run order.
+   */
+  static List<SubQueryDependency> orderSubqueries(String rootIri, Map<String, Set<String>> dependencies, Map<String, String> labels) {
+    List<String> postOrder = new ArrayList<>();
+    collectPostOrder(rootIri, dependencies, new HashSet<>(), new LinkedHashSet<>(), postOrder);
+
+    Map<String, Integer> depths = new HashMap<>();
+    Map<String, SubQueryDependency> results = new HashMap<>();
+    depths.put(rootIri, 0);
+    for (String parentIri : postOrder.reversed()) {
+      int childDepth = depths.get(parentIri) + 1;
+      for (String subqIri : dependencies.getOrDefault(parentIri, Set.of())) {
+        depths.merge(subqIri, childDepth, Math::max);
+        results.computeIfAbsent(subqIri, k -> new SubQueryDependency(subqIri, labels.get(subqIri), 0, new HashSet<>()))
+          .getParentIris().add(parentIri);
+      }
+    }
+
+    List<SubQueryDependency> valuelist = new ArrayList<>(results.values());
+    valuelist.forEach(subQuery -> subQuery.setDepth(depths.get(subQuery.getIri())));
+    valuelist.sort(Comparator.comparingInt(SubQueryDependency::getDepth).reversed()
+      .thenComparing(SubQueryDependency::getLabel, Comparator.nullsLast(Comparator.naturalOrder())));
     return valuelist;
+  }
+
+  private static void collectPostOrder(String iri, Map<String, Set<String>> dependencies, Set<String> visited, LinkedHashSet<String> path, List<String> postOrder) {
+    if (path.contains(iri)) throw new IllegalStateException("Circular query dependency: " + String.join(" -> ", path) + " -> " + iri);
+    if (!visited.add(iri)) return;
+    path.add(iri);
+    for (String subqIri : dependencies.getOrDefault(iri, Set.of())) {
+      collectPostOrder(subqIri, dependencies, visited, path, postOrder);
+    }
+    path.remove(iri);
+    postOrder.add(iri);
   }
 
   public Map<String, Entity> getIriDetails(Set<String> iris) {

@@ -24,10 +24,15 @@ import java.io.IOException;
 import java.util.*;
 
 public class ImportMaps implements AutoCloseable {
-  private final FileRepository fileRepo = new FileRepository(TTBulkFiler.getDataPath());
+  private FileRepository fileRepo;
   private final ValueFactory valueFactory = new ValidatingValueFactory(SimpleValueFactory.getInstance());
   private final Map<String, String> cachedNames = new HashMap<>();
 
+  private FileRepository fileRepo() {
+    if (fileRepo == null)
+      fileRepo = new FileRepository(TTBulkFiler.getDataPath());
+    return fileRepo;
+  }
 
   /**
    * Retrieves EMIS to Snomed code maps
@@ -36,7 +41,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, Set<String>> importEmisToSnomed() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      return fileRepo().getCodeCoreMap(NAMESPACE.EMIS);
     return importEmisToSnomedRdf4j();
   }
 
@@ -45,7 +50,7 @@ public class ImportMaps implements AutoCloseable {
       return cachedNames.get(iri);
     String name;
     if (TTFilerFactory.isBulk()) {
-      name = fileRepo.getCoreName(iri);
+      name = fileRepo().getCoreName(iri);
       cachedNames.put(iri, name);
       return name;
     } else {
@@ -71,14 +76,14 @@ public class ImportMaps implements AutoCloseable {
    */
   public TTIriRef getReferenceFromCoreTerm(String term) throws IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getReferenceFromCoreTerm(term);
+      return fileRepo().getReferenceFromCoreTerm(term);
     else
       return new EntityRepository().getReferenceFromCoreTerm(term);
   }
 
   public Map<String, String> getCodeToIri() throws IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getCodeToIri();
+      return fileRepo().getCodeToIri();
     else
       return new EntityRepository().getCodeToIri();
   }
@@ -87,7 +92,7 @@ public class ImportMaps implements AutoCloseable {
   public Map<String, String> getCodesToIri(NAMESPACE scheme) throws IOException {
     Map<String, String> codeToIri;
     if (TTFilerFactory.isBulk())
-      codeToIri = fileRepo.getCodeToIri();
+      codeToIri = fileRepo().getCodeToIri();
     else
       codeToIri = new EntityRepository().getCodesToIri(scheme);
     Map<String, String> map = new HashMap<>();
@@ -118,7 +123,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, Set<String>> getAllMatchedLegacy() throws IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getAllMatchedLegacy();
+      return fileRepo().getAllMatchedLegacy();
     else
       return new EntityRepository().getAllMatchedLegacy();
   }
@@ -137,7 +142,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Set<String> importEntities() throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getAllEntities();
+      return fileRepo().getAllEntities();
     else {
       Set<String> entities = new HashSet<>();
       return importAllRDF4J(entities);
@@ -171,7 +176,7 @@ public class ImportMaps implements AutoCloseable {
   public Map<String, Set<String>> importReadToSnomed() throws TTFilerException, IOException {
     Map<String, Set<String>> readToSnomed = new HashMap<>();
     if (TTFilerFactory.isBulk()) {
-      return fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      return fileRepo().getCodeCoreMap(NAMESPACE.EMIS);
     }
     return importReadToSnomedRdf4j(readToSnomed);
   }
@@ -185,7 +190,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, Set<String>> getDescendants(String concept) throws TTFilerException, IOException {
     if (TTFilerFactory.isBulk())
-      return fileRepo.getDescendants(concept);
+      return fileRepo().getDescendants(concept);
     return getDescendantsRDF(concept);
   }
 
@@ -310,7 +315,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, TTEntity> getEMISReadAsVision() throws IOException {
     if (TTFilerFactory.isBulk()) {
-      Map<String, Set<String>> emisToCore = fileRepo.getCodeCoreMap(NAMESPACE.EMIS);
+      Map<String, Set<String>> emisToCore = fileRepo().getCodeCoreMap(NAMESPACE.EMIS);
       Map<String, TTEntity> emisRead2 = new HashMap<>();
       for (Map.Entry<String, Set<String>> entry : emisToCore.entrySet()) {
         String code = entry.getKey();

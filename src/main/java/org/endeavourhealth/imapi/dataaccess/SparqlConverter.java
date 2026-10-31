@@ -244,15 +244,7 @@ public class SparqlConverter {
       }
     }
     if (query.getOr() != null) {
-      for (int i = 0; i < query.getOr().size(); i++) {
-        if (i == 0)
-          whereQl.append("{ \n");
-        else
-          whereQl.append("UNION {\n");
-        Query subQuery = query.getOr().get(i);
-        processMatch(selectQl, whereQl, subject, subQuery);
-        whereQl.append("}\n");
-      }
+      processOr(selectQl, whereQl, subject, query.getOr());
     }
 
     o++;
@@ -269,6 +261,44 @@ public class SparqlConverter {
     if (query.notExists()) {
       whereQl.append("}\n");
     }
+  }
+
+  /**
+   * Plain "is" branches are merged into one VALUES list per entailment type, rather than one UNION branch each,
+   * as very large sets otherwise produce a union too deep for the SPARQL engine to parse/evaluate (StackOverflowError).
+   */
+  private void processOr(StringBuilder selectQl, StringBuilder whereQl, String subject, List<Query> ors) throws QueryException {
+    Map<Entail, List<Node>> simpleIs = new LinkedHashMap<>();
+    List<Query> complex = new ArrayList<>();
+    for (Query or : ors) {
+      if (isSimpleIsBranch(or))
+        sortInstances(or.getIs(), simpleIs, new HashMap<>());
+      else
+        complex.add(or);
+    }
+    boolean first = true;
+    for (Map.Entry<Entail, List<Node>> entry : simpleIs.entrySet()) {
+      whereQl.append(first ? "{ \n" : "UNION {\n");
+      first = false;
+      processMatchIsNodes(whereQl, subject, Map.of(entry.getKey(), entry.getValue()), false);
+      whereQl.append("}\n");
+    }
+    for (Query or : complex) {
+      whereQl.append(first ? "{ \n" : "UNION {\n");
+      first = false;
+      processMatch(selectQl, whereQl, subject, or);
+      whereQl.append("}\n");
+    }
+  }
+
+  private boolean isSimpleIsBranch(Query or) {
+    Node is = or.getIs();
+    if (is == null || is.getIri() == null) return false;
+    if (is.getMatch() != null || is.getNodeRef() != null || is.getParameter() != null || is.getNode() != null || is.isExclude())
+      return false;
+    return or.getAnd() == null && or.getOr() == null && or.getWhere() == null && or.getPath() == null
+      && or.getTypeOf() == null && or.getNode() == null && or.getFrom() == null && or.getParameter() == null
+      && or.getEntailment() == null && or.getGraph() == null && !or.notExists();
   }
 
   private String processPath(StringBuilder whereQl, String subject, Path pathMatch) throws QueryException {

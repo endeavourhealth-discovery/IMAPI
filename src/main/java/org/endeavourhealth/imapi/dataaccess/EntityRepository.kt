@@ -2427,73 +2427,17 @@ class EntityRepository {
 
 
   fun getOrderedSubqueries(iri: String): MutableList<SubQueryDependency> {
-    val results: MutableMap<String, SubQueryDependency> = hashMapOf()
+    val dependencies: MutableMap<String, MutableSet<String>> = hashMapOf()
+    val labels: MutableMap<String, String> = hashMapOf()
     val sql = """
-          SELECT DISTINCT ?o ?label ?depth ?parent
+          SELECT DISTINCT ?parent ?o ?label
           WHERE {
-             {
-                 ?s im:dependentOn ?o .
-                 BIND(1 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(2 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(3 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(4 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(5 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(6 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(7 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(8 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(9 AS ?depth)
-             }
-             UNION
-             {
-                 ?s im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn/im:dependentOn ?parent .
-                 ?parent im:dependentOn ?o
-                 BIND(10 AS ?depth)
-             }
+             ?s im:dependentOn* ?parent .
+             ?parent im:dependentOn ?o .
              OPTIONAL {
                  ?o rdfs:label ?label
              }
           }
-          ORDER BY DESC(?depth) ?label
       
       """.trimIndent()
 
@@ -2505,17 +2449,12 @@ class EntityRepository {
           val bs = rs.next()
           val subqIri = bs.getValue("o").stringValue()
           if (bs.getValue("label") == null) throw RuntimeException("No label for subquery: $subqIri")
-          val label = bs.getValue("label").stringValue()
-          val depth = bs.getValue("depth").stringValue()
-          val parentIri = bs.getValue("parent")?.stringValue() ?: iri
-          results.computeIfAbsent(subqIri) { SubQueryDependency(subqIri, label, depth.toInt(), hashSetOf()) }
-            .getParentIris().add(parentIri)
+          labels[subqIri] = bs.getValue("label").stringValue()
+          dependencies.getOrPut(bs.getValue("parent").stringValue()) { hashSetOf() }.add(subqIri)
         }
       }
     }
-    val valueList: MutableList<SubQueryDependency> = results.values.toMutableList()
-    valueList.sortByDescending { it.depth }
-    return valueList
+    return orderSubqueries(iri, dependencies, labels)
   }
 
   fun getIriDetails(iris: Set<String>): MutableMap<String, Entity> {
@@ -2772,6 +2711,53 @@ class EntityRepository {
   }
 
   companion object {
+    /**
+     * Orders every query reachable from the root so that each one comes after all the queries it depends on.
+     * Depth is the longest dependency path from the root, so sorting by depth descending is a valid run order.
+     */
+    @JvmStatic
+    internal fun orderSubqueries(
+      rootIri: String,
+      dependencies: Map<String, Set<String>>,
+      labels: Map<String, String>
+    ): MutableList<SubQueryDependency> {
+      val postOrder: MutableList<String> = mutableListOf()
+      collectPostOrder(rootIri, dependencies, hashSetOf(), linkedSetOf(), postOrder)
+
+      val depths: MutableMap<String, Int> = hashMapOf(rootIri to 0)
+      val results: MutableMap<String, SubQueryDependency> = hashMapOf()
+      for (parentIri in postOrder.asReversed()) {
+        val childDepth = depths.getValue(parentIri) + 1
+        for (subqIri in dependencies[parentIri].orEmpty()) {
+          depths.merge(subqIri, childDepth, ::maxOf)
+          results.getOrPut(subqIri) { SubQueryDependency(subqIri, labels[subqIri], 0, hashSetOf()) }
+            .parentIris.add(parentIri)
+        }
+      }
+
+      val valueList = results.values.toMutableList()
+      valueList.forEach { it.depth = depths.getValue(it.iri) }
+      valueList.sortWith(compareByDescending<SubQueryDependency> { it.depth }.thenBy(nullsLast()) { it.label })
+      return valueList
+    }
+
+    private fun collectPostOrder(
+      iri: String,
+      dependencies: Map<String, Set<String>>,
+      visited: MutableSet<String>,
+      path: LinkedHashSet<String>,
+      postOrder: MutableList<String>
+    ) {
+      if (path.contains(iri)) throw IllegalStateException("Circular query dependency: " + path.joinToString(" -> ") + " -> " + iri)
+      if (!visited.add(iri)) return
+      path.add(iri)
+      for (subqIri in dependencies[iri].orEmpty()) {
+        collectPostOrder(subqIri, dependencies, visited, path, postOrder)
+      }
+      path.remove(iri)
+      postOrder.add(iri)
+    }
+
     const val PARENT_PREDICATES: String =
       "rdfs:subClassOf|im:isContainedIn|im:isChildOf|rdfs:subPropertyOf|im:isSubsetOf| im:isSubIndicatorOf"
     private const val TYPE_LOOKUP_BATCH_SIZE = 200

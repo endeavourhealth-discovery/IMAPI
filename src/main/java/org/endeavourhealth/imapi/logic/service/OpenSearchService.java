@@ -8,10 +8,10 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
-import org.endeavourhealth.imapi.dataaccess.opensearch.TermQuery;
 import org.endeavourhealth.imapi.dataaccess.opensearch.SearchSource;
-import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.dataaccess.opensearch.TermQuery;
 import org.endeavourhealth.imapi.logic.CachedObjectMapper;
+import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
 import org.endeavourhealth.imapi.model.search.EntityDocument;
 import org.springframework.stereotype.Component;
 

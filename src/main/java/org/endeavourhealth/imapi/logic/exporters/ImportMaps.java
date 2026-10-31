@@ -13,12 +13,12 @@ import org.endeavourhealth.imapi.dataaccess.databases.IMDB;
 import org.endeavourhealth.imapi.filer.TTFilerException;
 import org.endeavourhealth.imapi.filer.TTFilerFactory;
 import org.endeavourhealth.imapi.filer.rdf4j.TTBulkFiler;
-import org.endeavourhealth.imapi.vocabulary.IM;
-import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
-import org.endeavourhealth.imapi.vocabulary.RDFS;
 import org.endeavourhealth.imapi.model.iml.Entity;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
+import org.endeavourhealth.imapi.vocabulary.IM;
+import org.endeavourhealth.imapi.vocabulary.NAMESPACE;
+import org.endeavourhealth.imapi.vocabulary.RDFS;
 
 import java.io.IOException;
 import java.util.*;
@@ -191,7 +191,7 @@ public class ImportMaps implements AutoCloseable {
 
   public Map<String, Set<String>> getDescendantsRDF(String concept) throws TTFilerException {
     Map<String, Set<String>> codeToTerm = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT ?child ?name
         WHERE {
@@ -225,7 +225,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Set<String> importAllRDF4J(Set<String> entities) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT distinct ?entity
         WHERE {
@@ -250,7 +250,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Set<String> importSnomedRDF4J(Set<String> snomedCodes) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT ?snomed
         WHERE {
@@ -276,7 +276,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, Set<String>> importReadToSnomedRdf4j(Map<String, Set<String>> readToSnomed) throws TTFilerException {
 
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT ?code ?snomed
         WHERE {
@@ -333,7 +333,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, TTEntity> getEMISReadAsVisionRdf4j() {
     Map<String, TTEntity> emisRead2 = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sql = """
         SELECT ?oldCode ?name ?snomedIri
         WHERE {
@@ -383,7 +383,7 @@ public class ImportMaps implements AutoCloseable {
 
   private Map<String, Set<String>> importEmisToSnomedRdf4j() throws TTFilerException {
     Map<String, Set<String>> emisToSnomed = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT ?code ?snomedIri  ?name
         WHERE {
@@ -426,7 +426,7 @@ public class ImportMaps implements AutoCloseable {
    */
   public Map<String, String> getDescriptionIds() throws TTFilerException {
     Map<String, String> termMap = new HashMap<>();
-    try (IMDB conn = IMDB.getConnection()) {
+    try (IMDB conn = IMDB.Companion.getConnection()) {
       String sparql = """
         SELECT ?snomed ?descid
         WHERE {

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -75,7 +74,7 @@ class SecurityServiceTest {
   @Test
   void aTokenForAUserOutsideTheOrganisationIsRejected() {
     signInAs(Map.of("name", "jbloggs", "owner", "SomeoneElse"));
-    assertThrows(BadCredentialsException.class, service::getUser);
+    assertThrows(AccessDeniedException.class, service::getUser);
   }
 
   @Test

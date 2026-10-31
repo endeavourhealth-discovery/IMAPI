@@ -5,7 +5,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import lombok.extern.slf4j.Slf4j;
 import org.endeavourhealth.imapi.model.dto.RecentActivityItemDto;
 import org.endeavourhealth.imapi.model.primevue.FontSize;
@@ -28,7 +30,7 @@ import java.util.function.Function;
 @Slf4j
 public final class CasdoorUserMapper {
   private static final String AVATAR_BASE_URL = "https://im.endhealth.co.uk/avatars";
-  private static final ObjectMapper MAPPER = new ObjectMapper().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+  private static final ObjectMapper MAPPER = JsonMapper.builder().addModule(new KotlinModule.Builder().build()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build();
 
   private CasdoorUserMapper() {
   }
@@ -75,7 +77,9 @@ public final class CasdoorUserMapper {
     properties.put("recentActivity", toJson(user.getRecentActivity()));
   }
 
-  /** For administrative changes to another user's namespaces (e.g. approving a namespace request). */
+  /**
+   * For administrative changes to another user's namespaces (e.g. approving a namespace request).
+   */
   public static void applyNamespaces(ObjectNode casdoorUser, List<NamespacePermission> namespaces) {
     casdoorUser.withObject("/properties").put("namespaces", toJson(namespaces));
   }

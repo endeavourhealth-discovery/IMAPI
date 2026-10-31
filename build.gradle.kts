@@ -11,6 +11,8 @@ plugins {
   id("maven-publish")
   kotlin("jvm")
   kotlin("plugin.spring") version "2.2.20"
+  kotlin("plugin.lombok") version "2.2.20"
+  kotlin("kapt") version "2.2.20"
 }
 
 group = "org.endeavourhealth.imapi"
@@ -173,6 +175,8 @@ dependencies {
 
   annotationProcessor(libs.jackson.annotations)
   annotationProcessor(libs.lombok)
+  implementation(kotlin("stdlib-jdk8"))
+  testImplementation(kotlin("test"))
 }
 
 tasks.test {
@@ -225,6 +229,9 @@ tasks.jacocoTestReport {
 
 kotlin {
   jvmToolchain(21)
+}
+kapt {
+  keepJavacAnnotationProcessors = true
 }
 configurations.all {
   // log4j-core clashes with the log4j-to-slf4j bridge (log4j API -> logback). The Elasticsearch client used to pull it in; kept so it cannot return transitively.

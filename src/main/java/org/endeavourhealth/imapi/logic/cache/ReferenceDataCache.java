@@ -36,7 +36,7 @@ public final class ReferenceDataCache {
 
   public static List<Namespace> getNamespaces(Supplier<List<Namespace>> loader) {
     List<Namespace> cached = load(NAMESPACES, loader);
-    return cached == null ? null : cached.stream().map(n -> new Namespace(n.getIri(), n.getPrefix(), n.getName())).toList();
+    return cached == null ? null : cached.stream().map(n -> new Namespace().setIri(n.getIri()).setPrefix(n.getPrefix()).setName(n.getName())).toList();
   }
 
   public static FilterOptionsDto getFilterOptions(Supplier<FilterOptionsDto> loader) {

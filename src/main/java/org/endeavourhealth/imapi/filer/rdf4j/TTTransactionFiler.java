@@ -61,7 +61,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
     this.insertGraph = insertGraph;
     logPath = System.getenv("DELTA_PATH");
     log.info("Connecting");
-    conn = IMDB.getConnection();
+    conn = IMDB.Companion.getConnection();
 
     log.info("Initializing");
     conceptFiler = new TTEntityFilerRdf4j(conn, prefixMap, insertGraph);
@@ -104,7 +104,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
   private static void checkIfEntitiesCurrentlyInUse(Map<GRAPH, Set<String>> toCheck) throws TTFilerException {
     for (Map.Entry<GRAPH, Set<String>> entry : toCheck.entrySet()) {
       GRAPH graph = entry.getKey();
-      try (IMDB conn = IMDB.getConnection()) {
+      try (IMDB conn = IMDB.Companion.getConnection()) {
         Set<String> entities = entry.getValue();
         String sql = "select * where {" +
           "?s ?p ?o.\n" +
@@ -318,7 +318,7 @@ public class TTTransactionFiler implements TTDocumentFiler, AutoCloseable {
         log.info("Expanding set {}", entity.getIri());
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
         log.info("Binding set {}", entity.getIri());
-        new SetBinder().bindSet(entity.getIri(), insertGraph);
+        new SetBinder().bindSet(entity.getIri());
       }
     }
   }

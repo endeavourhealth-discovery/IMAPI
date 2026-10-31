@@ -34,34 +34,17 @@ import static org.endeavourhealth.imapi.vocabulary.VocabUtils.asArray;
 @Component
 public class FilerService {
 
-  private ProvService provService;
   private final EntityService entityService;
+  private final GRAPH insertGraph = GRAPH.IM;
+  private ProvService provService;
   private OpenSearchService openSearchService;
   private TTEntityFiler entityProvFiler;
-  private final GRAPH insertGraph = GRAPH.IM;
   private TTTransactionFiler documentFiler;
   private TTEntityFiler entityFiler;
   private IMDB imdb;
 
   public FilerService() {
     entityService = new EntityService();
-  }
-
-  // These are only needed when something is filed. Building them eagerly meant every request through a controller that
-  // holds a FilerService opened a provenance connection (never closed), prepared a DELETE and created a JAX-RS client.
-  private synchronized ProvService getProvService() {
-    if (null == provService) provService = new ProvService();
-    return provService;
-  }
-
-  private synchronized OpenSearchService getOpenSearchService() {
-    if (null == openSearchService) openSearchService = new OpenSearchService();
-    return openSearchService;
-  }
-
-  private synchronized TTEntityFiler getEntityProvFiler() {
-    if (null == entityProvFiler) entityProvFiler = new TTEntityFilerRdf4j(ProvDB.getConnection(), GRAPH.PROV);
-    return entityProvFiler;
   }
 
   private static boolean isValidIri(TTEntity entity) {
@@ -97,6 +80,23 @@ public class FilerService {
     return !(null != entity.get(predicate) && !entity.get(predicate).isEmpty() && (!entity.get(predicate).getElements().stream().allMatch(TTValue::isIriRef)));
   }
 
+  // These are only needed when something is filed. Building them eagerly meant every request through a controller that
+  // holds a FilerService opened a provenance connection (never closed), prepared a DELETE and created a JAX-RS client.
+  private synchronized ProvService getProvService() {
+    if (null == provService) provService = new ProvService();
+    return provService;
+  }
+
+  private synchronized OpenSearchService getOpenSearchService() {
+    if (null == openSearchService) openSearchService = new OpenSearchService();
+    return openSearchService;
+  }
+
+  private synchronized TTEntityFiler getEntityProvFiler() {
+    if (null == entityProvFiler) entityProvFiler = new TTEntityFilerRdf4j(ProvDB.Companion.getConnection(), GRAPH.PROV);
+    return entityProvFiler;
+  }
+
   private void setupDocumentFiler(GRAPH insertGraph) {
     if (null == this.documentFiler) {
       this.documentFiler = new TTTransactionFiler(insertGraph);
@@ -112,7 +112,7 @@ public class FilerService {
 
   private void setupIMDB() {
     if (null == this.imdb) {
-      this.imdb = IMDB.getConnection();
+      this.imdb = IMDB.Companion.getConnection();
     }
   }
 
@@ -144,7 +144,7 @@ public class FilerService {
 
       if (entity.isType(iri(IM.VALUESET)) || entity.isType((iri(IM.CONCEPT_SET)))) {
         new SetMemberGenerator().generateMembers(entity.getIri(), insertGraph);
-        new SetBinder().bindSet(entity.getIri(), insertGraph);
+        new SetBinder().bindSet(entity.getIri());
       }
 
 

@@ -1,7 +1,6 @@
 package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.dataaccess.SetRepository;
-import org.endeavourhealth.imapi.dataaccess.SetRepository.SubsetEdge;
 import org.endeavourhealth.imapi.model.iml.Concept;
 import org.endeavourhealth.imapi.model.set.SetOptions;
 import org.endeavourhealth.imapi.model.tripletree.TTEntity;
@@ -13,34 +12,41 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyCollection;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class SetModelServiceTest {
 
+  private static final String ROOT = "http://endhealth.info/im#Root";
+  private static final String A = "http://endhealth.info/im#A";
+  private static final String B = "http://endhealth.info/im#B";
+  private static final String C = "http://endhealth.info/im#C";
   @Mock
   SetRepository setRepository;
-
   SetService setService;
+
+  private static Concept concept(String iri, String name) {
+    return new Concept().setIri(iri).setName(name);
+  }
+
+  private static Set<Concept> setOf(Concept... concepts) {
+    return new LinkedHashSet<>(List.of(concepts));
+  }
+
+  private static Set<String> containerIris(Concept concept) {
+    if (concept.getIsContainedIn() == null) return Set.of();
+    return concept.getIsContainedIn().stream().map(TTEntity::getIri).collect(Collectors.toSet());
+  }
+
+  private static Concept find(Set<Concept> concepts, String iri) {
+    return concepts.stream().filter(c -> iri.equals(c.getIri())).findFirst().orElseThrow();
+  }
 
   @BeforeEach
   void initMocks() {
@@ -87,36 +93,14 @@ public class SetModelServiceTest {
 
   }
 
-  private static final String ROOT = "http://endhealth.info/im#Root";
-  private static final String A = "http://endhealth.info/im#A";
-  private static final String B = "http://endhealth.info/im#B";
-  private static final String C = "http://endhealth.info/im#C";
-
-  private static Concept concept(String iri, String name) {
-    return new Concept().setIri(iri).setName(name);
-  }
-
-  private static Set<Concept> setOf(Concept... concepts) {
-    return new LinkedHashSet<>(List.of(concepts));
-  }
-
-  private static Set<String> containerIris(Concept concept) {
-    if (concept.getIsContainedIn() == null) return Set.of();
-    return concept.getIsContainedIn().stream().map(TTEntity::getIri).collect(Collectors.toSet());
-  }
-
-  private static Concept find(Set<Concept> concepts, String iri) {
-    return concepts.stream().filter(c -> iri.equals(c.getIri())).findFirst().orElseThrow();
-  }
-
   @Test
   void getExpandedSetMembers_nestedAndOverlappingSubsets_usesFixedNumberOfQueries() throws Exception {
     // Root has subsets A and B; C is a subset of both A and B (a diamond).
     when(setRepository.getSubsetEdges(ROOT)).thenReturn(List.of(
-      new SubsetEdge(A, "A", ROOT),
-      new SubsetEdge(B, "B", ROOT),
-      new SubsetEdge(C, "C", A),
-      new SubsetEdge(C, "C", B)));
+      new SetRepository.SubsetEdge(A, "A", ROOT),
+      new SetRepository.SubsetEdge(B, "B", ROOT),
+      new SetRepository.SubsetEdge(C, "C", A),
+      new SetRepository.SubsetEdge(C, "C", B)));
     when(setRepository.getExpansionFromIris(anyCollection(), eq(false), anyList(), anyList())).thenReturn(Map.of(
       ROOT, setOf(concept("urn:r1", "r1")),
       A, setOf(concept("urn:a1", "a1")),
@@ -145,8 +129,8 @@ public class SetModelServiceTest {
   void getExpandedSetMembers_cyclicSubsets_terminates() throws Exception {
     // A is a subset of Root and Root is (wrongly) a subset of A.
     when(setRepository.getSubsetEdges(ROOT)).thenReturn(List.of(
-      new SubsetEdge(A, "A", ROOT),
-      new SubsetEdge(ROOT, "Root", A)));
+      new SetRepository.SubsetEdge(A, "A", ROOT),
+      new SetRepository.SubsetEdge(ROOT, "Root", A)));
     when(setRepository.getExpansionFromIris(anyCollection(), eq(false), anyList(), anyList())).thenReturn(Map.of(
       ROOT, setOf(concept("urn:r1", "r1")),
       A, setOf(concept("urn:a1", "a1"))));

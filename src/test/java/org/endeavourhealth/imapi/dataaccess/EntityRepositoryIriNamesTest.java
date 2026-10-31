@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class EntityRepositoryIriNamesTest {
+  EntityRepository entityRepository = new EntityRepository();
 
   private static MapBindingSet row(String iri, String label, String description) {
     MapBindingSet bs = new MapBindingSet();
@@ -44,7 +45,7 @@ class EntityRepositoryIriNamesTest {
       row("http://example.org/iriNamesTest#a", "A label", null),
       row("http://example.org/iriNamesTest#unrequested", "ignored", null));
 
-    EntityRepository.getIriNames(conn, iris);
+    entityRepository.getIriNames(conn, iris);
 
     assertThat(a.getName()).isEqualTo("A label");
     assertThat(a.getDescription()).isNull();
@@ -63,11 +64,11 @@ class EntityRepositoryIriNamesTest {
     when(query.evaluate()).thenReturn(result);
     when(result.hasNext()).thenReturn(true, false);
     when(result.next()).thenReturn(row("http://example.org/iriNamesTest#cached", "Cached label", null));
-    EntityRepository.getIriNames(conn, Set.of(first));
+    entityRepository.getIriNames(conn, Set.of(first));
 
     TTIriRef second = new TTIriRef("http://example.org/iriNamesTest#cached");
     IMDB otherConn = mock(IMDB.class);
-    EntityRepository.getIriNames(otherConn, Set.of(second));
+    entityRepository.getIriNames(otherConn, Set.of(second));
 
     assertThat(second.getName()).isEqualTo("Cached label");
     verifyNoInteractions(otherConn);

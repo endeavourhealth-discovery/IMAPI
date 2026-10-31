@@ -1,21 +1,22 @@
 package org.endeavourhealth.imapi.controllers
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.endeavourhealth.imapi.logic.service.SecurityService
-import org.endeavourhealth.imapi.model.security.Permission
 import org.endeavourhealth.imapi.model.security.Action
 import org.endeavourhealth.imapi.model.security.Resource
 import org.endeavourhealth.imapi.model.uprn.Activity
 import org.endeavourhealth.imapi.model.uprn.UploadStatus
 import org.endeavourhealth.imapi.model.uprn.UprnException
 import org.endeavourhealth.imapi.model.uprn.UprnSearchResponse
-import org.endeavourhealth.imapi.model.workflow.roleRequest.UserRole
 import org.endeavourhealth.imapi.utility.MetricsHelper
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -39,14 +40,15 @@ import kotlin.io.encoding.Base64
   description = "Controller for accessing the UPRN/Assign product."
 )
 @CrossOrigin(origins = ["*"])
-open class UPRNController(
+class UPRNController(
   private val securityService: SecurityService
 ) {
-  private val log = LoggerFactory.getLogger(UPRNController::class.java)
-  private val mapper: ObjectMapper = ObjectMapper()
-    .registerKotlinModule()
-    .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    .configure(com.fasterxml.jackson.databind.MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true)
+  private val log = LoggerFactory.getLogger(javaClass)
+  private val mapper: ObjectMapper = JsonMapper.builder()
+    .addModule(kotlinModule())
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES)
+    .build()
   private val uprnUrl = System.getenv("UPRN_API")
   private val uprnUsername = System.getenv("UPRN_USERNAME")
   private val uprnPassword = System.getenv("UPRN_PASSWORD")
@@ -60,9 +62,7 @@ open class UPRNController(
     HttpStatus.ACCEPTED
   )
   @Throws(UprnException::class)
-  open fun getInfo(
-    request: HttpServletRequest,
-    response: HttpServletResponse,
+  fun getInfo(
     @RequestParam(name = "adrec", required = true) adrec: String,
     @RequestParam(name = "commercial", required = true) commercial: String,
   ): UprnSearchResponse? {
@@ -83,7 +83,7 @@ open class UPRNController(
         )
         .GET()
 
-      val response = callUPRNAndParse(uprnReq, securityService.getUser().id, UprnSearchResponse::class.java)
+      val response = callUPRNAndParse(uprnReq, securityService.user.id, UprnSearchResponse::class.java)
 
       return response
     }
@@ -95,9 +95,7 @@ open class UPRNController(
     HttpStatus.ACCEPTED
   )
   @Throws(UprnException::class)
-  open fun activity(
-    request: HttpServletRequest,
-    response: HttpServletResponse,
+  fun activity(
     @RequestParam(name = "u", required = true) user: String,
   ): List<Activity>? {
     MetricsHelper.recordTime("API.UPRN.activity.GET").use {
@@ -109,7 +107,7 @@ open class UPRNController(
         .uri(URI.create("$uprnUrl/api2/activity?u=${uprnUsername}"))
         .GET()
 
-      return callUPRNAndParse(uprnReq, securityService.getUser().id, object : TypeReference<List<Activity>>() {})
+      return callUPRNAndParse(uprnReq, securityService.user.id, object : TypeReference<List<Activity>>() {})
     }
   }
 
@@ -119,9 +117,7 @@ open class UPRNController(
     HttpStatus.ACCEPTED
   )
   @Throws(UprnException::class)
-  open fun download(
-    request: HttpServletRequest,
-    response: HttpServletResponse,
+  fun download(
     @RequestParam(name = "file", required = true) file: String,
   ): String? {
     MetricsHelper.recordTime("API.UPRN.download.GET").use {
@@ -134,7 +130,7 @@ open class UPRNController(
         .uri(URI.create("$uprnUrl/api2/download3?filename=${encodedFilename}"))
         .GET()
 
-      val response = callUPRN(uprnReq, securityService.getUser().id)
+      val response = callUPRN(uprnReq, securityService.user.id)
       return response;
     }
   }
@@ -145,9 +141,7 @@ open class UPRNController(
     HttpStatus.ACCEPTED
   )
   @Throws(UprnException::class)
-  open fun upload(
-    request: HttpServletRequest,
-    response: HttpServletResponse,
+  fun upload(
     @RequestPart("file") file: MultipartFile
   ): UploadStatus? {
     MetricsHelper.recordTime("API.UPRN.upload.POST").use {
@@ -168,7 +162,7 @@ open class UPRNController(
         .POST(HttpRequest.BodyPublishers.ofString(multipartBody))
         .setHeader("Content-Type", "multipart/form-data; boundary=$boundary")
 
-      return callUPRNAndParse(uprnReq, securityService.getUser().id, UploadStatus::class.java)
+      return callUPRNAndParse(uprnReq, securityService.user.id, UploadStatus::class.java)
     }
   }
 

@@ -19,14 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CasdoorUserMapperTest {
   private static final ObjectMapper MAPPER = new ObjectMapper();
+  private static final String BASE = """
+    {"owner":"Endeavour","name":"jbloggs","id":"1111","type":"normal-user","displayName":"Joe Bloggs",
+     "email":"joe@example.com","avatar":"https://example.com/a.png","roles":[{"name":"EXECUTOR"}]%s}""";
 
   private static JsonNode casdoorUser(String json) throws Exception {
     return MAPPER.readTree(json);
   }
-
-  private static final String BASE = """
-    {"owner":"Endeavour","name":"jbloggs","id":"1111","type":"normal-user","displayName":"Joe Bloggs",
-     "email":"joe@example.com","avatar":"https://example.com/a.png","roles":[{"name":"EXECUTOR"}]%s}""";
 
   @Test
   void mapsIdentityAndRoles() throws Exception {
@@ -54,8 +53,8 @@ class CasdoorUserMapperTest {
     assertEquals(List.of(NAMESPACE.IM.toString()), user.getOrganisations());
     assertEquals(1, user.getNamespaces().size());
     assertSame(NAMESPACE.IM, user.getNamespaces().get(0).getIri());
-    assertTrue(user.getNamespaces().get(0).isRead());
-    assertFalse(user.getNamespaces().get(0).isWrite());
+    assertTrue(user.getNamespaces().get(0).getRead());
+    assertFalse(user.getNamespaces().get(0).getWrite());
   }
 
   @Test
@@ -70,7 +69,7 @@ class CasdoorUserMapperTest {
     assertEquals(PrimeVueColors.RED, user.getPrimaryColor());
     assertEquals(FontSize.LARGE, user.getFontSize());
     assertEquals(List.of("a", "b"), user.getFavourites());
-    assertTrue(user.getNamespaces().get(0).isWrite());
+    assertTrue(user.getNamespaces().get(0).getWrite());
   }
 
   @Test

@@ -33,8 +33,11 @@ abstract class BaseDB protected constructor(vararg graphs: GRAPH?) : AutoCloseab
     }
   }
 
-  @Synchronized
   protected fun getRepository(repoId: String?): Repository {
+    return repositories.computeIfAbsent(repoId ?: "") { createRepository(repoId) }
+  }
+
+  private fun createRepository(repoId: String?): Repository {
     log.debug("Connecting to repository [{}]", repoId)
     var type = System.getenv("GRAPH_TYPE")
     if (type.isNullOrEmpty()) type = "http"
@@ -184,6 +187,10 @@ abstract class BaseDB protected constructor(vararg graphs: GRAPH?) : AutoCloseab
 
   companion object {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    // Repositories are shared per repoId (they own the HTTP client/connection pool); only the cheap
+    // RepositoryConnection is opened per request.
+    private val repositories = java.util.concurrent.ConcurrentHashMap<String, Repository>()
 
     private val DEFAULT_PREFIXES = """
     PREFIX bc: <http://endhealth.info/bc#>

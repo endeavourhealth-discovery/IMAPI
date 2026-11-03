@@ -378,7 +378,7 @@ internal class MatchTreeCompiler(
           with.alias,
           mySQLQuery.nodeToTableMap,
         )
-      with.selects.addAll(selects)
+      with.selects.addAll(selects.filterNot { it.alias != null && it in with.selects })
     }
     for (propIri in carryPropertiesStack.lastOrNull().orEmpty()) {
       val alias = propIri.substringAfterLast('#')

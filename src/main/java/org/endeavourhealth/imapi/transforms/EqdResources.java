@@ -531,13 +531,13 @@ public class EqdResources {
       relationRight.setIri(NAMESPACE.IM + "dateOfBirth");
       relationRight.setNodeRef(parentQuery.getAs());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
-      LogicOptimizer.injectReturn(parentQuery, relationRight.getIri(), relationRight.getPropertyRef());
+      LogicOptimizer.injectReturn(parentQuery, relationRight.getIri(), null);
     }
     else if (eqRelationship.getParentColumn().contains("GMS_DATE_OF_REGISTRATION")) {
       relationRight.setIri(NAMESPACE.IM + "gmsDateOfRegistration");
       relationRight.setNodeRef(parentQuery.getAs());
       relationRight.setPropertyRef(relationRight.getIri().substring(relationRight.getIri().lastIndexOf("#") + 1));
-      LogicOptimizer.injectReturn(parentQuery, relationRight.getIri(), relationRight.getPropertyRef());
+      LogicOptimizer.injectReturn(parentQuery, relationRight.getIri(), null);
     }
 
 

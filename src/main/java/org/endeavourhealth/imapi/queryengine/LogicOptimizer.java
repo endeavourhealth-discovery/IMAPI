@@ -213,7 +213,7 @@ public class LogicOptimizer {
   public static void injectReturn(Query query, String iri,String nodeRef){
     if (query.getReturn() != null) {
       for (Return ret : query.getReturn()) {
-        if (ret.getIri().equals(iri)&&ret.getNodeRef().equals(nodeRef)) return;
+        if (Objects.equals(ret.getIri(), iri) && Objects.equals(ret.getNodeRef(), nodeRef)) return;
       }
     }
     String as=(nodeRef!=null ?nodeRef+"_" : "")+ iri.substring(iri.lastIndexOf('#')+1).replaceAll("[^a-zA-Z0-9_]", "_");

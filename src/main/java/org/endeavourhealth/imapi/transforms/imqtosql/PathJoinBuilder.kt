@@ -26,7 +26,8 @@ internal class PathJoinBuilder(private val ctx: ConversionContext) {
 
     for (path in paths) {
       val nodeKey = path.node ?: path.name
-      val table = findTableFromTypeAndProperty(path.typeOf.iri, path.iri)
+      val scalarOnParent = !parentTable.fields[path.iri]?.returnAs.isNullOrEmpty()
+      val table = if (scalarOnParent) null else findTableFromTypeAndProperty(path.typeOf?.iri, path.iri)
       val join = table?.let { buildJoin(parentTable, it, path, nodeKey) }
 
       if (table == null || join == null) {

@@ -189,6 +189,10 @@ internal class SelectClauseCompiler(private val ctx: ConversionContext) {
       }
 
       val field = if (arg.valuePath.nodeRef != null) {
+        getDegradedNodeRefSelect(arg.valuePath.nodeRef, arg.valuePath.iri)?.let {
+          concatenateFields.add(it)
+          continue
+        }
         val currentTable = nodeToTableMap[arg.valuePath.nodeRef]
           ?: throw SQLConversionException(
             "Missing nodeRef from valuePath for concatenate function argument: ${arg.valuePath.nodeRef}"

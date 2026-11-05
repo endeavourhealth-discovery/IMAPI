@@ -14,12 +14,6 @@
     },
     {
       "path": [
-        "http://endhealth.info/im#quantity"
-      ],
-      "dataModel": "http://endhealth.info/im#MedicationRequest"
-    },
-    {
-      "path": [
         "http://endhealth.info/im#place"
       ],
       "dataModel": "http://endhealth.info/im#Address"
@@ -275,7 +269,7 @@
       },
       "relationships": [
         {
-          "dataModel": "http://endhealth.info/im#MedicationRequest", "fromField": "medication_order_id", "toField": "id"
+          "dataModel": "http://endhealth.info/im#MedicationRequest", "fromField": "id", "toField": "medication_statement_id"
         },
         {
           "dataModel": "http://endhealth.info/im#Concept", "fromField": "authorisation_type_concept_id",
@@ -411,7 +405,7 @@
           "field": "quantity_unit",
           "type": "string",
           "returnAs": {
-            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.result_value_units"
+            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.quantity_unit"
           }
         },
         "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"},
@@ -439,7 +433,7 @@
           "field": "quantity_unit",
           "type": "string",
           "returnAs": {
-            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.result_value_units"
+            "http://www.w3.org/2000/01/rdf-schema#label": "{table}.quantity_unit"
           }
         },
         "http://endhealth.info/im#courseStatus": {"field": "duration_days", "type": "number"},

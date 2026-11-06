@@ -1,0 +1,126 @@
+{
+  "name" : "AST_REG - Patients on the asthma register",
+  "iri" : "qof:36e70531-462a-427a-8ee2-eeb584018cc9",
+  "rules" : [ {
+    "match" : {
+      "kind" : "cohort",
+      "iri" : "im:Q_RegisteredGMS",
+      "name" : "Registered and GP for GMS services on the reference date"
+    },
+    "ifTrue" : "NEXT",
+    "ifFalse" : "REJECT"
+  }, {
+    "match" : {
+      "kind" : "group",
+      "operator" : "ALL",
+      "items" : [ {
+        "kind" : "records",
+        "entity" : "im:ClinicalEntry",
+        "filter" : {
+          "kind" : "group",
+          "operator" : "ALL",
+          "items" : [ {
+            "kind" : "concept",
+            "property" : "im:concept",
+            "concepts" : [ {
+              "iri" : "sct:999010051000230100",
+              "name" : "ASTRES_COD",
+              "match" : "SET_MEMBERS"
+            }, {
+              "iri" : "sct:999012891000230104",
+              "name" : "AST_COD",
+              "match" : "SET_MEMBERS"
+            } ],
+            "shortLabel" : "ASTRES_COD_AST_COD"
+          }, {
+            "kind" : "value",
+            "property" : "im:effectiveDate",
+            "operator" : "<=",
+            "relativeTo" : {
+              "parameter" : "$searchDate"
+            }
+          } ]
+        },
+        "pick" : {
+          "direction" : "descending",
+          "count" : 1,
+          "orderBy" : "im:effectiveDate",
+          "partitionBy" : [ "im:patient" ]
+        },
+        "alias" : "Latest_ASTRES_COD_AST_COD_lte",
+        "then" : {
+          "filter" : {
+            "kind" : "group",
+            "operator" : "ALL",
+            "items" : [ {
+              "kind" : "concept",
+              "property" : "im:concept",
+              "concepts" : [ {
+                "iri" : "sct:999012891000230104",
+                "name" : "AST_COD",
+                "match" : "SET_MEMBERS"
+              } ],
+              "shortLabel" : "AST_COD"
+            }, {
+              "kind" : "value",
+              "property" : "im:effectiveDate",
+              "operator" : "<=",
+              "relativeTo" : {
+                "parameter" : "$searchDate"
+              }
+            } ]
+          }
+        }
+      }, {
+        "kind" : "records",
+        "entity" : "im:MedicationRequest",
+        "filter" : {
+          "kind" : "group",
+          "operator" : "ALL",
+          "items" : [ {
+            "kind" : "concept",
+            "property" : "im:concept",
+            "concepts" : [ {
+              "iri" : "sct:12463601000001108",
+              "name" : "ASTTRT_COD",
+              "match" : "SET_MEMBERS"
+            } ],
+            "shortLabel" : "ASTTRT_COD"
+          }, {
+            "kind" : "value",
+            "property" : "im:effectiveDate",
+            "operator" : ">",
+            "value" : "-12",
+            "units" : "MONTHS",
+            "relativeTo" : {
+              "parameter" : "$searchDate"
+            }
+          }, {
+            "kind" : "value",
+            "property" : "im:effectiveDate",
+            "operator" : "<=",
+            "relativeTo" : {
+              "parameter" : "$searchDate"
+            }
+          } ]
+        }
+      } ]
+    },
+    "ifTrue" : "NEXT",
+    "ifFalse" : "REJECT"
+  }, {
+    "match" : {
+      "kind" : "records",
+      "entity" : "im:Patient",
+      "filter" : {
+        "kind" : "value",
+        "property" : "im:age",
+        "operator" : ">=",
+        "value" : "5",
+        "units" : "YEARS"
+      }
+    },
+    "ifTrue" : "SELECT",
+    "ifFalse" : "REJECT"
+  } ]
+}

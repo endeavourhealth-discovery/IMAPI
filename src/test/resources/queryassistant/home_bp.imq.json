@@ -1,0 +1,335 @@
+{
+  "name": "Latest home BP <=135/85 in the QOF year",
+  "typeOf": {
+    "iri": "http://endhealth.info/im#Patient"
+  },
+  "iri": "http://endhealth.info/qof#34774fef-6f88-4776-92e4-dd49c70e1a4b",
+  "rule": [
+    {
+      "ifTrue": "NEXT",
+      "ifFalse": "REJECT",
+      "is": {
+        "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+        "name": "Registered and GP for GMS services on the reference date",
+        "cohort": true
+      }
+    },
+    {
+      "and": [
+        {
+          "typeOf": {
+            "iri": "http://endhealth.info/im#ClinicalEntry"
+          },
+          "where": {
+            "and": [
+              {
+                "iri": "http://endhealth.info/im#concept",
+                "is": [
+                  {
+                    "iri": "http://snomed.info/sct#999036291000230105",
+                    "name": "HOMEAMBBP_COD",
+                    "memberOf": true
+                  }
+                ],
+                "shortLabel": "HOMEAMBBP_COD"
+              },
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "operator": "<=",
+                "compare": {
+                  "left": {
+                    "iri": "http://endhealth.info/im#effectiveDate"
+                  },
+                  "right": {
+                    "parameter": "$searchDate"
+                  }
+                }
+              }
+            ]
+          },
+          "orderBy": {
+            "partition": [
+              {
+                "iri": "http://endhealth.info/im#patient",
+                "name": "patient"
+              }
+            ],
+            "property": [
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "direction": "descending"
+              }
+            ],
+            "limit": 100
+          },
+          "as": "Latest_HOMEAMBBP_COD_lte",
+          "then": {
+            "from": "Latest_HOMEAMBBP_COD_lte",
+            "where": {
+              "iri": "http://endhealth.info/im#effectiveDate",
+              "operator": ">",
+              "value": "-12",
+              "units": {
+                "name": "Months",
+                "iri": "http://endhealth.info/im#Months"
+              },
+              "compare": {
+                "left": {
+                  "iri": "http://endhealth.info/im#effectiveDate"
+                },
+                "right": {
+                  "parameter": "$searchDate"
+                }
+              }
+            },
+            "as": "then_gt_12_Months"
+          }
+        },
+        {
+          "and": [
+            {
+              "typeOf": {
+                "iri": "http://endhealth.info/im#ClinicalEntry"
+              },
+              "where": {
+                "and": [
+                  {
+                    "iri": "http://endhealth.info/im#concept",
+                    "is": [
+                      {
+                        "iri": "http://endhealth.info/qof#86e1145a-4603-4a90-8ed6-e8609892de2b",
+                        "name": "Systolic Blood Pressure",
+                        "memberOf": true
+                      }
+                    ],
+                    "valueLabel": "Systolic Blood Pressure",
+                    "shortLabel": "Systolic Blood Pressure"
+                  },
+                  {
+                    "iri": "http://endhealth.info/im#value",
+                    "operator": ">",
+                    "value": "0"
+                  },
+                  {
+                    "iri": "http://endhealth.info/im#effectiveDate",
+                    "operator": "<=",
+                    "compare": {
+                      "left": {
+                        "iri": "http://endhealth.info/im#effectiveDate"
+                      },
+                      "right": {
+                        "parameter": "$searchDate"
+                      }
+                    }
+                  }
+                ]
+              },
+              "orderBy": {
+                "partition": [
+                  {
+                    "iri": "http://endhealth.info/im#patient",
+                    "name": "patient"
+                  }
+                ],
+                "property": [
+                  {
+                    "iri": "http://endhealth.info/im#effectiveDate",
+                    "direction": "descending"
+                  }
+                ],
+                "limit": 100
+              },
+              "as": "Latest_Systolic_Blood_Pressure_gt_0_lte"
+            },
+            {
+              "and": [
+                {
+                  "typeOf": {
+                    "iri": "http://endhealth.info/im#ClinicalEntry"
+                  },
+                  "where": {
+                    "and": [
+                      {
+                        "iri": "http://endhealth.info/im#concept",
+                        "is": [
+                          {
+                            "iri": "http://endhealth.info/qof#5DDCC30E-C5F3-48B3-A5DD-9DE483B50F0D",
+                            "name": "Diastolic Blood Pressure",
+                            "memberOf": true
+                          }
+                        ],
+                        "valueLabel": "Diastolic Blood Pressure",
+                        "shortLabel": "Diastolic Blood Pressure"
+                      },
+                      {
+                        "iri": "http://endhealth.info/im#value",
+                        "operator": ">",
+                        "value": "0"
+                      },
+                      {
+                        "iri": "http://endhealth.info/im#effectiveDate",
+                        "operator": "<=",
+                        "compare": {
+                          "left": {
+                            "iri": "http://endhealth.info/im#effectiveDate"
+                          },
+                          "right": {
+                            "parameter": "$searchDate"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "orderBy": {
+                    "partition": [
+                      {
+                        "iri": "http://endhealth.info/im#patient",
+                        "name": "patient"
+                      }
+                    ],
+                    "property": [
+                      {
+                        "iri": "http://endhealth.info/im#effectiveDate",
+                        "direction": "descending"
+                      }
+                    ],
+                    "limit": 1
+                  },
+                  "as": "Latest_Diastolic_Blood_Pressure_gt_0_lte",
+                  "then": {
+                    "from": "Latest_Diastolic_Blood_Pressure_gt_0_lte",
+                    "where": {
+                      "iri": "http://endhealth.info/im#value",
+                      "range": {
+                        "from": {
+                          "operator": ">=",
+                          "value": "1"
+                        },
+                        "to": {
+                          "operator": "<=",
+                          "value": "85"
+                        }
+                      }
+                    },
+                    "as": "then_is_between_1_inc_and_85_inc"
+                  }
+                },
+                {
+                  "typeOf": {
+                    "iri": "http://endhealth.info/im#ClinicalEntry"
+                  },
+                  "where": {
+                    "and": [
+                      {
+                        "iri": "http://endhealth.info/im#concept",
+                        "is": [
+                          {
+                            "iri": "http://endhealth.info/qof#86e1145a-4603-4a90-8ed6-e8609892de2b",
+                            "name": "Systolic Blood Pressure",
+                            "memberOf": true
+                          }
+                        ],
+                        "valueLabel": "Systolic Blood Pressure",
+                        "shortLabel": "Systolic Blood Pressure"
+                      },
+                      {
+                        "iri": "http://endhealth.info/im#value",
+                        "operator": ">",
+                        "value": "0"
+                      },
+                      {
+                        "iri": "http://endhealth.info/im#effectiveDate",
+                        "operator": "<=",
+                        "compare": {
+                          "left": {
+                            "iri": "http://endhealth.info/im#effectiveDate"
+                          },
+                          "right": {
+                            "parameter": "$searchDate"
+                          }
+                        }
+                      },
+                      {
+                        "operator": "=",
+                        "compare": {
+                          "left": {
+                            "iri": "http://endhealth.info/im#effectiveDate"
+                          },
+                          "right": {
+                            "iri": "http://endhealth.info/im#effectiveDate",
+                            "nodeRef": "then_is_between_1_inc_and_85_inc",
+                            "propertyRef": "effectiveDate"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "orderBy": {
+                    "partition": [
+                      {
+                        "iri": "http://endhealth.info/im#patient",
+                        "name": "patient"
+                      }
+                    ],
+                    "property": [
+                      {
+                        "iri": "http://endhealth.info/im#effectiveDate",
+                        "direction": "descending"
+                      }
+                    ],
+                    "limit": 1
+                  },
+                  "as": "Latest_Systolic_Blood_Pressure_gt_0_lte_2",
+                  "then": {
+                    "from": "Latest_Systolic_Blood_Pressure_gt_0_lte_2",
+                    "where": {
+                      "iri": "http://endhealth.info/im#value",
+                      "range": {
+                        "from": {
+                          "operator": ">=",
+                          "value": "1"
+                        },
+                        "to": {
+                          "operator": "<=",
+                          "value": "135"
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "where": {
+                "operator": "=",
+                "compare": {
+                  "left": {
+                    "iri": "http://endhealth.info/im#effectiveDate"
+                  },
+                  "right": {
+                    "iri": "http://endhealth.info/im#effectiveDate",
+                    "nodeRef": "Latest_Systolic_Blood_Pressure_gt_0_lte",
+                    "propertyRef": "effectiveDate"
+                  }
+                }
+              }
+            }
+          ],
+          "where": {
+            "operator": "=",
+            "compare": {
+              "left": {
+                "iri": "http://endhealth.info/im#effectiveDate"
+              },
+              "right": {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "nodeRef": "then_gt_12_Months",
+                "propertyRef": "effectiveDate"
+              }
+            }
+          }
+        }
+      ],
+      "ifTrue": "SELECT",
+      "ifFalse": "REJECT"
+    }
+  ]
+}

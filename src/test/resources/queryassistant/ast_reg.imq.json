@@ -1,0 +1,172 @@
+{
+  "name": "AST_REG - Patients on the asthma register",
+  "typeOf": {
+    "iri": "http://endhealth.info/im#Patient"
+  },
+  "iri": "http://endhealth.info/qof#36e70531-462a-427a-8ee2-eeb584018cc9",
+  "rule": [
+    {
+      "ifTrue": "NEXT",
+      "ifFalse": "REJECT",
+      "is": {
+        "iri": "http://endhealth.info/im#Q_RegisteredGMS",
+        "name": "Registered and GP for GMS services on the reference date",
+        "cohort": true
+      }
+    },
+    {
+      "and": [
+        {
+          "typeOf": {
+            "iri": "http://endhealth.info/im#ClinicalEntry"
+          },
+          "where": {
+            "and": [
+              {
+                "iri": "http://endhealth.info/im#concept",
+                "is": [
+                  {
+                    "iri": "http://snomed.info/sct#999010051000230100",
+                    "name": "ASTRES_COD",
+                    "memberOf": true
+                  },
+                  {
+                    "iri": "http://snomed.info/sct#999012891000230104",
+                    "name": "AST_COD",
+                    "memberOf": true
+                  }
+                ],
+                "shortLabel": "ASTRES_COD_AST_COD"
+              },
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "operator": "<=",
+                "compare": {
+                  "left": {
+                    "iri": "http://endhealth.info/im#effectiveDate"
+                  },
+                  "right": {
+                    "parameter": "$searchDate"
+                  }
+                }
+              }
+            ]
+          },
+          "orderBy": {
+            "partition": [
+              {
+                "iri": "http://endhealth.info/im#patient",
+                "name": "patient"
+              }
+            ],
+            "property": [
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "direction": "descending"
+              }
+            ],
+            "limit": 1
+          },
+          "as": "Latest_ASTRES_COD_AST_COD_lte",
+          "then": {
+            "from": "Latest_ASTRES_COD_AST_COD_lte",
+            "where": {
+              "and": [
+                {
+                  "iri": "http://endhealth.info/im#concept",
+                  "is": [
+                    {
+                      "iri": "http://snomed.info/sct#999012891000230104",
+                      "name": "AST_COD",
+                      "memberOf": true
+                    }
+                  ],
+                  "shortLabel": "AST_COD"
+                },
+                {
+                  "iri": "http://endhealth.info/im#effectiveDate",
+                  "operator": "<=",
+                  "compare": {
+                    "left": {
+                      "iri": "http://endhealth.info/im#effectiveDate"
+                    },
+                    "right": {
+                      "parameter": "$searchDate"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "typeOf": {
+            "iri": "http://endhealth.info/im#MedicationRequest"
+          },
+          "where": {
+            "and": [
+              {
+                "iri": "http://endhealth.info/im#concept",
+                "is": [
+                  {
+                    "iri": "http://snomed.info/sct#12463601000001108",
+                    "name": "ASTTRT_COD",
+                    "memberOf": true
+                  }
+                ],
+                "shortLabel": "ASTTRT_COD"
+              },
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "operator": ">",
+                "value": "-12",
+                "units": {
+                  "name": "Months",
+                  "iri": "http://endhealth.info/im#Months"
+                },
+                "compare": {
+                  "left": {
+                    "iri": "http://endhealth.info/im#effectiveDate"
+                  },
+                  "right": {
+                    "parameter": "$searchDate"
+                  }
+                }
+              },
+              {
+                "iri": "http://endhealth.info/im#effectiveDate",
+                "operator": "<=",
+                "compare": {
+                  "left": {
+                    "iri": "http://endhealth.info/im#effectiveDate"
+                  },
+                  "right": {
+                    "parameter": "$searchDate"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "ifTrue": "NEXT",
+      "ifFalse": "REJECT"
+    },
+    {
+      "typeOf": {
+        "iri": "http://endhealth.info/im#Patient"
+      },
+      "ifTrue": "SELECT",
+      "ifFalse": "REJECT",
+      "where": {
+        "iri": "http://endhealth.info/im#age",
+        "operator": ">=",
+        "value": "5",
+        "units": {
+          "name": "Years",
+          "iri": "http://endhealth.info/im#Years"
+        }
+      }
+    }
+  ]
+}

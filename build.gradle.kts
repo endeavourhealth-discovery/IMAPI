@@ -46,10 +46,6 @@ if (CI == "false") {
 val ENV = System.getenv("ENV")?.uppercase() ?: "DEV"
 println("Build environment = [$ENV]")
 
-if (ENV == "DEV") {
-  tasks.sonar { dependsOn(tasks.build, tasks.jacocoTestReport) }
-}
-
 publishing {
   publications {
     create<MavenPublication>("mavenJava") {

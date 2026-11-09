@@ -174,7 +174,10 @@ public class QueryValidator {
     }
     if (query.getFrom() != null && variables.get(query.getFrom()) == null)
       throw new QueryException("query clause contains a 'from' that has not been projected from another clause");
-
+    if (query.getThen() != null) {
+      // registers the then-clause alias (referenced by later nodeRefs) and validates its where
+      validateMatch(query.getThen());
+    }
   }
 
   private void validatePath(Path path) {

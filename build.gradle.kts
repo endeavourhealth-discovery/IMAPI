@@ -125,6 +125,7 @@ dependencies {
   implementation(libs.aws.sdk.bom)
   implementation(libs.aws.sdk.core)
   implementation(libs.aws.s3)
+  implementation(libs.anthropic.java)
   implementation(libs.dropwizard)
   implementation(libs.dropwizard.graphite)
   implementation(libs.dropwizard.servlets)
@@ -182,7 +183,7 @@ dependencies {
 tasks.test {
   jvmArgs("-XX:+EnableDynamicAgentLoading")
   useJUnitPlatform {
-    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest")
+    excludeTags("IMQTest", "IMQFullTest", "IMQQOFQueriesTest", "IMQSMHQueriesTest", "IMQREGQueriesTest", "QueryAssistantEval")
   }
   finalizedBy("jacocoTestReport")
 }
@@ -192,6 +193,18 @@ tasks.register("imqTests", Test::class.java) {
   classpath = sourceSets["test"].runtimeClasspath
   useJUnitPlatform {
     includeTags("IMQTest")
+  }
+}
+
+tasks.register("queryAssistantEval", Test::class.java) {
+  description = "End-to-end query assistant eval: calls the Claude API (billed) and needs IM env vars + ANTHROPIC_API_KEY"
+  testClassesDirs = sourceSets["test"].output.classesDirs
+  classpath = sourceSets["test"].runtimeClasspath
+  systemProperties(System.getProperties().filterKeys { it.toString().startsWith("queryAssistant.") || it == "querySpec.corpus" }.mapKeys { it.key.toString() })
+  testLogging { showStandardStreams = true }
+  outputs.upToDateWhen { false }
+  useJUnitPlatform {
+    includeTags("QueryAssistantEval")
   }
 }
 

@@ -7,6 +7,7 @@ apacheText = "1.13.1"
 assertJ = "3.27.7"
 caffeine = "3.1.1"
 lucene = "8.11.3"
+anthropic = "3.3.0"
 awsS3 = "2.39.0"
 awsSDKBOM = "2.42.10"
 awsSDKCore = "2.39.0"
@@ -51,6 +52,7 @@ assert-j = { module = "org.assertj:assertj-core", version.ref = "assertJ" }
 lucene-analyzers-common = { module = "org.apache.lucene:lucene-analyzers-common", version.ref = "lucene" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 aws-sdk-bom = { module = "software.amazon.awssdk:bom", version.ref = "awsSDKBOM" }
+anthropic-java = { module = "com.anthropic:anthropic-java", version.ref = "anthropic" }
 aws-sdk-core = { module = "software.amazon.awssdk:core", version.ref = "awsSDKCore" }
 aws-s3 = { module = "software.amazon.awssdk:s3", version.ref = "awsS3" }
 dropwizard = { module = "io.dropwizard.metrics:metrics-core", version.ref = "dropwizard" }

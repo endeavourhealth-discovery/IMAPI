@@ -1,0 +1,222 @@
+{
+  "type": "object",
+  "description": "A cohort query. Set exactly one of 'rules' or 'allOf'.",
+  "properties": {
+    "name": { "type": "string", "description": "Short title for the query." },
+    "description": { "type": "string" },
+    "baseType": { "type": "string", "description": "Population type, normally im:Patient (the default)." },
+    "rules": {
+      "type": "array",
+      "description": "Ordered rule chain. Each patient is tested against rule 1, then follows ifTrue/ifFalse.",
+      "items": { "$ref": "#/$defs/rule" }
+    },
+    "allOf": {
+      "type": "array",
+      "description": "Plain conjunction of criteria (no rule chain).",
+      "items": { "$ref": "#/$defs/criterion" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "rule": {
+      "type": "object",
+      "properties": {
+        "match": { "$ref": "#/$defs/criterion" },
+        "ifTrue": { "$ref": "#/$defs/ruleAction" },
+        "ifFalse": { "$ref": "#/$defs/ruleAction" }
+      },
+      "required": ["match", "ifTrue", "ifFalse"],
+      "additionalProperties": false
+    },
+    "ruleAction": {
+      "type": "string",
+      "enum": ["NEXT", "SELECT", "REJECT"],
+      "description": "NEXT = go on to the next rule, SELECT = include in the cohort (stop), REJECT = exclude (stop)."
+    },
+    "criterion": {
+      "oneOf": [
+        { "$ref": "#/$defs/cohortRef" },
+        { "$ref": "#/$defs/records" },
+        { "$ref": "#/$defs/group" }
+      ]
+    },
+    "cohortRef": {
+      "type": "object",
+      "description": "Membership of an existing cohort/query found with search_cohorts.",
+      "properties": {
+        "kind": { "const": "cohort" },
+        "iri": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["kind", "iri"],
+      "additionalProperties": false
+    },
+    "records": {
+      "type": "object",
+      "description": "Patient has (or, with exclude, has no) records of 'entity' matching 'filter'.",
+      "properties": {
+        "kind": { "const": "records" },
+        "entity": { "type": "string", "description": "e.g. im:ClinicalEntry, im:MedicationRequest, im:Patient" },
+        "filter": { "$ref": "#/$defs/filter" },
+        "pick": { "$ref": "#/$defs/pick" },
+        "alias": { "type": "string", "description": "Name for this result so 'relativeTo.alias' can refer to it." },
+        "exposes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "property": { "type": "string" },
+              "alias": { "type": "string" },
+              "name": { "type": "string" },
+              "nodeRef": { "type": "string" }
+            },
+            "required": ["property", "alias"],
+            "additionalProperties": false
+          }
+        },
+        "then": { "$ref": "#/$defs/then" },
+        "exclude": { "type": "boolean", "description": "true = patient must NOT have such records." }
+      },
+      "required": ["kind", "entity"],
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "description": "ALL (and) / ANY (or) of several criteria.",
+      "properties": {
+        "kind": { "const": "group" },
+        "operator": { "$ref": "#/$defs/boolOp" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/criterion" } },
+        "filter": { "$ref": "#/$defs/filter" },
+        "pick": { "$ref": "#/$defs/pick" },
+        "alias": { "type": "string" },
+        "then": { "$ref": "#/$defs/then" },
+        "exclude": { "type": "boolean" }
+      },
+      "required": ["kind", "operator", "items"],
+      "additionalProperties": false
+    },
+    "boolOp": { "type": "string", "enum": ["ALL", "ANY"] },
+    "pick": {
+      "type": "object",
+      "description": "Keep only the first 'count' records per patient after ordering, e.g. the latest. Required when using 'then'.",
+      "properties": {
+        "direction": { "type": "string", "enum": ["descending", "ascending"], "description": "descending = latest/highest first." },
+        "count": { "type": "integer", "minimum": 1, "description": "Default 1." },
+        "orderBy": { "type": "string", "description": "Default im:effectiveDate." },
+        "partitionBy": { "type": "array", "items": { "type": "string" }, "description": "Default [im:patient]." }
+      },
+      "required": ["direction"],
+      "additionalProperties": false
+    },
+    "then": {
+      "type": "object",
+      "description": "Further test on the picked record(s), e.g. 'the latest reading is < 140'.",
+      "properties": {
+        "filter": { "$ref": "#/$defs/filter" },
+        "alias": { "type": "string" }
+      },
+      "required": ["filter"],
+      "additionalProperties": false
+    },
+    "filter": {
+      "oneOf": [
+        { "$ref": "#/$defs/filterGroup" },
+        { "$ref": "#/$defs/conceptFilter" },
+        { "$ref": "#/$defs/valueFilter" },
+        { "$ref": "#/$defs/rangeFilter" }
+      ]
+    },
+    "filterGroup": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "group" },
+        "operator": { "$ref": "#/$defs/boolOp" },
+        "items": { "type": "array", "items": { "$ref": "#/$defs/filter" } }
+      },
+      "required": ["kind", "operator", "items"],
+      "additionalProperties": false
+    },
+    "conceptFilter": {
+      "type": "object",
+      "description": "'property' (default im:concept) is one of 'concepts'.",
+      "properties": {
+        "kind": { "const": "concept" },
+        "property": { "type": "string" },
+        "concepts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "iri": { "type": "string" },
+              "name": { "type": "string" },
+              "match": {
+                "type": "string",
+                "enum": ["SELF", "DESCENDANTS_OR_SELF", "SET_MEMBERS", "SET_MEMBERS_DESCENDANTS_OR_SELF"],
+                "description": "SET_MEMBERS for value sets / concept sets; DESCENDANTS_OR_SELF for a single concept and its subtypes."
+              },
+              "exclude": { "type": "boolean" }
+            },
+            "required": ["iri", "match"],
+            "additionalProperties": false
+          }
+        },
+        "negate": { "type": "boolean" },
+        "label": { "type": "string" },
+        "shortLabel": { "type": "string" }
+      },
+      "required": ["kind", "concepts"],
+      "additionalProperties": false
+    },
+    "valueFilter": {
+      "type": "object",
+      "description": "'property' 'operator' 'value' 'units', optionally relative to 'relativeTo'. Dates before the reference use negative values: effectiveDate > -12 MONTHS relativeTo $searchDate = within the 12 months before the search date.",
+      "properties": {
+        "kind": { "const": "value" },
+        "property": { "type": "string" },
+        "operator": { "$ref": "#/$defs/operator" },
+        "value": { "type": "string" },
+        "units": { "$ref": "#/$defs/units" },
+        "qualifier": { "type": "string", "enum": ["MONTH", "QUARTER", "FISCAL_YEAR"] },
+        "valueTerm": { "type": "string", "description": "Used with qualifier, e.g. 'last'." },
+        "relativeTo": { "$ref": "#/$defs/relativeTo" }
+      },
+      "required": ["kind", "property", "operator"],
+      "additionalProperties": false
+    },
+    "rangeFilter": {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "range" },
+        "property": { "type": "string" },
+        "from": { "$ref": "#/$defs/bound" },
+        "to": { "$ref": "#/$defs/bound" },
+        "relativeTo": { "$ref": "#/$defs/relativeTo" }
+      },
+      "required": ["kind", "property", "from", "to"],
+      "additionalProperties": false
+    },
+    "bound": {
+      "type": "object",
+      "properties": {
+        "operator": { "$ref": "#/$defs/operator" },
+        "value": { "type": "string", "description": "Omit for an open bound at the reference point itself." },
+        "units": { "$ref": "#/$defs/units" }
+      },
+      "required": ["operator"],
+      "additionalProperties": false
+    },
+    "relativeTo": {
+      "type": "object",
+      "description": "Set exactly one of 'parameter' (e.g. $searchDate) or 'alias' (another result in this query).",
+      "properties": {
+        "parameter": { "type": "string" },
+        "alias": { "type": "string" },
+        "property": { "type": "string", "description": "Property of the aliased result; defaults to the filter's own property." }
+      },
+      "additionalProperties": false
+    },
+    "operator": { "type": "string", "enum": ["=", ">=", ">", "<=", "<", "startsWith", "notNull", "isNull", "contains"] },
+    "units": { "type": "string", "enum": ["DAYS", "MONTHS", "YEARS"] }
+  }
+}

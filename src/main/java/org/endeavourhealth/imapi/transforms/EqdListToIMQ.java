@@ -26,7 +26,7 @@ public class EqdListToIMQ {
       id = NAMESPACE.IM + "Q_RegisteredGMS";
     } else throw new EQDException("parent population at definition level");
     query.setIs(Node.iri(id)
-      .setIsCohort(true)
+      .setCohort(true)
       .setName(resources.reportNames.get(id)));
     resources.getQueryEntity().addObject(TTIriRef.iri(IM.DEPENDENT_ON), TTIriRef.iri(id));
     for (EQDOCListReport.ColumnGroups eqColGroups : eqReport.getListReport().getColumnGroups()) {
@@ -64,7 +64,7 @@ public class EqdListToIMQ {
         for (Path path : hasPaths.getPath()) {
           if (path.getIri() != null && path.getIri().equals(propertyPath[i])) {
             if (i == propertyPath.length - 3) {
-              return path.getNode();
+              return path.getAs();
             } else {
               nodeRef = getNodeRef(path, propertyPath, i + 2);
               if (nodeRef != null)
@@ -77,10 +77,10 @@ public class EqdListToIMQ {
       hasPaths.addPath(path);
       path.setIri(propertyPath[i]);
       path.setOptional(true);
-      path.setNode(resources.getAcronym(propertyPath[i + 1]));
+      path.setAs(resources.getAcronym(propertyPath[i + 1]));
       path.setTypeOf(new Node().setIri(propertyPath[i + 1]));
       if (i == propertyPath.length - 3)
-        return path.getNode();
+        return path.getAs();
       else return getNodeRef(path, propertyPath, i + 2);
     }
     return null;

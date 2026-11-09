@@ -515,9 +515,9 @@ public class IMQToOS {
   }
 
   private void addToInstanceFilters(Node type, String iri, Map<String, Set<String>> instanceFilters) {
-    if (type.isDescendantsOrSelfOf())
+    if (type.getEntails()==Entail.descendantsOrSelfOf)
       instanceFilters.computeIfAbsent("isA", i -> new HashSet<>()).add(iri);
-    else if (type.isMemberOf())
+    else if (type.getEntails()==Entail.memberOf)
       instanceFilters.computeIfAbsent("isMemberOf", i -> new HashSet<>()).add(iri);
     else
       instanceFilters.computeIfAbsent("iri", i -> new HashSet<>()).add(iri);

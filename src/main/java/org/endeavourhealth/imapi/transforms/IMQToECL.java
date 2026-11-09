@@ -174,7 +174,7 @@ public class IMQToECL {
   }
 
   private void match(Query query, StringBuilder ecl, boolean includeNames, boolean isNested) throws QueryException {
-    if ((query.getIs() == null || (query.getIs().getIri() == null && query.getIs().getMatch() == null)) && query.getOr() == null && query.getAnd() == null) {
+    if ((query.getIs() == null || (query.getIs().getIri() == null && query.getIs().getQuery() == null)) && query.getOr() == null && query.getAnd() == null) {
       if (query.getWhere() != null)
         ecl.append("*");
       else throw new QueryException("Must have concept if no refinement");
@@ -282,14 +282,14 @@ public class IMQToECL {
   }
 
   private void matchInstanceOf(Query query, StringBuilder ecl, boolean includeNames) throws QueryException {
-    if (query.getIs().getIri() == null && query.getIs().getMatch() == null && query.getWhere() == null)
+    if (query.getIs().getIri() == null && query.getIs().getQuery() == null && query.getWhere() == null)
       throw new QueryException("Must have concept if no refinement");
     if (query.getIs().isInvalid())
       setErrorStatus(ecl, "unknown concept");
-    if (query.getIs().getMatch() != null) {
+    if (query.getIs().getQuery() != null) {
       ecl.append(getSubsumption(query.getIs()));
       ecl.append("(");
-      expressionMatch(query.getIs().getMatch(), ecl, includeNames, false);
+      expressionMatch(query.getIs().getQuery(), ecl, includeNames, false);
       ecl.append(")");
     } else
       addClass(query.getIs(), ecl, includeNames);
@@ -378,19 +378,9 @@ public class IMQToECL {
 
 
   private String getSubsumption(Entailment exp) {
-    if (exp == null)
+    if (exp.getEntails()==null)
       return "";
-
-    String subsumption = "";
-    if (exp.isDescendantsOrSelfOf())
-      subsumption = "<< ";
-    else if (exp.isDescendantsOf())
-      subsumption = "< ";
-    else if (exp.isMemberOf())
-      subsumption = "^";
-    else if (exp.isAncestorsOf())
-      subsumption = ">>";
-    return subsumption;
+    else return exp.getEntails().getValue()+" ";
   }
 
 

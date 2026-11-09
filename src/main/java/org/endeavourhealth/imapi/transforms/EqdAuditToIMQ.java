@@ -28,7 +28,7 @@ public class EqdAuditToIMQ {
       popQuery
         .setNode(POPULATION)
         .setIs(Node.iri(finalPopId)
-          .setIsCohort(true)
+          .setCohort(true)
           .setName(resources.reportNames.get(finalPopId)));
       resources.getQueryEntity().addObject(iri(IM.DEPENDENT_ON), iri(finalPopId));
       Return populationReturn = new Return();
@@ -52,17 +52,17 @@ public class EqdAuditToIMQ {
               popQuery.addPath(path);
               path.setIri(NAMESPACE.IM + pathMap[1]);
               path.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[1]));
-              path.setNode(resources.getAcronym(path.getIri()) + "_" + eqColumn);
+              path.setAs(resources.getAcronym(path.getIri()) + "_" + eqColumn);
               for (int i = 2; i < pathMap.length - 1; i++) {
                 Path subPath = new Path();
                 path.addPath(subPath);
                 subPath.setIri(NAMESPACE.IM + pathMap[i]);
-                subPath.setNode(resources.getAcronym(path.getIri()));
+                subPath.setAs(resources.getAcronym(path.getIri()));
                 subPath.setTypeOf(new Node().setIri(NAMESPACE.IM + pathMap[i + 1]));
                 path = subPath;
               }
               popQuery.addReturn(new Return()
-                .setNodeRef(path.getNode())
+                .setNodeRef(path.getAs())
                 .as(eqColumn)
                 .setIri(pathMap[pathMap.length - 1]));
               popQuery.addGroupBy(new GroupBy().setPropertyRef(eqColumn));

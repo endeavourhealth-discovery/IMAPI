@@ -27,7 +27,7 @@ public class TestQueries {
         .setParameter("myDataModel"))
       .path(p -> p
         .setIri("http://www.w3.org/ns/shacl#property")
-        .setNode("shaclProperty"))
+        .setAs("shaclProperty"))
       .where(w -> w
         .and(p2 -> p2
           .setNodeRef("shaclProperty")
@@ -38,15 +38,15 @@ public class TestQueries {
           .or(p3 -> p3
             .setNodeRef("shaclProperty")
             .setIri(SHACL.CLASS)
-            .setNode("propType"))
+            .setAs("propType"))
           .or(p3 -> p3
             .setNodeRef("shaclProperty")
             .setIri(SHACL.NODE)
-            .setNode("propType"))
+            .setAs("propType"))
           .or(p3 -> p3
             .setNodeRef("shaclProperty")
             .setIri(SHACL.DATATYPE)
-            .setNode("propType"))))
+            .setAs("propType"))))
       .return_(r -> r
         .setNodeRef("propType")
         .setIri(RDFS.LABEL));
@@ -81,7 +81,7 @@ public class TestQueries {
           .setParameter("$dataModel"))
         .path(p -> p
           .setIri(SHACL.PROPERTY.toString())
-          .setNode("shaclProperty"))
+          .setAs("shaclProperty"))
         .where(w -> w
           .setNodeRef("shaclProperty")
           .setIri(SHACL.PATH)
@@ -148,7 +148,7 @@ public class TestQueries {
         .setNode("c")
         .setIs(new Node()
           .setParameter("this")
-          .setDescendantsOrSelfOf(true)));
+          .setEntails(Entail.descendantsOrSelfOf)));
   }
 
 
@@ -159,10 +159,10 @@ public class TestQueries {
         .setName("Filter concept subtypes that are members of value sets")
         .or(m -> m
           .setIs(new Node().setIri(NAMESPACE.SNOMED + "57148006")
-            .setDescendantsOrSelfOf(true)))
+            .setEntails(Entail.descendantsOrSelfOf)))
         .or(m -> m
           .setIs(new Node().setIri(NAMESPACE.SNOMED + "11164009")
-            .setDescendantsOrSelfOf(true)))
+            .setEntails(Entail.descendantsOrSelfOf)))
         .where(w -> w
           .setIri(IM.HAS_MEMBER)
           .setInverse(true)
@@ -184,7 +184,7 @@ public class TestQueries {
       .setQuery(new Query()
         .is(i -> i
           .setParameter("this")
-          .setDescendantsOrSelfOf(true))
+          .setEntails(Entail.descendantsOrSelfOf))
         .return_(p -> p.setIri(RDFS.LABEL))
         .return_(p -> p.setIri(IM.HAS_TERM_CODE)
           .return_(p1 -> p1.setIri(RDFS.LABEL)))
@@ -222,7 +222,7 @@ public class TestQueries {
       .setTypeOf(SHACL.NODESHAPE.toString())
       .path(p -> p
         .setIri(SHACL.PROPERTY.toString())
-        .setNode("shaclProperty"))
+        .setAs("shaclProperty"))
       .where(p1 -> p1
         .setNodeRef("shaclProperty")
         .setIri(SHACL.PATH)
@@ -245,7 +245,7 @@ public class TestQueries {
       .setName("AsthmaSubTypesCore");
     query
       .setIs(new Node()
-        .setIri(NAMESPACE.SNOMED + "195967001").setDescendantsOrSelfOf(true))
+        .setIri(NAMESPACE.SNOMED + "195967001").setEntails(Entail.descendantsOrSelfOf))
       .return_(p -> p.setIri(RDFS.LABEL))
       .return_(p -> p.setIri(IM.CODE));
     return new QueryRequest().setQuery(query);
@@ -307,7 +307,7 @@ public class TestQueries {
       .query(q -> q
         .setName("All subtypes of an entity, active only")
         .setActiveOnly(true)
-        .setIs(new Node().setParameter("this").setDescendantsOrSelfOf(true))
+        .setIs(new Node().setParameter("this").setEntails(Entail.descendantsOrSelfOf))
         .return_(r -> r.setIri(RDFS.LABEL)));
     qr.addArgument("this", NAMESPACE.SNOMED + "417928002");
     return qr;
@@ -328,17 +328,17 @@ public class TestQueries {
     Query query = new Query()
       .setName("oral none steroidals")
       .return_(s -> s.setIri(RDFS.LABEL))
-      .setIs(new Node().setIri(NAMESPACE.SNOMED + "763158003").setDescendantsOrSelfOf(true))
+      .setIs(new Node().setIri(NAMESPACE.SNOMED + "763158003").setEntails(Entail.descendantsOrSelfOf))
       .where(and -> and
         .and(a1 -> a1
           .setIri(NAMESPACE.SNOMED + "127489000")
-          .setDescendantsOrSelfOf(true)
+          .setEntails(Entail.descendantsOrSelfOf)
           .setAnyRoleGroup(true)
-          .addIs(new Node().setIri(NAMESPACE.SNOMED + "372665008").setDescendantsOrSelfOf(true)))
+          .addIs(new Node().setIri(NAMESPACE.SNOMED + "372665008").setEntails(Entail.descendantsOrSelfOf)))
         .and(a2 -> a2
-          .setIri(NAMESPACE.SNOMED + "411116001").setDescendantsOrSelfOf(true)
+          .setIri(NAMESPACE.SNOMED + "411116001").setEntails(Entail.descendantsOrSelfOf)
           .setAnyRoleGroup(true)
-          .addIs(Node.iri(NAMESPACE.SNOMED + "385268001").setDescendantsOrSelfOf(true))));
+          .addIs(Node.iri(NAMESPACE.SNOMED + "385268001").setEntails(Entail.descendantsOrSelfOf))));
 
     return new QueryRequest().setQuery(query);
 

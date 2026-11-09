@@ -56,13 +56,13 @@ public class Where extends Element implements Assignable {
   private TTIriRef qualifier;
   private List<Node> propertyList;
   private String propertyVariable;
-  private String node;
+  private String as;
   private List<IriLD> excludeProperty;
   private boolean exists;
   private boolean invalid;
   private boolean linked;
   private String valueTerm;
-  private Compare compare;
+  private ValueSource compare;
 
   public Where() {
   }
@@ -146,17 +146,17 @@ public class Where extends Element implements Assignable {
   }
 
 
-  public Compare getCompare() {
+  public ValueSource getCompare() {
     return this.compare;
   }
 
-  public Where setCompare(Compare compare) {
+  public Where setCompare(ValueSource compare) {
     this.compare = compare;
     return this;
   }
 
-  public Where compare(Consumer<Compare> builder) {
-    this.compare = new Compare();
+  public Where compare(Consumer<ValueSource> builder) {
+    this.compare = new ValueSource();
     builder.accept(this.compare);
     return this;
   }
@@ -298,12 +298,17 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public String getNode() {
-    return node;
+  public String getAs() {
+    return as;
   }
 
-  public Where setNode(String node) {
-    this.node = node;
+  public Where setAs(String as) {
+    this.as = as;
+    return this;
+  }
+
+  public Where setEntails(Entail entail) {
+    super.setEntails(entail);
     return this;
   }
 
@@ -405,10 +410,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public Where setAncestorsOf(boolean entailment) {
-    super.setAncestorsOf(entailment);
-    return this;
-  }
 
   public Where setName(String name) {
     super.setName(name);
@@ -434,10 +435,6 @@ public class Where extends Element implements Assignable {
     return this;
   }
 
-  public Where setDescendantsOrSelfOf(boolean entailment) {
-    super.setDescendantsOrSelfOf(entailment);
-    return this;
-  }
 
   @Override
   public String getValueTerm() {

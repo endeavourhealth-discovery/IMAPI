@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.logic.service;
 
 import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
-import software.amazon.awssdk.services.s3.endpoints.internal.Partition;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -69,8 +68,8 @@ public class IriCollector {
         collectMatchIris(subQuery, iriSet);
       }
     }
-    if (query.getEach() != null) {
-      for (Query subQuery : query.getEach()) {
+    if (query.getWith() != null) {
+      for (Query subQuery : query.getWith()) {
         collectMatchIris(subQuery, iriSet);
       }
     }
@@ -88,13 +87,13 @@ public class IriCollector {
     }
     if (query.getIs() != null) {
       Node node = query.getIs();
-      if (node.getMatch() != null)
-        collectMatchIris(node.getMatch(), iriSet);
+      if (node.getQuery() != null)
+        collectMatchIris(node.getQuery(), iriSet);
       else if (node.getIri() != null)
         iriSet.add(node.getIri());
     }
     for (List<Query> queries : Arrays.asList(query.getOr(), query.getAnd(),
-      query.getRule(),query.getUnion(),query.getEach())) {
+      query.getRule(),query.getUnion(),query.getWith())) {
       if (queries != null) {
         for (Query subQuery : queries) {
           collectMatchIris(subQuery, iriSet);
@@ -170,7 +169,7 @@ public class IriCollector {
       }
     }
     if (where.getCompare() != null) {
-      collectCompareIris(where.getCompare(), iriSet);
+      collectValueSourceIris(where.getCompare(), iriSet);
     }
     if (where.getQualifier() != null) {
       iriSet.add(where.getQualifier().getIri());
@@ -203,10 +202,7 @@ public class IriCollector {
 
   }
 
-  private static void collectCompareIris(Compare compare, Set<String> iriSet) {
-    collectValueSourceIris(compare.getLeft(), iriSet);
-    collectValueSourceIris(compare.getRight(), iriSet);
-  }
+
 
   private static void collectValueSourceIris(ValueSource source, Set<String> iriSet) {
     if (source.getIri() != null) {

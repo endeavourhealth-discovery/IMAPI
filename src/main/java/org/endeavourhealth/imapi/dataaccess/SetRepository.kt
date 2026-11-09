@@ -10,6 +10,7 @@ import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList
 import org.endeavourhealth.imapi.model.Pageable
 import org.endeavourhealth.imapi.model.iml.Concept
 import org.endeavourhealth.imapi.model.iml.Page
+import org.endeavourhealth.imapi.model.imq.Entail
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.model.imq.Query
 import org.endeavourhealth.imapi.model.imq.QueryException
@@ -50,7 +51,7 @@ class SetRepository {
     val newRequest = QueryRequest().setQuery(imQuery)
     if (page?.pageNumber != null && null != page.pageSize) newRequest.setPage(page)
     val sql = SparqlConverter(newRequest).getSelectSparql(statusFilter, false, false)
-    val entityVariable = imQuery.node ?: "entity"
+    val entityVariable = imQuery.`as` ?: "entity"
     IMDB.getConnection().use { conn ->
       val qry = conn.prepareTupleSparql(sql)
       return expand(qry, false, false, schemeFilter, entityVariable)
@@ -65,21 +66,21 @@ class SetRepository {
           .setOptional(true)
           .setIri(IM.HAS_SCHEME.toString())
           .setTypeOf(IM.CONCEPT.toString())
-          .setNode("scheme")
+          .setAs("scheme")
       }
       .path {
         it
           .setOptional(true)
           .setIri(IM.HAS_STATUS.toString())
           .setTypeOf(IM.CONCEPT.toString())
-          .setNode("status")
+          .setAs("status")
       }
       .path {
         it
           .setOptional(true)
           .setIri(RDF.TYPE.toString())
           .setTypeOf(IM.CONCEPT.toString())
-          .setNode(ENTITY_TYPE)
+          .setAs(ENTITY_TYPE)
       }
       .return_ { it.setNodeRef("entity") }
       .return_ { it.setNodeRef(ENTITY_TYPE) }
@@ -132,7 +133,7 @@ class SetRepository {
           it
             .setOptional(true)
             .setIri(IM.MATCHED_TO.toString())
-            .setNode("legacy")
+            .setAs("legacy")
             .setInverse(true)
             .setTypeOf(IM.CONCEPT.toString())
         }
@@ -141,7 +142,7 @@ class SetRepository {
             .setOptional(true)
             .setIri(IM.HAS_SCHEME.toString())
             .setTypeOf(IM.CONCEPT.toString())
-            .setNode("legacyScheme")
+            .setAs("legacyScheme")
         }
         .return_ { it.setNodeRef("legacy") }
         .return_ { it.setNodeRef("legacyScheme") }
@@ -161,7 +162,7 @@ class SetRepository {
           it
             .setOptional(true)
             .setIri(IM.LOCAL_SUBCLASS_OF.toString())
-            .setNode("legacy")
+            .setAs("legacy")
             .setInverse(true)
             .setTypeOf(IM.CONCEPT.toString())
         }
@@ -170,7 +171,7 @@ class SetRepository {
             .setOptional(true)
             .setIri(IM.HAS_SCHEME.toString())
             .setTypeOf(IM.CONCEPT.toString())
-            .setNode("legacyScheme")
+            .setAs("legacyScheme")
         }
         .return_ { it.setNodeRef("legacy") }
         .return_ { it.setNodeRef("legacyScheme") }
@@ -890,12 +891,7 @@ class SetRepository {
           node.setIri(bs.getValue("member").stringValue()).setName(bs.getValue("name").stringValue())
           if (bs.getValue("entailment") != null) {
             val entailment = bs.getValue("entailment").stringValue()
-            when (IM.from(entailment)) {
-              IM.DESCENDANTS_OR_SELF_OF -> node.setDescendantsOrSelfOf(true)
-              IM.DESCENDANTS_OF -> node.setDescendantsOf(true)
-              IM.ANCESTORS_OF -> node.setAncestorsOf(true)
-              else -> {}
-            }
+            node.setEntails(Entail.valueOf(entailment))
             if (bs.getValue("exclude") != null) {
               node.setExclude(true)
             }

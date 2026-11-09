@@ -2,6 +2,7 @@ package org.endeavourhealth.imapi.model.sql
 
 import org.endeavourhealth.imapi.model.imq.Node
 import org.endeavourhealth.imapi.errorhandling.SQLConversionException
+import org.endeavourhealth.imapi.model.imq.Entail
 
 interface MySQLWhere {
   val property: String?
@@ -220,7 +221,8 @@ class MySQLPropertyIsWhere(
     val blocks = values.map { node ->
       val iri = node.iri
       val selfValue =
-        if (!node.isDescendantsOf && !node.isAncestorsOf && !node.isDescendantsOrSelfOf && !node.isMemberOf) 1 else 0
+        if (node.entails!= Entail.descendantsOf && node.entails!= Entail.ancestorsOf && node.entails!=Entail.descendantsOrSelfOf
+          && node.entails!=Entail.memberOf) 1 else 0
       val base = if (selfValue == 0) "$conceptTable.parent $operator ${quoteSqlString(iri)}"
       else """(
         $conceptTable.parent $operator ${quoteSqlString(iri)}

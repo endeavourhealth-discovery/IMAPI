@@ -3,6 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
+import org.endeavourhealth.imapi.model.imq.Entail;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
@@ -62,7 +63,7 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .query(q -> q
         .is(n -> n.setIri("http://snomed.info/sct#57148006")
-          .setDescendantsOrSelfOf(true)));
+          .setEntails(Entail.descendantsOrSelfOf)));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
@@ -77,7 +78,7 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .query(q -> q
         .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-          .setMemberOf(true)));
+          .setEntails(Entail.memberOf)));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
@@ -92,9 +93,9 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .query(q -> q
         .is(n -> n.setIri("http://snomed.info/sct#57148006")
-          .setDescendantsOrSelfOf(true))
+          .setEntails(Entail.descendantsOrSelfOf))
         .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-          .setMemberOf(true)));
+          .setEntails(Entail.memberOf)));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(1, results.getEntities().size());
@@ -109,7 +110,7 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .setQuery(new Query()
         .is(n -> n.setIri("http://endhealth.info/im#VSET_ASD")
-          .setMemberOf(true)));
+          .setEntails(Entail.memberOf)));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(0, results.getEntities().size());
@@ -122,9 +123,9 @@ class OSQueryTest_OS {
       .setTextSearch("FOXG1")
       .query(q -> q
         .is(n -> n.setIri("http://snomed.info/sct#57148006")
-          .setDescendantsOrSelfOf(true))
+          .setEntails(Entail.descendantsOrSelfOf))
         .is(n -> n.setIri("http://endhealth.info/im#VSET_LongTermConditions")
-          .setMemberOf(true)));
+          .setEntails(Entail.memberOf)));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
     assertEquals(0, results.getEntities().size());

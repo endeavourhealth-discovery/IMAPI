@@ -114,7 +114,7 @@ public class QueryService {
     if (cohort != null) {
       Query cohortQuery = cohort.get(iri(IM.DEFINITION)).asLiteral().objectValue(Query.class);
       defaultQuery.setTypeOf(cohortQuery.getTypeOf());
-      defaultQuery.setIs(new Node().setIri(cohort.getIri()).setMemberOf(true));
+      defaultQuery.setIs(new Node().setIri(cohort.getIri()).setEntails(Entail.memberOf));
       return defaultQuery;
     } else return null;
   }
@@ -322,18 +322,27 @@ public class QueryService {
 
   public void checkDependency(TTEntity report, Query query) {
     if (query == null) return;
+    if (query.getIs()!=null){
+        if (query.getIs().isCohort()){
+          report.addObject(iri(IM.DENOMINATOR), iri(query.getIs().getIri()));
+        }
+      }
+    checkClauseDependency(report, query);
+  }
+  public void checkClauseDependency(TTEntity report, Query query) {
+    if (query == null) return;
     Node node = query.getIs();
     if (node != null && node.getIri() != null) {
       report.addObject(iri(IM.DEPENDENT_ON), iri(node.getIri()));
     }
-    for (List<Query> subQueries : Arrays.asList(query.getRule(), query.getAnd(), query.getOr(), query.getEach(), query.getUnion(), query.getColumnGroup())) {
+    for (List<Query> subQueries : Arrays.asList(query.getRule(), query.getAnd(), query.getOr(), query.getWith(), query.getUnion(), query.getColumnGroup())) {
       if (subQueries != null) {
         for (Query subQuery : subQueries) {
-          checkDependency(report, subQuery);
+          checkClauseDependency(report, subQuery);
         }
       }
     }
-    checkDependency(report, query.getThen());
+    checkClauseDependency(report, query.getThen());
   }
 
 

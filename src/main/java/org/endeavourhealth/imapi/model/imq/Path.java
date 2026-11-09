@@ -16,7 +16,7 @@ public class Path extends Element implements HasPaths {
   private String pathVariable;
   private Node typeOf;
   private TTIriRef qualifier;
-  private String node;
+  private String as;
   private Where where;
 
   public Where getWhere() {
@@ -33,12 +33,12 @@ public class Path extends Element implements HasPaths {
     return this;
   }
 
-  public String getNode() {
-    return node;
+  public String getAs() {
+    return as;
   }
 
-  public Path setNode(String node) {
-    this.node = node;
+  public Path setAs(String as) {
+    this.as = as;
     return this;
   }
 

@@ -2,7 +2,6 @@ package org.endeavourhealth.imapi.transforms;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.endeavourhealth.imapi.utility.SharedObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
@@ -255,7 +254,7 @@ public class EqdResources {
     }
     Query query = new Query();
     query.setIs(new Node().setIri(namespace + searchId)
-      .setIsCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
+      .setCohort(true).setName((String) this.reportNames.get(search.getReportGuid())));
     String finalSearchId = namespace + searchId;
     if (EqdToIMQ.gmsPatients.contains(searchId)) {
       finalSearchId = NAMESPACE.IM + "Q_RegisteredGMS";
@@ -598,9 +597,7 @@ public class EqdResources {
           relationWhere.setUnits(toUnits);
       }
     } else {
-      relationWhere.setCompare(new Compare());
-      relationWhere.getCompare().setLeft(relationLeft);
-      relationWhere.getCompare().setRight(relationRight);
+      relationWhere.setCompare(relationRight);
       relationWhere.setOperator(Operator.eq);
     }
     return childQuery;
@@ -627,9 +624,8 @@ public class EqdResources {
                             ValueSource relationLeft,
                             ValueSource relationRight) {
 
-    where.setCompare(new Compare());
-    where.getCompare().setLeft(relationLeft);
-    where.getCompare().setRight(relationRight);
+    where.setCompare(relationRight);
+
 
   }
 
@@ -695,7 +691,7 @@ public class EqdResources {
         Path pathMatch = query.getPath().getFirst();
         if (pathMatch.getIri().equals(pathIri) && pathMatch.isInverse() == inverse) {
           if (paths.length == 4) {
-            return pathMatch.getNode();
+            return pathMatch.getAs();
           }
           return this.getPathFromPath(pathMatch, paths, 3);
         }
@@ -707,18 +703,18 @@ public class EqdResources {
       pathMatch.setInverse(inverse);
       matchCounter++;
       String node = getAcronym(paths[2]) + "_" + matchCounter;
-      pathMatch.setNode(node);
+      pathMatch.setAs(node);
       ;
       pathMatch.setTypeOf((new Node()).setIri(paths[2]));
-      return paths.length == 4 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, 3);
+      return paths.length == 4 ? pathMatch.getAs() : this.getPathFromPath(pathMatch, paths, 3);
     }
   }
 
   public String getNodeRef(Path path) {
     if (path.getPath() != null) {
       Path pathMatch = path.getPath().getFirst();
-      if (pathMatch.getNode() != null && pathMatch.getPath() == null) {
-        return pathMatch.getNode();
+      if (pathMatch.getAs() != null && pathMatch.getPath() == null) {
+        return pathMatch.getAs();
       } else return getNodeRef(pathMatch);
     }
     return "";
@@ -735,7 +731,7 @@ public class EqdResources {
       Path subPathMatch = pathMatch.getPath().getFirst();
       if (subPathMatch.getIri().equals(pathIri) && subPathMatch.isInverse() == inverse) {
         if (paths.length == offset + 3) {
-          return subPathMatch.getNode();
+          return subPathMatch.getAs();
         }
         return this.getPathFromPath(subPathMatch, paths, offset + 2);
       }
@@ -747,9 +743,9 @@ public class EqdResources {
     subPathMatch.setInverse(inverse);
     matchCounter++;
     String node = getAcronym(paths[offset + 1]) + "_" + matchCounter;
-    subPathMatch.setNode(node);
+    subPathMatch.setAs(node);
     subPathMatch.setTypeOf((new Node()).setIri(paths[offset + 1]));
-    return paths.length == offset + 3 ? pathMatch.getNode() : this.getPathFromPath(pathMatch, paths, offset + 2);
+    return paths.length == offset + 3 ? pathMatch.getAs() : this.getPathFromPath(pathMatch, paths, offset + 2);
   }
 
   private void convertColumnValue(EQDOCColumnValue cv, Where pv) throws IOException, EQDException {
@@ -762,7 +758,7 @@ public class EqdResources {
         ++this.setCounter;
         String vsetName = "Unnamed library set " + this.setCounter;
         Node iri = (new Node()).setIri(this.namespace + vset).setName(vsetName);
-        iri.setMemberOf(true);
+        iri.setEntails(Entail.memberOf);
         pv.addIs(iri);
         if (!in)
           pv.setNot(true);
@@ -888,22 +884,15 @@ public class EqdResources {
         pv.setOperator(Operator.eq);
         pv.setValue("-1");
         pv.setValueTerm("last");
-        pv.setCompare(new Compare());
+        pv.setCompare(new ValueSource());
         pv.setQualifier(qualifier);
-        Compare diff = pv.getCompare();
-        diff.setLeft(new ValueSource()
-          .setIri(pv.getIri()).setNodeRef(pv.getNodeRef()));
-        diff.setRight(new ValueSource()
-          .setParameter("$searchDate"));
+        ValueSource diff = pv.getCompare();
+        diff.setParameter("$searchDate");
       } else if (value.equalsIgnoreCase("this")) {
         pv.setOperator(Operator.eq);
-        pv.setCompare(new Compare());
+        pv.setCompare(new ValueSource());
         pv.setQualifier(qualifier);
-        Compare comp = pv.getCompare();
-        comp.setLeft(new ValueSource()
-          .setIri(pv.getIri()).setNodeRef(pv.getNodeRef()));
-        comp.setRight(new ValueSource()
-          .setParameter("$searchDate"));
+        pv.getCompare().setParameter("$searchDate");
         pv.setValueTerm("this");
       }
     } else if (value.matches("^-?(\\d+(\\.\\d*)?|\\.\\d+)$")) {
@@ -1140,7 +1129,7 @@ public class EqdResources {
 
     TTIriRef cluster = this.getClusterSet(vs);
     if (cluster != null) {
-      pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setMemberOf(true));
+      pv.addIs((new Node()).setIri(cluster.getIri()).setName(cluster.getName()).setEntails(Entail.memberOf));
       if (!in) pv.setNot(true);
     } else {
       Set<Node> setContent = new HashSet<>();
@@ -1148,7 +1137,7 @@ public class EqdResources {
         Set<Node> setMembers = this.processEQDOCValueSetValue(scheme, ev);
         if (!setMembers.isEmpty()) {
           for (Node memberOrConcept : setMembers) {
-            if (memberOrConcept.isMemberOf()) {
+            if (memberOrConcept.getEntails()==Entail.memberOf) {
               String setIri = memberOrConcept.getIri();
               TTEntity usedIn = EqdToIMQ.setIriToEntity.get(setIri);
               if (usedIn == null) {
@@ -1168,7 +1157,7 @@ public class EqdResources {
       if (scheme == VocCodeSystemEx.SCT_CONST) {
         Query eclQuery = this.convertToEcl(scheme, setContent);
         TTEntity valueSet = this.createValueSet(vs, eclQuery, setContent);
-        pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+        pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setEntails(Entail.memberOf));
         if (!in) pv.setNot(true);
         pv.setValueLabel(valueSet.getName() + (eclQuery.notExists() ? " (+exclusions)" : ""));
       } else {
@@ -1197,14 +1186,14 @@ public class EqdResources {
               name = this.getShortName(node.getName(), previous);
               previous = name;
             }
-            if (node.isMemberOf()) {
+            if (node.getEntails() == Entail.memberOf) {
               pv.addIs(node);
               if (!in) pv.setNot(true);
             }
           }
-          Set<Node> conceptContent = setContent.stream().filter(c -> !c.isMemberOf()).collect(Collectors.toSet());
+          Set<Node> conceptContent = setContent.stream().filter(c -> c.getEntails()!=Entail.memberOf).collect(Collectors.toSet());
           TTEntity valueSet = this.createValueSet(vs, conceptContent);
-          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setMemberOf(true));
+          pv.addIs((new Node()).setIri(valueSet.getIri()).setName(valueSet.getName()).setEntails(Entail.memberOf));
           if (!in) pv.setNot(true);
           pv.setValueLabel(valueSet.getName() + exclusions);
         }
@@ -1271,7 +1260,7 @@ public class EqdResources {
     } else {
       if (ev.isIncludeChildren()) {
         for (Node node : concepts) {
-          node.setDescendantsOrSelfOf(true);
+          node.setEntails(Entail.descendantsOrSelfOf);
         }
       }
 
@@ -1282,7 +1271,7 @@ public class EqdResources {
             if (exceptionValue != null) {
               for (Node node : exceptionValue) {
                 if (val.isIncludeChildren()) {
-                  node.setDescendantsOrSelfOf(true);
+                  node.setEntails(Entail.descendantsOrSelfOf);
                 }
 
                 node.setExclude(true);
@@ -1381,7 +1370,7 @@ public class EqdResources {
         n.setIri(e.getIri());
         n.setName(e.getName());
         if (Set.of(iri(IM.CONCEPT_SET), iri(IM.VALUESET)).stream().anyMatch(e.getType()::contains))
-          n.setMemberOf(true);
+          n.setEntails(Entail.memberOf);
         return n;
       })
       .collect(Collectors.toSet());
@@ -1489,18 +1478,11 @@ public class EqdResources {
         if (node.isExclude()) {
           instance.set(iri(IM.EXCLUDE), TTLiteral.literal(true));
         }
+        if (node.getEntails() != null){
+          instance.set(iri(IM.ENTAILMENT), TTLiteral.literal(node.getEntails().getValue()));
+      }
 
-        if (node.isAncestorsOf()) {
-          instance.set(iri(IM.ENTAILMENT), iri(IM.ANCESTORS_OF));
-        }
 
-        if (node.isDescendantsOf()) {
-          instance.set(iri(IM.ENTAILMENT), iri(IM.DESCENDANTS_OF));
-        }
-
-        if (node.isDescendantsOrSelfOf()) {
-          instance.set(iri(IM.ENTAILMENT), iri(IM.DESCENDANTS_OR_SELF_OF));
-        }
       }
 
       EqdToIMQ.definitionToEntity.put(entailedMembers, valueSet);

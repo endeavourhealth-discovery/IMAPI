@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.endeavourhealth.imapi.dataaccess.opensearch.Fuzziness;
 import org.endeavourhealth.imapi.model.iml.Page;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.TextSearchStyle;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.utility.SharedObjectMapper;
 import org.endeavourhealth.imapi.vocabulary.IM;
@@ -58,7 +55,7 @@ class IMQToOSSnapshotTest {
     Query scheme = new Query().setWhere(new Where().setIri(IM.HAS_SCHEME).setIs(List.of(new Node().setIri(NAMESPACE.SNOMED.toString()))));
     cases.put("ngram_scheme", () -> build(request("FOXG1", scheme), scheme, TextSearchStyle.ngram, Fuzziness.ZERO));
 
-    Query isA = new Query().setIs(new Node().setIri("http://snomed.info/sct#57148006").setDescendantsOrSelfOf(true));
+    Query isA = new Query().setIs(new Node().setIri("http://snomed.info/sct#57148006").setEntails(Entail.descendantsOrSelfOf));
     cases.put("ngram_isa", () -> build(request("FOXG1", isA), isA, TextSearchStyle.ngram, Fuzziness.ZERO));
 
     Query member = new Query().setWhere(new Where().setIri(IM.HAS_MEMBER).setInverse(true).setIs(List.of(new Node().setIri("http://endhealth.info/im#VSET_ASD"))));

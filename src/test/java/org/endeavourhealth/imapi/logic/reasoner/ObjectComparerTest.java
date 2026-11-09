@@ -20,7 +20,7 @@ class ObjectComparerTest {
       .setIri(NAMESPACE.IM + "124")
       .setName("match")
       .where(w1 -> w1.setIri(NAMESPACE.IM + "abc")
-        .setNode("1234"));
+        .setAs("1234"));
 
     System.out.println(LogicComparer.compareMatches(query1, query2));
 

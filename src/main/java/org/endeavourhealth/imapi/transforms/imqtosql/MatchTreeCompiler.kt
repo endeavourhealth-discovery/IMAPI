@@ -247,7 +247,7 @@ internal class MatchTreeCompiler(
     }
 
     if (match.path != null) pathJoinBuilder.addPathTableAndJoins(match.path, mySQLQuery.nodeToTableMap, with, addJoins = true)
-    if (match.node != null) mySQLQuery.nodeToTableMap[match.node] = with.table
+    if (match.`as` != null) mySQLQuery.nodeToTableMap[match.`as`] = with.table
     with.alias = aliases.useAs(requireAs(match))
 
     if (match.where != null) {

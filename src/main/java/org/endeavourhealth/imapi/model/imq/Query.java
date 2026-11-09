@@ -11,15 +11,15 @@ import java.util.function.Consumer;
   "name",
   "description",
   "notExists",
-  "from",
-  "typeOf",
-  "and",
-  "ifTrue",
-  "ifFalse",
   "is",
-  "path",
+  "with",
+  "typeOf",
+  "from",
   "and",
   "or",
+  "ifTrue",
+  "ifFalse",
+  "path",
   "where",
   "return",
   "orderBy"
@@ -52,13 +52,12 @@ public class Query implements HasPaths, Returnable {
   private List<Query> or;
   private List<Query> and;
   private List<Query> rule;
-  private List<Query> each;
+  private List<Query> with;
   private List<Query> union;
   private String libraryItem;
   private boolean invalid;
   private Node is;
   private List<GroupBy> groupBy;
-  private String node;
   private OrderLimit orderBy;
   private String asDescription;
   private boolean notExists;
@@ -139,17 +138,17 @@ public class Query implements HasPaths, Returnable {
     isTest = test;
     return this;
   }
-public List<Query> getEach() {
-  return each;
+public List<Query> getWith() {
+  return with;
 }
 
-public Query setEach(List<Query> each) {
-  this.each = each;
+public Query setWith(List<Query> with) {
+  this.with = with;
   return this;
 }
 public Query addEach(Query query) {
-  if (this.each == null) this.each = new ArrayList<>();
-  this.each.add(query);
+  if (this.with == null) this.with = new ArrayList<>();
+  this.with.add(query);
   return this;
 }
 public Query each(Consumer<Query> builder) {
@@ -169,9 +168,6 @@ public Query each(Consumer<Query> builder) {
   public Query setAs(String as){
     this.as = as;
     return this;
-  }
-  public String getAs(){
-    return as;
   }
   public String getUuid() {
     return uuid;
@@ -647,12 +643,12 @@ public Query each(Consumer<Query> builder) {
     return this;
   }
 
-  public String getNode() {
-    return node;
+  public String getAs() {
+    return as;
   }
 
-  public Query setNode(String node) {
-    this.node = node;
+  public Query setNode(String alias) {
+    this.as= alias;
     return this;
   }
 

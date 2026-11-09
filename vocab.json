@@ -106,24 +106,12 @@
         "value": "NAMESPACE.IM + \"ValueSet\""
       },
       {
-        "name": "DESCENDANTS_OR_SELF_OF",
-        "value": "NAMESPACE.IM + \"DescendantsOrSelfOf\""
-      },
-      {
-        "name": "DESCENDANTS_OF",
-        "value": "NAMESPACE.IM + \"DescendantsOf\""
-      },
-      {
         "name": "IS_RELATIVE_VALUE",
         "value": "NAMESPACE.IM + \"isRelativeValue\""
       },
       {
         "name": "FULLY_SPECIFIED_NAME",
         "value": "NAMESPACE.IM + \"fullySpecifiedName\""
-      },
-      {
-        "name": "ANCESTORS_OF",
-        "value": "NAMESPACE.IM + \"AncestorsOf\""
       },
       {
         "name": "ENTAILED_MEMBER",

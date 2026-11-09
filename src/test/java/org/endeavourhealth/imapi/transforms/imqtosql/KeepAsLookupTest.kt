@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Test
 
 class KeepAsLookupTest {
-  private fun match(node: String, type: String) = Query().setNode(node).setTypeOf(type)
+  private fun match(node: String, type: String) = Query().setAs(node).setTypeOf(type)
 
   @Test
   fun findsNodesInAndOrAndColumnGroups() {

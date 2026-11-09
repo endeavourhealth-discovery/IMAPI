@@ -182,6 +182,8 @@ public class TTBulkFiler implements TTDocumentFiler {
       TTToNQuad converter = new TTToNQuad();
       log.info("Writing document entities...");
       for (TTEntity entity : document.getEntities()) {
+        if (entity.getIri().equals("http://snomed.info/sct#363071007"))
+          System.out.println("Found entity 363071007");
         counter++;
         if (entity.get(IM.PRIVACY_LEVEL.asIri()) != null && (entity.get(IM.PRIVACY_LEVEL.asIri()).asLiteral().intValue() > getPrivacyLevel()))
           continue;

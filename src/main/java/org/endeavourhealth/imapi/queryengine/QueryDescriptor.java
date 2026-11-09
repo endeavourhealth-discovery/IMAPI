@@ -241,8 +241,8 @@ public class QueryDescriptor {
       return getTermInContext(node.getIri(), context);
     } else if (node.getPropertyVariable() != null) {
       return node.getPropertyVariable();
-    } else if (node.getNode() != null) {
-      return node.getNode();
+    } else if (node.getAs() != null) {
+      return node.getAs();
     } else if (node.getNodeRef() != null) {
       return node.getNodeRef();
     } else return "";
@@ -267,8 +267,8 @@ public class QueryDescriptor {
         describeMatch(subQuery);
       }
     }
-    if (query.getEach() != null) {
-      for (Query subQuery : query.getEach()) {
+    if (query.getWith() != null) {
+      for (Query subQuery : query.getWith()) {
         describeMatch(subQuery);
       }
     }
@@ -284,7 +284,7 @@ public class QueryDescriptor {
     if (query.getIs() != null) {
       describeIs(query.getIs());
     }
-    for (List<Query> subQueries : Arrays.asList(query.getRule(), query.getAnd(), query.getOr(), query.getUnion(), query.getEach())) {
+    for (List<Query> subQueries : Arrays.asList(query.getRule(), query.getAnd(), query.getOr(), query.getUnion(), query.getWith())) {
       if (subQueries != null) {
         for (Query subQuery : subQueries) {
           describeMatch(subQuery);
@@ -360,14 +360,14 @@ public class QueryDescriptor {
     if (set.isExclude()) {
       qualifier = "but not ";
     }
-    if (set.isMemberOf()) {
+    if (set.getEntails() == Entail.memberOf) {
       qualifier = qualifier + "in ";
     } else qualifier = qualifier + "is a";
     String label = getTermInContext(set);
     set.setName(label);
     set.setDescription(qualifier);
-    if (set.getMatch() != null) {
-      describeMatch(set.getMatch());
+    if (set.getQuery() != null) {
+      describeMatch(set.getQuery());
     }
   }
 
@@ -412,7 +412,7 @@ public class QueryDescriptor {
     }
     describeAssignable(where);
     if (where.getCompare() != null) {
-      describeCompare(where.getCompare());
+      describeValueSource(where.getCompare());
     }
   }
 
@@ -424,11 +424,6 @@ public class QueryDescriptor {
 
   }
 
-  private void describeCompare(Compare compare) {
-    describeValueSource(compare.getLeft());
-    describeValueSource(compare.getRight());
-
-  }
 
   private void describeValueSource(ValueSource source) {
     if (source.getIri() != null) {

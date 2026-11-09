@@ -17,8 +17,16 @@ public class Node extends Element {
   private Query query;
   private String node;
   private String qualifier;
+  private boolean cohort;
 
   public Node() {
+  }
+
+
+
+  public Node setEntails(Entail entails){
+    super.setEntails(entails);
+    return this;
   }
 
   public static Node iri(String iri) {
@@ -36,29 +44,26 @@ public class Node extends Element {
     return this;
   }
 
-  public Query getMatch() {
+  public Query getQuery() {
     return query;
   }
 
-  public Node setMatch(Query query) {
+  public Node setQuery(Query query) {
     this.query = query;
     return this;
   }
 
-  public Node match(Consumer<Query> match) {
+  public Node query(Consumer<Query> match) {
     Query m = new Query();
     match.accept(m);
     this.query = m;
     return this;
   }
 
-  public Node setIsResultSet(boolean resultSet) {
-    super.setIsResultSet(resultSet);
-    return this;
-  }
 
-  public Node setIsCohort(boolean isCohort) {
-    super.setIsCohort(isCohort);
+
+  public Node setCohort(boolean isCohort) {
+    super.setCohort(isCohort);
     return this;
   }
 
@@ -108,25 +113,7 @@ public class Node extends Element {
     return this;
   }
 
-  public Node setAncestorsOf(boolean ancestorsOf) {
-    super.setAncestorsOf(ancestorsOf);
-    return this;
-  }
 
-  public Node setDescendantsOrSelfOf(boolean descendantsOrSelfOf) {
-    super.setDescendantsOrSelfOf(descendantsOrSelfOf);
-    return this;
-  }
-
-  public Node setDescendantsOf(boolean descendantsOf) {
-    super.setDescendantsOf(descendantsOf);
-    return this;
-  }
-
-  public Node setMemberOf(boolean memberOf) {
-    super.setMemberOf(memberOf);
-    return this;
-  }
 
   @JsonSetter
   public Node setIri(String iri) {

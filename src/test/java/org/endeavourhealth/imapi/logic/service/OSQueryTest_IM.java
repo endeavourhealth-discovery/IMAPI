@@ -3,10 +3,7 @@ package org.endeavourhealth.imapi.logic.service;
 import org.endeavourhealth.imapi.dataaccess.OSQuery;
 import org.endeavourhealth.imapi.errorhandling.DataMissingException;
 import org.endeavourhealth.imapi.model.customexceptions.OpenSearchException;
-import org.endeavourhealth.imapi.model.imq.Argument;
-import org.endeavourhealth.imapi.model.imq.Node;
-import org.endeavourhealth.imapi.model.imq.Query;
-import org.endeavourhealth.imapi.model.imq.Where;
+import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.model.requests.QueryRequest;
 import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
@@ -70,7 +67,7 @@ class OSQueryTest_IM {
       .setTextSearch("FOXG1")
       .setQuery(new Query()
         .setIs(new Node().setIri("http://snomed.info/sct#57148006")
-          .setDescendantsOrSelfOf(true)
+          .setEntails(Entail.descendantsOrSelfOf)
         ));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);
@@ -88,7 +85,7 @@ class OSQueryTest_IM {
       ))
       .setQuery(new Query()
         .setIs(new Node().setParameter("$isas")
-          .setDescendantsOrSelfOf(true)
+          .setEntails(Entail.descendantsOrSelfOf)
         ));
 
     SearchResponse results = osq.OSQueryAsSearchResponse(req);

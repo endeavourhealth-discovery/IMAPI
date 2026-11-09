@@ -11,5 +11,5 @@ public interface HasPaths {
 
   HasPaths addPath(Path path);
 
-  String getNode();
+  String getAs();
 }

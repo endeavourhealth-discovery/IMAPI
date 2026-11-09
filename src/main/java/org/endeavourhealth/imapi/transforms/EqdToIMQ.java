@@ -311,13 +311,13 @@ public class EqdToIMQ {
     Query mainQuery = queryEntity.get(IM.DEFINITION).asLiteral().objectValue(Query.class);
     mainQuery.setRule(null);
     mainQuery.addRule(query.getRule().getFirst());
-    String parentIri = query.getRule().getFirst().getIs().getIri();
+    String parentIri = query.getIs().getIri();
     for (int ruleNumber = 1; ruleNumber < query.getRule().size(); ruleNumber++) {
       Query rule = query.getRule().get(ruleNumber);
       if (rule.getAnd()!=null || rule.getOr()!=null) {
         TTEntity subEntity = createSubQuery(rule, ruleNumber, parentIri, queryEntity.getName(), splitQueries);
         Query newRule= new Query()
-          .setIs(new Node().setIri(subEntity.getIri()).setIsCohort(true).setName(subEntity.getName()))
+          .setIs(new Node().setIri(subEntity.getIri()).setCohort(true).setName(subEntity.getName()))
           .setIfTrue(rule.getIfTrue())
           .setIfFalse(rule.getIfFalse());
         mainQuery.addRule(newRule);
@@ -360,7 +360,7 @@ public class EqdToIMQ {
     query.addAnd(new Query()
       .setIs(new Node()
         .setIri(parentIri)
-        .setIsCohort(true)));
+        .setCohort(true)));
     queryEntity.set(IM.DEFINITION, TTLiteral.literal(query));
     return queryEntity;
   }
@@ -483,6 +483,7 @@ public class EqdToIMQ {
       return null;
     } else {
       //flattenRules(qry);
+      new QueryService().checkDependency(queryEntity,qry);
       queryEntity.addType(iri(IM.QUERY));
       if (qry.getColumnGroup() != null && !eqReport.getName().toLowerCase().contains("report")) {
         queryEntity.setName(eqReport.getName() + " -report");

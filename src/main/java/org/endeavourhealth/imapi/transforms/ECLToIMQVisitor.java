@@ -239,7 +239,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
       } else if (match != null && node != null && nested) {
         Query outerMatch = new Query();
         outerMatch.setIs(node);
-        node.setMatch(match);
+        node.setQuery(match);
         return outerMatch;
       } else if (match != null) {
         return match;
@@ -357,49 +357,49 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
 
   @Override
   public Object visitMemberof(IMECLParser.MemberofContext ctx) {
-    return new Node().setMemberOf(true);
+    return new Node().setEntails(Entail.memberOf);
   }
 
   @Override
   public Object visitDescendantof(IMECLParser.DescendantofContext ctx) {
-    return new Node().setDescendantsOf(true);
+    return new Node().setEntails(Entail.descendantsOf);
 
   }
 
   @Override
   public Object visitDescendantorselfof(IMECLParser.DescendantorselfofContext ctx) {
-    return new Node().setDescendantsOrSelfOf(true);
+    return new Node().setEntails(Entail.descendantsOrSelfOf);
   }
 
   @Override
   public Object visitChildof(IMECLParser.ChildofContext ctx) {
-    return new Node().setChildOf(true);
+    return new Node().setEntails(Entail.childOf);
   }
 
   @Override
   public Object visitChildorselfof(IMECLParser.ChildorselfofContext ctx) {
-    return new Node().setChildOrSelfOf(true);
+    return new Node().setEntails(Entail.childOrSelfOf);
   }
 
   @Override
   public Object visitAncestorof(IMECLParser.AncestorofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().setEntails(Entail.ancestorsOf);
   }
 
   @Override
   public Object visitAncestororselfof(IMECLParser.AncestororselfofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().setEntails(Entail.ancestorsOf);
   }
 
   @Override
   public Object visitParentof(IMECLParser.ParentofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().setEntails(Entail.ancestorsOf);
   }
 
 
   @Override
   public Object visitParentorselfof(IMECLParser.ParentorselfofContext ctx) {
-    return new Node().setAncestorsOf(true);
+    return new Node().setEntails(Entail.ancestorsOf);
   }
 
   @Override
@@ -540,11 +540,7 @@ public class ECLToIMQVisitor extends IMECLBaseVisitor<Object> {
             where = new Where();
             where.setIri(node.getIri());
             where.setName(node.getName());
-            where.setDescendantsOf(node.isDescendantsOf());
-            where.setDescendantsOrSelfOf(node.isDescendantsOrSelfOf());
-            where.setChildOf(node.isChildOf());
-            where.setChildOrSelfOf(node.isChildOrSelfOf());
-            where.setAncestorsOf(node.isAncestorsOf());
+            where.setEntails(node.getEntails());
             if (reverseFlag)
               where.setInverse(reverseFlag);
           } else {

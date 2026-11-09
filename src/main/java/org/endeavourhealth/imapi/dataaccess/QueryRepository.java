@@ -183,12 +183,12 @@ public class QueryRepository {
     try (TupleQueryResult rs = sparqlQuery(spq, conn)) {
       while (rs.hasNext()) {
         BindingSet bs = rs.next();
-        if (bs.getValue(query.getNode()) != null) {
-          entity = nodeMap.get(bs.getValue(query.getNode()).stringValue());
+        if (bs.getValue(query.getAs()) != null) {
+          entity = nodeMap.get(bs.getValue(query.getAs()).stringValue());
           if (entity == null) {
             entity = mapper.createObjectNode();
             entities.add(entity);
-            entity.put("iri", bs.getValue(query.getNode()).stringValue());
+            entity.put("iri", bs.getValue(query.getAs()).stringValue());
           }
         } else {
           entity = null;

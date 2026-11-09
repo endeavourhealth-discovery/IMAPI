@@ -14,6 +14,7 @@ import org.endeavourhealth.imapi.model.responses.SearchResponse;
 import org.endeavourhealth.imapi.model.tripletree.TTContext;
 import org.endeavourhealth.imapi.transforms.TTManager;
 import org.endeavourhealth.imapi.vocabulary.GRAPH;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,6 +25,11 @@ import java.util.Set;
 
 class SearchServiceTest {
 
+ // @Test
+
+  void expandSet() throws QueryException, JsonProcessingException {
+    new SetMemberGenerator().generateMembers("http://endhealth.info/im#CSET_OralCorticosteroids",GRAPH.IM);
+  }
 
   //@Test
   void os() throws QueryException, OpenSearchException, DataMissingException {

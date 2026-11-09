@@ -19,7 +19,7 @@ public class ObjectCreatorTester {
         .setOptional(true)
         .setIri(IM.HAS_SCHEME)
         .setTypeOf(IM.CONCEPT)
-        .setNode("scheme"))
+        .setAs("scheme"))
       .return_(s -> s
         .setIri(RDFS.LABEL).as("term"))
       .return_(s -> s
@@ -41,7 +41,7 @@ public class ObjectCreatorTester {
       {
         path : [ {
         iri : im:scheme,
-          node : scheme,
+          as : scheme,
           optional : true,
           typeOf : {
             iri : im:Concept

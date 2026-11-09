@@ -111,7 +111,7 @@ class PathRepository {
               .setName(bs.getValue("whereLabel").stringValue())
               .addIs(
                 Node().setIri(target).setName(bs.getValue("targetName").stringValue())
-                  .setDescendantsOrSelfOf(true)
+                  .setEntails(Entail.descendantsOrSelfOf)
               )
           )
           if (pathVariable != null && query.where != null) query.where.setNodeRef(pathVariable)

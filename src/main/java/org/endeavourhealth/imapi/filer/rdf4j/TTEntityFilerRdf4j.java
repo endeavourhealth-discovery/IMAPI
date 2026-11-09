@@ -95,7 +95,8 @@ public class TTEntityFilerRdf4j implements TTEntityFiler {
     }
 
     if (entity.get(TTIriRef.iri(RDFS.LABEL)) != null
-      && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null)
+      && entity.get(TTIriRef.iri(IM.HAS_STATUS)) == null
+    &&entity.getCrud()!=null&& entity.getCrud().equals(TTIriRef.iri(IM.REPLACE_ALL_PREDICATES)))
       entity.set(IM.HAS_STATUS.asIri(), IM.ACTIVE.asIri());
     if (entity.getCrud().equals(TTIriRef.iri(IM.UPDATE_PREDICATES))) {
       updatePredicates(entity);

@@ -25,7 +25,7 @@ internal class KeepAsLookup(private val queryRequest: QueryRequest) {
 
   private fun indexMatches(match: Query?, index: MutableMap<String, Query>) {
     if (match == null) return
-    match.node?.let { index.putIfAbsent(it, match) }
+    match.`as`?.let { index.putIfAbsent(it, match) }
     match.and?.forEach { indexMatches(it, index) }
     match.or?.forEach { indexMatches(it, index) }
   }

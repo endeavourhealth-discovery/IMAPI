@@ -5,10 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.function.Consumer;
 
 import lombok.Getter;
-import org.endeavourhealth.imapi.model.imq.Assignable;
-import org.endeavourhealth.imapi.model.imq.Compare;
-import org.endeavourhealth.imapi.model.imq.FunctionClause;
-import org.endeavourhealth.imapi.model.imq.Operator;
 import org.endeavourhealth.imapi.model.tripletree.TTIriRef;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)

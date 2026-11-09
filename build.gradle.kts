@@ -32,9 +32,6 @@ repositories {
   mavenLocal()
 }
 
-val ENV = System.getenv("ENV") ?: "dev"
-println("Build environment = [$ENV]")
-
 val CI = System.getenv("CI") ?: "false"
 if (CI == "false") {
   tasks.named<JavaCompile>("compileJava") {
@@ -46,7 +43,12 @@ if (CI == "false") {
 
 // `gradle build` (local or CI) compiles and runs the unit tests. Sonar is never part of it; CI runs `gradle sonar` instead,
 // which does the build and unit tests, then the jacoco coverage report, then uploads to Sonar.
-tasks.sonar { dependsOn(tasks.build, tasks.jacocoTestReport) }
+val ENV = System.getenv("ENV")?.uppercase() ?: "DEV"
+println("Build environment = [$ENV]")
+
+if (ENV == "DEV") {
+  tasks.sonar { dependsOn(tasks.build, tasks.jacocoTestReport) }
+}
 
 publishing {
   publications {

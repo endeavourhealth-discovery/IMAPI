@@ -507,8 +507,7 @@ public class EqdResources {
     String table = eqLinkedCriterion.getTable();
     String child = this.getIMPath(table + "/" + eqRelationship.getChildColumn());
     ValueSource relationLeft = new ValueSource();
-    relationLeft
-      .setIri(child.substring(child.lastIndexOf(" ") + 1));
+    relationWhere.setIri(child.substring(child.lastIndexOf(" ") + 1));
     String parentProperty = eqRelationship.getParentColumn();
     if (!parentProperty.contains("DATE") && !parentProperty.contains("DOB"))
       throw new EQDException("No match found for linked criterion parent property");

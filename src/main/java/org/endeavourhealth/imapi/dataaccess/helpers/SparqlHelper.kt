@@ -11,6 +11,10 @@ object SparqlHelper {
     return if (bs.hasBinding(s) && bs.getValue(s) != null) bs.getValue(s).stringValue()
     else null
   }
+  @JvmStatic
+  fun value(param: String, iri: String?): String {
+    return "VALUES ?${param} {<${iri}>}";
+  }
 
   @JvmStatic
   fun valueList(param: String, iris: MutableCollection<String>?): String {

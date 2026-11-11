@@ -8,6 +8,7 @@ import org.endeavourhealth.imapi.model.imq.*;
 import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
 import org.endeavourhealth.imapi.logic.service.QueryService;
 import org.endeavourhealth.imapi.model.customexceptions.EQDException;
+import org.endeavourhealth.imapi.queryengine.QueryValidator;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCCriterion;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCFolder;
 import org.endeavourhealth.imapi.transforms.eqd.EQDOCReport;
@@ -482,6 +483,7 @@ public class EqdToIMQ {
     if (qry == null) {
       return null;
     } else {
+      new QueryValidator().validateQuery(qry);
       //flattenRules(qry);
       new QueryService().checkDependency(queryEntity,qry);
       queryEntity.addType(iri(IM.QUERY));

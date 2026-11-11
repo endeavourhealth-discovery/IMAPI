@@ -7,8 +7,10 @@ import org.endeavourhealth.imapi.model.imq.DisplayMode;
 import org.endeavourhealth.imapi.model.imq.Query;
 import org.endeavourhealth.imapi.model.imq.QueryException;
 import org.endeavourhealth.imapi.queryengine.LogicOptimizer;
+import org.junit.jupiter.api.Test;
 
 public class QueryLogicTest {
+
   // @Test
   public void optimiseQuery() throws QueryException, JsonProcessingException {
     Query query = new QueryService().getQueryFromIri("http://endhealth.info/im#Q_TestQuery");

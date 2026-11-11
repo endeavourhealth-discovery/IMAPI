@@ -6,7 +6,9 @@ import org.eclipse.rdf4j.query.BindingSet
 import org.eclipse.rdf4j.query.TupleQuery
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB.Companion.getConnection
+import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.value
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList
+import org.endeavourhealth.imapi.logic.reasoner.SetDefinitionCompressor
 import org.endeavourhealth.imapi.model.Pageable
 import org.endeavourhealth.imapi.model.iml.Concept
 import org.endeavourhealth.imapi.model.iml.Page
@@ -248,7 +250,7 @@ class SetRepository {
     entityVariable: String,
     setVariable: String?
   ): Map<String, MutableSet<Concept>> {
-    val resultBySet = hashMapOf<String, Set<Concept>>()
+    val resultBySet = hashMapOf<String, MutableSet<Concept>>()
     val coreSchemes: MutableSet<String> = VocabUtils.asHashSet(NAMESPACE.SNOMED, NAMESPACE.IM)
     val conceptMap: MutableMap<String, Concept> = mutableMapOf()
     qry.evaluate().use { rs ->
@@ -258,13 +260,15 @@ class SetRepository {
         val concept = bs.getValue(entityVariable).stringValue()
         val conceptKey = setKey + "\n" + concept
         var cl = conceptMap[conceptKey]
+        val resultSet = resultBySet.computeIfAbsent(setKey) { hashSetOf() }
+
         val scheme = bs.getValue("scheme")
         if (cl == null) {
           cl = buildConcept(
             concept,
             conceptKey,
             conceptMap,
-            resultBySet.computeIfAbsent(setKey) { hashSetOf() }.toMutableSet(),
+            resultSet,
             bs
           )
           if (subsumedBy) cl.isSubsumed = bs.getValue("subsumed").stringValue() == "Y"
@@ -856,6 +860,7 @@ class SetRepository {
       sql = """
         Select ?member ?entailment ?name  ?exclude
         where {
+        ${value("s",iri)} 
         ?s im:entailedMember ?instance.
         ?instance im:is ?member.
         ?member rdfs:label ?name.
@@ -871,6 +876,7 @@ class SetRepository {
       sql = """
         Select ?member ?name
         where {
+         ${value("s", iri)} 
         ?s im:hasMember ?member.
         ?member rdfs:label ?name.
         }
@@ -882,7 +888,6 @@ class SetRepository {
     val resultSet: MutableList<Node> = mutableListOf()
     IMDB.getConnection().use { conn ->
       val qry = conn.prepareTupleSparql(sql)
-      qry.setBinding("s", Values.iri(iri))
       qry.evaluate().use { rs ->
         while (rs.hasNext()) {
           val bs = rs.next()
@@ -1081,6 +1086,40 @@ class SetRepository {
       sj.add("}")
       this.sendUp(sj, conn, graph)
     }
+  }
+
+  fun getSetMembers(iri: String): MutableSet<String> {
+    val spq="""
+      select ?member
+      where {
+      ${value("set", iri)}
+      ?set im:hasMember ?member.
+    
+      }
+    """.trimIndent()
+    val members = mutableSetOf<String>()
+    IMDB.getConnection().use { conn ->
+      val qry = conn.prepareTupleSparql(spq)
+      qry.evaluate().use { rs ->
+        while (rs.hasNext()) {
+          val bs = rs.next()
+          members.add(bs.getValue("member").stringValue())
+        }
+      }
+    }
+    return members;
+  }
+
+  fun getCommonParent(subclasses: Set<String>){
+    val spq="""
+      Select ?commonParent ?subclass
+      where {
+        ${valueList("subclass", subclasses.toMutableSet())}
+        ?subclass im:isA ?commonParent.
+        filter (?subclass != ?commonParent)
+        
+      }
+    """.trimIndent()
   }
 
   companion object {

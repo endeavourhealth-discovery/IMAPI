@@ -213,6 +213,9 @@ public class QueryValidator {
 
 
   private void validateWhere(Where where, String subject) throws QueryException {
+    if (where.getIri()==null&&where.getAnd()==null&&where.getOr()==null
+      &&where.getParameter()==null &&where.getPropertyRef()==null)
+      throw new QueryException("Where clause must have a property: " + where.getName());
     if (where.getIri() != null) {
       if (where.getIs() != null) {
         Node is = where.getIs().getFirst();

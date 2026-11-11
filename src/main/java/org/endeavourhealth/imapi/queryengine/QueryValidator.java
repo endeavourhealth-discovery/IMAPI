@@ -145,9 +145,6 @@ public class QueryValidator {
     if (query.getAs() != null) {
       variables.put(query.getAs(), VarType.NODE);
     }
-    if (query.getAs() != null) {
-      variables.put(query.getAs(), VarType.NODE);
-    }
     if (query.getParameter() != null) {
       variables.put(query.getParameter(), VarType.NODE);
     }
@@ -176,6 +173,8 @@ public class QueryValidator {
     }
     if (query.getFrom() != null && variables.get(query.getFrom()) == null)
       throw new QueryException("query clause contains a 'from' that has not been projected from another clause");
+    if (query.getThen()!=null)
+      validateMatch(query.getThen());
 
   }
 

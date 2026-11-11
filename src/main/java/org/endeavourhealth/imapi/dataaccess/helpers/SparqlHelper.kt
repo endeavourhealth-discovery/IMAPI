@@ -24,9 +24,11 @@ object SparqlHelper {
   }
 
   @JvmStatic
-  fun inList(param: String, size: Int): String =
-    (0 until size).joinToString(prefix = "(", postfix = ")") { "?$param$it" }
-
+  fun inList(iris: MutableCollection<String>?): String {
+    if (iris.isNullOrEmpty()) return "";
+    val value="( ${iris.joinToString(", ") { iri -> "<${Values.iri(iri).stringValue()}>"}})"
+    return value
+  }
   @JvmStatic
   fun addSparqlPrefixes(sparql: String): String {
     return """

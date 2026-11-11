@@ -6,6 +6,7 @@ import org.eclipse.rdf4j.query.BindingSet
 import org.eclipse.rdf4j.query.TupleQuery
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB
 import org.endeavourhealth.imapi.dataaccess.databases.IMDB.Companion.getConnection
+import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.inList
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.value
 import org.endeavourhealth.imapi.dataaccess.helpers.SparqlHelper.valueList
 import org.endeavourhealth.imapi.logic.reasoner.SetDefinitionCompressor
@@ -23,6 +24,7 @@ import org.endeavourhealth.imapi.model.tripletree.TTNode
 import org.endeavourhealth.imapi.vocabulary.*
 import org.slf4j.LoggerFactory
 import java.util.*
+import kotlin.collections.getOrPut
 
 
 class SetRepository {
@@ -1088,38 +1090,125 @@ class SetRepository {
     }
   }
 
-  fun getSetMembers(iri: String): MutableSet<String> {
+
+
+  fun getLevel0ParentInclusions(iri: String): MutableMap<String, MutableMap<String, MutableSet<String>>> {
     val spq="""
-      select ?member
-      where {
-      ${value("set", iri)}
-      ?set im:hasMember ?member.
-    
+      SELECT DISTINCT ?parent ?parentLabel ?inclusion ?inclusionLabel
+      WHERE {
+        ${value("set",iri)}
+        ?set im:hasMember ?parent .
+        ?parent rdfs:label ?parentLabel .
+
+        ?set im:hasMember ?inclusion .
+        ?inclusion im:isA ?parent ;
+                   im:scheme sn: ;
+                   rdfs:label ?inclusionLabel .
+        FILTER (?inclusion != ?parent)
+
+        # keep only top-level parents: not a subclass of any other member of the set
+        FILTER NOT EXISTS {
+          ?set im:hasMember ?ancestor .
+          ?parent im:isA ?ancestor .
+          FILTER (?ancestor != ?parent)
+        }
       }
     """.trimIndent()
-    val members = mutableSetOf<String>()
-    IMDB.getConnection().use { conn ->
+    val inclusions= getNInclusions(spq)
+    return inclusions;
+  }
+
+  fun addExclusions(iri: String, level0Parents: MutableMap<String, MutableMap<String, MutableSet<String>>>) {
+    val spq="""
+    Select distinct ?parent ?parentLabel ?exclusion ?exclusionLabel
+    {
+    ${value("set",iri)}
+        ?set im:hasMember ?parent.
+        ?parent rdfs:label ?parentLabel.
+        ?exclusion im:isA ?parent.
+        ?exclusion im:scheme sn:.
+        ?exclusion rdfs:label ?exclusionLabel.
+        filter not exists {
+            ?set im:hasMember ?exclusion.
+        }
+          # keep only top-level parents: not a subclass of any other member of the set
+      FILTER NOT EXISTS {
+        ?set im:hasMember ?ancestor .
+        ?parent im:isA ?ancestor .
+        FILTER (?ancestor != ?parent)
+      }
+    }
+    """.trimIndent()
+    addExclusionsToParent(level0Parents, spq)
+  }
+
+  fun getLevelNParentInclusions(members: MutableSet<String>): MutableMap<String, MutableMap<String, MutableSet<String>>> {
+    val spq="""
+      Select ?parent ?parentLabel ?inclusion
+      where {
+        ${valueList("member",members)}
+        ?member rdfs:subClassOf ?parent.
+        ?parent rdfs:label ?parentLabel.
+        ?inclusion im:isA ?parent.
+        FILTER (?inclusion = ?member)
+        FILTER NOT EXISTS {
+          ?member rdfs:subClassOf ?ancestor .
+          ?parent im:isA ?ancestor .
+          FILTER (?ancestor != ?parent)
+        }
+      }
+    """.trimIndent()
+    val inclusions= getNInclusions(spq)
+    return inclusions
+  }
+
+  private fun getNInclusions(spq: String) :MutableMap<String, MutableMap<String, MutableSet<String>>> {
+    val inclusions = mutableMapOf<String, MutableMap<String, MutableSet<String>>>()
+    getConnection().use { conn ->
       val qry = conn.prepareTupleSparql(spq)
       qry.evaluate().use { rs ->
         while (rs.hasNext()) {
           val bs = rs.next()
-          members.add(bs.getValue("member").stringValue())
+          inclusions.getOrPut(bs.getValue("parent").stringValue() as String) { mutableMapOf() }
+            .getOrPut("inclusion" as String){ mutableSetOf()}
+            .add(bs.getValue("inclusion").stringValue() as String)
         }
       }
     }
-    return members;
+    return inclusions
   }
 
-  fun getCommonParent(subclasses: Set<String>){
+
+  fun addNExclusions(
+    members: MutableSet<String>,
+    levelNParents: MutableMap<String, MutableMap<String, MutableSet<String>>>
+  ) {
     val spq="""
-      Select ?commonParent ?subclass
+      Select distinct ?parent ?parentLabel ?exclusion ?exclusionLabel
       where {
-        ${valueList("subclass", subclasses.toMutableSet())}
-        ?subclass im:isA ?commonParent.
-        filter (?subclass != ?commonParent)
-        
+      ${valueList("member",members)}
+       ?member rdfs:subClassOf ?parent.
+        ?parent rdfs:label ?parentLabel.
+        ?exclusion im:isA ?parent.
+        ?exclusion rdfs:label ?exclusionLabel.
+          FILTER (?exclusion!= ?member)
       }
     """.trimIndent()
+    addExclusionsToParent(levelNParents, spq)
+  }
+  fun addExclusionsToParent (levelNParents: MutableMap<String, MutableMap<String, MutableSet<String>>>, spq : String){
+    getConnection().use { conn ->
+      val qry = conn.prepareTupleSparql(spq)
+      qry.evaluate().use { rs ->
+        while (rs.hasNext()) {
+          val bs = rs.next()
+          val parent= levelNParents.get(bs.getValue("parent").stringValue() as String)
+          parent?.getOrPut("exclusion" as String){ mutableSetOf()}
+            ?.add(bs.getValue("exclusion").stringValue() as String)
+        }
+      }
+    }
+
   }
 
   companion object {

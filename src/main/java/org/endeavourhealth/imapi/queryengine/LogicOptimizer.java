@@ -345,10 +345,7 @@ public class LogicOptimizer {
     rewritten.setValue(negateInterval(where.getValue()));
     rewritten.setUnits(where.getUnits());
     rewritten.setNot(where.isNot());
-
-    ValueSource left = new ValueSource();
-    left.setIri("http://endhealth.info/im#dateOfBirth");
-
+    rewritten.setIri("http://endhealth.info/im#dateOfBirth");
     ValueSource right = new ValueSource();
     right.setParameter("$searchDate");
 

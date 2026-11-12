@@ -77,6 +77,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
   private fun generateSQL(definition: Query): String {
     ctx.resetPerQueryState()
     requireTypeOf(definition)
+    ctx.mainEntityNames = mainEntityNamesOf(definition)
 
     if (definition.columnGroup != null) {
       // each column group compiles its own query
@@ -123,6 +124,10 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     filterInjector.injectPatientFilter(query)
   }
 
+  /** The names QueryValidator may have assigned to returns without a nodeRef, for this query's subject. */
+  private fun mainEntityNamesOf(definition: Query): Set<String> =
+    setOfNotNull(ConversionContext.DEFAULT_MAIN_ENTITY, definition.`as`, definition.parameter?.replace("$", ""))
+
   private fun requireTypeOf(definition: Query) {
     if (definition.typeOf == null || definition.typeOf.iri == null) {
       throw SQLConversionException("Query typeOf is null")
@@ -138,6 +143,7 @@ class IMQtoSQLConverterKotlin @JvmOverloads constructor(
     }
     ctx.resetPerQueryState()
     requireTypeOf(definition)
+    ctx.mainEntityNames = mainEntityNamesOf(definition)
 
     val mySqlQuery = MySQLQuery()
     matchCompiler.addMatchWithsRecursively(definition, mySqlQuery)

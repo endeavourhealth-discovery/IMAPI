@@ -19,3 +19,4 @@ gradle.properties
 /src/main/resources/casdoor-cert.txt
 .ollamassist
 /scripts/fhir-expand-gold/
+/src/main/.sonar/spring-context-model.json

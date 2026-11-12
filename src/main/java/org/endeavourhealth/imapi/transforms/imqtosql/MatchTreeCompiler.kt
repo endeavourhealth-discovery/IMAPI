@@ -85,9 +85,9 @@ internal class MatchTreeCompiler(
   }
 
   private fun addGroupBody(currentMatch: Query, mySqlQuery: MySQLQuery) {
+    if (currentMatch.`is` != null) mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
     if (currentMatch.and != null) addAnds(currentMatch, mySqlQuery)
     if (currentMatch.or != null) addOrs(currentMatch, mySqlQuery)
-    if (currentMatch.`is` != null) mySqlQuery.withs.add(getIsWith(currentMatch, mySqlQuery))
   }
 
   private fun addNotExistsGroup(group: Query, mySqlQuery: MySQLQuery) {

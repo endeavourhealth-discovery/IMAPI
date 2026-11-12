@@ -13,6 +13,13 @@ internal class ConversionContext(private val tableMap: TableMap) {
   /** The table of the query's `typeOf`; set before any compiler runs. */
   lateinit var queryTypeOfTable: Table
 
+  /**
+   * Names that refer to the query's own subject: QueryValidator assigns one of these (the query's `as`, else its
+   * parameter, else `entity`) to returns that have no nodeRef, and the query may since have been given an `as`.
+   * A return referencing one, when no match binds that name, means the current step's own table.
+   */
+  var mainEntityNames: Set<String> = setOf(DEFAULT_MAIN_ENTITY)
+
   val aliases = AliasAllocator()
   val keepAsMap = HashMap<String, MySQLWith>()
   val nodePathContextMap = HashMap<String, NodePathContext>()
@@ -27,5 +34,9 @@ internal class ConversionContext(private val tableMap: TableMap) {
     aliases.reset()
     nodePathContextMap.clear()
     keepAsMap.clear()
+  }
+
+  companion object {
+    const val DEFAULT_MAIN_ENTITY = "entity"
   }
 }

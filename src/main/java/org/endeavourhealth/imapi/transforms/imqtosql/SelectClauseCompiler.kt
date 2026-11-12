@@ -232,14 +232,16 @@ internal class SelectClauseCompiler(private val ctx: ConversionContext) {
     nodeToTableMap: HashMap<String, Table>,
     currentWithTable: Table
   ) {
-    if (returnProperty.nodeRef != null) {
+    // a nodeRef to the query's own subject (unless a match rebinds that name) means the current step's table
+    val isMainEntityRef = returnProperty.nodeRef in ctx.mainEntityNames && !nodeToTableMap.containsKey(returnProperty.nodeRef)
+    if (returnProperty.nodeRef != null && !isMainEntityRef) {
       getDegradedNodeRefSelect(returnProperty.nodeRef, returnProperty.iri)?.let {
         selects.add(MySQLSelect(it, returnProperty.`as`))
         return
       }
 
       val currentTable = nodeToTableMap[returnProperty.nodeRef]
-        ?: throw SQLConversionException("No table exists for ${returnProperty.iri}")
+        ?: throw SQLConversionException("No table exists for node ${returnProperty.nodeRef} (return ${returnProperty.iri})")
 
       val property = getPropertyNameByTableAndPropertyIri(currentTable, returnProperty.iri)
       val field = qualifyField(currentTable.alias ?: currentTable.table, property.field)

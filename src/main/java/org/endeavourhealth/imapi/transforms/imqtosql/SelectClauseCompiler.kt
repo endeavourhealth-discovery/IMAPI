@@ -226,15 +226,25 @@ internal class SelectClauseCompiler(private val ctx: ConversionContext) {
     return degraded.replace("{table}", parentTableRef)
   }
 
+  /**
+   * Whether a return reads from the current step's own table: no nodeRef, a nodeRef to the query's own subject (unless a
+   * match rebinds that name), or a nodeRef to the step itself (its own `as`). Such returns must honour functional joins.
+   * A path node never is, even one that degraded to the step's table: its returns resolve through the path field's returnAs.
+   */
+  fun isOwnTableReturn(ret: Return, nodeToTableMap: Map<String, Table>, currentWithTable: Table): Boolean {
+    val nodeRef = ret.nodeRef ?: return true
+    if (nodeRef in ctx.nodePathContextMap) return false
+    if (nodeRef in ctx.mainEntityNames && !nodeToTableMap.containsKey(nodeRef)) return true
+    return nodeToTableMap[nodeRef] === currentWithTable
+  }
+
   private fun addSelectFromProperty(
     returnProperty: Return,
     selects: MutableList<MySQLSelect>,
     nodeToTableMap: HashMap<String, Table>,
     currentWithTable: Table
   ) {
-    // a nodeRef to the query's own subject (unless a match rebinds that name) means the current step's table
-    val isMainEntityRef = returnProperty.nodeRef in ctx.mainEntityNames && !nodeToTableMap.containsKey(returnProperty.nodeRef)
-    if (returnProperty.nodeRef != null && !isMainEntityRef) {
+    if (!isOwnTableReturn(returnProperty, nodeToTableMap, currentWithTable)) {
       getDegradedNodeRefSelect(returnProperty.nodeRef, returnProperty.iri)?.let {
         selects.add(MySQLSelect(it, returnProperty.`as`))
         return

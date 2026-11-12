@@ -354,7 +354,7 @@ internal class MatchTreeCompiler(
   }
 
   private fun addSelects(match: Query, mySQLQuery: MySQLQuery, with: MySQLWith, isReferencedElsewhere: Boolean) {
-    if (match.`return` != null) addReturnFunctionalJoins(match, with)
+    if (match.`return` != null) addReturnFunctionalJoins(match, with, mySQLQuery.nodeToTableMap)
     val isAggregate = match.`return`?.any { it.function?.iri == COUNT_FUNCTION_IRI } == true
     // an aggregate collapses rows to one per entity, so only grouped columns can be selected, not table.*
     if (isReferencedElsewhere && !isAggregate) {
@@ -404,9 +404,9 @@ internal class MatchTreeCompiler(
   }
 
   /** Joins the tables holding functional properties returned directly from this match's own table. */
-  private fun addReturnFunctionalJoins(match: Query, with: MySQLWith) {
+  private fun addReturnFunctionalJoins(match: Query, with: MySQLWith, nodeToTableMap: Map<String, Table>) {
     for (ret in match.`return`) {
-      if (ret.iri == null || ret.nodeRef != null) continue
+      if (ret.iri == null || !selectCompiler.isOwnTableReturn(ret, nodeToTableMap, with.table)) continue
       val field = getPropertyNameByTableAndPropertyIri(with.table, ret.iri)
       if (field.join == null) continue
       val fromRef = with.fromAlias ?: with.table.alias ?: with.table.table

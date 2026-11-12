@@ -266,6 +266,7 @@ class SetRepository {
 
         val scheme = bs.getValue("scheme")
         if (cl == null) {
+          val resultSet = resultBySet.computeIfAbsent(setKey) { hashSetOf() }
           cl = buildConcept(
             concept,
             conceptKey,
